@@ -31,43 +31,43 @@
 namespace Main
 {
 
-  //
-  // CreateMainWindow
-  //
-  // Window initialization
-  //
-  HWND CreateMainWindow()
-  {
-    return CreateGameWindow("Dark Reign II");
-  }
-
-
-  //
-  // ExecInitialConfig
-  //
-  // Executes the config file for this application
-  //
-  void ExecInitialConfig()
-  {
-    PTree pTree;
-
-    // Attempt to open the file
-    if (pTree.AddFile(APPLICATION_CONFIGFILE))
+    //
+    // CreateMainWindow
+    //
+    // Window initialization
+    //
+    HWND CreateMainWindow()
     {
-      // Find our startup scope
-      FScope *fScope = pTree.GetGlobalScope()->GetFunction("StartupConfig", FALSE);
+        return CreateGameWindow("Dark Reign II");
+    }
 
-      // Config is not required
-      if (fScope)
-      {
-        Main::ProcessCmdScope(fScope);
-      }
-    }
-    else
+
+    //
+    // ExecInitialConfig
+    //
+    // Executes the config file for this application
+    //
+    void ExecInitialConfig()
     {
-      ERR_FATAL(("Unable to execute the required file '%s'", APPLICATION_CONFIGFILE));    
+        PTree pTree;
+
+        // Attempt to open the file
+        if (pTree.AddFile(APPLICATION_CONFIGFILE))
+        {
+            // Find our startup scope
+            FScope* fScope = pTree.GetGlobalScope()->GetFunction("StartupConfig", FALSE);
+
+            // Config is not required
+            if (fScope)
+            {
+                Main::ProcessCmdScope(fScope);
+            }
+        }
+        else
+        {
+            ERR_FATAL(("Unable to execute the required file '%s'", APPLICATION_CONFIGFILE));
+        }
     }
-  }
 }
 
 
@@ -79,32 +79,32 @@ namespace Main
 //
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR cmdLine, int)
 {
-  Utils::FP::Reset();
+    Utils::FP::Reset();
 
-  // Initialize the main system
-  Main::Init(hInst, cmdLine);
+    // Initialize the main system
+    Main::Init(hInst, cmdLine);
 
-  // Register application specific run codes
-  Main::runCodes.Register("KeyCheck" , GameRunCodes::KeyCheck::Process, GameRunCodes::KeyCheck::Init, GameRunCodes::KeyCheck::Done, NULL, GameRunCodes::KeyCheck::Notify);
-  Main::runCodes.Register("Intro" , GameRunCodes::Intro::Process, GameRunCodes::Intro::Init, GameRunCodes::Intro::Done);
-  Main::runCodes.Register("Login" , GameRunCodes::Login::Process, GameRunCodes::Login::Init, GameRunCodes::Login::Done, NULL, GameRunCodes::Login::Notify);
-  Main::runCodes.Register("Shell" , GameRunCodes::Shell::Process, GameRunCodes::Shell::Init, GameRunCodes::Shell::Done);
-  Main::runCodes.Register("Mission", GameRunCodes::Mission::Process, GameRunCodes::Mission::Init, GameRunCodes::Mission::Done);
-  Main::runCodes.Register("Outro" , GameRunCodes::Outro::Process, GameRunCodes::Outro::Init, GameRunCodes::Outro::Done);
-  
-  #ifdef DEMO
-    #pragma message("Studio disabled")
-    #pragma message("MeshView disabled")
-  #else
+    // Register application specific run codes
+    Main::runCodes.Register("KeyCheck", GameRunCodes::KeyCheck::Process, GameRunCodes::KeyCheck::Init, GameRunCodes::KeyCheck::Done, NULL, GameRunCodes::KeyCheck::Notify);
+    Main::runCodes.Register("Intro", GameRunCodes::Intro::Process, GameRunCodes::Intro::Init, GameRunCodes::Intro::Done);
+    Main::runCodes.Register("Login", GameRunCodes::Login::Process, GameRunCodes::Login::Init, GameRunCodes::Login::Done, NULL, GameRunCodes::Login::Notify);
+    Main::runCodes.Register("Shell", GameRunCodes::Shell::Process, GameRunCodes::Shell::Init, GameRunCodes::Shell::Done);
+    Main::runCodes.Register("Mission", GameRunCodes::Mission::Process, GameRunCodes::Mission::Init, GameRunCodes::Mission::Done);
+    Main::runCodes.Register("Outro", GameRunCodes::Outro::Process, GameRunCodes::Outro::Init, GameRunCodes::Outro::Done);
+
+#ifdef DEMO
+#pragma message("Studio disabled")
+#pragma message("MeshView disabled")
+#else
     Main::runCodes.Register("Studio", Studio::Process, Studio::Init, Studio::Done, Studio::PostInit);
     //Main::runCodes.Register("MeshView", MeshView::Process, MeshView::Init, MeshView::Done);
-  #endif
+#endif
 
-  // Run the game
-  Debug::Exception::Handler(GameGod::Start);
+    // Run the game
+    Debug::Exception::Handler(GameGod::Start);
 
-  // Shutdown main system
-  Main::Done();
+    // Shutdown main system
+    Main::Done();
 
-  return 0;
+    return 0;
 }

@@ -24,13 +24,13 @@
 //
 
 // Version block identifier
-static const char *VersionBlock = "PTree Binary File";
+static const char* VersionBlock = "PTree Binary File";
 
 // FScope block identifier
-static const char *FScopeBlock = "FScope Data";
+static const char* FScopeBlock = "FScope Data";
 
 // Symbol block identifer
-static const char *SymbolBlock = "Symbol Data";
+static const char* SymbolBlock = "Symbol Data";
 
 // Current PTree binary version
 static const U32 Version = 1;
@@ -39,60 +39,60 @@ static const U32 Version = 1;
 //
 // Store all unique symbols in a tree
 //
-static void BuildSymbols(BinTree<const char> &sym, FScope *fScope)
+static void BuildSymbols(BinTree<const char>& sym, FScope* fScope)
 {
-  VNode *bNode;
+    VNode* bNode;
 
-  // reset the iterators
-  fScope->InitIterators();
+    // reset the iterators
+    fScope->InitIterators();
 
-  // write contents
-  while ((bNode = fScope->NextBodyVNode()) != NULL)
-  {
-    // Descend into sub scopes
-    if (bNode->nType == VNode::NT_SCOPE)
+    // write contents
+    while ((bNode = fScope->NextBodyVNode()) != NULL)
     {
-      FScope *sScope = bNode->GetScope();
+        // Descend into sub scopes
+        if (bNode->nType == VNode::NT_SCOPE)
+        {
+            FScope* sScope = bNode->GetScope();
 
-      U32 crc = sScope->NameCrc();
+            U32 crc = sScope->NameCrc();
 
-      // Add unique symbols to the tree
-      const char *found = sym.Find(crc);
+            // Add unique symbols to the tree
+            const char* found = sym.Find(crc);
 
-      if (!found)
-      {
-        const char *str = sScope->NameStr();
-        sym.Add(crc, str);
-      }
+            if (!found)
+            {
+                const char* str = sScope->NameStr();
+                sym.Add(crc, str);
+            }
 
 #ifdef DEVELOPMENT
-      else
-      {
-        if (Utils::Stricmp(found, sScope->NameStr()))
-        {
-          ERR_FATAL(("Uh-oh Crc 0x%.8X for '%s' and '%s'", crc, found, sScope->NameStr()))
-        }
-      }
+            else
+            {
+                if (Utils::Stricmp(found, sScope->NameStr()))
+                {
+                    ERR_FATAL(("Uh-oh Crc 0x%.8X for '%s' and '%s'", crc, found, sScope->NameStr()))
+                }
+            }
 #endif
 
-      BuildSymbols(sym, sScope);
+            BuildSymbols(sym, sScope);
+        }
     }
-  }
 }
 
 
 //
 // Constructor
 //
-PTree::PTree(Bool useCrc, U32 crc) 
-: gScope(NULL, "GlobalScope"), 
-  tBuf(NULL), 
-  binaryData(NULL),
-  useCrc(useCrc),
-  crc(crc)
+PTree::PTree(Bool useCrc, U32 crc)
+    : gScope(NULL, "GlobalScope"),
+    tBuf(NULL),
+    binaryData(NULL),
+    useCrc(useCrc),
+    crc(crc)
 {
-  // Clear last error string
-  *lastError = '\0';
+    // Clear last error string
+    *lastError = '\0';
 }
 
 
@@ -101,13 +101,13 @@ PTree::PTree(Bool useCrc, U32 crc)
 //
 PTree::~PTree()
 {
-  // Clear stack
-  while (tBuf)
-  {
-    TBuf *next = tBuf->listNext;
-    delete tBuf;
-    tBuf = next;
-  }
+    // Clear stack
+    while (tBuf)
+    {
+        TBuf* next = tBuf->listNext;
+        delete tBuf;
+        tBuf = next;
+    }
 }
 
 
@@ -117,130 +117,130 @@ PTree::~PTree()
 // Reads 'fName', adding to the scope 'fScope'.
 // False if an error occured, use LastError
 //
-Bool PTree::AddFileToScope(const char *fName, FScope *fScope)
+Bool PTree::AddFileToScope(const char* fName, FScope* fScope)
 {
-  ASSERT(fName);
-  ASSERT(fScope);
+    ASSERT(fName);
+    ASSERT(fScope);
 
-  // Binary block file
-  BlockFile bFile;
-  Bool binaryOk = FALSE;
-  
-  // Try and read binary file first
-  if (bFile.Open(fName, BlockFile::READ, FALSE))
-  {
-    // Is this a supported version
-    if (bFile.OpenBlock(VersionBlock))
+    // Binary block file
+    BlockFile bFile;
+    Bool binaryOk = FALSE;
+
+    // Try and read binary file first
+    if (bFile.Open(fName, BlockFile::READ, FALSE))
     {
-      U32 ver;
-      bFile.ReadFromBlock(&ver, 4);
-      bFile.CloseBlock();
+        // Is this a supported version
+        if (bFile.OpenBlock(VersionBlock))
+        {
+            U32 ver;
+            bFile.ReadFromBlock(&ver, 4);
+            bFile.CloseBlock();
 
-      switch (ver)
-      {
-        case 1:
-          binaryOk = TRUE;
-          break;
-      }
-    }
-  }
-
-  if (binaryOk)
-  {
-    U32 size;
-
-    // Read symbol data
-    if (bFile.OpenBlock(SymbolBlock, FALSE, &size))
-    {
-      binaryData = binaryPos = (char *)bFile.GetBlockPtr();
-      binaryRemaining = size;
-
-      BinReadSymbols(symbols);
-      bFile.CloseBlock();
+            switch (ver)
+            {
+            case 1:
+                binaryOk = TRUE;
+                break;
+            }
+        }
     }
 
-    // Read fscope data
-    if (bFile.OpenBlock(FScopeBlock, FALSE, &size))
+    if (binaryOk)
     {
-      binaryData = binaryPos = (char *)bFile.GetBlockPtr();
-      binaryRemaining = size;
+        U32 size;
 
-      if (useCrc)
-      {
-        crc = Crc::Calc((char *)bFile.GetBlockPtr(), size, crc);
-      }
+        // Read symbol data
+        if (bFile.OpenBlock(SymbolBlock, FALSE, &size))
+        {
+            binaryData = binaryPos = (char*)bFile.GetBlockPtr();
+            binaryRemaining = size;
 
-      BinReadFunctionContents(fScope);
-      bFile.CloseBlock();
+            BinReadSymbols(symbols);
+            bFile.CloseBlock();
+        }
+
+        // Read fscope data
+        if (bFile.OpenBlock(FScopeBlock, FALSE, &size))
+        {
+            binaryData = binaryPos = (char*)bFile.GetBlockPtr();
+            binaryRemaining = size;
+
+            if (useCrc)
+            {
+                crc = Crc::Calc((char*)bFile.GetBlockPtr(), size, crc);
+            }
+
+            BinReadFunctionContents(fScope);
+            bFile.CloseBlock();
+        }
+
+        // Delete all symbols
+        symbols.UnlinkAll();
+
+        bFile.CloseBlock();
+        bFile.Close();
+    }
+    else
+    {
+        // handle to file from file system
+        FileSys::DataFile* file = FileSys::Open(fName);
+
+        // didn't find the file
+        if (!file)
+        {
+            Utils::Sprintf(lastError, 256, "Unable to open file '%s'", fName);
+            return (FALSE);
+        }
+
+        // get the size of the file
+        U32 fileSize = file->Size();
+
+        // ignore if size is zero
+        if (!fileSize)
+        {
+            FileSys::Close(file);
+            return (TRUE);
+        }
+
+        if (useCrc)
+        {
+            crc = Crc::Calc(file->GetMemoryPtr(), file->Size(), crc);
+        }
+
+        // Get poitner to start of file
+        char* fileData = (char*)file->GetMemoryPtr();
+
+        // allocate a new token reader
+        TBuf* newTBuf = new TBuf;
+
+        // place on top of stack
+        newTBuf->listNext = tBuf;
+        tBuf = newTBuf;
+
+        // setup buffer
+        tBuf->Setup(fileData, fileSize, fName);
+
+        // setup character types
+        tBuf->SetCharType(PTREE_PUNCTUATION, TBuf::PUNCTUATION);
+        tBuf->SetCharType(PTREE_COMMENTS, TBuf::COMMENT);
+
+        // add contents to given scope
+        while (ParseFunctionContents(fScope) != TR_EOF);
+
+        // close the file
+        tBuf->Done();
+
+        // remove from stack
+        newTBuf = tBuf;
+        tBuf = tBuf->listNext;
+        delete newTBuf;
+
+        // close the file
+        FileSys::Close(file);
     }
 
-    // Delete all symbols
-    symbols.UnlinkAll();
-
-    bFile.CloseBlock();
-    bFile.Close();
-  }
-  else
-  {
-    // handle to file from file system
-    FileSys::DataFile *file = FileSys::Open(fName);
-
-    // didn't find the file
-    if (!file)
-    {
-      Utils::Sprintf(lastError, 256, "Unable to open file '%s'", fName);
-      return (FALSE);
-    }
-
-    // get the size of the file
-    U32 fileSize = file->Size();
-
-    // ignore if size is zero
-    if (!fileSize)
-    {
-      FileSys::Close(file);
-      return (TRUE);
-    }
-
-    if (useCrc)
-    {
-      crc = Crc::Calc(file->GetMemoryPtr(), file->Size(), crc);
-    }
-
-    // Get poitner to start of file
-    char *fileData = (char *)file->GetMemoryPtr();
-
-    // allocate a new token reader
-    TBuf *newTBuf = new TBuf;
-
-    // place on top of stack
-    newTBuf->listNext = tBuf;
-    tBuf = newTBuf;
-
-    // setup buffer
-    tBuf->Setup(fileData, fileSize, fName);
-
-    // setup character types
-    tBuf->SetCharType(PTREE_PUNCTUATION, TBuf::PUNCTUATION);
-    tBuf->SetCharType(PTREE_COMMENTS, TBuf::COMMENT);
-
-    // add contents to given scope
-    while (ParseFunctionContents(fScope) != TR_EOF);
-
-    // close the file
-    tBuf->Done();
-
-    // remove from stack
-    newTBuf = tBuf;
-    tBuf = tBuf->listNext;
-    delete newTBuf;
-
-    // close the file
-    FileSys::Close(file);
-  }
-
-  // success
-  return (TRUE);
+    // success
+    return (TRUE);
 }
 
 
@@ -250,12 +250,12 @@ Bool PTree::AddFileToScope(const char *fName, FScope *fScope)
 // Reads 'fName', adding to the global scope
 // False if an error occured, use LastError
 //
-Bool PTree::AddFile(const char *fName)
+Bool PTree::AddFile(const char* fName)
 {
-  return (AddFileToScope(fName, &gScope));
+    return (AddFileToScope(fName, &gScope));
 }
 
-  
+
 //
 // PTree::GetGlobalScope
 //
@@ -263,8 +263,8 @@ Bool PTree::AddFile(const char *fName)
 //
 FScope* PTree::GetGlobalScope()
 {
-  gScope.InitIterators();
-  return (&gScope);
+    gScope.InitIterators();
+    return (&gScope);
 }
 
 
@@ -276,20 +276,20 @@ FScope* PTree::GetGlobalScope()
 //
 void PTree::PeekPunctuation()
 {
-  switch (tBuf->PeekToken())
-  {
+    switch (tBuf->PeekToken())
+    {
     case TR_OK:
-      tBuf->ExpectError("punctuation", tBuf->peekToken);
+        tBuf->ExpectError("punctuation", tBuf->peekToken);
 
     case TR_EOF:
-      tBuf->EofError("punctuation");
+        tBuf->EofError("punctuation");
 
     case TR_PUN:
-      break;
+        break;
 
     default:
-      ERR_FATAL(("Missing case"));
-  } 
+        ERR_FATAL(("Missing case"));
+    }
 }
 
 
@@ -298,12 +298,12 @@ void PTree::PeekPunctuation()
 //
 // checks to make sure 'ident' is a legal identifier name
 //
-void PTree::CheckLegalIdent(const char *ident)
+void PTree::CheckLegalIdent(const char* ident)
 {
-  if (!FScope::IsLegalIdent(ident))
-  {
-    tBuf->TokenError("Illegal identifier name '%s'", ident);
-  }
+    if (!FScope::IsLegalIdent(ident))
+    {
+        tBuf->TokenError("Illegal identifier name '%s'", ident);
+    }
 }
 
 
@@ -318,45 +318,45 @@ void PTree::CheckLegalIdent(const char *ident)
 // TR_OK - the finishing '}' was read
 // TR_EOF - end of file was reached
 //
-TBufResult PTree::ParseFunctionContents(FScope *fScope)
+TBufResult PTree::ParseFunctionContents(FScope* fScope)
 {
-  ASSERT(fScope);
+    ASSERT(fScope);
 
-  // parse contents until closing brace or eof
-  for (;;)
-  {
-    // peek at the next token
-    switch (tBuf->PeekToken())
+    // parse contents until closing brace or eof
+    for (;;)
     {
-      // some construct
-      case TR_OK:
-        ParseFunctionConstruct(fScope);
-        break;
-      
-      // some form of punctuation      
-      case TR_PUN:       
-        switch (*tBuf->peekToken)
+        // peek at the next token
+        switch (tBuf->PeekToken())
         {
-          // do pre-processor directive
-          case '#':
-            ParseDirective(fScope);
+            // some construct
+        case TR_OK:
+            ParseFunctionConstruct(fScope);
             break;
 
-          // only other option is to close function
-          default:
-            tBuf->Accept("}");
-            return (TR_OK);
+            // some form of punctuation      
+        case TR_PUN:
+            switch (*tBuf->peekToken)
+            {
+                // do pre-processor directive
+            case '#':
+                ParseDirective(fScope);
+                break;
+
+                // only other option is to close function
+            default:
+                tBuf->Accept("}");
+                return (TR_OK);
+            }
+            break;
+
+            // reached the end of the file
+        case TR_EOF:
+            return (TR_EOF);
+
+        default:
+            ERR_FATAL(("Missing case"));
         }
-        break;
-
-      // reached the end of the file
-      case TR_EOF:
-        return (TR_EOF);
-
-      default:
-        ERR_FATAL(("Missing case"));
-    }    
-  }
+    }
 }
 
 
@@ -367,75 +367,75 @@ TBufResult PTree::ParseFunctionContents(FScope *fScope)
 // eg. FunctionName(); or var = 5;  returns once that construct 
 // has been completely parsed.
 //
-void PTree::ParseFunctionConstruct(FScope *fScope)
+void PTree::ParseFunctionConstruct(FScope* fScope)
 {
-  ASSERT(fScope);
+    ASSERT(fScope);
 
-  // accept the identifier
-  tBuf->AcceptIdent();
+    // accept the identifier
+    tBuf->AcceptIdent();
 
-  // peek at punctuation
-  PeekPunctuation();
+    // peek at punctuation
+    PeekPunctuation();
 
-  // do specific parsing operations
-  switch (*tBuf->peekToken)
-  {
-    // variable assignment
+    // do specific parsing operations
+    switch (*tBuf->peekToken)
+    {
+        // variable assignment
     case '=':
-      ParseVariable(fScope);
-      break;
+        ParseVariable(fScope);
+        break;
 
-    // sub-function
+        // sub-function
     case '(':
     {
-      // make sure legal function name
-      CheckLegalIdent(tBuf->lastToken);
-      
-      // parse the function arguments
-      FScope *newScope = ParseFunctionArguments(fScope);
+        // make sure legal function name
+        CheckLegalIdent(tBuf->lastToken);
 
-      // accept '{' or ';'
-      if (tBuf->NextToken() == TR_PUN)
-      {
-        switch (*tBuf->lastToken)
+        // parse the function arguments
+        FScope* newScope = ParseFunctionArguments(fScope);
+
+        // accept '{' or ';'
+        if (tBuf->NextToken() == TR_PUN)
         {
-          // parse function body
-          case '{':
-
-            // require a '}' to be found
-            if (ParseFunctionContents(newScope) == TR_EOF)
+            switch (*tBuf->lastToken)
             {
-              tBuf->EofError("'}'"); 
+                // parse function body
+            case '{':
+
+                // require a '}' to be found
+                if (ParseFunctionContents(newScope) == TR_EOF)
+                {
+                    tBuf->EofError("'}'");
+                }
+                break;
+
+                // no function body
+            case ';':
+                break;
+
+            default:
+                tBuf->ExpectError("'{' or ';'", tBuf->lastToken);
             }
-            break;
-
-          // no function body
-          case ';':
-            break;
-
-          default:
+        }
+        else
+        {
             tBuf->ExpectError("'{' or ';'", tBuf->lastToken);
         }
-      }
-      else
-      {
-        tBuf->ExpectError("'{' or ';'", tBuf->lastToken);
-      }
-      break;
+        break;
     }
-        
+
     // enumeration
     case '{':
-      if (Utils::Strcmp(tBuf->lastToken, "enum"))
-      {
-        tBuf->ExpectError("enum", tBuf->lastToken);
-      }
-      ParseEnumeration(fScope);
-      break;
+        if (Utils::Strcmp(tBuf->lastToken, "enum"))
+        {
+            tBuf->ExpectError("enum", tBuf->lastToken);
+        }
+        ParseEnumeration(fScope);
+        break;
 
     default:
-      tBuf->ExpectError("function scope construct", tBuf->peekToken);
-  }
+        tBuf->ExpectError("function scope construct", tBuf->peekToken);
+    }
 }
 
 
@@ -446,63 +446,63 @@ void PTree::ParseFunctionConstruct(FScope *fScope)
 // next token will be '#'.  'fScope' is the scope in which the 
 // command is being executed.
 // 
-void PTree::ParseDirective(FScope *fScope)
+void PTree::ParseDirective(FScope* fScope)
 {
-  // accept the directive char
-  tBuf->Accept("#");
+    // accept the directive char
+    tBuf->Accept("#");
 
-  // accept the directive identifier
-  tBuf->AcceptIdent();
+    // accept the directive identifier
+    tBuf->AcceptIdent();
 
-  // do specific operation
-  switch (Crc::CalcStr(tBuf->lastToken))
-  {
+    // do specific operation
+    switch (Crc::CalcStr(tBuf->lastToken))
+    {
     case 0x8CBCE90A: // "include"
     {
-      tBuf->Accept("\"");
-      tBuf->ReadConstant('"');
-      tBuf->AcceptIdent();
-      tBuf->Accept("\"");
+        tBuf->Accept("\"");
+        tBuf->ReadConstant('"');
+        tBuf->AcceptIdent();
+        tBuf->Accept("\"");
 
-      // add the file to the current scope
-      if (!AddFileToScope(tBuf->prevToken, fScope))
-      {
-        tBuf->TokenError("#include error : %s", LastError());
-      }
-      break;
+        // add the file to the current scope
+        if (!AddFileToScope(tBuf->prevToken, fScope))
+        {
+            tBuf->TokenError("#include error : %s", LastError());
+        }
+        break;
     }
 
     case 0x6282142B: // "log"
     {
-      tBuf->Accept("\"");
-      tBuf->ReadConstant('"');
-      tBuf->AcceptIdent();
-      tBuf->Accept("\"");
-      LOG_DIAG(("%s(%d): %s", tBuf->BufferName(), tBuf->CurrentLine(), tBuf->prevToken));
-      break;
+        tBuf->Accept("\"");
+        tBuf->ReadConstant('"');
+        tBuf->AcceptIdent();
+        tBuf->Accept("\"");
+        LOG_DIAG(("%s(%d): %s", tBuf->BufferName(), tBuf->CurrentLine(), tBuf->prevToken));
+        break;
     }
-  
+
     case 0x8D39DDCB: // "dumpvar"
     {
-      tBuf->Accept("(");
-      tBuf->AcceptIdent();
-      
-      U32 crc = Crc::CalcStr(tBuf->lastToken);
-      VNode *varNode = fScope->FindVariableInScope(crc);
+        tBuf->Accept("(");
+        tBuf->AcceptIdent();
 
-      LOG_DIAG
-      ((
-        "%s(%d): #dumpvar(%s) = %s", tBuf->BufferName(), tBuf->CurrentLine(),
-        tBuf->lastToken, (varNode) ? varNode->StringForm() : "NOT FOUND!"
-      ));
+        U32 crc = Crc::CalcStr(tBuf->lastToken);
+        VNode* varNode = fScope->FindVariableInScope(crc);
 
-      tBuf->Accept(")");
-      break;
+        LOG_DIAG
+        ((
+            "%s(%d): #dumpvar(%s) = %s", tBuf->BufferName(), tBuf->CurrentLine(),
+            tBuf->lastToken, (varNode) ? varNode->StringForm() : "NOT FOUND!"
+            ));
+
+        tBuf->Accept(")");
+        break;
     }
 
     default:
-      tBuf->TokenError("Unknown pre-processor directive '%s'", tBuf->lastToken);
-  }
+        tBuf->TokenError("Unknown pre-processor directive '%s'", tBuf->lastToken);
+    }
 }
 
 
@@ -514,52 +514,52 @@ void PTree::ParseDirective(FScope *fScope)
 // 'fScope' is the enclosing scope. returns a pointer to a new function
 // scope when the closing ')' has been read.
 //
-FScope* PTree::ParseFunctionArguments(FScope *fScope)
+FScope* PTree::ParseFunctionArguments(FScope* fScope)
 {
-  ASSERT(fScope);
- 
-  // allocate a new function scope
-  FScope *newScope = new FScope(fScope, tBuf->lastToken);
+    ASSERT(fScope);
 
-  // new argument value
-  VNode *newNode;
+    // allocate a new function scope
+    FScope* newScope = new FScope(fScope, tBuf->lastToken);
 
-  // do we require an argument
-  Bool reqArg = FALSE;
+    // new argument value
+    VNode* newNode;
 
-  // continue until closing bracket is read
-  do
-  {
-    // accept '(' or ','
-    tBuf->AcceptPunct();
+    // do we require an argument
+    Bool reqArg = FALSE;
 
-    // add a new argument
-    newNode = ParseVNodeData(newScope);
-
-    if (newNode)
+    // continue until closing bracket is read
+    do
     {
-      // add to function argument list
-      newScope->argList.Append(newNode);
-    }
-    else
-    {
-      // did we require an argument
-      if (reqArg)
-      {
-        tBuf->ExpectError("function argument", tBuf->lastToken);
-      }
-    }
-    
-    // if continue from here, require argument, eg. "5,)"
-    reqArg = TRUE;
+        // accept '(' or ','
+        tBuf->AcceptPunct();
 
-  } while (*tBuf->peekToken == ',');
-        
-  // must be closing bracket
-  tBuf->Accept(")");
+        // add a new argument
+        newNode = ParseVNodeData(newScope);
 
-  // return the new function scope
-  return (newScope);
+        if (newNode)
+        {
+            // add to function argument list
+            newScope->argList.Append(newNode);
+        }
+        else
+        {
+            // did we require an argument
+            if (reqArg)
+            {
+                tBuf->ExpectError("function argument", tBuf->lastToken);
+            }
+        }
+
+        // if continue from here, require argument, eg. "5,)"
+        reqArg = TRUE;
+
+    } while (*tBuf->peekToken == ',');
+
+    // must be closing bracket
+    tBuf->Accept(")");
+
+    // return the new function scope
+    return (newScope);
 }
 
 
@@ -571,62 +571,62 @@ FScope* PTree::ParseFunctionArguments(FScope *fScope)
 // within the scope 'fScope'.  returns when the terminating ';'
 // char is read.
 //
-void PTree::ParseVariable(FScope *fScope)
+void PTree::ParseVariable(FScope* fScope)
 {
-  TokenStr varName;
-  VNode *varNode, *valNode;
+    TokenStr varName;
+    VNode* varNode, * valNode;
 
-  // save the variable name
-  Utils::Strcpy(varName, tBuf->lastToken);
+    // save the variable name
+    Utils::Strcpy(varName, tBuf->lastToken);
 
-  // make sure legal variable name
-  CheckLegalIdent(varName);
+    // make sure legal variable name
+    CheckLegalIdent(varName);
 
-  // accept the equals
-  tBuf->Accept("=");
+    // accept the equals
+    tBuf->Accept("=");
 
-  // get the assigned value
-  valNode = ParseVNodeData(fScope);
+    // get the assigned value
+    valNode = ParseVNodeData(fScope);
 
-  if (valNode)
-  {
-    // calculate the crc of our identifier
-    U32 crc = Crc::CalcStr(varName);
-
-    // are we just changing the value of an existing variable
-    varNode = fScope->FindVariableInScope(crc);
-
-    if (varNode)
+    if (valNode)
     {
-      // make sure atomic type hasn't changed
-      if (valNode->aType != varNode->aType)
-      {
-        tBuf->TokenError("Atomic type of '%s' is different to previous definition", varName);
-      }
+        // calculate the crc of our identifier
+        U32 crc = Crc::CalcStr(varName);
 
-      // clear the variable VNode
-      varNode->Clear();
+        // are we just changing the value of an existing variable
+        varNode = fScope->FindVariableInScope(crc);
 
-      // and setup again
-      varNode->SetupVariable(varName, valNode);
+        if (varNode)
+        {
+            // make sure atomic type hasn't changed
+            if (valNode->aType != varNode->aType)
+            {
+                tBuf->TokenError("Atomic type of '%s' is different to previous definition", varName);
+            }
+
+            // clear the variable VNode
+            varNode->Clear();
+
+            // and setup again
+            varNode->SetupVariable(varName, valNode);
+        }
+        else
+        {
+            // create a variable node and attach value node
+            varNode = new VNode;
+            varNode->SetupVariable(varName, valNode);
+
+            // add to global vars within scope
+            fScope->bodyList.Append(varNode);
+        }
     }
     else
     {
-      // create a variable node and attach value node
-      varNode = new VNode;
-      varNode->SetupVariable(varName, valNode);
-
-      // add to global vars within scope
-      fScope->bodyList.Append(varNode);
+        tBuf->ExpectError("variable value", tBuf->lastToken);
     }
-  }
-  else
-  {
-    tBuf->ExpectError("variable value", tBuf->lastToken);
-  }
 
-  // accept the end of statement
-  tBuf->Accept(";");
+    // accept the end of statement
+    tBuf->Accept(";");
 }
 
 
@@ -638,49 +638,49 @@ void PTree::ParseVariable(FScope *fScope)
 // returns pointer to a new VNode or null if none was found.  Next char 
 // is peeked at and confirmed to be punctuation.
 //
-VNode* PTree::ParseVNodeData(FScope *fScope)
+VNode* PTree::ParseVNodeData(FScope* fScope)
 {
-  // Parse numeric or string value
-  VNode *newNode = StdParse::ParseAtomicVNode(tBuf);
+    // Parse numeric or string value
+    VNode* newNode = StdParse::ParseAtomicVNode(tBuf);
 
-  // Were we successful
-  if (newNode)
-  {
-    PeekPunctuation();
-  }
-  else
-  {
-    // Peek at the token in question
-    switch (tBuf->PeekToken())
+    // Were we successful
+    if (newNode)
     {
-      case TR_OK:
-      {
-        // Must be a variable reference
-        newNode = ParseVariableReference(fScope);
-        break;
-      }
-
-      case TR_PUN:
-      {
-        // Pointer to existing variable
-        if (*tBuf->peekToken == '&')
-        {
-          newNode = ParsePointerVNode(fScope);
-        }
-        break;
-      }
-
-      // Reached the end of the file
-      case TR_EOF:
-        tBuf->EofError("data value");
-
-      default:
-        ERR_FATAL(("Missing case"));
+        PeekPunctuation();
     }
-  }
+    else
+    {
+        // Peek at the token in question
+        switch (tBuf->PeekToken())
+        {
+        case TR_OK:
+        {
+            // Must be a variable reference
+            newNode = ParseVariableReference(fScope);
+            break;
+        }
 
-  // return the new VNode
-  return (newNode);
+        case TR_PUN:
+        {
+            // Pointer to existing variable
+            if (*tBuf->peekToken == '&')
+            {
+                newNode = ParsePointerVNode(fScope);
+            }
+            break;
+        }
+
+        // Reached the end of the file
+        case TR_EOF:
+            tBuf->EofError("data value");
+
+        default:
+            ERR_FATAL(("Missing case"));
+        }
+    }
+
+    // return the new VNode
+    return (newNode);
 }
 
 
@@ -690,80 +690,79 @@ VNode* PTree::ParseVNodeData(FScope *fScope)
 // parse an enumeration 'enum { one=1, two, three };'
 // 'fScope' is the scope in which the enumeration is being parsed.
 //
-void PTree::ParseEnumeration(FScope *fScope)
+void PTree::ParseEnumeration(FScope* fScope)
 {
-  S32 incVal = 0;
-  VNode *varNode, *valNode, *newNode;
-  TokenStr ident;
+    S32 incVal = 0;
+    VNode* varNode, * valNode, * newNode;
+    TokenStr ident;
 
-  // accept out open brace
-  tBuf->Accept("{");
+    // accept out open brace
+    tBuf->Accept("{");
 
-  // continue until closing brace is read
-  do
-  {   
-    // accept an identifier
-    tBuf->AcceptIdent();
-
-    // save the identifier
-    Utils::Strcpy(ident, tBuf->lastToken);
-
-    // make sure legal ident
-    CheckLegalIdent(ident);
-
-    // accept either '=' or ',' or '}' 
-    tBuf->AcceptPunct();
-    
-    // is there a value assignment
-    if (*tBuf->lastToken == '=')
+    // continue until closing brace is read
+    do
     {
-      // read the value
-      newNode = ParseVNodeData(fScope);
+        // accept an identifier
+        tBuf->AcceptIdent();
 
-      if (newNode)
-      {
-        if (newNode->aType == VNode::AT_INTEGER)
+        // save the identifier
+        Utils::Strcpy(ident, tBuf->lastToken);
+
+        // make sure legal ident
+        CheckLegalIdent(ident);
+
+        // accept either '=' or ',' or '}' 
+        tBuf->AcceptPunct();
+
+        // is there a value assignment
+        if (*tBuf->lastToken == '=')
         {
-          // adjust the increment value
-          incVal = newNode->GetInteger();
+            // read the value
+            newNode = ParseVNodeData(fScope);
 
-          // delete the node
-          delete newNode;
+            if (newNode)
+            {
+                if (newNode->aType == VNode::AT_INTEGER)
+                {
+                    // adjust the increment value
+                    incVal = newNode->GetInteger();
 
-          // accept either ',' or '}'
-          tBuf->AcceptPunct();
+                    // delete the node
+                    delete newNode;
+
+                    // accept either ',' or '}'
+                    tBuf->AcceptPunct();
+                }
+                else
+                {
+                    tBuf->ExpectError("integer value", tBuf->prevToken);
+                }
+            }
+            else
+            {
+                tBuf->ExpectError("integer value", tBuf->lastToken);
+            }
         }
-        else
-        {
-          tBuf->ExpectError("integer value", tBuf->prevToken);
-        }
-      }
-      else
-      {
-        tBuf->ExpectError("integer value", tBuf->lastToken);
-      }
-    }
 
-    // allocate the new nodes
-    varNode = new VNode;
-    valNode = new VNode;
+        // allocate the new nodes
+        varNode = new VNode;
+        valNode = new VNode;
 
-    // setup the value
-    valNode->SetupInteger(incVal++);
+        // setup the value
+        valNode->SetupInteger(incVal++);
 
-    // setup the variable
-    varNode->SetupVariable(ident, valNode);
+        // setup the variable
+        varNode->SetupVariable(ident, valNode);
 
-    // add to global variable list
-    fScope->bodyList.Append(varNode);
-  } 
-  while (*tBuf->lastToken == ',');
-        
-  // must be closing brace
-  tBuf->Expect("}"); 
+        // add to global variable list
+        fScope->bodyList.Append(varNode);
+    } while (*tBuf->lastToken == ',');
 
-  // and finish with a semi-colon
-  tBuf->Accept(";");
+    // must be closing brace
+    tBuf->Expect("}");
+
+    // and finish with a semi-colon
+    tBuf->Accept(";");
 }
 
 
@@ -774,38 +773,38 @@ void PTree::ParseEnumeration(FScope *fScope)
 // scope.  returns a new VNode with the atomic value of that variable,
 // when the next char is peeked at and is punctuation.
 //
-VNode* PTree::ParseVariableReference(FScope *fScope)
+VNode* PTree::ParseVariableReference(FScope* fScope)
 {
-  VNode *varNode;
+    VNode* varNode;
 
-  // accept the variable identifier
-  tBuf->AcceptIdent();
-  
-  // calculate the crc of this string
-  U32 crc = Crc::CalcStr(tBuf->lastToken);
+    // accept the variable identifier
+    tBuf->AcceptIdent();
 
-  // search for this variable
-  varNode = fScope->FindVariableVisible(crc);
+    // calculate the crc of this string
+    U32 crc = Crc::CalcStr(tBuf->lastToken);
 
-  // trigger error if not found
-  if (!varNode)
-  {
-    tBuf->TokenError("'%s' : undeclared identifier", tBuf->lastToken);
-  }
+    // search for this variable
+    varNode = fScope->FindVariableVisible(crc);
 
-  // create a new atomic VNode
-  VNode *newNode = varNode->NewAtomicNode();
+    // trigger error if not found
+    if (!varNode)
+    {
+        tBuf->TokenError("'%s' : undeclared identifier", tBuf->lastToken);
+    }
 
-  // check that we are able to make atomic nodes of this type
-  if (!newNode)
-  {
-    tBuf->TokenError("unable to use variable '%s' in this manner", tBuf->lastToken);
-  }
+    // create a new atomic VNode
+    VNode* newNode = varNode->NewAtomicNode();
 
-  // confirm next char is punctuation
-  PeekPunctuation();
+    // check that we are able to make atomic nodes of this type
+    if (!newNode)
+    {
+        tBuf->TokenError("unable to use variable '%s' in this manner", tBuf->lastToken);
+    }
 
-  return (newNode);
+    // confirm next char is punctuation
+    PeekPunctuation();
+
+    return (newNode);
 }
 
 
@@ -817,36 +816,36 @@ VNode* PTree::ParseVariableReference(FScope *fScope)
 // function scope in which the data is being read.  next char is 
 // peeked at and confirmed to be punctuation.
 //
-VNode* PTree::ParsePointerVNode(FScope *fScope)
+VNode* PTree::ParsePointerVNode(FScope* fScope)
 {
-  VNode *varNode;
+    VNode* varNode;
 
-  // accept pointer char
-  tBuf->Accept("&");
+    // accept pointer char
+    tBuf->Accept("&");
 
-  // accept the variable identifier
-  tBuf->AcceptIdent();
-  
-  // calculate the crc of this string
-  U32 crc = Crc::CalcStr(tBuf->lastToken);
+    // accept the variable identifier
+    tBuf->AcceptIdent();
 
-  // search for this variable
-  varNode = fScope->FindVariableVisible(crc);
+    // calculate the crc of this string
+    U32 crc = Crc::CalcStr(tBuf->lastToken);
 
-  // trigger error if not found
-  if (!varNode)
-  {
-    tBuf->TokenError("'%s' : undeclared identifier", tBuf->lastToken);
-  }
+    // search for this variable
+    varNode = fScope->FindVariableVisible(crc);
 
-  // create a new VNode that points to it
-  VNode *exist = new VNode;
-  exist->SetupPointer(varNode);
+    // trigger error if not found
+    if (!varNode)
+    {
+        tBuf->TokenError("'%s' : undeclared identifier", tBuf->lastToken);
+    }
 
-  // confirm punctuation char
-  PeekPunctuation();
+    // create a new VNode that points to it
+    VNode* exist = new VNode;
+    exist->SetupPointer(varNode);
 
-  return (exist);
+    // confirm punctuation char
+    PeekPunctuation();
+
+    return (exist);
 }
 
 
@@ -855,10 +854,10 @@ VNode* PTree::ParsePointerVNode(FScope *fScope)
 // 
 // write end of line and carriage return
 //
-void PTree::NextLine(File &file)
+void PTree::NextLine(File& file)
 {
-  file.WriteU8(13);
-  file.WriteU8(10);
+    file.WriteU8(13);
+    file.WriteU8(10);
 }
 
 
@@ -867,9 +866,9 @@ void PTree::NextLine(File &file)
 // 
 // write a null terminated string to file (without the null)
 //
-void PTree::WriteString(File &file, const char *str)
+void PTree::WriteString(File& file, const char* str)
 {
-  file.Write(str, Utils::Strlen(str));
+    file.Write(str, Utils::Strlen(str));
 }
 
 
@@ -878,12 +877,12 @@ void PTree::WriteString(File &file, const char *str)
 // 
 // writes 'i' spaces to 'file'
 //
-void PTree::Indent(File &file, U32 i)
+void PTree::Indent(File& file, U32 i)
 {
-  for (U32 indent = 0; indent < i; indent++)
-  {
-    file.WriteU8(' ');
-  }
+    for (U32 indent = 0; indent < i; indent++)
+    {
+        file.WriteU8(' ');
+    }
 }
 
 
@@ -892,135 +891,135 @@ void PTree::Indent(File &file, U32 i)
 //
 // write a function to a file
 //
-void PTree::WriteFunctionContents(File &file, FScope *fScope, U32 indent)
+void PTree::WriteFunctionContents(File& file, FScope* fScope, U32 indent)
 {
-  ASSERT(fScope);
-  VNode *bNode;
-  U32 maxVarLen = 0;
+    ASSERT(fScope);
+    VNode* bNode;
+    U32 maxVarLen = 0;
 
-  // reset the iterators
-  fScope->InitIterators();
+    // reset the iterators
+    fScope->InitIterators();
 
-  // find largest var for lining them up nicely
-  while ((bNode = fScope->NextBodyVNode()) != 0)
-  {
-    // is this bNode a variable
-    if (bNode->nType == VNode::NT_VARIABLE)
+    // find largest var for lining them up nicely
+    while ((bNode = fScope->NextBodyVNode()) != 0)
     {
-      // get length
-      U32 len = Utils::Strlen(bNode->GetVariableStr());   
-    
-      // record if largest
-      if (len > maxVarLen)
-      {
-        maxVarLen = len;
-      }
-    }
-  }
-
-  // reset the iterators
-  fScope->InitIterators();
-
-  VNode::VNodeType lastNodeType = VNode::NT_NONE;
-  Bool prevBody = FALSE, firstFunc = TRUE;
-
-  // write contents
-  while ((bNode = fScope->NextBodyVNode()) != 0)
-  {
-    switch (bNode->nType)
-    {
-      // a local variable
-      case VNode::NT_VARIABLE :
-      {         
-        ASSERT(maxVarLen >= Utils::Strlen(bNode->GetVariableStr()));
-
-        if (prevBody)
+        // is this bNode a variable
+        if (bNode->nType == VNode::NT_VARIABLE)
         {
-          NextLine(file);
+            // get length
+            U32 len = Utils::Strlen(bNode->GetVariableStr());
+
+            // record if largest
+            if (len > maxVarLen)
+            {
+                maxVarLen = len;
+            }
         }
-
-        Indent(file, indent);
-        WriteString(file, bNode->GetVariableStr());
-        Indent(file, maxVarLen - Utils::Strlen(bNode->GetVariableStr()));
-        WriteString(file, " = ");
-        WriteString(file, bNode->StringForm());
-        WriteString(file, ";");
-        NextLine(file);
-        
-        break;
-      }
-
-      // a sub-function
-      case VNode::NT_SCOPE :
-      {
-        // get the scope
-        FScope *sScope = bNode->GetScope();
-
-        // do we need an empty line
-        if 
-        (
-          prevBody || (!firstFunc && sScope->HasBody()) || 
-          (lastNodeType == VNode::NT_VARIABLE)
-        )
-        {
-          NextLine(file);
-        }
-    
-        Indent(file, indent);
-        WriteString(file, sScope->NameStr());
-        WriteString(file, "(");
-
-        // write arguments
-        Bool firstArg = TRUE;
-        VNode *aNode;
-
-        while ((aNode = sScope->NextArgument()) != 0)
-        {
-          if (!firstArg)
-          {
-            WriteString(file, ", ");
-          }
-
-          WriteString(file, aNode->StringForm());
-          firstArg = FALSE;
-        }
-
-        WriteString(file, ")");
- 
-        // are there any contents
-        if (sScope->HasBody())
-        {
-          NextLine(file);
-          Indent(file, indent);
-          WriteString(file, "{");
-          NextLine(file);
-
-          // write contents
-          WriteFunctionContents(file, sScope, indent + 2);
-
-          Indent(file, indent);
-          WriteString(file, "}");
-          prevBody = TRUE;
-        }
-        else
-        {
-          WriteString(file, ";");
-          prevBody = FALSE;
-        }
-
-        NextLine(file);   
-        firstFunc = FALSE;
-
-        break;
-      }
-
-      default :
-        break;
     }
 
-    // save the type of this bNode
-    lastNodeType = bNode->nType;
-  }
+    // reset the iterators
+    fScope->InitIterators();
+
+    VNode::VNodeType lastNodeType = VNode::NT_NONE;
+    Bool prevBody = FALSE, firstFunc = TRUE;
+
+    // write contents
+    while ((bNode = fScope->NextBodyVNode()) != 0)
+    {
+        switch (bNode->nType)
+        {
+            // a local variable
+        case VNode::NT_VARIABLE:
+        {
+            ASSERT(maxVarLen >= Utils::Strlen(bNode->GetVariableStr()));
+
+            if (prevBody)
+            {
+                NextLine(file);
+            }
+
+            Indent(file, indent);
+            WriteString(file, bNode->GetVariableStr());
+            Indent(file, maxVarLen - Utils::Strlen(bNode->GetVariableStr()));
+            WriteString(file, " = ");
+            WriteString(file, bNode->StringForm());
+            WriteString(file, ";");
+            NextLine(file);
+
+            break;
+        }
+
+        // a sub-function
+        case VNode::NT_SCOPE:
+        {
+            // get the scope
+            FScope* sScope = bNode->GetScope();
+
+            // do we need an empty line
+            if
+                (
+                    prevBody || (!firstFunc && sScope->HasBody()) ||
+                    (lastNodeType == VNode::NT_VARIABLE)
+                    )
+            {
+                NextLine(file);
+            }
+
+            Indent(file, indent);
+            WriteString(file, sScope->NameStr());
+            WriteString(file, "(");
+
+            // write arguments
+            Bool firstArg = TRUE;
+            VNode* aNode;
+
+            while ((aNode = sScope->NextArgument()) != 0)
+            {
+                if (!firstArg)
+                {
+                    WriteString(file, ", ");
+                }
+
+                WriteString(file, aNode->StringForm());
+                firstArg = FALSE;
+            }
+
+            WriteString(file, ")");
+
+            // are there any contents
+            if (sScope->HasBody())
+            {
+                NextLine(file);
+                Indent(file, indent);
+                WriteString(file, "{");
+                NextLine(file);
+
+                // write contents
+                WriteFunctionContents(file, sScope, indent + 2);
+
+                Indent(file, indent);
+                WriteString(file, "}");
+                prevBody = TRUE;
+            }
+            else
+            {
+                WriteString(file, ";");
+                prevBody = FALSE;
+            }
+
+            NextLine(file);
+            firstFunc = FALSE;
+
+            break;
+        }
+
+        default:
+            break;
+        }
+
+        // save the type of this bNode
+        lastNodeType = bNode->nType;
+    }
 }
 
 
@@ -1029,37 +1028,37 @@ void PTree::WriteFunctionContents(File &file, FScope *fScope, U32 indent)
 //
 // save current tree as text to 'fName'
 //
-Bool PTree::WriteTreeText(const char *fName)
+Bool PTree::WriteTreeText(const char* fName)
 {
-  File file;
-  
-  if (!file.Open(fName, File::WRITE | File::CREATE))
-  {
-    LOG_ERR(("Unable to write to file '%s'", fName));
-    return (FALSE);
-  }
-    
-  // write header
-  WriteString(file, "//////////////////////////////////////////////////////////////////////////");
-  NextLine(file);
-  WriteString(file, "//");
-  NextLine(file);
-  WriteString(file, "// Copyright 1998-2000 Pandemic Studios");
-  NextLine(file);
-  WriteString(file, "//");
-  NextLine(file);
-  WriteString(file, "// Code-Generated Configuration File");
-  NextLine(file);
-  WriteString(file, "//");
-  NextLine(file);
-  NextLine(file);
+    File file;
 
-  // write contents
-  WriteFunctionContents(file, GetGlobalScope(), 0);
+    if (!file.Open(fName, File::WRITE | File::CREATE))
+    {
+        LOG_ERR(("Unable to write to file '%s'", fName));
+        return (FALSE);
+    }
 
-  file.Close();    
+    // write header
+    WriteString(file, "//////////////////////////////////////////////////////////////////////////");
+    NextLine(file);
+    WriteString(file, "//");
+    NextLine(file);
+    WriteString(file, "// Copyright 1998-2000 Pandemic Studios");
+    NextLine(file);
+    WriteString(file, "//");
+    NextLine(file);
+    WriteString(file, "// Code-Generated Configuration File");
+    NextLine(file);
+    WriteString(file, "//");
+    NextLine(file);
+    NextLine(file);
 
-  return (TRUE);
+    // write contents
+    WriteFunctionContents(file, GetGlobalScope(), 0);
+
+    file.Close();
+
+    return (TRUE);
 }
 
 
@@ -1068,120 +1067,120 @@ Bool PTree::WriteTreeText(const char *fName)
 //
 // Write out the given function
 //
-void PTree::BinWriteFunctionContents(BlockFile *file, FScope *fScope)
+void PTree::BinWriteFunctionContents(BlockFile* file, FScope* fScope)
 {
-  ASSERT(fScope);
+    ASSERT(fScope);
 
-  U32 u32;
-  U16 u16;
-  U8 u8;
+    U32 u32;
+    U16 u16;
+    U8 u8;
 
-  // reset the iterators
-  fScope->InitIterators();
+    // reset the iterators
+    fScope->InitIterators();
 
-  // Get the number of body items
-  U32 items = fScope->GetBodyCount();
-
-  // Write it out
-  file->WriteToBlock(&items, 4);
-
-  // write contents
-  for (U32 i = 0; i < items; i++)
-  {
-    VNode *bNode = fScope->NextBodyVNode();
-
-    if (!bNode)
-    {
-      ERR_FATAL(("Expected body node! (%d/%d)", i, items));
-    }
-
-    if (bNode->nType != VNode::NT_SCOPE)
-    {
-      ERR_FATAL(("FScope contained unsupported type!"));
-    }
-
-    // get the scope
-    FScope *sScope = bNode->GetScope();
-
-    // save the crc of the scope
-    u32 = sScope->NameCrc();
-    file->WriteToBlock(&u32, 4);
-
-    // Get the number of args
-    U32 args = sScope->GetArgCount();
-
-    if (args > U8_MAX)
-    {
-      ERR_FATAL(("Too many arguments! (%s, %d)", sScope->NameStr(), args));
-    }
+    // Get the number of body items
+    U32 items = fScope->GetBodyCount();
 
     // Write it out
-    u8 = (U8)args;
-    file->WriteToBlock(&u8, 1);
+    file->WriteToBlock(&items, 4);
 
-    // write arguments
-    for (U32 a = 0; a < args; a++)
+    // write contents
+    for (U32 i = 0; i < items; i++)
     {
-      VNode *aNode = sScope->NextArgument();
+        VNode* bNode = fScope->NextBodyVNode();
 
-      if (!aNode)
-      {
-        ERR_FATAL(("Expected argument! (%d/%d)", a, args));
-      }
-
-      switch (aNode->aType)
-      {
-        case VNode::AT_STRING:
+        if (!bNode)
         {
-          u8 = (U8)BK_ARGSTRING;
-          file->WriteToBlock(&u8, 1);
-
-          // Save out the size
-          U32 size = Utils::Strlen(aNode->GetString());
-          if (size > U16_MAX)
-          {
-            ERR_FATAL(("String exceeds max! (%d)", size));
-          }
-
-          u16 = (U16)size;
-          file->WriteToBlock(&u16, 2);
-
-          // Is there any data
-          if (size)
-          {
-            file->WriteToBlock(aNode->GetString(), size);
-          }
-          break;
+            ERR_FATAL(("Expected body node! (%d/%d)", i, items));
         }
 
-        case VNode::AT_INTEGER:
+        if (bNode->nType != VNode::NT_SCOPE)
         {
-          u8 = (U8)BK_ARGINTEGER;
-          file->WriteToBlock(&u8, 1);
-
-          u32 = aNode->GetInteger();
-          file->WriteToBlock(&u32, 4);
-          break;
+            ERR_FATAL(("FScope contained unsupported type!"));
         }
 
-        case VNode::AT_FPOINT:
-        {
-          u8 = (U8)BK_ARGFLOAT;
-          file->WriteToBlock(&u8, 1);
+        // get the scope
+        FScope* sScope = bNode->GetScope();
 
-          F32 val = aNode->GetFPoint();
-          file->WriteToBlock(&val, sizeof(F32));
-          break;
+        // save the crc of the scope
+        u32 = sScope->NameCrc();
+        file->WriteToBlock(&u32, 4);
+
+        // Get the number of args
+        U32 args = sScope->GetArgCount();
+
+        if (args > U8_MAX)
+        {
+            ERR_FATAL(("Too many arguments! (%s, %d)", sScope->NameStr(), args));
         }
 
-        default:
-          ERR_FATAL(("Unsupported type in arg list! (%d)", aNode->aType));
-      }
+        // Write it out
+        u8 = (U8)args;
+        file->WriteToBlock(&u8, 1);
+
+        // write arguments
+        for (U32 a = 0; a < args; a++)
+        {
+            VNode* aNode = sScope->NextArgument();
+
+            if (!aNode)
+            {
+                ERR_FATAL(("Expected argument! (%d/%d)", a, args));
+            }
+
+            switch (aNode->aType)
+            {
+            case VNode::AT_STRING:
+            {
+                u8 = (U8)BK_ARGSTRING;
+                file->WriteToBlock(&u8, 1);
+
+                // Save out the size
+                U32 size = Utils::Strlen(aNode->GetString());
+                if (size > U16_MAX)
+                {
+                    ERR_FATAL(("String exceeds max! (%d)", size));
+                }
+
+                u16 = (U16)size;
+                file->WriteToBlock(&u16, 2);
+
+                // Is there any data
+                if (size)
+                {
+                    file->WriteToBlock(aNode->GetString(), size);
+                }
+                break;
+            }
+
+            case VNode::AT_INTEGER:
+            {
+                u8 = (U8)BK_ARGINTEGER;
+                file->WriteToBlock(&u8, 1);
+
+                u32 = aNode->GetInteger();
+                file->WriteToBlock(&u32, 4);
+                break;
+            }
+
+            case VNode::AT_FPOINT:
+            {
+                u8 = (U8)BK_ARGFLOAT;
+                file->WriteToBlock(&u8, 1);
+
+                F32 val = aNode->GetFPoint();
+                file->WriteToBlock(&val, sizeof(F32));
+                break;
+            }
+
+            default:
+                ERR_FATAL(("Unsupported type in arg list! (%d)", aNode->aType));
+            }
+        }
+
+        // write the contents of this subscope
+        BinWriteFunctionContents(file, sScope);
     }
-
-    // write the contents of this subscope
-    BinWriteFunctionContents(file, sScope);
-  }
 }
 
 
@@ -1190,94 +1189,94 @@ void PTree::BinWriteFunctionContents(BlockFile *file, FScope *fScope)
 //
 // save tree as binary to 'fName'
 //
-Bool PTree::WriteTreeBinary(const char *fName, Bool writeSymbols, PTree::BinaryInfo *info)
+Bool PTree::WriteTreeBinary(const char* fName, Bool writeSymbols, PTree::BinaryInfo* info)
 {
-  BlockFile file;
-
-  if (info)
-  {
-    Utils::Memset(info, 0, sizeof(BinaryInfo));
-  }
-
-  if (!file.Open(fName, BlockFile::CREATE, FALSE))
-  {
-    LOG_ERR(("Unable to write to file '%s'", fName));
-    return (FALSE);
-  }
-
-  // Save version block
-  if (file.OpenBlock(VersionBlock))
-  {
-    file.WriteToBlock(&Version, sizeof(Version));      
-    file.CloseBlock();
-  }
-  else
-  {
-    goto Error;
-  }
-
-  // Save tree contents
-  if (file.OpenBlock(FScopeBlock))
-  {
-    BinWriteFunctionContents(&file, GetGlobalScope());
-    file.CloseBlock();
+    BlockFile file;
 
     if (info)
     {
-      info->fScopeSize = file.SizeOfBlock(Crc::CalcStr(FScopeBlock));
+        Utils::Memset(info, 0, sizeof(BinaryInfo));
     }
-  }
-  else
-  {
-    goto Error;
-  }
 
-  // Save symbol info
-  if (writeSymbols)
-  {
-    // Build a list of all symbols
-    BuildSymbols(symbols, GetGlobalScope());
-
-    // Write them out
-    U32 count;
-
-    if ((count = symbols.GetCount()) > 0)
+    if (!file.Open(fName, BlockFile::CREATE, FALSE))
     {
-      if (file.OpenBlock(SymbolBlock))
-      {
-        BinWriteSymbols(&file, symbols);
+        LOG_ERR(("Unable to write to file '%s'", fName));
+        return (FALSE);
+    }
 
-        symbols.UnlinkAll();
+    // Save version block
+    if (file.OpenBlock(VersionBlock))
+    {
+        file.WriteToBlock(&Version, sizeof(Version));
+        file.CloseBlock();
+    }
+    else
+    {
+        goto Error;
+    }
+
+    // Save tree contents
+    if (file.OpenBlock(FScopeBlock))
+    {
+        BinWriteFunctionContents(&file, GetGlobalScope());
         file.CloseBlock();
 
         if (info)
         {
-          info->symbolSize = file.SizeOfBlock(Crc::CalcStr(SymbolBlock));
-          info->symbolCount = count;
+            info->fScopeSize = file.SizeOfBlock(Crc::CalcStr(FScopeBlock));
         }
-      }
-      else
-      {
-        symbols.UnlinkAll();
-        goto Error;
-      }
     }
-  }
+    else
+    {
+        goto Error;
+    }
 
-  // Success
-  file.Close();
-  return (TRUE);
+    // Save symbol info
+    if (writeSymbols)
+    {
+        // Build a list of all symbols
+        BuildSymbols(symbols, GetGlobalScope());
+
+        // Write them out
+        U32 count;
+
+        if ((count = symbols.GetCount()) > 0)
+        {
+            if (file.OpenBlock(SymbolBlock))
+            {
+                BinWriteSymbols(&file, symbols);
+
+                symbols.UnlinkAll();
+                file.CloseBlock();
+
+                if (info)
+                {
+                    info->symbolSize = file.SizeOfBlock(Crc::CalcStr(SymbolBlock));
+                    info->symbolCount = count;
+                }
+            }
+            else
+            {
+                symbols.UnlinkAll();
+                goto Error;
+            }
+        }
+    }
+
+    // Success
+    file.Close();
+    return (TRUE);
 
 Error:
 
-  // Failed
-  file.CloseBlock();
-  file.Close();
-  File::Unlink(fName);
+    // Failed
+    file.CloseBlock();
+    file.Close();
+    File::Unlink(fName);
 
-  LOG_ERR(("Error writing to file '%s'", fName));
+    LOG_ERR(("Error writing to file '%s'", fName));
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -1286,20 +1285,20 @@ Error:
 //
 // Read data from the binary chunk in memory
 //
-void PTree::ReadBinaryData(void *dest, U32 size)
+void PTree::ReadBinaryData(void* dest, U32 size)
 {
-  ASSERT(binaryData);
+    ASSERT(binaryData);
 
-  if (size <= binaryRemaining)
-  {
-    memcpy(dest, binaryPos, size);
-    binaryPos += size;
-    binaryRemaining -= size;    
-  }
-  else
-  {
-    ERR_FATAL(("Failed reading %d bytes from binary data"));
-  }
+    if (size <= binaryRemaining)
+    {
+        memcpy(dest, binaryPos, size);
+        binaryPos += size;
+        binaryRemaining -= size;
+    }
+    else
+    {
+        ERR_FATAL(("Failed reading %d bytes from binary data"));
+    }
 }
 
 
@@ -1308,86 +1307,86 @@ void PTree::ReadBinaryData(void *dest, U32 size)
 //
 // Read in the given function
 //
-void PTree::BinReadFunctionContents(FScope *fScope)
+void PTree::BinReadFunctionContents(FScope* fScope)
 {
-  ASSERT(fScope);
+    ASSERT(fScope);
 
-  // Read in the number of items in this scope
-  U32 items;
-  ReadBinaryData(&items, sizeof(items));
+    // Read in the number of items in this scope
+    U32 items;
+    ReadBinaryData(&items, sizeof(items));
 
-  // Read contents
-  for (U32 i = 0; i < items; i++)
-  {
-    // Read the scope crc
-    U32 crc;
-    ReadBinaryData(&crc, sizeof(crc));
-
-    // Create the new scope
-    FScope *newScope = new FScope(fScope, symbols.Find(crc), crc);
-
-    // Get the number of args
-    U8 args;
-    ReadBinaryData(&args, sizeof(args));
-
-    // write arguments
-    for (U32 a = 0; a < args; a++)
+    // Read contents
+    for (U32 i = 0; i < items; i++)
     {
-      // Allocate a new value node
-      VNode *newNode = new VNode;
+        // Read the scope crc
+        U32 crc;
+        ReadBinaryData(&crc, sizeof(crc));
 
-      // Read the type
-      U8 type;
-      ReadBinaryData(&type, sizeof(type));
+        // Create the new scope
+        FScope* newScope = new FScope(fScope, symbols.Find(crc), crc);
 
-      switch (type)
-      {
-        case BK_ARGSTRING:
+        // Get the number of args
+        U8 args;
+        ReadBinaryData(&args, sizeof(args));
+
+        // write arguments
+        for (U32 a = 0; a < args; a++)
         {
-          static char buf[1024];
+            // Allocate a new value node
+            VNode* newNode = new VNode;
 
-          U16 size;
-          ReadBinaryData(&size, sizeof(size));
-          ASSERT(size < 1024);
-        
-          // Is there any data
-          if (size)
-          {
-            ReadBinaryData(buf, size);
-          }
-          buf[size] = '\0';
+            // Read the type
+            U8 type;
+            ReadBinaryData(&type, sizeof(type));
 
-          newNode->SetupString(buf);
-          break;
+            switch (type)
+            {
+            case BK_ARGSTRING:
+            {
+                static char buf[1024];
+
+                U16 size;
+                ReadBinaryData(&size, sizeof(size));
+                ASSERT(size < 1024);
+
+                // Is there any data
+                if (size)
+                {
+                    ReadBinaryData(buf, size);
+                }
+                buf[size] = '\0';
+
+                newNode->SetupString(buf);
+                break;
+            }
+
+            case VNode::AT_INTEGER:
+            {
+                U32 val;
+                ReadBinaryData(&val, sizeof(val));
+                newNode->SetupInteger((S32)val);
+                break;
+            }
+
+            case VNode::AT_FPOINT:
+            {
+                F32 val;
+                ReadBinaryData(&val, sizeof(val));
+                newNode->SetupFPoint(val);
+                break;
+            }
+
+            default:
+                ERR_FATAL(("Unsupported type in binary file!"));
+            }
+
+            // Add the new node
+            newScope->argList.Append(newNode);
         }
 
-        case VNode::AT_INTEGER:
-        {
-          U32 val;
-          ReadBinaryData(&val, sizeof(val));
-          newNode->SetupInteger((S32)val);
-          break;
-        }
-
-        case VNode::AT_FPOINT:
-        {
-          F32 val;
-          ReadBinaryData(&val, sizeof(val));
-          newNode->SetupFPoint(val);
-          break;
-        }
-
-        default:
-          ERR_FATAL(("Unsupported type in binary file!"));
-      }
-
-      // Add the new node
-      newScope->argList.Append(newNode);
+        // write the contents of this subscope
+        BinReadFunctionContents(newScope);
     }
-
-    // write the contents of this subscope
-    BinReadFunctionContents(newScope);
-  }
 }
 
 
@@ -1396,26 +1395,26 @@ void PTree::BinReadFunctionContents(FScope *fScope)
 //
 // Write symbols to block file
 //
-void PTree::BinWriteSymbols(BlockFile *file, BinTree<const char> &symbols)
+void PTree::BinWriteSymbols(BlockFile* file, BinTree<const char>& symbols)
 {
-  U32 u32;
+    U32 u32;
 
-  // Number of symbols
-  u32 = symbols.GetCount();
-  file->WriteToBlock(&u32, 4);
-
-  for (BinTree<const char>::Iterator i(&symbols); *i; i++)
-  {
-    const char *s = *i;
-    U16 len = U16(Utils::Strlen(s) + 1);
-
-    // Write crc, string length, and null terminated string
-    u32 = i.GetKey();
-
+    // Number of symbols
+    u32 = symbols.GetCount();
     file->WriteToBlock(&u32, 4);
-    file->WriteToBlock(&len, 2);
-    file->WriteToBlock(s, len);
-  }
+
+    for (BinTree<const char>::Iterator i(&symbols); *i; i++)
+    {
+        const char* s = *i;
+        U16 len = U16(Utils::Strlen(s) + 1);
+
+        // Write crc, string length, and null terminated string
+        u32 = i.GetKey();
+
+        file->WriteToBlock(&u32, 4);
+        file->WriteToBlock(&len, 2);
+        file->WriteToBlock(s, len);
+    }
 }
 
 
@@ -1424,25 +1423,25 @@ void PTree::BinWriteSymbols(BlockFile *file, BinTree<const char> &symbols)
 //
 // Read symbols from block file
 //
-void PTree::BinReadSymbols(BinTree<const char> &symbols)
+void PTree::BinReadSymbols(BinTree<const char>& symbols)
 {
-  U32 count;
+    U32 count;
 
-  // Read symbol count
-  ReadBinaryData(&count, 4);
+    // Read symbol count
+    ReadBinaryData(&count, 4);
 
-  for (U32 i = 0; i < count; i++)
-  {
-    U32 crc;
-    U16 len;
+    for (U32 i = 0; i < count; i++)
+    {
+        U32 crc;
+        U16 len;
 
-    ReadBinaryData(&crc, 4);
-    ReadBinaryData(&len, 2);
+        ReadBinaryData(&crc, 4);
+        ReadBinaryData(&len, 2);
 
-    // Add this string and key
-    symbols.Add(crc, (const char *)binaryPos);
+        // Add this string and key
+        symbols.Add(crc, (const char*)binaryPos);
 
-    binaryPos += len;
-    binaryRemaining -= len;
-  }
+        binaryPos += len;
+        binaryRemaining -= len;
+    }
 }

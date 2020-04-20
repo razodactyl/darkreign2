@@ -192,3 +192,8 @@ ModelManifest.xml
 .vs/dr2/v15/Browse.VC.opendb
 *.db-shm
 .vs/dr2/v15/Solution.VC.db-wal
+/appdr2/Development/appdr2.tlog
+/appdr2/appdr2.tlog
+/appdr2/RCa02784
+/.vs/dr2/v16
+/Development/appdr2

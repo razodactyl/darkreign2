@@ -65,6 +65,8 @@ void RunCodes::Register(const char *name, RCPROC fnGame, RCPROC fnInit, RCPROC f
     ERR_FATAL(("[%s] Runcode [%s] already registered (as [%s])", ident.str, r->ident.str, prev->ident.str));
   }
 
+  LOG_DIAG(("HELLO %s", name))
+
   runCodes.Add(r->ident.crc, r);
 }
 

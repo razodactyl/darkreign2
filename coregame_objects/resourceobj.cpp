@@ -43,24 +43,24 @@ NList<ResourceObjType> ResourceObjType::list(&ResourceObjType::node);
 //
 // Constructor
 //
-ResourceObjType::ResourceObjType(const char *name, FScope *fScope) : 
-  MapObjType(name, fScope)
+ResourceObjType::ResourceObjType(const char* name, FScope* fScope) :
+    MapObjType(name, fScope)
 {
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load the resource max
-  resourceMax = StdLoad::TypeU32(fScope, "ResourceMax", 0, Range<U32>::positive);
-  resourceMaxInv = resourceMax ? 1.0f / F32(resourceMax) : 0.0f;
+    // Load the resource max
+    resourceMax = StdLoad::TypeU32(fScope, "ResourceMax", 0, Range<U32>::positive);
+    resourceMaxInv = resourceMax ? 1.0f / F32(resourceMax) : 0.0f;
 
-  // Load the resource change
-  resourceChange = StdLoad::TypeU32(fScope, "ResourceChange", resourceMax / 10, Range<U32>(0, resourceMax));
+    // Load the resource change
+    resourceChange = StdLoad::TypeU32(fScope, "ResourceChange", resourceMax / 10, Range<U32>(0, resourceMax));
 
-  // Load the resource regen rate
-  resourceRate = StdLoad::TypeU32(fScope, "ResourceRate", 0, Range<U32>::positive);
+    // Load the resource regen rate
+    resourceRate = StdLoad::TypeU32(fScope, "ResourceRate", 0, Range<U32>::positive);
 
-  // Add to the type list
-  list.Append(this);
+    // Add to the type list
+    list.Append(this);
 }
 
 
@@ -71,8 +71,8 @@ ResourceObjType::ResourceObjType(const char *name, FScope *fScope) :
 //
 ResourceObjType::~ResourceObjType()
 {
-  // Remove from the type list
-  list.Unlink(this);
+    // Remove from the type list
+    list.Unlink(this);
 }
 
 
@@ -83,8 +83,8 @@ ResourceObjType::~ResourceObjType()
 //
 GameObj* ResourceObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new ResourceObj(this, id));
+    // Allocate new object instance
+    return (new ResourceObj(this, id));
 }
 
 
@@ -95,19 +95,19 @@ GameObj* ResourceObjType::NewInstance(U32 id)
 //
 void ResourceObjType::EnableAllRegen(U32 multiplier, U32 absolute)
 {
-  for (NList<ResourceObjType>::Iterator i(&list); *i; ++i)
-  {
-    ResourceObjType &r = **i;
+    for (NList<ResourceObjType>::Iterator i(&list); *i; ++i)
+    {
+        ResourceObjType& r = **i;
 
-    if (r.resourceRate)
-    {
-      r.resourceRate *= multiplier;
+        if (r.resourceRate)
+        {
+            r.resourceRate *= multiplier;
+        }
+        else
+        {
+            r.resourceRate = absolute;
+        }
     }
-    else
-    {
-      r.resourceRate = absolute;
-    }
-  }
 }
 
 
@@ -122,11 +122,11 @@ void ResourceObjType::EnableAllRegen(U32 multiplier, U32 absolute)
 //
 // Constructor
 //
-ResourceObj::ResourceObj(ResourceObjType *objType, U32 id) : 
-  MapObj(objType, id),
-  teamsCanSee(0),
-  teamsHaveSeen(0),
-  resource(ResourceType()->GetResourceMax())
+ResourceObj::ResourceObj(ResourceObjType* objType, U32 id) :
+    MapObj(objType, id),
+    teamsCanSee(0),
+    teamsHaveSeen(0),
+    resource(ResourceType()->GetResourceMax())
 {
 }
 
@@ -149,8 +149,8 @@ ResourceObj::~ResourceObj()
 void ResourceObj::PreDelete()
 {
 
-  // Call parent scope last
-  MapObj::PreDelete();
+    // Call parent scope last
+    MapObj::PreDelete();
 }
 
 
@@ -159,22 +159,22 @@ void ResourceObj::PreDelete()
 //
 // Save a state configuration scope
 //
-void ResourceObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void ResourceObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  MapObj::SaveState(fScope);
+    // Call parent scope first
+    MapObj::SaveState(fScope);
 
-  if (SaveGame::SaveActive())
-  {
-    // Create our specific config scope
-    fScope = fScope->AddFunction(SCOPE_CONFIG);
+    if (SaveGame::SaveActive())
+    {
+        // Create our specific config scope
+        fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-    // Save the sight bitfield
-    StdSave::TypeU32(fScope, "TeamHaveSeen", teamsHaveSeen);
+        // Save the sight bitfield
+        StdSave::TypeU32(fScope, "TeamHaveSeen", teamsHaveSeen);
 
-    // Save the amount of resource
-    StdSave::TypePercentage(fScope, "ResourcePercent", ResourceType()->GetResourceMax(), resource);
-  }
+        // Save the amount of resource
+        StdSave::TypePercentage(fScope, "ResourcePercent", ResourceType()->GetResourceMax(), resource);
+    }
 }
 
 
@@ -183,30 +183,30 @@ void ResourceObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 // Load a state configuration scope
 //
-void ResourceObj::LoadState(FScope *fScope)
+void ResourceObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  MapObj::LoadState(fScope);
+    // Call parent scope first
+    MapObj::LoadState(fScope);
 
-  if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
-  {
-    FScope *sScope;
-
-    while ((sScope = fScope->NextFunction()) != NULL)
+    if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
     {
-      switch (sScope->NameCrc())
-      {
-        case 0x5457F5AB: // "TeamHaveSeen"
-          teamsHaveSeen = Game::TeamBitfield(StdLoad::TypeU32(sScope));
-          break;
+        FScope* sScope;
 
-        case 0x7C8A86BB: // "ResourcePercent"
-          resource = StdLoad::TypePercentage(sScope, ResourceType()->GetResourceMax());
-          AdjustResource();
-          break;
-      }
+        while ((sScope = fScope->NextFunction()) != NULL)
+        {
+            switch (sScope->NameCrc())
+            {
+            case 0x5457F5AB: // "TeamHaveSeen"
+                teamsHaveSeen = Game::TeamBitfield(StdLoad::TypeU32(sScope));
+                break;
+
+            case 0x7C8A86BB: // "ResourcePercent"
+                resource = StdLoad::TypePercentage(sScope, ResourceType()->GetResourceMax());
+                AdjustResource();
+                break;
+            }
+        }
     }
-  }
 }
 
 
@@ -217,13 +217,13 @@ void ResourceObj::LoadState(FScope *fScope)
 //
 void ResourceObj::Equip()
 {
-  // Default the amount of resource to the maximum
-  resource = ResourceType()->GetResourceMax();
+    // Default the amount of resource to the maximum
+    resource = ResourceType()->GetResourceMax();
 
-  AdjustResource();
+    AdjustResource();
 
-  // Call parent scope first
-  MapObj::Equip();
+    // Call parent scope first
+    MapObj::Equip();
 }
 
 
@@ -234,31 +234,31 @@ void ResourceObj::Equip()
 //
 void ResourceObj::CaptureMapHooks(Bool capture)
 {
-  // Perform Map Object Processing
-  MapObj::CaptureMapHooks(capture);
+    // Perform Map Object Processing
+    MapObj::CaptureMapHooks(capture);
 
-  if (capture)
-  {
-    ASSERT(currentCluster)
-
-    // Hook the resource list
-    currentCluster->resourceList.Append(this);
-
-    // Update AI
-    currentCluster->ai.AddResource(resource);
-  }
-  else
-  {
-    // Was the object in a cluster ?
-    if (currentCluster)
+    if (capture)
     {
-      // Unhook it from the resource list
-      currentCluster->resourceList.Unlink(this);
+        ASSERT(currentCluster)
 
-      // Update AI
-      currentCluster->ai.RemoveResource(resource);
+            // Hook the resource list
+            currentCluster->resourceList.Append(this);
+
+        // Update AI
+        currentCluster->ai.AddResource(resource);
     }
-  }
+    else
+    {
+        // Was the object in a cluster ?
+        if (currentCluster)
+        {
+            // Unhook it from the resource list
+            currentCluster->resourceList.Unlink(this);
+
+            // Update AI
+            currentCluster->ai.RemoveResource(resource);
+        }
+    }
 }
 
 
@@ -269,19 +269,19 @@ void ResourceObj::CaptureMapHooks(Bool capture)
 //
 void ResourceObj::SetCanSee(U32 id)
 {
-  // Has this team seen us before ?
-  if (!TestHaveSeen(id))
-  {
-    // Convert the id into a team
-    Team *t = Team::Id2Team(id);
-    ASSERT(t)
+    // Has this team seen us before ?
+    if (!TestHaveSeen(id))
+    {
+        // Convert the id into a team
+        Team* t = Team::Id2Team(id);
+        ASSERT(t);
 
-    // Signal team radio that we've been spotted
-    t->GetRadio().Trigger(0xC3C503C8, Radio::Event(this)); // "ResourceSighted"
-  }
+        // Signal team radio that we've been spotted
+        t->GetRadio().Trigger(0xC3C503C8, Radio::Event(this)); // "ResourceSighted"
+    }
 
-  Game::TeamSet(teamsCanSee, id);
-  Game::TeamSet(teamsHaveSeen, id);
+    Game::TeamSet(teamsCanSee, id);
+    Game::TeamSet(teamsHaveSeen, id);
 }
 
 
@@ -292,7 +292,7 @@ void ResourceObj::SetCanSee(U32 id)
 //
 void ResourceObj::ClearCanSee(U32 id)
 {
-  Game::TeamClear(teamsCanSee, id);
+    Game::TeamClear(teamsCanSee, id);
 }
 
 
@@ -303,30 +303,30 @@ void ResourceObj::ClearCanSee(U32 id)
 //
 U32 ResourceObj::TakeResource(U32 want)
 {
-  if (want > resource)
-  {
-    want = resource;
-
-    // If this resource doesn't regenerate then mark it for deletion
-    if (!ResourceType()->resourceRate)
+    if (want > resource)
     {
-      GameObjCtrl::MarkForDeletion(this);
+        want = resource;
+
+        // If this resource doesn't regenerate then mark it for deletion
+        if (!ResourceType()->resourceRate)
+        {
+            GameObjCtrl::MarkForDeletion(this);
+        }
     }
-  }
 
-  // Is this object in a cluster
-  if (currentCluster)
-  {
-    currentCluster->ai.RemoveResource(want);
-  }
+    // Is this object in a cluster
+    if (currentCluster)
+    {
+        currentCluster->ai.RemoveResource(want);
+    }
 
-  // Remove from the resource
-  resource -= want;
+    // Remove from the resource
+    resource -= want;
 
-  AdjustResource();
+    AdjustResource();
 
-  // Return the amount that was available
-  return (want);
+    // Return the amount that was available
+    return (want);
 }
 
 
@@ -337,28 +337,28 @@ U32 ResourceObj::TakeResource(U32 want)
 //
 U32 ResourceObj::GiveResource(U32 amount)
 {
-  // How much space is left
-  ASSERT(resource <= ResourceType()->GetResourceMax())
-  U32 left = ResourceType()->GetResourceMax() - resource;
+    // How much space is left
+    ASSERT(resource <= ResourceType()->GetResourceMax());
+    U32 left = ResourceType()->GetResourceMax() - resource;
 
-  if (amount > left)
-  {
-    amount = left;
-  }
+    if (amount > left)
+    {
+        amount = left;
+    }
 
-  // Is this object in a cluster
-  if (currentCluster)
-  {
-    currentCluster->ai.AddResource(amount);
-  }
+    // Is this object in a cluster
+    if (currentCluster)
+    {
+        currentCluster->ai.AddResource(amount);
+    }
 
-  // Add to the resource
-  resource += amount;
+    // Add to the resource
+    resource += amount;
 
-  AdjustResource();
+    AdjustResource();
 
-  // Return the amount actually added
-  return (amount);
+    // Return the amount actually added
+    return (amount);
 }
 
 
@@ -369,21 +369,21 @@ U32 ResourceObj::GiveResource(U32 amount)
 //
 void ResourceObj::SetResource(F32 percentage)
 {
-  // Is this object in a cluster
-  if (currentCluster)
-  {
-    currentCluster->ai.RemoveResource(resource);
-  }
-  
-  resource = U32(percentage * F32(ResourceType()->GetResourceMax()));
+    // Is this object in a cluster
+    if (currentCluster)
+    {
+        currentCluster->ai.RemoveResource(resource);
+    }
 
-  AdjustResource();
+    resource = U32(percentage * F32(ResourceType()->GetResourceMax()));
 
-  // Is this object in a cluster
-  if (currentCluster)
-  {
-    currentCluster->ai.AddResource(resource);
-  }
+    AdjustResource();
+
+    // Is this object in a cluster
+    if (currentCluster)
+    {
+        currentCluster->ai.AddResource(resource);
+    }
 }
 
 
@@ -392,8 +392,8 @@ void ResourceObj::SetResource(F32 percentage)
 //
 void ResourceObj::AdjustResource()
 {
-  if (Mesh().curCycle)
-  {
-    Mesh().SetFrame((Mesh().curCycle->maxFrame - 1) * (1.0f - (F32(resource) * ResourceType()->GetResourceMaxInv())));
-  }
+    if (Mesh().curCycle)
+    {
+        Mesh().SetFrame((Mesh().curCycle->maxFrame - 1) * (1.0f - (F32(resource) * ResourceType()->GetResourceMaxInv())));
+    }
 }

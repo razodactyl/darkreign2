@@ -37,25 +37,25 @@
 //
 // Constructor
 //
-SpyObjType::SpyObjType(const char *name, FScope *fScope) : UnitObjType(name, fScope)
+SpyObjType::SpyObjType(const char* name, FScope* fScope) : UnitObjType(name, fScope)
 {
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Resources to steal per second, convert to per cycle
-  resourceRate = Utils::FtoL(StdLoad::TypeF32(fScope, "ResourceRate", F32(GameTime::CYCLESPERSECOND), Range<F32>::positive) * GameTime::INTERVAL);
+    // Resources to steal per second, convert to per cycle
+    resourceRate = Utils::FtoL(StdLoad::TypeF32(fScope, "ResourceRate", F32(GameTime::CYCLESPERSECOND), Range<F32>::positive) * GameTime::INTERVAL);
 
-  // Level to reduce power to
-  powerLevel = StdLoad::TypeF32(fScope, "PowerLevel", 0.5F, Range<F32>::percentage);
+    // Level to reduce power to
+    powerLevel = StdLoad::TypeF32(fScope, "PowerLevel", 0.5F, Range<F32>::percentage);
 
-  // Power units to steal per second, convert to per cycle
-  powerRate = Utils::FtoL(StdLoad::TypeF32(fScope, "PowerRate", F32(GameTime::CYCLESPERSECOND), Range<F32>::positive) * GameTime::INTERVAL);
+    // Power units to steal per second, convert to per cycle
+    powerRate = Utils::FtoL(StdLoad::TypeF32(fScope, "PowerRate", F32(GameTime::CYCLESPERSECOND), Range<F32>::positive) * GameTime::INTERVAL);
 
-  // Time delay from being compromised to being executed
-  surrenderCycles = Utils::FtoL(StdLoad::TypeF32(fScope, "SurrenderDelay", 6.0F, Range<F32>::positive) * F32(GameTime::CYCLESPERSECOND));
+    // Time delay from being compromised to being executed
+    surrenderCycles = Utils::FtoL(StdLoad::TypeF32(fScope, "SurrenderDelay", 6.0F, Range<F32>::positive) * F32(GameTime::CYCLESPERSECOND));
 
-  // Load the morphing properties
-  properties.Load(fScope, "Properties", FALSE);
+    // Load the morphing properties
+    properties.Load(fScope, "Properties", FALSE);
 }
 
 
@@ -74,8 +74,8 @@ SpyObjType::~SpyObjType()
 //
 void SpyObjType::PostLoad()
 {
-  // Call parent scope first
-  UnitObjType::PostLoad();
+    // Call parent scope first
+    UnitObjType::PostLoad();
 }
 
 
@@ -84,13 +84,13 @@ void SpyObjType::PostLoad()
 //
 Bool SpyObjType::InitializeResources()
 {
-  // Are we allowed to initialize resources ?
-  if (UnitObjType::InitializeResources())
-  {
-    return (TRUE);
-  }
+    // Are we allowed to initialize resources ?
+    if (UnitObjType::InitializeResources())
+    {
+        return (TRUE);
+    }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -101,8 +101,8 @@ Bool SpyObjType::InitializeResources()
 //
 GameObj* SpyObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new SpyObj(this, id));
+    // Allocate new object instance
+    return (new SpyObj(this, id));
 }
 
 
@@ -110,11 +110,11 @@ GameObj* SpyObjType::NewInstance(U32 id)
 // CalcPowerLeak
 //
 // Calculate power to steal for a given unit type
-U32 SpyObjType::CalcPowerLeak(UnitObjType *type)
+U32 SpyObjType::CalcPowerLeak(UnitObjType* type)
 {
-  // Use larger of day/night power production
-  U32 produced = Max<U32>(type->GetPower().GetProducedDay(), type->GetPower().GetProducedNight());
-  return (Utils::FtoL(F32(produced) * (1.0F - powerLevel)));
+    // Use larger of day/night power production
+    U32 produced = Max<U32>(type->GetPower().GetProducedDay(), type->GetPower().GetProducedNight());
+    return (Utils::FtoL(F32(produced) * (1.0F - powerLevel)));
 }
 
 
@@ -131,9 +131,9 @@ NList<SpyObj> SpyObj::allSpies(&SpyObj::spyNode);
 //
 // Constructor
 //
-SpyObj::SpyObj(SpyObjType *objType, U32 id) : UnitObj(objType, id), morphTeam(NULL)
+SpyObj::SpyObj(SpyObjType* objType, U32 id) : UnitObj(objType, id), morphTeam(NULL)
 {
-  allSpies.Append(this);
+    allSpies.Append(this);
 }
 
 
@@ -142,7 +142,7 @@ SpyObj::SpyObj(SpyObjType *objType, U32 id) : UnitObj(objType, id), morphTeam(NU
 //
 SpyObj::~SpyObj()
 {
-  allSpies.Unlink(this);
+    allSpies.Unlink(this);
 }
 
 
@@ -153,11 +153,11 @@ SpyObj::~SpyObj()
 //
 void SpyObj::PreDelete()
 {
-  // Notify the idle task
-  SendEvent(Task::Event(0x97824A27), TRUE); // "SpyObj::PreDelete"
+    // Notify the idle task
+    SendEvent(Task::Event(0x97824A27), TRUE); // "SpyObj::PreDelete"
 
-  // Call parent scope last
-  UnitObj::PreDelete();
+    // Call parent scope last
+    UnitObj::PreDelete();
 }
 
 
@@ -166,32 +166,32 @@ void SpyObj::PreDelete()
 //
 // Save state configuration
 //
-void SpyObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void SpyObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Notify the spy task that we've been found out
-  Tasks::SpyIdle * task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(this);
+    // Notify the spy task that we've been found out
+    Tasks::SpyIdle* task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(this);
 
-  MeshEnt * originalMesh = NULL;
+    MeshEnt* originalMesh = NULL;
 
-  if (task && task->IsMorphed())
-  {
-    originalMesh = task->oldMesh;
-  }
+    if (task && task->IsMorphed())
+    {
+        originalMesh = task->oldMesh;
+    }
 
-  // Call parent scope first
-  UnitObj::SaveState(fScope, originalMesh);
+    // Call parent scope first
+    UnitObj::SaveState(fScope, originalMesh);
 
-  // Create specific config scope
-  fScope = fScope->AddFunction(SCOPE_CONFIG);
+    // Create specific config scope
+    fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-  // Save the morph team
-  if (morphTeam)
-  {
-    StdSave::TypeString(fScope, "MorphTeam", morphTeam->GetName());
-  }
+    // Save the morph team
+    if (morphTeam)
+    {
+        StdSave::TypeString(fScope, "MorphTeam", morphTeam->GetName());
+    }
 
-  // Save the morph type
-  StdSave::TypeReaperObjType(fScope, "MorphType", morphType);
+    // Save the morph type
+    StdSave::TypeReaperObjType(fScope, "MorphType", morphType);
 }
 
 
@@ -200,31 +200,31 @@ void SpyObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 // Load state configuration
 //
-void SpyObj::LoadState(FScope *fScope)
+void SpyObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  UnitObj::LoadState(fScope);
+    // Call parent scope first
+    UnitObj::LoadState(fScope);
 
-  // Get specific config scope
-  if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
-  {
-    FScope *sScope;
-
-    while ((sScope = fScope->NextFunction()) != NULL)
+    // Get specific config scope
+    if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
     {
-      switch (sScope->NameCrc())
-      {
-        case 0x95B674EF: // "MorphTeam"
-          morphTeam = Team::Name2Team(StdLoad::TypeString(sScope));
-          break;
+        FScope* sScope;
 
-        case 0x65DBDDCC: // "MorphType"
-          StdLoad::TypeReaperObjType(sScope, morphType);
-          Resolver::Type(morphType);
-          break;
-      }
+        while ((sScope = fScope->NextFunction()) != NULL)
+        {
+            switch (sScope->NameCrc())
+            {
+            case 0x95B674EF: // "MorphTeam"
+                morphTeam = Team::Name2Team(StdLoad::TypeString(sScope));
+                break;
+
+            case 0x65DBDDCC: // "MorphType"
+                StdLoad::TypeReaperObjType(sScope, morphType);
+                Resolver::Type(morphType);
+                break;
+            }
+        }
     }
-  }
 }
 
 
@@ -233,26 +233,26 @@ void SpyObj::LoadState(FScope *fScope)
 //
 // Send an Event
 //
-Bool SpyObj::SendEvent(const Task::Event &event, Bool idle)
+Bool SpyObj::SendEvent(const Task::Event& event, Bool idle)
 {
-  switch (event.message)
-  {
+    switch (event.message)
+    {
     case 0xF874D787: // "AttackTarget"
     {
-      // Notify the spy task that we've been found out
-      Tasks::SpyIdle *task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(this);
+        // Notify the spy task that we've been found out
+        Tasks::SpyIdle* task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(this);
 
-      if (task && task->IsMorphed())
-      {
-        task->MorphDetected();
-      }
-      return (TRUE);
+        if (task && task->IsMorphed())
+        {
+            task->MorphDetected();
+        }
+        return (TRUE);
     }
 
     default:
-      // If we don't want the event pass it down
-      return (MapObj::SendEvent(event, idle));
-  }
+        // If we don't want the event pass it down
+        return (MapObj::SendEvent(event, idle));
+    }
 }
 
 
@@ -261,38 +261,38 @@ Bool SpyObj::SendEvent(const Task::Event &event, Bool idle)
 //
 // Can the spy morph into another unit right now
 //
-Bool SpyObj::CanMorph(UnitObj *unit)
+Bool SpyObj::CanMorph(UnitObj* unit)
 {
-  if (!SpyType()->CanMorph(unit->UnitType()))
-  {
-    // Not configured to morph into this type
-    return (FALSE);
-  }
-
-  /*
-  if (unit->UnitType()->GetGrainSize() != UnitType()->GetGrainSize())
-  {
-    // Other unit is a different size
-    return (FALSE);
-  }
-  */
-
-  if (!unit->CanEverMove())
-  {
-    // Other unit can't move
-    return (FALSE);
-  }
-
-  if (GetTeam())
-  {
-    if (GetTeam()->GetTeamsByRelation(Relation::ENEMY) & GetTeamsCanSee())
+    if (!SpyType()->CanMorph(unit->UnitType()))
     {
-      // Spy is seen by enemy teams
+        // Not configured to morph into this type
+        return (FALSE);
+    }
+
+    /*
+    if (unit->UnitType()->GetGrainSize() != UnitType()->GetGrainSize())
+    {
+      // Other unit is a different size
       return (FALSE);
     }
-  }
+    */
 
-  return (TRUE);
+    if (!unit->CanEverMove())
+    {
+        // Other unit can't move
+        return (FALSE);
+    }
+
+    if (GetTeam())
+    {
+        if (GetTeam()->GetTeamsByRelation(Relation::ENEMY) & GetTeamsCanSee())
+        {
+            // Spy is seen by enemy teams
+            return (FALSE);
+        }
+    }
+
+    return (TRUE);
 }
 
 
@@ -301,18 +301,18 @@ Bool SpyObj::CanMorph(UnitObj *unit)
 //
 // Set or clear the morph target data
 //
-void SpyObj::SetMorphTarget(UnitObj *unit)
+void SpyObj::SetMorphTarget(UnitObj* unit)
 {
-  if (unit)
-  {
-    morphTeam = unit->GetTeam();
-    morphType = unit->UnitType();
-  }
-  else
-  {
-    morphTeam = NULL;
-    morphType = NULL;
-  }
+    if (unit)
+    {
+        morphTeam = unit->GetTeam();
+        morphType = unit->UnitType();
+    }
+    else
+    {
+        morphTeam = NULL;
+        morphType = NULL;
+    }
 }
 
 
@@ -321,7 +321,7 @@ void SpyObj::SetMorphTarget(UnitObj *unit)
 //
 // Get the morph team of this spy, or NULL if not morphed
 //
-Team * SpyObj::GetMorphTeam()
+Team* SpyObj::GetMorphTeam()
 {
-  return (morphTeam);
+    return (morphTeam);
 }

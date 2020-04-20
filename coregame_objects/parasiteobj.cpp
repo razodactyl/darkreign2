@@ -33,15 +33,15 @@
 //
 // Constructor
 //
-ParasiteObjType::ParasiteObjType(const char *name, FScope *fScope) : UnitObjType(name, fScope)
+ParasiteObjType::ParasiteObjType(const char* name, FScope* fScope) : UnitObjType(name, fScope)
 {
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load config
-  time1 = StdLoad::TypeF32(fScope, "Time1", 0.0F);
-  time2 = StdLoad::TypeF32(fScope, "Time2", 0.0F);
-  useRadio = StdLoad::TypeU32(fScope, "UseRadio", FALSE, Range<U32>::flag);
+    // Load config
+    time1 = StdLoad::TypeF32(fScope, "Time1", 0.0F);
+    time2 = StdLoad::TypeF32(fScope, "Time2", 0.0F);
+    useRadio = StdLoad::TypeU32(fScope, "UseRadio", FALSE, Range<U32>::flag);
 }
 
 
@@ -60,8 +60,8 @@ ParasiteObjType::~ParasiteObjType()
 //
 void ParasiteObjType::PostLoad()
 {
-  // Call parent scope first
-  UnitObjType::PostLoad();
+    // Call parent scope first
+    UnitObjType::PostLoad();
 }
 
 
@@ -72,8 +72,8 @@ void ParasiteObjType::PostLoad()
 //
 GameObj* ParasiteObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new ParasiteObj(this, id));
+    // Allocate new object instance
+    return (new ParasiteObj(this, id));
 }
 
 
@@ -82,32 +82,32 @@ GameObj* ParasiteObjType::NewInstance(U32 id)
 //
 // Infect the given object with this parasite (FALSE if already infected)
 //
-Bool ParasiteObjType::Infect(UnitObj *target, Team *team)
+Bool ParasiteObjType::Infect(UnitObj* target, Team* team)
 {
-  ASSERT(target)
+    ASSERT(target)
 
-  // Ignore if already infected or null mesh
-  if (!target->GetFlag(UnitObj::FLAG_PARASITE) && !target->MapType()->IsNullObj())
-  {
-    // Create the parasite
-    ParasiteObj *p = (ParasiteObj*)(&Spawn(target->WorldMatrix(), team));
+        // Ignore if already infected or null mesh
+        if (!target->GetFlag(UnitObj::FLAG_PARASITE) && !target->MapType()->IsNullObj())
+        {
+            // Create the parasite
+            ParasiteObj* p = (ParasiteObj*)(&Spawn(target->WorldMatrix(), team));
 
-    // Attach to the target
-    p->Attach(target, target->Mesh());
+            // Attach to the target
+            p->Attach(target, target->Mesh());
 
-    // Set the target pointer
-    p->SetTarget(target);
+            // Set the target pointer
+            p->SetTarget(target);
 
-    // Set the clandestine flag in the parasite
-    p->SetFlag(UnitObj::FLAG_CLANDESTINE, TRUE);
+            // Set the clandestine flag in the parasite
+            p->SetFlag(UnitObj::FLAG_CLANDESTINE, TRUE);
 
-    // Trigger the effect
-    StartGenericFX(target, 0x424516F6); // "Parasite::Infected"
+            // Trigger the effect
+            StartGenericFX(target, 0x424516F6); // "Parasite::Infected"
 
-    return (TRUE);
-  }
+            return (TRUE);
+        }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -120,7 +120,7 @@ Bool ParasiteObjType::Infect(UnitObj *target, Team *team)
 //
 // Constructor
 //
-ParasiteObj::ParasiteObj(ParasiteObjType *objType, U32 id) : UnitObj(objType, id)
+ParasiteObj::ParasiteObj(ParasiteObjType* objType, U32 id) : UnitObj(objType, id)
 {
 }
 
@@ -140,13 +140,13 @@ ParasiteObj::~ParasiteObj()
 //
 void ParasiteObj::PreDelete()
 {
-  if (target.Alive())
-  {
-    target->SetFlag(UnitObj::FLAG_PARASITE, FALSE);
-  }
+    if (target.Alive())
+    {
+        target->SetFlag(UnitObj::FLAG_PARASITE, FALSE);
+    }
 
-  // Call parent scope last
-  UnitObj::PreDelete();
+    // Call parent scope last
+    UnitObj::PreDelete();
 }
 
 
@@ -155,15 +155,15 @@ void ParasiteObj::PreDelete()
 //
 // Save a state configuration scope
 //
-void ParasiteObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void ParasiteObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  UnitObj::SaveState(fScope);
+    // Call parent scope first
+    UnitObj::SaveState(fScope);
 
-  // Create specific config scope
-  fScope = fScope->AddFunction(SCOPE_CONFIG);
+    // Create specific config scope
+    fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-  StdSave::TypeReaper(fScope, "Target", target);
+    StdSave::TypeReaper(fScope, "Target", target);
 }
 
 
@@ -172,15 +172,15 @@ void ParasiteObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 // Load a state configuration scope
 //
-void ParasiteObj::LoadState(FScope *fScope)
+void ParasiteObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  UnitObj::LoadState(fScope);
+    // Call parent scope first
+    UnitObj::LoadState(fScope);
 
-  // Get the config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get the config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  StdLoad::TypeReaper(fScope, "Target", target);
+    StdLoad::TypeReaper(fScope, "Target", target);
 }
 
 
@@ -191,10 +191,10 @@ void ParasiteObj::LoadState(FScope *fScope)
 //
 void ParasiteObj::PostLoad()
 {
-  // Call parent scope first
-  UnitObj::PostLoad();
+    // Call parent scope first
+    UnitObj::PostLoad();
 
-  Resolver::Object<UnitObj, UnitObjType>(target);
+    Resolver::Object<UnitObj, UnitObjType>(target);
 }
 
 
@@ -203,14 +203,13 @@ void ParasiteObj::PostLoad()
 //
 // Sets the target
 //
-void ParasiteObj::SetTarget(UnitObj *t)
+void ParasiteObj::SetTarget(UnitObj* t)
 {
-  target = t;
+    target = t;
 
-  // Set the infection flag
-  if (t)
-  {
-    t->SetFlag(UnitObj::FLAG_PARASITE, TRUE);
-  }
+    // Set the infection flag
+    if (t)
+    {
+        t->SetFlag(UnitObj::FLAG_PARASITE, TRUE);
+    }
 }
-
