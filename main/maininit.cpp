@@ -818,17 +818,17 @@ namespace Main
 
         PERF_E("BeginFrame")
 
-        // Redraw performance stats
-        PERF_REDRAW
+            // Redraw performance stats
+            PERF_REDRAW
 
-        if (
-            GetAsyncKeyState(VK_CONTROL) < 0 &&
-            GetAsyncKeyState(VK_LWIN) < 0 &&
-            GetAsyncKeyState('Z') < 0)
-        {
-            // Redraw init system
-            Debug::Memory::DisplayMono();
-        }
+            if (
+                GetAsyncKeyState(VK_CONTROL) < 0 &&
+                GetAsyncKeyState(VK_LWIN) < 0 &&
+                GetAsyncKeyState('Z') < 0)
+            {
+                // Redraw init system
+                Debug::Memory::DisplayMono();
+            }
 
     }
 
@@ -871,8 +871,8 @@ namespace Main
 
 #ifdef DEVELOPMENT
 
-            // Ping the watchdog
-            Debug::Watchdog::Poll();
+                // Ping the watchdog
+                Debug::Watchdog::Poll();
 
 #endif
 

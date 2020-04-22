@@ -19,154 +19,154 @@
 namespace Hardware
 {
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Hardware
-  //
-  namespace CPU
-  {
-
-    // CPU Type
-    enum Type
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Hardware
+    //
+    namespace CPU
     {
-      // Unknown or un-identifiable
-      UNKNOWN = 0,
-      i486,
 
-      // Intel family
-      Pentium,
-      PentiumMMX,
-      PentiumII,
-      PentiumIII,
-      PentiumPro,
-      Celeron,
-      Celeron_2,
+        // CPU Type
+        enum Type
+        {
+            // Unknown or un-identifiable
+            UNKNOWN = 0,
+            i486,
 
-      // AMD family
-      AMD5x86,
-      AMDK5,
-      AMDK6,
-      AMDK6_2,
-      AMDK6_3,
-      AMDK7,
+            // Intel family
+            Pentium,
+            PentiumMMX,
+            PentiumII,
+            PentiumIII,
+            PentiumPro,
+            Celeron,
+            Celeron_2,
 
-      // Cyrix family
-      Cyrix686,
-      Cyrix686MX,
-      CyrixMediaGX,
-      CyrixGXm,
+            // AMD family
+            AMD5x86,
+            AMDK5,
+            AMDK6,
+            AMDK6_2,
+            AMDK6_3,
+            AMDK7,
 
-      // IDT winchip family
-      IDTC6,
-      IDTC6Plus,
+            // Cyrix family
+            Cyrix686,
+            Cyrix686MX,
+            CyrixMediaGX,
+            CyrixGXm,
 
-      MAXTYPE,
-    };
+            // IDT winchip family
+            IDTC6,
+            IDTC6Plus,
 
-    // CPU Feature set
-    enum Features
+            MAXTYPE,
+        };
+
+        // CPU Feature set
+        enum Features
+        {
+            FPU = 0,
+            TSC,
+            MMX,
+            AMD3D,
+            KNI,
+            FDIVBUG,
+            PSN,
+
+            MAXFEATURES,
+        };
+
+        // Get the CPU Type
+        Type GetType();
+
+        // Get description
+        const char* GetDesc();
+
+        // Get detailed description
+        const char* GetDetailedDesc();
+
+        // Get serial number
+        const char* GetSerial();
+
+        // Get the clock speed in MHz
+        U32 GetSpeed();
+
+        // Test for a CPU feature
+        Bool HasFeature(Features f);
+
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Memory
+    //
+    namespace Memory
     {
-      FPU = 0,
-      TSC,
-      MMX,
-      AMD3D,
-      KNI,
-      FDIVBUG,
-      PSN,
 
-      MAXFEATURES,
-    };
+        // Physical memory in bytes
+        U32  GetPhysical();
 
-    // Get the CPU Type
-    Type GetType();
+        // Virtual memory in bytes
+        U32  GetVirtual();
 
-    // Get description
-    const char *GetDesc();
+        // Description
+        const char* GetDesc();
 
-    // Get detailed description
-    const char *GetDetailedDesc();
-
-    // Get serial number
-    const char *GetSerial();
-
-    // Get the clock speed in MHz
-    U32 GetSpeed();
-
-    // Test for a CPU feature
-    Bool HasFeature(Features f);
-
-  }
+    }
 
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Memory
-  //
-  namespace Memory
-  {
-
-    // Physical memory in bytes
-    U32  GetPhysical();
-
-    // Virtual memory in bytes
-    U32  GetVirtual();
-
-    // Description
-    const char *GetDesc();
-
-  }
-
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Device
-  //
-  namespace Device
-  {
-
-    // Get number
-    U32 GetNum();
-
-    // Enumerate devices
-    const char *Enum(U32 number);
-
-  }
-
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace OS
-  //
-  namespace OS
-  {
-
-    // OS Type
-    enum Type
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Device
+    //
+    namespace Device
     {
-      Win32s,
-      Win9x,
-      WinNT,
-      Unknown
-    };
 
-    // Description string
-    const char  *GetDesc();
+        // Get number
+        U32 GetNum();
 
-    // OS Type
-    Type GetType();
+        // Enumerate devices
+        const char* Enum(U32 number);
 
-    // Version numbers
-    U32 GetVersionMajor();
-    U32 GetVersionMinor();
-    U32 GetBuild();
+    }
 
-    // Name of this computer
-    const char *GetComputer();
 
-    // Logged in user
-    const char *GetUser();
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace OS
+    //
+    namespace OS
+    {
 
-  }
+        // OS Type
+        enum Type
+        {
+            Win32s,
+            Win9x,
+            WinNT,
+            Unknown
+        };
+
+        // Description string
+        const char* GetDesc();
+
+        // OS Type
+        Type GetType();
+
+        // Version numbers
+        U32 GetVersionMajor();
+        U32 GetVersionMinor();
+        U32 GetBuild();
+
+        // Name of this computer
+        const char* GetComputer();
+
+        // Logged in user
+        const char* GetUser();
+
+    }
 
 }
 
