@@ -1,4 +1,4 @@
-/** 
+/**
  @file  win32.h
  @brief ENet Win32 header
 */
@@ -30,7 +30,7 @@ typedef SOCKET ENetSocket;
 typedef struct
 {
     size_t dataLength;
-    void * data;
+    void* data;
 } ENetBuffer;
 
 #define ENET_CALLBACK __fastcall

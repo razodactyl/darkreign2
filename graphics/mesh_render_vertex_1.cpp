@@ -15,553 +15,553 @@
 #include "statistics.h"
 //----------------------------------------------------------------------------
 
-void MeshRoot::SetVertsWorldAnim( const Array<FamilyState> & stateArray, Matrix * tranys, VertexI * verts, U32 vCount, Bool doMultiWeight) const
+void MeshRoot::SetVertsWorldAnim(const Array<FamilyState>& stateArray, Matrix* tranys, VertexI* verts, U32 vCount, Bool doMultiWeight) const
 {
-  SetMatricesWorld( stateArray, tranys);
+    SetMatricesWorld(stateArray, tranys);
 
-  // transform verts to world space
-  U32 i;
-  for (i = 0; i < vCount; i++)
-  {
-    SetVert( tranys, i, verts[i].vv, doMultiWeight);
-  }
+    // transform verts to world space
+    U32 i;
+    for (i = 0; i < vCount; i++)
+    {
+        SetVert(tranys, i, verts[i].vv, doMultiWeight);
+    }
 }
 //----------------------------------------------------------------------------
 
-void MeshRoot::RenderLightAnimV1( Array<FaceGroup> & _buckys, U32 vCount, const Array<FamilyState> & stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
+void MeshRoot::RenderLightAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
 {
-  clipFlags;
-  vCount;
+    clipFlags;
+    vCount;
 
-  ASSERT( _buckys.count <= MAXBUCKYS);
-  ASSERT( _buckys.count == groups.count);
+    ASSERT(_buckys.count <= MAXBUCKYS);
+    ASSERT(_buckys.count == groups.count);
 
-  Rebuild();
+    Rebuild();
 
 #ifdef DOSTATISTICS
-  Statistics::tempTris = 0;
+    Statistics::tempTris = 0;
 #endif
 
-  vCount = vertex.count;
+    vCount = vertex.count;
 
-  VertexI * verts;
-  U16 * iv;
-  U32 heapSize = Vid::Heap::ReqVertexI( &verts, vCount, &iv, vCount);
+    VertexI* verts;
+    U16* iv;
+    U32 heapSize = Vid::Heap::ReqVertexI(&verts, vCount, &iv, vCount);
 
-  Matrix tranys[MAXMESHPERGROUP];
-  SetVertsWorldAnim( stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
-/*
-      if (hasTread)
-      {
-        d->uv.v += vOffsets[vmap->index[0]];
-      }
-*/
-//  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
-  if (baseColor.a < 255) 
-  {
-    BucketMan::forceTranslucent = TRUE;
-  }
-
-  // setup bucket desc elements common to all faces
-  //
-  Vid::SetBucketPrimitiveDesc(
-    PT_TRIANGLELIST,
-    FVF_VERTEX,
-    RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
-
-  ColorF32 base( baseColor);
-
-  // setup _buckys and fill them
-  //
-//  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-  FaceGroup * b = groups.data, * be = groups.data + groups.count;
-  for (U16 sort = Vid::sortNORMAL0; b < be; b++, sort++)
-  {
-    FaceGroup & bucky = *b;
-
-    // keep various textures in a fixed sort order for no-pop translucency
-    BucketMan::SetTag1( sort);
-
-    // get memory
-    //
-    if (!Vid::LockBucket( bucky, _controlFlags, clipNONE, &stateArray))
+    Matrix tranys[MAXMESHPERGROUP];
+    SetVertsWorldAnim(stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
+    /*
+          if (hasTread)
+          {
+            d->uv.v += vOffsets[vmap->index[0]];
+          }
+    */
+    //  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
+    if (baseColor.a < 255)
     {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-      continue;
+        BucketMan::forceTranslucent = TRUE;
     }
-    bucky.vCount = 0;
-    bucky.iCount = 0;
 
-    // clear indexers
+    // setup bucket desc elements common to all faces
     //
-    memset( iv, 0xff, sizeof(U16) * vertices.count);
+    Vid::SetBucketPrimitiveDesc(
+        PT_TRIANGLELIST,
+        FVF_VERTEX,
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
 
-    // for all the faces in this group
+    ColorF32 base(baseColor);
+
+    // setup _buckys and fill them
     //
-    U16 * ii, * ie = bucky.geo.idx + bucky.geo.iCount;
-    for (ii = bucky.geo.idx; ii < ie; ii++)
+  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup* b = groups.data, * be = groups.data + groups.count;
+    for (U16 sort = Vid::sortNORMAL0; b < be; b++, sort++)
     {
-      U16 ivj = *ii;
-      ASSERT( ivj < vertex.count);
+        FaceGroup& bucky = *b;
 
-      if (iv[ivj] == 0xffff)
-      {
-        Vertex  & dv = bucky.CurrVertex();
-        VertexI & sv = verts[ivj];
+        // keep various textures in a fixed sort order for no-pop translucency
+        BucketMan::SetTag1(sort);
 
-        if (hasTread)
-        {
-          dv.uv.v += vOffsets[sv.vi.index[0]];
-        }
-
-        bucky.SetIndex( (U16) bucky.vCount);
-        bucky.vCount++;
-      }
-      else
-      {
-        // same old vert 
+        // get memory
         //
-        bucky.SetIndex( iv[ivj]);
-      }
-    }
-    // flush memory
-    // 
-    if (!Vid::UnLockBucket( bucky, clipNONE, &stateArray) && bucky.vCount > 0)
-    {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-    }
-  }
-  BucketMan::forceTranslucent = FALSE;
-
-  Vid::Heap::Restore( heapSize);
-
-#ifdef DOSTATISTICS
-  Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
-  if (mrm)
-  {
-    Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
-  }
-  else
-  {
-    Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
-  }
-#endif
-}
-//----------------------------------------------------------------------------
-
-
-void MeshRoot::RenderLightNoAnimV1( Array<FaceGroup> & _buckys, U32 vCount, const Array<FamilyState> & stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
-{
-  clipFlags;
-  vCount;
-
-  ASSERT( _buckys.count <= MAXBUCKYS);
-  ASSERT( _buckys.count == groups.count);
-
-  Rebuild();
-
-#ifdef DOSTATISTICS
-  Statistics::tempTris = 0;
-#endif
-
-  vCount = vertex.count;
-
-  VertexI * verts;
-  U16 * iv;
-  U32 heapSize = Vid::Heap::ReqVertexI( &verts, vCount, &iv, vCount);
-
-  Matrix tranys[MAXMESHPERGROUP];
-  SetVertsWorldAnim( stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
-/*
-      if (hasTread)
-      {
-        d->uv.v += vOffsets[vmap->index[0]];
-      }
-*/
-//  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
-  if (baseColor.a < 255) 
-  {
-    BucketMan::forceTranslucent = TRUE;
-  }
-
-  // setup bucket desc elements common to all faces
-  //
-  Vid::SetBucketPrimitiveDesc(
-    PT_TRIANGLELIST,
-    FVF_VERTEX,
-    RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
-
-  ColorF32 base( baseColor);
-
-  // setup _buckys and fill them
-  //
-//  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-  FaceGroup * b = groups.data, * be = groups.data + groups.count;
-  for (U16 sort = Vid::sortNORMAL0; b < be; b++, sort++)
-  {
-    FaceGroup & bucky = *b;
-
-    // keep various textures in a fixed sort order for no-pop translucency
-    BucketMan::SetTag1( sort);
-
-    // get memory
-    //
-    if (!Vid::LockBucket( bucky, _controlFlags, clipNONE, &stateArray))
-    {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-      continue;
-    }
-    bucky.vCount = 0;
-    bucky.iCount = 0;
-
-    // clear indexers
-    //
-    memset( iv, 0xff, sizeof(U16) * vertices.count);
-
-    // for all the faces in this group
-    //
-    U16 * ii, * ie = bucky.geo.idx + bucky.geo.iCount;
-    for (ii = bucky.geo.idx; ii < ie; ii++)
-    {
-      U16 ivj = *ii;
-      ASSERT( ivj < vertex.count);
-
-      if (iv[ivj] == 0xffff)
-      {
-        Vertex  & dv = bucky.CurrVertex();
-        VertexI & sv = verts[ivj];
-
-        if (hasTread)
+        if (!Vid::LockBucket(bucky, _controlFlags, clipNONE, &stateArray))
         {
-          dv.uv.v += vOffsets[sv.vi.index[0]];
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
+            continue;
         }
+        bucky.vCount = 0;
+        bucky.iCount = 0;
 
-        bucky.SetIndex( (U16) bucky.vCount);
-        bucky.vCount++;
-      }
-      else
-      {
-        // same old vert 
+        // clear indexers
         //
-        bucky.SetIndex( iv[ivj]);
-      }
-    }
-    // flush memory
-    // 
-    if (!Vid::UnLockBucket( bucky, clipNONE, &stateArray) && bucky.vCount > 0)
-    {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-    }
-  }
-  BucketMan::forceTranslucent = FALSE;
+        memset(iv, 0xff, sizeof(U16) * vertices.count);
 
-  Vid::Heap::Restore( heapSize);
-
-#ifdef DOSTATISTICS
-  Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
-  if (mrm)
-  {
-    Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
-  }
-  else
-  {
-    Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
-  }
-#endif
-}
-//----------------------------------------------------------------------------
-
-void MeshRoot::RenderColorAnimV1( Array<FaceGroup> & _buckys, U32 vCount, const Array<FamilyState> & stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap * tex, U32 blend, U16 sort)
-{
-  clipFlags;
-  vCount;
-
-  ASSERT( _buckys.count <= MAXBUCKYS);
-  ASSERT( _buckys.count == groups.count);
-
-  Rebuild();
-
-#ifdef DOSTATISTICS
-  Statistics::tempTris = 0;
-#endif
-
-  vCount = vertex.count;
-
-  VertexI * verts;
-  U16 * iv;
-  U32 heapSize = Vid::Heap::ReqVertexI( &verts, vCount, &iv, vCount);
-
-  Matrix tranys[MAXMESHPERGROUP];
-  SetVertsWorldAnim( stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
-/*
-      if (hasTread)
-      {
-        d->uv.v += vOffsets[vmap->index[0]];
-      }
-*/
-//  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
-  if (baseColor.a < 255) 
-  {
-    BucketMan::forceTranslucent = TRUE;
-  }
-
-  // setup bucket desc elements common to all faces
-  //
-  Vid::SetBucketPrimitiveDesc(
-    PT_TRIANGLELIST,
-    FVF_VERTEX,
-    RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
-
-  ColorF32 base( baseColor);
-
-  // setup _buckys and fill them
-  //
-//  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-  FaceGroup * b = groups.data, * be = groups.data + groups.count;
-  for ( /*sort = Vid::sortNORMAL0 */; b < be; b++, sort++)
-  {
-    FaceGroup & bucky = *b;
-
-    // keep various textures in a fixed sort order for no-pop translucency
-    BucketMan::SetTag1( sort);
-
-    // get memory
-    //
-    if (!Vid::LockBucket( bucky, _controlFlags, clipNONE, &stateArray))
-    {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-      continue;
-    }
-    bucky.vCount = 0;
-    bucky.iCount = 0;
-
-    // clear indexers
-    //
-    memset( iv, 0xff, sizeof(U16) * vertices.count);
-
-    // for all the faces in this group
-    //
-    U16 * ii, * ie = bucky.geo.idx + bucky.geo.iCount;
-    for (ii = bucky.geo.idx; ii < ie; ii++)
-    {
-      U16 ivj = *ii;
-      ASSERT( ivj < vertex.count);
-
-      if (iv[ivj] == 0xffff)
-      {
-        Vertex  & dv = bucky.CurrVertex();
-        VertexI & sv = verts[ivj];
-
-        if (hasTread)
+        // for all the faces in this group
+        //
+        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        for (ii = bucky.geo.idx; ii < ie; ii++)
         {
-          dv.uv.v += vOffsets[sv.vi.index[0]];
+            U16 ivj = *ii;
+            ASSERT(ivj < vertex.count);
+
+            if (iv[ivj] == 0xffff)
+            {
+                Vertex& dv = bucky.CurrVertex();
+                VertexI& sv = verts[ivj];
+
+                if (hasTread)
+                {
+                    dv.uv.v += vOffsets[sv.vi.index[0]];
+                }
+
+                bucky.SetIndex((U16)bucky.vCount);
+                bucky.vCount++;
+            }
+            else
+            {
+                // same old vert 
+                //
+                bucky.SetIndex(iv[ivj]);
+            }
         }
-
-        bucky.SetIndex( (U16) bucky.vCount);
-        bucky.vCount++;
-      }
-      else
-      {
-        // same old vert 
-        //
-        bucky.SetIndex( iv[ivj]);
-      }
-    }
-    // flush memory
-    // 
-    if (!Vid::UnLockBucket( bucky, clipNONE, &stateArray) && bucky.vCount > 0)
-    {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-    }
-  }
-  BucketMan::forceTranslucent = FALSE;
-
-  Vid::Heap::Restore( heapSize);
-
-#ifdef DOSTATISTICS
-  Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
-  if (mrm)
-  {
-    Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
-  }
-  else
-  {
-    Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
-  }
-#endif
-}
-//----------------------------------------------------------------------------
-
-void MeshRoot::RenderColorNoAnimV1( Array<FaceGroup> & _buckys, U32 vCount, const Array<FamilyState> & stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap * tex, U32 blend, U16 sort)
-{
-  clipFlags;
-  vCount;
-
-  ASSERT( _buckys.count <= MAXBUCKYS);
-  ASSERT( _buckys.count == groups.count);
-
-  Rebuild();
-
-#ifdef DOSTATISTICS
-  Statistics::tempTris = 0;
-#endif
-
-  vCount = vertex.count;
-
-  VertexI * verts;
-  U16 * iv;
-  U32 heapSize = Vid::Heap::ReqVertexI( &verts, vCount, &iv, vCount);
-
-  Matrix tranys[MAXMESHPERGROUP];
-  SetVertsWorldAnim( stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
-/*
-      if (hasTread)
-      {
-        d->uv.v += vOffsets[vmap->index[0]];
-      }
-*/
-//  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
-  if (baseColor.a < 255) 
-  {
-    BucketMan::forceTranslucent = TRUE;
-  }
-
-  // setup bucket desc elements common to all faces
-  //
-  Vid::SetBucketPrimitiveDesc(
-    PT_TRIANGLELIST,
-    FVF_VERTEX,
-    RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
-
-  ColorF32 base( baseColor);
-
-  // setup _buckys and fill them
-  //
-//  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-  FaceGroup * b = groups.data, * be = groups.data + groups.count;
-  for (/*sort = Vid::sortNORMAL0*/; b < be; b++, sort++)
-  {
-    FaceGroup & bucky = *b;
-
-    // keep various textures in a fixed sort order for no-pop translucency
-    BucketMan::SetTag1( sort);
-
-    // get memory
-    //
-    if (!Vid::LockBucket( bucky, _controlFlags, clipNONE, &stateArray))
-    {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-      continue;
-    }
-    bucky.vCount = 0;
-    bucky.iCount = 0;
-
-    // clear indexers
-    //
-    memset( iv, 0xff, sizeof(U16) * vertices.count);
-
-    // for all the faces in this group
-    //
-    U16 * ii, * ie = bucky.geo.idx + bucky.geo.iCount;
-    for (ii = bucky.geo.idx; ii < ie; ii++)
-    {
-      U16 ivj = *ii;
-      ASSERT( ivj < vertex.count);
-
-      if (iv[ivj] == 0xffff)
-      {
-        Vertex  & dv = bucky.CurrVertex();
-        VertexI & sv = verts[ivj];
-
-        if (hasTread)
+        // flush memory
+        // 
+        if (!Vid::UnLockBucket(bucky, clipNONE, &stateArray) && bucky.vCount > 0)
         {
-          dv.uv.v += vOffsets[sv.vi.index[0]];
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
         }
-
-        bucky.SetIndex( (U16) bucky.vCount);
-        bucky.vCount++;
-      }
-      else
-      {
-        // same old vert 
-        //
-        bucky.SetIndex( iv[ivj]);
-      }
     }
-    // flush memory
-    // 
-    if (!Vid::UnLockBucket( bucky, clipNONE, &stateArray) && bucky.vCount > 0)
-    {
-      LOG_WARN( ("Can't lock buckets for %s", xsiName.str) );
-    }
-  }
-  BucketMan::forceTranslucent = FALSE;
+    BucketMan::forceTranslucent = FALSE;
 
-  Vid::Heap::Restore( heapSize);
+    Vid::Heap::Restore(heapSize);
 
 #ifdef DOSTATISTICS
-  Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
-  if (mrm)
-  {
-    Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
-  }
-  else
-  {
-    Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
-  }
+    Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
+    if (mrm)
+    {
+        Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
+    }
+    else
+    {
+        Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
+    }
 #endif
 }
 //----------------------------------------------------------------------------
 
-void MeshRoot::MrmUpdate1( Array<FaceGroup> & _groups, U32 vCountNew, U32 & _vertCount, U32 & _faceCount)
+
+void MeshRoot::RenderLightNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
 {
-  while (_vertCount != vCountNew)
-  {
-    FaceGroup * b, * be = _groups.data + _groups.count;
-    for (b = _groups.data; b < be; b++)
+    clipFlags;
+    vCount;
+
+    ASSERT(_buckys.count <= MAXBUCKYS);
+    ASSERT(_buckys.count == groups.count);
+
+    Rebuild();
+
+#ifdef DOSTATISTICS
+    Statistics::tempTris = 0;
+#endif
+
+    vCount = vertex.count;
+
+    VertexI* verts;
+    U16* iv;
+    U32 heapSize = Vid::Heap::ReqVertexI(&verts, vCount, &iv, vCount);
+
+    Matrix tranys[MAXMESHPERGROUP];
+    SetVertsWorldAnim(stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
+    /*
+          if (hasTread)
+          {
+            d->uv.v += vOffsets[vmap->index[0]];
+          }
+    */
+    //  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
+    if (baseColor.a < 255)
     {
-      FaceGroup & bucky = *b;
-
-      ASSERT( bucky.geo.mrm);
-
-      GeoCache::Mrm * mrm = NULL;
-
-      // update the face and vertex counts first
-      U32 dir = 0;
-	    if (_vertCount < vCountNew)
-	    {
-        mrm = bucky.geo.mrm + bucky.geo.vCount;
-        bucky.geo.vCount++;
-		    _vertCount++;
-
-        bucky.geo.iCount += mrm->iCount;
-	    }
-	    else  // decreasing
-	    {
-        bucky.geo.vCount--;
-		    _vertCount--;
-        mrm = bucky.geo.mrm + bucky.geo.vCount;
-
-
-        bucky.geo.iCount -= mrm->iCount;
-
-        dir = 0;
-	    }
-
-      GeoCache::Mrm::Rec * r, * re = mrm->rec + mrm->rCount;
-      for (r = mrm->rec; r < re; r++)
-      {
-        bucky.geo.idx[r->index] = r->value[dir];
-      }
+        BucketMan::forceTranslucent = TRUE;
     }
-	  if (_vertCount < vCountNew)
-	  {
-      _vertCount++;
+
+    // setup bucket desc elements common to all faces
+    //
+    Vid::SetBucketPrimitiveDesc(
+        PT_TRIANGLELIST,
+        FVF_VERTEX,
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+
+    ColorF32 base(baseColor);
+
+    // setup _buckys and fill them
+    //
+  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup* b = groups.data, * be = groups.data + groups.count;
+    for (U16 sort = Vid::sortNORMAL0; b < be; b++, sort++)
+    {
+        FaceGroup& bucky = *b;
+
+        // keep various textures in a fixed sort order for no-pop translucency
+        BucketMan::SetTag1(sort);
+
+        // get memory
+        //
+        if (!Vid::LockBucket(bucky, _controlFlags, clipNONE, &stateArray))
+        {
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
+            continue;
+        }
+        bucky.vCount = 0;
+        bucky.iCount = 0;
+
+        // clear indexers
+        //
+        memset(iv, 0xff, sizeof(U16) * vertices.count);
+
+        // for all the faces in this group
+        //
+        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        for (ii = bucky.geo.idx; ii < ie; ii++)
+        {
+            U16 ivj = *ii;
+            ASSERT(ivj < vertex.count);
+
+            if (iv[ivj] == 0xffff)
+            {
+                Vertex& dv = bucky.CurrVertex();
+                VertexI& sv = verts[ivj];
+
+                if (hasTread)
+                {
+                    dv.uv.v += vOffsets[sv.vi.index[0]];
+                }
+
+                bucky.SetIndex((U16)bucky.vCount);
+                bucky.vCount++;
+            }
+            else
+            {
+                // same old vert 
+                //
+                bucky.SetIndex(iv[ivj]);
+            }
+        }
+        // flush memory
+        // 
+        if (!Vid::UnLockBucket(bucky, clipNONE, &stateArray) && bucky.vCount > 0)
+        {
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
+        }
     }
-	  else  // decreasing
-	  {
-      _vertCount--;
-    }        
-  }
+    BucketMan::forceTranslucent = FALSE;
+
+    Vid::Heap::Restore(heapSize);
+
+#ifdef DOSTATISTICS
+    Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
+    if (mrm)
+    {
+        Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
+    }
+    else
+    {
+        Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
+    }
+#endif
+}
+//----------------------------------------------------------------------------
+
+void MeshRoot::RenderColorAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
+{
+    clipFlags;
+    vCount;
+
+    ASSERT(_buckys.count <= MAXBUCKYS);
+    ASSERT(_buckys.count == groups.count);
+
+    Rebuild();
+
+#ifdef DOSTATISTICS
+    Statistics::tempTris = 0;
+#endif
+
+    vCount = vertex.count;
+
+    VertexI* verts;
+    U16* iv;
+    U32 heapSize = Vid::Heap::ReqVertexI(&verts, vCount, &iv, vCount);
+
+    Matrix tranys[MAXMESHPERGROUP];
+    SetVertsWorldAnim(stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
+    /*
+          if (hasTread)
+          {
+            d->uv.v += vOffsets[vmap->index[0]];
+          }
+    */
+    //  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
+    if (baseColor.a < 255)
+    {
+        BucketMan::forceTranslucent = TRUE;
+    }
+
+    // setup bucket desc elements common to all faces
+    //
+    Vid::SetBucketPrimitiveDesc(
+        PT_TRIANGLELIST,
+        FVF_VERTEX,
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+
+    ColorF32 base(baseColor);
+
+    // setup _buckys and fill them
+    //
+  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup* b = groups.data, * be = groups.data + groups.count;
+    for ( /*sort = Vid::sortNORMAL0 */; b < be; b++, sort++)
+    {
+        FaceGroup& bucky = *b;
+
+        // keep various textures in a fixed sort order for no-pop translucency
+        BucketMan::SetTag1(sort);
+
+        // get memory
+        //
+        if (!Vid::LockBucket(bucky, _controlFlags, clipNONE, &stateArray))
+        {
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
+            continue;
+        }
+        bucky.vCount = 0;
+        bucky.iCount = 0;
+
+        // clear indexers
+        //
+        memset(iv, 0xff, sizeof(U16) * vertices.count);
+
+        // for all the faces in this group
+        //
+        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        for (ii = bucky.geo.idx; ii < ie; ii++)
+        {
+            U16 ivj = *ii;
+            ASSERT(ivj < vertex.count);
+
+            if (iv[ivj] == 0xffff)
+            {
+                Vertex& dv = bucky.CurrVertex();
+                VertexI& sv = verts[ivj];
+
+                if (hasTread)
+                {
+                    dv.uv.v += vOffsets[sv.vi.index[0]];
+                }
+
+                bucky.SetIndex((U16)bucky.vCount);
+                bucky.vCount++;
+            }
+            else
+            {
+                // same old vert 
+                //
+                bucky.SetIndex(iv[ivj]);
+            }
+        }
+        // flush memory
+        // 
+        if (!Vid::UnLockBucket(bucky, clipNONE, &stateArray) && bucky.vCount > 0)
+        {
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
+        }
+    }
+    BucketMan::forceTranslucent = FALSE;
+
+    Vid::Heap::Restore(heapSize);
+
+#ifdef DOSTATISTICS
+    Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
+    if (mrm)
+    {
+        Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
+    }
+    else
+    {
+        Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
+    }
+#endif
+}
+//----------------------------------------------------------------------------
+
+void MeshRoot::RenderColorNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
+{
+    clipFlags;
+    vCount;
+
+    ASSERT(_buckys.count <= MAXBUCKYS);
+    ASSERT(_buckys.count == groups.count);
+
+    Rebuild();
+
+#ifdef DOSTATISTICS
+    Statistics::tempTris = 0;
+#endif
+
+    vCount = vertex.count;
+
+    VertexI* verts;
+    U16* iv;
+    U32 heapSize = Vid::Heap::ReqVertexI(&verts, vCount, &iv, vCount);
+
+    Matrix tranys[MAXMESHPERGROUP];
+    SetVertsWorldAnim(stateArray, tranys, verts, vCount, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
+    /*
+          if (hasTread)
+          {
+            d->uv.v += vOffsets[vmap->index[0]];
+          }
+    */
+    //  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
+    if (baseColor.a < 255)
+    {
+        BucketMan::forceTranslucent = TRUE;
+    }
+
+    // setup bucket desc elements common to all faces
+    //
+    Vid::SetBucketPrimitiveDesc(
+        PT_TRIANGLELIST,
+        FVF_VERTEX,
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+
+    ColorF32 base(baseColor);
+
+    // setup _buckys and fill them
+    //
+  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup* b = groups.data, * be = groups.data + groups.count;
+    for (/*sort = Vid::sortNORMAL0*/; b < be; b++, sort++)
+    {
+        FaceGroup& bucky = *b;
+
+        // keep various textures in a fixed sort order for no-pop translucency
+        BucketMan::SetTag1(sort);
+
+        // get memory
+        //
+        if (!Vid::LockBucket(bucky, _controlFlags, clipNONE, &stateArray))
+        {
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
+            continue;
+        }
+        bucky.vCount = 0;
+        bucky.iCount = 0;
+
+        // clear indexers
+        //
+        memset(iv, 0xff, sizeof(U16) * vertices.count);
+
+        // for all the faces in this group
+        //
+        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        for (ii = bucky.geo.idx; ii < ie; ii++)
+        {
+            U16 ivj = *ii;
+            ASSERT(ivj < vertex.count);
+
+            if (iv[ivj] == 0xffff)
+            {
+                Vertex& dv = bucky.CurrVertex();
+                VertexI& sv = verts[ivj];
+
+                if (hasTread)
+                {
+                    dv.uv.v += vOffsets[sv.vi.index[0]];
+                }
+
+                bucky.SetIndex((U16)bucky.vCount);
+                bucky.vCount++;
+            }
+            else
+            {
+                // same old vert 
+                //
+                bucky.SetIndex(iv[ivj]);
+            }
+        }
+        // flush memory
+        // 
+        if (!Vid::UnLockBucket(bucky, clipNONE, &stateArray) && bucky.vCount > 0)
+        {
+            LOG_WARN(("Can't lock buckets for %s", xsiName.str));
+        }
+    }
+    BucketMan::forceTranslucent = FALSE;
+
+    Vid::Heap::Restore(heapSize);
+
+#ifdef DOSTATISTICS
+    Statistics::objectTris = Statistics::objectTris + Statistics::tempTris;
+    if (mrm)
+    {
+        Statistics::mrmTris = Statistics::mrmTris + Statistics::tempTris;
+    }
+    else
+    {
+        Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
+    }
+#endif
+}
+//----------------------------------------------------------------------------
+
+void MeshRoot::MrmUpdate1(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCount, U32& _faceCount)
+{
+    while (_vertCount != vCountNew)
+    {
+        FaceGroup* b, * be = _groups.data + _groups.count;
+        for (b = _groups.data; b < be; b++)
+        {
+            FaceGroup& bucky = *b;
+
+            ASSERT(bucky.geo.mrm);
+
+            GeoCache::Mrm* mrm = NULL;
+
+            // update the face and vertex counts first
+            U32 dir = 0;
+            if (_vertCount < vCountNew)
+            {
+                mrm = bucky.geo.mrm + bucky.geo.vCount;
+                bucky.geo.vCount++;
+                _vertCount++;
+
+                bucky.geo.iCount += mrm->iCount;
+            }
+            else  // decreasing
+            {
+                bucky.geo.vCount--;
+                _vertCount--;
+                mrm = bucky.geo.mrm + bucky.geo.vCount;
+
+
+                bucky.geo.iCount -= mrm->iCount;
+
+                dir = 0;
+            }
+
+            GeoCache::Mrm::Rec* r, * re = mrm->rec + mrm->rCount;
+            for (r = mrm->rec; r < re; r++)
+            {
+                bucky.geo.idx[r->index] = r->value[dir];
+            }
+        }
+        if (_vertCount < vCountNew)
+        {
+            _vertCount++;
+        }
+        else  // decreasing
+        {
+            _vertCount--;
+        }
+    }
 }
 //----------------------------------------------------------------------------

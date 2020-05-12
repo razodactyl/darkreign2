@@ -24,30 +24,30 @@
 //
 ParticleRenderClass::ParticleRenderClass()
 {
-	rate = 0.0f;
+    rate = 0.0f;
 }
 
 
 //
 // Particle Renderer configuration
 //
-void ParticleRenderClass::Setup(FScope *fScope)
+void ParticleRenderClass::Setup(FScope* fScope)
 {
-  FScope *sScope;
+    FScope* sScope;
 
-  while ((sScope = fScope->NextFunction()) != NULL)
-  {
-    Configure( sScope);
-  }
+    while ((sScope = fScope->NextFunction()) != NULL)
+    {
+        Configure(sScope);
+    }
 }
 
 
 //
 // Particle Renderer configuration
 //
-Bool ParticleRenderClass::Configure(FScope *fScope)
+Bool ParticleRenderClass::Configure(FScope* fScope)
 {
-  return data.Configure( fScope);
+    return data.Configure(fScope);
 }
 
 
@@ -56,38 +56,38 @@ Bool ParticleRenderClass::Configure(FScope *fScope)
 //
 void ParticleRenderClass::PostLoad()
 {
-  data.PostLoad();
+    data.PostLoad();
 }
 
 
 //
 // Build a new particle renderer
 //
-ParticleRender *ParticleRenderClass::Build( Particle *particle, void *data) // = NULL)
+ParticleRender* ParticleRenderClass::Build(Particle* particle, void* data) // = NULL)
 {
-	// return the new particle renderer
-	return new ParticleRender(this, particle, data);
+    // return the new particle renderer
+    return new ParticleRender(this, particle, data);
 }
 
 
 //
 // Constructor
 //
-ParticleRender::ParticleRender( ParticleRenderClass *prc, Particle *p, void *data) // = NULL)
- : proto(prc), particle(p), texture(NULL), texTime(0)
+ParticleRender::ParticleRender(ParticleRenderClass* prc, Particle* p, void* data) // = NULL)
+    : proto(prc), particle(p), texture(NULL), texTime(0)
 {
-//  frameAnim.Setup( particle->proto->lifeTime, NULL, &proto->data);
+    //  frameAnim.Setup( particle->proto->lifeTime, NULL, &proto->data);
 
-  ASSERT(particle)
+    ASSERT(particle);
 
-  texture = prc->data.texture;
+    texture = prc->data.texture;
 
-  data;
+    data;
 
-  // Add to list
-  ParticleSystem::AddRenderer(this);
+    // Add to list
+    ParticleSystem::AddRenderer(this);
 
-  uvCurrent = 0.0f;
+    uvCurrent = 0.0f;
 }
 
 //
@@ -95,8 +95,8 @@ ParticleRender::ParticleRender( ParticleRenderClass *prc, Particle *p, void *dat
 //
 ParticleRender::~ParticleRender()
 {
-  // Remove from system
-  ParticleSystem::DeleteRenderer(this);
+    // Remove from system
+    ParticleSystem::DeleteRenderer(this);
 }
 
 
@@ -113,24 +113,24 @@ void ParticleRender::Setup()
 //
 // Detach particle renderer
 //
-void ParticleRender::Detach(Particle *p)
+void ParticleRender::Detach(Particle* p)
 {
-  p;
+    p;
 
-	// make sure this is the right matrix
-	ASSERT( particle == p);
+    // make sure this is the right matrix
+    ASSERT(particle == p);
 
-	// delete the renderer
-	delete this;
+    // delete the renderer
+    delete this;
 }
 
 
 //
 // Simulate
 //
-void ParticleRender::Simulate( F32 dt)
+void ParticleRender::Simulate(F32 dt)
 {
-  TexAnim( dt * proto->data.animRate);
+    TexAnim(dt * proto->data.animRate);
 }
 //----------------------------------------------------------------------------
 
@@ -142,44 +142,44 @@ void ParticleRender::Render()
 }
 //----------------------------------------------------------------------------
 
-Bitmap * ParticleRender::TexAnim( F32 dt)
+Bitmap* ParticleRender::TexAnim(F32 dt)
 {
-  // if its not a loop particle, stop at the last frame
-  //
-  if (texture && texture->IsAnimating())
-  {
-    if ((proto->data.animFlags & Effects::flagLOOP) || !texture->GetNext()->IsPrimary())
+    // if its not a loop particle, stop at the last frame
+    //
+    if (texture && texture->IsAnimating())
     {
-      texTime += dt;
+        if ((proto->data.animFlags & Effects::flagLOOP) || !texture->GetNext()->IsPrimary())
+        {
+            texTime += dt;
 
-      if (texTime >= .1f)
-      {
-        texTime -= .1f;
+            if (texTime >= .1f)
+            {
+                texTime -= .1f;
 
-        texture = texture->GetNext();
-      }
+                texture = texture->GetNext();
+            }
+        }
     }
-  }
-  return texture;
+    return texture;
 }
 //----------------------------------------------------------------------------
 
-U32 ParticleRender::Visible( Vector * p0, Vector * p1, F32 radius) //  = NULL, NULL, 0
+U32 ParticleRender::Visible(Vector* p0, Vector* p1, F32 radius) //  = NULL, NULL, 0
 {
-  ASSERT( particle);
+    ASSERT(particle);
 
-  if (!p0)
-  {
-    p0 = &particle->matrix.posit;
-  }
-  if (ParticleSystem::Visible( *p0, particle->proto, p1))
-  {
-    if (!Vid::Clip::Xtra::active)
+    if (!p0)
     {
-      return clipNONE;
+        p0 = &particle->matrix.posit;
     }
-    return Vid::Clip::Xtra::BoundsTest( *p0, radius);
-  }
-  return clipOUTSIDE;
+    if (ParticleSystem::Visible(*p0, particle->proto, p1))
+    {
+        if (!Vid::Clip::Xtra::active)
+        {
+            return clipNONE;
+        }
+        return Vid::Clip::Xtra::BoundsTest(*p0, radius);
+    }
+    return clipOUTSIDE;
 }
 //----------------------------------------------------------------------------

@@ -78,6 +78,7 @@ namespace Main
 // The Big Bahoola!
 //
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR cmdLine, int)
+//int main(int argc, const char* cmdLine[])
 {
     Utils::FP::Reset();
 

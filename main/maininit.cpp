@@ -47,6 +47,9 @@ namespace Main
     static HWND mainHwnd = NULL;
     static const char* cmdLine;
 
+    // JONATHAN
+    GLFWwindow* window = NULL;
+
     // TRUE if game is to be terminated next message loop
     static Bool quitGame = FALSE;
 
@@ -172,6 +175,9 @@ namespace Main
     //
     void Init(HINSTANCE hInst, const char* cmd)
     {
+        // JONATHAN
+        glfwInit();
+
         instance = hInst;
         cmdLine = cmd;
         quitGame = FALSE;
@@ -420,19 +426,20 @@ namespace Main
         // Process the core configuration file
         Setup::StartupConfiguration();
 
-        PERF_INIT
+        PERF_INIT;
 
-            Area<S32> wr, cr;
+        Area<S32> wr, cr;
         GetWindowRect(mainHwnd, (RECT*)&wr);
         GetClientRect(mainHwnd, (RECT*)&cr);
         U32 ew = wr.Width() - cr.Width();
         U32 eh = wr.Height() - cr.Height();
         SetWindowPos(mainHwnd, HWND_TOP,
-            (GetSystemMetrics(SM_CXSCREEN) - 640) >> 1,
-            (GetSystemMetrics(SM_CYSCREEN) - 480) >> 1,
-            640 + ew, 480 + eh, SWP_NOREDRAW);
+            (GetSystemMetrics(SM_CXSCREEN) - 800) >> 1,
+            (GetSystemMetrics(SM_CYSCREEN) - 600) >> 1,
+            800 + ew, 600 + eh, SWP_NOREDRAW);
 
         Vid::Init(instance, mainHwnd);
+        Vid::Init2(window);
 
         ShowWindow(mainHwnd, SW_SHOWNORMAL);
 
@@ -459,10 +466,10 @@ namespace Main
         // Shutdown video
         Vid::Done();
 
-        PERF_DONE
+        PERF_DONE;
 
-            // console command system
-            Console::Done();
+        // console command system
+        Console::Done();
 
         // Shut down font system
         FontSys::Done();
@@ -890,7 +897,7 @@ namespace Main
                 Sleep(0);
             }
 
-        } while (!quitGame);
+        } while (!quitGame && !glfwWindowShouldClose(window));
 
         // Reset the current run-code
         runCodes.Reset();
@@ -1174,6 +1181,23 @@ namespace Main
     //
     HWND CreateGameWindow(const char* title)
     {
+        // GLFW
+        // JONATHAN
+        glfwWindowHint(GLFW_SAMPLES, 4);
+        //glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+
+        window = glfwCreateWindow(800, 600, title, NULL, NULL);
+        if (!window) {
+            glfwTerminate();
+            return NULL;
+        }
+
+        glfwMakeContextCurrent(window);
+
+        glewInit();
+
+        /////////////////////////
+
         // If there's a window with the same class already there, then abort
         if (HWND h = FindWindow("DR2", NULL))
         {
@@ -1289,18 +1313,18 @@ namespace Main
 
         // Compilation details
         LOG_DIAG(("Compiled by %s\\%s on %s", Version::GetBuildMachine(), Version::GetBuildUser(), Version::GetBuildOS()));
-        LOG_DIAG(("Compiler flags: %s", Version::GetBuildDefs()))
+        LOG_DIAG(("Compiler flags: %s", Version::GetBuildDefs()));
 
-            // OS language
-            LANGID id = GetUserDefaultLangID();
-        LOG_DIAG(("Language: 0x%.2X 0x%.2X", PRIMARYLANGID(id), SUBLANGID(id)))
+        // OS language
+        LANGID id = GetUserDefaultLangID();
+        LOG_DIAG(("Language: 0x%.2X 0x%.2X", PRIMARYLANGID(id), SUBLANGID(id)));
 
-            // Devices
-            int i = 0;
+        // Devices
+        int i = 0;
         while (Hardware::Device::Enum(i))
         {
-            LOG_DIAG(("%s", Hardware::Device::Enum(i)))
-                i++;
+            LOG_DIAG(("%s", Hardware::Device::Enum(i)));
+            i++;
         }
     }
 }

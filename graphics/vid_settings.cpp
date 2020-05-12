@@ -44,7 +44,7 @@ namespace Vid
 
         Bool Load(FScope* fScope) // = NULL
         {
-            viewRect.SetSize(0, 0, 640, 480);
+            viewRect.SetSize(0, 0, 800, 600);
             //      lastRect = lastClient = viewRect;
             //      AdjustWindowRect( (RECT *) &lastRect, theStyle, hMenu != NULL ? TRUE : FALSE);
 
@@ -219,7 +219,7 @@ namespace Vid
             //
             for (U32 i = 0; i < numDDs; i++)
             {
-                U32 frameMem = CurDD().totalFrameMem - 640 * 480 * 2 * 3;    // 3 16bit 640x480 surfaces
+                U32 frameMem = CurDD().totalFrameMem - 800 * 600 * 2 * 3;    // 3 16bit 640x480 surfaces
                 U32 sysMem = Hardware::Memory::GetPhysical();
 
                 // setup texture resolution

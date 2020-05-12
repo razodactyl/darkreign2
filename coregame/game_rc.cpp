@@ -142,10 +142,10 @@ namespace Game
         //
         void Init()
         {
-            ASSERT(!initialized)
+            ASSERT(!initialized);
 
-                // Setup the runcodes
-                runCodes.Register("Load", NULL, Load::Init, Load::Done, Load::Post);
+            // Setup the runcodes
+            runCodes.Register("Load", NULL, Load::Init, Load::Done, Load::Post);
             runCodes.Register("SimInit", SimInit::Process, SimInit::Init, SimInit::Done, SimInit::Post);
             runCodes.Register("Sim", Sim::Process, Sim::Init, Sim::Done);
 
@@ -171,10 +171,10 @@ namespace Game
         //
         void Done()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                // Destroy Commands
-                VarSys::DeleteItem("sys.game");
+            // Destroy Commands
+            VarSys::DeleteItem("sys.game");
 
             // Clean up the runcodes
             runCodes.Cleanup();
@@ -255,34 +255,34 @@ namespace Game
                 }
                 else
                 {
-                    CON_ERR((Console::ARGS))
+                    CON_ERR((Console::ARGS));
                 }
                 break;
             }
 
             case 0xBB563A77: // "sys.game.migrate.start"
-                SYNC("Migration commencing")
+                SYNC("Migration commencing");
 
-                    IFace::Activate("|Game::Resync");
+                IFace::Activate("|Game::Resync");
                 migration = MIGRATING;
-                LOG_DIAG(("Switching to MIGRATING"))
-                    break;
+                LOG_DIAG(("Switching to MIGRATING"));
+                break;
 
             case 0x7CE02766: // "sys.game.migrate.resync"
                 if (migration == MIGRATING)
                 {
                     migration = RESYNC;
-                    LOG_DIAG(("Switching to RESYNC"))
-                        MultiPlayer::SetReady();
+                    LOG_DIAG(("Switching to RESYNC"));
+                    MultiPlayer::SetReady();
                 }
                 break;
 
             case 0x7D690127: // "sys.game.migrate.end"
             {
-                SYNC("Migration completed")
+                SYNC("Migration completed");
 
-                    // Change runcode to the sim
-                    IControl* ctrl = IFace::FindByName("|Game::Resync");
+                // Change runcode to the sim
+                IControl* ctrl = IFace::FindByName("|Game::Resync");
                 if (ctrl)
                 {
                     IFace::SendNotify(ctrl, NULL, 0x334DAB78); // "ResyncComplete"
@@ -290,8 +290,8 @@ namespace Game
                 }
                 MultiPlayer::ClearReady();
                 migration = NORMAL;
-                LOG_DIAG(("Switching to NORMAL"))
-                    break;
+                LOG_DIAG(("Switching to NORMAL"));
+                break;
             }
 
             default:
@@ -382,12 +382,12 @@ namespace Game
             }
 
             // Inform client
-            PERF_S("BuildDisplayList")
-                MapObjCtrl::BuildDisplayList(Team::GetDisplayTeam(), simFrame);
-            PERF_E("BuildDisplayList")
+            PERF_S("BuildDisplayList");
+            MapObjCtrl::BuildDisplayList(Team::GetDisplayTeam(), simFrame);
+            PERF_E("BuildDisplayList");
 
-                // Render
-                PERF_S("Terrain::Render");
+            // Render
+            PERF_S("Terrain::Render");
             Terrain::Sky::Render();
             Client::Display::PreTerrain();
             Terrain::Render();
@@ -576,7 +576,7 @@ namespace Game
 
                 // Clear the migration status
                 migration = NORMAL;
-                LOG_DIAG(("Switching to NORMAL"))
+                LOG_DIAG(("Switching to NORMAL"));
 
                 // Bring the client online
                 Client::Init();
@@ -592,7 +592,7 @@ namespace Game
 
                 //Terrain::Simulate(GameTime::SimTime());
 
-        //        MapObjCtrl::SimulateSim(GameTime::SimTime());
+                //MapObjCtrl::SimulateSim(GameTime::SimTime());
                 MapObjCtrl::UpdateMapPos();
 
                 // Do display
@@ -667,12 +667,13 @@ namespace Game
                             RC::Set("Sim");
                         }
                         else
-
+                        {
                             // If there is nothing in the queue then send an order indicating that we are ready
                             if (!MultiPlayer::Data::GetLag())
                             {
                                 MultiPlayer::SetReady();
                             }
+                        }
 
                         // Process input events
                         if (Main::active)
@@ -696,8 +697,8 @@ namespace Game
                 // If the next runcode isn't Sim then go through the motions of Sim
                 if (runCodes.GetNextCrc() != 0xBE9A9686) // "Sim"
                 {
-                    LOG_DIAG(("Leaving SimInit and not going to Sim, cycling Sim::Init & Sim::Done"))
-                        Sim::Init();
+                    LOG_DIAG(("Leaving SimInit and not going to Sim, cycling Sim::Init & Sim::Done"));
+                    Sim::Init();
                     Sim::Done();
                 }
             }
@@ -925,16 +926,16 @@ namespace Game
                         // Reset mode
                         Utils::FP::Reset();
 
-                        SYNC_BRUTAL("Mode: " << Utils::FP::GetState())
+                        SYNC_BRUTAL("Mode: " << Utils::FP::GetState());
 
-                            // Sync vars which should be synced
-                            SYNC
-                            (
-                                Vid::Var::Terrain::shroud
-                            )
+                        // Sync vars which should be synced
+                        SYNC
+                        (
+                            Vid::Var::Terrain::shroud
+                        );
 
-                            // Process Environment
-                            PERF_S("Environment");
+                        // Process Environment
+                        PERF_S("Environment");
                         Environment::Process();
                         PERF_E("Environment");
 
@@ -993,15 +994,15 @@ namespace Game
                         PERF_E("Team");
 
 #ifdef SYNC_BRUTAL_ACTIVE
-                        SYNC(" === SIM END ===")
-                            Sync::SyncObjects(TRUE);
-                        SYNC(" ___ SIM END ___")
+                        SYNC(" === SIM END ===");
+                        Sync::SyncObjects(TRUE);
+                        SYNC(" ___ SIM END ___");
 #endif
 
-                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState())
+                        SYNC_BRUTAL("Mode: " << Utils::FP::GetState());
 
-                            // Update line of sight display
-                            PERF_S("Sight::DetachedList");
+                        // Update line of sight display
+                        PERF_S("Sight::DetachedList");
                         Sight::ProcessDetachedList();
                         PERF_E("Sight::DetachedList");
 
@@ -1083,8 +1084,8 @@ namespace Game
                     if (!MultiPlayer::Data::Online())
                     {
                         migration = NORMAL;
-                        LOG_DIAG(("Switching to NORMAL"))
-                            return;
+                        LOG_DIAG(("Switching to NORMAL"));
+                        return;
                     }
 
                     // Process input events
@@ -1096,8 +1097,8 @@ namespace Game
                     if (!MultiPlayer::Data::Online())
                     {
                         migration = NORMAL;
-                        LOG_DIAG(("Switching to NORMAL"))
-                            return;
+                        LOG_DIAG(("Switching to NORMAL"));
+                        return;
                     }
 
                     // Process network messages
@@ -1106,8 +1107,8 @@ namespace Game
                     if (!MultiPlayer::Data::Online())
                     {
                         migration = NORMAL;
-                        LOG_DIAG(("Switching to NORMAL"))
-                            return;
+                        LOG_DIAG(("Switching to NORMAL"));
+                        return;
                     }
 
                     // Repaint interface only
@@ -1120,8 +1121,8 @@ namespace Game
                     if (!MultiPlayer::Data::Online())
                     {
                         migration = NORMAL;
-                        LOG_DIAG(("Switching to NORMAL"))
-                            return;
+                        LOG_DIAG(("Switching to NORMAL"));
+                        return;
                     }
 
                     // Process input events
@@ -1133,8 +1134,8 @@ namespace Game
                     if (!MultiPlayer::Data::Online())
                     {
                         migration = NORMAL;
-                        LOG_DIAG(("Switching to NORMAL"))
-                            return;
+                        LOG_DIAG(("Switching to NORMAL"));
+                        return;
                     }
 
                     // Process network messages
@@ -1143,8 +1144,8 @@ namespace Game
                     if (!MultiPlayer::Data::Online())
                     {
                         migration = NORMAL;
-                        LOG_DIAG(("Switching to NORMAL"))
-                            return;
+                        LOG_DIAG(("Switching to NORMAL"));
+                        return;
                     }
 
                     // Repaint interface only
@@ -1159,10 +1160,10 @@ namespace Game
             //
             void Done()
             {
-                LOG_DIAG(("Shutting down simulation"))
+                LOG_DIAG(("Shutting down simulation"));
 
-                    // No longer in simulation
-                    CoreGame::SetInSimulation(FALSE);
+                // No longer in simulation
+                CoreGame::SetInSimulation(FALSE);
 
                 // Turn off watchdog
                 Debug::Watchdog::Delete();

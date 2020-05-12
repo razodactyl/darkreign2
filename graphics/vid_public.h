@@ -421,6 +421,10 @@ namespace Vid
 
         dxError = Vid::device->Clear(1UL, (LPD3DRECT)rect, clearFlags, color, 1, 0);
         LOG_DXERR(("Vid::ClearD3D: viewport->Clear2"));
+
+        // JONATHAN
+        glClearColor(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
     inline void RenderClear(U32 clearFlags)
     {

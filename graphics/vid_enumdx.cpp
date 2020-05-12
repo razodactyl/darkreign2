@@ -768,7 +768,7 @@ namespace Vid
         VidMode& wmode = CurDD().vidModes[VIDMODEWINDOW];
         U32 size = wmode.rect.Width() * wmode.rect.Height();
         U32 bytes = size * (wmode.bpp >> 3);
-        size = 640 * 480;
+        size = 800 * 600;
         bytes += size * (wmode.bpp >> 3) * 2;
         if (!CurD3D().noDepthBuf)
         {

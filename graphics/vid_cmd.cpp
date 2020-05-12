@@ -957,7 +957,7 @@ namespace Vid
 
             case 0x729381E3: // "vid.windowed"
             {
-                S32 w = 480, h = 640;
+                S32 w = 800, h = 600;
                 Console::GetArgInteger(1, w);
                 Console::GetArgInteger(2, h);
 

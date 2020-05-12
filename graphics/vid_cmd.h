@@ -13,90 +13,90 @@
 
 namespace Vid
 {
-  namespace Command
-  {
-    void Init();
-    void Done();
+    namespace Command
+    {
+        void Init();
+        void Done();
 
-    void Reset();
-    void Setup();   // post Vid::Init
-    void SetupDialog();
-    void SetPerfs();
+        void Reset();
+        void Setup();   // post Vid::Init
+        void SetupDialog();
+        void SetPerfs();
 
-    void OnModeChange();
+        void OnModeChange();
 
-    Bool CheckCustom();
+        Bool CheckCustom();
 
-    extern Color nightLightColor;
-  };
-  //-----------------------------------------------------------------------------
+        extern Color nightLightColor;
+    };
+    //-----------------------------------------------------------------------------
 
-  class Options : public ICWindow
-  {
-    PROMOTE_LINK(Options, ICWindow, 0x9C586C0C) // "Vid::Options"
+    class Options : public ICWindow
+    {
+        PROMOTE_LINK(Options, ICWindow, 0x9C586C0C) // "Vid::Options"
 
-  public:
+    public:
 
-    // Name of the driver
-    VarString drvName;
+        // Name of the driver
+        VarString drvName;
 
-    // Video memory (MB)
-    VarFloat vidMem;
+        // Video memory (MB)
+        VarFloat vidMem;
 
-    NList<Options>::Node node;
+        NList<Options>::Node node;
 
-    static NList<Options> allWindows;
+        static NList<Options> allWindows;
 
-  protected:
+    protected:
 
-    void FillDrivers();
-    void FillModes();
+        void FillDrivers();
+        void FillModes();
 
-    U32 saveDriver;
-    U32 saveMode;
+        U32 saveDriver;
+        U32 saveMode;
 
-    Bool setmode;
-    F32  savePerfs[4];
+        Bool setmode;
+        F32  savePerfs[4];
 
-    U32 saveMultiTex;
-    U32 saveMipmap;
-    U32 saveMipfilter;
-    U32 saveMovie;
-    U32 saveMirror;
-    U32 saveGamma;
-    U32 saveWeather;
+        U32 saveMultiTex;
+        U32 saveMipmap;
+        U32 saveMipfilter;
+        U32 saveMovie;
+        U32 saveMirror;
+        U32 saveGamma;
+        U32 saveWeather;
 
-  public:
+    public:
 
-    // Constructor 
-    Options(IControl *parent);
-    ~Options();
+        // Constructor 
+        Options(IControl* parent);
+        ~Options();
 
-    // Event handler
-    U32 HandleEvent(Event &e);
+        // Event handler
+        U32 HandleEvent(Event& e);
 
-    static void OnModeChange();
-  };
-  //-----------------------------------------------------------------------------
+        static void OnModeChange();
+    };
+    //-----------------------------------------------------------------------------
 
-  class Graphics : public ICWindow
-  {
-    PROMOTE_LINK(Graphics, ICWindow, 0x1D786456); // "Vid::Graphics"
+    class Graphics : public ICWindow
+    {
+        PROMOTE_LINK(Graphics, ICWindow, 0x1D786456); // "Vid::Graphics"
 
-  public:
+    public:
 
-    // Constructor 
-    Graphics(IControl *parent);
-    ~Graphics();
+        // Constructor 
+        Graphics(IControl* parent);
+        ~Graphics();
 
-    // Event handler
-    U32 HandleEvent(Event &e);
+        // Event handler
+        U32 HandleEvent(Event& e);
 
-    void _OnModeChange();
+        void _OnModeChange();
 
-    static void OnModeChange();
-  };
-  //-----------------------------------------------------------------------------
+        static void OnModeChange();
+    };
+    //-----------------------------------------------------------------------------
 };
 
 #endif

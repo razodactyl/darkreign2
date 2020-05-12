@@ -35,7 +35,7 @@
 class Player;
 namespace Strategic
 {
-  class Object;
+    class Object;
 }
 
 
@@ -54,987 +54,982 @@ class Team
 {
 public:
 
-  struct EndGame
-  {
-    static const char *resultName[];
+    struct EndGame
+    {
+        static const char* resultName[];
 
-    static const char *resultKey[];
+        static const char* resultKey[];
 
-    // Did we win, lose or no result
-    enum Result
-    { 
-      WIN, 
-      LOSE, 
-      NR 
-    } result;
+        // Did we win, lose or no result
+        enum Result
+        {
+            WIN,
+            LOSE,
+            NR
+        } result;
 
-    // Number of units constructed
-    Stats::Category constructed;
+        // Number of units constructed
+        Stats::Category constructed;
 
-    // Number of kills by type killed per relation
-    Stats::Category *kills[Relation::MAX];
+        // Number of kills by type killed per relation
+        Stats::Category* kills[Relation::MAX];
 
-    // Number of self kills
-    Stats::Category killsSelf;
+        // Number of self kills
+        Stats::Category killsSelf;
 
-    // Number of kills to non aligned map objects
-    Stats::Category killsMisc;
+        // Number of kills to non aligned map objects
+        Stats::Category killsMisc;
 
-    // Number of losses
-    Stats::Category losses;
+        // Number of losses
+        Stats::Category losses;
 
-    // Number of resources collected by resource type
-    Stats::Category resources;
+        // Number of resources collected by resource type
+        Stats::Category resources;
 
-  public:
+    public:
 
-    // Constructor
-    EndGame();
+        // Constructor
+        EndGame();
 
-    // Destructor
-    ~EndGame();
+        // Destructor
+        ~EndGame();
 
-    // Save and load state
-    void SaveState(FScope *scope);
-    void LoadState(FScope *scope);
+        // Save and load state
+        void SaveState(FScope* scope);
+        void LoadState(FScope* scope);
 
-  };
+    };
 
 private:
 
-  LOGDEC
+    LOGDEC
 
 
-  //
-  // General
-  //
+        //
+        // General
+        //
 
-  // Team identifier
-  U32 id;
+        // Team identifier
+        U32 id;
 
-  // Console identifier
-  U32 consoleId;
+    // Console identifier
+    U32 consoleId;
 
-  // Name of the team
-  GameIdent name;
+    // Name of the team
+    GameIdent name;
 
-  // Has the team been postloaded
-  Bool postLoaded;
+    // Has the team been postloaded
+    Bool postLoaded;
 
 
-  //
-  // Unit Objects
-  //
+    //
+    // Unit Objects
+    //
 
-  // Units owned by this team
-  NList<UnitObj> unitObjects;
+    // Units owned by this team
+    NList<UnitObj> unitObjects;
 
-  // Units owned by this team by type
-  BinTree<NList<UnitObj> > unitObjectsByType;
+    // Units owned by this team by type
+    BinTree<NList<UnitObj> > unitObjectsByType;
 
-  // Number of command points on team
-  U32 totalCommandCost;
+    // Number of command points on team
+    U32 totalCommandCost;
 
-  // Number of units that have their team set to this
-  U32 totalUnitMembers;
+    // Number of units that have their team set to this
+    U32 totalUnitMembers;
 
-  // Number of units with radar ability
-  U32 propertyRadar;
+    // Number of units with radar ability
+    U32 propertyRadar;
 
-  // Number of units with cloaking ability
-  U32 propertyCloaking;
+    // Number of units with cloaking ability
+    U32 propertyCloaking;
 
-  // List of objects registered for construction
-  UnitObjList constructList;
-  
+    // List of objects registered for construction
+    UnitObjList constructList;
 
-  //
-  // Objectives
-  //
 
-  // The current objectives of this team
-  Objective::ObjList currentObjectives;
+    //
+    // Objectives
+    //
 
-  // Set of display objectives of this team
-  DisplayObjective::Set displayObjectives;
+    // The current objectives of this team
+    Objective::ObjList currentObjectives;
 
+    // Set of display objectives of this team
+    DisplayObjective::Set displayObjectives;
 
-  //
-  // Color
-  //
 
-  // Color of this team
-  Color color;
+    //
+    // Color
+    //
 
+    // Color of this team
+    Color color;
 
-  //
-  // Relations
-  //
 
-  // Relationships this team has with other teams
-  Relation relations[Game::MAX_TEAMS];
-  
-  // Relationships this team has with other teams (only used during loading)
-  BinTree<Relation> relationsByTeamName;
+    //
+    // Relations
+    //
 
-  // Team groupings by relation
-  List<Team> group[Relation::MAX];
+    // Relationships this team has with other teams
+    Relation relations[Game::MAX_TEAMS];
 
-  // Team groupsings for ENEMY HUMAN
-  List<Team> groupEnemyHuman;
+    // Relationships this team has with other teams (only used during loading)
+    BinTree<Relation> relationsByTeamName;
 
-  // Bitfield of teams by relation
-  Game::TeamBitfield teamsByRelation[Relation::MAX];
+    // Team groupings by relation
+    List<Team> group[Relation::MAX];
 
-  // Bitfield of relations that have changed with other teams
-  Game::TeamBitfield relationChanged;
+    // Team groupsings for ENEMY HUMAN
+    List<Team> groupEnemyHuman;
 
-  // Teams we are providing line of sight to
-  U8 givingSightTo[Game::MAX_TEAMS];
+    // Bitfield of teams by relation
+    Game::TeamBitfield teamsByRelation[Relation::MAX];
 
+    // Bitfield of relations that have changed with other teams
+    Game::TeamBitfield relationChanged;
 
-  //
-  // Start Location
-  //
+    // Teams we are providing line of sight to
+    U8 givingSightTo[Game::MAX_TEAMS];
 
-  // Region to start
-  RegionObjPtr startRegion;
 
-  // Initial yaw (radians)
-  F32 startYaw;
+    //
+    // Start Location
+    //
 
-  // Start location
-  Point<F32> startPoint;
+    // Region to start
+    RegionObjPtr startRegion;
 
+    // Initial yaw (radians)
+    F32 startYaw;
 
-  //
-  // AI
-  //
+    // Start location
+    Point<F32> startPoint;
 
-  // Is the default type Client ?
-  Bool defaultClient;
 
-  // Is the team available for play
-  Bool availablePlay;
+    //
+    // AI
+    //
 
-  // Does this team have stats
-  Bool hasStats;
+    // Is the default type Client ?
+    Bool defaultClient;
 
-  // Does this team always have radar
-  Bool permanentRadar;
+    // Is the team available for play
+    Bool availablePlay;
 
-  // Does this team require an AI player
-  Bool requireAI;
-  
-  // The difficulty level of this team
-  F32 difficulty;
+    // Does this team have stats
+    Bool hasStats;
 
-  // The unit limit for this team
-  U32 unitLimit;
+    // Does this team always have radar
+    Bool permanentRadar;
 
-  // The default side for this team
-  GameIdent side;
+    // Does this team require an AI player
+    Bool requireAI;
 
-  // Is the side fixed
-  Bool sideFixed;
+    // The difficulty level of this team
+    F32 difficulty;
 
-  // Name of the AI personality this team defaults to
-  GameIdent personality;
+    // The unit limit for this team
+    U32 unitLimit;
 
-  // Pointer to strategic AI controlling this team  
-  Strategic::Object *strategicObject;
+    // The default side for this team
+    GameIdent side;
 
-  // Pain reduction
-  U32 painCurrentCluster;
+    // Is the side fixed
+    Bool sideFixed;
 
-  // Current unique script identifier
-  U32 uniqueScriptId;
+    // Name of the AI personality this team defaults to
+    GameIdent personality;
 
-  //
-  // Players
-  //
+    // Pointer to strategic AI controlling this team  
+    Strategic::Object* strategicObject;
 
-  // List of players which control this team
-  List<Player> players;
+    // Pain reduction
+    U32 painCurrentCluster;
 
+    // Current unique script identifier
+    U32 uniqueScriptId;
 
-  //
-  // EndGame
-  // 
-  EndGame endGame;
+    //
+    // Players
+    //
 
+    // List of players which control this team
+    List<Player> players;
 
-  //
-  // Power
-  //
 
-  Power::Team power;
-  U32 powerLevel;
-  U32 powerLevelUnfiltered;
+    //
+    // EndGame
+    // 
+    EndGame endGame;
 
 
-  //
-  // Resource
-  //
+    //
+    // Power
+    //
 
-  // Total resource stored
-  U32 resourceStore;
+    Power::Team power;
+    U32 powerLevel;
+    U32 powerLevelUnfiltered;
 
 
-  //
-  // Type Filtering
-  //
+    //
+    // Resource
+    //
 
-  // Is type filtering enabled
-  Bool filtering;
+    // Total resource stored
+    U32 resourceStore;
 
-  // What types are allowed ?
-  UnitObjTypeList filteredTypes;
 
-  //
-  // Radio
-  //
-  Radio::EventQueue radio;
+    //
+    // Type Filtering
+    //
 
+    // Is type filtering enabled
+    Bool filtering;
 
-  //
-  // Misc
-  //
+    // What types are allowed ?
+    UnitObjTypeList filteredTypes;
 
+    //
+    // Radio
+    //
+    Radio::EventQueue radio;
 
-  // Tree node
-  NBinTree<Team>::Node node;
 
+    //
+    // Misc
+    //
 
-  //
-  // Static Data
-  //
 
+    // Tree node
+    NBinTree<Team>::Node node;
 
-  // Team System Initialized ?
-  static Bool initialized;
 
-  // The current team used for display purposes only!
-  static Team *displayTeam;
+    //
+    // Static Data
+    //
 
-  // Tree containing all of the current teams by name
-  static NBinTree<Team> teamsByName;
 
-  // Array of teams by id
-  static Team *teamsById[];
+    // Team System Initialized ?
+    static Bool initialized;
 
-  // Scope where team vars are stored
-  static const char *varScope;
+    // The current team used for display purposes only!
+    static Team* displayTeam;
 
-  // Mono buffer for displaying info about all teams
-  MonoBufDefStatic(monoBuffer);
+    // Tree containing all of the current teams by name
+    static NBinTree<Team> teamsByName;
+
+    // Array of teams by id
+    static Team* teamsById[];
+
+    // Scope where team vars are stored
+    static const char* varScope;
+
+    // Mono buffer for displaying info about all teams
+    MonoBufDefStatic(monoBuffer);
 
 public:
 
-  // Team
-  Team(GameIdent name, U32 id);
+    // Team
+    Team(GameIdent name, U32 id);
 
-  // Team
-  Team(FScope *fScope);
+    // Team
+    Team(FScope* fScope);
 
-  // ~Team
-  ~Team();
+    // ~Team
+    ~Team();
 
-  // Setup
-  void Setup();
+    // Setup
+    void Setup();
 
-  // CurrentObjective
-  Objective::Object * CurrentObjective(const char *obj);
+    // CurrentObjective
+    Objective::Object* CurrentObjective(const char* obj);
 
-  // NewObjective
-  void NewObjective(const char *obj, Bool required = TRUE);
+    // NewObjective
+    void NewObjective(const char* obj, Bool required = TRUE);
 
-  // ObjectiveAchieved
-  void ObjectiveAchieved(Objective::Object *obj);
+    // ObjectiveAchieved
+    void ObjectiveAchieved(Objective::Object* obj);
 
-  // ObjectiveAbandoned
-  void ObjectiveAbandoned(Objective::Object *obj);
+    // ObjectiveAbandoned
+    void ObjectiveAbandoned(Objective::Object* obj);
 
-  // Clear objectives
-  void ClearObjectives();
+    // Clear objectives
+    void ClearObjectives();
 
-  // PreLoad
-  void PreLoad();
+    // PreLoad
+    void PreLoad();
 
-  // PostLoad
-  void PostLoad();
+    // PostLoad
+    void PostLoad();
 
-  // Save
-  void Save(FScope *fScope);
+    // Save
+    void Save(FScope* fScope);
 
-  // DeterminePlayers()
-  void DeterminePlayers();
+    // DeterminePlayers()
+    void DeterminePlayers();
 
-  // HavePlayer
-  Bool HavePlayer();
+    // HavePlayer
+    Bool HavePlayer();
 
-  // Get Players
-  const List<Player> & GetPlayers();
+    // Get Players
+    const List<Player>& GetPlayers();
 
-  // Get the player considered as the team leader
-  Player * GetTeamLeader();
+    // Get the player considered as the team leader
+    Player* GetTeamLeader();
 
-  // Is this an AI team
-  Bool IsAI();
-  
-  // Is this a Human team
-  Bool IsHuman();
+    // Is this an AI team
+    Bool IsAI();
 
-  // Move to this teams start location
-  void MoveToStart();
+    // Is this a Human team
+    Bool IsHuman();
 
-  // Add and remove the given unit as a MEMBER of this team
-  void AddMember(UnitObj *obj);
-  void RemoveMember(UnitObj *obj);
+    // Move to this teams start location
+    void MoveToStart();
 
-  // Add and remove the given unit from the ACTIVE team list
-  void AddToTeam(UnitObj *obj);
-  void RemoveFromTeam(UnitObj *obj);
+    // Add and remove the given unit as a MEMBER of this team
+    void AddMember(UnitObj* obj);
+    void RemoveMember(UnitObj* obj);
 
-  // Report a construction
-  void ReportConstruction(MapObj *mapObj);
+    // Add and remove the given unit from the ACTIVE team list
+    void AddToTeam(UnitObj* obj);
+    void RemoveFromTeam(UnitObj* obj);
 
-  // Report a kill
-  void ReportKill(MapObj *mapObj);
+    // Report a construction
+    void ReportConstruction(MapObj* mapObj);
 
-  // Report a loss
-  void ReportLoss(UnitObj *unitObj);
+    // Report a kill
+    void ReportKill(MapObj* mapObj);
 
-  // Report a resource
-  void ReportResource(U32 amount, const char *reason);
+    // Report a loss
+    void ReportLoss(UnitObj* unitObj);
 
-  // Clear a resource
-  void ClearResource(const char *reason);
+    // Report a resource
+    void ReportResource(U32 amount, const char* reason);
 
-  // Increase the amount of resource stored
-  void AddResourceStore(U32 mod);
+    // Clear a resource
+    void ClearResource(const char* reason);
 
-  // Decrease the amount of resource stored
-  Bool RemoveResourceStore(U32 mod);
+    // Increase the amount of resource stored
+    void AddResourceStore(U32 mod);
 
-  // Set the amont of resource stored
-  void SetResourceStore(U32 resource);
+    // Decrease the amount of resource stored
+    Bool RemoveResourceStore(U32 mod);
 
-  // Notify the player(s) which control this team
-  Bool NotifyPlayer(GameObj *from, U32 message, U32 param1 = 0, U32 param2 = 0);
+    // Set the amont of resource stored
+    void SetResourceStore(U32 resource);
 
-  // Build the dyn var name for a team
-  const char * DynVarName();
+    // Notify the player(s) which control this team
+    Bool NotifyPlayer(GameObj* from, U32 message, U32 param1 = 0, U32 param2 = 0);
 
-  // Is the given type allowed by the filter ?
-  Bool AllowedType(UnitObjType *type);
+    // Build the dyn var name for a team
+    const char* DynVarName();
 
-  // Is radar currently available for this team
-  Bool RadarAvailable();
+    // Is the given type allowed by the filter ?
+    Bool AllowedType(UnitObjType* type);
 
-  // Is cloaking currently available for this team
-  Bool CloakingAvailable();
+    // Is radar currently available for this team
+    Bool RadarAvailable();
 
-  // Returns the unit limit balance
-  S32 GetUnitLimitBalance();
+    // Is cloaking currently available for this team
+    Bool CloakingAvailable();
 
-  // Returns TRUE if the unit limit has been reached
-  Bool UnitLimitReached(UnitObjType *type = NULL, UnitObjType *remove = NULL);
+    // Returns the unit limit balance
+    S32 GetUnitLimitBalance();
 
-  // Register that a unit has started/stopped construction for this team
-  void RegisterConstructionBegin(UnitObj *unit);
-  void RegisterConstructionEnd(UnitObj *unit);
+    // Returns TRUE if the unit limit has been reached
+    Bool UnitLimitReached(UnitObjType* type = NULL, UnitObjType* remove = NULL);
 
-  // Test if a unit type is being constructed for this team
-  Bool IsConstructingType(UnitObjType *type);
+    // Register that a unit has started/stopped construction for this team
+    void RegisterConstructionBegin(UnitObj* unit);
+    void RegisterConstructionEnd(UnitObj* unit);
 
-  // Add a reference to provide team with line of sight
-  void GiveSightTo(U32 teamId);
+    // Test if a unit type is being constructed for this team
+    Bool IsConstructingType(UnitObjType* type);
 
-  // Remove a reference to provide team with line of sight
-  void UngiveSightTo(U32 teamId);
+    // Add a reference to provide team with line of sight
+    void GiveSightTo(U32 teamId);
 
-  // Test if we are giving Line of sight to a team
-  Bool GivingSightTo(U32 teamId)
-  {
-    ASSERT(teamId < Game::MAX_TEAMS)
-    return (givingSightTo[teamId]);
-  }
+    // Remove a reference to provide team with line of sight
+    void UngiveSightTo(U32 teamId);
 
-  // Give units to a team (from us)
-  U32 GiveUnits(Team *to, const UnitObjList &units, UnitObjPtr &first);
+    // Test if we are giving Line of sight to a team
+    Bool GivingSightTo(U32 teamId)
+    {
+        ASSERT(teamId < Game::MAX_TEAMS);
+        return (givingSightTo[teamId]);
+    }
 
-  // Give money to a team (from us)
-  U32 GiveMoney(Team *to, U32 amount);
+    // Give units to a team (from us)
+    U32 GiveUnits(Team* to, const UnitObjList& units, UnitObjPtr& first);
 
-  // Set the start region
-  void SetStartRegion(RegionObj *region);
+    // Give money to a team (from us)
+    U32 GiveMoney(Team* to, U32 amount);
 
-  // Set the starting yaw
-  void SetStartYaw(F32 yaw);
+    // Set the start region
+    void SetStartRegion(RegionObj* region);
 
-  // Get this teams relationship with the given unit
-  Relation GetUnitRelation(UnitObj *unit);
+    // Set the starting yaw
+    void SetStartYaw(F32 yaw);
 
-  // Return true if the given relation matches
-  Bool TestUnitRelation(UnitObj *unit, Relation relation);
+    // Get this teams relationship with the given unit
+    Relation GetUnitRelation(UnitObj* unit);
 
-  // Return true if this team satisfies enemy human relationship
-  Bool TestEnemyHumanRelation(U32 teamId);
+    // Return true if the given relation matches
+    Bool TestUnitRelation(UnitObj* unit, Relation relation);
 
-  // Return color for the relationship with the given team
-  Color GetRelationColor(Team *team);
+    // Return true if this team satisfies enemy human relationship
+    Bool TestEnemyHumanRelation(U32 teamId);
+
+    // Return color for the relationship with the given team
+    Color GetRelationColor(Team* team);
 
 public:
 
-  // GetName
-  const char *GetName() const
-  {
-    return (name.str);
-  }
-
-  // GetNameCrc
-  U32 GetNameCrc() const
-  {
-    return (name.crc);
-  }
-
-  // GetId
-  U32 GetId() const
-  {
-    return (id);
-  }
-
-  // GetColor
-  Color GetColor() const
-  {
-    return (color);
-  }
-
-  // GetDimColor
-  Color GetDimColor() const
-  {
-    Color c = color;
-    c.r >>= 1;
-    c.g >>= 1;
-    c.b >>= 1;
-    c.a = 128;
-    return (c);
-  }
-
-  // SetColor
-  void SetColor(const Color &c);
-
-  // GetUnitObjects
-  const NList<UnitObj> & GetUnitObjects()
-  {
-    return (unitObjects);
-  }
-
-  // GetUnitObjects
-  const NList<UnitObj> * GetUnitObjects(U32 type)
-  {
-    return (unitObjectsByType.Find(type));
-  }
-
-  // GetCurrentObjectives
-  const Objective::ObjList & GetCurrentObjectives()
-  {
-    return (currentObjectives);
-  }
-
-  // GetDisplayObjectives
-  DisplayObjective::Set & GetDisplayObjectives()
-  {
-    return (displayObjectives);
-  }
-
-  // Return true if the given relation matches
-  Bool TestRelation(U32 teamId, Relation relation)
-  {
-    ASSERT(teamId < Game::MAX_TEAMS)
-    ASSERT(teamsById[teamId])
-    ASSERT(relation < Relation::MAX)
-
-    return (relations[teamId] == relation);
-  }
-
-  // AgreedRelation
-  Bool AgreedRelation(U32 teamId, Relation relation)
-  {
-    ASSERT(teamId < Game::MAX_TEAMS)
-    ASSERT(teamsById[teamId])
-    ASSERT(relation < Relation::MAX)
-
-    return 
-    (
-      (relations[teamId] == relation) 
-      && 
-      Id2Team(teamId)->relations[id] == relation
-    );
-  }
-
-  // SetRelation
-  void SetRelation(U32 teamId, Relation relation)
-  {
-    ASSERT(teamId < Game::MAX_TEAMS)
-    ASSERT(teamsById[teamId])
-    ASSERT(relation < Relation::MAX)
-
-    ClearRelationPriv(teamId);
-    SetRelationPriv(teamId, relation);
-  }
-
-  // GetRelation
-  Relation GetRelation(U32 teamId)
-  {
-    ASSERT(teamId < Game::MAX_TEAMS)
-    ASSERT(teamsById[teamId])
-
-    return (relations[teamId]);
-  }
-
-  // GetTeamsByRelation
-  Game::TeamBitfield GetTeamsByRelation(Relation relation)
-  {
-    ASSERT(relation < Relation::MAX)
-    return (teamsByRelation[relation]);
-  }
-
-  // NumRelated
-  Bool NumRelated(Relation relation)
-  {
-    ASSERT(relation < Relation::MAX)
-    return (group[relation].GetCount());
-  }
-
-  // RelatedTeams
-  const List<Team> & RelatedTeams(Relation relation)
-  {
-    if (relation == Relation::ENEMYHUMAN)
+    // GetName
+    const char* GetName() const
     {
-      return (groupEnemyHuman);
+        return (name.str);
     }
-    else
+
+    // GetNameCrc
+    U32 GetNameCrc() const
     {
-      ASSERT(relation < Relation::MAX)
-      return (group[relation]);
+        return (name.crc);
     }
-  }
 
-  // Get the start location
-  const Point<F32> & GetStartPoint()
-  {
-    return (startPoint);
-  }
-
-  // Get the start region
-  RegionObj * GetStartRegion()
-  {
-    return (startRegion.GetPointer());
-  }
-
-  // Get the start yaw
-  F32 GetStartYaw()
-  {
-    return (startYaw);
-  }
-
-  // SetStrategicObject
-  void SetStrategicObject(Strategic::Object *object)
-  {
-    strategicObject = object;
-  }
-
-  // GetStrategicObject
-  Strategic::Object * GetStrategicObject()
-  {
-    return (strategicObject);
-  }
-
-  // SetPersonality
-  void SetPersonality(const char *name)
-  {
-    personality = name;
-  }
-
-  // GetPersonality
-  const char * GetPersonality()
-  {
-    return (personality.str);
-  }
-
-  // Get the next unique script id
-  U32 GetNextScriptId()
-  {
-    return (uniqueScriptId++);
-  }
-
-  // Report the result of the game
-  void ReportResult(EndGame::Result result)
-  {
-    endGame.result = result;
-  }
-
-  // GetEndGame
-  const EndGame & GetEndGame()
-  {
-    return (endGame);
-  }
-
-  // Get the team power
-  const Power::Team & GetPower()
-  {
-    return (power);
-  }
-        
-  // Get the total resource stored
-  U32 GetResourceStore()
-  {
-    return (resourceStore);
-  }
-
-  // Is type filtering enabled 
-  Bool GetTypeFiltering()
-  {
-    return (filtering);
-  }
-
-  // Set type filtering
-  void SetTypeFiltering(Bool enable)
-  {
-    filtering = enable;
-  }
-
-  // Get the list of filtered types
-  const UnitObjTypeList & GetFilteredTypes()
-  {
-    return (filteredTypes);
-  }
-
-  // Add the list of filtered types
-  void AddFilteredTypes(const UnitObjTypeList &types)
-  {
-    for (UnitObjTypeList::Iterator t(&types); *t; t++)
+    // GetId
+    U32 GetId() const
     {
-      if ((*t)->Alive())
-      {
-        filteredTypes.Append(**t);
-      }
+        return (id);
     }
-  }
 
-  // Set the list of filtered types
-  void SetFilteredTypes(const UnitObjTypeList &types)
-  {
-    filteredTypes.Clear();
-    AddFilteredTypes(types);
-  }
-
-  // Add a power leak
-  void AddPowerLeak(UnitObj *facility, UnitObj *thief, U32 amount, U32 rate)
-  {
-    power.AddLeak(facility, thief, amount, rate);
-  }
-
-  // Remove a power leak
-  void RemovePowerLeak(UnitObj *thief)
-  {
-    power.RemoveLeak(thief);
-  }
-
-  // Get the radio event queue of this team
-  Radio::EventQueue & GetRadio()
-  {
-    return (radio);
-  }
-
-  // Get console ID for the given type
-  U32 Team::GetConsoleId(U32 type)
-  {
-    return (consoleId ^ type);
-  }
-
-  // Notification that relations changed with another team
-  void RelationsChanged(Team *team);
-
-  // Is this the default client
-  Bool IsDefaultClient()
-  {
-    return (defaultClient);
-  }
-  
-  // Is this team available for play
-  Bool IsAvailablePlay()
-  {
-    return (availablePlay);
-  }
-
-  // Is this 
-  Bool HasStats()
-  {
-    return (hasStats);
-  }
-
-  // Does this team have permanent radar
-  Bool GetPermanentRadar()
-  {
-    return (permanentRadar);
-  }
-
-  // Does this team require AI
-  Bool GetRequireAI()
-  {
-    return (requireAI);
-  }
-
-  // The difficulty level of this team
-  F32 GetDifficulty()
-  {
-    return (difficulty);
-  }
-
-  // Returns the current command cost total
-  S32 GetTotalCommandCost()
-  {
-    return (totalCommandCost);
-  }
-  
-  // Returns the number of unit members
-  S32 GetTotalUnitMembers()
-  {
-    return (totalUnitMembers);
-  }
-
-  // Get the unit limit for this team
-  U32 GetUnitLimit()
-  {
-    return (unitLimit);
-  }
-
-  // Returns the name of the default side for this team
-  const char * GetSide()
-  {
-    return (side.str);
-  }
-
-  // Is the side fixed
-  Bool GetSideFixed()
-  {
-    return (sideFixed);
-  }
-
-  // Set the default client
-  void SetDefaultClient(Bool client)
-  {
-    if (client)
+    // GetColor
+    Color GetColor() const
     {
-      for (NBinTree<Team>::Iterator t(&teamsByName); *t; t++)
-      {
-        (*t)->defaultClient = FALSE;
-      }
-      defaultClient = TRUE;
+        return (color);
     }
-    else
+
+    // GetDimColor
+    Color GetDimColor() const
     {
-      defaultClient = FALSE;
+        Color c = color;
+        c.r >>= 1;
+        c.g >>= 1;
+        c.b >>= 1;
+        c.a = 128;
+        return (c);
     }
-  }
 
-  // Set this team for available play
-  void SetAvailablePlay(Bool available)
-  {
-    availablePlay = available;
-  }
+    // SetColor
+    void SetColor(const Color& c);
 
-  // Set this has stats
-  void SetHasStats(Bool stats)
-  {
-    hasStats = stats;
-  }
+    // GetUnitObjects
+    const NList<UnitObj>& GetUnitObjects()
+    {
+        return (unitObjects);
+    }
 
-  // Set the permanent radar flag
-  void SetPermanentRadar(Bool flag)
-  {
-    permanentRadar = flag;
-  }
+    // GetUnitObjects
+    const NList<UnitObj>* GetUnitObjects(U32 type)
+    {
+        return (unitObjectsByType.Find(type));
+    }
 
-  // Set the require AI flag
-  void SetRequireAI(Bool flag)
-  {
-    requireAI = flag;
-  }
+    // GetCurrentObjectives
+    const Objective::ObjList& GetCurrentObjectives()
+    {
+        return (currentObjectives);
+    }
 
-  // Set the difficulty level of this team
-  void SetDifficulty(F32 d)
-  {
-    difficulty = d;
-  }
+    // GetDisplayObjectives
+    DisplayObjective::Set& GetDisplayObjectives()
+    {
+        return (displayObjectives);
+    }
 
-  // Set the unit limit for this team
-  void SetUnitLimit(U32 l)
-  {
-    unitLimit = l;
-  }
+    // Return true if the given relation matches
+    Bool TestRelation(U32 teamId, Relation relation)
+    {
+        ASSERT(teamId < Game::MAX_TEAMS);
+        ASSERT(teamsById[teamId]);
+        ASSERT(relation < Relation::MAX);
 
-  // Set the default side for this team
-  void SetSide(const char *name)
-  {
-    side = name;
-  }
+        return (relations[teamId] == relation);
+    }
 
-  // Set whether the side is fixed
-  void SetSideFixed(Bool flag)
-  {
-    sideFixed = flag;
-  }
+    // AgreedRelation
+    Bool AgreedRelation(U32 teamId, Relation relation)
+    {
+        ASSERT(teamId < Game::MAX_TEAMS);
+        ASSERT(teamsById[teamId]);
+        ASSERT(relation < Relation::MAX);
+
+        return ((relations[teamId] == relation) && Id2Team(teamId)->relations[id] == relation);
+    }
+
+    // SetRelation
+    void SetRelation(U32 teamId, Relation relation)
+    {
+        ASSERT(teamId < Game::MAX_TEAMS);
+        ASSERT(teamsById[teamId]);
+        ASSERT(relation < Relation::MAX);
+
+        ClearRelationPriv(teamId);
+        SetRelationPriv(teamId, relation);
+    }
+
+    // GetRelation
+    Relation GetRelation(U32 teamId)
+    {
+        ASSERT(teamId < Game::MAX_TEAMS);
+        ASSERT(teamsById[teamId]);
+
+        return (relations[teamId]);
+    }
+
+    // GetTeamsByRelation
+    Game::TeamBitfield GetTeamsByRelation(Relation relation)
+    {
+        ASSERT(relation < Relation::MAX);
+        return (teamsByRelation[relation]);
+    }
+
+    // NumRelated
+    Bool NumRelated(Relation relation)
+    {
+        ASSERT(relation < Relation::MAX);
+        return (group[relation].GetCount());
+    }
+
+    // RelatedTeams
+    const List<Team>& RelatedTeams(Relation relation)
+    {
+        if (relation == Relation::ENEMYHUMAN)
+        {
+            return (groupEnemyHuman);
+        }
+        else
+        {
+            ASSERT(relation < Relation::MAX);
+            return (group[relation]);
+        }
+    }
+
+    // Get the start location
+    const Point<F32>& GetStartPoint()
+    {
+        return (startPoint);
+    }
+
+    // Get the start region
+    RegionObj* GetStartRegion()
+    {
+        return (startRegion.GetPointer());
+    }
+
+    // Get the start yaw
+    F32 GetStartYaw()
+    {
+        return (startYaw);
+    }
+
+    // SetStrategicObject
+    void SetStrategicObject(Strategic::Object* object)
+    {
+        strategicObject = object;
+    }
+
+    // GetStrategicObject
+    Strategic::Object* GetStrategicObject()
+    {
+        return (strategicObject);
+    }
+
+    // SetPersonality
+    void SetPersonality(const char* name)
+    {
+        personality = name;
+    }
+
+    // GetPersonality
+    const char* GetPersonality()
+    {
+        return (personality.str);
+    }
+
+    // Get the next unique script id
+    U32 GetNextScriptId()
+    {
+        return (uniqueScriptId++);
+    }
+
+    // Report the result of the game
+    void ReportResult(EndGame::Result result)
+    {
+        endGame.result = result;
+    }
+
+    // GetEndGame
+    const EndGame& GetEndGame()
+    {
+        return (endGame);
+    }
+
+    // Get the team power
+    const Power::Team& GetPower()
+    {
+        return (power);
+    }
+
+    // Get the total resource stored
+    U32 GetResourceStore()
+    {
+        return (resourceStore);
+    }
+
+    // Is type filtering enabled 
+    Bool GetTypeFiltering()
+    {
+        return (filtering);
+    }
+
+    // Set type filtering
+    void SetTypeFiltering(Bool enable)
+    {
+        filtering = enable;
+    }
+
+    // Get the list of filtered types
+    const UnitObjTypeList& GetFilteredTypes()
+    {
+        return (filteredTypes);
+    }
+
+    // Add the list of filtered types
+    void AddFilteredTypes(const UnitObjTypeList& types)
+    {
+        for (UnitObjTypeList::Iterator t(&types); *t; t++)
+        {
+            if ((*t)->Alive())
+            {
+                filteredTypes.Append(**t);
+            }
+        }
+    }
+
+    // Set the list of filtered types
+    void SetFilteredTypes(const UnitObjTypeList& types)
+    {
+        filteredTypes.Clear();
+        AddFilteredTypes(types);
+    }
+
+    // Add a power leak
+    void AddPowerLeak(UnitObj* facility, UnitObj* thief, U32 amount, U32 rate)
+    {
+        power.AddLeak(facility, thief, amount, rate);
+    }
+
+    // Remove a power leak
+    void RemovePowerLeak(UnitObj* thief)
+    {
+        power.RemoveLeak(thief);
+    }
+
+    // Get the radio event queue of this team
+    Radio::EventQueue& GetRadio()
+    {
+        return (radio);
+    }
+
+    // Get console ID for the given type
+    U32 Team::GetConsoleId(U32 type)
+    {
+        return (consoleId ^ type);
+    }
+
+    // Notification that relations changed with another team
+    void RelationsChanged(Team* team);
+
+    // Is this the default client
+    Bool IsDefaultClient()
+    {
+        return (defaultClient);
+    }
+
+    // Is this team available for play
+    Bool IsAvailablePlay()
+    {
+        return (availablePlay);
+    }
+
+    // Is this 
+    Bool HasStats()
+    {
+        return (hasStats);
+    }
+
+    // Does this team have permanent radar
+    Bool GetPermanentRadar()
+    {
+        return (permanentRadar);
+    }
+
+    // Does this team require AI
+    Bool GetRequireAI()
+    {
+        return (requireAI);
+    }
+
+    // The difficulty level of this team
+    F32 GetDifficulty()
+    {
+        return (difficulty);
+    }
+
+    // Returns the current command cost total
+    S32 GetTotalCommandCost()
+    {
+        return (totalCommandCost);
+    }
+
+    // Returns the number of unit members
+    S32 GetTotalUnitMembers()
+    {
+        return (totalUnitMembers);
+    }
+
+    // Get the unit limit for this team
+    U32 GetUnitLimit()
+    {
+        return (unitLimit);
+    }
+
+    // Returns the name of the default side for this team
+    const char* GetSide()
+    {
+        return (side.str);
+    }
+
+    // Is the side fixed
+    Bool GetSideFixed()
+    {
+        return (sideFixed);
+    }
+
+    // Set the default client
+    void SetDefaultClient(Bool client)
+    {
+        if (client)
+        {
+            for (NBinTree<Team>::Iterator t(&teamsByName); *t; t++)
+            {
+                (*t)->defaultClient = FALSE;
+            }
+            defaultClient = TRUE;
+        }
+        else
+        {
+            defaultClient = FALSE;
+        }
+    }
+
+    // Set this team for available play
+    void SetAvailablePlay(Bool available)
+    {
+        availablePlay = available;
+    }
+
+    // Set this has stats
+    void SetHasStats(Bool stats)
+    {
+        hasStats = stats;
+    }
+
+    // Set the permanent radar flag
+    void SetPermanentRadar(Bool flag)
+    {
+        permanentRadar = flag;
+    }
+
+    // Set the require AI flag
+    void SetRequireAI(Bool flag)
+    {
+        requireAI = flag;
+    }
+
+    // Set the difficulty level of this team
+    void SetDifficulty(F32 d)
+    {
+        difficulty = d;
+    }
+
+    // Set the unit limit for this team
+    void SetUnitLimit(U32 l)
+    {
+        unitLimit = l;
+    }
+
+    // Set the default side for this team
+    void SetSide(const char* name)
+    {
+        side = name;
+    }
+
+    // Set whether the side is fixed
+    void SetSideFixed(Bool flag)
+    {
+        sideFixed = flag;
+    }
 
 private:
 
-  // SetRelation
-  void SetRelationPriv(U32 teamId, Relation alliance);
+    // SetRelation
+    void SetRelationPriv(U32 teamId, Relation alliance);
 
-  // ClearRelation
-  void ClearRelationPriv(U32 teamId);
+    // ClearRelation
+    void ClearRelationPriv(U32 teamId);
 
-  // Process sight updates
-  void ProcessSight(Bool force);
+    // Process sight updates
+    void ProcessSight(Bool force);
 
-  // Process
-  void Process();
+    // Process
+    void Process();
 
 public:
 
-  // Init : Initialize team system
-  static void Init();
+    // Init : Initialize team system
+    static void Init();
 
-  // Done : Shutdown team system
-  static void Done();
+    // Done : Shutdown team system
+    static void Done();
 
-  // CmdHandler : Console Command handler
-  static void CmdHandler(U32 pathCrc);
+    // CmdHandler : Console Command handler
+    static void CmdHandler(U32 pathCrc);
 
-  // NewId: Returns an unused Id
-  static U32 NewId();
+    // NewId: Returns an unused Id
+    static U32 NewId();
 
-  // Configure: Configure all of the teams from a config file
-  static void Configure(FScope *fScope);
+    // Configure: Configure all of the teams from a config file
+    static void Configure(FScope* fScope);
 
-  // Purge : Purge all teams which don't have players
-  static void Purge();
+    // Purge : Purge all teams which don't have players
+    static void Purge();
 
-  // PreLoadAll: Allows pre loading processing to occur
-  static void PreLoadAll();
+    // PreLoadAll: Allows pre loading processing to occur
+    static void PreLoadAll();
 
-  // PostLoadAll: Allows post loading processing to occur
-  static void PostLoadAll();
+    // PostLoadAll: Allows post loading processing to occur
+    static void PostLoadAll();
 
-  // If required, create side based units for all teams
-  static void CreateSideBasedUnits();
+    // If required, create side based units for all teams
+    static void CreateSideBasedUnits();
 
-  // If required, apply difficulty levels to enemy teams
-  static void ApplyDifficultyLevels();
+    // If required, apply difficulty levels to enemy teams
+    static void ApplyDifficultyLevels();
 
-  // SaveAll: Save all teams to a config file
-  static void SaveAll(FScope *fScope);
-  
-  // ProcessAll : Perform team processing for all teams
-  static void ProcessAll(Bool force = FALSE);
+    // SaveAll: Save all teams to a config file
+    static void SaveAll(FScope* fScope);
 
-  // Test a unit against the current display team (FALSE if no display team)
-  static Bool TestDisplayRelation(UnitObj *unit, Relation relation);
+    // ProcessAll : Perform team processing for all teams
+    static void ProcessAll(Bool force = FALSE);
 
-  // Test relation of 2 teams, where either could be NULL
-  static Bool TestRelation(Team *team1, Team *team2, Relation relation);
+    // Test a unit against the current display team (FALSE if no display team)
+    static Bool TestDisplayRelation(UnitObj* unit, Relation relation);
 
-  // Test relation of unit with a team, where team could be NULL
-  static Bool TestUnitRelation(UnitObj *unit, Team *team, Relation relation);
+    // Test relation of 2 teams, where either could be NULL
+    static Bool TestRelation(Team* team1, Team* team2, Relation relation);
 
-  // Get relation between two teams, where either could be NULL
-  static Relation GetRelation(Team *team1, Team *team2);
+    // Test relation of unit with a team, where team could be NULL
+    static Bool TestUnitRelation(UnitObj* unit, Team* team, Relation relation);
 
-  // Is the given unit type available for any team
-  static Bool AllowedTypeByAny(UnitObjType *type);
+    // Get relation between two teams, where either could be NULL
+    static Relation GetRelation(Team* team1, Team* team2);
 
-  // Player had departed
-  static void PlayerDeparted(Player *player);
+    // Is the given unit type available for any team
+    static Bool AllowedTypeByAny(UnitObjType* type);
+
+    // Player had departed
+    static void PlayerDeparted(Player* player);
 
 private:
 
-  // LoadObjectives
-  static void LoadObjectives(const char *fileName);
+    // LoadObjectives
+    static void LoadObjectives(const char* fileName);
 
-  // UpdateMono : Update the mono display
-  static void UpdateMono();
+    // UpdateMono : Update the mono display
+    static void UpdateMono();
 
 public:
 
-  // GetDisplayTeam : Get the current display team, or NULL
-  static Team * GetDisplayTeam()
-  {
-    ASSERT(initialized)
-    return (displayTeam);
-  }
-
-  // SetDisplayTeam : Set the current display team
-  static void SetDisplayTeam(Team *team)
-  {
-    ASSERT(initialized)
-    ASSERT(team)
-    displayTeam = team;
-  }
-
-  // ClearDisplayTeam : Clear the current display team
-  static void ClearDisplayTeam()
-  {
-    ASSERT(displayTeam)
-    displayTeam = NULL;
-  }
-
-  // Name2Team: Converts a team name into a team pointer
-  static Team * Name2Team(const char *name)
-  {
-    return (teamsByName.Find(Crc::CalcStr(name)));
-  }
-
-  // NameCrc2Team: Converts a team name crc into a team pointer
-  static Team * NameCrc2Team(U32 crc)
-  {
-    return (teamsByName.Find(crc));
-  }
-
-  // Id2Team: Converts a team Id to a team pointer
-  static Team * Id2Team(U32 id)
-  {
-    return (teamsById[id]);
-  }
-
-  // Id2TeamName : Converts a team Id into its name
-  static const char *Id2TeamName(U32 id)
-  {
-    ASSERT(teamsById[id])
-    return (teamsById[id]->GetName());
-  }
-
-  // NumTeams: Return the number of teams which are available
-  static U32 NumTeams()
-  {
-    return (teamsByName.GetCount());
-  }
-
-  // NumTeamsAvailable: Return the number of teams which are available
-  static U32 NumAvailableTeams()
-  {
-    U32 num = 0;
-    for (NBinTree<Team>::Iterator t(&teamsByName); *t; t++)
+    // GetDisplayTeam : Get the current display team, or NULL
+    static Team* GetDisplayTeam()
     {
-      if ((*t)->availablePlay)
-      {
-        num++;
-      }
+        ASSERT(initialized);
+        return (displayTeam);
     }
-    return (num);
-  }
+
+    // SetDisplayTeam : Set the current display team
+    static void SetDisplayTeam(Team* team)
+    {
+        ASSERT(initialized);
+        ASSERT(team);
+        displayTeam = team;
+    }
+
+    // ClearDisplayTeam : Clear the current display team
+    static void ClearDisplayTeam()
+    {
+        ASSERT(displayTeam);
+        displayTeam = NULL;
+    }
+
+    // Name2Team: Converts a team name into a team pointer
+    static Team* Name2Team(const char* name)
+    {
+        return (teamsByName.Find(Crc::CalcStr(name)));
+    }
+
+    // NameCrc2Team: Converts a team name crc into a team pointer
+    static Team* NameCrc2Team(U32 crc)
+    {
+        return (teamsByName.Find(crc));
+    }
+
+    // Id2Team: Converts a team Id to a team pointer
+    static Team* Id2Team(U32 id)
+    {
+        return (teamsById[id]);
+    }
+
+    // Id2TeamName : Converts a team Id into its name
+    static const char* Id2TeamName(U32 id)
+    {
+        ASSERT(teamsById[id]);
+        return (teamsById[id]->GetName());
+    }
+
+    // NumTeams: Return the number of teams which are available
+    static U32 NumTeams()
+    {
+        return (teamsByName.GetCount());
+    }
+
+    // NumTeamsAvailable: Return the number of teams which are available
+    static U32 NumAvailableTeams()
+    {
+        U32 num = 0;
+        for (NBinTree<Team>::Iterator t(&teamsByName); *t; t++)
+        {
+            if ((*t)->availablePlay)
+            {
+                num++;
+            }
+        }
+        return (num);
+    }
 };
 
 #endif

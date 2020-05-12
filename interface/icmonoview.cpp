@@ -21,113 +21,113 @@
 //
 // ICMonoView::ICMonoView
 //
-ICMonoView::ICMonoView(IControl *parent)
-: IControl(parent)
+ICMonoView::ICMonoView(IControl* parent)
+    : IControl(parent)
 {
-  cell.x = 5;
-  cell.y = 5;
+    cell.x = 5;
+    cell.y = 5;
 
-  colorBg.Set(0L, 0L, 0L);
-  colorFg.Set(200, 100L, 0L);
-  colorBright.Set(255L, 128L, 0L);
+    colorBg.Set(0L, 0L, 0L);
+    colorFg.Set(200, 100L, 0L);
+    colorBright.Set(255L, 128L, 0L);
 }
 
 
 //
 // ICMonoView::Setup
 //
-void ICMonoView::Setup(FScope *fScope)
+void ICMonoView::Setup(FScope* fScope)
 {
-  switch (fScope->NameCrc())
-  {
+    switch (fScope->NameCrc())
+    {
     case 0x1FD28C97: // "Cell"
     {
-      StdLoad::TypePoint<S32>(fScope, cell);
-      break;
+        StdLoad::TypePoint<S32>(fScope, cell);
+        break;
     }
 
     case 0x0D9DD4C1: // "FgColor"
     {
-      StdLoad::TypeColor(fScope, colorFg);
-      break;
+        StdLoad::TypeColor(fScope, colorFg);
+        break;
     }
 
     case 0x34016932: // "BgColor"
     {
-      StdLoad::TypeColor(fScope, colorBg);
-      break;
+        StdLoad::TypeColor(fScope, colorBg);
+        break;
     }
 
     case 0xBC16B564: // "BrightColor"
     {
-      StdLoad::TypeColor(fScope, colorBright);
-      break;
+        StdLoad::TypeColor(fScope, colorBright);
+        break;
     }
 
     default:
-      IControl::Setup(fScope);
-  }
+        IControl::Setup(fScope);
+    }
 }
 
 
 //
 // ICMonoView::DrawSelf
 //
-void ICMonoView::DrawSelf(PaintInfo &pi)
+void ICMonoView::DrawSelf(PaintInfo& pi)
 {
-  // Standard drawing
-  DrawCtrlBackground(pi, GetTexture());
-  DrawCtrlFrame(pi);
+    // Standard drawing
+    DrawCtrlBackground(pi, GetTexture());
+    DrawCtrlFrame(pi);
 
 #ifndef MONO_DISABLED
-  if (pi.font)
-  {
-    U8 *monoPtr = Mono::ScreenPtr();
-
-    if (monoPtr)
+    if (pi.font)
     {
-      for (U32 r = 0; r < 25; r++)
-      {
-        U8 *rowPtr = monoPtr + (r * 160);
+        U8* monoPtr = Mono::ScreenPtr();
 
-        for (U32 c = 0; c < 80; c++)
+        if (monoPtr)
         {
-          U8 chr = rowPtr[c * 2];
-          U8 atr = rowPtr[c * 2 + 1];
-
-          if (atr != Mono::BLANK)
-          {
-            S32 x = pi.client.p0.x + (c * cell.x);
-            S32 y = pi.client.p0.y + (r * cell.y);
-            Color textClr = colorFg;
-
-            if (atr == Mono::REVERSE)
+            for (U32 r = 0; r < 25; r++)
             {
-              IFace::RenderRectangle(ClipRect(x, y, x + cell.x + 1, y + cell.y + 1), colorFg);
-              textClr = colorBg;
-            }
-            else if (atr == Mono::BRIGHT)
-            {
-              textClr = colorBright;
-            }
+                U8* rowPtr = monoPtr + (r * 160);
 
-            if (isprint(chr))
-            {
-              CH wideCh = CH(chr);
+                for (U32 c = 0; c < 80; c++)
+                {
+                    U8 chr = rowPtr[c * 2];
+                    U8 atr = rowPtr[c * 2 + 1];
 
-              pi.font->Draw(
-                x, y,
-                &wideCh, 1,
-                textClr,
-                &pi.client,
-                pi.alphaScale);
+                    if (atr != Mono::BLANK)
+                    {
+                        S32 x = pi.client.p0.x + (c * cell.x);
+                        S32 y = pi.client.p0.y + (r * cell.y);
+                        Color textClr = colorFg;
+
+                        if (atr == Mono::REVERSE)
+                        {
+                            IFace::RenderRectangle(ClipRect(x, y, x + cell.x + 1, y + cell.y + 1), colorFg);
+                            textClr = colorBg;
+                        }
+                        else if (atr == Mono::BRIGHT)
+                        {
+                            textClr = colorBright;
+                        }
+
+                        if (isprint(chr))
+                        {
+                            CH wideCh = CH(chr);
+
+                            pi.font->Draw(
+                                x, y,
+                                &wideCh, 1,
+                                textClr,
+                                &pi.client,
+                                pi.alphaScale);
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
-  }
 #else
-  pi;
+    pi;
 #endif
 }

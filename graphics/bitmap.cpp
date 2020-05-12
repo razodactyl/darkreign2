@@ -42,9 +42,9 @@ const U32 MAXMIPMAPS = 22;
 //
 S32 PowerOf2(S32 x)
 {
-    ASSERT(x >= 0)
+    ASSERT(x >= 0);
 
-        S32 exp;
+    S32 exp;
     for (exp = -1; x; x >>= 1)
     {
         exp++;
@@ -285,6 +285,9 @@ Bool Bitmap::Create(S32 width, S32 height, S32 depth, S32 pitch, void* data)
 Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth) // = 0, = 0
 {
     ASSERT(translucent <= 2);
+
+    // JONATHAN
+    glGenTextures(1, &glTextureId);
 
     status.translucent = translucent ? 1 : 0;
     status.transparent = translucent > 1 ? 1 : 0;
@@ -3511,8 +3514,14 @@ void Bitmap::BinkDoFrame()
     ASSERT(x >= 0 && y >= 0);
 
     // copy the data onto the screen
-    BinkCopyToBuffer(bink, desc.lpSurface,
-        desc.lPitch, desc.dwHeight, x, y, binkFlags);
+    BinkCopyToBuffer(bink, desc.lpSurface, desc.lPitch, desc.dwHeight, x, y, binkFlags);
+
+    //glActiveTexture(GL_TEXTURE0);
+    //glBindTexture(GL_TEXTURE_2D, glTextureId);
+    //glDrawPixels(bink->Width, bink->Height, GL_BGRA, GL_UNSIGNED_BYTE, desc.lpSurface);
+    //glTexImage2D(GL_TEXTURE_2D, stage, GL_RGBA, bink->Width / 2, bink->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, desc.lpSurface);
+    //glGenerateMipmap(GL_TEXTURE_2D);
+    //glUseProgram(Vid::shader_programme);
 
     UnLock();
 

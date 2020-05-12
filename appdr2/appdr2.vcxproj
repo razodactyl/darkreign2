@@ -60,22 +60,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>F:\Games\Dark Reign 2\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <LibraryPath>./Debug/;../Debug/;$(LibraryPath)</LibraryPath>
     <TargetName>dr2_development</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
     <OutDir>F:\Games\Dark Reign 2\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>./Debug/;../Debug/;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>F:\Projects\darkreign2\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;./Debug/;../Debug/;$(LibraryPath)</LibraryPath>
     <TargetName>dr2_development</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>F:\Games\Dark Reign 2\</OutDir>
     <IntDir>F:\Games\Dark Reign 2\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>./Release/;../Release/;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>F:\Projects\darkreign2\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;./Release/;../Release/;$(LibraryPath)</LibraryPath>
     <TargetName>dr2_release</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,12 +83,12 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\glfw-3.3.2.bin.WIN32\include;$(SolutionDir)3rdparty\glew-2.1.0\include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
@@ -98,6 +98,7 @@
       <ProgramDataBaseFileName>.\../Release/appdr2\</ProgramDataBaseFileName>
       <CallingConvention>FastCall</CallingConvention>
       <DisableSpecificWarnings>4996;</DisableSpecificWarnings>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,1
@@ -126,30 +127,38 @@ rc version.rc</Command>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OutputFile>F:\Games\Dark Reign 2\dr2_release.exe</OutputFile>
-      <AdditionalDependencies>user32.lib;gdi32.lib;%(AdditionalDependencies);coregame/coregame.lib;coregame_ai/coregame_ai.lib;coregame_interface/coregame_interface.lib;coregame_orders/coregame_orders.lib;coregame_objects/coregame_objects.lib;coregame_particles/coregame_particles.lib;coregame_tasks/coregame_tasks.lib;game/game.lib;graphics/graphics.lib;interface/interface.lib;main/main.lib;multiplayer/multiplayer.lib;sound/sound.lib;styxnet/styxnet.lib;system/system.lib;util/util.lib;wonlib/wonlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>coregame/coregame.lib;coregame_ai/coregame_ai.lib;coregame_interface/coregame_interface.lib;coregame_orders/coregame_orders.lib;coregame_objects/coregame_objects.lib;coregame_particles/coregame_particles.lib;coregame_tasks/coregame_tasks.lib;game/game.lib;graphics/graphics.lib;interface/interface.lib;main/main.lib;multiplayer/multiplayer.lib;sound/sound.lib;styxnet/styxnet.lib;system/system.lib;util/util.lib;wonlib/wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalLibraryDirectories>$(SolutionDir)\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;$(SolutionDir)\3rdparty\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\glfw-3.3.2.bin.WIN32\include;$(SolutionDir)3rdparty\glew-2.1.0\include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <PreprocessorDefinitions>WIN32;NDEBUG;DEVELOPMENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>.\../Development/appdr2\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\../Development/appdr2\appdr2.pch</PrecompiledHeaderOutputFile>
       <ObjectFileName>.\../Development/appdr2\</ObjectFileName>
       <ProgramDataBaseFileName>.\../Development/appdr2\</ProgramDataBaseFileName>
-      <CallingConvention>FastCall</CallingConvention>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>FastCall</CallingConvention>
+      <LanguageStandard>Default</LanguageStandard>
+      <MinimalRebuild>true</MinimalRebuild>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,1
@@ -177,21 +186,27 @@ rc version.rc</Command>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>user32.lib;gdi32.lib;%(AdditionalDependencies);coregame/coregame.lib;coregame_ai/coregame_ai.lib;coregame_interface/coregame_interface.lib;coregame_orders/coregame_orders.lib;coregame_objects/coregame_objects.lib;coregame_particles/coregame_particles.lib;coregame_tasks/coregame_tasks.lib;game/game.lib;graphics/graphics.lib;interface/interface.lib;main/main.lib;multiplayer/multiplayer.lib;sound/sound.lib;styxnet/styxnet.lib;system/system.lib;util/util.lib;wonlib/wonlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>coregame/coregame.lib;coregame_ai/coregame_ai.lib;coregame_interface/coregame_interface.lib;coregame_orders/coregame_orders.lib;coregame_objects/coregame_objects.lib;coregame_particles/coregame_particles.lib;coregame_tasks/coregame_tasks.lib;game/game.lib;graphics/graphics.lib;interface/interface.lib;main/main.lib;multiplayer/multiplayer.lib;sound/sound.lib;styxnet/styxnet.lib;system/system.lib;util/util.lib;wonlib/wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalLibraryDirectories>$(SolutionDir)\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;$(SolutionDir)\3rdparty\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkStatus>false</LinkStatus>
     </Link>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
       <Optimization>MaxSpeed</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)3rdparty\glfw-3.3.2.bin.WIN32\include;$(SolutionDir)3rdparty\glew-2.1.0\include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>WIN32;NDEBUG;DEVELOPMENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerOutput>All</AssemblerOutput>
@@ -201,6 +216,7 @@ rc version.rc</Command>
       <ProgramDataBaseFileName>.\../Development/appdr2\</ProgramDataBaseFileName>
       <CallingConvention>FastCall</CallingConvention>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,1
@@ -228,10 +244,15 @@ rc version.rc</Command>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>user32.lib;gdi32.lib;%(AdditionalDependencies);coregame/coregame.lib;coregame_ai/coregame_ai.lib;coregame_interface/coregame_interface.lib;coregame_orders/coregame_orders.lib;coregame_objects/coregame_objects.lib;coregame_particles/coregame_particles.lib;coregame_tasks/coregame_tasks.lib;game/game.lib;graphics/graphics.lib;interface/interface.lib;main/main.lib;multiplayer/multiplayer.lib;sound/sound.lib;styxnet/styxnet.lib;system/system.lib;util/util.lib;wonlib/wonlib.lib</AdditionalDependencies>
+      <AdditionalDependencies>coregame/coregame.lib;coregame_ai/coregame_ai.lib;coregame_interface/coregame_interface.lib;coregame_orders/coregame_orders.lib;coregame_objects/coregame_objects.lib;coregame_particles/coregame_particles.lib;coregame_tasks/coregame_tasks.lib;game/game.lib;graphics/graphics.lib;interface/interface.lib;main/main.lib;multiplayer/multiplayer.lib;sound/sound.lib;styxnet/styxnet.lib;system/system.lib;util/util.lib;wonlib/wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <AdditionalLibraryDirectories>$(SolutionDir)\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;$(SolutionDir)\3rdparty\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Image Include="dr2.ico" />

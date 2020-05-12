@@ -27,23 +27,23 @@
 //
 class MsgBoxWindow : public ICWindow
 {
-  PROMOTE_LINK(MsgBoxWindow, ICWindow, 0x372401F1); // "MsgBoxWindow"
+    PROMOTE_LINK(MsgBoxWindow, ICWindow, 0x372401F1); // "MsgBoxWindow"
 
 protected:
 
-  // List of message box events
-  NBinTree<MBEvent> eventList;
+    // List of message box events
+    NBinTree<MBEvent> eventList;
 
 public:
 
-  MsgBoxWindow(IControl *parent);
-  ~MsgBoxWindow();
+    MsgBoxWindow(IControl* parent);
+    ~MsgBoxWindow();
 
-  // Add a message box event item to this message box
-  void AddEvent(MBEvent *item);
+    // Add a message box event item to this message box
+    void AddEvent(MBEvent* item);
 
-  // Handle events
-  U32 HandleEvent(Event &e);
+    // Handle events
+    U32 HandleEvent(Event& e);
 };
 
 
@@ -54,8 +54,8 @@ public:
 namespace IFace
 {
 
-  // Display a modal message box
-  IControl * MsgBox(const CH *title, const CH *string, U32 flags, MBEvent *btn1, MBEvent *btn2 = NULL, MBEvent *btn3 = NULL);
+    // Display a modal message box
+    IControl* MsgBox(const CH* title, const CH* string, U32 flags, MBEvent* btn1, MBEvent* btn2 = NULL, MBEvent* btn3 = NULL);
 
 }
 

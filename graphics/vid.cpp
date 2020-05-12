@@ -11,13 +11,13 @@
 #include "vid_cmd.h"
 #include "terrain_priv.h"
 #include "light_priv.h"
-#include "main.h"           // for framerate
-#include "resource.h"       // for ID_ codes
+#include "main.h" // for framerate
+#include "resource.h" // for ID_ codes
 #include "hardware.h"
-#include "iface.h"          // for UnRegisterControlClass
+#include "iface.h" // for UnRegisterControlClass
 #include "iface_messagebox.h"
-#include "babel.h"          // for TRANSLATE
-#include "input.h"          // for OnActivate
+#include "babel.h" // for TRANSLATE
+#include "input.h" // for OnActivate
 #include "terrain.h"
 #include "console.h"
 #include "mesh.h"
@@ -35,90 +35,100 @@ namespace Vid
     Bool SetCoopLevel();
     //-----------------------------------------------------------------------------
 
-    U8   startVar;          // calc size of Vid namespace
+    U8 startVar; // calc size of Vid namespace
 
-    U32  extraFog;
+    U32 extraFog;
 
     // static Vid class variables
-    Status                  doStatus;
-    Status		            Vid::isStatus;
-    Caps                    caps;
+    Status doStatus;
+    Status Vid::isStatus;
+    Caps caps;
 
-    U32                     indexCount = 0;
+    U32 indexCount = 0;
 
     // standard windows rectangles
-    Area<S32>					      winRect;	      // relative to screen
-    Area<S32>               lastRect;
-    Area<S32>					      clientRect;			// relative to winRect
+    Area<S32> winRect; // relative to screen
+    Area<S32> lastRect;
+    Area<S32> clientRect; // relative to winRect
 
     // useful rectangles
-    Area<S32>					      frontRect;			// client relative to screen
-    Area<S32>					      viewRect;				// used view relative to client
-    Area<S32>					      bltRect;				// used view relative to screen
-    Area<F32>							clipRect;
+    Area<S32> frontRect; // client relative to screen
+    Area<S32> viewRect; // used view relative to client
+    Area<S32> bltRect; // used view relative to screen
+    Area<F32> clipRect;
 
     // windows
-    HINSTANCE			          hInst;
-    HWND					          hWnd;
-    HFONT					          hFont;
-    HMENU					          hMenu;
+    HINSTANCE hInst;
+    HWND hWnd;
+    HFONT hFont;
+    HMENU hMenu;
+
+    // JONATHAN
+    GLFWwindow* window;
+    unsigned int ibo;
+    unsigned int vbo;
+    unsigned int vao;
+    unsigned int buffer;
+    unsigned int shader_programme;
+
+    unsigned int testTextureID;
 
     // direct draw
-    DriverDD                ddDrivers[MAXDDDRIVERS + 1];
-    U32                     numDDs, curDD, winDD, fullDD, lastDD;
-    U32                     curMode, lastMode, lastDriver;
+    DriverDD ddDrivers[MAXDDDRIVERS + 1];
+    U32 numDDs, curDD, winDD, fullDD, lastDD;
+    U32 curMode, lastMode, lastDriver;
 
-    DirectDD                ddx = NULL;
-    Bool                    firstRun;
-    U32                     totalTexMemory;
+    DirectDD ddx = NULL;
+    Bool firstRun;
+    U32 totalTexMemory;
 
-    LPDIRECTDRAWCLIPPER	    clipper = NULL;
-    SurfaceDD               back = NULL;
-    SurfaceDD               front = NULL;
-    SurfaceDD               zBuffer = NULL;
-    SurfaceDescDD	   	      backDesc;
+    LPDIRECTDRAWCLIPPER clipper = NULL;
+    SurfaceDD back = NULL;
+    SurfaceDD front = NULL;
+    SurfaceDD zBuffer = NULL;
+    SurfaceDescDD backDesc;
 
-    Bitmap                  backBmp;
-    Pix                     backFormat;
+    Bitmap backBmp;
+    Pix backFormat;
 
     // direct 3D
-    Direct3D                d3d = NULL;
-    DeviceD3D               device = NULL;
-    D3DSTATS				        stats, lastStats;
+    Direct3D d3d = NULL;
+    DeviceD3D device = NULL;
+    D3DSTATS stats, lastStats;
 
-    List<Pix>               pixFormatList;
-    U32						          normalFormat, transparentFormat, translucentFormat;
+    List<Pix> pixFormatList;
+    U32 normalFormat, transparentFormat, translucentFormat;
 
-    List<Pix>               zbuffFormatList;
-    S32						          curZbuffFormat;
+    List<Pix> zbuffFormatList;
+    S32 curZbuffFormat;
 
-    ViewPortDescD3D         viewDesc;
+    ViewPortDescD3D viewDesc;
     Material* defMaterial = NULL;
     Material* blackMaterial = NULL;
     Bitmap* turtleTex = NULL;
-    Bool                    showTexSwap;
-    U32                     texMemPerFrame;
+    Bool showTexSwap;
+    U32 texMemPerFrame;
 
-    RenderState				      Vid::renderState;
+    RenderState Vid::renderState;
     Camera* curCamera;
     Camera* mainCamera;
 
     MODECHANGEPROC* modeChangeProc = NULL;
 
-    BucketMan               bucket;
-    TranBucketMan           tranbucket;
+    BucketMan bucket;
+    TranBucketMan tranbucket;
     BucketMan* currentBucketMan;
 
     // first 3 for a tri
     // first 6 for a 2 tri rectangle
-    //  all 12 for a 4 tri rectangle
+    // all 12 for a 4 tri rectangle
     //
-    U16                     rectIndices[12] = { 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1 };
+    U16 rectIndices[12] = { 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1 };
 
 
-    Bool                    shutdown = FALSE;
+    Bool shutdown = FALSE;
 
-    U8 endVar;          // calc size of Vid namespace
+    U8 endVar; // calc size of Vid namespace
     //-----------------------------------------------------------------------------
 
     // wipe data members clean ready for use
@@ -127,10 +137,10 @@ namespace Vid
     {
         Utils::Memset(&Vid::isStatus, 0, sizeof(Vid::isStatus));
         Utils::Memset(&doStatus, 0, sizeof(doStatus));
-        doStatus.fullScreen = TRUE;		// request fullscreen mode
-        doStatus.pageFlip = TRUE;		// request page fliping
+        doStatus.fullScreen = TRUE; // request fullscreen mode
+        doStatus.pageFlip = TRUE; // request page fliping
 
-        Vid::isStatus.inWindow = TRUE;   // everything starts in a window
+        Vid::isStatus.inWindow = TRUE; // everything starts in a window
 
 #ifdef DODXLEANANDGRUMPY
         doStatus.hardTL = FALSE;
@@ -151,6 +161,10 @@ namespace Vid
         // windows
         hWnd = NULL;
         hFont = NULL;
+
+        // JONATHAN
+        window = NULL;
+        buffer = NULL;
 
         // direct draw
         ddx = NULL;
@@ -181,17 +195,99 @@ namespace Vid
 
     void PostShowWindow()
     {
-        //  theStyle = GetWindowLong( hWnd, GWL_STYLE);
+        // theStyle = GetWindowLong( hWnd, GWL_STYLE);
         theStyle = WS_CAPTION | WS_BORDER | WS_VISIBLE | WS_THICKFRAME;
     }
     //-----------------------------------------------------------------------------
 
-#define MAXVERTS              1400
-#define MAXTRIS               1400
-#define MAXINDICES            MAXTRIS * 3
+#define MAXVERTS 1400
+#define MAXTRIS 1400
+#define MAXINDICES MAXTRIS * 3
 
-  // the main intialization function
-  //
+    Bool Init2(GLFWwindow* w) {
+        window = w;
+
+        // JONATHAN
+        glGenBuffers(1, &buffer);
+        glEnable(GL_MULTISAMPLE);
+
+        // Indexed primitive setup
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+        const char* vertex_shader =
+            "#version 400\n"
+            "layout (location = 0) in vec4 v4pos;"
+            "layout (location = 1) in vec4 v4diffuse;"
+            "layout (location = 2) in vec4 v4specular;"
+            "layout (location = 3) in vec2 v2uv;"
+            "uniform mat4 mat_Model;"
+            "uniform mat4 mat_View;"
+            "uniform mat4 mat_Proj;"
+            "uniform mat4 mat_Ident;"
+            "out vec4 vc;"
+            "out vec2 TexCoord;"
+            "void main() {"
+            "   gl_Position = mat_Ident * vec4((v4pos.x-400.0f) / 400.0f, (v4pos.y-300.0f) / 300.0f, v4pos.z, 1.0f);"
+            "   vc = v4diffuse;"
+            "   TexCoord = v2uv;"
+            "}";
+
+        const char* fragment_shader =
+            "#version 400\n"
+            "out vec4 FragColour;"
+            "in vec4 vc;"
+            "in vec2 TexCoord;"
+
+            "uniform sampler2D texture1;"
+            "uniform sampler2D texture2;"
+            "uniform sampler2D texture3;"
+
+            "uniform vec4 v4ambient = vec4(1.0f, 1.0f, 1.0f, 1.0f);"
+            "uniform vec4 v4textureFactor = vec4(1.0f, 1.0f, 1.0f, 1.0f);"
+            "uniform vec4 debugColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);"
+            "uniform float alphaMix = 0.0f;"
+            "uniform bool isRect = false;"
+            "uniform bool plainRect = false;"
+            "uniform bool texRect = false;"
+            "uniform bool doTexture = false;"
+            "uniform bool doTexture2 = false;"
+            "uniform bool doInterface = false;"
+            "uniform bool isTranslucent = true;"
+            "uniform bool hasTexture0 = true;"
+            "void main() {"
+            "   vec4 vcol = vc.bgra / 255.0f;"
+            "   vec4 tex1 = texture(texture1, TexCoord);"
+            "   vec4 tex2 = texture(texture2, TexCoord);"
+            "   vec4 tex3 = texture(texture3, TexCoord);"
+
+            // texture -> multiply -> diffuse texture
+            // alpha -> multiply -> diffuse alpha
+
+            "   FragColour = vcol;"
+
+            "   if (hasTexture0) { FragColour.rgb = vcol.rgb * tex1.rgb; }"
+
+            "   if (isTranslucent) { FragColour.a = tex1.a; }"
+            "}";
+
+        GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vs, 1, &vertex_shader, NULL);
+        glCompileShader(vs);
+        GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fs, 1, &fragment_shader, NULL);
+        glCompileShader(fs);
+
+        shader_programme = glCreateProgram();
+        glAttachShader(shader_programme, fs);
+        glAttachShader(shader_programme, vs);
+        glLinkProgram(shader_programme);
+
+        return TRUE;
+    }
+
+    // the main intialization function
+    //
     Bool Init(HINSTANCE hI, HWND hW)
     {
         d3d = NULL;
@@ -206,7 +302,7 @@ namespace Vid
         Material::Manager::Init();
         Light::Init();
         Mesh::Manager::Init();
-        Clip::Xtra::Init();      // setup arbitrary plane clip
+        Clip::Xtra::Init(); // setup arbitrary plane clip
 
         // Set the first run flag
         firstRun = TRUE;
@@ -223,7 +319,7 @@ namespace Vid
 #endif
 
         // no saved size data
-          // center the window on the display
+        // center the window on the display
         Area<S32> wr, cr;
         GetWindowRect(hWnd, (RECT*)&wr);
         GetClientRect(hWnd, (RECT*)&cr);
@@ -237,7 +333,7 @@ namespace Vid
         // save the window's style
         theStyle = GetWindowLong(hWnd, GWL_STYLE);
 
-        Vid::isStatus.fullScreen = doStatus.fullScreen;    // for initial InitDD
+        Vid::isStatus.fullScreen = doStatus.fullScreen; // for initial InitDD
         if (!InitDD() || !SetMode(curMode))
         {
             if (Vid::isStatus.gotDD)
@@ -294,13 +390,15 @@ namespace Vid
     //
     Bool SetMode(U32 mode, U32 width, U32 height, Bool force) // = FALSE
     {
+        mode = VIDMODEWINDOW;
+
         // if nothing needs to be done...
         if (Vid::isStatus.initialized == TRUE && !force && curMode == mode &&
             viewRect.Width() == (S32)width && viewRect.Height() == (S32)height)
         {
             return TRUE;
         }
-        if (mode == VIDMODEWINDOW && Vid::isStatus.initialized == TRUE && !Vid::isStatus.windowed)
+        /*if (mode == VIDMODEWINDOW && Vid::isStatus.initialized == TRUE && !Vid::isStatus.windowed)
         {
             static char* mess1 = "Device does not support windowed hardware 3D.";
             static char* mess2 = "Device does not support windowed hardware 3D in your current desktop mode.";
@@ -319,7 +417,7 @@ namespace Vid
             LOG_DIAG((message));
 
             return TRUE;
-        }
+        }*/
 
         Bool wasInit = Vid::isStatus.initialized;
 
@@ -332,9 +430,9 @@ namespace Vid
         curMode = mode;
 
         // clip to min/max
-        if (width < MINWINWIDTH)  width = MINWINWIDTH;
+        if (width < MINWINWIDTH) width = MINWINWIDTH;
         if (height < MINWINHEIGHT) height = MINWINHEIGHT;
-        if (width > (U32) CurMode().rect.Width())  width = CurMode().rect.Width();
+        if (width > (U32) CurMode().rect.Width()) width = CurMode().rect.Width();
         if (height > (U32) CurMode().rect.Height()) height = CurMode().rect.Height();
 
         viewRect.SetSize(0, 0, width, height);
@@ -391,7 +489,7 @@ namespace Vid
             }
             Settings::viewRect = viewRect;
 
-            // nice for windows 
+            // nice for windows
             Vid::isStatus.fullScreen = FALSE;
             if (lastMode != mode && !SetCoopLevel())
             {
@@ -401,7 +499,7 @@ namespace Vid
             Bool initdd = !firstRun;
             if (!CurDD().wincap)
             {
-                curDD = winDD;    // windowed driver
+                curDD = winDD; // windowed driver
                 initdd = TRUE;
             }
             if ((initdd && !InitDD()) || !SetCoopLevel())
@@ -501,9 +599,9 @@ namespace Vid
             SetWindowPos(hWnd, HWND_TOPMOST,
                 0, 0,
                 CurMode().rect.Width(), CurMode().rect.Height(),
-                //			NULL);
+                // NULL);
                 SWP_NOREDRAW);
-            //		DoCursor();
+            // DoCursor();
             SetCursorPos(CurMode().rect.HalfWidth(), CurMode().rect.HalfHeight());
 
             SetRects();
@@ -515,7 +613,7 @@ namespace Vid
             }
             RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE);
 
-            //      ClipCursor( (RECT *) &CurMode().rect);
+            // ClipCursor( (RECT *) &CurMode().rect);
         }
         lastMode = mode;
         lastDD = curDD;
@@ -548,8 +646,8 @@ namespace Vid
             GetWindowRect(hWnd, (RECT*)&winRect);
 
             // rectangle within client (centered)
-  //		  viewRect.SetSize( 0, 0, width, height);
-  //      Settings::viewRect = viewRect;
+            // viewRect.SetSize( 0, 0, width, height);
+            // Settings::viewRect = viewRect;
 
             // direct draw blt rectangle; on screen view rectangle
             bltRect.SetSize(
@@ -582,7 +680,7 @@ namespace Vid
                 winRect.Width(), winRect.Height());
         }
 
-        //	if (!(Status & sysMAXIMIZED)) SaveGW.WinRect = WinRect;
+        // if (!(Status & sysMAXIMIZED)) SaveGW.WinRect = WinRect;
     }
     //----------------------------------------------------------------------------
 
@@ -629,13 +727,13 @@ namespace Vid
                     SWP_SHOWWINDOW);
             }
             /*
-                    if (!GetMenu( hWnd))
-                  {
-                        SetMenu( GD.hWnd, GD.App.MenuH);
-                        SetWindowLong( GD.hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
-                        SetWindowLong( GD.hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-                        DrawMenuBar( GD.hWnd);
-                    }
+            if (!GetMenu( hWnd))
+            {
+            SetMenu( GD.hWnd, GD.App.MenuH);
+            SetWindowLong( GD.hWnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
+            SetWindowLong( GD.hWnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+            DrawMenuBar( GD.hWnd);
+            }
             */
         }
         return TRUE;
@@ -841,7 +939,7 @@ namespace Vid
                             // set up a backup
                             backupformat = curZbuffFormat;
                         }
-                        // match bit depth to the backbuffer 
+                        // match bit depth to the backbuffer
                         if (ZBufferFormat().pixFmt.dwZBufferBitDepth == backBmp.PixelFormat()->pixFmt.dwRGBBitCount)
                         {
                             // got it
@@ -909,97 +1007,6 @@ namespace Vid
             {
                 LOG_DXERR(("InitD3D: d3d->CreateDevice()"));
 
-                /*switch (dxError) {
-
-                case D3DERR_BADMAJORVERSION:
-                case D3DERR_BADMINORVERSION:
-                case D3DERR_INVALID_DEVICE:
-                case D3DERR_INITFAILED:
-                case D3DERR_DEVICEAGGREGATED:
-                case D3DERR_EXECUTE_CREATE_FAILED:
-                case D3DERR_EXECUTE_DESTROY_FAILED:
-                case D3DERR_EXECUTE_LOCK_FAILED:
-                case D3DERR_EXECUTE_UNLOCK_FAILED:
-                case D3DERR_EXECUTE_LOCKED:
-                case D3DERR_EXECUTE_NOT_LOCKED:
-                case D3DERR_EXECUTE_FAILED:
-                case D3DERR_EXECUTE_CLIPPED_FAILED:
-                case D3DERR_TEXTURE_NO_SUPPORT:
-                case D3DERR_TEXTURE_CREATE_FAILED:
-                case D3DERR_TEXTURE_DESTROY_FAILED:
-                case D3DERR_TEXTURE_LOCK_FAILED:
-                case D3DERR_TEXTURE_UNLOCK_FAILED:
-                case D3DERR_TEXTURE_LOAD_FAILED:
-                case D3DERR_TEXTURE_SWAP_FAILED:
-                case D3DERR_TEXTURE_LOCKED:
-                case D3DERR_TEXTURE_NOT_LOCKED:
-                case D3DERR_TEXTURE_GETSURF_FAILED:
-                case D3DERR_MATRIX_CREATE_FAILED:
-                case D3DERR_MATRIX_DESTROY_FAILED:
-                case D3DERR_MATRIX_SETDATA_FAILED:
-                case D3DERR_MATRIX_GETDATA_FAILED:
-                case D3DERR_SETVIEWPORTDATA_FAILED:
-                case D3DERR_INVALIDCURRENTVIEWPORT:
-                case D3DERR_INVALIDPRIMITIVETYPE:
-                case D3DERR_INVALIDVERTEXTYPE:
-                case D3DERR_TEXTURE_BADSIZE:
-                case D3DERR_INVALIDRAMPTEXTURE:
-                case D3DERR_MATERIAL_CREATE_FAILED:
-                case D3DERR_MATERIAL_DESTROY_FAILED:
-                case D3DERR_MATERIAL_SETDATA_FAILED:
-                    LOG_DXERR(("It's one of these A."));
-                    break;
-                case D3DERR_MATERIAL_GETDATA_FAILED:
-                case D3DERR_INVALIDPALETTE:
-                case D3DERR_ZBUFF_NEEDS_SYSTEMMEMORY:
-                case D3DERR_ZBUFF_NEEDS_VIDEOMEMORY:
-                case D3DERR_SURFACENOTINVIDMEM:
-                case D3DERR_LIGHT_SET_FAILED:
-                case D3DERR_LIGHTHASVIEWPORT:
-                case D3DERR_LIGHTNOTINTHISVIEWPORT:
-                case D3DERR_SCENE_IN_SCENE:
-                case D3DERR_SCENE_NOT_IN_SCENE:
-                case D3DERR_SCENE_BEGIN_FAILED:
-                case D3DERR_SCENE_END_FAILED:
-                case D3DERR_INBEGIN:
-                case D3DERR_NOTINBEGIN:
-                case D3DERR_NOVIEWPORTS:
-                case D3DERR_VIEWPORTDATANOTSET:
-                case D3DERR_VIEWPORTHASNODEVICE:
-                case D3DERR_NOCURRENTVIEWPORT:
-                case D3DERR_INVALIDVERTEXFORMAT:
-                case D3DERR_COLORKEYATTACHED:
-                case D3DERR_VERTEXBUFFEROPTIMIZED:
-                case D3DERR_VBUF_CREATE_FAILED:
-                case D3DERR_VERTEXBUFFERLOCKED:
-                case D3DERR_VERTEXBUFFERUNLOCKFAILED:
-                case D3DERR_ZBUFFER_NOTPRESENT:
-                case D3DERR_STENCILBUFFER_NOTPRESENT:
-                case D3DERR_WRONGTEXTUREFORMAT:
-                case D3DERR_UNSUPPORTEDCOLOROPERATION:
-                case D3DERR_UNSUPPORTEDCOLORARG:
-                case D3DERR_UNSUPPORTEDALPHAOPERATION:
-                case D3DERR_UNSUPPORTEDALPHAARG:
-                case D3DERR_TOOMANYOPERATIONS:
-                case D3DERR_CONFLICTINGTEXTUREFILTER:
-                case D3DERR_UNSUPPORTEDFACTORVALUE:
-                case D3DERR_CONFLICTINGRENDERSTATE:
-                case D3DERR_UNSUPPORTEDTEXTUREFILTER:
-                case D3DERR_TOOMANYPRIMITIVES:
-                case D3DERR_INVALIDMATRIX:
-                case D3DERR_TOOMANYVERTICES:
-                case D3DERR_CONFLICTINGTEXTUREPALETTE:
-                case D3DERR_INVALIDSTATEBLOCK:
-                case D3DERR_INBEGINSTATEBLOCK:
-                case D3DERR_NOTINBEGINSTATEBLOCK:
-                    LOG_DXERR(("It's one of these B."));
-                    break;
-
-                default:
-                    LOG_DXERR(("[VID INITD3D: Can't figure out which error this is...]"));
-                    break;
-                }*/
-
                 if (!firstRun)
                 {
                     ERR_FATAL(("InitD3D: d3d->CreateDevice()"));
@@ -1011,9 +1018,9 @@ namespace Vid
             LOG_DIAG(("[VID INITD3D: post device]"));
 
             CurD3D().SetCaps();
-            //      Vid::renderState.status.hardTL = Vid::caps.hardTL && *Var::varHardTL;
+            // Vid::renderState.status.hardTL = Vid::caps.hardTL && *Var::varHardTL;
             Vid::renderState.status.hardTL = FALSE;
-            //      Vid::renderState.status.dxTL   = Vid::renderState.status.hardTL;
+            // Vid::renderState.status.dxTL = Vid::renderState.status.hardTL;
             Vid::caps.voodoo = CurDD().ident.dwVendorId == 4634 ? TRUE : FALSE;
 
             // get this device's supported texture formats
@@ -1095,7 +1102,7 @@ namespace Vid
                 // should only happen the first time
                 mainCamera = curCamera = new Camera("main");
                 curCamera->Setup(viewRect);
-                //        SetCamera( *curCamera);
+                // SetCamera( *curCamera);
             }
 
             // clear DX
@@ -1121,12 +1128,12 @@ namespace Vid
 
             LOG_DIAG(("[VID INITD3D: pre blends]"));
 
-            // setup 
+            // setup
             InitResources(TRUE);
             SetRenderState(FALSE);
-            ValidateBlends();     // texture blend modes
+            ValidateBlends(); // texture blend modes
 
-            // user callback 
+            // user callback
             //
             if (modeChangeProc)
             {
@@ -1140,7 +1147,7 @@ namespace Vid
 
             lastDriver = CurDD().curDriver;
 
-        }     // CurDD().curDriver != lastDriver
+        } // CurDD().curDriver != lastDriver
 
         LOG_DIAG(("[VID INITD3D: 1]"));
 
@@ -1260,8 +1267,8 @@ namespace Vid
                         }
                         return FALSE;
 
-                        //					desc.ddsCaps.dwCaps &= ~DDSCAPS_VIDEOMEMORY;
-                        //			    dxError = ddx->CreateSurface( &desc, &back, NULL);
+                        // desc.ddsCaps.dwCaps &= ~DDSCAPS_VIDEOMEMORY;
+                        // dxError = ddx->CreateSurface( &desc, &back, NULL);
                     }
                     if (dxError)
                     {
@@ -1331,8 +1338,8 @@ namespace Vid
                         }
                         return FALSE;
 
-                        //					desc.ddsCaps.dwCaps &= ~DDSCAPS_VIDEOMEMORY;
-                        //			    dxError = ddx->CreateSurface( &desc, &back, NULL);
+                        // desc.ddsCaps.dwCaps &= ~DDSCAPS_VIDEOMEMORY;
+                        // dxError = ddx->CreateSurface( &desc, &back, NULL);
                     }
                     if (dxError)
                     {
@@ -1368,13 +1375,13 @@ namespace Vid
         backBmp.SetName("backbuffer");
 
         /*
-            // clear all buffers
-            S32 count = (desc.ddsCaps.dwCaps & DDSCAPS_COMPLEX) ? desc.dwBackBufferCount : 0;
-            while (count-- >= 0)
-            {
-              Vid::ClearBack();
-              Vid::RenderFlush();
-            }
+        // clear all buffers
+        S32 count = (desc.ddsCaps.dwCaps & DDSCAPS_COMPLEX) ? desc.dwBackBufferCount : 0;
+        while (count-- >= 0)
+        {
+        Vid::ClearBack();
+        Vid::RenderFlush();
+        }
         */
         LOG_DIAG(("[VID INITSURFACES: 1]"));
 
@@ -1436,7 +1443,7 @@ namespace Vid
             {
                 LOG_DIAG(("[VID ACTIVATE]"));
 
-                //          restore = TRUE;
+                // restore = TRUE;
 
                 SetMode(lastMode,
                     CurDD().vidModes[lastMode].rect.Width(),
@@ -1466,7 +1473,7 @@ namespace Vid
             {
                 LOG_DIAG(("[VID DEACTIVATE]"));
 
-                //        ReleaseDD();
+                // ReleaseDD();
             }
 #endif
         }
@@ -1519,8 +1526,8 @@ namespace Vid
             zBuffer->Restore();
         }
 
-        Bitmap::Manager::GetLost();         // free lost textures
-        Bitmap::Manager::OnModeChange();    // restore
+        Bitmap::Manager::GetLost(); // free lost textures
+        Bitmap::Manager::OnModeChange(); // restore
 #endif
     }
     //----------------------------------------------------------------------------
@@ -1531,10 +1538,10 @@ namespace Vid
     {
         if (device)
         {
-            //      LOG_DIAG((""));
-            //      LOG_DIAG(("[VID RELEASE D3D]"));
+            // LOG_DIAG((""));
+            // LOG_DIAG(("[VID RELEASE D3D]"));
 
-                  // Clear internal directx texture pointer
+            // Clear internal directx texture pointer
             if (caps.texMulti)
             {
                 SetTextureDX(NULL, 1, RS_BLEND_DEF);
@@ -1604,10 +1611,10 @@ namespace Vid
 
         if (device)
         {
-            //      LOG_DIAG((""));
-            //      LOG_DIAG(("[VID RELEASE D3D]"));
+            // LOG_DIAG((""));
+            // LOG_DIAG(("[VID RELEASE D3D]"));
 
-                  // Clear internal directx texture pointer
+            // Clear internal directx texture pointer
             if (caps.texMulti)
             {
                 SetTextureDX(NULL, 1, RS_BLEND_DEF);
@@ -1661,7 +1668,7 @@ namespace Vid
         Bitmap::Manager::Done();
         Command::Done();
 
-        //	  ReleaseDD();
+        // ReleaseDD();
 
         if (ddx && curMode != VIDMODEWINDOW)
         {
@@ -1674,7 +1681,7 @@ namespace Vid
 
         ReleaseDD();
 
-        //	  ReleaseDX();
+        // ReleaseDX();
         RELEASEDX(d3d);
         RELEASEDX(ddx);
 
@@ -1694,7 +1701,7 @@ namespace Vid
     {
         if (Vid::isStatus.initialized)
         {
-            //      Settings::Save();
+            // Settings::Save();
 
 #ifdef __DO_XMM_BUILD
             FreeXmm();
@@ -1702,7 +1709,7 @@ namespace Vid
 
             Vid::isStatus.initialized = FALSE;
 
-            //      DoneBuckets();
+            // DoneBuckets();
 
             Light::Done();
             Material::Manager::Done();
@@ -1732,7 +1739,7 @@ namespace Vid
 
             ClipCursor(NULL);
 
-            //      Heap::Done();
+            // Heap::Done();
 
         }
         shutdown = TRUE;
@@ -1750,11 +1757,11 @@ namespace Vid
         if (Vid::isStatus.pageFlip)
         {
             /*
-                      if (Vid::renderState.status.waitRetrace)
-                  {
-                    ddx->WaitForVerticalBlank( DDWAITVB_BLOCKBEGIN, NULL);
-                  }
-                DDFLIP_DONOTWAIT
+            if (Vid::renderState.status.waitRetrace)
+            {
+                ddx->WaitForVerticalBlank( DDWAITVB_BLOCKBEGIN, NULL);
+            }
+            DDFLIP_DONOTWAIT
             */
             dxError = front->Flip(NULL, DDFLIP_WAIT | (Vid::renderState.status.waitRetrace ? DDFLIP_NOVSYNC : 0));
             LOG_DXERR(("RenderFlush: front->Flip"));
@@ -1768,14 +1775,19 @@ namespace Vid
 
             dxError = front->Blt(bltRect, back, viewRect, DDBLT_WAIT, NULL);
             LOG_DXERR(("RenderFlush: front->Blt"));
+
+            // JONATHAN
+            glfwSwapBuffers(window);
+            glFlush();
         }
+
         return TRUE;
     }
     //-----------------------------------------------------------------------------
 
     // respond to a WM_MOVE message
     // keep track of the windowed mode window position
-    // 
+    //
     Bool OnMove(S32 x, S32 y)
     {
         x; y;
@@ -1808,7 +1820,7 @@ namespace Vid
         }
         if (Vid::isStatus.fullScreen)
         {
-            //  CheckDD();
+            // CheckDD();
             Vid::isStatus.minimized = FALSE;
             return TRUE;
         }
@@ -1822,10 +1834,10 @@ namespace Vid
 
         if (nType == SIZE_MAXIMIZED)
         {
-            //		Bool erase = !(Status & sysMAXIMIZED) || cx < BltRect.Size.cx || cy < BltRect.Size.cy ? TRUE : FALSE;
+            // Bool erase = !(Status & sysMAXIMIZED) || cx < BltRect.Size.cx || cy < BltRect.Size.cy ? TRUE : FALSE;
             Vid::isStatus.maximized = TRUE;
             SetRects();
-            //		if (erase) OnErase();
+            // if (erase) OnErase();
             return TRUE;
         }
         Vid::isStatus.maximized = FALSE;
@@ -1836,7 +1848,7 @@ namespace Vid
         }
         //if (cx > MAXWINWIDTH)
         //{
-        //  cx = MAXWINWIDTH;
+        // cx = MAXWINWIDTH;
         //}
         if (cy < MINWINHEIGHT)
         {
@@ -1844,13 +1856,13 @@ namespace Vid
         }
         //if (cy > MAXWINWIDTH)
         //{
-        //  cy = MAXWINWIDTH;
+        // cy = MAXWINWIDTH;
         //}
 
 
         Bool retValue = SetMode(curMode, cx, cy);
 
-        //    Vid::RestoreSurfaces();
+        // Vid::RestoreSurfaces();
 
         return retValue;
     }
@@ -1916,21 +1928,21 @@ namespace Vid
             return 0;
         }
         /*
-              // get the capabilities of this DirectDraw driver
-            DDCAPS halCaps, helCaps;
-            Utils::Memset( &halCaps, 0, sizeof( halCaps));
-            halCaps.dwSize = sizeof( DDCAPS);
-            Utils::Memset( &helCaps, 0, sizeof( helCaps));
-            helCaps.dwSize = sizeof( DDCAPS);
+        // get the capabilities of this DirectDraw driver
+        DDCAPS halCaps, helCaps;
+        Utils::Memset( &halCaps, 0, sizeof( halCaps));
+        halCaps.dwSize = sizeof( DDCAPS);
+        Utils::Memset( &helCaps, 0, sizeof( helCaps));
+        helCaps.dwSize = sizeof( DDCAPS);
 
-            dxError = ddx->GetCaps( &halCaps, &helCaps);
-              if (dxError)
-              {
-                  LOG_DIAG( ("FreeVidMem:: ddx->GetCaps") );
-              return 0;
-            }
-            U32 totalMem = halCaps.dwVidMemTotal;
-            U32 freeMem  = halCaps.dwVidMemFree;
+        dxError = ddx->GetCaps( &halCaps, &helCaps);
+        if (dxError)
+        {
+        LOG_DIAG( ("FreeVidMem:: ddx->GetCaps") );
+        return 0;
+        }
+        U32 totalMem = halCaps.dwVidMemTotal;
+        U32 freeMem = halCaps.dwVidMemFree;
         */
         U32 totalMem = 0, freeMem = 0;
         DDSCAPS2 ddcaps;
@@ -1957,11 +1969,11 @@ namespace Vid
 
             if (report & 1)
             {
-                LOG_DIAG(("mem :   %3lu mb  free %3.2f mb", tmem, fmem));
+                LOG_DIAG(("mem : %3lu mb free %3.2f mb", tmem, fmem));
             }
             if (report & 2)
             {
-                CON_DIAG(("mem :   %3lu mb  free %3.2f mb", tmem, fmem));
+                CON_DIAG(("mem : %3lu mb free %3.2f mb", tmem, fmem));
             }
         }
         CurDD().desc.dwVidMemFree = freeMem;
@@ -1982,11 +1994,11 @@ namespace Vid
 
             if (report & 1)
             {
-                LOG_DIAG(("tex :   %3lu mb  free %3.2f mb", tmem, fmem));
+                LOG_DIAG(("tex : %3lu mb free %3.2f mb", tmem, fmem));
             }
             if (report & 2)
             {
-                CON_DIAG(("tex :   %3lu mb  free %3.2f mb", tmem, fmem));
+                CON_DIAG(("tex : %3lu mb free %3.2f mb", tmem, fmem));
             }
         }
 
@@ -2045,7 +2057,7 @@ namespace Vid
 
     LPDDGAMMARAMP SelectGammaRamp(S32 index, LPDDGAMMARAMP tmpRamp)
     {
-        F32	p = 0;
+        F32 p = 0;
 
         if (index < 0)
         {
@@ -2093,9 +2105,9 @@ namespace Vid
             return FALSE;
         }
 
-        //    LOG_DIAG(("SetGamma: %d", val));
+        // LOG_DIAG(("SetGamma: %d", val));
 
-        LPDIRECTDRAWGAMMACONTROL	ddg;
+        LPDIRECTDRAWGAMMACONTROL ddg;
         dxError = front->QueryInterface(IID_IDirectDrawGammaControl, (LPVOID*)&ddg);
         if (dxError)
         {
@@ -2148,20 +2160,20 @@ namespace Vid
                 LOG_DIAG(("mode: using a double buffered surface pair"));
             }
 
-            LOG_DIAG(("zbuf:   %s", ZBufferFormat().name.str));
-            LOG_DIAG(("pix :   %s", PixNormal().name.str));
-            LOG_DIAG(("pix :   %s", PixTranslucent().name.str));
-            LOG_DIAG(("pix :   %s", PixTransparent().name.str));
+            LOG_DIAG(("zbuf: %s", ZBufferFormat().name.str));
+            LOG_DIAG(("pix : %s", PixNormal().name.str));
+            LOG_DIAG(("pix : %s", PixTranslucent().name.str));
+            LOG_DIAG(("pix : %s", PixTransparent().name.str));
 
             FreeVidMem(1);
 
-            LOG_DIAG(("perf:   %d reduce; %d  32bit; %d  multi; %d mirror; %d  movie;",
+            LOG_DIAG(("perf: %d reduce; %d 32bit; %d multi; %d mirror; %d movie;",
                 *Var::varTexReduce, *Var::varTex32, *Var::varMultiTex, *Var::varMirror, *Var::varMovie
                 ));
-            LOG_DIAG(("perf:   %d triplebuf; %d  mipmap; %d  mipfilter; %d antialias; %d  weather; %d gamma",
+            LOG_DIAG(("perf: %d triplebuf; %d mipmap; %d mipfilter; %d antialias; %d weather; %d gamma",
                 *Var::varTripleBuf, *Var::varMipmap, *Var::varMipfilter, *Var::varAntiAlias, *Var::varWeather, *Var::varGamma
                 ));
-            LOG_DIAG(("perf:   %.2f obj; %.2f ter; %.2f par; %.2f lig;",
+            LOG_DIAG(("perf: %.2f obj; %.2f ter; %.2f par; %.2f lig;",
                 *Var::perfs[0], *Var::perfs[1], *Var::perfs[2], *Var::perfs[3]
                 ));
 
@@ -2175,24 +2187,24 @@ namespace Vid
             CON_DIAG(("%s : %s", CurMode().name.str, CurD3D().name.str));
             if (Vid::isStatus.pageFlip)
             {
-                CON_DIAG(("mode:   using a flipable surface %s", Vid::isStatus.tripleBuf ? "triplet" : "pair"));
+                CON_DIAG(("mode: using a flipable surface %s", Vid::isStatus.tripleBuf ? "triplet" : "pair"));
             }
             else
             {
-                CON_DIAG(("mode:   using a double buffered surface pair"));
+                CON_DIAG(("mode: using a double buffered surface pair"));
             }
 
-            CON_DIAG(("zbuf:   %s", ZBufferFormat().name.str));
-            CON_DIAG(("pix :   %s", PixNormal().name.str));
-            CON_DIAG(("pix :   %s", PixTranslucent().name.str));
-            CON_DIAG(("pix :   %s", PixTransparent().name.str));
+            CON_DIAG(("zbuf: %s", ZBufferFormat().name.str));
+            CON_DIAG(("pix : %s", PixNormal().name.str));
+            CON_DIAG(("pix : %s", PixTranslucent().name.str));
+            CON_DIAG(("pix : %s", PixTransparent().name.str));
 
             FreeVidMem(2);
 
-            CON_DIAG(("perf:   %d reduce; %d  32bit; %d  multi; %d mirror; %d  movie;",
+            CON_DIAG(("perf: %d reduce; %d 32bit; %d multi; %d mirror; %d movie;",
                 *Var::varTexReduce, *Var::varTex32, *Var::varMultiTex, *Var::varMirror, *Var::varMovie
                 ));
-            CON_DIAG(("perf:   %.2f obj; %.2f ter; %.2f par; %.2f lig;",
+            CON_DIAG(("perf: %.2f obj; %.2f ter; %.2f par; %.2f lig;",
                 *Var::perfs[0], *Var::perfs[1], *Var::perfs[2], *Var::perfs[3]
                 ));
             CON_DIAG((""));
@@ -2208,8 +2220,8 @@ namespace Vid
 
         LOG_DIAG(("[VID MEMORY]"));
         CON_DIAG(("[VID MEMORY]"));
-        CON_DIAG(("     %-31s: %9d", "vid heap", Heap::Size()));
-        LOG_DIAG(("     %-31s: %9d", "vid heap", Heap::Size()));
+        CON_DIAG((" %-31s: %9d", "vid heap", Heap::Size()));
+        LOG_DIAG((" %-31s: %9d", "vid heap", Heap::Size()));
         mem += Terrain::Report();
         mem += Light::Report();
         mem += MeshEffectSystem::Report();

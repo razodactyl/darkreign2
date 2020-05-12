@@ -100,6 +100,15 @@ namespace Vid
         dxError = device->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, doZBuffer);
         LOG_DXERR(("SetZBufferState"));
 
+        // JONATHAN
+        if (doZBuffer) {
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(renderState.status.wbuffer ? GL_GEQUAL : GL_LEQUAL);
+        }
+        else {
+            glDisable(GL_DEPTH_TEST);
+        }
+
         return retValue;
     }
     //----------------------------------------------------------------------------
@@ -111,6 +120,14 @@ namespace Vid
 
         dxError = device->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, doZWrite);
         LOG_DXERR(("SetZWriteState"));
+
+        // JONATHAN
+        if (doZWrite) {
+            glDepthMask(GL_TRUE);
+        }
+        else {
+            glDepthMask(GL_FALSE);
+        }
 
         return (Bool)retValue;
     }
@@ -132,6 +149,15 @@ namespace Vid
         dxError = device->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, doAlpha);
         LOG_DXERR(("device->SetRenderState"));
 
+        // JONATHAN
+        if (doAlpha) {
+            glEnable(GL_BLEND);
+
+        }
+        else {
+            glDisable(GL_BLEND);
+        }
+
         return retValue;
     }
     //----------------------------------------------------------------------------
@@ -147,6 +173,30 @@ namespace Vid
 
         dxError = device->SetRenderState(D3DRENDERSTATE_SRCBLEND, flags);
         LOG_DXERR(("SetSrcBlendState"));
+
+        // JONATHAN
+        GLint blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha;
+
+        glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
+        glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
+        glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
+        glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
+
+        flags <<= RS_SRC_SHIFT;
+        if (flags == RS_SRC_ZERO) { blend_src_rgb = blend_src_alpha = GL_ZERO; }
+        if (flags == RS_SRC_ONE) { blend_src_rgb = blend_src_alpha = GL_ONE; }
+        if (flags == RS_SRC_SRCCOLOR) { blend_src_rgb = blend_src_alpha = GL_SRC_COLOR; }
+        if (flags == RS_SRC_INVSRCCOLOR) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_SRC_COLOR; }
+        if (flags == RS_SRC_SRCALPHA) { blend_src_rgb = blend_src_alpha = GL_SRC_ALPHA; }
+        if (flags == RS_SRC_INVSRCALPHA) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_SRC_ALPHA; }
+        if (flags == RS_SRC_DSTCOLOR) { blend_src_rgb = blend_src_alpha = GL_DST_COLOR; }
+        if (flags == RS_SRC_INVDSTCOLOR) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_DST_COLOR; }
+        if (flags == RS_SRC_DSTALPHA) { blend_src_rgb = blend_src_alpha = GL_DST_ALPHA; }
+        if (flags == RS_SRC_INVDSTALPHA) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_DST_ALPHA; }
+        if (flags == RS_SRC_SRCALPHASAT) { blend_src_rgb = blend_src_alpha = GL_SRC_ALPHA_SATURATE; }
+
+        //glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
+        glBlendFunc(blend_src_alpha, blend_dst_alpha);
 
         return lastflags;
     }
@@ -164,6 +214,29 @@ namespace Vid
         dxError = device->SetRenderState(D3DRENDERSTATE_DESTBLEND, flags);
         LOG_DXERR(("SetDstBlendState"));
 
+        GLint blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha;
+
+        glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
+        glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
+        glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
+        glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
+
+        flags <<= RS_DST_SHIFT;
+        if (flags == RS_DST_ZERO) { blend_dst_rgb = blend_dst_alpha = GL_ZERO; }
+        if (flags == RS_DST_ONE) { blend_dst_rgb = blend_dst_alpha = GL_ONE; }
+        if (flags == RS_DST_SRCCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_SRC_COLOR; }
+        if (flags == RS_DST_INVSRCCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_SRC_COLOR; }
+        if (flags == RS_DST_SRCALPHA) { blend_dst_rgb = blend_dst_alpha = GL_SRC_ALPHA; }
+        if (flags == RS_DST_INVSRCALPHA) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_SRC_ALPHA; }
+        if (flags == RS_DST_DSTCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_DST_COLOR; }
+        if (flags == RS_DST_INVDSTCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_DST_COLOR; }
+        if (flags == RS_DST_DSTALPHA) { blend_dst_rgb = blend_dst_alpha = GL_DST_ALPHA; }
+        if (flags == RS_DST_INVDSTALPHA) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_DST_ALPHA; }
+        if (flags == RS_DST_SRCALPHASAT) { blend_dst_rgb = blend_dst_alpha = GL_SRC_ALPHA_SATURATE; }
+
+        //glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
+        glBlendFunc(blend_src_alpha, blend_dst_alpha);
+
         return lastflags;
     }
     //-----------------------------------------------------------------------------
@@ -180,6 +253,16 @@ namespace Vid
         dxError = device->SetTextureStageState(stage, D3DTSS_ADDRESS, (flag >> RS_ADD_SHIFT) + 1);
 
         LOG_DXERR(("SetTexWrapState"));
+
+        // JONATHAN
+        if ((flags & RS_ADD_MASK) == RS_TEXCLAMP) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
+        if ((flags & RS_ADD_MASK) == RS_TEXMIRROR) {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+        }
 
         return lastFlags;
     }
@@ -312,28 +395,40 @@ namespace Vid
     {
         if (stage)
         {
+            // texture colour -> colour arg 1
             dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+            // multiply
             dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+            // colour of previous stage
             dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
             LOG_DXERR(("SetTextureStageState: color"));
 
+            // alpha
             dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+            // multiply
             dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+            // colour of previous stage.
             dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
         else
         {
+            // texture colour -> colour arg 1
             dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+            // multiply
             dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+            // diffuse colour
             dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
             LOG_DXERR(("SetTextureStageState: color"));
 
+            // alpha
             dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+            // multiply
             dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+            // diffuse colour
             dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
             LOG_DXERR(("SetTextureStageState: alpha"));
@@ -485,6 +580,7 @@ namespace Vid
     U32 SetTexBlendState(U32 flags, U32 stage) // = 0
     {
         U32 lastflags = renderState.renderFlags & RS_TEX_MASK;
+
         renderState.renderFlags &= ~RS_TEX_MASK;
 
         flags &= RS_TEX_MASK;
@@ -498,6 +594,8 @@ namespace Vid
         }
 #endif
 
+        // blend ops. have been selected based on 'ValidateBlends'.
+        // apply selected blending op for this stage.
         blendToOp[flags](stage);
 
         return lastflags;
@@ -653,9 +751,12 @@ namespace Vid
 
     void SetTextureFactor(Color color)
     {
-        dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
-            D3DRGBA(color.r, color.g, color.b, color.a));
+        dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR, D3DRGBA(color.r, color.g, color.b, color.a));
         LOG_DXERR(("SetTextureFactor"));
+
+        // JONATHAN
+        GLint loc = glGetUniformLocation(shader_programme, "v4textureFactor");
+        glUniform4f(loc, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
     }
     //-----------------------------------------------------------------------------
 
@@ -717,6 +818,9 @@ namespace Vid
         viewDesc.dvMaxZ = 1.0f;
 
         device->SetViewport(&viewDesc);
+
+        // JONATHAN
+        glViewport(viewDesc.dwX, viewDesc.dwY, viewDesc.dwWidth, viewDesc.dwHeight);
 
         Setup(*curCamera);
 
@@ -886,7 +990,7 @@ namespace Vid
 
               //  else if (caps.fogVertex)
             */
-        }
+    }
 #endif
     }
     //----------------------------------------------------------------------------
@@ -902,6 +1006,9 @@ namespace Vid
             dxError = device->SetRenderState(D3DRENDERSTATE_AMBIENT, (D3DCOLOR)renderState.ambientColor);
             LOG_DXERR(("SetAmbientColor"));
 #endif
+            // JONATHAN
+            GLint loc = glGetUniformLocation(shader_programme, "v4ambient");
+            glUniform4f(loc, r, g, b, 1.0f);
         }
     }
     //----------------------------------------------------------------------------
@@ -926,6 +1033,9 @@ namespace Vid
         dxError = device->SetRenderState(D3DRENDERSTATE_ZFUNC, renderState.status.wbuffer ? D3DCMP_GREATEREQUAL : D3DCMP_LESSEQUAL);
         LOG_DXERR(("device->SetRenderState"));
 
+        // JONATHAN
+        glDepthFunc(renderState.status.wbuffer ? GL_GEQUAL : GL_LEQUAL);
+
         dxError = device->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
         //	dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
         //  dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAREF, (DWORD)0);
@@ -943,8 +1053,8 @@ namespace Vid
         //    dxError = device->SetRenderState( D3DRENDERSTATE_COLORVERTEX, renderState.status.dxTL );
         //    LOG_DXERR( ("device->SetRenderState( COLORVERTEX)") );
 
-            // vid system features
-            //
+        // vid system features
+        //
         SetAmbientColor(renderState.ambientColorF32.r, renderState.ambientColorF32.g, renderState.ambientColorF32.b);
 
         SetShadeState(renderState.status.shade);
@@ -1081,6 +1191,12 @@ namespace Vid
         dxError = device->EndScene();
         LOG_DXERR(("EndScene: device->EndScene"));
 
+        // JONATHAN
+        GLint loc = glGetUniformLocation(shader_programme, "doTexture");
+        glUniform1i(loc, GL_FALSE);
+        loc = glGetUniformLocation(shader_programme, "doTexture2");
+        glUniform1i(loc, GL_FALSE);
+
         return dxError == DD_OK;
     }
     //----------------------------------------------------------------------------
@@ -1106,6 +1222,16 @@ namespace Vid
 
     Bool SetTexture(Bitmap* tex, U32 stage, U32 blend) // = 0, = RS_BLEND_DEF
     {
+        /*GLint isTranslucentLoc = glGetUniformLocation(Vid::shader_programme, "isTranslucent");
+        GLint hasTexture0Loc = glGetUniformLocation(Vid::shader_programme, "hasTexture0");
+        if (tex && tex->GetStatus().translucent) {
+            glUniform1i(isTranslucentLoc, GL_TRUE);
+        }
+
+        if (!tex) {
+            glUniform1i(hasTexture0Loc, GL_FALSE);
+        }*/
+
         if (Vid::renderState.status.texture)
         {
             if (Bitmap::Manager::GetTexture(stage) != tex)
@@ -1116,9 +1242,60 @@ namespace Vid
 
                 dxError = device->SetTexture(stage, texH);
                 LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
-            }
 
-            SetTexBlendState(blend, stage);
+                // JONATHAN
+                if (tex && tex->Lock()) {
+                    S32 width, height, pitch, depth;
+                    width = tex->Width();
+                    height = tex->Height();
+                    pitch = tex->Pitch();
+                    depth = tex->Depth();
+                    Pix* fmt = new Pix(*tex->PixelFormat());
+
+                    U8* srcP = (U8*)tex->Data(); // Pointer to first byte of bitmap data.
+                    U8* bmpMem = new U8[width * height * 4];
+                    memset(bmpMem, 0, width * height * 4);
+                    U8* bmpMemP = bmpMem;
+
+                    int bmpBytePP = pitch / width;
+                    ASSERT(bmpBytePP % 2 == 0);
+                    for (int y = 0; y < height; y++) {
+                        for (int x = 0; x < pitch; x += bmpBytePP) {
+                            U32 pixel = 0;
+                            memcpy(&pixel, srcP, bmpBytePP);
+
+                            U8 r, g, b, a;
+                            r = (U8)(((pixel & fmt->rMask) >> fmt->rShift) << (fmt->rScaleInv));
+                            g = (U8)(((pixel & fmt->gMask) >> fmt->gShift) << (fmt->gScaleInv));
+                            b = (U8)(((pixel & fmt->bMask) >> fmt->bShift) << (fmt->bScaleInv));
+                            a = (U8)(((pixel & fmt->aMask) >> fmt->aShift) << (fmt->aScaleInv));
+
+                            *(bmpMemP + 0) = r;
+                            *(bmpMemP + 1) = g;
+                            *(bmpMemP + 2) = b;
+                            *(bmpMemP + 3) = a;
+
+                            srcP += bmpBytePP;
+                            bmpMemP += 4;
+                        }
+                    }
+
+                    glActiveTexture(GL_TEXTURE0 + stage);
+                    glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
+
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmpMem);
+                    glGenerateMipmap(GL_TEXTURE_2D);
+
+                    tex->UnLock();
+                    delete[]bmpMem;
+                    delete fmt;
+                }
+                else {
+                    // Bind to empty texture.
+                    glActiveTexture(GL_TEXTURE0);
+                    glBindTexture(GL_TEXTURE_2D, 0);
+                }
+            }
 
             if (tex)
             {
@@ -1158,6 +1335,59 @@ namespace Vid
 
         dxError = device->SetTexture(stage, texH);
         LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
+
+        //// JONATHAN
+        //if (tex && ((Bitmap*)tex)->Lock()) {
+        //    S32 width, height, pitch, depth;
+        //    width = tex->Width();
+        //    height = tex->Height();
+        //    pitch = tex->Pitch();
+        //    depth = tex->Depth();
+        //    Pix* fmt = new Pix(*tex->PixelFormat());
+
+        //    U8* srcP = (U8*)tex->Data(); // Pointer to first byte of bitmap data.
+        //    U8* bmpMem = new U8[width * height * 4];
+        //    memset(bmpMem, 0, width * height * 4);
+        //    U8* bmpMemP = bmpMem;
+
+        //    int bmpBytePP = pitch / width;
+        //    ASSERT(bmpBytePP % 2 == 0);
+        //    for (int y = 0; y < height; y++) {
+        //        for (int x = 0; x < pitch; x += bmpBytePP) {
+        //            U32 pixel = 0;
+        //            memcpy(&pixel, srcP, bmpBytePP);
+
+        //            U8 r, g, b, a;
+        //            r = (U8)(((pixel & fmt->rMask) >> fmt->rShift) << (fmt->rScaleInv));
+        //            g = (U8)(((pixel & fmt->gMask) >> fmt->gShift) << (fmt->gScaleInv));
+        //            b = (U8)(((pixel & fmt->bMask) >> fmt->bShift) << (fmt->bScaleInv));
+        //            a = (U8)(((pixel & fmt->aMask) >> fmt->aShift) << (fmt->aScaleInv));
+
+        //            *(bmpMemP + 0) = r;
+        //            *(bmpMemP + 1) = g;
+        //            *(bmpMemP + 2) = b;
+        //            *(bmpMemP + 3) = a;
+
+        //            srcP += bmpBytePP;
+        //            bmpMemP += 4;
+        //        }
+        //    }
+
+        //    glActiveTexture(GL_TEXTURE0 + stage);
+        //    glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
+
+        //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmpMem);
+        //    glGenerateMipmap(GL_TEXTURE_2D);
+
+        //    ((Bitmap*)tex)->UnLock();
+        //    delete[]bmpMem;
+        //    delete fmt;
+        //}
+        //else {
+        //    // Bind to empty texture.
+        //    glActiveTexture(GL_TEXTURE0);
+        //    glBindTexture(GL_TEXTURE_2D, 0);
+        //}
 
         if (tex)
         {
@@ -1265,7 +1495,7 @@ namespace Vid
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-              // do the d3d call
+        // do the d3d call
         dxError = device->DrawPrimitive(
             (D3DPRIMITIVETYPE)prim_type,
             vert_type,
@@ -1273,6 +1503,111 @@ namespace Vid
             vert_count,
             flags);
         LOG_DXERR(("device->DrawPrimitive: trilist"));
+
+        if (vert_type == FVF_VERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_T2VERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_CVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_T2CVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_LVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_T2LVERTEX) {
+            return D3D_OK;
+        }
+
+        // vertex type flags
+        // what's with the TEX1 instead of TEX0 in LVERTEX and TLVERTEX?? HST 7/15/98
+
+        // JONATHAN
+        if (vert_type == FVF_TLVERTEX) {
+            int v3size = sizeof(VertexTL);
+
+            glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, verts, GL_DYNAMIC_DRAW);
+
+            int position_attrib_index = 0;
+            int diffuse_attrib_index = 1;
+            int specular_attrib_index = 2;
+            int texcoord_attrib_index = 3;
+
+            glEnableVertexAttribArray(position_attrib_index);
+            glEnableVertexAttribArray(diffuse_attrib_index);
+            glEnableVertexAttribArray(specular_attrib_index);
+            glEnableVertexAttribArray(texcoord_attrib_index);
+
+            GLintptr vertex_position_offset = 0;
+            GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
+            GLintptr vertex_specular_offset = vertex_diffuse_offset + 4 * sizeof(U8);
+            GLintptr vertex_texcoord_offset = vertex_specular_offset + 4 * sizeof(U8);
+
+            glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
+            glVertexAttribPointer(diffuse_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
+            glVertexAttribPointer(specular_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
+            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
+
+            glUseProgram(shader_programme);
+
+            int modelMatrixLocation = glGetUniformLocation(shader_programme, "mat_Model");
+            int viewMatrixLocation = glGetUniformLocation(shader_programme, "mat_View");
+            int projMatrixLocation = glGetUniformLocation(shader_programme, "mat_Proj");
+            int identMatrixLocation = glGetUniformLocation(shader_programme, "mat_Ident");
+
+            MATRIX_STRUCT mm = CurCamera().WorldMatrix().Mat;
+            float mat_Model[] = {
+                mm.right.x, mm.right.y, mm.right.z, mm.right.w,
+                mm.up.x,    mm.up.y,    mm.up.z,    mm.up.w,
+                mm.front.x, mm.front.y, mm.front.z, mm.front.w,
+                mm.posit.x, mm.posit.y, mm.posit.z, mm.posit.w,
+            };
+
+            MATRIX_STRUCT ml = CurCamera().ViewMatrix().Mat;
+            float mat_View[] = {
+                ml.right.x, ml.right.y, ml.right.z, ml.right.w,
+                ml.up.x,    ml.up.y,    ml.up.z,    ml.up.w,
+                ml.front.x, ml.front.y, ml.front.z, ml.front.w,
+                ml.posit.x, ml.posit.y, ml.posit.z, ml.posit.w,
+            };
+
+            MATRIX_STRUCT mp = CurCamera().ProjMatrix().Mat;
+            float mat_Proj[] = {
+                mp.right.x, mp.right.y, mp.right.z, mp.right.w,
+                mp.up.x,    mp.up.y,    mp.up.z,    mp.up.w,
+                mp.front.x, mp.front.y, mp.front.z, mp.front.w,
+                mp.posit.x, mp.posit.y, mp.posit.z, mp.posit.w,
+            };
+
+            float mat_Ident[] = {
+                1, 0, 0, 0,
+                0, -1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            };
+
+            glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, mat_Model);
+            glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, mat_View);
+            glUniformMatrix4fv(projMatrixLocation, 1, GL_FALSE, mat_Proj);
+            glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
+
+            glDrawArrays(GL_TRIANGLES, 0, vert_count);
+
+            glDisableVertexAttribArray(position_attrib_index);
+            glDisableVertexAttribArray(diffuse_attrib_index);
+            glDisableVertexAttribArray(specular_attrib_index);
+            glDisableVertexAttribArray(texcoord_attrib_index);
+        }
 
         indexCount += vert_count;
 
@@ -1325,7 +1660,7 @@ namespace Vid
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-              // do the d3d call
+        // do the d3d call
         dxError = device->DrawPrimitive(
             (D3DPRIMITIVETYPE)prim_type,
             vert_type,
@@ -1394,30 +1729,31 @@ namespace Vid
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-        /*
-            if (bucketdump)
-            {
-        //      LOG_DIAG( ("pt = %d, vt = %d, f = %d",
-        //        prim_type,`
-        //        /vert_type,
-        //        flags) );
 
-              U32 i;
-              VertexTL *v = (VertexTL *) verts;
-              for (i = 0; i < vert_count; i++, v++)
-              {
-        //        LOG_DIAG( ("vv = %f, %f, %f rhw = %f, d = %u s = %u, uv %f, %f",
-        //          v->vv.x, v->vv.y, v->vv.z, v->rhw, v->diffuse, v->specular, v->u, v->v) );
-                v->vv.x = 0.0f;
-                v->vv.y = 0.0f;
-              }
-        //      for (i = 0; i < index_count; i++)
-        //      {
-        //        U32 in = indices[i];
-        //        LOG_DIAG( ("i = %d", in) );
-        //      }
-            }
-        */
+        //if (bucketdump)
+        //{
+        //    //      LOG_DIAG( ("pt = %d, vt = %d, f = %d",
+        //    //        prim_type,`
+        //    //        /vert_type,
+        //    //        flags) );
+
+        //    U32 i;
+        //    VertexTL* v = (VertexTL*)verts;
+        //    for (i = 0; i < vert_count; i++, v++)
+        //    {
+        //        //        LOG_DIAG( ("vv = %f, %f, %f rhw = %f, d = %u s = %u, uv %f, %f",
+        //        //          v->vv.x, v->vv.y, v->vv.z, v->rhw, v->diffuse, v->specular, v->u, v->v) );
+        //        v->vv.x = 0.0f;
+        //        v->vv.y = 0.0f;
+        //    }
+
+        //    //      for (i = 0; i < index_count; i++)
+        //    //      {
+        //    //        U32 in = indices[i];
+        //    //        LOG_DIAG( ("i = %d", in) );
+        //    //      }
+        //}
+
 
         if (renderState.status.texStaged)
         {
@@ -1441,10 +1777,225 @@ namespace Vid
         LOG_DXERR(("device->DrawIndexedPrimitive: trilist"));
 #endif
 
+        if (vert_type == FVF_VERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_T2VERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_CVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_T2CVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_LVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_T2LVERTEX) {
+            return D3D_OK;
+        }
+
+        // JONATHAN
+        if (vert_type == FVF_TLVERTEX) {// && prim_type == PT_TRIANGLELIST) {
+            // D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1
+
+            // DEBUGGING
+            //
+
+            //struct Vec3 {
+            //    F32 x, y, z, rhw; // 4, 8, 12, 16 bytes
+            //    F32 r, g, b, a;
+            //    F32 i, j, k, l;
+            //    F32 u, v;
+            //};
+
+            //int v3size = sizeof(Vec3);
+
+            //Vec3* positions = (Vec3*)alloca(vert_count * v3size);
+            //for (DWORD i = 0; i < vert_count; i++) {
+            //    VertexTL current = ((VertexTL*)verts)[i];
+            //    positions[i] = Vec3{
+            //        (current.vv.x),
+            //        (current.vv.y),
+            //        current.vv.z,
+            //        1.0f,//current.rhw,
+            //        (F32)current.diffuse.r,
+            //        (F32)current.diffuse.g,
+            //        (F32)current.diffuse.b,
+            //        (F32)current.diffuse.a,
+            //        (F32)current.specular.r,
+            //        (F32)current.specular.g,
+            //        (F32)current.specular.b,
+            //        (F32)current.specular.a,
+            //        current.u,
+            //        current.v,
+            //    };
+            //}
+
+            //glUseProgram(shader_programme);
+
+            //glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            //glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, ((Vec3*)positions), GL_DYNAMIC_DRAW);
+
+            //int position_attrib_index = 0;
+            //int diffuse_attrib_index = 1;
+            //int specular_attrib_index = 2;
+            //int texcoord_attrib_index = 3;
+
+            //glEnableVertexAttribArray(position_attrib_index);
+            //glEnableVertexAttribArray(diffuse_attrib_index);
+            //glEnableVertexAttribArray(specular_attrib_index);
+            //glEnableVertexAttribArray(texcoord_attrib_index);
+
+            //GLintptr vertex_position_offset = 0;
+            //GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
+            //GLintptr vertex_specular_offset = 8 * sizeof(F32);
+            //GLintptr vertex_texcoord_offset = 12 * sizeof(F32);
+
+            //glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
+            //glVertexAttribPointer(diffuse_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
+            //glVertexAttribPointer(specular_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
+            //glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
+
+            //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+            //glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
+
+            //int identMatrixLocation = glGetUniformLocation(shader_programme, "mat_Ident");
+            //float mat_Ident[] = {
+            //    1, 0, 0, 0,
+            //    0, -1, 0, 0,
+            //    0, 0, 1, 0,
+            //    0, 0, 0, 1
+            //};
+            //glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
+
+            //glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_SHORT, nullptr);
+
+            //
+            // DEBUGGING
+
+            // EXISTING
+            //
+
+            int v3size = sizeof(VertexTL);
+
+            glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, verts, GL_DYNAMIC_DRAW);
+
+            //for (DWORD i = 0; i < vert_count; i++) {
+            //    float* rhw = &((VertexTL*)verts + sizeof(VertexTL) * i)->rhw;
+            //    //*rhw = 1.0f;
+            //}
+
+            int position_attrib_index = 0;
+            int diffuse_attrib_index = 1;
+            int specular_attrib_index = 2;
+            int texcoord_attrib_index = 3;
+
+            glEnableVertexAttribArray(position_attrib_index);
+            glEnableVertexAttribArray(diffuse_attrib_index);
+            glEnableVertexAttribArray(specular_attrib_index);
+            glEnableVertexAttribArray(texcoord_attrib_index);
+
+            GLintptr vertex_position_offset = 0;
+            GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
+            GLintptr vertex_specular_offset = vertex_diffuse_offset + 4 * sizeof(U8);
+            GLintptr vertex_texcoord_offset = vertex_specular_offset + 4 * sizeof(U8);
+
+            glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
+            glVertexAttribPointer(diffuse_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
+            glVertexAttribPointer(specular_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
+            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
+
+            glUseProgram(shader_programme);
+
+            int modelMatrixLocation = glGetUniformLocation(shader_programme, "mat_Model");
+            int viewMatrixLocation = glGetUniformLocation(shader_programme, "mat_View");
+            int projMatrixLocation = glGetUniformLocation(shader_programme, "mat_Proj");
+            int identMatrixLocation = glGetUniformLocation(shader_programme, "mat_Ident");
+
+            MATRIX_STRUCT mm = CurCamera().WorldMatrix().Mat;
+            float mat_Model[] = {
+                mm.right.x, mm.right.y, mm.right.z, mm.right.w,
+                mm.up.x,    mm.up.y,    mm.up.z,    mm.up.w,
+                mm.front.x, mm.front.y, mm.front.z, mm.front.w,
+                mm.posit.x, mm.posit.y, mm.posit.z, mm.posit.w,
+            };
+
+            MATRIX_STRUCT ml = CurCamera().ViewMatrix().Mat;
+            float mat_View[] = {
+                ml.right.x, ml.right.y, ml.right.z, ml.right.w,
+                ml.up.x,    ml.up.y,    ml.up.z,    ml.up.w,
+                ml.front.x, ml.front.y, ml.front.z, ml.front.w,
+                ml.posit.x, ml.posit.y, ml.posit.z, ml.posit.w,
+            };
+
+            MATRIX_STRUCT mp = CurCamera().ProjMatrix().Mat;
+            float mat_Proj[] = {
+                mp.right.x, mp.right.y, mp.right.z, mp.right.w,
+                mp.up.x,    mp.up.y,    mp.up.z,    mp.up.w,
+                mp.front.x, mp.front.y, mp.front.z, mp.front.w,
+                mp.posit.x, mp.posit.y, mp.posit.z, mp.posit.w,
+            };
+
+            float mat_Ident[] = {
+                1, 0, 0, 0,
+                0, -1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            };
+
+            glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, mat_Model);
+            glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, mat_View);
+            glUniformMatrix4fv(projMatrixLocation, 1, GL_FALSE, mat_Proj);
+            glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
+
+            int primType = GL_TRIANGLES;
+            switch (prim_type) {
+            case PT_POINTLIST:
+                primType = GL_POINTS;
+                break;
+            case PT_LINELIST:
+                primType = GL_LINES;
+                break;
+            case PT_LINESTRIP:
+                primType = GL_LINE_STRIP;
+                break;
+            case PT_TRIANGLELIST:
+                primType = GL_TRIANGLES;
+                break;
+            case PT_TRIANGLESTRIP:
+                primType = GL_TRIANGLE_STRIP;
+                break;
+            case PT_TRIANGLEFAN:
+                primType = GL_TRIANGLE_FAN;
+                break;
+            }
+
+            glDrawElements(primType, index_count, GL_UNSIGNED_SHORT, nullptr);
+
+            glDisableVertexAttribArray(position_attrib_index);
+            glDisableVertexAttribArray(diffuse_attrib_index);
+            glDisableVertexAttribArray(specular_attrib_index);
+            glDisableVertexAttribArray(texcoord_attrib_index);
+
+            //
+            // EXISTING
+        }
+
         indexCount += index_count;
 
         return (dxError == D3D_OK);
-    }
+}
     //----------------------------------------------------------------------------
 
 }
@@ -1502,13 +2053,12 @@ void VertexTL::SetFog()
         Float2Int fa((vv.z - Vid::renderState.alphaFar) / (1 - Vid::renderState.alphaFar) * diffuse.a + Float2Int::magic);
         diffuse.a = U8(diffuse.a - fa.i);
     }
-    /*
-      if (Vid::renderState.status.alphaNear && vv.z < Vid::renderState.alphaNear)
-      {
-        Float2Int fa( (1 - ((Vid::renderState.alphaNear - vv.z) / Vid::renderState.alphaNear)) * diffuse.a + Float2Int::magic);
+
+    /*if (Vid::renderState.status.alphaNear && vv.z < Vid::renderState.alphaNear)
+    {
+        Float2Int fa((1 - ((Vid::renderState.alphaNear - vv.z) / Vid::renderState.alphaNear)) * diffuse.a + Float2Int::magic);
         diffuse.a = U8(diffuse.a + fa.i);
-      }
-    */
+    }*/
 }
 //----------------------------------------------------------------------------
 
@@ -1534,13 +2084,12 @@ void VertexTL::SetFogX()
         Float2Int fa((vv.z - Vid::renderState.alphaFar) / (1 - Vid::renderState.alphaFar) * diffuse.a + Float2Int::magic);
         diffuse.a = U8(diffuse.a - fa.i);
     }
-    /*
-      if (Vid::renderState.status.alphaNear && vv.z < Vid::renderState.alphaNear)
-      {
-        Float2Int fa( (vv.z - Vid::renderState.alphaFar) / Vid::renderState.alphaNear * diffuse.a + Float2Int::magic);
+
+    /*if (Vid::renderState.status.alphaNear && vv.z < Vid::renderState.alphaNear)
+    {
+        Float2Int fa((vv.z - Vid::renderState.alphaFar) / Vid::renderState.alphaNear * diffuse.a + Float2Int::magic);
         diffuse.a = U8(diffuse.a + fa.i);
-      }
-    */
+    }*/
 }
 //----------------------------------------------------------------------------
 

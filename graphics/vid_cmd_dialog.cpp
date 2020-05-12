@@ -467,11 +467,17 @@ namespace Vid
             {
                 magFilter = D3DTFG_LINEAR;
                 minFilter = D3DTFN_LINEAR;
+                // JONATHAN
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             }
             else
             {
                 magFilter = D3DTFG_POINT;
                 minFilter = D3DTFN_POINT;
+                // JONATHAN
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             }
 
             stage = 1;    // set both stages (DR2 only uses 2)
@@ -496,14 +502,25 @@ namespace Vid
                     if (!(renderState.status.filter & filterMIPMAP))
                     {
                         dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
+                        //// JONATHAN
+                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+
                     }
                     else if (!(renderState.status.filter & filterMIPFILTER))
                     {
                         dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
+                        //// JONATHAN
+                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+
                     }
                     else
                     {
                         dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_LINEAR);
+                        //// JONATHAN
+                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                     }
                     LOG_DXERR(("SetFilterState"));
                 }
@@ -565,6 +582,14 @@ namespace Vid
             ASSERT(device);
             dxError = device->SetRenderState(D3DRENDERSTATE_DITHERENABLE, (DWORD)doDither);
             LOG_DXERR(("device->SetRenderState: dither"));
+
+            // JONATHAN
+            if (doDither) {
+                glEnable(GL_DITHER);
+            }
+            else {
+                glDisable(GL_DITHER);
+            }
         }
         return retValue;
     }
@@ -598,6 +623,21 @@ namespace Vid
         //	  LOG_DXERR( ("SetZBufferState") );
         //    dxError = device->SetRenderState(D3DRENDERSTATE_SHADEMODE, doWireFrame ? D3DSHADE_FLAT : D3DSHADE_GOURAUD);
         //	  LOG_DXERR( ("SetZBufferState") );
+
+        // JONATHAN
+        if (!doTexture) {
+            // Bind to empty texture.
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            // JONATHAN
+            GLint loc = glGetUniformLocation(Vid::shader_programme, "doTexture");
+            glUniform1i(loc, GL_FALSE);
+        }
+        else {
+            // JONATHAN
+            GLint loc = glGetUniformLocation(Vid::shader_programme, "doTexture");
+            glUniform1i(loc, GL_TRUE);
+        }
 
         return retValue;
     }
