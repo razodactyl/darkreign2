@@ -30,16 +30,16 @@
 namespace Input
 {
     // Logging
-    LOGDEFLOCAL("Input")
+    LOGDEFLOCAL("Input");
 
-        // Attempt a DirectInput operation, cause an error if it fails
+    // Attempt a DirectInput operation, cause an error if it fails
 #define DITRYERR(expr) {Input::dierr=expr;if (Input::dierr!=DI_OK) {ERR_FATAL(("Direct Input Error at %s [%s]", #expr, Input::ErrMsg()));}}
 
-// Attempt a DirectInput operation, log an error message if it fails
+    // Attempt a DirectInput operation, log an error message if it fails
 #define DITRYMSG(expr) {Input::dierr=expr;if (Input::dierr!=DI_OK) {LOG_DIAG((Input::ErrMsg()));}}
 
-// Buffer sizes
-const U32 KEYBUFSIZE = 32;
+    // Buffer sizes
+    const U32 KEYBUFSIZE = 32;
     const U32 MOUSEBUFSIZE = 128;
 
     // Mouse buttons
@@ -270,11 +270,11 @@ const U32 KEYBUFSIZE = 32;
     //
     static Bool ReadDeviceState()
     {
-        ASSERT(sysInit)
-            ASSERT(diKeybd)
-            ASSERT(diMouse)
+        ASSERT(sysInit);
+        ASSERT(diKeybd);
+        ASSERT(diMouse);
 
-            Bool success = TRUE;
+        Bool success = TRUE;
 
         // Get keyboard key state
         dierr = diKeybd->GetDeviceState(sizeof(keyState), (LPVOID)keyState);
@@ -527,13 +527,12 @@ const U32 KEYBUFSIZE = 32;
                 if (od.dwData & 0x80)
                 {
                     // Mouse button went down
-                    if
-                        (
-                            (!dblClick[btn].wasDbl) &&
-                            (od.dwTimeStamp - dblClick[btn].time <= dblClickTime) &&
-                            (abs(dblClick[btn].pos.x - mousePos.x) < dblClickThreshold.x) &&
-                            (abs(dblClick[btn].pos.y - mousePos.y) < dblClickThreshold.y)
-                            )
+                    if (
+                        (!dblClick[btn].wasDbl)
+                        && (od.dwTimeStamp - dblClick[btn].time <= dblClickTime)
+                        && (abs(dblClick[btn].pos.x - mousePos.x) < dblClickThreshold.x)
+                        && (abs(dblClick[btn].pos.y - mousePos.y) < dblClickThreshold.y)
+                        )
                     {
                         // Mark this button as having just double clicked so the 
                         // next click will not generate a double click event.
@@ -606,8 +605,8 @@ const U32 KEYBUFSIZE = 32;
             }
 
             default:
-                LOG_DIAG(("Unknown %d", od.dwOfs))
-                    break;
+                LOG_DIAG(("Unknown %d", od.dwOfs));
+                break;
             }
         }
 
@@ -634,7 +633,30 @@ const U32 KEYBUFSIZE = 32;
         return (TRUE);
     }
 
+    // JONATHAN
+    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+    {
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+            //PostEvent(MOUSEBUTTONDOWN, 0, 0, customState, mousePos);
+        }
 
+
+
+        /*double xpos, ypos;
+        glfwGetCursorPos(Main::GetGameWindowGLFW(), &xpos, &ypos);
+        mousePos.x = xpos;
+        mousePos.y = ypos;
+        PostEvent(MOUSEMOVE, 0, 0, customState, mousePos);
+
+        int mouseLeftState = glfwGetMouseButton(Main::GetGameWindowGLFW(), GLFW_MOUSE_BUTTON_LEFT);
+        int mouseRightState = glfwGetMouseButton(Main::GetGameWindowGLFW(), GLFW_MOUSE_BUTTON_RIGHT);
+        if (mouseLeftState == GLFW_PRESS || mouseRightState == GLFW_PRESS) {
+            PostEvent(MOUSEBUTTONDOWN, (mouseLeftState == GLFW_PRESS) ? 0 : 1, 0, customState, mousePos);
+        }
+        if (mouseLeftState == GLFW_RELEASE || mouseRightState == GLFW_RELEASE) {
+            PostEvent(MOUSEBUTTONUP, (mouseLeftState == GLFW_RELEASE) ? 0 : 1, 0, customState, mousePos);
+        }*/
+    }
 
     //
     // Set parameters for Input system, and initialise the mouse and keyboard
@@ -646,6 +668,10 @@ const U32 KEYBUFSIZE = 32;
         // Initialise data members
         hInst = inst;
         hWnd = window;
+
+        // JONATHAN
+        //glfwSetMouseButtonCallback(Main::GetGameWindowGLFW(), mouse_button_callback);
+        //glfwSetCursorPosCallback(Main::GetGameWindowGLFW(), cursor_position_callback);
 
         customState = 0;
         showCursor = 1;
@@ -807,7 +833,6 @@ const U32 KEYBUFSIZE = 32;
         LOG_DIAG(("Leaving Input::Done"));
     }
 
-
     //
     // Read buffered events and current state of input devices
     //
@@ -816,6 +841,9 @@ const U32 KEYBUFSIZE = 32;
         ASSERT(sysInit);
 
         PERF_S("Input::ReadEvents");
+
+        // JONATHAN
+        //glfwWaitEvents();
 
         // Get keyboard/mouse state first so that customState will be 
         // correct for upcoming events 
@@ -1061,8 +1089,8 @@ const U32 KEYBUFSIZE = 32;
         }
         *dst = 0;
 
-        CON_DIAG(("%3d: %s", doi->dwOfs, buf))
-            LOG_DIAG(("Key(%3d,\"%s\");", doi->dwOfs, buf));
+        CON_DIAG(("%3d: %s", doi->dwOfs, buf));
+        LOG_DIAG(("Key(%3d,\"%s\");", doi->dwOfs, buf));
 
         return (DIENUM_CONTINUE);
     }

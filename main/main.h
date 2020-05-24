@@ -162,6 +162,10 @@ namespace Main
     // Get the window handle of the game window
     HWND GetGameWindow();
 
+    // JONATHAN
+    GLFWwindow* GetGameWindowGLFW();
+    void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+
     // Add a command to the list of commands run at the next runcode chage
     void AddRunOnceCmd(const char* str);
 

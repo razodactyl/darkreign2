@@ -56,6 +56,7 @@ S32 PowerOf2(S32 x)
 void Bitmap::ClearData()
 {
     bmpData = NULL;
+    bmpMem = NULL;
 
     pixForm = NULL;
 
@@ -178,6 +179,10 @@ void Bitmap::Release()
     }
     bmpData = NULL;
 
+    // JONATHAN
+    delete[]bmpMem;
+    bmpMem = NULL;
+
     Utils::Memset(&desc, 0, sizeof(desc));
     desc.dwSize = sizeof(desc);
 }
@@ -216,13 +221,13 @@ void* Bitmap::Lock()
     if (surface)
     {
         dxError = surface->Lock(NULL, &desc, DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, NULL);
-        /*
-            if (dxError)
-            {
-              LOG_DXERR( ("Bitmap::Lock: surface->Lock") );
-              desc.lpSurface = NULL;
-            }
-        */
+
+        //if (dxError)
+        //{
+        //    LOG_DXERR( ("Bitmap::Lock: surface->Lock") );
+        //    desc.lpSurface = NULL;
+        //}
+
         bmpData = desc.lpSurface;
     }
     return bmpData;
@@ -288,6 +293,8 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
 
     // JONATHAN
     glGenTextures(1, &glTextureId);
+    bmpMem = new U8[width * height * 4];
+    Utils::Memset(bmpMem, 0, width * height * 4);
 
     status.translucent = translucent ? 1 : 0;
     status.transparent = translucent > 1 ? 1 : 0;
@@ -316,6 +323,7 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
 
         // Allocate the bitmap data
         bmpData = (void*) new char[bmpPitch * bmpHeight * bmpBytePP];
+
         if (bmpData == NULL)
         {
             LOG_ERR(("Error allocating %dx%dx%d bitmap", bmpWidth, bmpHeight, bmpDepth));
@@ -443,12 +451,6 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
         }
         status.ownsSurface = TRUE;
 
-#ifdef DODX6
-        // get pointer to the texture interface
-        dxError = surface->QueryInterface(IID_IDirect3DTexture2, (void**)&texture);
-        LOG_DXERR(("Bitmap::Create: surface->QueryInterface(IID_IDirect3DTexture2, &texture)"));
-#endif
-
         dxError = surface->GetSurfaceDesc(&desc);
         LOG_DXERR(("Bitmap::Create: surface->GetSurfaceDesc"));
 
@@ -497,6 +499,8 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
 //
 Bool Bitmap::LoadVideo()
 {
+    DecodeToMem();
+
     if ((type & bitmapTEXTURE) != bitmapTEXTURE)
     {
         return TRUE;
@@ -506,14 +510,12 @@ Bool Bitmap::LoadVideo()
     //  Vid::device->PreLoad( surface);
     Vid::SetTextureDX(this);
 
-    /*
-      if (!status.managed)
-      {
-        // get rid of that awful wasted memory
-        RELEASEDX( surface);
-        status.video = TRUE;
-      }
-    */
+    //if (!status.managed)
+    //{
+    //    // get rid of that awful wasted memory
+    //    RELEASEDX(surface);
+    //    status.video = TRUE;
+    //}
 
     return TRUE;
 }
@@ -533,7 +535,7 @@ Bool Bitmap::ReLoad(const char* filename) // = NULL
 
     if (filename)
     {
-        //    LOG_DIAG(("reloading name %s: %s", name.str, pixForm->name.str));
+        // LOG_DIAG(("reloading name %s: %s", name.str, pixForm->name.str));
 
         BuffString texname = filename;
         char* dot = Utils::FindExt(texname.str);
@@ -645,7 +647,7 @@ Bool Bitmap::ReLoad(const char* filename) // = NULL
     }
     else if (!surface)
     {
-        //    LOG_DIAG(("reloading %s", name.str));
+        // LOG_DIAG(("reloading %s", name.str));
 
         if (status.pic)
         {
@@ -838,10 +840,10 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
                 }
                 else
                 {
-                    //          LOG_DIAG(("Using very non-optimal copy bits %dbit->%dbit", Depth(), dst.Depth()));
-                    //          LOG_DIAG(("dst = %s, src = %s", dst.pixForm->name.str, pixForm->name.str) );
+                    //LOG_DIAG(("Using very non-optimal copy bits %dbit->%dbit", Depth(), dst.Depth()));
+                    //LOG_DIAG(("dst = %s, src = %s", dst.pixForm->name.str, pixForm->name.str) );
 
-                              // Slow
+                    // Slow
                     for (int y = 0; y < height; y++)
                     {
                         U8* oldDst = dstBits;
@@ -1031,6 +1033,42 @@ void Bitmap::SetPixFormat(const Pix* pix)
 //
 void Bitmap::InitPixFormat()
 {
+    Pix *dummyFormat = new Pix();
+
+    DDPIXELFORMAT f;
+    f.dwSize = 0x00000020;
+    f.dwFlags = 0x00000041;
+    f.dwFourCC = 0x00000000;
+    f.dwRGBBitCount = 16;
+    f.dwYUVBitCount = 16;
+    f.dwZBufferBitDepth = 16;
+    f.dwAlphaBitDepth = 16;
+    f.dwLuminanceBitCount = 16;
+    f.dwBumpBitCount = 16;
+    f.dwRBitMask = 0x00000f00;
+    f.dwYBitMask = 0x00000f00;
+    f.dwStencilBitDepth = 0x00000f00;
+    f.dwLuminanceBitMask = 0x00000f00;
+    f.dwBumpDuBitMask = 0x00000f00;
+    f.dwGBitMask = 0x000000f0;
+    f.dwUBitMask = 0x000000f0;
+    f.dwZBitMask = 0x000000f0;
+    f.dwBumpDvBitMask = 0x000000f0;
+    f.dwBBitMask = 0x0000000f;
+    f.dwVBitMask = 0x0000000f;
+    f.dwStencilBitMask = 0x0000000f;
+    f.dwBumpLuminanceBitMask = 0x0000000f;
+    f.dwRGBAlphaBitMask = 0x0000f000;
+    f.dwYUVAlphaBitMask = 0x0000f000;
+    f.dwLuminanceAlphaBitMask = 0x0000f000;
+    f.dwRGBZBitMask = 0x0000f000;
+    f.dwYUVZBitMask = 0x0000f000;
+
+    dummyFormat->SetPixFmt(f);
+    
+    pixForm = dummyFormat;
+    //return;
+
     switch ((type & bitmapTYPEMASK))
     {
     case bitmapTEXTURE:
@@ -1150,7 +1188,7 @@ Bool Bitmap::Read(const char* filename, Pix* pixelFormat)
     if (!retValue)
     {
         LOG_ERR(("Can't load texture %s.", filename));
-        //    ERR_CONFIG( ("Can't load texture %s.", filename) );
+        //ERR_CONFIG( ("Can't load texture %s.", filename) );
     }
     return retValue;
 }
@@ -1246,7 +1284,6 @@ Bool Bitmap::ReadBMP(const char* filename, Pix* pixelFormat)
     else if (infoHeader.biBitCount == 16)
     {
         // read in bitfields
-
     }
 
     // Read in the bits
@@ -1335,13 +1372,13 @@ Bool Bitmap::ReadBMP(const char* filename, Pix* pixelFormat)
 
     FileSys::Close(fp);
 
-    if (rowData)
-    {
-        delete[] rowData;
-    }
+
+    delete[] rowData;
+
 
     CreateMipMaps();
     LoadVideo();
+    DecodeToMem();
 
     return TRUE;
 
@@ -1352,10 +1389,10 @@ Error:
     {
         FileSys::Close(fp);
     }
-    if (rowData)
-    {
-        delete[] rowData;
-    }
+
+
+    delete[] rowData;
+
 
     return FALSE;
 }
@@ -1519,18 +1556,17 @@ Bool Bitmap::WriteBMP(const char* filename, Bool keepTrying)
     fwrite(&fileHeader, sizeof(fileHeader), 1, fp);
     fclose(fp);
 
-    if (lineBuf)
-    {
-        delete[] lineBuf;
-    }
+
+    delete[] lineBuf;
+
 
     return TRUE;
 
 Error:
-    if (lineBuf)
-    {
-        delete[] lineBuf;
-    }
+
+
+    delete[] lineBuf;
+
     return FALSE;
 }
 //----------------------------------------------------------------------------
@@ -1906,11 +1942,11 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
 
         case 10:   // rle rgba
         {
-            ERR_FATAL(("RLE not supported"))
+            ERR_FATAL(("RLE not supported"));
 
 #if 0
-                // True color image with RLE compression
-                U32 count, n, j;
+            // True color image with RLE compression
+            U32 count, n, j;
 
             n = 0;
 
@@ -2017,13 +2053,13 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
 
     FileSys::Close(fp);
 
-    if (rowData)
-    {
-        delete[] rowData;
-    }
+
+    delete[] rowData;
+
 
     CreateMipMaps();
     LoadVideo();
+    DecodeToMem();
 
     return TRUE;
 
@@ -2034,10 +2070,9 @@ $Error:
         FileSys::Close(fp);
     }
 
-    if (rowData)
-    {
-        delete[] rowData;
-    }
+
+    delete[] rowData;
+
 
     return FALSE;
 }
@@ -2169,18 +2204,17 @@ Bool Bitmap::WriteTGA(const char* filename, Bool keepTrying)
 
     fclose(fp);
 
-    if (lineBuf)
-    {
-        delete[] lineBuf;
-    }
+
+    delete[] lineBuf;
+
 
     return TRUE;
 
 Error:
-    if (lineBuf)
-    {
-        delete[] lineBuf;
-    }
+
+
+    delete[] lineBuf;
+
     return FALSE;
 }
 //----------------------------------------------------------------------------
@@ -2285,55 +2319,55 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
     S32 i;
     for (i = 3; i >= 0; i--)
     {
-        CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.magic)[i] = *(ptr++);
+        CHECK_SIZE(1);
+        reinterpret_cast<U8*>(&fileHeader.magic)[i] = *(ptr++);
     }
 
     // Read Version
     for (i = 3; i >= 0; i--)
     {
-        CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.version)[i] = *(ptr++);
+        CHECK_SIZE(1);
+        reinterpret_cast<U8*>(&fileHeader.version)[i] = *(ptr++);
     }
 
     // Read Comment and Id
-    CHECK_SIZE(84)
-        memcpy(fileHeader.comment, ptr, 84);
+    CHECK_SIZE(84);
+    memcpy(fileHeader.comment, ptr, 84);
     ptr += 84;
 
     // Read Width
     for (i = 1; i >= 0; i--)
     {
-        CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.width)[i] = *(ptr++);
+        CHECK_SIZE(1);
+        reinterpret_cast<U8*>(&fileHeader.width)[i] = *(ptr++);
     }
 
     // Read Height
     for (i = 1; i >= 0; i--)
     {
-        CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.height)[i] = *(ptr++);
+        CHECK_SIZE(1);
+        reinterpret_cast<U8*>(&fileHeader.height)[i] = *(ptr++);
     }
 
     // Read Aspect Ratio
     for (i = 3; i >= 0; i--)
     {
-        CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.aspectRatio)[i] = *(ptr++);
+        CHECK_SIZE(1);
+        reinterpret_cast<U8*>(&fileHeader.aspectRatio)[i] = *(ptr++);
     }
 
     // Read Fields
     for (i = 1; i >= 0; i--)
     {
-        CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.fields)[i] = *(ptr++);
+        CHECK_SIZE(1);
+        reinterpret_cast<U8*>(&fileHeader.fields)[i] = *(ptr++);
     }
 
     // Read Pad
     for (i = 1; i >= 0; i--)
     {
-        CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.pad)[i] = *(ptr++);
+        CHECK_SIZE(1);
+        reinterpret_cast<U8*>(&fileHeader.pad)[i] = *(ptr++);
     }
 
     // Test magic and header id
@@ -2349,8 +2383,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
     PICCHANNELINFO chanRGB;
     PICCHANNELINFO chanAlpha;
 
-    CHECK_SIZE(sizeof(chanRGB))
-        memcpy(&chanRGB, ptr, sizeof(chanRGB));
+    CHECK_SIZE(sizeof(chanRGB));
+    memcpy(&chanRGB, ptr, sizeof(chanRGB));
     ptr += sizeof(chanRGB);
 
     bitspp = chanRGB.size * 3;
@@ -2364,8 +2398,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
 
     if (chanRGB.chained)
     {
-        CHECK_SIZE(sizeof(chanAlpha))
-            memcpy(&chanAlpha, ptr, sizeof(chanAlpha));
+        CHECK_SIZE(sizeof(chanAlpha));
+        memcpy(&chanAlpha, ptr, sizeof(chanAlpha));
         ptr += sizeof(chanRGB);
 
         bitspp += chanAlpha.size;
@@ -2426,8 +2460,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
         {
             while (n < rowBytes)
             {
-                CHECK_SIZE(1)
-                    byte = *(ptr++);
+                CHECK_SIZE(1);
+                byte = *(ptr++);
 
                 if (byte < 128)
                 {
@@ -2437,8 +2471,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                     {
                         for (k = colorbytes - 1; k >= 0; k--)
                         {
-                            CHECK_SIZE(1)
-                                rowData[n + k] = *(ptr++);
+                            CHECK_SIZE(1);
+                            rowData[n + k] = *(ptr++);
                         }
                         n += totalbytes;
                     }
@@ -2449,8 +2483,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                     {
                         // single repeat more than 128 times
                         U8 uu8[2];
-                        CHECK_SIZE(2)
-                            uu8[1] = *(ptr++);
+                        CHECK_SIZE(2);
+                        uu8[1] = *(ptr++);
                         uu8[0] = *(ptr++);
                         count = *((U16*)uu8);
                     }
@@ -2461,8 +2495,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                     }
                     for (k = colorbytes - 1; k >= 0; k--)
                     {
-                        CHECK_SIZE(1)
-                            color[k] = *(ptr++);
+                        CHECK_SIZE(1);
+                        color[k] = *(ptr++);
                     }
                     for (j = 0; j < count; j++)
                     {
@@ -2484,8 +2518,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
             {
                 for (k = colorbytes - 1; k >= 0; k--)
                 {
-                    CHECK_SIZE(1)
-                        rowData[n + k] = *(ptr++);
+                    CHECK_SIZE(1);
+                    rowData[n + k] = *(ptr++);
                 }
                 n += totalbytes;
             }
@@ -2502,16 +2536,16 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
             {
                 while (n < rowBytes)
                 {
-                    CHECK_SIZE(1)
-                        byte = *(ptr++);
+                    CHECK_SIZE(1);
+                    byte = *(ptr++);
                     if (byte < 128)
                     {
                         count = byte + 1;
                         // non repeated sequence
                         for (j = 0; j < count; j++)
                         {
-                            CHECK_SIZE(1)
-                                byte = *(ptr++);
+                            CHECK_SIZE(1);
+                            byte = *(ptr++);
 
                             if (byte > 0x00 && byte < 0xff)
                             {
@@ -2529,8 +2563,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                             // single repeat more than 128 times
                             U8 uu8[2];
 
-                            CHECK_SIZE(2)
-                                uu8[1] = *(ptr++);
+                            CHECK_SIZE(2);
+                            uu8[1] = *(ptr++);
                             uu8[0] = *(ptr++);
                             count = *((U16*)uu8);
                         }
@@ -2540,8 +2574,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                             count = byte - 127;
                         }
 
-                        CHECK_SIZE(1)
-                            color[0] = *(ptr++);
+                        CHECK_SIZE(1);
+                        color[0] = *(ptr++);
 
                         if (color[0] > 0x00 && color[0] < 0xff)
                         {
@@ -2563,8 +2597,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                 // encodeUNCOMPRESSED
                 for (j = 0; j < fileHeader.width; j++)
                 {
-                    CHECK_SIZE(1)
-                        byte = *(ptr++);
+                    CHECK_SIZE(1);
+                    byte = *(ptr++);
 
                     if (byte > 0x00 && byte < 0xff)
                     {
@@ -2597,13 +2631,13 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
       }
     */
 
-    if (rowData)
-    {
-        delete[] rowData;
-    }
+
+    delete[] rowData;
+
 
     CreateMipMaps();
     LoadVideo();
+    DecodeToMem();
 
     // Close the file
     FileSys::Close(fp);
@@ -2612,20 +2646,20 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
 
 SizeError:
 
-    LOG_ERR(("Unexpected EOF"))
+    LOG_ERR(("Unexpected EOF"));
 
-        Error :
+Error:
 
-        UnLock();
+    UnLock();
 
     if (fp)
     {
         FileSys::Close(fp);
     }
-    if (rowData)
-    {
-        delete[] rowData;
-    }
+
+
+    delete[] rowData;
+
 
     return FALSE;
 }
@@ -2664,8 +2698,6 @@ Palette::~Palette()
 //
 Bool Palette::Read(const char* /*filename*/)
 {
-
-
     return FALSE;
 }
 //----------------------------------------------------------------------------
@@ -2733,8 +2765,6 @@ Bool Palette::ReadMSPal(const char* filename, Bool generateCLUT)
 //
 Bool Palette::Write(const char* /*filename*/)
 {
-
-
     return TRUE;
 }
 //----------------------------------------------------------------------------
@@ -2746,10 +2776,9 @@ void Palette::GenerateCLUT()
 {
     ASSERT(pal);
 
-    if (clut)
-    {
-        delete[] clut;
-    }
+
+    delete[] clut;
+
     clut = new U8[(1 << LUTREDBITS) * (1 << LUTGREENBITS) * (1 << LUTBLUEBITS)];
     ASSERT(clut);
 
@@ -3354,6 +3383,44 @@ void Bitmap::CreateMipMaps()
 }
 //----------------------------------------------------------------------------
 
+void Bitmap::DecodeToMem() {
+    if (Lock()) {
+        U8* srcP = (U8*)Data(); // Pointer to first byte of bitmap data.
+        U8* bmpMemP = bmpMem;
+
+        const Pix* fmt = PixelFormat();
+
+        ASSERT(bmpBytePP % 2 == 0);
+
+        for (int y = 0; y < Height(); y++) {
+            for (int x = 0; x < Pitch(); x += bmpBytePP) {
+                U32 pixel = 0;
+                memcpy(&pixel, srcP, bmpBytePP);
+
+                U8 r, g, b, a;
+                r = (U8)(((pixel & fmt->rMask) >> fmt->rShift) << (fmt->rScaleInv));
+                g = (U8)(((pixel & fmt->gMask) >> fmt->gShift) << (fmt->gScaleInv));
+                b = (U8)(((pixel & fmt->bMask) >> fmt->bShift) << (fmt->bScaleInv));
+                a = (U8)(((pixel & fmt->aMask) >> fmt->aShift) << (fmt->aScaleInv));
+
+                //b = 255;
+                //a = 255;
+
+                *(bmpMemP + 0) = r;
+                *(bmpMemP + 1) = g;
+                *(bmpMemP + 2) = b;
+                *(bmpMemP + 3) = a;
+
+                srcP += bmpBytePP;
+                bmpMemP += 4;
+            }
+        }
+
+        UnLock();
+    }
+}
+//----------------------------------------------------------------------------
+
 Bool Bitmap::LoadBink(const char* _name, Bool exclusive, Bool stretch) // = FALSE, = FALSE
 {
     Bool retValue = FALSE;
@@ -3485,16 +3552,16 @@ U32 Bitmap::BinkSetFlags()
   else
   {
   binkFlags = BinkDDSurfaceType(surface);
-  }
+    }
 #endif
 
-  if (this == &Vid::backBmp && Vid::isStatus.pageFlip)
-  {
-      binkFlags |= BINKCOPYALL | BINKNOTHREADEDIO;
-      //LOG_DIAG(("bink on back buffer"));
-  }
+    if (this == &Vid::backBmp && Vid::isStatus.pageFlip)
+    {
+        binkFlags |= BINKCOPYALL | BINKNOTHREADEDIO;
+        //LOG_DIAG(("bink on back buffer"));
+    }
 
-  return binkFlags;
+    return binkFlags;
 }
 //----------------------------------------------------------------------------
 
@@ -3516,14 +3583,10 @@ void Bitmap::BinkDoFrame()
     // copy the data onto the screen
     BinkCopyToBuffer(bink, desc.lpSurface, desc.lPitch, desc.dwHeight, x, y, binkFlags);
 
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, glTextureId);
-    //glDrawPixels(bink->Width, bink->Height, GL_BGRA, GL_UNSIGNED_BYTE, desc.lpSurface);
-    //glTexImage2D(GL_TEXTURE_2D, stage, GL_RGBA, bink->Width / 2, bink->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, desc.lpSurface);
-    //glGenerateMipmap(GL_TEXTURE_2D);
-    //glUseProgram(Vid::shader_programme);
-
     UnLock();
+
+    // OpenGL compatible copy.
+    DecodeToMem();
 
     // advance
     if (bink->FrameNum == bink->Frames)

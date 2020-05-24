@@ -134,14 +134,14 @@ namespace IFace
 
             Vid::SetTexture(bucketTex);
 
-            GLint isTranslucentLoc = glGetUniformLocation(Vid::shader_programme, "isTranslucent");
-            GLint hasTexture0Loc = glGetUniformLocation(Vid::shader_programme, "hasTexture0");
+            Vid::SetUniformBool("doInterface", GL_TRUE);
+
             if (bucketTex && bucketTex->GetStatus().translucent) {
-                glUniform1i(isTranslucentLoc, GL_TRUE);
+                Vid::SetUniformBool("doInterfaceTranslucent", GL_TRUE);
             }
 
             if (!bucketTex) {
-                glUniform1i(hasTexture0Loc, GL_FALSE);
+                Vid::SetUniformBool("doInterfaceTextured", GL_FALSE);
             }
 
             Vid::DrawIndexedPrimitive
@@ -153,8 +153,9 @@ namespace IFace
                 DP_DONOTUPDATEEXTENTS | RS_2SIDED | RS_BLEND_DEF | bucketClamp
             );
 
-            glUniform1i(isTranslucentLoc, GL_FALSE);
-            glUniform1i(hasTexture0Loc, GL_TRUE);
+            Vid::SetUniformBool("doInterfaceTextured", GL_TRUE);
+            Vid::SetUniformBool("doInterfaceTranslucent", GL_FALSE);
+            Vid::SetUniformBool("doInterface", GL_FALSE);
 
             Vid::SetFilterStateI(filter);
 

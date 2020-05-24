@@ -388,11 +388,13 @@ namespace Game
 
             // Render
             PERF_S("Terrain::Render");
+            Vid::SetUniformBool("doTerrain", GL_TRUE);
             Terrain::Sky::Render();
             Client::Display::PreTerrain();
             Terrain::Render();
             Environment::Render();
             Vid::FlushBuckets();
+            Vid::SetUniformBool("doTerrain", GL_FALSE);
             PERF_E("Terrain::Render");
 
             if (Vid::Config::TrilinearOff())
@@ -403,16 +405,22 @@ namespace Game
             }
 
             PERF_S("MapObjCtrl::Render");
+            Vid::SetUniformBool("doObj", GL_TRUE);
             MapObjCtrl::Render();
             Vid::FlushBuckets();
+            Vid::SetUniformBool("doObj", GL_FALSE);
             PERF_E("MapObjCtrl::Render");
 
             PERF_S("Particles::Render");
+            Vid::SetUniformBool("doParticles", GL_TRUE);
             ParticleSystem::Render(Vid::CurCamera());
+            Vid::SetUniformBool("doParticles", GL_FALSE);
             PERF_E("Particles::Render");
 
             PERF_S("Client::Render");
+            Vid::SetUniformBool("doClient", GL_TRUE);
             Client::Display::Render();
+            Vid::SetUniformBool("doClient", GL_FALSE);
             PERF_E("Client::Render");
         }
 

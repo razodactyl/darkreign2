@@ -30,7 +30,6 @@
 //
 namespace Main
 {
-
     //
     // CreateMainWindow
     //
@@ -38,7 +37,14 @@ namespace Main
     //
     HWND CreateMainWindow()
     {
-        return CreateGameWindow("Dark Reign II");
+        HWND win = CreateGameWindow("Dark Reign II");
+
+        // JONATHAN
+        //glfwSetMouseButtonCallback(Main::GetGameWindowGLFW(), mouse_button_callback);
+        //glfwSetCursorPosCallback(Main::GetGameWindowGLFW(), &cursor_position_callback);
+        //glfwPollEvents();
+
+        return win;
     }
 
 
@@ -69,7 +75,6 @@ namespace Main
         }
     }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //

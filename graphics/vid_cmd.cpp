@@ -303,6 +303,7 @@ namespace Vid
 
             // Register all handled scopes (delete them in CmdDone)
             VarSys::RegisterHandler("vid", Handler);
+            VarSys::RegisterHandler("vid.shaders", Handler);
             VarSys::RegisterHandler("vid.sun", Handler);
             VarSys::RegisterHandler("vid.toggle", Handler);
             VarSys::RegisterHandler("vid.mirror", Handler);
@@ -400,6 +401,9 @@ namespace Vid
             // Vid commands
             //
             VarSys::CreateCmd("vid.dialog.detail.reset");
+
+            // JONATHAN
+            VarSys::CreateCmd("vid.shaders.reload");
 
             VarSys::CreateCmd("vid.farplaneinc");
             VarSys::CreateCmd("vid.fogdepthinc");
@@ -527,8 +531,16 @@ namespace Vid
 
             char* s1 = NULL;
 
+            // JONATHAN
+            //U32 shader_reload = Crc::CalcStr("vid.shaders.reload");
+            //U32 check_verts = Crc::CalcStr("vid.checkverts");
+
             switch (pathCrc)
             {
+            case 0x266ff0ce:
+                Vid::LoadDefaultShaders();
+                break;
+
             case 0x64E935AE: // "vid.checkverts"
                 Vid::renderState.status.checkVerts = Vid::Var::checkVerts;
                 break;

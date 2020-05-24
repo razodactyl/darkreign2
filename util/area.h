@@ -235,7 +235,7 @@ template <class TYPE> struct Area
     Area(TYPE x0, TYPE y0, Point<TYPE> p1) : p0(x0, y0), p1(p1) {}
     Area(TYPE x1, TYPE y1) : p0(0, 0), p1(x1, y1) {}
 
-    // Dimenstions
+    // Dimensions
     TYPE Width() const
     {
         return (p1.x - p0.x);

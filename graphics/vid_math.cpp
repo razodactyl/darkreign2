@@ -117,8 +117,10 @@ namespace Vid
 
     void SetWorldTransform_D3D(const Matrix& mat)
     {
-        dxError = device->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX*)&mat);
-        LOG_DXERR(("device->SetTransform: world"));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX*)&mat);
+            LOG_DXERR(("device->SetTransform: world"));
+        }
     }
     //----------------------------------------------------------------------------
 
@@ -138,8 +140,10 @@ namespace Vid
 
     void SetViewTransform_D3D(const Matrix& mat)
     {
-        dxError = device->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX*)&mat);
-        LOG_DXERR(("device->SetTransform: view."));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX*)&mat);
+            LOG_DXERR(("device->SetTransform: view."));
+        }
     }
     //----------------------------------------------------------------------------
 

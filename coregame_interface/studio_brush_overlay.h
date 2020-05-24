@@ -25,61 +25,61 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Overlay - Brush for terrain overlay editing
+    // Namespace Brush - Contains all available brushes
     //
-    class Overlay : public ApplyCell
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Overlay - Brush for terrain overlay editing
+        //
+        class Overlay : public ApplyCell
+        {
+        protected:
 
-      // modifier key is depressed
-      CaptureMode captureModifier;
+            // modifier key is depressed
+            CaptureMode captureModifier;
 
-      // Overlay brush information
-      //
-      struct BrushInfo
-      {
-        F32 rate;
-        U32 blend;
-        S32 overlayIndex;
-        S32 textureIndex;
-        S32 style;
-        S32 saveStyle;
+            // Overlay brush information
+            //
+            struct BrushInfo
+            {
+                F32 rate;
+                U32 blend;
+                S32 overlayIndex;
+                S32 textureIndex;
+                S32 style;
+                S32 saveStyle;
 
-      } bInfo;
+            } bInfo;
 
-      IFaceVar * varOverlay;
-      IFaceVar * varTexture;
-      IFaceVar * varBlend;
-      IFaceVar * varRate;
+            IFaceVar* varOverlay;
+            IFaceVar* varTexture;
+            IFaceVar* varBlend;
+            IFaceVar* varRate;
 
-      Bool changed;
+            Bool changed;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-      void FillLists( Bool doTexture = TRUE);
+            void FillLists(Bool doTexture = TRUE);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Overlay(const char *name);
-      ~Overlay();
+            // Constructor and destructor
+            Overlay(const char* name);
+            ~Overlay();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

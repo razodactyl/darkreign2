@@ -243,6 +243,43 @@ void Bitmap::Manager::MovieNextFrame()
         dxError = Vid::backBmp.GetSurface()->Blt(&backrect, tail->GetSurface(), &binkrect, DDBLT_WAIT, NULL);
         LOG_DXERR(("Bitmap::Manager::NextMoveFrame: backBmp->Blt"));
 
+        // JONATHAN
+        //
+
+        bool prevAlpha = Vid::SetAlphaState(0);
+
+        glClearColor(1, 0, 1, 1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        static bool loaded = false;
+        if (!loaded)
+        {
+            loaded = true;
+            Vid::LoadDefaultShaders();
+            glUseProgram(Vid::main_shader_program);
+        }
+        //Vid::LoadDefaultShaders();
+        //glUseProgram(Vid::main_shader_program);
+        //Vid::SetUniformBool("doInterface", GL_TRUE);
+
+        // Unset last texture so new texture is accepted.
+        Vid::SetTexture(0, 0);
+
+        Area<S32> rect = Area<S32>(0, 0, Vid::viewRect.Width(), Vid::viewRect.Height());
+        Vid::RenderRectangle(rect, 0xffffffff, tail, RS_BLEND_DEF, Vid::sortDEBUG0, 0, 0, true);
+        Vid::RenderFlush();
+
+        //U8* pixels = new U8[tail->Width() * tail->Height() * 4];
+        //Utils::Memset(pixels, 128, tail->Width() * tail->Height() * 4);
+        //glDrawPixels(tail->Width(), tail->Height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        //delete[]pixels;
+        //glDrawPixels(tail->Width(), tail->Height(), GL_RGBA, GL_UNSIGNED_BYTE, tail->DecodedMem());
+
+        Vid::SetAlphaState(prevAlpha);
+
+        //
+        // JONATHAN
+
         tail->BinkNextFrame();
 
         return;
@@ -301,9 +338,9 @@ void Bitmap::Manager::MovieFirstStart()
 
 void Bitmap::Manager::Rename(Bitmap& bitmap, const char* name)
 {
-    ASSERT(bitmap.treeNode.InUse())
+    ASSERT(bitmap.treeNode.InUse());
 
-        tree.Unlink(&bitmap);
+    tree.Unlink(&bitmap);
     U32 key = Crc::CalcStr(name);
     tree.Add(key, &bitmap);
 
@@ -454,12 +491,12 @@ U32 Bitmap::Manager::ReportList(const char* name, Bool frame, U32 typeMask, Bool
     }
     CON_DIAG(("%4ld %-31s: %9ld", count, "textures", mem));
     LOG_DIAG(("%4ld %-31s: %9ld", count, "textures", mem));
-    CON_DIAG((" %4ld %-26s: %9ld", syscount, "sys", sys))
-        LOG_DIAG((" %4ld %-26s: %9ld", syscount, "sys", sys))
-        CON_DIAG((" %4ld %-26s: %9ld", vidcount, "vid", vid))
-        LOG_DIAG((" %4ld %-26s: %9ld", vidcount, "vid", vid))
+    CON_DIAG((" %4ld %-26s: %9ld", syscount, "sys", sys));
+    LOG_DIAG((" %4ld %-26s: %9ld", syscount, "sys", sys));
+    CON_DIAG((" %4ld %-26s: %9ld", vidcount, "vid", vid));
+    LOG_DIAG((" %4ld %-26s: %9ld", vidcount, "vid", vid));
 
-        return mem;
+    return mem;
 }
 //----------------------------------------------------------------------------
 

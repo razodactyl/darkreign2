@@ -48,6 +48,7 @@ struct Pix
     {
         ClearData();
     }
+
     void ClearData()
     {
         Utils::Memset(this, 0, sizeof(*this));
@@ -64,6 +65,7 @@ struct Pix
 
         Setup();
     }
+
     void Setup();
     void SetName();
 
@@ -74,11 +76,13 @@ struct Pix
             + ((b >> bScaleInv) << bShift)
             + ((a >> aScaleInv) << aShift);
     }
+
     U32 MakeRGBA(Color color) const
     {
         return MakeRGBA(color.r, color.g, color.b, color.a);
     }
 };
+
 //-----------------------------------------------------------------------------
 //
 //
@@ -87,7 +91,9 @@ class Palette
 {
 public:
     enum { LUTREDBITS = 5 };
+
     enum { LUTGREENBITS = 5 };
+
     enum { LUTBLUEBITS = 5 };
 
 protected:
@@ -107,22 +113,19 @@ public:
     void GenerateCLUT();
 
     inline PALETTEENTRY& operator[](int n);
-    inline operator PALETTEENTRY* ();
+    inline operator PALETTEENTRY*();
 
     inline U8* CLUT() const;
 };
+
 //----------------------------------------------------------------------------
 typedef DDSURFACEDESC2 SurfaceDescDD;
 
-#ifdef DODX6
-typedef LPDIRECTDRAWTEXTURE2 TextureHandle;
-typedef LPDIRECTDRAWSURFACE4 SurfaceDD;
-#else
 typedef LPDIRECTDRAWSURFACE7 TextureHandle;
 typedef LPDIRECTDRAWSURFACE7 SurfaceDD;
-#endif
 
-enum BitmapType {
+enum BitmapType
+{
     bitmapNORMAL = 0x00,
     bitmapSURFACE = 0x01,
     bitmapTEXTURE = 0x02,
@@ -152,31 +155,32 @@ protected:
     friend Manager;
     friend class Material;
 
-    NBinTree<Bitmap>::Node treeNode; // node for Bitmap::Manager::tree
-    NList<Bitmap>::Node binkNode; // node for Bitmap::Manager::binkList
+    NBinTree<Bitmap>::Node treeNode;    // node for Bitmap::Manager::tree
+    NList<Bitmap>::Node binkNode;       // node for Bitmap::Manager::binkList
 
-    Bitmap* nextMap; // animating textures
+    Bitmap* nextMap;                    // animating textures
 
-    S32 bmpWidth; // in pixels
-    S32 bmpHeight; // in pixels
-    S32 bmpDepth; // color depth in bits per pixel
-    S32 bmpPitch; // distance between horizontal lines in bytes
-    S32 bmpBytePP; // bytes per pixel
+    S32 bmpWidth;                       // in pixels
+    S32 bmpHeight;                      // in pixels
+    S32 bmpDepth;                       // color depth in bits per pixel
+    S32 bmpPitch;                       // distance between horizontal lines in bytes
+    S32 bmpBytePP;                      // bytes per pixel
 
-    F32 invWidth; // 1/bmpWidth
-    F32 invHeight; // 1/bmpHeight
+    F32 invWidth;                       // 1/bmpWidth
+    F32 invHeight;                      // 1/bmpHeight
 
     F32 uvShiftWidth;
     F32 uvShiftHeight;
 
-    void* bmpData; // pointer to surface data
+    void* bmpData;                      // pointer to surface data
+    U8* bmpMem;                         // pointer to decoded bitmap pixels
 
-    ClipRect bmpClip; // default clipping region
+    ClipRect bmpClip;                   // default clipping region
 
-    RGBQUAD colorKey; // blitting color key
+    RGBQUAD colorKey;                   // blitting color key
 
-    static Palette* sysPal; // pointer to system wide color palette
-    static U8* sysCLUT; // pointer to a system wide color lookup table
+    static Palette* sysPal;             // pointer to system wide color palette
+    static U8* sysCLUT;                 // pointer to a system wide color lookup table
 
     Pix* pixForm;
 
@@ -238,8 +242,8 @@ public:
 
 protected:
     // Function pointers typedefs
-    typedef U32(STDCALL Bitmap::* PFNMAKERGBA)(U32, U32, U32, U32) const;
-    typedef U32(STDCALL Bitmap::* PFNGETPIXEL)(S32, S32) const;
+    typedef U32 (STDCALL Bitmap::* PFNMAKERGBA)(U32, U32, U32, U32) const;
+    typedef U32 (STDCALL Bitmap::* PFNGETPIXEL)(S32, S32) const;
     typedef void (STDCALL Bitmap::* PFNPUTPIXEL)(S32, S32, U32, const ClipRect*);
     typedef void* (STDCALL Bitmap::* PFNPUTPIXELP)(void*, U32);
     typedef void (STDCALL Bitmap::* PFNHLINE)(S32, S32, S32, U32, const ClipRect*);
@@ -325,34 +329,38 @@ public:
     Bool LoadBink(const char* _name, Bool exclusive = FALSE, Bool stretch = FALSE);
     void ReleaseBink();
 
-    inline HBINK GetBink()
+    HBINK GetBink()
     {
         return bink;
     }
-    inline Bool BinkDone()
+
+    Bool BinkDone()
     {
         return status.binkDone;
     }
 
     // set checkAnim and checkBink flags
     //
-    virtual void SetName(const char* name);
+    void SetName(const char* name) override;
 
     // animating textures
     //
-    inline Bitmap* GetNext()
+    Bitmap* GetNext()
     {
         return nextMap;
     }
-    inline void SetNext(Bitmap* map)
+
+    void SetNext(Bitmap* map)
     {
         nextMap = map;
     }
-    inline Bool IsAnimating()
+
+    Bool IsAnimating()
     {
         return nextMap != this ? TRUE : FALSE;
     }
-    inline Bool IsTranslucent()
+
+    Bool IsTranslucent()
     {
         return status.translucent;
     }
@@ -396,60 +404,69 @@ public:
     U32 MemSize() const;
     U32 GetMem() const;
 
-    inline U32 GetType() const
+    U32 GetType() const
     {
         return type;
     }
-    inline const SurfaceDescDD& GetDesc() const
+
+    const SurfaceDescDD& GetDesc() const
     {
         return desc;
     }
-    inline SurfaceDD GetSurface() const
-    {
-        return surface;
-    }
-    inline TextureHandle GetTexture() const
+
+    SurfaceDD GetSurface() const
     {
         return surface;
     }
 
-    inline const Status& GetStatus() const
+    TextureHandle GetTexture() const
+    {
+        return surface;
+    }
+
+    const Status& GetStatus() const
     {
         return status;
     }
-    inline U32 GetMipCount() const
+
+    U32 GetMipCount() const
     {
         return mipMapCount;
     }
-    inline const ClipRect& GetClipRect() const
+
+    const ClipRect& GetClipRect() const
     {
         return bmpClip;
     }
 
-    inline U32 GetAnimFrame() const
+    U32 GetAnimFrame() const
     {
         return animFrame;
     }
-    inline Bool IsPrimary() const
+
+    Bool IsPrimary() const
     {
         return animFrame == 0;
     }
 
-    Bool ReLoad(const char* filename = NULL);
+    Bool ReLoad(const char* filename = nullptr);
     Bool LoadVideo(); // load texture into video memory
 
-    Bool ReadBMP(const char* filename, Pix* pixelFormat = NULL);
+    Bool ReadBMP(const char* filename, Pix* pixelFormat = nullptr);
     Bool WriteBMP(const char* filename, Bool keepTrying = FALSE);
 
-    Bool ReadTGA(const char* filename, Pix* pixelFormat = NULL);
+    Bool ReadTGA(const char* filename, Pix* pixelFormat = nullptr);
     Bool WriteTGA(const char* filename, Bool keepTrying = FALSE);
 
-    Bool ReadPIC(const char* filename, Pix* pixelFormat = NULL);
+    Bool ReadPIC(const char* filename, Pix* pixelFormat = nullptr);
 
-    Bool Read(const char* filename, Pix* pixelFormat = NULL);
+    Bool Read(const char* filename, Pix* pixelFormat = nullptr);
     void CreateMipMaps();
 
+    // JONATHAN
     unsigned int GlTextureID() const { return glTextureId; }
+    U8* DecodedMem() const { return bmpMem; }
+    void DecodeToMem();
 
     S32 Width() const { return bmpWidth; }
     S32 Height() const { return bmpHeight; }
@@ -463,11 +480,12 @@ public:
 
     inline void* Data(S32 x, S32 y) const;
 
-    void CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 width, S32 height, Color* srcKey = NULL, Color fill = 0x00000000, Color alpha = 255);
+    void CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 width, S32 height, Color* srcKey = nullptr,
+                  Color fill = 0x00000000, Color alpha = 255);
     void CopyBits(Bitmap& dst);
 
     // Graphics primitives
-    void Clear(Color color, Area<S32>* rect = NULL);
+    void Clear(Color color, Area<S32>* rect = nullptr);
 
     inline void SetClipRect(S32 x0, S32 y0, S32 x1, S32 y1);
 
@@ -528,19 +546,23 @@ public:
 
     public:
         static void SetTexture(Bitmap* texture, U32 stage = 0);
+
         static void ClearTextures()
         {
-            curTextureList[0] = NULL;
+            curTextureList[0] = nullptr;
             textureCount = 1;
         }
+
         static const Bitmap* GetTexture(U32 stage = 0)
         {
-            return stage < textureCount ? curTextureList[stage] : NULL;
+            return stage < textureCount ? curTextureList[stage] : nullptr;
         }
+
         static U32 GetTextureCount()
         {
             return textureCount;
         }
+
         static Bool Init()
         {
             tree.SetNodeMember(&Bitmap::treeNode);
@@ -550,10 +572,12 @@ public:
 
             return TRUE;
         }
+
         static void Done()
         {
             DisposeAll();
         }
+
         static void ResetData()
         {
             ClearTextures();
@@ -564,17 +588,21 @@ public:
         static void OnModeChange();
 
         static void GetLost();
-        static inline void Restore()
+
+        static void Restore()
         {
             OnModeChange();
         }
 
-        static void Setup(U32 reduce, Bitmap& bitmap, const char* name, U32 mips = 0, U32 type = bitmapTEXTURE, U32 stage = 0, Bool transparent = FALSE);
-        static Bitmap* Create(U32 reduce, const char* name, U32 mips = 0, U32 type = bitmapTEXTURE, U32 stage = 0, Bool transparent = FALSE);
+        static void Setup(U32 reduce, Bitmap& bitmap, const char* name, U32 mips = 0, U32 type = bitmapTEXTURE,
+                          U32 stage = 0, Bool transparent = FALSE);
+        static Bitmap* Create(U32 reduce, const char* name, U32 mips = 0, U32 type = bitmapTEXTURE, U32 stage = 0,
+                              Bool transparent = FALSE);
         // static void Delete( Bitmap &bitmap);
 
         static Bitmap* Find(const char* name);
-        static Bitmap* FindCreate(U32 reduce, const char* name, U32 mips = 0, U32 type = bitmapTEXTURE, U32 stage = 0, Bool transparent = FALSE, Bool log = TRUE);
+        static Bitmap* FindCreate(U32 reduce, const char* name, U32 mips = 0, U32 type = bitmapTEXTURE, U32 stage = 0,
+                                  Bool transparent = FALSE, Bool log = TRUE);
 
         static void Rename(Bitmap& bitmap, const char* name);
 
@@ -588,12 +616,14 @@ public:
 
         static U32 Report();
         static U32 Report(Bitmap& bmap);
-        static U32 ReportList(const char* name = NULL, Bool frame = FALSE, U32 typeMask = bitmapTEXTURE, Bool binkOnly = FALSE);
+        static U32 ReportList(const char* name = nullptr, Bool frame = FALSE, U32 typeMask = bitmapTEXTURE,
+                              Bool binkOnly = FALSE);
 
         static U32 ReportManagement();
         static U32 ReportUsage();
     };
 };
+
 //----------------------------------------------------------------------------
 
 //
@@ -601,8 +631,9 @@ public:
 //
 void* Bitmap::Data(S32 x, S32 y) const
 {
-    return ((U8*)bmpData) + (y * bmpPitch) + (x * bmpBytePP);
+    return static_cast<U8*>(bmpData) + (y * bmpPitch) + (x * bmpBytePP);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::SetClipRect(S32 x0, S32 y0, S32 x1, S32 y1)
@@ -616,6 +647,7 @@ void Bitmap::SetClipRect(S32 x0, S32 y0, S32 x1, S32 y1)
 
     bmpClip.Set(x0, y0, x1, y1);
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -638,18 +670,21 @@ U32 _fastcall Bitmap::MakeRGBInline555(U32 r, U32 g, U32 b) const
 {
     return ((r << 7) & 0x00007C00) + ((g << 2) & 0x000003E0) + (b >> 3);
 }
+
 //----------------------------------------------------------------------------
 
 U32 _fastcall Bitmap::MakeRGBInline565(U32 r, U32 g, U32 b) const
 {
     return ((r << 8) & 0x0000F800) + ((g << 3) & 0x000007E0) + (b >> 3);
 }
+
 //----------------------------------------------------------------------------
 
 U32 _fastcall Bitmap::MakeRGBInline888(U32 r, U32 g, U32 b) const
 {
     return (r << 16) + (g << 8) + b;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -659,108 +694,126 @@ void Bitmap::PutPixel(S32 x, S32 y, U32 color)
 {
     (this->*fnPutPixel)(x, y, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::PutPixel(S32 x, S32 y, U32 color, const ClipRect* clip)
 {
     (this->*fnPutPixel)(x, y, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 void* Bitmap::PutPixelP(void* data, U32 color)
 {
     return (this->*fnPutPixelP)(data, color);
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bitmap::GetPixel(S32 x, S32 y) const
 {
     return (this->*fnGetPixel)(x, y);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::HLine(S32 x0, S32 x1, S32 y, U32 color)
 {
     (this->*fnHLine)(x0, x1, y, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::HLine(S32 x0, S32 x1, S32 y, U32 color, const ClipRect* clip)
 {
     (this->*fnHLine)(x0, x1, y, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::VLine(S32 x, S32 y0, S32 y1, U32 color)
 {
     (this->*fnVLine)(x, y0, y1, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::VLine(S32 x, S32 y0, S32 y1, U32 color, const ClipRect* clip)
 {
     (this->*fnVLine)(x, y0, y1, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Line(S32 x0, S32 y0, S32 x1, S32 y1, U32 color)
 {
     (this->*fnLine)(x0, y0, x1, y1, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Line(S32 x0, S32 y0, S32 x1, S32 y1, U32 color, const ClipRect* clip)
 {
     (this->*fnLine)(x0, y0, x1, y1, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Rectangle(S32 x0, S32 y0, S32 x1, S32 y1, U32 color)
 {
     (this->*fnRect)(x0, y0, x1, y1, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Rectangle(S32 x0, S32 y0, S32 x1, S32 y1, U32 color, const ClipRect* clip)
 {
     (this->*fnRect)(x0, y0, x1, y1, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::FillRectangle(S32 x0, S32 y0, S32 x1, S32 y1, U32 color)
 {
     (this->*fnFillRect)(x0, y0, x1, y1, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::FillRectangle(S32 x0, S32 y0, S32 x1, S32 y1, U32 color, const ClipRect* clip)
 {
     (this->*fnFillRect)(x0, y0, x1, y1, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Circle(S32 x, S32 y, S32 radius, U32 color)
 {
     (this->*fnCircle)(x, y, radius, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Circle(S32 x, S32 y, S32 radius, U32 color, const ClipRect* clip)
 {
     (this->*fnCircle)(x, y, radius, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::FillCircle(S32 x, S32 y, S32 radius, U32 color)
 {
     (this->*fnFillCircle)(x, y, radius, color, &bmpClip);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::FillCircle(S32 x, S32 y, S32 radius, U32 color, const ClipRect* clip)
 {
     (this->*fnFillCircle)(x, y, radius, color, clip);
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -770,18 +823,21 @@ inline PALETTEENTRY& Palette::operator[](int n)
 {
     return pal[n];
 }
+
 //----------------------------------------------------------------------------
 
-inline Palette::operator PALETTEENTRY* ()
+inline Palette::operator PALETTEENTRY*()
 {
     return pal;
 }
+
 //----------------------------------------------------------------------------
 
 inline U8* Palette::CLUT() const
 {
     return clut;
 }
+
 //----------------------------------------------------------------------------
 
 #endif

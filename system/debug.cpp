@@ -1294,9 +1294,9 @@ namespace Debug
             arguments[3] = (U32)line;
             arguments[4] = (U32)timestamp;
 
-            LOG_ERR(("Attempting to RaiseException \"%s\" msg:%s module:%s line:%d", arguments[0], msg, module, line))
+            LOG_ERR(("Attempting to RaiseException \"%s\" msg:%s module:%s line:%d", arguments[0], msg, module, line));
 
-                RaiseException(DEBUG_EXCEPTION_ERROR, EXCEPTION_NONCONTINUABLE_EXCEPTION, 6, arguments);
+            RaiseException(DEBUG_EXCEPTION_ERROR, EXCEPTION_NONCONTINUABLE_EXCEPTION, 6, arguments);
 
 
             //

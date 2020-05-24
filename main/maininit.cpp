@@ -33,8 +33,6 @@
 #include "sound.h"
 
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Namespace Main
@@ -438,11 +436,13 @@ namespace Main
             (GetSystemMetrics(SM_CYSCREEN) - 600) >> 1,
             800 + ew, 600 + eh, SWP_NOREDRAW);
 
+        Vid::doStatus.ogl = true;
+        Vid::Init_PreGL(window);
         Vid::Init(instance, mainHwnd);
-        Vid::Init2(window);
 
         ShowWindow(mainHwnd, SW_SHOWNORMAL);
 
+        // JONATHAN: Seems to set the style of the window.
         Vid::PostShowWindow();
 
         // Initialise input AFTER the window has been activated
@@ -501,8 +501,8 @@ namespace Main
         // Profiling
         if (profileOn)
         {
-            LOG_DIAG(("Someone did some profiling, so lets report it"))
-                Profile::Report();
+            LOG_DIAG(("Someone did some profiling, so lets report it"));
+            Profile::Report();
             Profile::Done();
         }
 
@@ -767,9 +767,9 @@ namespace Main
     //
     static void BeginFrame()
     {
-        PERF_S("BeginFrame")
+        PERF_S("BeginFrame");
 
-            frameNumber++;
+        frameNumber++;
 
         // get the current time
         U32 theTime;
@@ -823,19 +823,19 @@ namespace Main
         //
         Bitmap::Manager::MovieNextFrame();
 
-        PERF_E("BeginFrame")
+        PERF_E("BeginFrame");
 
-            // Redraw performance stats
-            PERF_REDRAW
+        // Redraw performance stats
+        PERF_REDRAW;
 
-            if (
-                GetAsyncKeyState(VK_CONTROL) < 0 &&
-                GetAsyncKeyState(VK_LWIN) < 0 &&
-                GetAsyncKeyState('Z') < 0)
-            {
-                // Redraw init system
-                Debug::Memory::DisplayMono();
-            }
+        if (
+            GetAsyncKeyState(VK_CONTROL) < 0 &&
+            GetAsyncKeyState(VK_LWIN) < 0 &&
+            GetAsyncKeyState('Z') < 0)
+        {
+            // Redraw init system
+            Debug::Memory::DisplayMono();
+        }
 
     }
 
@@ -874,12 +874,12 @@ namespace Main
                 DispatchMessage(&msg);
             }
 
-            DEBUG_STATIC_GUARD_BLOCK_CHECK
+            DEBUG_STATIC_GUARD_BLOCK_CHECK;
 
 #ifdef DEVELOPMENT
 
-                // Ping the watchdog
-                Debug::Watchdog::Poll();
+            // Ping the watchdog
+            Debug::Watchdog::Poll();
 
 #endif
 
@@ -898,6 +898,8 @@ namespace Main
             }
 
         } while (!quitGame && !glfwWindowShouldClose(window));
+
+        glfwTerminate();
 
         // Reset the current run-code
         runCodes.Reset();
@@ -935,9 +937,9 @@ namespace Main
     //
     void RegisterGUIHook(const char* name, GUIHookProc* proc)
     {
-        ASSERT(proc)
+        ASSERT(proc);
 
-            U32 crc = Crc::CalcStr(name);
+        U32 crc = Crc::CalcStr(name);
         GUIHookList* list;
 
         // Create a new list if its not already there
@@ -964,15 +966,15 @@ namespace Main
     //
     void UnregisterGUIHook(const char* name, GUIHookProc* proc)
     {
-        ASSERT(proc)
+        ASSERT(proc);
 
-            U32 crc = Crc::CalcStr(name);
+        U32 crc = Crc::CalcStr(name);
         GUIHookList* list;
 
         // Find the list
         if ((list = guiHooks.Find(crc)) == NULL)
         {
-            ERR_FATAL(("Hook list for [%s] is empty", name))
+            ERR_FATAL(("Hook list for [%s] is empty", name));
         }
         else
         {
@@ -980,12 +982,12 @@ namespace Main
 
             if ((p = list->items.Find(U32(proc))) == NULL)
             {
-                ERR_FATAL(("Hook for [%s] not found", name))
+                ERR_FATAL(("Hook for [%s] not found", name));
             }
             else
             {
-                ASSERT(p->proc == proc)
-                    list->items.Dispose(p);
+                ASSERT(p->proc == proc);
+                list->items.Dispose(p);
             }
         }
     }
@@ -1000,7 +1002,7 @@ namespace Main
 
         if (cmdLineHooks.Exists(hookCrc))
         {
-            ERR_FATAL(("Command line hook '%s' already in use", hook))
+            ERR_FATAL(("Command line hook '%s' already in use", hook));
         }
 
         cmdLineHooks.Add(hookCrc, new CmdLineHookItem(proc));
@@ -1173,6 +1175,19 @@ namespace Main
         return (DefWindowProc(hwnd, msg, wParam, lParam));
     }
 
+    void window_focus_callback(GLFWwindow* window, int focused)
+    {
+        Input::OnActivate(1);
+        if (focused)
+        {
+            int a = focused;
+        }
+        else
+        {
+            // The window lost input focus
+            int a = focused;
+        }
+    }
 
     //
     // CreateGameWindow
@@ -1181,20 +1196,21 @@ namespace Main
     //
     HWND CreateGameWindow(const char* title)
     {
-        // GLFW
-        // JONATHAN
+        // JONATHAN - GLFW
         glfwWindowHint(GLFW_SAMPLES, 4);
-        //glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 
-        window = glfwCreateWindow(800, 600, title, NULL, NULL);
+        window = glfwCreateWindow(MAININIT_SCREEN_WIDTH, MAININIT_SCREEN_HEIGHT, title, NULL, NULL);
         if (!window) {
             glfwTerminate();
             return NULL;
         }
 
         glfwMakeContextCurrent(window);
-
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glewInit();
+
+        glfwSetWindowFocusCallback(window, window_focus_callback);
+        return glfwGetWin32Window(window);
 
         /////////////////////////
 
@@ -1248,6 +1264,11 @@ namespace Main
     HWND GetGameWindow()
     {
         return (mainHwnd);
+    }
+
+    GLFWwindow* GetGameWindowGLFW()
+    {
+        return (window);
     }
 
 

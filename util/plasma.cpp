@@ -36,20 +36,20 @@
 //
 Plasma::Plasma(S16 x, S16 y) : xSize(x), ySize(y), adjust(0), random(0)
 {
-  // Find the smallest power of 2 sqaure which covers the entire map
-  S16 side        = PMAX(xSize, ySize);
-  F64 dSide       = F64(side);
-  F64 dBase       = log(dSide) / log(2);
-  base            = S16(dBase + 1);
-  dBase           = F64(base);
-  F64 dSquareSide = pow(2, dBase);
-  squareSide      = (S32) dSquareSide;
+    // Find the smallest power of 2 sqaure which covers the entire map
+    S16 side = PMAX(xSize, ySize);
+    F64 dSide = F64(side);
+    F64 dBase = log(dSide) / log(2);
+    base = S16(dBase + 1);
+    dBase = F64(base);
+    F64 dSquareSide = pow(2, dBase);
+    squareSide = (S32)dSquareSide;
 
-  // Allocate the plasma buffer
-  data = new U8[squareSide * squareSide];
+    // Allocate the plasma buffer
+    data = new U8[squareSide * squareSide];
 
-	// Clear the data
-  Utils::Memset(data, 0x00, squareSide * squareSide);
+    // Clear the data
+    Utils::Memset(data, 0x00, squareSide * squareSide);
 }
 
 
@@ -58,7 +58,7 @@ Plasma::Plasma(S16 x, S16 y) : xSize(x), ySize(y), adjust(0), random(0)
 //
 Plasma::~Plasma()
 {
-  delete data;
+    delete data;
 }
 
 
@@ -69,14 +69,14 @@ Plasma::~Plasma()
 //
 U8 Plasma::SinglePoint(S16 x1, S16 y1, S16 x2, S16 y2, S16 x, S16 y)
 {
-	U8 i;
+    U8 i;
 
-	i = (U8) ((PLASMA_DATA(x1, y1) + PLASMA_DATA(x2, y2)) >> 1);
-  i = (U8) (i + ((PLASMA_RANDOM & adjust) - (adjust >> 1)));
-	i = (U8) ((i < PLASMA_MIN) ? PLASMA_MIN : i);
-	i = (U8) ((i > PLASMA_MAX) ? PLASMA_MAX : i);
-	PLASMA_DATA(x, y) = i;
-	return (i);
+    i = (U8)((PLASMA_DATA(x1, y1) + PLASMA_DATA(x2, y2)) >> 1);
+    i = (U8)(i + ((PLASMA_RANDOM & adjust) - (adjust >> 1)));
+    i = (U8)((i < PLASMA_MIN) ? PLASMA_MIN : i);
+    i = (U8)((i > PLASMA_MAX) ? PLASMA_MAX : i);
+    PLASMA_DATA(x, y) = i;
+    return (i);
 }
 
 
@@ -87,37 +87,37 @@ U8 Plasma::SinglePoint(S16 x1, S16 y1, S16 x2, S16 y2, S16 x, S16 y)
 //
 void Plasma::Recurse(S16 x1, S16 y1, S16 x2, S16 y2)
 {
-	S16 x, y;
-	S16 i, j;
+    S16 x, y;
+    S16 i, j;
 
-	x = (S16) ((x1 + x2) >> 1);
-	y = (S16) ((y1 + y2) >> 1);
+    x = (S16)((x1 + x2) >> 1);
+    y = (S16)((y1 + y2) >> 1);
 
-	if ((x1 == x) && (y1 == y))
-		return;
+    if ((x1 == x) && (y1 == y))
+        return;
 
-	i = PLASMA_DATA(x, y1);
-	j = (i == 0x00)	? SinglePoint(x1, y1, x2, y1, x, y1) : i;
-	i = PLASMA_DATA(x1, y);
-	j = (S16) (j + ((i == 0x00) ? SinglePoint(x1, y1, x1, y2, x1, y) : i));
-	i = PLASMA_DATA(x, y2);
-	j = (S16) (j + ((i == 0x00) ? (S16) SinglePoint(x1, y2, x2, y2, x, y2) : i));
-	i = PLASMA_DATA(x2, y);
-	j = (S16) (j + ((i == 0x00) ? (S16) SinglePoint(x2, y1, x2, y2, x2, y) : i));
+    i = PLASMA_DATA(x, y1);
+    j = (i == 0x00) ? SinglePoint(x1, y1, x2, y1, x, y1) : i;
+    i = PLASMA_DATA(x1, y);
+    j = (S16)(j + ((i == 0x00) ? SinglePoint(x1, y1, x1, y2, x1, y) : i));
+    i = PLASMA_DATA(x, y2);
+    j = (S16)(j + ((i == 0x00) ? (S16)SinglePoint(x1, y2, x2, y2, x, y2) : i));
+    i = PLASMA_DATA(x2, y);
+    j = (S16)(j + ((i == 0x00) ? (S16)SinglePoint(x2, y1, x2, y2, x2, y) : i));
 
-	j >>= 2;
-	PLASMA_DATA(x, y) = (U8) j;
+    j >>= 2;
+    PLASMA_DATA(x, y) = (U8)j;
 
-  U16 savedAdjust = adjust;
+    U16 savedAdjust = adjust;
 
-	adjust >>= 1;
+    adjust >>= 1;
 
-	Recurse(x1, y1, x, y);
-	Recurse(x, y1, x2, y);
-	Recurse(x, y, x2, y2);
-	Recurse(x1, y, x, y2);
+    Recurse(x1, y1, x, y);
+    Recurse(x, y1, x2, y);
+    Recurse(x, y, x2, y2);
+    Recurse(x1, y, x, y2);
 
-	adjust = savedAdjust;
+    adjust = savedAdjust;
 }
 
 
@@ -128,21 +128,20 @@ void Plasma::Recurse(S16 x1, S16 y1, S16 x2, S16 y2)
 //
 void Plasma::Generate(U8 grain, S32 seed)
 {
-  // Save requested seed
-  random = seed;
+    // Save requested seed
+    random = seed;
 
-	// Clear the data area
-  Utils::Memset(data, 0x00, squareSide * squareSide);
+    // Clear the data area
+    Utils::Memset(data, 0x00, squareSide * squareSide);
 
-  // Set the corner points
-  PLASMA_DATA(0, 0) = (U8) ((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
-  PLASMA_DATA(squareSide - 1, 0) = (U8) ((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
-  PLASMA_DATA(0, squareSide - 1) = (U8) ((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
-  PLASMA_DATA(squareSide - 1, squareSide - 1) = (U8) ((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
+    // Set the corner points
+    PLASMA_DATA(0, 0) = (U8)((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
+    PLASMA_DATA(squareSide - 1, 0) = (U8)((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
+    PLASMA_DATA(0, squareSide - 1) = (U8)((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
+    PLASMA_DATA(squareSide - 1, squareSide - 1) = (U8)((PLASMA_RANDOM % (PLASMA_MAX - PLASMA_MIN)) + PLASMA_MIN);
 
-	adjust = (U16) (0xFFFF >> grain);
+    adjust = (U16)(0xFFFF >> grain);
 
-  // Generate plasma
-	Recurse(0, 0, (short) (squareSide - 1), (short) (squareSide - 1));
+    // Generate plasma
+    Recurse(0, 0, (short)(squareSide - 1), (short)(squareSide - 1));
 }
-

@@ -280,10 +280,12 @@ namespace Vid
         dxError = d3d->CreateDevice(CurD3D().guid, front, &device);
         if (dxError)
         {
-            CurDD().wincap = CurDD().windowed = FALSE;
+            // Can't create D3D7 at 4k, will fail to allow windowed mode.
+            //CurDD().wincap = CurDD().windowed = FALSE;
             return TRUE; // assume it does 3d in a mode other than the current desktop mode
-      //			LOG_DXERR( ("CheckD3D: d3d->CreateDevice()") );
-      //      return FALSE;
+
+            // LOG_DXERR(("CheckD3D: d3d->CreateDevice()"));
+            // return FALSE;
         }
 
         dxError = device->EnumTextureFormats(PixelReportCallback, NULL);
@@ -505,7 +507,7 @@ namespace Vid
             dxError = DirectDrawEnumerateEx(
                 EnumDDCallback, NULL,
                 DDENUM_ATTACHEDSECONDARYDEVICES
-                //        DDENUM_DETACHEDSECONDARYDEVICES |
+                //| DDENUM_DETACHEDSECONDARYDEVICES
                 | DDENUM_NONDISPLAYDEVICES
             );
 
@@ -1083,7 +1085,7 @@ namespace Vid
         Vid::caps.maxTexWid = desc.dwMaxTextureWidth;
         Vid::caps.maxTexHgt = desc.dwMaxTextureHeight;
 
-        // hardware feature tweeking via file based config
+        // hardware feature tweaking via file based config
         Config::Setup();
     }
     //----------------------------------------------------------------------------

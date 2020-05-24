@@ -66,27 +66,27 @@ namespace BitmapPrim
 
             begin:
             mov     ecx, [len]
-            mov     edi, [data]
+                mov     edi, [data]
 
-            mov     eax, [color]
-            cmp     ecx, 4
+                mov     eax, [color]
+                cmp     ecx, 4
 
-            jle     short end
-            mov     edx, [color]
+                jle     short end
+                mov     edx, [color]
 
-            mov     ah, al
-            mov     dh, dl
+                mov     ah, al
+                mov     dh, dl
 
-            shl     eax, 16
-            and edi, 3
+                shl     eax, 16
+                and edi, 3
 
-            add     eax, edx
-            mov     ebx, 4
+                add     eax, edx
+                mov     ebx, 4
 
-            mov     edx, [data]
-            sub     ebx, edi
+                mov     edx, [data]
+                sub     ebx, edi
 
-            jmp[dword ptr hl8jt0 + edi * 4]
+                jmp[dword ptr hl8jt0 + edi * 4]
 
                 start0:
             mov[edx + 3], al
@@ -210,11 +210,11 @@ namespace BitmapPrim
 
             vloop :
             mov     byte ptr[edi], al
-            add     edi, edx
-            dec     ecx
-            jnz     vloop
+                add     edi, edx
+                dec     ecx
+                jnz     vloop
 
-            done :
+                done :
         }
 #else
 
@@ -249,11 +249,11 @@ namespace BitmapPrim
 
             vloop :
             mov     word ptr[edi], ax
-            add     edi, edx
-            dec     ecx
-            jnz     vloop
+                add     edi, edx
+                dec     ecx
+                jnz     vloop
 
-            done :
+                done :
         }
 
 #else
@@ -305,11 +305,11 @@ namespace BitmapPrim
 
             vloop :
             mov     dword ptr[edi], eax
-            add     edi, edx
-            dec     ecx
-            jnz     vloop
+                add     edi, edx
+                dec     ecx
+                jnz     vloop
 
-            done :
+                done :
         }
 
 #else
@@ -650,11 +650,11 @@ NAKED void STDCALL Bitmap::PutPixel8(S32, S32, U32, const ClipRect*)
 
         _bail:
         pop     edi; 1
-        pop     esi; 0
-        pop     ebx; 1
-        pop     ebp; 0
+            pop     esi; 0
+            pop     ebx; 1
+            pop     ebp; 0
 
-        ret     20
+            ret     20
     }
 }
 #else

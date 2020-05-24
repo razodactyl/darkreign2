@@ -453,9 +453,9 @@ namespace Terrain
         F32 meterZ1 = origin.z + rady + OffsetZ();
 
         // get corners of the grid covered by the sprite
-      // get grid larger than sprite; adjust texture coords
-      // round down to grid point
-      // round up to grid point
+        // get grid larger than sprite; adjust texture coords
+        // round down to grid point
+        // round up to grid point
 
         U16 cw = Utils::FP::SetRoundDownMode();
         S32 cellX0 = Utils::FastFtoL(meterX0 * CellPerMeter());

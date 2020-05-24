@@ -96,18 +96,23 @@ namespace Vid
         {
             flag |= D3DZB_USEW;
         }
+
+        if (Vid::isStatus.ogl)
+        {
+            // JONATHAN
+            if (doZBuffer) {
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(renderState.status.wbuffer ? GL_GEQUAL : GL_LEQUAL);
+            }
+            else {
+                glDisable(GL_DEPTH_TEST);
+            }
+            return retValue;
+        }
+
         dxError = device->SetRenderState(D3DRENDERSTATE_ZENABLE, flag);
         dxError = device->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, doZBuffer);
         LOG_DXERR(("SetZBufferState"));
-
-        // JONATHAN
-        if (doZBuffer) {
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(renderState.status.wbuffer ? GL_GEQUAL : GL_LEQUAL);
-        }
-        else {
-            glDisable(GL_DEPTH_TEST);
-        }
 
         return retValue;
     }
@@ -115,19 +120,18 @@ namespace Vid
 
     Bool SetZWriteState(Bool doZWrite)
     {
+        if (Vid::isStatus.ogl)
+        {
+            // JONATHAN
+            glDepthMask(doZWrite ? GL_TRUE : GL_FALSE);
+            return !doZWrite;
+        }
+
         U32 retValue;
         device->GetRenderState(D3DRENDERSTATE_ZWRITEENABLE, &retValue);
 
         dxError = device->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, doZWrite);
         LOG_DXERR(("SetZWriteState"));
-
-        // JONATHAN
-        if (doZWrite) {
-            glDepthMask(GL_TRUE);
-        }
-        else {
-            glDepthMask(GL_FALSE);
-        }
 
         return (Bool)retValue;
     }
@@ -135,8 +139,10 @@ namespace Vid
 
     void SetCullStateD3D(Bool doCull)
     {
-        dxError = device->SetRenderState(D3DRENDERSTATE_CULLMODE, doCull ? D3DCULL_CCW : D3DCULL_NONE);
-        LOG_DXERR(("SetCullState"));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetRenderState(D3DRENDERSTATE_CULLMODE, doCull ? D3DCULL_CCW : D3DCULL_NONE);
+            LOG_DXERR(("SetCullState"));
+        }
     }
     //----------------------------------------------------------------------------
 
@@ -146,17 +152,11 @@ namespace Vid
 
         renderState.status.alpha = doAlpha;
 
+        // JONATHAN
+        if (Vid::isStatus.ogl) { doAlpha ? glEnable(GL_BLEND) : glDisable(GL_BLEND); return retValue; }
+
         dxError = device->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, doAlpha);
         LOG_DXERR(("device->SetRenderState"));
-
-        // JONATHAN
-        if (doAlpha) {
-            glEnable(GL_BLEND);
-
-        }
-        else {
-            glDisable(GL_BLEND);
-        }
 
         return retValue;
     }
@@ -169,34 +169,39 @@ namespace Vid
 
         flags &= RS_SRC_MASK;
         renderState.renderFlags |= flags;
+
+        // JONATHAN
+        if (Vid::isStatus.ogl) {
+            // JONATHAN
+            GLint blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha;
+
+            glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
+            glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
+            glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
+            glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
+
+            //flags <<= RS_SRC_SHIFT;
+            if (flags == RS_SRC_ZERO) { blend_src_rgb = blend_src_alpha = GL_ZERO; }
+            if (flags == RS_SRC_ONE) { blend_src_rgb = blend_src_alpha = GL_ONE; }
+            if (flags == RS_SRC_SRCCOLOR) { blend_src_rgb = blend_src_alpha = GL_SRC_COLOR; }
+            if (flags == RS_SRC_INVSRCCOLOR) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_SRC_COLOR; }
+            if (flags == RS_SRC_SRCALPHA) { blend_src_rgb = blend_src_alpha = GL_SRC_ALPHA; }
+            if (flags == RS_SRC_INVSRCALPHA) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_SRC_ALPHA; }
+            if (flags == RS_SRC_DSTCOLOR) { blend_src_rgb = blend_src_alpha = GL_DST_COLOR; }
+            if (flags == RS_SRC_INVDSTCOLOR) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_DST_COLOR; }
+            if (flags == RS_SRC_DSTALPHA) { blend_src_rgb = blend_src_alpha = GL_DST_ALPHA; }
+            if (flags == RS_SRC_INVDSTALPHA) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_DST_ALPHA; }
+            if (flags == RS_SRC_SRCALPHASAT) { blend_src_rgb = blend_src_alpha = GL_SRC_ALPHA_SATURATE; }
+
+            //glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
+            glBlendFunc(blend_src_alpha, blend_dst_alpha);
+            return lastflags;
+        }
+
         flags >>= RS_SRC_SHIFT;
 
         dxError = device->SetRenderState(D3DRENDERSTATE_SRCBLEND, flags);
         LOG_DXERR(("SetSrcBlendState"));
-
-        // JONATHAN
-        GLint blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha;
-
-        glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
-        glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
-        glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
-        glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
-
-        flags <<= RS_SRC_SHIFT;
-        if (flags == RS_SRC_ZERO) { blend_src_rgb = blend_src_alpha = GL_ZERO; }
-        if (flags == RS_SRC_ONE) { blend_src_rgb = blend_src_alpha = GL_ONE; }
-        if (flags == RS_SRC_SRCCOLOR) { blend_src_rgb = blend_src_alpha = GL_SRC_COLOR; }
-        if (flags == RS_SRC_INVSRCCOLOR) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_SRC_COLOR; }
-        if (flags == RS_SRC_SRCALPHA) { blend_src_rgb = blend_src_alpha = GL_SRC_ALPHA; }
-        if (flags == RS_SRC_INVSRCALPHA) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_SRC_ALPHA; }
-        if (flags == RS_SRC_DSTCOLOR) { blend_src_rgb = blend_src_alpha = GL_DST_COLOR; }
-        if (flags == RS_SRC_INVDSTCOLOR) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_DST_COLOR; }
-        if (flags == RS_SRC_DSTALPHA) { blend_src_rgb = blend_src_alpha = GL_DST_ALPHA; }
-        if (flags == RS_SRC_INVDSTALPHA) { blend_src_rgb = blend_src_alpha = GL_ONE_MINUS_DST_ALPHA; }
-        if (flags == RS_SRC_SRCALPHASAT) { blend_src_rgb = blend_src_alpha = GL_SRC_ALPHA_SATURATE; }
-
-        //glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
-        glBlendFunc(blend_src_alpha, blend_dst_alpha);
 
         return lastflags;
     }
@@ -209,43 +214,61 @@ namespace Vid
 
         flags &= RS_DST_MASK;
         renderState.renderFlags |= flags;
+
+        // JONATHAN
+        if (Vid::isStatus.ogl)
+        {
+            GLint blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha;
+
+            glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
+            glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
+            glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
+            glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
+
+            //flags <<= RS_DST_SHIFT;
+            if (flags == RS_DST_ZERO) { blend_dst_rgb = blend_dst_alpha = GL_ZERO; }
+            if (flags == RS_DST_ONE) { blend_dst_rgb = blend_dst_alpha = GL_ONE; }
+            if (flags == RS_DST_SRCCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_SRC_COLOR; }
+            if (flags == RS_DST_INVSRCCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_SRC_COLOR; }
+            if (flags == RS_DST_SRCALPHA) { blend_dst_rgb = blend_dst_alpha = GL_SRC_ALPHA; }
+            if (flags == RS_DST_INVSRCALPHA) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_SRC_ALPHA; }
+            if (flags == RS_DST_DSTCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_DST_COLOR; }
+            if (flags == RS_DST_INVDSTCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_DST_COLOR; }
+            if (flags == RS_DST_DSTALPHA) { blend_dst_rgb = blend_dst_alpha = GL_DST_ALPHA; }
+            if (flags == RS_DST_INVDSTALPHA) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_DST_ALPHA; }
+            if (flags == RS_DST_SRCALPHASAT) { blend_dst_rgb = blend_dst_alpha = GL_SRC_ALPHA_SATURATE; }
+
+            //glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
+            glBlendFunc(blend_src_alpha, blend_dst_alpha);
+            return lastflags;
+        }
+
         flags >>= RS_DST_SHIFT;
 
         dxError = device->SetRenderState(D3DRENDERSTATE_DESTBLEND, flags);
         LOG_DXERR(("SetDstBlendState"));
 
-        GLint blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha;
-
-        glGetIntegerv(GL_BLEND_SRC_RGB, &blend_src_rgb);
-        glGetIntegerv(GL_BLEND_DST_RGB, &blend_dst_rgb);
-        glGetIntegerv(GL_BLEND_SRC_ALPHA, &blend_src_alpha);
-        glGetIntegerv(GL_BLEND_DST_ALPHA, &blend_dst_alpha);
-
-        flags <<= RS_DST_SHIFT;
-        if (flags == RS_DST_ZERO) { blend_dst_rgb = blend_dst_alpha = GL_ZERO; }
-        if (flags == RS_DST_ONE) { blend_dst_rgb = blend_dst_alpha = GL_ONE; }
-        if (flags == RS_DST_SRCCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_SRC_COLOR; }
-        if (flags == RS_DST_INVSRCCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_SRC_COLOR; }
-        if (flags == RS_DST_SRCALPHA) { blend_dst_rgb = blend_dst_alpha = GL_SRC_ALPHA; }
-        if (flags == RS_DST_INVSRCALPHA) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_SRC_ALPHA; }
-        if (flags == RS_DST_DSTCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_DST_COLOR; }
-        if (flags == RS_DST_INVDSTCOLOR) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_DST_COLOR; }
-        if (flags == RS_DST_DSTALPHA) { blend_dst_rgb = blend_dst_alpha = GL_DST_ALPHA; }
-        if (flags == RS_DST_INVDSTALPHA) { blend_dst_rgb = blend_dst_alpha = GL_ONE_MINUS_DST_ALPHA; }
-        if (flags == RS_DST_SRCALPHASAT) { blend_dst_rgb = blend_dst_alpha = GL_SRC_ALPHA_SATURATE; }
-
-        //glBlendFuncSeparate(blend_src_rgb, blend_dst_rgb, blend_src_alpha, blend_dst_alpha);
-        glBlendFunc(blend_src_alpha, blend_dst_alpha);
-
         return lastflags;
     }
     //-----------------------------------------------------------------------------
-    //----------------------------------------------------------------------------
 
     U32 SetTexWrapState(U32 flags, U32 stage) // = 0
     {
         U32 lastFlags = renderState.renderFlags & RS_ADD_MASK;
         renderState.renderFlags &= ~RS_ADD_MASK;
+
+        // JONATHAN
+        if (Vid::isStatus.ogl) {
+            if ((flags & RS_ADD_MASK) == RS_TEXCLAMP) {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            }
+            else if ((flags & RS_ADD_MASK) == RS_TEXMIRROR) {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+            }
+            return lastFlags;
+        }
 
         U32 flag = flags & RS_ADD_MASK;
         renderState.renderFlags |= flag;
@@ -254,273 +277,297 @@ namespace Vid
 
         LOG_DXERR(("SetTexWrapState"));
 
-        // JONATHAN
-        if ((flags & RS_ADD_MASK) == RS_TEXCLAMP) {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        }
-        if ((flags & RS_ADD_MASK) == RS_TEXMIRROR) {
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-        }
-
         return lastFlags;
     }
     //----------------------------------------------------------------------------
 
     void TexDecal(U32 stage)
     {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_BLENDTEXTUREALPHA);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_BLENDTEXTUREALPHA);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            //      dxError = device->SetTextureStageState( stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE); 
-            //      dxError = device->SetTextureStageState( stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+                //      dxError = device->SetTextureStageState( stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE); 
+                //      dxError = device->SetTextureStageState( stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
     }
     //----------------------------------------------------------------------------
 
     void TexDecalSimple(U32 stage)
     {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
     }
     //----------------------------------------------------------------------------
 
     void TexDecalAlpha(U32 stage)
     {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_BLENDTEXTUREALPHA);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_BLENDTEXTUREALPHA);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
     }
     //----------------------------------------------------------------------------
 
     void TexModulate(U32 stage)
     {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
     }
     //----------------------------------------------------------------------------
 
     void TexModulateAlpha(U32 stage)
     {
-        if (stage)
-        {
-            // texture colour -> colour arg 1
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            // multiply
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            // colour of previous stage
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                // texture colour -> colour arg 1
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                // multiply
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+                // colour of previous stage
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            // alpha
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            // multiply
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            // colour of previous stage.
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+                // alpha
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                // multiply
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                // colour of previous stage.
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            // texture colour -> colour arg 1
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            // multiply
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            // diffuse colour
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                // texture colour -> colour arg 1
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                // multiply
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+                // diffuse colour
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            // alpha
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            // multiply
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            // diffuse colour
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+                // alpha
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                // multiply
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                // diffuse colour
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
     }
     //----------------------------------------------------------------------------
 
     void TexModulateAlpha2x(U32 stage)
     {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE2X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE2X);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE2X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE2X);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
     }
     //----------------------------------------------------------------------------
 
     void TexModulateAlpha4x(U32 stage)
     {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE4X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE4X);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE4X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE4X);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
     }
     //----------------------------------------------------------------------------
 
     void TexAddAlpha(U32 stage)
     {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_ADD);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
+        if (!Vid::isStatus.ogl) {
+            if (stage)
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_ADD);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
 
-            LOG_DXERR(("SetTextureStageState: color"));
+                LOG_DXERR(("SetTextureStageState: color"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
 
-            LOG_DXERR(("SetTextureStageState: alpha"));
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
+            else
+            {
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+
+                LOG_DXERR(("SetTextureStageState: color"));
+
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+                dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+
+                LOG_DXERR(("SetTextureStageState: alpha"));
+            }
         }
-        else
-        {
+    }
+    //----------------------------------------------------------------------------
+
+    void TexAddSignedAlpha(U32 stage)
+    {
+        if (!Vid::isStatus.ogl) {
             dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
+            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_ADDSIGNED);
             dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
 
             LOG_DXERR(("SetTextureStageState: color"));
@@ -531,22 +578,6 @@ namespace Vid
 
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
-    }
-    //----------------------------------------------------------------------------
-
-    void TexAddSignedAlpha(U32 stage)
-    {
-        dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_ADDSIGNED);
-        dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-        LOG_DXERR(("SetTextureStageState: color"));
-
-        dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-        dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-        LOG_DXERR(("SetTextureStageState: alpha"));
     }
     //----------------------------------------------------------------------------
 
@@ -604,6 +635,13 @@ namespace Vid
 
     void ValidateBlends()
     {
+        if (Vid::isStatus.ogl)
+        {
+            CON_DIAG(("`ValidateBlends` called for OpenGL."));
+            LOG_DIAG(("`ValidateBlends` called for OpenGL."));
+            return;
+        }
+
         Bitmap* tex = Bitmap::Manager::FindCreate(Bitmap::reduceNONE, "library\\engine\\engine_pandemic.pic");
 
         // reset
@@ -751,11 +789,13 @@ namespace Vid
 
     void SetTextureFactor(Color color)
     {
-        dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR, D3DRGBA(color.r, color.g, color.b, color.a));
-        LOG_DXERR(("SetTextureFactor"));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR, D3DRGBA(color.r, color.g, color.b, color.a));
+            LOG_DXERR(("SetTextureFactor"));
+        }
 
         // JONATHAN
-        GLint loc = glGetUniformLocation(shader_programme, "v4textureFactor");
+        GLint loc = glGetUniformLocation(main_shader_program, "v4textureFactor");
         glUniform4f(loc, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
     }
     //-----------------------------------------------------------------------------
@@ -817,7 +857,9 @@ namespace Vid
         viewDesc.dvMinZ = 0.0f;
         viewDesc.dvMaxZ = 1.0f;
 
-        device->SetViewport(&viewDesc);
+        if (!Vid::isStatus.ogl) {
+            device->SetViewport(&viewDesc);
+        }
 
         // JONATHAN
         glViewport(viewDesc.dwX, viewDesc.dwY, viewDesc.dwWidth, viewDesc.dwHeight);
@@ -944,8 +986,11 @@ namespace Vid
     {
         if (Vid::isStatus.initialized)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGCOLOR, fogColor);
-            LOG_DXERR(("SetFogColorD3D"));
+            // It's a D3D function, shouldn't be getting called but either way...
+            if (!Vid::isStatus.ogl) {
+                dxError = device->SetRenderState(D3DRENDERSTATE_FOGCOLOR, fogColor);
+                LOG_DXERR(("SetFogColorD3D"));
+            }
         }
     }
     //----------------------------------------------------------------------------
@@ -990,7 +1035,7 @@ namespace Vid
 
               //  else if (caps.fogVertex)
             */
-    }
+        }
 #endif
     }
     //----------------------------------------------------------------------------
@@ -1007,7 +1052,7 @@ namespace Vid
             LOG_DXERR(("SetAmbientColor"));
 #endif
             // JONATHAN
-            GLint loc = glGetUniformLocation(shader_programme, "v4ambient");
+            GLint loc = glGetUniformLocation(main_shader_program, "v4ambient");
             glUniform4f(loc, r, g, b, 1.0f);
         }
     }
@@ -1028,30 +1073,35 @@ namespace Vid
             return FALSE;
         }
 
-        // basic features
-        //
-        dxError = device->SetRenderState(D3DRENDERSTATE_ZFUNC, renderState.status.wbuffer ? D3DCMP_GREATEREQUAL : D3DCMP_LESSEQUAL);
-        LOG_DXERR(("device->SetRenderState"));
+        if (!Vid::isStatus.ogl) {
 
-        // JONATHAN
-        glDepthFunc(renderState.status.wbuffer ? GL_GEQUAL : GL_LEQUAL);
+            // basic features
+            //
+            dxError = device->SetRenderState(D3DRENDERSTATE_ZFUNC, renderState.status.wbuffer ? D3DCMP_GREATEREQUAL : D3DCMP_LESSEQUAL);
+            LOG_DXERR(("device->SetRenderState"));
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-        //	dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
-        //  dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAREF, (DWORD)0);
-        LOG_DXERR(("device->SetRenderState: transparent"));
+            dxError = device->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
+            //	dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
+            //  dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAREF, (DWORD)0);
+            LOG_DXERR(("device->SetRenderState: transparent"));
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, 1);
-        LOG_DXERR(("device->SetRenderState( CLIPPING)"));
+            dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, 1);
+            LOG_DXERR(("device->SetRenderState( CLIPPING)"));
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_EXTENTS, 0);
-        LOG_DXERR(("device->SetRenderState( EXTENTS)"));
+            dxError = device->SetRenderState(D3DRENDERSTATE_EXTENTS, 0);
+            LOG_DXERR(("device->SetRenderState( EXTENTS)"));
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, 0);
-        LOG_DXERR(("device->SetRenderState( LIGHTING)"));
+            dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, 0);
+            LOG_DXERR(("device->SetRenderState( LIGHTING)"));
 
-        //    dxError = device->SetRenderState( D3DRENDERSTATE_COLORVERTEX, renderState.status.dxTL );
-        //    LOG_DXERR( ("device->SetRenderState( COLORVERTEX)") );
+            //    dxError = device->SetRenderState( D3DRENDERSTATE_COLORVERTEX, renderState.status.dxTL );
+            //    LOG_DXERR( ("device->SetRenderState( COLORVERTEX)") );
+        }
+
+        if (Vid::isStatus.ogl) {
+            // JONATHAN
+            glDepthFunc(renderState.status.wbuffer ? GL_GEQUAL : GL_LEQUAL);
+        }
 
         // vid system features
         //
@@ -1067,8 +1117,10 @@ namespace Vid
         SetDitherState(renderState.status.dither);
         SetAlphaState(renderState.status.alpha);
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);  // dx fog
-        LOG_DXERR(("device->SetRenderState"));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);  // dx fog
+            LOG_DXERR(("device->SetRenderState"));
+        }
 
         SetAntiAliasStateI(renderState.status.antiAlias);
         SetEdgeAntiAliasStateI(renderState.status.antiAliasEdge);
@@ -1112,6 +1164,9 @@ namespace Vid
     {
         bucket.Flush(FALSE);
         tranbucket.Flush(FALSE);
+
+        // JONATHAN
+        if (Vid::isStatus.ogl) { texMemPerFrame = 0; return DD_OK; }
 
         dxError = device->BeginScene();
         if (dxError)
@@ -1187,15 +1242,11 @@ namespace Vid
                 DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_ADD);
         }
 
+        // JONATHAN
+        if (Vid::isStatus.ogl) { return DD_OK; }
 
         dxError = device->EndScene();
         LOG_DXERR(("EndScene: device->EndScene"));
-
-        // JONATHAN
-        GLint loc = glGetUniformLocation(shader_programme, "doTexture");
-        glUniform1i(loc, GL_FALSE);
-        loc = glGetUniformLocation(shader_programme, "doTexture2");
-        glUniform1i(loc, GL_FALSE);
 
         return dxError == DD_OK;
     }
@@ -1213,6 +1264,8 @@ namespace Vid
 
             const MaterialDescD3D& matD3D = mat->GetDesc();
 
+            if (Vid::isStatus.ogl) { return; }
+
             dxError = device->SetMaterial((MaterialDescD3D*)&matD3D);
             LOG_DXERR(("device->SetMaterial"));
 
@@ -1222,16 +1275,6 @@ namespace Vid
 
     Bool SetTexture(Bitmap* tex, U32 stage, U32 blend) // = 0, = RS_BLEND_DEF
     {
-        /*GLint isTranslucentLoc = glGetUniformLocation(Vid::shader_programme, "isTranslucent");
-        GLint hasTexture0Loc = glGetUniformLocation(Vid::shader_programme, "hasTexture0");
-        if (tex && tex->GetStatus().translucent) {
-            glUniform1i(isTranslucentLoc, GL_TRUE);
-        }
-
-        if (!tex) {
-            glUniform1i(hasTexture0Loc, GL_FALSE);
-        }*/
-
         if (Vid::renderState.status.texture)
         {
             if (Bitmap::Manager::GetTexture(stage) != tex)
@@ -1240,55 +1283,18 @@ namespace Vid
 
                 TextureHandle texH = tex ? tex->GetTexture() : NULL;
 
-                dxError = device->SetTexture(stage, texH);
-                LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
+                if (!Vid::isStatus.ogl) {
+                    dxError = device->SetTexture(stage, texH);
+                    LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
+                }
 
                 // JONATHAN
                 if (tex && tex->Lock()) {
-                    S32 width, height, pitch, depth;
-                    width = tex->Width();
-                    height = tex->Height();
-                    pitch = tex->Pitch();
-                    depth = tex->Depth();
-                    Pix* fmt = new Pix(*tex->PixelFormat());
-
-                    U8* srcP = (U8*)tex->Data(); // Pointer to first byte of bitmap data.
-                    U8* bmpMem = new U8[width * height * 4];
-                    memset(bmpMem, 0, width * height * 4);
-                    U8* bmpMemP = bmpMem;
-
-                    int bmpBytePP = pitch / width;
-                    ASSERT(bmpBytePP % 2 == 0);
-                    for (int y = 0; y < height; y++) {
-                        for (int x = 0; x < pitch; x += bmpBytePP) {
-                            U32 pixel = 0;
-                            memcpy(&pixel, srcP, bmpBytePP);
-
-                            U8 r, g, b, a;
-                            r = (U8)(((pixel & fmt->rMask) >> fmt->rShift) << (fmt->rScaleInv));
-                            g = (U8)(((pixel & fmt->gMask) >> fmt->gShift) << (fmt->gScaleInv));
-                            b = (U8)(((pixel & fmt->bMask) >> fmt->bShift) << (fmt->bScaleInv));
-                            a = (U8)(((pixel & fmt->aMask) >> fmt->aShift) << (fmt->aScaleInv));
-
-                            *(bmpMemP + 0) = r;
-                            *(bmpMemP + 1) = g;
-                            *(bmpMemP + 2) = b;
-                            *(bmpMemP + 3) = a;
-
-                            srcP += bmpBytePP;
-                            bmpMemP += 4;
-                        }
-                    }
-
                     glActiveTexture(GL_TEXTURE0 + stage);
                     glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
-
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmpMem);
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
                     glGenerateMipmap(GL_TEXTURE_2D);
-
                     tex->UnLock();
-                    delete[]bmpMem;
-                    delete fmt;
                 }
                 else {
                     // Bind to empty texture.
@@ -1299,30 +1305,41 @@ namespace Vid
 
             if (tex)
             {
+                if (Vid::Status().ogl) { SetTexBlendState(blend, stage); }
                 SetTexWrapState(blend, stage);
             }
         }
-        ASSERT(device);
+
+        if (!Vid::isStatus.ogl) { ASSERT(device); }
 
         if (stage > 0)
         {
-            // turn off texturing above this stage
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+            if (!Vid::isStatus.ogl) {
+                // turn off texturing above this stage
+                dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+                dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
 
-            LOG_DXERR(("SetTextureStageState()"));
+                LOG_DXERR(("SetTextureStageState()"));
+            }
 
             renderState.status.texStaged = TRUE;
         }
         else if (renderState.status.texStaged)
         {
-            // turn off texturing above this stage
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+            if (!Vid::isStatus.ogl) {
+                // turn off texturing above this stage
+                dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+                dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
 
-            LOG_DXERR(("SetTextureStageState()"));
+                LOG_DXERR(("SetTextureStageState()"));
+            }
 
             renderState.status.texStaged = FALSE;
+        }
+
+        if (Vid::isStatus.ogl)
+        {
+            return DD_OK;
         }
 
         return dxError == DD_OK;
@@ -1333,61 +1350,24 @@ namespace Vid
     {
         TextureHandle texH = tex ? tex->GetTexture() : NULL;
 
-        dxError = device->SetTexture(stage, texH);
-        LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetTexture(stage, texH);
+            LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
+        }
 
-        //// JONATHAN
-        //if (tex && ((Bitmap*)tex)->Lock()) {
-        //    S32 width, height, pitch, depth;
-        //    width = tex->Width();
-        //    height = tex->Height();
-        //    pitch = tex->Pitch();
-        //    depth = tex->Depth();
-        //    Pix* fmt = new Pix(*tex->PixelFormat());
-
-        //    U8* srcP = (U8*)tex->Data(); // Pointer to first byte of bitmap data.
-        //    U8* bmpMem = new U8[width * height * 4];
-        //    memset(bmpMem, 0, width * height * 4);
-        //    U8* bmpMemP = bmpMem;
-
-        //    int bmpBytePP = pitch / width;
-        //    ASSERT(bmpBytePP % 2 == 0);
-        //    for (int y = 0; y < height; y++) {
-        //        for (int x = 0; x < pitch; x += bmpBytePP) {
-        //            U32 pixel = 0;
-        //            memcpy(&pixel, srcP, bmpBytePP);
-
-        //            U8 r, g, b, a;
-        //            r = (U8)(((pixel & fmt->rMask) >> fmt->rShift) << (fmt->rScaleInv));
-        //            g = (U8)(((pixel & fmt->gMask) >> fmt->gShift) << (fmt->gScaleInv));
-        //            b = (U8)(((pixel & fmt->bMask) >> fmt->bShift) << (fmt->bScaleInv));
-        //            a = (U8)(((pixel & fmt->aMask) >> fmt->aShift) << (fmt->aScaleInv));
-
-        //            *(bmpMemP + 0) = r;
-        //            *(bmpMemP + 1) = g;
-        //            *(bmpMemP + 2) = b;
-        //            *(bmpMemP + 3) = a;
-
-        //            srcP += bmpBytePP;
-        //            bmpMemP += 4;
-        //        }
-        //    }
-
-        //    glActiveTexture(GL_TEXTURE0 + stage);
-        //    glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
-
-        //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bmpMem);
-        //    glGenerateMipmap(GL_TEXTURE_2D);
-
-        //    ((Bitmap*)tex)->UnLock();
-        //    delete[]bmpMem;
-        //    delete fmt;
-        //}
-        //else {
-        //    // Bind to empty texture.
-        //    glActiveTexture(GL_TEXTURE0);
-        //    glBindTexture(GL_TEXTURE_2D, 0);
-        //}
+        // JONATHAN
+        if (tex && ((Bitmap*)tex)->Lock()) {
+            glActiveTexture(GL_TEXTURE0 + stage);
+            glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
+            glGenerateMipmap(GL_TEXTURE_2D);
+            ((Bitmap*)tex)->UnLock();
+        }
+        else {
+            // Bind to empty texture.
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
 
         if (tex)
         {
@@ -1395,11 +1375,15 @@ namespace Vid
             SetTexWrapState(blend, stage);
         }
 
-        // turn off texturing above this stage
-        dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-        dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+        if (!Vid::isStatus.ogl) {
+            // turn off texturing above this stage
+            dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
+            dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
 
-        LOG_DXERR(("SetTextureStageState()"));
+            LOG_DXERR(("SetTextureStageState()"));
+        }
+
+        if (Vid::isStatus.ogl) { return DD_OK; }
 
         return dxError == DD_OK;
     }
@@ -1426,6 +1410,101 @@ namespace Vid
         }
     }
     //----------------------------------------------------------------------------
+
+    void SetUniformBool(const char* name, bool value) {
+        int loc = glGetUniformLocation(main_shader_program, name);
+        glUniform1f(loc, value);
+    }
+
+    void SetUniformInt(const char* name, GLuint value) {
+        int loc = glGetUniformLocation(main_shader_program, name);
+        glUniform1i(loc, value);
+    }
+
+    void SetBlendUniforms(U32 blend, bool doStaged = false) {
+        int doBlendMaskLoc = glGetUniformLocation(main_shader_program, "doBlendMask");
+        int doBuckyMaskLoc = glGetUniformLocation(main_shader_program, "doBuckyMask");
+        int doBlendGlowLoc = glGetUniformLocation(main_shader_program, "doBlendGlow");
+        int doBlendAddLoc = glGetUniformLocation(main_shader_program, "doBlendAdd");
+        int doBlendModulateLoc = glGetUniformLocation(main_shader_program, "doBlendModulate");
+        int doBlendModulate2Loc = glGetUniformLocation(main_shader_program, "doBlendModulate2");
+        int doBlendModulate4Loc = glGetUniformLocation(main_shader_program, "doBlendModulate4");
+        int doBlendDecalLoc = glGetUniformLocation(main_shader_program, "doBlendDecal");
+        int doBlendDecalAlphaLoc = glGetUniformLocation(main_shader_program, "doBlendDecalAlpha");
+        int doBlendDefaultLoc = glGetUniformLocation(main_shader_program, "doBlendDefault");
+
+        /*
+        RS_TEX_DECAL = (1 << RS_TEX_SHIFT),
+        RS_TEX_DECALALPHA = (2 << RS_TEX_SHIFT),
+        RS_TEX_MODULATE = (3 << RS_TEX_SHIFT),
+        RS_TEX_MODULATE2X = (4 << RS_TEX_SHIFT),
+        RS_TEX_MODULATE4X = (5 << RS_TEX_SHIFT),
+        RS_TEX_MODULATEALPHA = (6 << RS_TEX_SHIFT),
+        RS_TEX_ADD = (7 << RS_TEX_SHIFT),
+
+        RS_BLEND_MASK = RS_SRC_MASK | RS_DST_MASK | RS_TEX_MASK,
+        RS_BUCKY_MASK = RS_SRC_MASK | RS_DST_MASK | RS_TEX_MASK | RS_ADD_MASK | RS_FLAG_MASK,
+        RS_BLEND_GLOW = RS_SRC_SRCALPHA | RS_DST_ONE | RS_TEX_MODULATE2X,
+        RS_BLEND_ADD = RS_SRC_SRCALPHA | RS_DST_ONE | RS_TEX_ADD,
+        RS_BLEND_MODULATE = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE,
+        RS_BLEND_MODULATE2X = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE2X,
+        RS_BLEND_MODULATE4X = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE4X,
+        RS_BLEND_DECAL = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_DECAL,
+        RS_BLEND_DECALALPHA = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_DECALALPHA,
+        RS_BLEND_DEF = RS_BLEND_MODULATE,
+        */
+
+        // JONATHAN
+        if ((blend & RS_BLEND_DECALALPHA) == RS_BLEND_DECALALPHA) {
+            glUniform1f(doBlendDecalAlphaLoc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_MASK) == RS_BLEND_MASK) {
+            glUniform1f(doBlendMaskLoc, GL_TRUE);
+        }
+        if ((blend & RS_BUCKY_MASK) == RS_BUCKY_MASK) {
+            glUniform1f(doBuckyMaskLoc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_GLOW) == RS_BLEND_GLOW) {
+            glUniform1f(doBlendGlowLoc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_ADD) == RS_BLEND_ADD) {
+            glUniform1f(doBlendAddLoc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_MODULATE) == RS_BLEND_MODULATE) {
+            glUniform1f(doBlendModulateLoc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_MODULATE2X) == RS_BLEND_MODULATE2X) {
+            glUniform1f(doBlendModulate2Loc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_MODULATE4X) == RS_BLEND_MODULATE4X) {
+            glUniform1f(doBlendModulate4Loc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_DECAL) == RS_BLEND_DECAL) {
+            glUniform1f(doBlendDecalLoc, GL_TRUE);
+        }
+        if ((blend & RS_BLEND_DEF) == RS_BLEND_DEF) {
+            glUniform1f(doBlendDefaultLoc, GL_TRUE);
+        }
+
+        if (doStaged) {
+            glUniform1f(glGetUniformLocation(main_shader_program, "doStaged"), GL_TRUE);
+        }
+    }
+
+    void ClearBlendUniforms() {
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendMask"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBuckyMask"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendGlow"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendAdd"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendModulate"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendModulate2"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendModulate4"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendDecal"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendDecalAlpha"), GL_FALSE);
+        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendDefault"), GL_FALSE);
+
+        glUniform1f(glGetUniformLocation(main_shader_program, "doStaged"), GL_FALSE);
+    }
 
     // stage 0 MUST be set first!!!
     //
@@ -1486,23 +1565,28 @@ namespace Vid
         }
 #endif
 
+        // JONATHAN
+        DWORD blends = flags & RS_BLEND_MASK;
+
         SetSrcBlendState(flags);
         SetDstBlendState(flags);
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, (DWORD)(flags & DP_DONOTCLIP ? 0 : 1));
-        LOG_DXERR(("device->SetRenderState( CLIPPING)"));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, (DWORD)(flags & DP_DONOTCLIP ? 0 : 1));
+            LOG_DXERR(("device->SetRenderState( CLIPPING)"));
 
-        flags &= DP_MASK;
-        //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
+            flags &= DP_MASK;
+            //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-        // do the d3d call
-        dxError = device->DrawPrimitive(
-            (D3DPRIMITIVETYPE)prim_type,
-            vert_type,
-            verts,
-            vert_count,
-            flags);
-        LOG_DXERR(("device->DrawPrimitive: trilist"));
+            // do the d3d call
+            dxError = device->DrawPrimitive(
+                (D3DPRIMITIVETYPE)prim_type,
+                vert_type,
+                verts,
+                vert_count,
+                flags);
+            LOG_DXERR(("device->DrawPrimitive: trilist"));
+        }
 
         if (vert_type == FVF_VERTEX) {
             return D3D_OK;
@@ -1558,12 +1642,12 @@ namespace Vid
             glVertexAttribPointer(specular_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
             glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
 
-            glUseProgram(shader_programme);
+            glUseProgram(main_shader_program);
 
-            int modelMatrixLocation = glGetUniformLocation(shader_programme, "mat_Model");
-            int viewMatrixLocation = glGetUniformLocation(shader_programme, "mat_View");
-            int projMatrixLocation = glGetUniformLocation(shader_programme, "mat_Proj");
-            int identMatrixLocation = glGetUniformLocation(shader_programme, "mat_Ident");
+            int modelMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Model");
+            int viewMatrixLocation = glGetUniformLocation(main_shader_program, "mat_View");
+            int projMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Proj");
+            int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
 
             MATRIX_STRUCT mm = CurCamera().WorldMatrix().Mat;
             float mat_Model[] = {
@@ -1601,7 +1685,9 @@ namespace Vid
             glUniformMatrix4fv(projMatrixLocation, 1, GL_FALSE, mat_Proj);
             glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
 
+            SetBlendUniforms(blends);
             glDrawArrays(GL_TRIANGLES, 0, vert_count);
+            ClearBlendUniforms();
 
             glDisableVertexAttribArray(position_attrib_index);
             glDisableVertexAttribArray(diffuse_attrib_index);
@@ -1610,6 +1696,8 @@ namespace Vid
         }
 
         indexCount += vert_count;
+
+        if (Vid::isStatus.ogl) { return D3D_OK; }
 
         return (dxError == D3D_OK);
     }
@@ -1723,8 +1811,13 @@ namespace Vid
         SetSrcBlendState(flags);
         SetDstBlendState(flags);
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, (DWORD)(flags & DP_DONOTCLIP ? 0 : 1));
-        LOG_DXERR(("device->SetRenderState( CLIPPING)"));
+        if (!Vid::isStatus.ogl) {
+            dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, (DWORD)(flags & DP_DONOTCLIP ? 0 : 1));
+            LOG_DXERR(("device->SetRenderState( CLIPPING)"));
+        }
+
+        // JONATHAN
+        DWORD blends = flags & RS_BLEND_MASK;
 
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
@@ -1754,28 +1847,29 @@ namespace Vid
         //    //      }
         //}
 
-
         if (renderState.status.texStaged)
         {
         }
 
-        // do the d3d call
-        dxError = device->DrawIndexedPrimitive(
-            (D3DPRIMITIVETYPE)prim_type,
-            vert_type,
-            verts,
-            vert_count,
-            (LPWORD)indices,
-            index_count,
-            flags);
+        if (!Vid::isStatus.ogl) {
+            // do the d3d call
+            dxError = device->DrawIndexedPrimitive(
+                (D3DPRIMITIVETYPE)prim_type,
+                vert_type,
+                verts,
+                vert_count,
+                (LPWORD)indices,
+                index_count,
+                flags);
 #ifdef DEVELOPMENT
-        if (dxError)
-        {
-            LOG_DXERR(("device->DrawIndexedPrimitive: trilist"));
-        }
+            if (dxError)
+            {
+                LOG_DXERR(("device->DrawIndexedPrimitive: trilist"));
+            }
 #else
-        LOG_DXERR(("device->DrawIndexedPrimitive: trilist"));
+            LOG_DXERR(("device->DrawIndexedPrimitive: trilist"));
 #endif
+        }
 
         if (vert_type == FVF_VERTEX) {
             return D3D_OK;
@@ -1838,7 +1932,7 @@ namespace Vid
             //    };
             //}
 
-            //glUseProgram(shader_programme);
+            //glUseProgram(main_shader_program);
 
             //glBindBuffer(GL_ARRAY_BUFFER, buffer);
             //glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, ((Vec3*)positions), GL_DYNAMIC_DRAW);
@@ -1866,7 +1960,7 @@ namespace Vid
             //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
             //glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
 
-            //int identMatrixLocation = glGetUniformLocation(shader_programme, "mat_Ident");
+            //int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
             //float mat_Ident[] = {
             //    1, 0, 0, 0,
             //    0, -1, 0, 0,
@@ -1888,11 +1982,6 @@ namespace Vid
             glBindBuffer(GL_ARRAY_BUFFER, buffer);
             glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, verts, GL_DYNAMIC_DRAW);
 
-            //for (DWORD i = 0; i < vert_count; i++) {
-            //    float* rhw = &((VertexTL*)verts + sizeof(VertexTL) * i)->rhw;
-            //    //*rhw = 1.0f;
-            //}
-
             int position_attrib_index = 0;
             int diffuse_attrib_index = 1;
             int specular_attrib_index = 2;
@@ -1911,17 +2000,17 @@ namespace Vid
             glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
             glVertexAttribPointer(diffuse_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
             glVertexAttribPointer(specular_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
-            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
+            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_TRUE, v3size, (GLvoid*)vertex_texcoord_offset);
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
 
-            glUseProgram(shader_programme);
+            glUseProgram(main_shader_program);
 
-            int modelMatrixLocation = glGetUniformLocation(shader_programme, "mat_Model");
-            int viewMatrixLocation = glGetUniformLocation(shader_programme, "mat_View");
-            int projMatrixLocation = glGetUniformLocation(shader_programme, "mat_Proj");
-            int identMatrixLocation = glGetUniformLocation(shader_programme, "mat_Ident");
+            int modelMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Model");
+            int viewMatrixLocation = glGetUniformLocation(main_shader_program, "mat_View");
+            int projMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Proj");
+            int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
 
             MATRIX_STRUCT mm = CurCamera().WorldMatrix().Mat;
             float mat_Model[] = {
@@ -1981,7 +2070,9 @@ namespace Vid
                 break;
             }
 
+            SetBlendUniforms(blends, renderState.status.texStaged);
             glDrawElements(primType, index_count, GL_UNSIGNED_SHORT, nullptr);
+            ClearBlendUniforms();
 
             glDisableVertexAttribArray(position_attrib_index);
             glDisableVertexAttribArray(diffuse_attrib_index);
@@ -1994,8 +2085,10 @@ namespace Vid
 
         indexCount += index_count;
 
+        if (Vid::isStatus.ogl) { return D3D_OK; }
+
         return (dxError == D3D_OK);
-}
+    }
     //----------------------------------------------------------------------------
 
 }

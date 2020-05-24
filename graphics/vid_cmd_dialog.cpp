@@ -276,10 +276,12 @@ namespace Vid
         Bool retValue = 0;
         if (Vid::isStatus.initialized)
         {
-            device->GetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, (DWORD*)&retValue);
+            if (!Vid::isStatus.ogl) {
+                device->GetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, (DWORD*)&retValue);
 
-            dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, on);
-            LOG_DXERR(("device->SetRenderState"));
+                dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, on);
+                LOG_DXERR(("device->SetRenderState"));
+            }
         }
         return retValue;
     }
@@ -290,10 +292,12 @@ namespace Vid
         Bool retValue = 0;
         if (Vid::isStatus.initialized)
         {
-            device->GetRenderState(D3DRENDERSTATE_COLORKEYENABLE, (DWORD*)&retValue);
+            if (!Vid::isStatus.ogl) {
+                device->GetRenderState(D3DRENDERSTATE_COLORKEYENABLE, (DWORD*)&retValue);
 
-            dxError = device->SetRenderState(D3DRENDERSTATE_COLORKEYENABLE, on);
-            LOG_DXERR(("device->SetRenderState( COLORKEYENABLE)"));
+                dxError = device->SetRenderState(D3DRENDERSTATE_COLORKEYENABLE, on);
+                LOG_DXERR(("device->SetRenderState( COLORKEYENABLE)"));
+            }
         }
         return retValue;
     }
@@ -306,8 +310,10 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_ANTIALIAS, on);
-            LOG_DXERR(("device->SetRenderState"));
+            if (!Vid::isStatus.ogl) {
+                dxError = device->SetRenderState(D3DRENDERSTATE_ANTIALIAS, on);
+                LOG_DXERR(("device->SetRenderState"));
+            }
         }
         return retValue;
     }
@@ -320,8 +326,10 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_EDGEANTIALIAS, on);
-            LOG_DXERR(("device->SetRenderState"));
+            if (!Vid::isStatus.ogl) {
+                dxError = device->SetRenderState(D3DRENDERSTATE_EDGEANTIALIAS, on);
+                LOG_DXERR(("device->SetRenderState"));
+            }
         }
         return retValue;
     }
@@ -393,15 +401,19 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            ASSERT(device);
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGENABLE, fogOn);
-            LOG_DXERR(("SetFogState"));
+            if (!Vid::isStatus.ogl) {
+                ASSERT(device);
+                dxError = device->SetRenderState(D3DRENDERSTATE_FOGENABLE, fogOn);
+                LOG_DXERR(("SetFogState"));
 
 #ifndef DODXLEANANDGRUMPY
-            //    dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLEMODE,  D3DFOG_NONE); 
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, fogOn ? D3DFOG_LINEAR : D3DFOG_NONE);
-            LOG_DXERR(("SetFogState"));
+                //    dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLEMODE,  D3DFOG_NONE); 
+                dxError = device->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, fogOn ? D3DFOG_LINEAR : D3DFOG_NONE);
+                LOG_DXERR(("SetFogState"));
 #endif
+            }
+
+            // TODO: JONATHAN IMPLEMENT FOG
         }
 
         return retValue;
@@ -427,11 +439,14 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            ASSERT(device);
-            dxError = device->SetRenderState(D3DRENDERSTATE_FILLMODE, flags == shadeWIRE ? D3DFILL_WIREFRAME : D3DFILL_SOLID);
-            LOG_DXERR(("FILLSTATE"));
-            dxError = device->SetRenderState(D3DRENDERSTATE_SHADEMODE, flags == shadeFLAT ? D3DSHADE_FLAT : D3DSHADE_GOURAUD);
-            LOG_DXERR(("SHADESTATE"));
+            if (!Vid::isStatus.ogl) {
+                ASSERT(device);
+                dxError = device->SetRenderState(D3DRENDERSTATE_FILLMODE, flags == shadeWIRE ? D3DFILL_WIREFRAME : D3DFILL_SOLID);
+                LOG_DXERR(("FILLSTATE"));
+                dxError = device->SetRenderState(D3DRENDERSTATE_SHADEMODE, flags == shadeFLAT ? D3DSHADE_FLAT : D3DSHADE_GOURAUD);
+                LOG_DXERR(("SHADESTATE"));
+            }
+            // TODO: JONATHAN Sprawler wireframe??
         }
 
         return retValue;
@@ -482,12 +497,14 @@ namespace Vid
 
             stage = 1;    // set both stages (DR2 only uses 2)
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_MAGFILTER, magFilter);
-            dxError = device->SetTextureStageState(stage, D3DTSS_MINFILTER, minFilter);
-            LOG_DXERR(("SetFilterState"));
+            if (!Vid::isStatus.ogl) {
+                dxError = device->SetTextureStageState(stage, D3DTSS_MAGFILTER, magFilter);
+                dxError = device->SetTextureStageState(stage, D3DTSS_MINFILTER, minFilter);
+                LOG_DXERR(("SetFilterState"));
 
-            dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
-            //        dxError = device->SetTextureStageState( stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
+                dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
+                //        dxError = device->SetTextureStageState( stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
+            }
 
             LOG_DXERR(("SetFilterState"));
 
@@ -495,32 +512,40 @@ namespace Vid
             {
                 if (Vid::isStatus.initialized)
                 {
-                    dxError = device->SetTextureStageState(stage, D3DTSS_MAGFILTER, magFilter);
-                    dxError = device->SetTextureStageState(stage, D3DTSS_MINFILTER, minFilter);
-                    LOG_DXERR(("SetFilterState"));
+                    if (!Vid::isStatus.ogl) {
+                        dxError = device->SetTextureStageState(stage, D3DTSS_MAGFILTER, magFilter);
+                        dxError = device->SetTextureStageState(stage, D3DTSS_MINFILTER, minFilter);
+                        LOG_DXERR(("SetFilterState"));
+                    }
 
                     if (!(renderState.status.filter & filterMIPMAP))
                     {
-                        dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
-                        //// JONATHAN
-                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+                        if (!Vid::isStatus.ogl) {
+                            dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
+                        }
+                        // JONATHAN
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 
                     }
                     else if (!(renderState.status.filter & filterMIPFILTER))
                     {
-                        dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
-                        //// JONATHAN
-                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+                        if (!Vid::isStatus.ogl) {
+                            dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
+                        }
+                        // JONATHAN
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_NEAREST);
 
                     }
                     else
                     {
-                        dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_LINEAR);
-                        //// JONATHAN
-                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                        if (!Vid::isStatus.ogl) {
+                            dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_LINEAR);
+                        }
+                        // JONATHAN
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
                     }
                     LOG_DXERR(("SetFilterState"));
                 }
@@ -579,16 +604,20 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            ASSERT(device);
-            dxError = device->SetRenderState(D3DRENDERSTATE_DITHERENABLE, (DWORD)doDither);
-            LOG_DXERR(("device->SetRenderState: dither"));
-
-            // JONATHAN
-            if (doDither) {
-                glEnable(GL_DITHER);
+            if (!Vid::isStatus.ogl) {
+                ASSERT(device);
+                dxError = device->SetRenderState(D3DRENDERSTATE_DITHERENABLE, (DWORD)doDither);
+                LOG_DXERR(("device->SetRenderState: dither"));
             }
-            else {
-                glDisable(GL_DITHER);
+
+            if (Vid::isStatus.ogl) {
+                // JONATHAN
+                if (doDither) {
+                    glEnable(GL_DITHER);
+                }
+                else {
+                    glDisable(GL_DITHER);
+                }
             }
         }
         return retValue;
@@ -629,14 +658,13 @@ namespace Vid
             // Bind to empty texture.
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, 0);
+
             // JONATHAN
-            GLint loc = glGetUniformLocation(Vid::shader_programme, "doTexture");
-            glUniform1i(loc, GL_FALSE);
+            Vid::SetUniformBool("doTexture", GL_FALSE);
         }
         else {
             // JONATHAN
-            GLint loc = glGetUniformLocation(Vid::shader_programme, "doTexture");
-            glUniform1i(loc, GL_TRUE);
+            Vid::SetUniformBool("doTexture", GL_TRUE);
         }
 
         return retValue;

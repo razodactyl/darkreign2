@@ -83,11 +83,12 @@ namespace Vid
             ctrl->SendNotify(ctrl, ddd->gamma && Vid::isStatus.fullScreen && CurDD().gamma ? 0x01C7674A : 0x3DB725BF); // "Vid::Option::Gamma" : "Vid::Option::NoGamma"
 
             ctrl->SendNotify(ctrl, ddd->texMulti ? 0xF7C32628 : 0x614B22FC); // "Vid::Option::Multitex" : "Vid::Option::NoMultitex"
-      //      ctrl->SendNotify(ctrl, ddd->hardTL    ? 0xE96DFBBC : 0x7811F848); // "Vid::Option::NoHardTL"
+            // ctrl->SendNotify(ctrl, ddd->hardTL    ? 0xE96DFBBC : 0x7811F848); // "Vid::Option::NoHardTL"
             ctrl->SendNotify(ctrl, ddd->antiAlias ? 0x551E05F5 : 0xE281A7D9); // "Vid::Option::NoAntiAlias"
+
             ctrl->SendNotify(ctrl, ddd->windowed ? 0x9B1A112D : 0x0D9215F9); // "Vid::Option::NoWindowed"
 
-            ctrl->SendNotify(ctrl, 0x7811F848); // "Vid::Option::NoHardTL"
+            //ctrl->SendNotify(ctrl, 0x7811F848); // "Vid::Option::NoHardTL"
         }
     }
     //-----------------------------------------------------------------------------

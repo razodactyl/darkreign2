@@ -21,13 +21,8 @@
 
 const U32 DEFRAMPSIZE = 32;
 
-#ifdef DODX6
-typedef D3DMATERIALHANDLE MaterialD3D;
-typedef D3DMATERIAL				MaterialDescD3D;
-#else
 typedef D3DMATERIAL7* MaterialD3D;
 typedef D3DMATERIAL7			MaterialDescD3D;
-#endif
 
 class Material : public RootObj
 {

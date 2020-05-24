@@ -17,10 +17,10 @@
 // basic constants
 //const U32 MAXWINWIDTH	        = 1900;
 //const U32 MAXWINHEIGHT	      = 1900;
-const U32 MINWINWIDTH = 800;
-const U32 MINWINHEIGHT = 600;
-const U32 STARTWIDTH = 800;
-const U32 STARTHEIGHT = 600;
+const U32 MINWINWIDTH = 640;
+const U32 MINWINHEIGHT = 480;
+const U32 STARTWIDTH = MAININIT_SCREEN_WIDTH;
+const U32 STARTHEIGHT = MAININIT_SCREEN_HEIGHT;
 const U32 REALLYMINWINWIDTH = 320;
 const U32 REALLYMINWINHEIGHT = 200;
 //-----------------------------------------------------------------------------

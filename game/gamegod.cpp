@@ -452,10 +452,10 @@ namespace GameGod
     //
     void Init()
     {
-        ASSERT(!initialized)
+        ASSERT(!initialized);
 
-            // Never seen original CD
-            seenOriginal = FALSE;
+        // Never seen original CD
+        seenOriginal = FALSE;
 
         // See if it's there now
         FindOriginalCD();
@@ -539,10 +539,10 @@ namespace GameGod
     //
     void Done()
     {
-        ASSERT(initialized)
+        ASSERT(initialized);
 
-            // Flush every log from now on
-            Log::SetFlush(TRUE);
+        // Flush every log from now on
+        Log::SetFlush(TRUE);
 
         // Un-register controls
         IFace::UnregisterControlClass("Game::Login");
@@ -642,7 +642,7 @@ namespace GameGod
         // Setup Multiplayer for command line
         MultiPlayer::PreInit();
 
-        // Initialize generic core systems
+        // Initialize core systems: sound, video, filesystem.
         Main::CoreSystemInit();
 
         // Initialize game specific core systems

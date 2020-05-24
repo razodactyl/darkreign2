@@ -17,18 +17,6 @@
 #include "main.h"
 //-----------------------------------------------------------------------------
 
-#ifdef DODX6
-
-typedef LPDIRECTDRAW4 DirectDD;
-typedef LPDIRECT3D3 Direct3D;
-typedef LPDIRECT3DDEVICE3 DeviceD3D;
-typedef D3DDEVICEDESC DeviceDescD3D;
-typedef LPDIRECT3DVIEWPORT3 ViewPortD3D;
-typedef D3DVIEWPORT2 ViewPortDescD3D;
-typedef DDDEVICEIDENTIFIER DeviceIdentDD;
-
-#else
-
 typedef LPDIRECTDRAW7 DirectDD;
 typedef LPDIRECT3D7 Direct3D;
 typedef LPDIRECT3DDEVICE7 DeviceD3D;
@@ -36,7 +24,6 @@ typedef D3DDEVICEDESC7 DeviceDescD3D;
 typedef D3DVIEWPORT7 ViewPortDescD3D;
 typedef DDDEVICEIDENTIFIER2 DeviceIdentDD;
 
-#endif
 //----------------------------------------------------------------------------
 
 namespace Vid
@@ -337,18 +324,19 @@ namespace Vid
         U32 active : 1;
         U32 minimized : 1;
         U32 maximized : 1;
-        U32 windowed : 1; // windowed mode is available/do windowed
-        U32 inWindow : 1; // currently in windowed mode
-        U32 hardTL : 1; // choose hardware T&L?
-        U32 gotDD : 1; // got a direct draw driver
-        U32 enumDD : 1; // have DD drivers been emumerated?
-        U32 softD3D : 1; // use a software d3d driver
-        U32 mode32 : 1; // pick a 32 bit mode?
-        U32 modeMax : 1; // pick max resolution?
-        U32 modeOverRide : 1; // use command line instead of settings file driver and mode
+        U32 windowed : 1;       // windowed mode is available/do windowed
+        U32 inWindow : 1;       // currently in windowed mode
+        U32 hardTL : 1;         // choose hardware T&L?
+        U32 gotDD : 1;          // got a direct draw driver
+        U32 enumDD : 1;         // have DD drivers been emumerated?
+        U32 softD3D : 1;        // use a software d3d driver
+        U32 mode32 : 1;         // pick a 32 bit mode?
+        U32 modeMax : 1;        // pick max resolution?
+        U32 modeOverRide : 1;   // use command line instead of settings file driver and mode
         U32 fullScreen : 1;
         U32 pageFlip : 1;
         U32 tripleBuf : 1;
+        U32 ogl : 1;            // Render with OpenGL instead of DX7
 
         Status()
         {
@@ -427,9 +415,7 @@ namespace Vid
     // JONATHAN
     extern unsigned int buffer;
     extern unsigned int ibo;
-    extern unsigned int vbo;
-    extern unsigned int vao;
-    extern unsigned int shader_programme;
+    extern unsigned int main_shader_program;
     extern unsigned int testTextureID;
 
     extern DriverDD ddDrivers[MAXDDDRIVERS + 1];
@@ -477,7 +463,8 @@ namespace Vid
     void ClearData();
     void PostShowWindow();
     Bool Init(HINSTANCE hI, HWND hW);
-    Bool Init2(GLFWwindow* w);
+    void LoadDefaultShaders();
+    Bool Init_PreGL(GLFWwindow* w);
     void InitIFace();
     void DoneIFace();
 
