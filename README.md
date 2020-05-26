@@ -8,6 +8,7 @@
 ## OpenGL Update:
 - Implementation of OpenGL rendering instead of DirectX 7 (Currently in progress)
 - 4k resolution is possible by setting a breakpoint at the `create device` error and following the code manually...
+- More information in the `upgrade-graphics-system` branch of this project.
 
 ## Previous Development Efforts:
 - nulled won features (woniface.cpp/.h)
