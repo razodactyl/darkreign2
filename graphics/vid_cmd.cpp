@@ -303,7 +303,7 @@ namespace Vid
 
             // Register all handled scopes (delete them in CmdDone)
             VarSys::RegisterHandler("vid", Handler);
-            VarSys::RegisterHandler("vid.shaders", Handler);
+            VarSys::RegisterHandler("vid.shader", Handler);
             VarSys::RegisterHandler("vid.sun", Handler);
             VarSys::RegisterHandler("vid.toggle", Handler);
             VarSys::RegisterHandler("vid.mirror", Handler);
@@ -403,7 +403,7 @@ namespace Vid
             VarSys::CreateCmd("vid.dialog.detail.reset");
 
             // JONATHAN
-            VarSys::CreateCmd("vid.shaders.reload");
+            VarSys::CreateCmd("vid.shader.reload");
 
             VarSys::CreateCmd("vid.farplaneinc");
             VarSys::CreateCmd("vid.fogdepthinc");
@@ -532,12 +532,15 @@ namespace Vid
             char* s1 = NULL;
 
             // JONATHAN
-            //U32 shader_reload = Crc::CalcStr("vid.shaders.reload");
+            //
+            //U32 shader_reload = Crc::CalcStr("vid.shader.reload");
             //U32 check_verts = Crc::CalcStr("vid.checkverts");
+            //
+            // line 306, 406 for registering the commands.
 
             switch (pathCrc)
             {
-            case 0x266ff0ce:
+            case 0x6241330c: // U32 shader_reload = Crc::CalcStr("vid.shader.reload");
                 Vid::LoadDefaultShaders();
                 break;
 
@@ -625,9 +628,9 @@ namespace Vid
                 SetGamma(*Vid::Var::varGamma);
                 break;
             case 0xADAB515B: // "vid.hardTL"
-      //        Vid::renderState.status.hardTL = *Vid::Var::varHardTL && caps.hardTL;
+                // Vid::renderState.status.hardTL = *Vid::Var::varHardTL && caps.hardTL;
 #if 1
-//        Vid::Var::varDxTL = Vid::renderState.status.hardTL; 
+                // Vid::Var::varDxTL = Vid::renderState.status.hardTL;
 #endif
                 break;
 
@@ -648,15 +651,15 @@ namespace Vid
             case 0x963A919D: // "vid.movie.active"
                 Vid::renderState.status.texMovie3D = *Vid::Var::varMovie;
                 Bitmap::Manager::MoviePause(!Vid::renderState.status.texMovie3D);
-                //        Bitmap::Manager::MovieReload();
+                // Bitmap::Manager::MovieReload();
                 break;
             case 0xA6BFAF16: // "vid.tex.multi"
                 Vid::renderState.status.texMulti = *Vid::Var::varMultiTex ? Vid::caps.texMulti : FALSE;
                 /*
-                        if (Vid::isStatus.initialized && !Vid::Var::Dialog::inDialog)
-                        {
-                          SetModeForce( curMode);
-                        }
+                if (Vid::isStatus.initialized && !Vid::Var::Dialog::inDialog)
+                {
+                  SetModeForce( curMode);
+                }
                 */
                 break;
             case 0x3BEE1D83: // "vid.antialias"
@@ -779,12 +782,7 @@ namespace Vid
             case 0x7758C8C1: // "vid.fogcolor"
             {
                 S32 r, g, b;
-                if
-                    (
-                        Console::GetArgInteger(1, r) &&
-                        Console::GetArgInteger(2, g) &&
-                        Console::GetArgInteger(3, b)
-                        )
+                if (Console::GetArgInteger(1, r) && Console::GetArgInteger(2, g) && Console::GetArgInteger(3, b))
                 {
                     SetFogColor
                     (
@@ -929,7 +927,7 @@ namespace Vid
                                 return;
                             }
                         }
-                        CON_ERR(("No mode %dx%dx%d", x, y, depth))
+                        CON_ERR(("No mode %dx%dx%d", x, y, depth));
                     }
                 }
                 else if (Console::GetArgInteger(1, mode))
@@ -949,7 +947,7 @@ namespace Vid
                                     InitDD(TRUE);
                                 }
                                 SetMode(j);
-                                CON_DIAG(("Setting mode %s : %s", CurMode().name.str, CurDD().name.str))
+                                CON_DIAG(("Setting mode %s : %s", CurMode().name.str, CurDD().name.str));
                             }
                         }
                         if (ddd.windowed && (S32)k == mode)
@@ -960,7 +958,7 @@ namespace Vid
                                 InitDD(TRUE);
                             }
                             SetMode(VIDMODEWINDOW);
-                            CON_DIAG(("Setting mode %s : %s", CurMode().name.str, CurDD().name.str))
+                            CON_DIAG(("Setting mode %s : %s", CurMode().name.str, CurDD().name.str));
                         }
                     }
                 }
@@ -993,8 +991,7 @@ namespace Vid
                 }
                 bucket.flushWhenFull = flushWhenFull > 0 ? TRUE : FALSE;
 
-                //      InitBuckets(DEF_BUCKET_COUNT, DEF_BUCKET_SIZE, DEF_BUCKET_RATIO, flushWhenFull,
-                //        DEF_TRAN_BUCKET_COUNT, DEF_TRAN_BUCKET_SIZE, DEF_BUCKET_RATIO);
+                // InitBuckets(DEF_BUCKET_COUNT, DEF_BUCKET_SIZE, DEF_BUCKET_RATIO, flushWhenFull, DEF_TRAN_BUCKET_COUNT, DEF_TRAN_BUCKET_SIZE, DEF_BUCKET_RATIO);
                 break;
             }
 
@@ -1008,8 +1005,8 @@ namespace Vid
                     CON_DIAG(("ambient = %d %d %d",
                         (U32)(rr * 255.0f),
                         (U32)(gg * 255.0f),
-                        (U32)(bb * 255.0f)))
-                        break;
+                        (U32)(bb * 255.0f)));
+                    break;
                 }
                 g = b = r;
                 Console::GetArgInteger(2, g);

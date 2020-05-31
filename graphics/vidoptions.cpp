@@ -104,7 +104,7 @@ namespace Vid
             U32 i;
             for (i = 0; i < Vid::numDDs; i++)
             {
-                //        driverBox->AddTextItem(Vid::ddDrivers[i].name.str, NULL);
+                // driverBox->AddTextItem(Vid::ddDrivers[i].name.str, NULL);
                 driverBox->AddTextItem(Vid::ddDrivers[i].ident.szDescription, NULL);
             }
         }

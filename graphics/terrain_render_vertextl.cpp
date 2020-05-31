@@ -437,6 +437,7 @@ namespace Terrain
 
                     Vid::UnlockIndexedPrimitiveMem(4, 6);
 
+                    // Decals 1
                     if (*Vid::Var::Terrain::overlay && (c->flags & Cell::cellOVERLAY))
                     {
                         ASSERT(c->texture1 < overlayCount&& c->overlay < overlays.count);
@@ -621,6 +622,7 @@ namespace Terrain
                         Vid::Clip::ToBucket(vertmem, 4, Vid::rectIndices, 6, &clus, TRUE, clipFlags);
                     }
 
+                    // Decals 2
                     if (*Vid::Var::Terrain::overlay && (c->flags & Cell::cellOVERLAY))
                     {
                         ASSERT(c->texture1 < overlayCount&& c->overlay < overlays.count);

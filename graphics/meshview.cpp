@@ -563,22 +563,25 @@ namespace MeshView
         lastHeapVerts = Vid::renderState.maxVerts;
         lastHeapIdx = Vid::renderState.maxIndices;
 
-        char* string = FileSys::GetSub("@vertmax");
-        U32 maxverts = atol(string);
-        string = FileSys::GetSub("@trimax");
-        U32 maxtris = atol(string);
+        //char* string = FileSys::GetSub("@vertmax");
+        //U32 maxverts = atol(string);
+        //string = FileSys::GetSub("@trimax");
+        //U32 maxtris = atol(string);
+
+        U32 maxverts = 1400;
+        U32 maxtris = 1400;
 
         Vid::Heap::Init(maxverts, maxtris * 3);
 
-        string = FileSys::GetSub("@vertmaxcheck");
-        Vid::Var::checkMaxVerts = atol(string);
-        string = FileSys::GetSub("@trimaxcheck");
-        Vid::Var::checkMaxTris = atol(string);
+        //string = FileSys::GetSub("@vertmaxcheck");
+        //Vid::Var::checkMaxVerts = atol(string);
+        //string = FileSys::GetSub("@trimaxcheck");
+        //Vid::Var::checkMaxTris = atol(string);
 
-        Main::Exec("meshview.cfg");
+        //Main::Exec("meshview.cfg");
 
-        searchPath = FileSys::GetSub("@meshviewpath");
-        meshName = FileSys::GetSub("@meshviewmodel");
+        searchPath = ".";//FileSys::GetSub("@meshviewpath");
+        meshName = "engine_pandemic.god";// FileSys::GetSub("@meshviewmodel");
 
         BuffString buff;
         buff = *searchPath;

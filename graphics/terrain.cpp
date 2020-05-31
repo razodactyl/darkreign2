@@ -1025,7 +1025,7 @@ namespace Terrain
 
         // setup performance related parameters
         //
-    //    F32 farp = Max<F32>( *Vid::Var::Terrain::minFarPlane, maxFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState.perfs[1]) * *Vid::Var::Terrain::perfAdjust));
+        // F32 farp = Max<F32>(*Vid::Var::Terrain::minFarPlane, maxFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState.perfs[1]) * *Vid::Var::Terrain::perfAdjust));
         F32 farp = Max<F32>(*Vid::Var::Terrain::minFarPlane, *Vid::Var::Terrain::standardFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState.perfs[1]) * *Vid::Var::Terrain::perfAdjust));
 
         if (*Vid::Var::farOverride != 0)
@@ -1039,42 +1039,42 @@ namespace Terrain
 
         Color c = *Vid::Var::Terrain::waterColorBottom;
 
-        Vid::renderState.status.mirEnvironment = FALSE;    // rain
+        Vid::renderState.status.mirEnvironment = FALSE;             // rain
 
         if (Vid::renderState.perfs[1] <= 0.25f)
         {
-            Vid::renderState.status.mirTerrain = TRUE;     // only terrain mirrored
+            Vid::renderState.status.mirTerrain = TRUE;              // only terrain mirrored
             Vid::renderState.status.mirObjects = FALSE;
             Vid::renderState.status.mirParticles = FALSE;
 
             Vid::renderState.texMinimapSize = 32;
 
-            c.a = waterAlphaMin;                      // opaque water
-            Vid::Var::Terrain::shroudUpdate = 3;                         // update shroud every 3 frames
+            c.a = waterAlphaMin;                                    // opaque water
+            Vid::Var::Terrain::shroudUpdate = 3;                    // update shroud every 3 frames
             Vid::Var::Terrain::overlay = FALSE;
         }
         else if (Vid::renderState.perfs[1] <= 0.5f)
         {
-            Vid::renderState.status.mirTerrain = TRUE;     // terrain and objects
+            Vid::renderState.status.mirTerrain = TRUE;              // terrain and objects
             Vid::renderState.status.mirObjects = TRUE;
             Vid::renderState.status.mirParticles = FALSE;
 
             Vid::renderState.texMinimapSize = 64;
 
-            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom * 1.2f);                      // one translucent water layer
-            Vid::Var::Terrain::shroudUpdate = 2;                         // update shroud every 2 frames
+            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom * 1.2f);  // one translucent water layer
+            Vid::Var::Terrain::shroudUpdate = 2;                    // update shroud every 2 frames
             Vid::Var::Terrain::overlay = TRUE;
         }
         else
         {
-            Vid::renderState.status.mirTerrain = TRUE;     // terrain, objects, and particles
+            Vid::renderState.status.mirTerrain = TRUE;              // terrain, objects, and particles
             Vid::renderState.status.mirObjects = TRUE;
             Vid::renderState.status.mirParticles = TRUE;
 
             Vid::renderState.texMinimapSize = 64;
 
-            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);                     // 2 translucent water layers
-            Vid::Var::Terrain::shroudUpdate = 1;                         // update shroud every frame
+            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);         // 2 translucent water layers
+            Vid::Var::Terrain::shroudUpdate = 1;                    // update shroud every frame
             Vid::Var::Terrain::overlay = TRUE;
         }
         Vid::Var::Terrain::waterColorBottom = c;
@@ -1084,7 +1084,7 @@ namespace Terrain
         c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
         Vid::Var::Terrain::waterColorTop = c;
 
-        //    waterLayer2  = waterTex && (Vid::renderState.perfs[1] > 0.5f);
+        // waterLayer2  = waterTex && (Vid::renderState.perfs[1] > 0.5f);
         waterLayer2 = FALSE;
         waterIsAlpha = waterTex && (waterTex->IsTranslucent() || c.a < 255);
     }

@@ -397,10 +397,18 @@ Bool Font::Read(const char* fileName)
                 charData.rect.p1.x = charHeader.rectX1;
                 charData.rect.p1.y = charHeader.rectY1;
 
-                charData.u0 = F32(curX) * scale;// +texture->UVShiftWidth(); // JONATHAN
-                charData.v0 = F32(curY) * scale;// +texture->UVShiftHeight(); // JONATHAN
-                charData.u1 = F32(curX + charImage->charWidth) * scale;// +texture->UVShiftWidth(); // JONATHAN
-                charData.v1 = F32(curY + charImage->charHeight) * scale;// +texture->UVShiftHeight(); // JONATHAN
+                if (!Vid::isStatus.ogl) {
+                    charData.u0 = F32(curX) * scale + texture->UVShiftWidth();
+                    charData.v0 = F32(curY) * scale + texture->UVShiftHeight();
+                    charData.u1 = F32(curX + charImage->charWidth) * scale + texture->UVShiftWidth();
+                    charData.v1 = F32(curY + charImage->charHeight) * scale + texture->UVShiftHeight();
+                } else
+                {
+                    charData.u0 = F32(curX) * scale;// +texture->UVShiftWidth(); // JONATHAN
+                    charData.v0 = F32(curY) * scale;// +texture->UVShiftHeight(); // JONATHAN
+                    charData.u1 = F32(curX + charImage->charWidth) * scale;// +texture->UVShiftWidth(); // JONATHAN
+                    charData.v1 = F32(curY + charImage->charHeight) * scale;// +texture->UVShiftHeight(); // JONATHAN
+                }
 
                 // Go to the next position
                 curX += cw;

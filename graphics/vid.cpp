@@ -243,8 +243,8 @@ namespace Vid
 
     void LoadDefaultShaders()
     {
-        const char* vertex_shader = ReadShaderSource("library\\shader\\dr2.vshader");
-        const char* fragment_shader = ReadShaderSource("library\\shader\\dr2.fshader");
+        const char* vertex_shader = ReadShaderSource("library\\shader\\dr2_vs.glsl");
+        const char* fragment_shader = ReadShaderSource("library\\shader\\dr2_fs.glsl");
 
         GLuint vs = CreateShader(vertex_shader, GL_VERTEX_SHADER);
         GLuint fs = CreateShader(fragment_shader, GL_FRAGMENT_SHADER);
@@ -268,6 +268,8 @@ namespace Vid
 
         delete vertex_shader;
         delete fragment_shader;
+
+        Vid::SetRenderState();
     }
 
     Bool Init_PreGL(GLFWwindow* w)
@@ -284,6 +286,7 @@ namespace Vid
 
         // Vid::isStatus -> current status
         // Vid::doStatus -> request a status.
+        // maininit.cpp -> 439
         isStatus.ogl = doStatus.ogl;
 
         LoadDefaultShaders();
@@ -399,82 +402,6 @@ namespace Vid
 
     Bool SetModeGL(U32 mode, U32 width, U32 height, Bool force)
     {
-        Input::OnActivate(TRUE);
-
-        return TRUE;
-
-        glfwSetWindowMonitor(window, nullptr, 10, 10, width, height, 0);
-        SetUniformInt("screenWidth", width);
-        SetUniformInt("screenHeight", height);
-
-        Bitmap::Manager::OnModeChange();
-        Material::Manager::ResetData();
-        Light::ResetData();
-
-        if (!curCamera)
-        {
-            // should only happen the first time
-            mainCamera = curCamera = new Camera("main");
-            curCamera->Setup(viewRect);
-            // SetCamera( *curCamera);
-        }
-
-        curCamera->OnModeChange();
-        Command::OnModeChange();
-        Mesh::Manager::OnModeChange();
-        Options::OnModeChange();
-        Graphics::OnModeChange();
-
-        LOG_DIAG(("[VID INITD3D: pre blends]"));
-
-        // setup
-        InitResources(TRUE);
-        SetRenderState(FALSE);
-
-        return TRUE;
-    }
-
-    // reset the video mode and view size
-    //
-    Bool SetMode(U32 mode, U32 width, U32 height, Bool force) // = FALSE
-    {
-        //mode = VIDMODEWINDOW;
-
-        bool const same_dimensions = viewRect.Width() == static_cast<S32>(width) && viewRect.Height() == static_cast<S32>(height);
-        bool const same_mode = curMode == mode;
-
-        // if nothing needs to be done...
-        if (isStatus.initialized == TRUE && !force && same_mode && same_dimensions)
-        {
-            return TRUE;
-        }
-
-        if (Vid::isStatus.ogl)
-        {
-            //return SetModeGL(mode, width, height, force);
-        }
-
-        /*if (mode == VIDMODEWINDOW && Vid::isStatus.initialized == TRUE && !Vid::isStatus.windowed)
-        {
-            static char* mess1 = "Device does not support windowed hardware 3D.";
-            static char* mess2 = "Device does not support windowed hardware 3D in your current desktop mode.";
-            static IControlPtr windowPtr;
-
-            char* message = CurDD().wincap ? mess2 : mess1;
-            if (!windowPtr.Alive())
-            {
-                windowPtr = IFace::MsgBox
-                (
-                    TRANSLATE(("Message")),
-                    TRANSLATE((message)), 0,
-                    new MBEvent("Ok", TRANSLATE(("#standard.buttons.ok")))
-                );
-            }
-            LOG_DIAG((message));
-
-            return TRUE;
-        }*/
-
         Bool wasInit = isStatus.initialized;
 
         if (wasInit)
@@ -684,6 +611,291 @@ namespace Vid
             ddx->RestoreDisplayMode();
             // JONATHAN
             AdjustWindowGL(0, 0, CurMode().rect.Width(), CurMode().rect.Height(), true);
+
+            // ClipCursor( (RECT *) &CurMode().rect);
+        }
+        lastMode = mode;
+        lastDD = curDD;
+        CurDD().curMode = mode;
+
+        isStatus.initialized = TRUE;
+
+        if (wasInit)
+        {
+            Input::OnActivate(TRUE);
+        }
+        return TRUE;
+
+        // glfwSetWindowMonitor(window, nullptr, 10, 10, width, height, 0);
+        // SetUniformInt("screenWidth", width);
+        // SetUniformInt("screenHeight", height);
+        //
+        // Bitmap::Manager::OnModeChange();
+        // Material::Manager::ResetData();
+        // Light::ResetData();
+        //
+        // if (!curCamera)
+        // {
+        //     // should only happen the first time
+        //     mainCamera = curCamera = new Camera("main");
+        //     curCamera->Setup(viewRect);
+        //     // SetCamera( *curCamera);
+        // }
+        //
+        // curCamera->OnModeChange();
+        // Command::OnModeChange();
+        // Mesh::Manager::OnModeChange();
+        // Options::OnModeChange();
+        // Graphics::OnModeChange();
+        //
+        // LOG_DIAG(("[VID INITD3D: pre blends]"));
+        //
+        // // setup
+        // InitResources(TRUE);
+        // SetRenderState(FALSE);
+        //
+        // return TRUE;
+    }
+
+    // reset the video mode and view size
+    //
+    Bool SetMode(U32 mode, U32 width, U32 height, Bool force) // = FALSE
+    {
+        //mode = VIDMODEWINDOW;
+
+        bool const same_dimensions = viewRect.Width() == static_cast<S32>(width) && viewRect.Height() == static_cast<S32>(height);
+        bool const same_mode = curMode == mode;
+
+        // if nothing needs to be done...
+        if (isStatus.initialized == TRUE && !force && same_mode && same_dimensions)
+        {
+            return TRUE;
+        }
+
+        if (Vid::isStatus.ogl)
+        {
+            return SetModeGL(mode, width, height, force);
+        }
+
+        /*if (mode == VIDMODEWINDOW && Vid::isStatus.initialized == TRUE && !Vid::isStatus.windowed)
+        {
+            static char* mess1 = "Device does not support windowed hardware 3D.";
+            static char* mess2 = "Device does not support windowed hardware 3D in your current desktop mode.";
+            static IControlPtr windowPtr;
+
+            char* message = CurDD().wincap ? mess2 : mess1;
+            if (!windowPtr.Alive())
+            {
+                windowPtr = IFace::MsgBox
+                (
+                    TRANSLATE(("Message")),
+                    TRANSLATE((message)), 0,
+                    new MBEvent("Ok", TRANSLATE(("#standard.buttons.ok")))
+                );
+            }
+            LOG_DIAG((message));
+
+            return TRUE;
+        }*/
+
+        Bool wasInit = isStatus.initialized;
+
+        if (wasInit)
+        {
+            Input::OnActivate(FALSE);
+        }
+
+        isStatus.initialized = FALSE;
+        curMode = mode;
+
+        // clip to min/max
+        if (width < MINWINWIDTH) width = MINWINWIDTH;
+        if (height < MINWINHEIGHT) height = MINWINHEIGHT;
+        if (width > static_cast<U32>(CurMode().rect.Width())) width = CurMode().rect.Width();
+        if (height > static_cast<U32>(CurMode().rect.Height())) height = CurMode().rect.Height();
+
+        viewRect.SetSize(0, 0, width, height);
+
+        // vid_enumdx.cpp 283 <-- disabled window capability check.
+
+        if (mode == VIDMODEWINDOW)
+        {
+            // save the mode for next time
+            if (lastMode != VIDMODEWINDOW)
+            {
+                fullDD = curDD;
+                CurDD().fullMode = lastMode;
+            }
+            ReleaseDD();
+
+            // calculate view based on window dimensions.
+            Area<S32> cr = viewRect;
+            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
+            if (cr.Width() > CurMode().rect.Width())
+            {
+                width -= cr.Width() - CurMode().rect.Width();
+            }
+            if (cr.Height() > CurMode().rect.Height())
+            {
+                height -= cr.Height() - CurMode().rect.Height();
+            }
+            viewRect.SetSize(0, 0, width, height);
+
+            // entering window mode from previous fullscreen.
+            if (lastMode != VIDMODEWINDOW)
+            {
+                ASSERT(ddx);
+                dxError = ddx->RestoreDisplayMode();
+                if (dxError)
+                {
+                    LOG_DXERR(("SetMode: ddx->RestoreDisplayMode"));
+                    ERR_FATAL(("SetMode: ddx->RestoreDisplayMode"));
+                }
+                isStatus.inWindow = TRUE;
+
+                SetMenu(hWnd, hMenu);
+                SetWindowLong(hWnd, GWL_STYLE, theStyle);
+                DrawMenuBar(hWnd);
+
+                // setup window
+                Area<S32> cr = viewRect = Settings::viewRect;
+                AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
+                SetWindowPos(hWnd, HWND_TOP, lastRect.p0.x, lastRect.p0.y, cr.Width(), cr.Height(), NULL);
+            }
+            if (firstRun && !Settings::firstEver)
+            {
+                // setup windowed size from settings file
+                //
+                viewRect = Settings::viewRect;
+            }
+
+            Settings::viewRect = viewRect;
+
+            // nice for windows
+            isStatus.fullScreen = FALSE;
+            if (lastMode != mode && !SetCoopLevel())
+            {
+                return FALSE;
+            }
+
+            Bool initdd = !firstRun;
+            if (!CurDD().wincap)
+            {
+                curDD = winDD; // windowed driver
+                initdd = TRUE;
+            }
+            if ((initdd && !InitDD()) || !SetCoopLevel())
+            {
+                return FALSE;
+            }
+            // InitDD wipes curMode
+            curMode = mode;
+
+            cr = viewRect;
+            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
+
+            width = cr.Width();
+            height = cr.Height();
+
+            S32 l = (CurMode().rect.Width() - width) >> 1;
+            S32 t = (CurMode().rect.Height() - height) >> 1;
+            SetWindowPos(hWnd, HWND_TOP, l, t, width, height, NULL);
+
+            SetRects();
+
+            // finish dx init
+            if (!InitD3D())
+            {
+                return FALSE;
+            }
+            ClipCursor(nullptr);
+
+            // reset the windowed mode name string
+            //
+            for (U32 i = 0; i < numDDs; i++)
+            {
+                if (ddDrivers[i].windowed)
+                {
+                    VidMode& mo = ddDrivers[i].vidModes[VIDMODEWINDOW];
+
+                    sprintf(mo.name.str + 3, "%dx%d %d", viewRect.Width(), viewRect.Height(), mo.bpp);
+                }
+            }
+        }
+        else
+        {
+            if (lastMode == VIDMODEWINDOW)
+            {
+                isStatus.fullScreen = TRUE;
+
+                // save window rect for return from fullscreen
+                Area<S32> cl;
+                lastRect = winRect;
+                GetClientRect(hWnd, (RECT*)&cl);
+
+                if (firstRun)
+                {
+                    // setup windowed size from settings file
+                    //
+                    lastRect = cl = Settings::viewRect;
+                    AdjustWindowRect((RECT*)&lastRect, theStyle, hMenu != nullptr ? TRUE : FALSE);
+                }
+
+                // windows
+                HMENU hm = GetMenu(hWnd);
+                if (hm)
+                {
+                    hMenu = hm;
+                }
+                SetMenu(hWnd, nullptr);
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP);
+                DrawMenuBar(hWnd);
+            }
+            ReleaseDD();
+            isStatus.fullScreen = TRUE;
+
+            if ((!firstRun && /*!restore &&*/ !InitDD()) || !SetCoopLevel())
+            {
+                return FALSE;
+            }
+
+            // !InitDD above wipes curMode.
+            curMode = mode;
+
+            // Change resolution.
+            ASSERT(ddx);
+            dxError = ddx->SetDisplayMode(CurMode().rect.Width(), CurMode().rect.Height(), CurMode().bpp, 0, 0);
+            if (dxError)
+            {
+                LOG_DXERR(("SetMode(): ddx->SetDisplayMode %dx%d %d", CurMode().rect.Width(), CurMode().rect.Height(), CurMode().bpp));
+
+                if (!firstRun)
+                {
+                    ERR_FATAL(("SetMode; ddx->SetDisplayMode"));
+                }
+                return FALSE;
+            }
+            isStatus.inWindow = FALSE;
+
+            // setup window
+            SetWindowPos(hWnd, HWND_TOPMOST,
+                0, 0,
+                CurMode().rect.Width(), CurMode().rect.Height(),
+                // NULL);
+                SWP_NOREDRAW);
+            // DoCursor();
+            SetCursorPos(CurMode().rect.HalfWidth(), CurMode().rect.HalfHeight());
+
+            SetRects();
+
+            // finish dx init
+            if (!InitD3D())
+            {
+                return FALSE;
+            }
+            RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE);
+
+            ddx->RestoreDisplayMode();
 
             // ClipCursor( (RECT *) &CurMode().rect);
         }

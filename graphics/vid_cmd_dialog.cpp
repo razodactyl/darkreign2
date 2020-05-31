@@ -413,7 +413,7 @@ namespace Vid
 #endif
             }
 
-            // TODO: JONATHAN IMPLEMENT FOG
+            SetUniformBool("doFog", fogOn);
         }
 
         return retValue;
@@ -446,7 +446,13 @@ namespace Vid
                 dxError = device->SetRenderState(D3DRENDERSTATE_SHADEMODE, flags == shadeFLAT ? D3DSHADE_FLAT : D3DSHADE_GOURAUD);
                 LOG_DXERR(("SHADESTATE"));
             }
-            // TODO: JONATHAN Sprawler wireframe??
+
+            // Jonathan: Sprawler wireframe effect is implemented in "DrawPrimitive"
+            // This seems to be for debugging.
+            if (Vid::isStatus.ogl)
+            {
+                flags;
+            }
         }
 
         return retValue;

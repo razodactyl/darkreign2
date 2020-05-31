@@ -21,14 +21,14 @@ extern HRESULT dxError;
 extern char* GetErrorString(HRESULT error);
 
 #if	(defined DEVELOPMENT) || (defined DOLOGDXERROR)
-#define LOG_DXERR( fmt)                             \
-	if (dxError)                                      \
-  {                                                 \
-		LOG_ERR( fmt );                                 \
-    LOG_ERR( ("...%s", GetErrorString( dxError)) ); \
-  }
+#define LOG_DXERR( fmt)                                 \
+    if (dxError)                                        \
+    {                                                   \
+        LOG_ERR( fmt );                                 \
+        LOG_ERR( ("...%s", GetErrorString( dxError)) ); \
+    }
 #else
-#define LOG_DXERR( fmt) 
+#define LOG_DXERR( fmt )
 #endif
 //-----------------------------------------------------------------------------
 
@@ -204,6 +204,8 @@ namespace Vid
     Bool SetTexture(Bitmap* tex, U32 stage = 0, U32 blend = RS_BLEND_DEF);
 
     // JONATHAN
+    void SetUniformFloat4(const char* name, float r, float g, float b, float a);
+    void SetUniformFloat(const char* name, float value);
     void SetUniformBool(const char* name, bool value);
     void SetUniformInt(const char* name, GLuint value);
 

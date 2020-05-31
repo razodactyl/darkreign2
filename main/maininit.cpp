@@ -1209,8 +1209,7 @@ namespace Main
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glewInit();
 
-        glfwSetWindowFocusCallback(window, window_focus_callback);
-        return glfwGetWin32Window(window);
+        //glfwSetWindowFocusCallback(window, window_focus_callback);
 
         /////////////////////////
 
@@ -1253,6 +1252,8 @@ namespace Main
             instance,
             NULL
         );
+
+        return glfwGetWin32Window(window);
 
         return hwnd;
     }

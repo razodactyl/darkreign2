@@ -917,7 +917,7 @@ namespace Vid
         status.texture = TRUE;
         status.zbuffer = TRUE;
         status.stencil = FALSE;
-        //	  status.specular       = FALSE;
+        // status.specular = FALSE;
         status.specular = TRUE;
 
         status.fog = TRUE;
@@ -979,6 +979,8 @@ namespace Vid
             (U32)255
         );
         SetFogColorD3D(renderState.fogColor);
+
+        SetUniformFloat4("fogColor", r, g, b, 1.0f);
     }
     //----------------------------------------------------------------------------
 
@@ -986,7 +988,6 @@ namespace Vid
     {
         if (Vid::isStatus.initialized)
         {
-            // It's a D3D function, shouldn't be getting called but either way...
             if (!Vid::isStatus.ogl) {
                 dxError = device->SetRenderState(D3DRENDERSTATE_FOGCOLOR, fogColor);
                 LOG_DXERR(("SetFogColorD3D"));
@@ -1004,9 +1005,14 @@ namespace Vid
         renderState.fogMinZ = Vid::ProjectZ(min);
         renderState.fogMaxZ = 1.0f;
 
-        //  ASSERT( renderState.fogMaxZ > renderState.fogMinZ);
-        //  renderState.fogFactor = 255.0f / (renderState.fogMaxZ - renderState.fogMinZ); 
+        // ASSERT( renderState.fogMaxZ > renderState.fogMinZ);
+        // renderState.fogFactor = 255.0f / (renderState.fogMaxZ - renderState.fogMinZ); 
         renderState.fogFactor = 1.0f / (renderState.fogMaxZ - renderState.fogMinZ);
+
+        SetUniformFloat("renderState_fogMin", renderState.fogMin);
+        SetUniformFloat("renderState_fogMax", renderState.fogMax);
+        SetUniformFloat("renderState_fogDensity", renderState.fogDensity);
+        SetUniformFloat("renderState_fogFactor", renderState.fogFactor);
 
         renderState.fogMinZH = Vid::SetHomogeneousZ(min);
         renderState.fogMaxZH = Vid::SetHomogeneousZ(Vid::Math::farPlane);
@@ -1015,6 +1021,7 @@ namespace Vid
         renderState.fogMinZZ = min;
         renderState.fogMaxZZ = max;
         renderState.fogFactorZ = 1.0f / (renderState.fogMaxZZ - renderState.fogMinZZ);
+        SetUniformFloat("renderState_fogFactorZ", renderState.fogFactor);
 
 #ifndef DODXLEANANDGRUMPY
 
@@ -1025,16 +1032,18 @@ namespace Vid
             dxError = device->SetRenderState(D3DRENDERSTATE_FOGEND, *((U32*)&renderState.fogMax));
             LOG_DXERR(("SetFogRange"));
 
-            /*
-              //  if (caps.fogPixel)
-                  dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLESTART, *((U32 *) &renderState.fogMin));
-                  LOG_DXERR( ("SetFogRange") );
-                  dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLEEND,   *((U32 *) &renderState.fogMax));
-                  LOG_DXERR( ("SetFogRange") );
-                    dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLEDENSITY, *((U32 *) &renderState.fogDensity));
-
-              //  else if (caps.fogVertex)
-            */
+            // if (caps.fogPixel)
+            // {
+            //     dxError = device->SetRenderState(D3DRENDERSTATE_FOGTABLESTART, *((U32*)&renderState.fogMin));
+            //     LOG_DXERR(("SetFogRange"));
+            //     dxError = device->SetRenderState(D3DRENDERSTATE_FOGTABLEEND, *((U32*)&renderState.fogMax));
+            //     LOG_DXERR(("SetFogRange"));
+            //     dxError = device->SetRenderState(D3DRENDERSTATE_FOGTABLEDENSITY, *((U32*)&renderState.fogDensity));
+            // }
+            // else if (caps.fogVertex)
+            // {
+            //     //
+            // }
         }
 #endif
     }
@@ -1081,8 +1090,8 @@ namespace Vid
             LOG_DXERR(("device->SetRenderState"));
 
             dxError = device->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-            //	dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
-            //  dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAREF, (DWORD)0);
+            // dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
+            // dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAREF, (DWORD)0);
             LOG_DXERR(("device->SetRenderState: transparent"));
 
             dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, 1);
@@ -1094,8 +1103,8 @@ namespace Vid
             dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, 0);
             LOG_DXERR(("device->SetRenderState( LIGHTING)"));
 
-            //    dxError = device->SetRenderState( D3DRENDERSTATE_COLORVERTEX, renderState.status.dxTL );
-            //    LOG_DXERR( ("device->SetRenderState( COLORVERTEX)") );
+            // dxError = device->SetRenderState( D3DRENDERSTATE_COLORVERTEX, renderState.status.dxTL );
+            // LOG_DXERR( ("device->SetRenderState( COLORVERTEX)") );
         }
 
         if (Vid::isStatus.ogl) {
@@ -1290,6 +1299,7 @@ namespace Vid
 
                 // JONATHAN
                 if (tex && tex->Lock()) {
+                    Vid::SetUniformBool("doTranslucent", tex->IsTranslucent());
                     glActiveTexture(GL_TEXTURE0 + stage);
                     glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
                     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
@@ -1357,6 +1367,7 @@ namespace Vid
 
         // JONATHAN
         if (tex && ((Bitmap*)tex)->Lock()) {
+            Vid::SetUniformBool("doTranslucent", ((Bitmap*)tex)->IsTranslucent());
             glActiveTexture(GL_TEXTURE0 + stage);
             glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
@@ -1411,99 +1422,118 @@ namespace Vid
     }
     //----------------------------------------------------------------------------
 
-    void SetUniformBool(const char* name, bool value) {
-        int loc = glGetUniformLocation(main_shader_program, name);
-        glUniform1f(loc, value);
+    void SetUniformFloat4(const char* name, float r, float g, float b, float a)
+    {
+        if (Vid::isStatus.ogl)
+        {
+            int loc = glGetUniformLocation(main_shader_program, name);
+            glUniform4f(loc, r, g, b, a);
+        }
     }
 
-    void SetUniformInt(const char* name, GLuint value) {
-        int loc = glGetUniformLocation(main_shader_program, name);
-        glUniform1i(loc, value);
+    void SetUniformFloat(const char* name, float value)
+    {
+        if (Vid::isStatus.ogl)
+        {
+            int loc = glGetUniformLocation(main_shader_program, name);
+            glUniform1f(loc, value);
+        }
+    }
+
+    void SetUniformBool(const char* name, bool value)
+    {
+        if (Vid::isStatus.ogl)
+        {
+            int loc = glGetUniformLocation(main_shader_program, name);
+            glUniform1f(loc, value);
+        }
+    }
+
+    void SetUniformInt(const char* name, GLuint value)
+    {
+        if (Vid::isStatus.ogl)
+        {
+            int loc = glGetUniformLocation(main_shader_program, name);
+            glUniform1i(loc, value);
+        }
     }
 
     void SetBlendUniforms(U32 blend, bool doStaged = false) {
-        int doBlendMaskLoc = glGetUniformLocation(main_shader_program, "doBlendMask");
-        int doBuckyMaskLoc = glGetUniformLocation(main_shader_program, "doBuckyMask");
-        int doBlendGlowLoc = glGetUniformLocation(main_shader_program, "doBlendGlow");
-        int doBlendAddLoc = glGetUniformLocation(main_shader_program, "doBlendAdd");
-        int doBlendModulateLoc = glGetUniformLocation(main_shader_program, "doBlendModulate");
-        int doBlendModulate2Loc = glGetUniformLocation(main_shader_program, "doBlendModulate2");
-        int doBlendModulate4Loc = glGetUniformLocation(main_shader_program, "doBlendModulate4");
-        int doBlendDecalLoc = glGetUniformLocation(main_shader_program, "doBlendDecal");
-        int doBlendDecalAlphaLoc = glGetUniformLocation(main_shader_program, "doBlendDecalAlpha");
-        int doBlendDefaultLoc = glGetUniformLocation(main_shader_program, "doBlendDefault");
 
-        /*
-        RS_TEX_DECAL = (1 << RS_TEX_SHIFT),
-        RS_TEX_DECALALPHA = (2 << RS_TEX_SHIFT),
-        RS_TEX_MODULATE = (3 << RS_TEX_SHIFT),
-        RS_TEX_MODULATE2X = (4 << RS_TEX_SHIFT),
-        RS_TEX_MODULATE4X = (5 << RS_TEX_SHIFT),
-        RS_TEX_MODULATEALPHA = (6 << RS_TEX_SHIFT),
-        RS_TEX_ADD = (7 << RS_TEX_SHIFT),
+        // RS_TEX_DECAL = (1 << RS_TEX_SHIFT),
+        // RS_TEX_DECALALPHA = (2 << RS_TEX_SHIFT),
+        // RS_TEX_MODULATE = (3 << RS_TEX_SHIFT),
+        // RS_TEX_MODULATE2X = (4 << RS_TEX_SHIFT),
+        // RS_TEX_MODULATE4X = (5 << RS_TEX_SHIFT),
+        // RS_TEX_MODULATEALPHA = (6 << RS_TEX_SHIFT),
+        // RS_TEX_ADD = (7 << RS_TEX_SHIFT),
+        //
+        // RS_BLEND_MASK = RS_SRC_MASK | RS_DST_MASK | RS_TEX_MASK,
+        // RS_BUCKY_MASK = RS_SRC_MASK | RS_DST_MASK | RS_TEX_MASK | RS_ADD_MASK | RS_FLAG_MASK,
+        // RS_BLEND_GLOW = RS_SRC_SRCALPHA | RS_DST_ONE | RS_TEX_MODULATE2X,
+        // RS_BLEND_ADD = RS_SRC_SRCALPHA | RS_DST_ONE | RS_TEX_ADD,
+        // RS_BLEND_MODULATE = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE,
+        // RS_BLEND_MODULATE2X = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE2X,
+        // RS_BLEND_MODULATE4X = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE4X,
+        // RS_BLEND_DECAL = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_DECAL,
+        // RS_BLEND_DECALALPHA = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_DECALALPHA,
+        // RS_BLEND_DEF = RS_BLEND_MODULATE,
+        //
 
-        RS_BLEND_MASK = RS_SRC_MASK | RS_DST_MASK | RS_TEX_MASK,
-        RS_BUCKY_MASK = RS_SRC_MASK | RS_DST_MASK | RS_TEX_MASK | RS_ADD_MASK | RS_FLAG_MASK,
-        RS_BLEND_GLOW = RS_SRC_SRCALPHA | RS_DST_ONE | RS_TEX_MODULATE2X,
-        RS_BLEND_ADD = RS_SRC_SRCALPHA | RS_DST_ONE | RS_TEX_ADD,
-        RS_BLEND_MODULATE = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE,
-        RS_BLEND_MODULATE2X = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE2X,
-        RS_BLEND_MODULATE4X = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_MODULATE4X,
-        RS_BLEND_DECAL = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_DECAL,
-        RS_BLEND_DECALALPHA = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_DECALALPHA,
-        RS_BLEND_DEF = RS_BLEND_MODULATE,
-        */
+        if (Vid::isStatus.ogl) {
+            // JONATHAN
+            if ((blend & RS_BLEND_DECALALPHA) == RS_BLEND_DECALALPHA) {
+                SetUniformBool("doBlendDecalAlpha", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_MASK) == RS_BLEND_MASK) {
+                SetUniformBool("doBlendMask", GL_TRUE);
+            }
+            if ((blend & RS_BUCKY_MASK) == RS_BUCKY_MASK) {
+                SetUniformBool("doBuckyMask", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_GLOW) == RS_BLEND_GLOW) {
+                SetUniformBool("doBlendGlow", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_ADD) == RS_BLEND_ADD) {
+                SetUniformBool("doBlendAdd", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_MODULATE) == RS_BLEND_MODULATE) {
+                SetUniformBool("doBlendModulate", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_MODULATE2X) == RS_BLEND_MODULATE2X) {
+                SetUniformBool("doBlendModulate2", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_MODULATE4X) == RS_BLEND_MODULATE4X) {
+                SetUniformBool("doBlendModulate4", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_DECAL) == RS_BLEND_DECAL) {
+                SetUniformBool("doBlendDecal", GL_TRUE);
+            }
+            if ((blend & RS_BLEND_DEF) == RS_BLEND_DEF) {
+                SetUniformBool("doBlendDefault", GL_TRUE);
+            }
 
-        // JONATHAN
-        if ((blend & RS_BLEND_DECALALPHA) == RS_BLEND_DECALALPHA) {
-            glUniform1f(doBlendDecalAlphaLoc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_MASK) == RS_BLEND_MASK) {
-            glUniform1f(doBlendMaskLoc, GL_TRUE);
-        }
-        if ((blend & RS_BUCKY_MASK) == RS_BUCKY_MASK) {
-            glUniform1f(doBuckyMaskLoc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_GLOW) == RS_BLEND_GLOW) {
-            glUniform1f(doBlendGlowLoc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_ADD) == RS_BLEND_ADD) {
-            glUniform1f(doBlendAddLoc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_MODULATE) == RS_BLEND_MODULATE) {
-            glUniform1f(doBlendModulateLoc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_MODULATE2X) == RS_BLEND_MODULATE2X) {
-            glUniform1f(doBlendModulate2Loc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_MODULATE4X) == RS_BLEND_MODULATE4X) {
-            glUniform1f(doBlendModulate4Loc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_DECAL) == RS_BLEND_DECAL) {
-            glUniform1f(doBlendDecalLoc, GL_TRUE);
-        }
-        if ((blend & RS_BLEND_DEF) == RS_BLEND_DEF) {
-            glUniform1f(doBlendDefaultLoc, GL_TRUE);
-        }
-
-        if (doStaged) {
-            glUniform1f(glGetUniformLocation(main_shader_program, "doStaged"), GL_TRUE);
+            if (doStaged) {
+                SetUniformBool("doStaged", GL_TRUE);
+            }
         }
     }
 
     void ClearBlendUniforms() {
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendMask"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBuckyMask"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendGlow"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendAdd"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendModulate"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendModulate2"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendModulate4"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendDecal"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendDecalAlpha"), GL_FALSE);
-        glUniform1f(glGetUniformLocation(main_shader_program, "doBlendDefault"), GL_FALSE);
+        if (Vid::isStatus.ogl) {
+            SetUniformBool("doBlendMask", GL_FALSE);
+            SetUniformBool("doBuckyMask", GL_FALSE);
+            SetUniformBool("doBlendGlow", GL_FALSE);
+            SetUniformBool("doBlendAdd", GL_FALSE);
+            SetUniformBool("doBlendModulate", GL_FALSE);
+            SetUniformBool("doBlendModulate2", GL_FALSE);
+            SetUniformBool("doBlendModulate4", GL_FALSE);
+            SetUniformBool("doBlendDecal", GL_FALSE);
+            SetUniformBool("doBlendDecalAlpha", GL_FALSE);
+            SetUniformBool("doBlendDefault", GL_FALSE);
 
-        glUniform1f(glGetUniformLocation(main_shader_program, "doStaged"), GL_FALSE);
+            SetUniformBool("doStaged", GL_FALSE);
+        }
     }
 
     // stage 0 MUST be set first!!!
@@ -1685,8 +1715,30 @@ namespace Vid
             glUniformMatrix4fv(projMatrixLocation, 1, GL_FALSE, mat_Proj);
             glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
 
+            int primType = GL_TRIANGLES;
+            switch (prim_type) {
+            case PT_POINTLIST:
+                primType = GL_POINTS;
+                break;
+            case PT_LINELIST:
+                primType = GL_LINES;
+                break;
+            case PT_LINESTRIP:
+                primType = GL_LINE_STRIP;
+                break;
+            case PT_TRIANGLELIST:
+                primType = GL_TRIANGLES;
+                break;
+            case PT_TRIANGLESTRIP:
+                primType = GL_TRIANGLE_STRIP;
+                break;
+            case PT_TRIANGLEFAN:
+                primType = GL_TRIANGLE_FAN;
+                break;
+            }
+
             SetBlendUniforms(blends);
-            glDrawArrays(GL_TRIANGLES, 0, vert_count);
+            glDrawArrays(primType, 0, vert_count);
             ClearBlendUniforms();
 
             glDisableVertexAttribArray(position_attrib_index);
@@ -1872,115 +1924,49 @@ namespace Vid
         }
 
         if (vert_type == FVF_VERTEX) {
-            return D3D_OK;
-        }
-
-        if (vert_type == FVF_T2VERTEX) {
-            return D3D_OK;
-        }
-
-        if (vert_type == FVF_CVERTEX) {
-            return D3D_OK;
-        }
-
-        if (vert_type == FVF_T2CVERTEX) {
-            return D3D_OK;
-        }
-
-        if (vert_type == FVF_LVERTEX) {
-            return D3D_OK;
-        }
-
-        if (vert_type == FVF_T2LVERTEX) {
-            return D3D_OK;
-        }
-
-        // JONATHAN
-        if (vert_type == FVF_TLVERTEX) {// && prim_type == PT_TRIANGLELIST) {
-            // D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1
-
             // DEBUGGING
             //
 
-            //struct Vec3 {
-            //    F32 x, y, z, rhw; // 4, 8, 12, 16 bytes
-            //    F32 r, g, b, a;
-            //    F32 i, j, k, l;
-            //    F32 u, v;
-            //};
+            struct Vec3 {
+                F32 x, y, z, rhw; // 4, 8, 12, 16 bytes
+                F32 r, g, b, a;
+                F32 i, j, k, l;
+                F32 u, v;
+            };
 
-            //int v3size = sizeof(Vec3);
+            int v3size = sizeof(Vec3);
 
-            //Vec3* positions = (Vec3*)alloca(vert_count * v3size);
-            //for (DWORD i = 0; i < vert_count; i++) {
-            //    VertexTL current = ((VertexTL*)verts)[i];
-            //    positions[i] = Vec3{
-            //        (current.vv.x),
-            //        (current.vv.y),
-            //        current.vv.z,
-            //        1.0f,//current.rhw,
-            //        (F32)current.diffuse.r,
-            //        (F32)current.diffuse.g,
-            //        (F32)current.diffuse.b,
-            //        (F32)current.diffuse.a,
-            //        (F32)current.specular.r,
-            //        (F32)current.specular.g,
-            //        (F32)current.specular.b,
-            //        (F32)current.specular.a,
-            //        current.u,
-            //        current.v,
-            //    };
-            //}
+            Vec3* positions = (Vec3*)alloca(vert_count * v3size);
+            for (DWORD i = 0; i < vert_count; i++) {
+                Vertex current = ((Vertex*)verts)[i];
+                positions[i] = Vec3{
+                    0,
+                    0,
+                    0,
+                    0,
+                    (F32)0xff,
+                    (F32)0xff,
+                    (F32)0xff,
+                    (F32)0xff,
+                    (F32)0xff,
+                    (F32)0xff,
+                    (F32)0xff,
+                    (F32)0xff,
+                    current.u,
+                    current.v,
+                };
 
-            //glUseProgram(main_shader_program);
+                Vector dst;
+                positions[i].rhw = ProjectFromModel(dst, current.vv);
+                positions[i].x = dst.x;
+                positions[i].y = dst.y;
+                positions[i].z = dst.z;
+            }
 
-            //glBindBuffer(GL_ARRAY_BUFFER, buffer);
-            //glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, ((Vec3*)positions), GL_DYNAMIC_DRAW);
-
-            //int position_attrib_index = 0;
-            //int diffuse_attrib_index = 1;
-            //int specular_attrib_index = 2;
-            //int texcoord_attrib_index = 3;
-
-            //glEnableVertexAttribArray(position_attrib_index);
-            //glEnableVertexAttribArray(diffuse_attrib_index);
-            //glEnableVertexAttribArray(specular_attrib_index);
-            //glEnableVertexAttribArray(texcoord_attrib_index);
-
-            //GLintptr vertex_position_offset = 0;
-            //GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
-            //GLintptr vertex_specular_offset = 8 * sizeof(F32);
-            //GLintptr vertex_texcoord_offset = 12 * sizeof(F32);
-
-            //glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
-            //glVertexAttribPointer(diffuse_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
-            //glVertexAttribPointer(specular_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
-            //glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
-
-            //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-            //glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
-
-            //int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
-            //float mat_Ident[] = {
-            //    1, 0, 0, 0,
-            //    0, -1, 0, 0,
-            //    0, 0, 1, 0,
-            //    0, 0, 0, 1
-            //};
-            //glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
-
-            //glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_SHORT, nullptr);
-
-            //
-            // DEBUGGING
-
-            // EXISTING
-            //
-
-            int v3size = sizeof(VertexTL);
+            glUseProgram(main_shader_program);
 
             glBindBuffer(GL_ARRAY_BUFFER, buffer);
-            glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, verts, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, ((Vec3*)positions), GL_DYNAMIC_DRAW);
 
             int position_attrib_index = 0;
             int diffuse_attrib_index = 1;
@@ -1994,58 +1980,181 @@ namespace Vid
 
             GLintptr vertex_position_offset = 0;
             GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
-            GLintptr vertex_specular_offset = vertex_diffuse_offset + 4 * sizeof(U8);
-            GLintptr vertex_texcoord_offset = vertex_specular_offset + 4 * sizeof(U8);
+            GLintptr vertex_specular_offset = 8 * sizeof(F32);
+            GLintptr vertex_texcoord_offset = 12 * sizeof(F32);
 
             glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
-            glVertexAttribPointer(diffuse_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
-            glVertexAttribPointer(specular_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
-            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_TRUE, v3size, (GLvoid*)vertex_texcoord_offset);
+            glVertexAttribPointer(diffuse_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
+            glVertexAttribPointer(specular_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
+            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
 
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
 
-            glUseProgram(main_shader_program);
-
-            int modelMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Model");
-            int viewMatrixLocation = glGetUniformLocation(main_shader_program, "mat_View");
-            int projMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Proj");
             int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
-
-            MATRIX_STRUCT mm = CurCamera().WorldMatrix().Mat;
-            float mat_Model[] = {
-                mm.right.x, mm.right.y, mm.right.z, mm.right.w,
-                mm.up.x,    mm.up.y,    mm.up.z,    mm.up.w,
-                mm.front.x, mm.front.y, mm.front.z, mm.front.w,
-                mm.posit.x, mm.posit.y, mm.posit.z, mm.posit.w,
-            };
-
-            MATRIX_STRUCT ml = CurCamera().ViewMatrix().Mat;
-            float mat_View[] = {
-                ml.right.x, ml.right.y, ml.right.z, ml.right.w,
-                ml.up.x,    ml.up.y,    ml.up.z,    ml.up.w,
-                ml.front.x, ml.front.y, ml.front.z, ml.front.w,
-                ml.posit.x, ml.posit.y, ml.posit.z, ml.posit.w,
-            };
-
-            MATRIX_STRUCT mp = CurCamera().ProjMatrix().Mat;
-            float mat_Proj[] = {
-                mp.right.x, mp.right.y, mp.right.z, mp.right.w,
-                mp.up.x,    mp.up.y,    mp.up.z,    mp.up.w,
-                mp.front.x, mp.front.y, mp.front.z, mp.front.w,
-                mp.posit.x, mp.posit.y, mp.posit.z, mp.posit.w,
-            };
-
             float mat_Ident[] = {
                 1, 0, 0, 0,
                 0, -1, 0, 0,
                 0, 0, 1, 0,
                 0, 0, 0, 1
             };
+            glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
 
-            glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, mat_Model);
-            glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, mat_View);
-            glUniformMatrix4fv(projMatrixLocation, 1, GL_FALSE, mat_Proj);
+            int primType = GL_TRIANGLES;
+            switch (prim_type) {
+            case PT_POINTLIST:
+                primType = GL_POINTS;
+                break;
+            case PT_LINELIST:
+                primType = GL_LINES;
+                break;
+            case PT_LINESTRIP:
+                primType = GL_LINE_STRIP;
+                break;
+            case PT_TRIANGLELIST:
+                primType = GL_TRIANGLES;
+                break;
+            case PT_TRIANGLESTRIP:
+                primType = GL_TRIANGLE_STRIP;
+                break;
+            case PT_TRIANGLEFAN:
+                primType = GL_TRIANGLE_FAN;
+                break;
+            }
+
+            //SetBlendUniforms(blends, renderState.status.texStaged);
+            //glDrawElements(primType, index_count, GL_UNSIGNED_SHORT, nullptr);
+            //ClearBlendUniforms();
+
+            glDisableVertexAttribArray(position_attrib_index);
+            glDisableVertexAttribArray(diffuse_attrib_index);
+            glDisableVertexAttribArray(specular_attrib_index);
+            glDisableVertexAttribArray(texcoord_attrib_index);
+
+            //
+            // DEBUGGING
+        }
+
+        if (vert_type == FVF_T2VERTEX) {
+            return D3D_OK;
+        }
+
+        // D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1
+        if (vert_type == FVF_CVERTEX) {
+
+            // Terrain textures but they're flat on the screen??
+
+            struct Vec3 {
+                F32 x, y, z, rhw; // 4, 8, 12, 16 bytes
+                F32 r, g, b, a;
+                F32 i, j, k, l;
+                F32 u, v;
+            };
+
+            int v3size = sizeof(Vec3);
+
+            Vec3* positions = (Vec3*)alloca(vert_count * v3size);
+            for (DWORD i = 0; i < vert_count; i++) {
+                VertexC current = ((VertexC*)verts)[i];
+                positions[i] = Vec3{
+                    0,
+                    0,
+                    0,
+                    0,
+                    (F32)current.diffuse.b,
+                    (F32)current.diffuse.g,
+                    (F32)current.diffuse.r,
+                    (F32)current.diffuse.a,
+                    (F32)current.diffuse.b,
+                    (F32)current.diffuse.g,
+                    (F32)current.diffuse.r,
+                    (F32)current.diffuse.a,
+                    current.u,
+                    current.v,
+                };
+
+                positions[i].rhw = 1.0;
+                ProjectFromModel(current.vv);
+
+                /*
+                F32 ProjectFromModel(Vector& dst)
+                {
+                    F32 w = SetHomogeneousFromModel_I(dst);
+                    inline F32 SetHomogeneousFromModel_I(Vector & dst)
+                    {
+                        TransformFromModel(dst);
+                        inline void TransformFromModel(Vector& dst)
+                        {
+                            Math::transformMatrix.Transform(dst);
+                        }
+
+                        return SetHomogeneousFromCamera_I(dst);
+                        inline F32 SetHomogeneousFromCamera_I(Vector& dst)
+                        {
+                            F32 rhw = W(dst.z);
+
+                            dst.x = dst.x * Math::projMatrix.right.x;
+                            dst.y = dst.y * Math::projMatrix.up.y;
+                            dst.z = dst.z * Math::projMatrix.front.z + Math::projMatrix.posit.z;
+
+                            return rhw;
+                        }
+                    }
+
+                    return ProjectFromHomogeneous_I(dst, w);
+                    // return rhw
+                    //
+                    inline F32 ProjectFromHomogeneous_I(Vector& dst, F32 w, const Vector& src)
+                    {
+                        F32 rhw = 1.0f / w;
+                        dst.x = src.x * Math::size.x * rhw + Math::origin.x;
+                        dst.y = src.y * Math::size.y * rhw + Math::origin.y;
+                        dst.z = src.z * rhw;
+                        return rhw;
+                    }
+                }
+                */
+
+                positions[i].x = current.vv.x;
+                positions[i].y = current.vv.y;
+                positions[i].z = current.vv.z;
+            }
+
+            glUseProgram(main_shader_program);
+
+            glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, ((Vec3*)positions), GL_DYNAMIC_DRAW);
+
+            int position_attrib_index = 0;
+            int diffuse_attrib_index = 1;
+            int specular_attrib_index = 2;
+            int texcoord_attrib_index = 3;
+
+            glEnableVertexAttribArray(position_attrib_index);
+            glEnableVertexAttribArray(diffuse_attrib_index);
+            glEnableVertexAttribArray(specular_attrib_index);
+            glEnableVertexAttribArray(texcoord_attrib_index);
+
+            GLintptr vertex_position_offset = 0;
+            GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
+            GLintptr vertex_specular_offset = 8 * sizeof(F32);
+            GLintptr vertex_texcoord_offset = 12 * sizeof(F32);
+
+            glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
+            glVertexAttribPointer(diffuse_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
+            glVertexAttribPointer(specular_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
+            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
+
+            int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
+            float mat_Ident[] = {
+                1, 0, 0, 0,
+                0, -1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            };
             glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
 
             int primType = GL_TRIANGLES;
@@ -2078,6 +2187,232 @@ namespace Vid
             glDisableVertexAttribArray(diffuse_attrib_index);
             glDisableVertexAttribArray(specular_attrib_index);
             glDisableVertexAttribArray(texcoord_attrib_index);
+        }
+
+        if (vert_type == FVF_T2CVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_LVERTEX) {
+            return D3D_OK;
+        }
+
+        if (vert_type == FVF_T2LVERTEX) {
+            return D3D_OK;
+        }
+
+        // JONATHAN
+        // D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1
+        if (vert_type == FVF_TLVERTEX) {
+
+            // DEBUGGING
+            //
+
+            struct Vec3 {
+                F32 x, y, z, rhw; // 4, 8, 12, 16 bytes
+                F32 r, g, b, a;
+                F32 i, j, k, l;
+                F32 u, v;
+            };
+
+            int v3size = sizeof(Vec3);
+
+            Vec3* positions = (Vec3*)alloca(vert_count * v3size);
+            for (DWORD i = 0; i < vert_count; i++) {
+                VertexTL current = ((VertexTL*)verts)[i];
+                positions[i] = Vec3{
+                    (current.vv.x),
+                    (current.vv.y),
+                    current.vv.z,
+                    current.rhw,
+                    (F32)current.diffuse.b,
+                    (F32)current.diffuse.g,
+                    (F32)current.diffuse.r,
+                    (F32)current.diffuse.a,
+                    (F32)current.specular.r,
+                    (F32)current.specular.g,
+                    (F32)current.specular.b,
+                    (F32)current.specular.a,
+                    current.u,
+                    current.v,
+                };
+            }
+
+            glUseProgram(main_shader_program);
+
+            glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, ((Vec3*)positions), GL_DYNAMIC_DRAW);
+
+            int position_attrib_index = 0;
+            int diffuse_attrib_index = 1;
+            int specular_attrib_index = 2;
+            int texcoord_attrib_index = 3;
+
+            glEnableVertexAttribArray(position_attrib_index);
+            glEnableVertexAttribArray(diffuse_attrib_index);
+            glEnableVertexAttribArray(specular_attrib_index);
+            glEnableVertexAttribArray(texcoord_attrib_index);
+
+            GLintptr vertex_position_offset = 0;
+            GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
+            GLintptr vertex_specular_offset = 8 * sizeof(F32);
+            GLintptr vertex_texcoord_offset = 12 * sizeof(F32);
+
+            glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
+            glVertexAttribPointer(diffuse_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
+            glVertexAttribPointer(specular_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
+            glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_texcoord_offset);
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
+
+            int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
+            float mat_Ident[] = {
+                1, 0, 0, 0,
+                0, -1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            };
+            glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
+
+            int primType = GL_TRIANGLES;
+            switch (prim_type) {
+            case PT_POINTLIST:
+                primType = GL_POINTS;
+                break;
+            case PT_LINELIST:
+                primType = GL_LINES;
+                break;
+            case PT_LINESTRIP:
+                primType = GL_LINE_STRIP;
+                break;
+            case PT_TRIANGLELIST:
+                primType = GL_TRIANGLES;
+                break;
+            case PT_TRIANGLESTRIP:
+                primType = GL_TRIANGLE_STRIP;
+                break;
+            case PT_TRIANGLEFAN:
+                primType = GL_TRIANGLE_FAN;
+                break;
+            }
+
+            SetBlendUniforms(blends, renderState.status.texStaged);
+            glDrawElements(primType, index_count, GL_UNSIGNED_SHORT, nullptr);
+            ClearBlendUniforms();
+
+            glDisableVertexAttribArray(position_attrib_index);
+            glDisableVertexAttribArray(diffuse_attrib_index);
+            glDisableVertexAttribArray(specular_attrib_index);
+            glDisableVertexAttribArray(texcoord_attrib_index);
+
+            //
+            // DEBUGGING
+
+            // EXISTING
+            //
+
+            // int v3size = sizeof(VertexTL);
+            //
+            // glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            // glBufferData(GL_ARRAY_BUFFER, vert_count * v3size, verts, GL_DYNAMIC_DRAW);
+            //
+            // int position_attrib_index = 0;
+            // int diffuse_attrib_index = 1;
+            // int specular_attrib_index = 2;
+            // int texcoord_attrib_index = 3;
+            //
+            // glEnableVertexAttribArray(position_attrib_index);
+            // glEnableVertexAttribArray(diffuse_attrib_index);
+            // glEnableVertexAttribArray(specular_attrib_index);
+            // glEnableVertexAttribArray(texcoord_attrib_index);
+            //
+            // GLintptr vertex_position_offset = 0;
+            // GLintptr vertex_diffuse_offset = 4 * sizeof(F32);
+            // GLintptr vertex_specular_offset = vertex_diffuse_offset + 4 * sizeof(U8);
+            // GLintptr vertex_texcoord_offset = vertex_specular_offset + 4 * sizeof(U8);
+            //
+            // glVertexAttribPointer(position_attrib_index, 4, GL_FLOAT, GL_FALSE, v3size, (GLvoid*)vertex_position_offset);
+            // glVertexAttribPointer(diffuse_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_diffuse_offset);
+            // glVertexAttribPointer(specular_attrib_index, 4, GL_UNSIGNED_BYTE, GL_FALSE, v3size, (GLvoid*)vertex_specular_offset);
+            // glVertexAttribPointer(texcoord_attrib_index, 2, GL_FLOAT, GL_TRUE, v3size, (GLvoid*)vertex_texcoord_offset);
+            //
+            // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+            // glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), ((unsigned short*)indices), GL_DYNAMIC_DRAW);
+            //
+            // glUseProgram(main_shader_program);
+            //
+            // int modelMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Model");
+            // int viewMatrixLocation = glGetUniformLocation(main_shader_program, "mat_View");
+            // int projMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Proj");
+            // int identMatrixLocation = glGetUniformLocation(main_shader_program, "mat_Ident");
+            //
+            // MATRIX_STRUCT mm = CurCamera().WorldMatrix().Mat;
+            // float mat_Model[] = {
+            //     mm.right.x, mm.right.y, mm.right.z, mm.right.w,
+            //     mm.up.x,    mm.up.y,    mm.up.z,    mm.up.w,
+            //     mm.front.x, mm.front.y, mm.front.z, mm.front.w,
+            //     mm.posit.x, mm.posit.y, mm.posit.z, mm.posit.w,
+            // };
+            //
+            // MATRIX_STRUCT ml = CurCamera().ViewMatrix().Mat;
+            // float mat_View[] = {
+            //     ml.right.x, ml.right.y, ml.right.z, ml.right.w,
+            //     ml.up.x,    ml.up.y,    ml.up.z,    ml.up.w,
+            //     ml.front.x, ml.front.y, ml.front.z, ml.front.w,
+            //     ml.posit.x, ml.posit.y, ml.posit.z, ml.posit.w,
+            // };
+            //
+            // MATRIX_STRUCT mp = CurCamera().ProjMatrix().Mat;
+            // float mat_Proj[] = {
+            //     mp.right.x, mp.right.y, mp.right.z, mp.right.w,
+            //     mp.up.x,    mp.up.y,    mp.up.z,    mp.up.w,
+            //     mp.front.x, mp.front.y, mp.front.z, mp.front.w,
+            //     mp.posit.x, mp.posit.y, mp.posit.z, mp.posit.w,
+            // };
+            //
+            // float mat_Ident[] = {
+            //     1, 0, 0, 0,
+            //     0, -1, 0, 0,
+            //     0, 0, 1, 0,
+            //     0, 0, 0, 1
+            // };
+            //
+            // glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, mat_Model);
+            // glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, mat_View);
+            // glUniformMatrix4fv(projMatrixLocation, 1, GL_FALSE, mat_Proj);
+            // glUniformMatrix4fv(identMatrixLocation, 1, GL_FALSE, mat_Ident);
+            //
+            // int primType = GL_TRIANGLES;
+            // switch (prim_type) {
+            // case PT_POINTLIST:
+            //     primType = GL_POINTS;
+            //     break;
+            // case PT_LINELIST:
+            //     primType = GL_LINES;
+            //     break;
+            // case PT_LINESTRIP:
+            //     primType = GL_LINE_STRIP;
+            //     break;
+            // case PT_TRIANGLELIST:
+            //     primType = GL_TRIANGLES;
+            //     break;
+            // case PT_TRIANGLESTRIP:
+            //     primType = GL_TRIANGLE_STRIP;
+            //     break;
+            // case PT_TRIANGLEFAN:
+            //     primType = GL_TRIANGLE_FAN;
+            //     break;
+            // }
+            //
+            // SetBlendUniforms(blends, renderState.status.texStaged);
+            // glDrawElements(primType, index_count, GL_UNSIGNED_SHORT, nullptr);
+            // ClearBlendUniforms();
+            //
+            // glDisableVertexAttribArray(position_attrib_index);
+            // glDisableVertexAttribArray(diffuse_attrib_index);
+            // glDisableVertexAttribArray(specular_attrib_index);
+            // glDisableVertexAttribArray(texcoord_attrib_index);
 
             //
             // EXISTING

@@ -246,36 +246,42 @@ void Bitmap::Manager::MovieNextFrame()
         // JONATHAN
         //
 
-        bool prevAlpha = Vid::SetAlphaState(0);
+        if (Vid::isStatus.ogl) {
 
-        glClearColor(1, 0, 1, 1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            bool prevAlpha = Vid::SetAlphaState(0);
 
-        static bool loaded = false;
-        if (!loaded)
-        {
-            loaded = true;
-            Vid::LoadDefaultShaders();
-            glUseProgram(Vid::main_shader_program);
+            glClearColor(1, 0, 1, 1);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            static bool loaded = false;
+            if (!loaded)
+            {
+                loaded = true;
+                Vid::LoadDefaultShaders();
+                glUseProgram(Vid::main_shader_program);
+            }
+            //Vid::LoadDefaultShaders();
+            //glUseProgram(Vid::main_shader_program);
+            //Vid::SetUniformBool("doInterface", GL_TRUE);
+
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            // Unset last texture so new texture is accepted.
+            Vid::SetTexture(0, 0);
+
+            Area<S32> rect = Area<S32>(0, 0, Vid::viewRect.Width(), Vid::viewRect.Height());
+            Vid::RenderRectangle(rect, 0xffffffff, tail, RS_BLEND_DEF, Vid::sortDEBUG0, 0, 0, true);
+            Vid::RenderFlush();
+
+            //U8* pixels = new U8[tail->Width() * tail->Height() * 4];
+            //Utils::Memset(pixels, 128, tail->Width() * tail->Height() * 4);
+            //glDrawPixels(tail->Width(), tail->Height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+            //delete[]pixels;
+            //glDrawPixels(tail->Width(), tail->Height(), GL_RGBA, GL_UNSIGNED_BYTE, tail->DecodedMem());
+
+            Vid::SetAlphaState(prevAlpha);
         }
-        //Vid::LoadDefaultShaders();
-        //glUseProgram(Vid::main_shader_program);
-        //Vid::SetUniformBool("doInterface", GL_TRUE);
-
-        // Unset last texture so new texture is accepted.
-        Vid::SetTexture(0, 0);
-
-        Area<S32> rect = Area<S32>(0, 0, Vid::viewRect.Width(), Vid::viewRect.Height());
-        Vid::RenderRectangle(rect, 0xffffffff, tail, RS_BLEND_DEF, Vid::sortDEBUG0, 0, 0, true);
-        Vid::RenderFlush();
-
-        //U8* pixels = new U8[tail->Width() * tail->Height() * 4];
-        //Utils::Memset(pixels, 128, tail->Width() * tail->Height() * 4);
-        //glDrawPixels(tail->Width(), tail->Height(), GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-        //delete[]pixels;
-        //glDrawPixels(tail->Width(), tail->Height(), GL_RGBA, GL_UNSIGNED_BYTE, tail->DecodedMem());
-
-        Vid::SetAlphaState(prevAlpha);
 
         //
         // JONATHAN
