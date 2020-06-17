@@ -26,13 +26,13 @@ BEGIN
       VALUE "FileDescription", "Dark Reign 2\0"
       VALUE "LegalCopyright", "Copyright © 1997-2000\0"
       VALUE "CompanyName", "Pandemic Studios\0"
-      VALUE "Comments", "RELEASE\0"
-      VALUE "Build String", "Dark Reign 2 b0 [RELEASE] Wed Apr 22 19:54:00 2020\0"
-      VALUE "Build Time", "19:54:00\0"
-      VALUE "Build Date", "04/22/20\0"
+      VALUE "Comments", "DEVELOPMENT\0"
+      VALUE "Build String", "Dark Reign 2 b0 [DEVELOPMENT] Thu Jun 18 04:11:35 2020\0"
+      VALUE "Build Time", "04:11:35\0"
+      VALUE "Build Date", "06/18/20\0"
       VALUE "Build Number", "0\0"
       VALUE "Build User", "razod\0"
-      VALUE "Build Machine", "DESKTOP-E510A8S\0"
+      VALUE "Build Machine", "JONATHAN-WIN10\0"
       VALUE "Build OS", "Windows NT v6.2  Build 9200\0"
     END
   END

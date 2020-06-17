@@ -17,9 +17,13 @@
 #include "..\3rdparty\won\Msg\ServerStatus.h"
 #include "..\3rdparty\won\WonHttp.h"
 */
+
+#include "MINTCLIENT.h"
+
+#include "Identity.h"
+
 #pragma warning(pop)
 
 //#pragma comment (lib, "..\\3rdparty\\won\\titanapi")
 
 #endif
-

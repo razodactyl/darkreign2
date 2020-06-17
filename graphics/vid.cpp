@@ -294,6 +294,8 @@ namespace Vid
     //
     Bool SetMode(U32 mode, U32 width, U32 height, Bool force) // = FALSE
     {
+        mode = VIDMODEWINDOW;
+
         // if nothing needs to be done...
         if (Vid::isStatus.initialized == TRUE && !force && curMode == mode &&
             viewRect.Width() == (S32)width && viewRect.Height() == (S32)height)
