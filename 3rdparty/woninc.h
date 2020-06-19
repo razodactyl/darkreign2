@@ -20,7 +20,9 @@
 
 #include "MINTCLIENT.h"
 
+#include "Directory.h"
 #include "Identity.h"
+#include "RoutingServerClient.h"
 
 #pragma warning(pop)
 

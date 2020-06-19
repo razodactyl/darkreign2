@@ -24,25 +24,25 @@ typedef U32 CRC;
 namespace Crc
 {
 
-  //
-  // Calculate the CRC of given buffer (32bit)
-  //
-  U32 Calc(const void *buff, U32 len, U32 crc = 0);
+    //
+    // Calculate the CRC of given buffer (32bit)
+    //
+    U32 Calc(const void* buff, U32 len, U32 crc = 0);
 
-  //
-  // As for Calc but using lowercase ascii characters
-  //
-  U32 CalcLower(const void *buff, U32 len, U32 crc = 0);
+    //
+    // As for Calc but using lowercase ascii characters
+    //
+    U32 CalcLower(const void* buff, U32 len, U32 crc = 0);
 
-  //
-  // As for CalcLower, but stops at null terminator
-  //
-  U32 CalcStr(const char *str, U32 crc = 0);
+    //
+    // As for CalcLower, but stops at null terminator
+    //
+    U32 CalcStr(const char* str, U32 crc = 0);
 
-  //
-  // CalcStr for Unicode strings
-  //
-  U32 CalcStr(const CH *str, U32 crc = 0);
+    //
+    // CalcStr for Unicode strings
+    //
+    U32 CalcStr(const CH* str, U32 crc = 0);
 
 }
 

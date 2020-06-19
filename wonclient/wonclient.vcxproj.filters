@@ -30,6 +30,12 @@
     <ClInclude Include="Identity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Directory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RoutingServerClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -42,6 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Identity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Directory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RoutingServerClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

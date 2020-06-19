@@ -5,7 +5,9 @@
 #include "framework.h"
 
 #include "MINTCLIENT.h"
+#include "Directory.h"
 #include "Identity.h"
+#include "RoutingServerClient.h"
 
 #include "styxnet_clientmessage.h"
 #include "styxnet_serverresponse.h"
@@ -14,75 +16,6 @@
 
 namespace MINTCLIENT
 {
-    Win32::Thread t;
-
-    template<class T>
-    U32 STDCALL Process(void* context)
-    {
-        auto cl = static_cast<Client::ContextList<T>*>(context);
-
-        bool doneProcessing = false;
-
-        while (!doneProcessing)
-        {
-            void* ctx;
-
-            if (cl->events.Wait(ctx, TRUE, 1000))
-            {
-                const auto cc = static_cast<Client::CommandContext*>(ctx);
-                switch (cc->command)
-                {
-                case 0x11223344:
-                    DirectoryResult result;
-                    auto directoryEntity = DirectoryEntity();
-                    directoryEntity.mName = L"AuthServer";
-                    result.entityList.push_back(directoryEntity);
-                    result.error = WONAPI::Error_Success;
-                    cl->callback(result);
-                    break;
-                }
-
-                doneProcessing = true;
-            }
-        }
-
-        return TRUE;
-    }
-
-    //
-    // MINT:Router:GetDirectoryEx
-    //
-    WONAPI::Error GetDirectoryEx(
-        MINTCLIENT::Identity* identity,
-        const std::vector<MINTCLIENT::IPSocket::Address>* servers,
-        void (*callback)(const MINTCLIENT::DirectoryResult& result)
-    )
-    {
-        auto* cl = new MINTCLIENT::Client::ContextList<MINTCLIENT::DirectoryResult>();
-        cl->callback = callback;
-
-        for (auto server = servers->begin(); server != servers->end(); ++server)
-        {
-            MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(Win32::Socket::Address(server->ip, U16(server->port)));
-            MINTCLIENT::Client* client = new MINTCLIENT::Client(*c);
-
-            // Go away, process the command, callback if there's a result.
-            auto ctx = new Client::CommandContext(client);
-            ctx->command = 0x11223344;
-
-            cl->Add(ctx);
-
-            client->SendCommand(ctx);
-        }
-
-        // Should have finished by now.
-        ASSERT(!t.IsAlive());
-
-        t.Start(Process<MINTCLIENT::DirectoryResult>, cl);
-
-        return WONAPI::Error_Pending;
-    }
-
     // Bookkeeping
     static const U32 maxClients = 1;
     static Win32::CritSec clientsCritSec;
@@ -147,6 +80,8 @@ namespace MINTCLIENT
 
     void Client::SendCommand(CommandContext* context)
     {
+        LDIAG("MINTCLIENT::Client::SendCommand");
+
         commandContext = context;
         eventCommand.Signal();
     }
@@ -158,9 +93,9 @@ namespace MINTCLIENT
     //
     U32 STDCALL Client::ThreadProc(void* context)
     {
-        Client* client = static_cast<Client*>(context);
+        LOG_DIAG(("MINTCLIENT main thread enter."));
 
-        LOG_DIAG(("Proc"));
+        Client* client = static_cast<Client*>(context);
 
         // Initiate the connection
         client->socket.Bind(Win32::Socket::Address(ADDR_ANY, 0));
@@ -228,17 +163,14 @@ namespace MINTCLIENT
                         // If we're connected, send off the command else requeue.
                         if ((client->flags & StyxNet::ClientFlags::Connected) == StyxNet::ClientFlags::Connected)
                         {
-                            StyxNet::Packet& pkt = StyxNet::Packet::Create(
-                                client->GetCommandContext()->command,
-                                0
-                            );
                             // Send off the command, handle in network event callback (ProcessPacket).
-                            pkt.Send(client->socket);
+                            client->GetCommandContext()->Send();
                         }
                         else
                         {
                             // Not connected yet, requeue the command.
                             client->SendCommand(client->GetCommandContext());
+                            Sleep(1000);
                         }
                     }
                     else if (context == &client)
@@ -257,11 +189,13 @@ namespace MINTCLIENT
         client->thread.Clear();
         delete client;
 
+        LOG_DIAG(("MINTCLIENT main thread exit."));
+
         return (0x6666);
     }
 
     //
-    // Handle incoming packet, route to approprite handler.
+    // Handle incoming packet, route to appropriate handler.
     //
     void MINTCLIENT::Client::ProcessPacket(const StyxNet::Packet& packet)
     {
@@ -272,11 +206,23 @@ namespace MINTCLIENT
             flags |= StyxNet::ClientFlags::Connected;
             break;
 
-        case 0x11223344:
+            // For a known packet, if it's the response to a command, pull up command context and deal with it.
+        case MINTCLIENT::Directory::DirectoryCommand:
             commandContext->commandDone.Signal();
             break;
 
         case MINTCLIENT::Identity::AuthenticateCommand:
+        {
+            auto r = MINTCLIENT::Identity::Result();
+            r.error = WONAPI::Error_Success;
+            r.message.Set("Hello");
+            commandContext->SetData(r);
+            commandContext->commandDone.Signal();
+        }
+        break;
+
+        case MINTCLIENT::RoutingServerClient::ConnectRoomCommand:
+        case MINTCLIENT::RoutingServerClient::Room_RegisterCommand:
             commandContext->commandDone.Signal();
             break;
 
@@ -288,8 +234,6 @@ namespace MINTCLIENT
             // Unknown packet command
             LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
             break;
-
-            // For a known packet, if it's the response to a command, pull up command context and deal with it.
         }
     }
 }

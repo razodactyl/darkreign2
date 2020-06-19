@@ -693,8 +693,8 @@ namespace Won
                     if (ctrl)
                     {
                         WonIface::UnignorePlayer(ctrl->GetTextString());
-                        CONSOLE(0x4ECF28BA, ("Now unignoring '%s'", Utils::Unicode2Ansi(ctrl->GetTextString())))
-                            // "WonChatLocal"
+                        CONSOLE(0x4ECF28BA, ("Now unignoring '%s'", Utils::Unicode2Ansi(ctrl->GetTextString())));
+                        // "WonChatLocal"
                     }
                 }
                 else
@@ -770,10 +770,9 @@ namespace Won
                                     WonIface::PrivateMessage(Utils::Unicode2Ansi(p->GetTextString()), chatBuff);
 
                                     // Echo locally
-                                    CONSOLE(0x4ECF28BA,
-                                        (TRANSLATE(("#won.chat.privmsg", 2, p->GetTextString(), chatBuff))))
-                                        // "WonChatLocal"
-                                        break;
+                                    CONSOLE(0x4ECF28BA, (TRANSLATE(("#won.chat.privmsg", 2, p->GetTextString(), chatBuff))));
+                                    // "WonChatLocal"
+                                    break;
                                 }
                             }
                         }

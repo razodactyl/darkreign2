@@ -16,26 +16,6 @@
 
 namespace WONAPI
 {
-    namespace IPSocket
-    {
-        struct Address
-        {
-            char* ip;
-
-            Address(const char* s)
-            {
-                ip = new char[sizeof(*s)];
-                memcpy(ip, s, strlen(s));
-            };
-
-            Address() : ip(0) {};
-
-            ~Address()
-            {
-            };
-        };
-    }
-
     struct DirEntityListResult
     {
         Error error;
@@ -49,100 +29,6 @@ namespace WONAPI
     struct StartTitanServerResult
     {
         //
-    };
-
-    struct RoutingServerClient
-    {
-        const U32 GROUPID_ALLUSERS = 0;
-
-        RoutingServerClient()
-        {
-            //
-        }
-
-        struct RegisterClientResult
-        {
-            //
-        };
-
-        struct GetClientListResult
-        {
-            //
-        };
-
-        struct ReadDataObjectResult
-        {
-            //
-        };
-
-        struct GetNumUsersResult
-        {
-            //
-        };
-
-        struct ClientDataWithReason
-        {
-            //
-        };
-
-        struct ClientIdWithReason
-        {
-            //
-        };
-
-        struct ClientIdWithFlag
-        {
-            //
-        };
-
-        struct ClientId
-        {
-            //
-        };
-
-        struct DataObjectWithLifespan
-        {
-            //
-        };
-
-        struct DataObject
-        {
-            //
-        };
-
-        struct DataObjectModification
-        {
-            //
-        };
-
-        struct ASCIIChatMessage
-        {
-            //
-        };
-
-        struct UnicodeChatMessage
-        {
-            //
-        };
-
-        struct RawChatMessage
-        {
-            //
-        };
-
-        void InstallClientEnterExCatcherEx(void* callback, void* p)
-        {
-            //
-        }
-
-        void GetNumUsersEx(unsigned short theTag, void* callback, void* privsType)
-        {
-        }
-
-        void Close()
-        {
-            //
-        }
     };
 }
 
@@ -201,6 +87,7 @@ void WONTerminate();
 namespace MINTCLIENT
 {
     struct Identity;
+    struct Directory;
 
     namespace IPSocket
     {
@@ -222,30 +109,23 @@ namespace MINTCLIENT
                 this->ip = ip;
                 this->port = port;
             };
+
+            Address() {};
+
             ~Address() {};
 
             MINTCLIENT::IPSocket::Address FromString(const char* address);
         };
     }
 
+    //
+    // Response sent back from server.
+    //
     struct CommandResult
     {
         WONAPI::Error error = WONAPI::Error_Failure;
+        StrCrc<256> message;
     };
-
-    struct DirectoryEntity
-    {
-        std::wstring mName;
-    };
-
-    typedef std::list<DirectoryEntity> DirectoryEntityList;
-
-    struct DirectoryResult : CommandResult
-    {
-        DirectoryEntityList entityList;
-    };
-
-    WONAPI::Error GetDirectoryEx(MINTCLIENT::Identity* identity, const std::vector<MINTCLIENT::IPSocket::Address>* servers, void (*callback)(const DirectoryResult& result));
 
     class Client : public StyxNet::EventQueue
     {
@@ -268,21 +148,49 @@ namespace MINTCLIENT
 
         struct CommandContext
         {
-            // Command to send off to the server.
-            CRC command;
-            // Signal that we're done processing this command.
-            Win32::EventIndex commandDone;
             // The client attached to this command.
             Client* client;
 
-            CommandContext(Client* client) : client(client)
+            // Command to send off to the server.
+            CRC command;
+            U8* data;
+            size_t data_size;
+
+            // Signal that we're done processing this command.
+            Win32::EventIndex commandDone;
+
+            template <class DATA> void SetData(const DATA& data)
             {
+                this->data_size = sizeof(DATA);
+                this->data = new U8[data_size];
+                memcpy(this->data, &data, this->data_size);
+            }
+
+            Bool Send()
+            {
+                StyxNet::Packet& pkt = StyxNet::Packet::Create(
+                    command,
+                    data_size
+                );
+
+                U8* pkt_d = pkt.GetData();
+                Utils::Memcpy(pkt_d, data, data_size);
+
+                return pkt.Send(client->socket);
+            }
+
+            CommandContext(Client* client) : client(client), data_size(0)
+            {
+            }
+
+            ~CommandContext()
+            {
+                delete[] data;
             }
         };
 
 
-        template <class T>
-        struct ContextList
+        template <class T> struct ContextList
         {
             Win32::EventIndex::List<32> events;
             std::vector<CommandContext> contexts;
