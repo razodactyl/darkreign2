@@ -1,4 +1,6 @@
 #pragma once
+#include <map>
+
 #include "MINTCLIENT.h"
 #include "Errors.h"
 
@@ -7,21 +9,6 @@ namespace MINTCLIENT
 {
     struct RoutingServerClient
     {
-        static const unsigned int GetNumUsersCommand = 0x00000000;
-
-        static const unsigned int CreateGameCommand = 0x00000001;
-        static const unsigned int UpdateGameCommand = 0x00000002;
-        static const unsigned int DeleteGameCommand = 0x00000003;
-
-        static const unsigned int GetUserAddressCommand = 0x00000004;
-
-        static const unsigned int BroadcastChatCommand = 0x00000005;
-        static const unsigned int WhisperChatCommand = 0x00000006;
-
-        static const unsigned int ConnectRoomCommand = 0x00000007;
-        static const unsigned int Room_RegisterCommand = 0x00000009;
-        static const unsigned int DisconnectCommand = 0x00000008;
-
         struct Data
         {
             struct ConnectRoomContext
@@ -31,17 +18,26 @@ namespace MINTCLIENT
                 MINTCLIENT::RoutingServerClient* routingServer;
             };
 
-            struct GetClientListResult
-            {
-                //
+            typedef unsigned short ClientId;
+            typedef StrCrc<32, CH> ClientName;
+
+            // Client data
+            struct ClientData {
+                ClientId       mClientId;
+                ClientName     mClientName;
+                unsigned long  mIPAddress;
+                unsigned long  mWONUserId;
+                unsigned long  mCommunityId;
+                unsigned short mTrustLevel;
+                bool           mIsModerator;
+                bool           mIsMuted;
+
+                ClientData() : mClientId(0), mIPAddress(0), mWONUserId(0), mCommunityId(0), mTrustLevel(0), mIsModerator(false), mIsMuted(false) {}
             };
+
+            typedef std::list<ClientData> ClientDataList;
 
             struct ReadDataObjectResult
-            {
-                //
-            };
-
-            struct GetNumUsersResult
             {
                 //
             };
@@ -57,11 +53,6 @@ namespace MINTCLIENT
             };
 
             struct ClientIdWithFlag
-            {
-                //
-            };
-
-            struct ClientId
             {
                 //
             };
@@ -83,7 +74,17 @@ namespace MINTCLIENT
 
             struct ASCIIChatMessage
             {
-                //
+                static const int CHATTYPE_ASCII_EMOTE = 0x01;
+                static const int CHATTYPE_ASCII = 0x02;
+
+                ClientId mSenderId;
+                int mChatType;
+                std::string mData;
+
+                static bool IsWhisper()
+                {
+                    return 0;
+                }
             };
 
             struct UnicodeChatMessage
@@ -97,34 +98,36 @@ namespace MINTCLIENT
             };
         };
 
-        struct Result : CommandResult
+        struct Result : CommandResult {};
+
+        struct ConnectRoomResult : Result {};
+        struct RegisterClientResult : Result {};
+
+        struct GetNumUsersResult : Result {};
+        struct GetClientListResult : Result
         {
+            Data::ClientDataList clientDataList;
         };
 
-        struct ConnectRoomResult : Result
+        struct ASCIIChatMessageResult : Result
         {
-            RoutingServerClient::Data::ConnectRoomContext context;
-        };
-
-        struct RegisterClientResult : Result
-        {
-        };
-
-        struct GetNumUsersResult : Result
-        {
-            //
+            Data::ASCIIChatMessage chatMessage;
         };
 
         // Persistent connection to server.
         MINTCLIENT::Client* client;
 
-        static WONAPI::Error InstallClientEnterCatcher();
+        static const int ID_ASCIIPeerChatCatcher = 0;
+        std::map<int, std::list<MINTCLIENT::Client::ContextList<MINTCLIENT::RoutingServerClient::ASCIIChatMessageResult>*>> catchers;
+        WONAPI::Error InstallASCIIPeerChatCatcher(void (*callback)(const RoutingServerClient::ASCIIChatMessageResult& message), void* context);
 
-        WONAPI::Error GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result));
+        WONAPI::Error GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context);
+        WONAPI::Error GetUserList(void (*callback)(const RoutingServerClient::GetClientListResult& result), void* context);
 
-        WONAPI::Error Register(const char* loginName, const char* password, bool becomeHost, bool becomeSpectator, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result));
+        WONAPI::Error Register(const CH* loginName, const CH* password, bool becomeHost, bool becomeSpectator, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context);
+        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address routingAddress, MINTCLIENT::Identity* identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context);
 
-        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address routingAddress, MINTCLIENT::Identity* identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result));
+        WONAPI::Error BroadcastChat(std::wstring& text, bool f);
 
         void Close();
 

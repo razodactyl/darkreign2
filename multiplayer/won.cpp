@@ -170,113 +170,113 @@ namespace Won
         {
             switch (message)
             {
-            case WonIface::Message::HTTPProgressUpdate:
-            case WonIface::Message::HTTPCompleted:
-            case WonIface::Error::HTTPFailed:
-                MultiPlayer::Download::Message(message, data);
-                break;
+                case WonIface::Message::HTTPProgressUpdate:
+                case WonIface::Message::HTTPCompleted:
+                case WonIface::Error::HTTPFailed:
+                    MultiPlayer::Download::Message(message, data);
+                    break;
 
-            case WonIface::Message::FirewallStatus:
-                // Update our firewall status
+                case WonIface::Message::FirewallStatus:
+                    // Update our firewall status
 
-                break;
+                    break;
 
-            case WonIface::Message::Chat:
-            {
-                if (data)
+                case WonIface::Message::Chat:
                 {
-                    // Message passed from WON dll
-                    CAST(WonIface::Message::Data::Chat*, chat, data);
+                    if (data)
+                    {
+                        // Message passed from WON dll
+                        CAST(WonIface::Message::Data::Chat*, chat, data);
 
-                    switch (chat->id)
-                    {
-                    case WonIface::Message::Data::Chat::Private:
-                    {
-                        if (chat->user && chat->text)
+                        switch (chat->id)
                         {
-                            CONSOLE(0x975BA2F3, ((CH*)L"[%s] %s", chat->user, chat->text)) // "WonChatPrivate"
-                        }
-                        break;
-                    }
+                            case WonIface::Message::Data::Chat::Private:
+                            {
+                                if (chat->user && chat->text)
+                                {
+                                    CONSOLE(0x975BA2F3, ((CH*)L"[%s] %s", chat->user, chat->text)); // "WonChatPrivate"
+                                }
+                                break;
+                            }
 
-                    case WonIface::Message::Data::Chat::Emote:
-                    {
-                        if (chat->user && chat->text)
-                        {
-                            CONSOLE(0xFBEB0583, ((CH*)L"%s %s", chat->user, chat->text)) // "WonChatQuote"
-                        }
-                        break;
-                    }
+                            case WonIface::Message::Data::Chat::Emote:
+                            {
+                                if (chat->user && chat->text)
+                                {
+                                    CONSOLE(0xFBEB0583, ((CH*)L"%s %s", chat->user, chat->text)); // "WonChatQuote"
+                                }
+                                break;
+                            }
 
-                    case WonIface::Message::Data::Chat::Broadcast:
-                    {
-                        if (chat->user && chat->text)
-                        {
-                            CONSOLE(0x1141C706, ((CH*)L"[%s] %s", chat->user, chat->text)) // "WonChatMessage"
-                        }
-                        break;
-                    }
+                            case WonIface::Message::Data::Chat::Broadcast:
+                            {
+                                if (chat->user && chat->text)
+                                {
+                                    CONSOLE(0x1141C706, ((CH*)L"[%s] %s", chat->user, chat->text)); // "WonChatMessage"
+                                }
+                                break;
+                            }
 
-                    case WonIface::Message::Data::Chat::PlayerEntered:
-                    {
-                        if (chat->user)
-                        {
-                            CONSOLE(0x0BA030DB, ((CH*)L"'%s' entered the room", chat->user)) // "WonMessage"
-                        }
-                        break;
-                    }
+                            case WonIface::Message::Data::Chat::PlayerEntered:
+                            {
+                                if (chat->user)
+                                {
+                                    CONSOLE(0x0BA030DB, ((CH*)L"'%s' entered the room", chat->user)); // "WonMessage"
+                                }
+                                break;
+                            }
 
-                    case WonIface::Message::Data::Chat::PlayerLeft:
-                    {
-                        if (chat->user)
-                        {
-                            CONSOLE(0x0BA030DB, ((CH*)L"'%s' left the room", chat->user)) // "WonMessage"
-                        }
-                        break;
-                    }
+                            case WonIface::Message::Data::Chat::PlayerLeft:
+                            {
+                                if (chat->user)
+                                {
+                                    CONSOLE(0x0BA030DB, ((CH*)L"'%s' left the room", chat->user)); // "WonMessage"
+                                }
+                                break;
+                            }
 
-                    case WonIface::Message::Data::Chat::GameCreated:
-                    {
-                        if (chat->user && chat->text)
-                        {
-                            CONSOLE(0x0BA030DB, (TRANSLATE(("#won.chat.gamecreated", 2, chat->text, chat->user)))) // "WonMessage"
-                        }
-                        break;
-                    }
+                            case WonIface::Message::Data::Chat::GameCreated:
+                            {
+                                if (chat->user && chat->text)
+                                {
+                                    CONSOLE(0x0BA030DB, (TRANSLATE(("#won.chat.gamecreated", 2, chat->text, chat->user)))); // "WonMessage"
+                                }
+                                break;
+                            }
 
-                    case WonIface::Message::Data::Chat::GameDestroyed:
-                    {
-                        if (chat->text)
-                        {
-                            CONSOLE(0x0BA030DB, (TRANSLATE(("#won.chat.gameended", 1, chat->text)))) // "WonMessage"
+                            case WonIface::Message::Data::Chat::GameDestroyed:
+                            {
+                                if (chat->text)
+                                {
+                                    CONSOLE(0x0BA030DB, (TRANSLATE(("#won.chat.gameended", 1, chat->text)))); // "WonMessage"
+                                }
+                                break;
+                            }
                         }
-                        break;
-                    }
-                    }
 
-                    delete chat;
+                        delete chat;
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case WonIface::Message::EnteredRoom:
-                if (data)
-                {
-                    CAST(WonIface::Message::Data::EnteredRoom*, enteredRoom, data);
-
-                    // Update the name of the room
-                    if (wonChatCtrl.Alive())
+                case WonIface::Message::EnteredRoom:
+                    if (data)
                     {
-                        wonChatCtrl->SetTextString(TRANSLATE(("#won.chat.title", 1, enteredRoom->text)), TRUE);
-                    }
+                        CAST(WonIface::Message::Data::EnteredRoom*, enteredRoom, data);
 
-                    // Update the name of the games
-                    if (wonGamesCtrl.Alive())
-                    {
-                        wonGamesCtrl->SetTextString(TRANSLATE(("#won.chat.game.title", 1, enteredRoom->text)), TRUE);
+                        // Update the name of the room
+                        if (wonChatCtrl.Alive())
+                        {
+                            wonChatCtrl->SetTextString(TRANSLATE(("#won.chat.title", 1, enteredRoom->text)), TRUE);
+                        }
+
+                        // Update the name of the games
+                        if (wonGamesCtrl.Alive())
+                        {
+                            wonGamesCtrl->SetTextString(TRANSLATE(("#won.chat.game.title", 1, enteredRoom->text)), TRUE);
+                        }
                     }
-                }
-                break;
+                    break;
             }
 
             // Send the message to the WON window to update the interface
@@ -337,25 +337,25 @@ namespace Won
             {
                 switch (fScope->NameCrc())
                 {
-                case 0x7F6E34C2: // "DirectoryServers"
-                {
-                    FScope* sScope;
-                    while ((sScope = fScope->NextFunction()) != NULL)
+                    case 0x7F6E34C2: // "DirectoryServers"
                     {
-                        switch (sScope->NameCrc())
+                        FScope* sScope;
+                        while ((sScope = fScope->NextFunction()) != NULL)
                         {
-                        case 0x9F1D54D0: // "Add"
-                        {
-                            unresolvedServers.Append(new DirectoryServer(sScope));
-                            break;
+                            switch (sScope->NameCrc())
+                            {
+                                case 0x9F1D54D0: // "Add"
+                                {
+                                    unresolvedServers.Append(new DirectoryServer(sScope));
+                                    break;
+                                }
+                            }
                         }
-                        }
+                        break;
                     }
-                    break;
-                }
 
-                default:
-                    break;
+                    default:
+                        break;
                 }
             }
         }

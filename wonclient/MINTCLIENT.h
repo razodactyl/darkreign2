@@ -14,72 +14,6 @@
 #include "Errors.h"
 
 
-namespace WONAPI
-{
-    struct DirEntityListResult
-    {
-        Error error;
-    };
-
-    struct DetectFirewallResult
-    {
-        //
-    };
-
-    struct StartTitanServerResult
-    {
-        //
-    };
-}
-
-namespace WONCommon
-{
-    struct DataObjectTypeSet
-    {
-        void insert()
-        {
-
-        }
-    };
-
-    struct DataObject
-    {
-
-    };
-
-    struct RawBuffer
-    {
-        void assign()
-        {
-            //
-        }
-    };
-}
-
-namespace WONMsg
-{
-    namespace MMsgRoutingGetClientListReply
-    {
-        struct ClientData
-        {
-            std::wstring mClientName;
-            U32 mClientId;
-            Bool mIsModerator;
-            Bool mIsMuted;
-            long mIPAddress;
-        };
-    }
-
-    enum
-    {
-        StatusCommon_Success = 0,
-
-        StatusRouting_ObjectAlreadyExists,
-
-        StatusAuth_InvalidCDKey = 5,
-    };
-}
-
 void WONInitialize();
 void WONTerminate();
 
@@ -89,18 +23,47 @@ namespace MINTCLIENT
     struct Identity;
     struct Directory;
 
+    namespace Message
+    {
+        static const unsigned int ServerConnect = 0x433AB32B;                  // MINTCLIENT::Message::ServerConnect
+        static const unsigned int ServerShutdown = 0xD26E9A5C;                 // MINTCLIENT::Message::ServerShutdown
+
+        static const unsigned int IdentityAuthenticate = 0xCD5AF72B;           // MINTCLIENT::Message::IdentityAuthenticate
+
+        static const unsigned int DirectoryListServers = 0x77712BCE;           // MINTCLIENT::Message::DirectoryListServers
+        static const unsigned int DirectoryListRooms = 0x910DB9D4;             // MINTCLIENT::Message::DirectoryListRooms
+
+        static const unsigned int RoutingServerRoomConnect = 0xEE37226B;       // MINTCLIENT::Message::RoutingServerRoomConnect
+        static const unsigned int RoutingServerRoomRegister = 0x59938A8D;      // MINTCLIENT::Message::RoutingServerRoomRegister
+
+        static const unsigned int RoutingServerGetNumUsers = 0xACCD008F;       // MINTCLIENT::Message::RoutingServerGetNumUsers
+        static const unsigned int RoutingServerGetUserAddress = 0x24B1E0F;     // MINTCLIENT::Message::RoutingServerGetUserAddress
+        static const unsigned int RoutingServerGetUserList = 0x82E37940;       // MINTCLIENT::Message::RoutingServerGetUserList
+
+        static const unsigned int RoutingServerBroadcastChat = 0xC79C5EB4;     // MINTCLIENT::Message::RoutingServerBroadcastChat
+        static const unsigned int RoutingServerWhisperChat = 0x1A6C1A40;       // MINTCLIENT::Message::RoutingServerWhisperChat
+
+        static const unsigned int RoutingServerCreateGame = 0x2A0FB0FD;        // MINTCLIENT::Message::RoutingServerCreateGame
+        static const unsigned int RoutingServerUpdateGame = 0xB04C290F;        // MINTCLIENT::Message::RoutingServerUpdateGame
+        static const unsigned int RoutingServerDeleteGame = 0xDDCA3C97;        // MINTCLIENT::Message::RoutingServerDeleteGame
+
+        static const unsigned int RoutingServerDisconnect = 0xF9CE798B;        // MINTCLIENT::Message::RoutingServerDisconnect
+
+    }
+
     namespace IPSocket
     {
         struct Address
         {
             char* ip;
             int port;
+            char* addr;
 
             Address(const char* address)
             {
                 char* next_token;
 
-                char* addr = new char[strlen(address)];
+                addr = new char[strlen(address)];
                 memcpy_s(addr, strlen(address), address, strlen(address));
 
                 char* ip = strtok_s(addr, ":", &next_token);
@@ -112,9 +75,12 @@ namespace MINTCLIENT
 
             Address() {};
 
-            ~Address() {};
+            ~Address()
+            {
+                // delete addr;
+            };
 
-            MINTCLIENT::IPSocket::Address FromString(const char* address);
+            // MINTCLIENT::IPSocket::Address FromString(const char* address);
         };
     }
 
@@ -125,6 +91,7 @@ namespace MINTCLIENT
     {
         WONAPI::Error error = WONAPI::Error_Failure;
         StrCrc<256> message;
+        void* context;
     };
 
     class Client : public StyxNet::EventQueue
@@ -139,6 +106,11 @@ namespace MINTCLIENT
             {
             }
 
+            Config(const MINTCLIENT::IPSocket::Address& address)
+            {
+                this->address = Win32::Socket::Address(address.ip, U16(address.port));
+            }
+
             Config(const char* address)
             {
                 auto addr = IPSocket::Address(address);
@@ -151,19 +123,29 @@ namespace MINTCLIENT
             // The client attached to this command.
             Client* client;
 
+            // The context that spawned this command.
+            void* context;
+
             // Command to send off to the server.
             CRC command;
             U8* data;
             size_t data_size;
+            Bool wasProcessed;
 
             // Signal that we're done processing this command.
             Win32::EventIndex commandDone;
+            Win32::EventIndex abort;
 
             template <class DATA> void SetData(const DATA& data)
             {
                 this->data_size = sizeof(DATA);
                 this->data = new U8[data_size];
                 memcpy(this->data, &data, this->data_size);
+            }
+
+            template <class CONTEXT> void SetContext(const CONTEXT& context)
+            {
+                this->context = context;
             }
 
             Bool Send()
@@ -179,7 +161,7 @@ namespace MINTCLIENT
                 return pkt.Send(client->socket);
             }
 
-            CommandContext(Client* client) : client(client), data_size(0)
+            CommandContext(Client* client) : client(client), data_size(0), wasProcessed(0)
             {
             }
 
@@ -189,11 +171,11 @@ namespace MINTCLIENT
             }
         };
 
-
         template <class T> struct ContextList
         {
             Win32::EventIndex::List<32> events;
             std::vector<CommandContext> contexts;
+
             void (*callback)(const T& result);
 
             void Add(CommandContext* ctx)

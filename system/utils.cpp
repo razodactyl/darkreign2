@@ -807,31 +807,31 @@ namespace Utils
         // Clean up remainder
         switch (remainder)
         {
-        case 1:
-        {
-            base64data.ch[2] = *src++;
-            base64data.ch[1] = 0;
-            base64data.ch[0] = 0;
+            case 1:
+            {
+                base64data.ch[2] = *src++;
+                base64data.ch[1] = 0;
+                base64data.ch[0] = 0;
 
-            *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
-            *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
-            *dst++ = '=';
-            *dst++ = '=';
-            break;
-        }
+                *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
+                *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
+                *dst++ = '=';
+                *dst++ = '=';
+                break;
+            }
 
-        case 2:
-        {
-            base64data.ch[2] = *src++;
-            base64data.ch[1] = *src++;
-            base64data.ch[0] = 0;
+            case 2:
+            {
+                base64data.ch[2] = *src++;
+                base64data.ch[1] = *src++;
+                base64data.ch[0] = 0;
 
-            *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
-            *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
-            *dst++ = base64Encode[(base64data.i & 0x000FC0) >> 6];
-            *dst++ = '=';
-            break;
-        }
+                *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
+                *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
+                *dst++ = base64Encode[(base64data.i & 0x000FC0) >> 6];
+                *dst++ = '=';
+                break;
+            }
         }
 
         // Null terminate

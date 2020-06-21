@@ -23,7 +23,6 @@
 //
 namespace WonIface
 {
-
     //
     // Type definitions
     //
@@ -31,7 +30,6 @@ namespace WonIface
     typedef StrCrc<32, CH> RoomName;
     typedef StrCrc<32, char> GameName;
     typedef StrBuf<32, CH> PasswordStr;
-
 
 
     /////////////////////////////////////////////////////////////////////////////
@@ -45,7 +43,6 @@ namespace WonIface
 
         // Event's data
         void* data;
-
     };
 
 
@@ -74,7 +71,7 @@ namespace WonIface
         const U32 Chat = 0x0B3E6240; // "Message::Chat"
 
 
-        // The first room update was complted
+        // The first room update was completed
         const U32 InitialRoomUpdate = 0x217B7065; // "Message::InitialRoomUpdate"
 
         // A room update was completed
@@ -118,7 +115,6 @@ namespace WonIface
         //
         namespace Data
         {
-
             /////////////////////////////////////////////////////////////////////////
             //
             // Struct Chat
@@ -147,8 +143,8 @@ namespace WonIface
 
 
                 // Constructor
-                Chat(U32 id, const CH* text, const CH* user = NULL);
-                Chat(U32 id, const char* textIn, const CH* user = NULL);
+                Chat(U32 id, const CH* text, const CH* user = nullptr);
+                Chat(U32 id, const char* textIn, const CH* user = nullptr);
 
                 // Destructor
                 ~Chat();
@@ -193,7 +189,6 @@ namespace WonIface
                     size(size)
                 {
                 }
-
             };
 
 
@@ -215,11 +210,8 @@ namespace WonIface
                     isNew(isNew)
                 {
                 }
-
             };
-
         }
-
     };
 
 
@@ -230,71 +222,70 @@ namespace WonIface
     namespace Error
     {
         // Could not connect to WON
-        const U32 ConnectionFailure = 0x825F5FD5; // "Error::ConnectionFailure"
+        const U32 ConnectionFailure = 0x825F5FD5;               // "Error::ConnectionFailure"
 
         // User name is not registered
-        const U32 LoginInvalidUsername = 0x5B6E21DC; // "Error::LoginInvalidUsername"
+        const U32 LoginInvalidUsername = 0x5B6E21DC;            // "Error::LoginInvalidUsername"
 
         // Bad password
-        const U32 LoginInvalidPassword = 0xC67B2D75; // "Error::LoginInvalidPassword"
+        const U32 LoginInvalidPassword = 0xC67B2D75;            // "Error::LoginInvalidPassword"
 
         // General Login failure
-        const U32 LoginFailure = 0xBC3883EE; // "Error::LoginFailure"
+        const U32 LoginFailure = 0xBC3883EE;                    // "Error::LoginFailure"
 
         // Key expired
-        const U32 KeyExpired = 0xF3E8CDDB; // "Error::KeyExpired"
+        const U32 KeyExpired = 0xF3E8CDDB;                      // "Error::KeyExpired"
 
         // Verify failed
-        const U32 VerifyFailed = 0x4B26BEE8; // "Error::VerifyFailed"
+        const U32 VerifyFailed = 0x4B26BEE8;                    // "Error::VerifyFailed"
 
         // Locked out
-        const U32 LockedOut = 0x3362E2C3; // "Error::LockedOut"
+        const U32 LockedOut = 0x3362E2C3;                       // "Error::LockedOut"
 
         // Key In use
-        const U32 KeyInUse = 0x1923FD31; // "Error::KeyInUse"
+        const U32 KeyInUse = 0x1923FD31;                        // "Error::KeyInUse"
 
         // Invalid CD key
-        const U32 KeyInvalid = 0xC6081FDB; // "Error::KeyInvalid"
-
+        const U32 KeyInvalid = 0xC6081FDB;                      // "Error::KeyInvalid"
 
         // Create account failure
-        const U32 CreateAccountFailure = 0xBA707CCD; // "Error::CreateAccountFailure"
+        const U32 CreateAccountFailure = 0xBA707CCD;            // "Error::CreateAccountFailure"
 
         // Create account username in use
-        const U32 CreateAccountBadUser = 0x08748826; // "Error::CreateAccountBadUser"
+        const U32 CreateAccountBadUser = 0x08748826;            // "Error::CreateAccountBadUser"
 
         // Create account bad password
-        const U32 CreateAccountBadPassword = 0x085A7E97; // "Error::CreateAccountBadPassword"
+        const U32 CreateAccountBadPassword = 0x085A7E97;        // "Error::CreateAccountBadPassword"
 
         // Change password failure
-        const U32 ChangePasswordFailure = 0x84492550; // "Error::ChangePasswordFailure"
+        const U32 ChangePasswordFailure = 0x84492550;           // "Error::ChangePasswordFailure"
 
         // Change password bad password
-        const U32 ChangePasswordBadNewPassword = 0xEEB52840; // "Error::ChangePasswordBadNewPassword"
+        const U32 ChangePasswordBadNewPassword = 0xEEB52840;    // "Error::ChangePasswordBadNewPassword"
 
         // No lobby could be found
-        const U32 NoLobby = 0xC9748451; // "Error::NoLobby"
+        const U32 NoLobby = 0xC9748451;                         // "Error::NoLobby"
 
         // Specified room couldnt be found
-        const U32 NoRoom = 0x2EDB7E3D; // "Error::NoRoom"
+        const U32 NoRoom = 0x2EDB7E3D;                          // "Error::NoRoom"
 
         // Could not join room
-        const U32 JoinRoomFailure = 0xB16814BE; // "Error::JoinRoomFailure"
-        const U32 JoinRoomBadUsername = 0x19C7D614; // "Error::JoinRoomBadUsername"
-        const U32 JoinRoomBadPassword = 0x84D2DABD; // "Error::JoinRoomBadPassword"
-        const U32 JoinRoomFull = 0xF6E0D03C; // "Error::JoinRoomFull"
+        const U32 JoinRoomFailure = 0xB16814BE;                 // "Error::JoinRoomFailure"
+        const U32 JoinRoomBadUsername = 0x19C7D614;             // "Error::JoinRoomBadUsername"
+        const U32 JoinRoomBadPassword = 0x84D2DABD;             // "Error::JoinRoomBadPassword"
+        const U32 JoinRoomFull = 0xF6E0D03C;                    // "Error::JoinRoomFull"
 
         // Could not create room 
-        const U32 CreateRoomFailure = 0x5C5305AF; // "Error::CreateRoomFailure"
+        const U32 CreateRoomFailure = 0x5C5305AF;               // "Error::CreateRoomFailure"
 
         // Could not create a game
-        const U32 CreateGameFailure = 0xC1647E57; // "Error::CreateGameFailure"
+        const U32 CreateGameFailure = 0xC1647E57;               // "Error::CreateGameFailure"
 
         // Reconnect failure (lost our connection to WON)
-        const U32 ReconnectFailure = 0xE0E427C0; // "Error::ReconnectFailure"
+        const U32 ReconnectFailure = 0xE0E427C0;                // "Error::ReconnectFailure"
 
         // Failed to download file
-        const U32 HTTPFailed = 0x01BD6C07; // "Error::HTTPFailed"
+        const U32 HTTPFailed = 0x01BD6C07;                      // "Error::HTTPFailed"
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -303,7 +294,6 @@ namespace WonIface
         //
         namespace Data
         {
-
             /////////////////////////////////////////////////////////////////////////
             //
             // Struct HTTPFailed
@@ -316,11 +306,8 @@ namespace WonIface
                     : handle(handle)
                 {
                 }
-
             };
-
         }
-
     };
 
 
@@ -331,17 +318,16 @@ namespace WonIface
     namespace Firewall
     {
         // We haven't checked to see if we're behind a firewall
-        const U32 Unchecked = 0x3049E0AB; // "Unchecked"
+        const U32 Unchecked = 0x3049E0AB;   // "Unchecked"
 
         // We're checking to see if we're behind a firewall
-        const U32 Checking = 0xF9361A7D; // "Checking"
+        const U32 Checking = 0xF9361A7D;    // "Checking"
 
         // We are behind a firewall (for the purpose of this game)
-        const U32 Behind = 0x16AD040D; // "Behind"
+        const U32 Behind = 0x16AD040D;      // "Behind"
 
         // We are not behind a firewall (for the purpose of this game)
-        const U32 None = 0xC9EF9119; // "None"
-
+        const U32 None = 0xC9EF9119;        // "None"
     };
 
 
@@ -371,14 +357,13 @@ namespace WonIface
 
         // Initializing Constructor
         Player(const CH* name, U32 id, Bool moderator, Bool muted, Bool ignored)
-            : name(name),
-            id(id),
+            : id(id),
+            name(name),
             moderator(moderator),
             muted(muted),
             ignored(ignored)
         {
         }
-
     };
 
 
@@ -411,7 +396,6 @@ namespace WonIface
             lobby(lobby)
         {
         }
-
     };
 
 
@@ -442,16 +426,15 @@ namespace WonIface
             host(host),
             size(size)
         {
-            data = reinterpret_cast<U8*>(Debug::Memory::UnCached::Alloc(size));
+            data = reinterpret_cast<U8*>(Alloc(size));
             Utils::Memcpy(data, dataIn, size);
         }
 
         // Destructor
         ~Game()
         {
-            Debug::Memory::UnCached::Free(data);
+            Free(data);
         }
-
     };
 
     // Initialize Won
@@ -483,7 +466,7 @@ namespace WonIface
     void CreateAccount(const char* username, const char* password);
 
     // Login to a Won account
-    void LoginAccount(const char* username, const char* password);
+    void LoginAccount(const CH* username, const CH* password);
 
     // Change the password of an existing Won account
     void ChangePassword(const char* username, const char* oldPassword, const char* newPassword);
@@ -557,10 +540,10 @@ namespace WonIface
     Bool CheckKey(const char* key);
 
 
-
     // Retrieve a HTTP file and store it locally in the download directory
     //U32 HTTPGet(U32 proxyIP, U16 proxyPort, const char *hostName, U32 hostPort, const char *path, const char *local, Bool allowResume);
-    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume);
+    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local,
+        Bool allowResume);
 
     // Retrieve a HTTP file and store it locally in the download directory
     U32 HTTPGet(const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume);
@@ -571,7 +554,6 @@ namespace WonIface
 
     // Enable/Disable logging
     void Logging(Bool on);
-
 }
 
 #endif

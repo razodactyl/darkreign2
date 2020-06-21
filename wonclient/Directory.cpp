@@ -22,20 +22,47 @@ namespace MINTCLIENT
                 const auto cc = static_cast<Client::CommandContext*>(ctx);
                 switch (cc->command)
                 {
-                case MINTCLIENT::Directory::DirectoryCommand:
-                    MINTCLIENT::Directory::Result result;
+                    case MINTCLIENT::Message::DirectoryListServers:
+                    {
+                        MINTCLIENT::Directory::Result result;
 
-                    auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
-                    directoryEntity.mName = L"AuthServer";
-                    result.entityList.push_back(directoryEntity);
+                        auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        directoryEntity.name.Set((CH*)L"AuthServer");
+                        directoryEntity.address.Set((CH*)"192.168.0.106:15101");
+                        result.entityList.push_back(directoryEntity);
 
-                    auto directoryEntity2 = MINTCLIENT::Directory::Data::DirectoryEntity();
-                    directoryEntity.mName = L"TitanRoutingServer";
-                    result.entityList.push_back(directoryEntity);
+                        auto directoryEntity2 = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        directoryEntity2.name.Set((CH*)L"TitanRoutingServer");
+                        directoryEntity2.address.Set((CH*)"192.168.0.106:15101");
+                        result.entityList.push_back(directoryEntity2);
 
-                    result.error = WONAPI::Error_Success;
-                    contextList->callback(result);
-                    break;
+                        // Pass context to calling function.
+                        result.context = cc->context;
+
+                        result.error = WONAPI::Error_Success;
+                        contextList->callback(result);
+                        break;
+                    }
+
+                    case MINTCLIENT::Message::DirectoryListRooms:
+                    {
+                        MINTCLIENT::Directory::Result result;
+
+                        auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        directoryEntity.name.Set((CH*)L"TitanRoutingServer");
+                        result.entityList.push_back(directoryEntity);
+
+                        auto directoryEntity2 = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        directoryEntity2.name.Set((CH*)L"TitanRoutingServer");
+                        result.entityList.push_back(directoryEntity2);
+
+                        // Pass context to calling function.
+                        result.context = cc->context;
+
+                        result.error = WONAPI::Error_Success;
+                        contextList->callback(result);
+                        break;
+                    }
                 }
 
                 doneProcessing = true;
@@ -52,7 +79,8 @@ namespace MINTCLIENT
     WONAPI::Error Directory::GetDirectory(
         MINTCLIENT::Identity* identity,
         const std::vector<MINTCLIENT::IPSocket::Address>* servers,
-        void (*callback)(const MINTCLIENT::Directory::Result& result)
+        void (*callback)(const MINTCLIENT::Directory::Result& result),
+        void* context
     )
     {
         auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::Directory::Result>();
@@ -67,9 +95,16 @@ namespace MINTCLIENT
 
             if (identity)
             {
+                ctx->command = MINTCLIENT::Message::DirectoryListRooms;
                 ctx->SetData(identity);
             }
-            ctx->command = MINTCLIENT::Directory::DirectoryCommand;
+            else
+            {
+                ctx->command = MINTCLIENT::Message::DirectoryListServers;
+            }
+
+            ctx->SetContext(context);
+
             contextList->Add(ctx);
 
             client->SendCommand(ctx);

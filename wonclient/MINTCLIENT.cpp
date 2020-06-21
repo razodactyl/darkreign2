@@ -4,14 +4,12 @@
 #include "pch.h"
 #include "framework.h"
 
+#include "win32_critsec.h"
+
 #include "MINTCLIENT.h"
 #include "Directory.h"
 #include "Identity.h"
 #include "RoutingServerClient.h"
-
-#include "styxnet_clientmessage.h"
-#include "styxnet_serverresponse.h"
-#include "win32_critsec.h"
 
 
 namespace MINTCLIENT
@@ -54,24 +52,17 @@ namespace MINTCLIENT
     Client::~Client()
     {
         clientsCritSec.Enter();
-        clients[index] = NULL;
+        clients[index] = nullptr;
         clientsCritSec.Exit();
 
         // If we're connected, disconnect us
         if (flags & StyxNet::ClientFlags::Connected)
         {
-            StyxNet::Packet::Create(StyxNet::ClientMessage::UserLogout).Send(socket);
+            StyxNet::Packet::Create(MINTCLIENT::Message::RoutingServerDisconnect).Send(socket);
         }
 
         // Make sure the socket is closed
         socket.Close();
-
-        // // If there's a session, delete it
-        // if (session)
-        // {
-        //     delete session;
-        // }
-        //
 
         delete packetBuffer;
 
@@ -163,6 +154,11 @@ namespace MINTCLIENT
                         // If we're connected, send off the command else requeue.
                         if ((client->flags & StyxNet::ClientFlags::Connected) == StyxNet::ClientFlags::Connected)
                         {
+                            if (client->GetCommandContext()->wasProcessed)
+                            {
+                                LDIAG("A command which was already processed has been requeued. Is this correct?");
+                            }
+
                             // Send off the command, handle in network event callback (ProcessPacket).
                             client->GetCommandContext()->Send();
                         }
@@ -201,39 +197,52 @@ namespace MINTCLIENT
     {
         switch (packet.GetCommand())
         {
-        case StyxNet::ServerResponse::UserConnected:
-            LDIAG("Successfully connected to server");
-            flags |= StyxNet::ClientFlags::Connected;
+            case MINTCLIENT::Message::ServerConnect:
+            {
+                LDIAG("Successfully connected to server");
+                flags |= StyxNet::ClientFlags::Connected;
+            }
             break;
 
             // For a known packet, if it's the response to a command, pull up command context and deal with it.
-        case MINTCLIENT::Directory::DirectoryCommand:
-            commandContext->commandDone.Signal();
+            case MINTCLIENT::Message::DirectoryListServers:
+                commandContext->commandDone.Signal();
+                break;
+
+            case MINTCLIENT::Message::DirectoryListRooms:
+                commandContext->commandDone.Signal();
+                break;
+
+            case MINTCLIENT::Message::IdentityAuthenticate:
+            {
+                auto r = MINTCLIENT::Identity::Result();
+                r.error = WONAPI::Error_Success;
+                r.message.Set("MINTCLIENT.cpp::229");
+                commandContext->SetData(r);
+                commandContext->commandDone.Signal();
+            }
             break;
 
-        case MINTCLIENT::Identity::AuthenticateCommand:
-        {
-            auto r = MINTCLIENT::Identity::Result();
-            r.error = WONAPI::Error_Success;
-            r.message.Set("Hello");
-            commandContext->SetData(r);
-            commandContext->commandDone.Signal();
-        }
-        break;
+            case MINTCLIENT::Message::RoutingServerRoomConnect:
+            case MINTCLIENT::Message::RoutingServerRoomRegister:
+            case MINTCLIENT::Message::RoutingServerGetUserList:
+                commandContext->commandDone.Signal();
+                break;
 
-        case MINTCLIENT::RoutingServerClient::ConnectRoomCommand:
-        case MINTCLIENT::RoutingServerClient::Room_RegisterCommand:
-            commandContext->commandDone.Signal();
-            break;
+            case MINTCLIENT::Message::RoutingServerBroadcastChat:
+                commandContext->SetData(*(RoutingServerClient::ASCIIChatMessageResult*)packet.GetData());
+                commandContext->commandDone.Signal();
+                break;
 
-        case 0x44332211: // Server is shutting down.
-            eventQuit.Signal();
-            break;
+            case MINTCLIENT::Message::RoutingServerDisconnect:
+            case MINTCLIENT::Message::ServerShutdown:
+                eventQuit.Signal();
+                break;
 
-        default:
-            // Unknown packet command
-            LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
-            break;
+            default:
+                // Unknown packet command
+                LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
+                break;
         }
     }
 }

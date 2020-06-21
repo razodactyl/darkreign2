@@ -5,7 +5,7 @@ namespace WONAPI
 {
     typedef long Error;
 
-    const Error Error_Success = 0;		// universal success constant
+    const Error Error_Success = 0; // universal success constant
 
     // Values in the range of a short are reserved for Titan server status values
     const Error Error_OutOfMemory = 100001;
@@ -31,7 +31,7 @@ namespace WONAPI
     const Error Error_InvalidVerifierKey = 110001;
     const Error Error_GetPubKeysFailed = 110002;
     const Error Error_InvalidPubKeys = 110003;
-    const Error Error_FailedToGenerateKey = 110004;	// Pretty darn rare
+    const Error Error_FailedToGenerateKey = 110004; // Pretty darn rare
     const Error Error_InvalidAuthLoginReply = 110005;
     const Error Error_InvalidAuthLogin = 110006;
     const Error Error_BadNewPassword = 110007;
@@ -55,8 +55,8 @@ namespace WONAPI
     const Error Error_InvalidPrivateKey = 120004;
     const Error Error_EncryptFailed = 120005;
     const Error Error_InvalidSecret = 120006;
-    //const Error Error_InvalidPubKeys			= 110003;	//already defined
-    //const Error Error_FailedToGenerateKey		= 110004;	// Pretty darn rare
+    //const Error Error_InvalidPubKeys = 110003; //already defined
+    //const Error Error_FailedToGenerateKey = 110004; // Pretty darn rare
     const Error Error_Failure = -1;
     const Error Error_InvalidParameters = -4;
     const Error Error_NotSupported = -12;

@@ -7,13 +7,12 @@ namespace MINTCLIENT
 {
     struct Directory
     {
-        static const unsigned int DirectoryCommand = 0x11223344;
-
         struct Data
         {
             struct DirectoryEntity
             {
-                std::wstring mName;
+                StrCrc<32, CH> name;
+                StrCrc<32, CH> address;
                 bool permanent = true;
             };
 
@@ -26,6 +25,7 @@ namespace MINTCLIENT
         };
 
         static U32 STDCALL Process(void* context);
-        static WONAPI::Error GetDirectory(MINTCLIENT::Identity* identity, const std::vector<MINTCLIENT::IPSocket::Address>* servers, void (*callback)(const Result& result));
+
+        static WONAPI::Error GetDirectory(MINTCLIENT::Identity* identity, const std::vector<MINTCLIENT::IPSocket::Address>* servers, void (*callback)(const Result& result), void* context);
     };
 }

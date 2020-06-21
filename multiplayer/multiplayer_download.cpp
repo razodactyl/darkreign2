@@ -195,10 +195,10 @@ namespace MultiPlayer
         //
         void Done()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                // Delete patches and extras
-                patches.DisposeAll();
+            // Delete patches and extras
+            patches.DisposeAll();
             extras.DisposeAll();
 
             initialized = FALSE;
@@ -276,8 +276,8 @@ namespace MultiPlayer
         //
         void AbortDownload()
         {
-            LOG_DIAG(("Aborting Downloads"))
-                downloadContext.aborted = TRUE;
+            LOG_DIAG(("Aborting Downloads"));
+            downloadContext.aborted = TRUE;
             if (downloadContext.handle)
             {
                 WonIface::HTTPAbortGet(downloadContext.handle);
@@ -301,10 +301,10 @@ namespace MultiPlayer
         {
             switch (message)
             {
-            case WonIface::Message::HTTPProgressUpdate:
-            {
-                ASSERT(data)
-                    CAST(WonIface::Message::Data::HTTPProgressUpdate*, progress, data)
+                case WonIface::Message::HTTPProgressUpdate:
+                {
+                    ASSERT(data);
+                    CAST(WonIface::Message::Data::HTTPProgressUpdate*, progress, data);
 
                     //LOG_DIAG(("Progress Update [%d] : %d of %d", progress->handle, progress->progress, progress->size))  
 
@@ -319,14 +319,14 @@ namespace MultiPlayer
                         motdContext.transferred = progress->progress;
                     }
 
-                delete progress;
-                break;
-            }
+                    delete progress;
+                    break;
+                }
 
-            case WonIface::Message::HTTPCompleted:
-            {
-                ASSERT(data)
-                    CAST(WonIface::Message::Data::HTTPCompleted*, completed, data)
+                case WonIface::Message::HTTPCompleted:
+                {
+                    ASSERT(data);
+                    CAST(WonIface::Message::Data::HTTPCompleted*, completed, data);
 
                     if (completed->handle == downloadContext.handle)
                     {
@@ -335,128 +335,128 @@ namespace MultiPlayer
 
                         switch (downloadContext.type)
                         {
-                        case 0x325DC801: // "Updates"
-                        {
-                            LOG_DIAG(("Downloaded updates file"))
+                            case 0x325DC801: // "Updates"
+                            {
+                                LOG_DIAG(("Downloaded updates file"));
 
                                 // Display the motd to the console as a WonMessage
                                 PTree pTree;
-                            if (pTree.AddFile(fileUpdates.str))
-                            {
-                                // Get the global scope
-                                FScope* fScope = pTree.GetGlobalScope();
-
-                                while (FScope* sScope = fScope->NextFunction())
+                                if (pTree.AddFile(fileUpdates.str))
                                 {
-                                    switch (sScope->NameCrc())
+                                    // Get the global scope
+                                    FScope* fScope = pTree.GetGlobalScope();
+
+                                    while (FScope* sScope = fScope->NextFunction())
                                     {
-                                    case 0x5FA3D48D: // "DefaultSource"
-                                        updateHost = StdLoad::TypeString(sScope);
-                                        updatePort = U16(StdLoad::TypeU32(sScope, Range<U32>(0, U16_MAX)));
-                                        updatePath = StdLoad::TypeString(sScope);
-                                        break;
-
-                                    case 0x3D42B5CF: // "CurrentVersion"
-                                        updateVersionCode = StdLoad::TypeU32(sScope);
-                                        updateVersionData = StdLoad::TypeU32(sScope);
-                                        break;
-
-                                    case 0x1770E157: // "Patch"
-                                        patches.Append(new Patch(sScope));
-                                        break;
-
-                                    case 0xCF498E8B: // "Extra"
-                                        extras.Append(new Extra(sScope));
-                                        break;
-                                    }
-                                }
-
-                                // Compare our version to the version in the update
-                                if (versionCode < updateVersionCode || versionData < updateVersionData)
-                                {
-                                    // We have an old version, is there a patch that will work for our version ?
-                                    for (NList<Patch>::Iterator p(&patches); *p; ++p)
-                                    {
-                                        if
-                                            (
-                                                (*p)->language == language &&
-                                                (*p)->versionCode <= versionCode &&
-                                                (*p)->versionData <= versionData &&
-                                                (
-                                                    !patch ||
-                                                    (
-                                                        (*p)->versionCode > patch->versionCode &&
-                                                        (*p)->versionData > patch->versionData
-                                                        )
-                                                    )
-                                                )
+                                        switch (sScope->NameCrc())
                                         {
-                                            patch = *p;
+                                            case 0x5FA3D48D: // "DefaultSource"
+                                                updateHost = StdLoad::TypeString(sScope);
+                                                updatePort = U16(StdLoad::TypeU32(sScope, Range<U32>(0, U16_MAX)));
+                                                updatePath = StdLoad::TypeString(sScope);
+                                                break;
+
+                                            case 0x3D42B5CF: // "CurrentVersion"
+                                                updateVersionCode = StdLoad::TypeU32(sScope);
+                                                updateVersionData = StdLoad::TypeU32(sScope);
+                                                break;
+
+                                            case 0x1770E157: // "Patch"
+                                                patches.Append(new Patch(sScope));
+                                                break;
+
+                                            case 0xCF498E8B: // "Extra"
+                                                extras.Append(new Extra(sScope));
+                                                break;
                                         }
                                     }
 
-                                    if (patch)
+                                    // Compare our version to the version in the update
+                                    if (versionCode < updateVersionCode || versionData < updateVersionData)
                                     {
-                                        LOG_DIAG(("Patching: current %d.%d patch for %d.%d patch to %d.%d",
-                                            versionCode, versionData,
-                                            updateVersionCode, updateVersionData,
-                                            patch->versionCode, patch->versionData))
+                                        // We have an old version, is there a patch that will work for our version ?
+                                        for (NList<Patch>::Iterator p(&patches); *p; ++p)
+                                        {
+                                            if
+                                                (
+                                                    (*p)->language == language &&
+                                                    (*p)->versionCode <= versionCode &&
+                                                    (*p)->versionData <= versionData &&
+                                                    (
+                                                        !patch ||
+                                                        (
+                                                            (*p)->versionCode > patch->versionCode &&
+                                                            (*p)->versionData > patch->versionData
+                                                            )
+                                                        )
+                                                    )
+                                            {
+                                                patch = *p;
+                                            }
+                                        }
+
+                                        if (patch)
+                                        {
+                                            LOG_DIAG(("Patching: current %d.%d patch for %d.%d patch to %d.%d",
+                                                versionCode, versionData,
+                                                updateVersionCode, updateVersionData,
+                                                patch->versionCode, patch->versionData));
 
                                             // Get the patch
                                             GetPatch(*patch);
 
-                                        if (PrivData::updateCtrl.Alive())
+                                            if (PrivData::updateCtrl.Alive())
+                                            {
+                                                // Tell 'em we're getting the patch
+                                                IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x96B48B0D); // "Update::PatchAvailable"
+                                            }
+                                        }
+                                        else
                                         {
-                                            // Tell 'em we're getting the patch
-                                            IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x96B48B0D); // "Update::PatchAvailable"
+                                            if (PrivData::updateCtrl.Alive())
+                                            {
+                                                // We are unpatchable
+                                                IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xF9068335); // "Update::Unpatchable"
+                                            }
                                         }
                                     }
                                     else
                                     {
                                         if (PrivData::updateCtrl.Alive())
                                         {
-                                            // We are unpatchable
-                                            IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xF9068335); // "Update::Unpatchable"
+                                            // There is not patch required
+                                            IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xCA4DB1B4); // "Update::NoPatch"
                                         }
                                     }
                                 }
-                                else
-                                {
-                                    if (PrivData::updateCtrl.Alive())
-                                    {
-                                        // There is not patch required
-                                        IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xCA4DB1B4); // "Update::NoPatch"
-                                    }
-                                }
+                                break;
                             }
-                            break;
-                        }
 
-                        case 0x1770E157: // "Patch"
-                        {
-                            // We downloaded a patch
-                            ASSERT(patch)
+                            case 0x1770E157: // "Patch"
+                            {
+                                // We downloaded a patch
+                                ASSERT(patch);
 
                                 // Set the game to run that the patch next
                                 Main::RegisterNextProcess(patch->file.str);
 
-                            // Patch completed
-                            IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x37976FA8); // "Download::PatchCompleted"
-                            break;
-                        }
+                                // Patch completed
+                                IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x37976FA8); // "Download::PatchCompleted"
+                                break;
+                            }
 
-                        default:
-                            // Download completed
-                            IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x7091B101); // "Download::Completed"
-                            break;
+                            default:
+                                // Download completed
+                                IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x7091B101); // "Download::Completed"
+                                break;
                         }
                     }
                     else
                     {
-                        LOG_DIAG(("Downloaded message of the day"))
+                        LOG_DIAG(("Downloaded message of the day"));
 
-                            // Display the motd to the console as a WonMessage
-                            PTree pTree;
+                        // Display the motd to the console as a WonMessage
+                        PTree pTree;
                         if (pTree.AddFile(fileMotd.str))
                         {
                             // Get the global scope
@@ -466,22 +466,22 @@ namespace MultiPlayer
                             {
                                 switch (sScope->NameCrc())
                                 {
-                                case 0xCB28D32D: // "Text"
-                                    CONSOLE(0x70F02901, (StdLoad::TypeString(sScope))); // "MessageOfTheDay"
-                                    break;
+                                    case 0xCB28D32D: // "Text"
+                                        CONSOLE(0x70F02901, (StdLoad::TypeString(sScope))); // "MessageOfTheDay"
+                                        break;
                                 }
                             }
                         }
                     }
 
-                delete completed;
-                break;
-            }
+                    delete completed;
+                    break;
+                }
 
-            case WonIface::Error::HTTPFailed:
-            {
-                ASSERT(data)
-                    CAST(WonIface::Error::Data::HTTPFailed*, failed, data)
+                case WonIface::Error::HTTPFailed:
+                {
+                    ASSERT(data);
+                    CAST(WonIface::Error::Data::HTTPFailed*, failed, data);
 
                     if (failed->handle == downloadContext.handle)
                     {
@@ -490,40 +490,40 @@ namespace MultiPlayer
                         {
                             switch (downloadContext.type)
                             {
-                            case 0x325DC801: // "Updates"
-                              // Update failed
-                                LOG_DIAG(("Update failed"))
+                                case 0x325DC801: // "Updates"
+                                  // Update failed
+                                    LOG_DIAG(("Update failed"));
                                     IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x7CA15267); // "Update::CheckFailed"
-                                break;
+                                    break;
 
-                            case 0x1770E157: // "Patch"
-                              // Patch failed
-                                LOG_DIAG(("Patch failed"))
+                                case 0x1770E157: // "Patch"
+                                  // Patch failed
+                                    LOG_DIAG(("Patch failed"));
                                     IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0xB2623264); // "Download::PatchFailed"
-                                break;
+                                    break;
 
-                            default:
-                                // Download failed
-                                LOG_DIAG(("Download failed"))
+                                default:
+                                    // Download failed
+                                    LOG_DIAG(("Download failed"));
                                     IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x161F1710); // "Download::Failed"
-                                break;
+                                    break;
                             }
                         }
                     }
                     else if (failed->handle == motdContext.handle)
                     {
-                        LOG_DIAG(("Failed to download message of the day"))
+                        LOG_DIAG(("Failed to download message of the day"));
 
-                            // Clear the context so that it will try again
-                            motdContext.handle = NULL;
+                        // Clear the context so that it will try again
+                        motdContext.handle = NULL;
                     }
 
-                delete failed;
-                break;
-            }
+                    delete failed;
+                    break;
+                }
 
-            default:
-                ERR_FATAL(("Unknown message %08X", message))
+                default:
+                    ERR_FATAL(("Unknown message %08X", message));
             }
         }
 
@@ -568,45 +568,45 @@ namespace MultiPlayer
         //
         void Download(Context& context)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                // Is the host an IP
-                if (Win32::Socket::Address::IsAddress(context.host.str))
+            // Is the host an IP
+            if (Win32::Socket::Address::IsAddress(context.host.str))
+            {
+                // Make sure that the folder is there to receive the file
+                FileDrive drive;
+                FileDir dir;
+                FileName name;
+                FileExt ext;
+                Dir::PathExpand(context.file.str, drive, dir, name, ext);
+                if (!Dir::MakeFull(dir.str))
                 {
-                    // Make sure that the folder is there to receive the file
-                    FileDrive drive;
-                    FileDir dir;
-                    FileName name;
-                    FileExt ext;
-                    Dir::PathExpand(context.file.str, drive, dir, name, ext);
-                    if (!Dir::MakeFull(dir.str))
-                    {
-                        ERR_FATAL(("Could not create download directory '%s'", dir.str))
-                    }
+                    ERR_FATAL(("Could not create download directory '%s'", dir.str));
+                }
 
-                    // Prepend server path to file
-                    FilePath path;
-                    Utils::Strcpy(path.str, context.path.str);
-                    Utils::Strcat(path.str, context.file.str);
+                // Prepend server path to file
+                FilePath path;
+                Utils::Strcpy(path.str, context.path.str);
+                Utils::Strcat(path.str, context.file.str);
 
-                    if (*Settings::GetProxy())
-                    {
-                        context.handle = WonIface::HTTPGet(Settings::GetProxy(), context.name.str, context.port, path.str, context.file.str, FALSE);
-                    }
-                    else
-                    {
-                        HostName name;
-                        Utils::Sprintf(name.str, name.GetSize(), "%s:%d", context.host.str, context.port);
-
-                        context.handle = WonIface::HTTPGet(name.str, context.name.str, context.port, path.str, context.file.str, FALSE);
-                    }
+                if (*Settings::GetProxy())
+                {
+                    context.handle = WonIface::HTTPGet(Settings::GetProxy(), context.name.str, context.port, path.str, context.file.str, FALSE);
                 }
                 else
                 {
-                    // Attempt a name lookup
-                    Win32::DNS::Host* host;
-                    Win32::DNS::GetByName(context.host.str, host, DNSCallback, &context);
+                    HostName name;
+                    Utils::Sprintf(name.str, name.GetSize(), "%s:%d", context.host.str, context.port);
+
+                    context.handle = WonIface::HTTPGet(name.str, context.name.str, context.port, path.str, context.file.str, FALSE);
                 }
+            }
+            else
+            {
+                // Attempt a name lookup
+                Win32::DNS::Host* host;
+                Win32::DNS::GetByName(context.host.str, host, DNSCallback, &context);
+            }
         }
 
 
@@ -631,9 +631,9 @@ namespace MultiPlayer
         //
         void Get(U32 type, const char* host, U16 port, const char* path, const char* file)
         {
-            ASSERT(!downloadContext.handle)
+            ASSERT(!downloadContext.handle);
 
-                downloadContext.Reset();
+            downloadContext.Reset();
             downloadContext.type = type;
             downloadContext.name = host;
             downloadContext.host = host;
@@ -657,27 +657,27 @@ namespace MultiPlayer
             {
                 if (host && host->GetAddress())
                 {
-                    LOG_DIAG(("Resolved host address '%s' to '%s'", context->host.str, host->GetAddress()->GetText()))
+                    LOG_DIAG(("Resolved host address '%s' to '%s'", context->host.str, host->GetAddress()->GetText()));
 
-                        // The context is a download context, put the resolved 
-                        // name into the context and start downloading
-                        context->host = host->GetAddress()->GetText();
+                    // The context is a download context, put the resolved 
+                    // name into the context and start downloading
+                    context->host = host->GetAddress()->GetText();
 
                     // Try to download now
                     Download(*context);
                 }
                 else
                 {
-                    LOG_DIAG(("Unresolved host address '%s'", context->host.str))
+                    LOG_DIAG(("Unresolved host address '%s'", context->host.str));
 
-                        // DNS failed
-                        if (PrivData::updateCtrl.Alive())
+                    // DNS failed
+                    if (PrivData::updateCtrl.Alive())
+                    {
+                        // If it was the download context, let someone know
+                        if (context == &downloadContext)
                         {
-                            // If it was the download context, let someone know
-                            if (context == &downloadContext)
+                            switch (downloadContext.type)
                             {
-                                switch (downloadContext.type)
-                                {
                                 case 0x325DC801: // "Updates"
                                   // Update failed
                                     IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x7CA15267); // "Update::CheckFailed"
@@ -692,13 +692,13 @@ namespace MultiPlayer
                                     // Download failed
                                     IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x161F1710); // "Download::Failed"
                                     break;
-                                }
-                            }
-                            else
-                            {
-                                LOG_DIAG(("Unknown context"))
                             }
                         }
+                        else
+                        {
+                            LOG_DIAG(("Unknown context"));
+                        }
+                    }
                 }
             }
         }

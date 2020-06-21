@@ -23,6 +23,7 @@
 #include "Directory.h"
 #include "Identity.h"
 #include "RoutingServerClient.h"
+#include "Firewall.h"
 
 #pragma warning(pop)
 

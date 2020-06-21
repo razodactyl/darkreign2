@@ -22,12 +22,14 @@ namespace MINTCLIENT
                 const auto cc = static_cast<Client::CommandContext*>(ctx);
                 switch (cc->command)
                 {
-                case MINTCLIENT::Identity::AuthenticateCommand:
-                    Identity::Result result = *(Identity::Result*)cc->data;
-                    result.error = WONAPI::Error_Success;
-                    contextList->callback(result);
-                    delete cc;
-
+                    case MINTCLIENT::Message::IdentityAuthenticate:
+                    {
+                        Identity::Result result = *(Identity::Result*)cc->data;
+                        result.error = WONAPI::Error_Success;
+                        result.context = cc->context;
+                        contextList->callback(result);
+                        delete cc;
+                    }
                     break;
                 }
 
@@ -43,19 +45,20 @@ namespace MINTCLIENT
     //
     // MINT::Identity::Authenticate
     //
-    WONAPI::Error Identity::Authenticate(MINTCLIENT::Client* client, const char* username, const char* password, void (*callback)(const Identity::Result& result))
+    WONAPI::Error Identity::Authenticate(MINTCLIENT::Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context)
     {
         auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::Identity::Result>();
         contextList->callback = callback;
 
         // Create a `CommandContext` with the command and data to send to the server.
-        auto *ctx = new Client::CommandContext(client);
-        ctx->command = MINTCLIENT::Identity::AuthenticateCommand;
+        auto* ctx = new Client::CommandContext(client);
+        ctx->command = MINTCLIENT::Message::IdentityAuthenticate;
 
         auto identity = Data::Identity();
         identity.username.Set(username);
         identity.password.Set(password);
         ctx->SetData(identity);
+        ctx->SetContext(context);
 
         contextList->Add(ctx);
         client->SendCommand(ctx);

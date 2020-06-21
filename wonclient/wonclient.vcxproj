@@ -246,6 +246,7 @@
   <ItemGroup>
     <ClInclude Include="Directory.h" />
     <ClInclude Include="Errors.h" />
+    <ClInclude Include="Firewall.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Identity.h" />
     <ClInclude Include="pch.h" />
@@ -255,6 +256,7 @@
   <ItemGroup>
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="Errors.cpp" />
+    <ClCompile Include="Firewall.cpp" />
     <ClCompile Include="Identity.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

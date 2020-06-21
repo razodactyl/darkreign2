@@ -113,12 +113,9 @@ public:
     }
 
     // operator<<
-  //  friend ostream & operator<<(ostream &o, const StrCrc<STR_SIZE> &s)
-  //  {
-  //    return (o << s.str);
-   // }
-
+    //  friend ostream & operator<<(ostream &o, const StrCrc<STR_SIZE> &s)
+    //  {
+    //    return (o << s.str);
+    // }
 };
-
-
 #endif

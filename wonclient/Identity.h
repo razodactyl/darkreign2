@@ -7,14 +7,12 @@ namespace MINTCLIENT
 {
     struct Identity
     {
-        static const unsigned int AuthenticateCommand = 0xFFAADDEE;
-
         struct Data
         {
             struct Identity
             {
-                StrCrc<32> username;
-                StrCrc<32> password;
+                StrCrc<32, CH> username;
+                StrCrc<32, CH> password;
             };
         };
 
@@ -25,30 +23,30 @@ namespace MINTCLIENT
         Identity() {};
 
         Data::Identity _identity;
-        Identity(const char* username, const char* password)
+        Identity(const CH* username, const CH* password)
         {
             Set(username, password);
         }
 
-        Data::Identity Set(const char* username, const char* password)
+        Data::Identity Set(const CH* username, const CH* password)
         {
             _identity.username.Set(username);
             _identity.password.Set(password);
             return _identity;
         }
 
-        char* GetLoginName()
+        CH* GetLoginName()
         {
             return _identity.username.str;
         }
 
         // Class `Identity` authenticate method.
-        static WONAPI::Error Authenticate(Client* client, const char* username, const char* password, void (*callback)(const Identity::Result& result));
+        static WONAPI::Error Authenticate(Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context);
 
         // Instantiated `Identity` authenticate method.
-        WONAPI::Error Authenticate(Client* client, void (*callback)(const Identity::Result& result))
+        WONAPI::Error Authenticate(Client* client, void (*callback)(const Identity::Result& result), void* context)
         {
-            return Authenticate(client, _identity.username.str, _identity.password.str, callback);
+            return Authenticate(client, _identity.username.str, _identity.password.str, callback, context);
         }
     };
 }
