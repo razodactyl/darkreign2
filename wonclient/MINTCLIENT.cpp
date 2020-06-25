@@ -8,6 +8,7 @@
 
 #include "MINTCLIENT.h"
 #include "Directory.h"
+#include "Encoding.h"
 #include "Identity.h"
 #include "RoutingServerClient.h"
 
@@ -17,6 +18,7 @@ namespace MINTCLIENT
     // Bookkeeping
     static const U32 maxClients = 1;
     static Win32::CritSec clientsCritSec;
+    // static Win32::CritSec contextCritSec;
     static Client* clients[maxClients];
 
     // Constructor
@@ -55,9 +57,10 @@ namespace MINTCLIENT
         clients[index] = nullptr;
         clientsCritSec.Exit();
 
-        // If we're connected, disconnect us
+        // If connected, tell the server on the way out.
         if (flags & StyxNet::ClientFlags::Connected)
         {
+            // Just send it, don't care about response.
             StyxNet::Packet::Create(MINTCLIENT::Message::RoutingServerDisconnect).Send(socket);
         }
 
@@ -69,11 +72,25 @@ namespace MINTCLIENT
         StyxNet::RemoveClient();
     }
 
+    //
+    // Trigger shutdown sequence.
+    // - 1. `eventQuit` is signaled.
+    // - 2. `ThreadProc` picks up the command then closes its loop.
+    // - 3. `ThreadProc` calls `delete` on the `MINTCLIENT` attached to its context.
+    // - 4. `~Client()` is performed.
+    //
+    void Client::Shutdown()
+    {
+        this->eventQuit.Signal();
+    }
+
     void Client::SendCommand(CommandContext* context)
     {
         LDIAG("MINTCLIENT::Client::SendCommand");
 
         commandContext = context;
+
+        // Signal that a command has arrived.
         eventCommand.Signal();
     }
 
@@ -206,18 +223,25 @@ namespace MINTCLIENT
 
             // For a known packet, if it's the response to a command, pull up command context and deal with it.
             case MINTCLIENT::Message::DirectoryListServers:
+            {
+                const auto r = MINTCLIENT::Encoding::TLV(packet.GetData(), packet.GetLength());
+                commandContext->SetData(r);
                 commandContext->commandDone.Signal();
-                break;
+            }
+            break;
 
             case MINTCLIENT::Message::DirectoryListRooms:
+            {
+                const auto r = MINTCLIENT::Encoding::TLV(packet.GetData(), packet.GetLength());
+                LOG_DEV(("MINTCLIENT::Message::DirectoryListRooms"));
+                commandContext->SetData(r);
                 commandContext->commandDone.Signal();
-                break;
+            }
+            break;
 
             case MINTCLIENT::Message::IdentityAuthenticate:
             {
-                auto r = MINTCLIENT::Identity::Result();
-                r.error = WONAPI::Error_Success;
-                r.message.Set("MINTCLIENT.cpp::229");
+                const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
                 commandContext->SetData(r);
                 commandContext->commandDone.Signal();
             }
@@ -225,14 +249,24 @@ namespace MINTCLIENT
 
             case MINTCLIENT::Message::RoutingServerRoomConnect:
             case MINTCLIENT::Message::RoutingServerRoomRegister:
-            case MINTCLIENT::Message::RoutingServerGetUserList:
                 commandContext->commandDone.Signal();
                 break;
 
+            case MINTCLIENT::Message::RoutingServerGetUserList:
+            {
+                //
+            }
+            break; 
+
             case MINTCLIENT::Message::RoutingServerBroadcastChat:
-                commandContext->SetData(*(RoutingServerClient::ASCIIChatMessageResult*)packet.GetData());
+            {
+                RoutingServerClient::ASCIIChatMessageResult result;
+                bool aligned = packet.GetData(reinterpret_cast<const RoutingServerClient::ASCIIChatMessageResult*&>(result));
+                LOG_DEV(("MINTCLIENT::Message::RoutingServerBroadcastChat->SetData"));
+                commandContext->SetData(result);
                 commandContext->commandDone.Signal();
-                break;
+            }
+            break;
 
             case MINTCLIENT::Message::RoutingServerDisconnect:
             case MINTCLIENT::Message::ServerShutdown:

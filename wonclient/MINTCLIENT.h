@@ -81,8 +81,24 @@ namespace MINTCLIENT
             };
 
             // MINTCLIENT::IPSocket::Address FromString(const char* address);
+
+            char* GetAddressString(bool andPort)
+            {
+                char buf[128];
+                Utils::Strcpy(buf, this->ip);
+                //Utils::Strcat(buf, Utils::ItoA(this->port, buf, 10));
+                return buf;
+            }
         };
     }
+
+    //
+    // Response sent to server.
+    //
+    struct CommandRequest
+    {
+        void* context;
+    };
 
     //
     // Response sent back from server.
@@ -128,7 +144,7 @@ namespace MINTCLIENT
 
             // Command to send off to the server.
             CRC command;
-            U8* data;
+            U8* cmd_data;
             size_t data_size;
             Bool wasProcessed;
 
@@ -136,11 +152,16 @@ namespace MINTCLIENT
             Win32::EventIndex commandDone;
             Win32::EventIndex abort;
 
+            int times_called = 0;
+
             template <class DATA> void SetData(const DATA& data)
             {
                 this->data_size = sizeof(DATA);
-                this->data = new U8[data_size];
-                memcpy(this->data, &data, this->data_size);
+                this->cmd_data = new U8[data_size];
+                memcpy(this->cmd_data, &data, this->data_size);
+
+                LOG_DEV(("CommandContext->SetData %i", times_called++));
+                Utils::MemoryDump(this->cmd_data, this->data_size);
             }
 
             template <class CONTEXT> void SetContext(const CONTEXT& context)
@@ -150,14 +171,18 @@ namespace MINTCLIENT
 
             Bool Send()
             {
+                // Instantiate a `Packet`.
                 StyxNet::Packet& pkt = StyxNet::Packet::Create(
                     command,
                     data_size
                 );
 
+                // Get pointer to `data` of the packet.
                 U8* pkt_d = pkt.GetData();
-                Utils::Memcpy(pkt_d, data, data_size);
+                // Copy `cmd_data` to the `data` of the packet.
+                Utils::Memcpy(pkt_d, cmd_data, data_size);
 
+                // Send the packet across the network.
                 return pkt.Send(client->socket);
             }
 
@@ -167,7 +192,13 @@ namespace MINTCLIENT
 
             ~CommandContext()
             {
-                delete[] data;
+                if (this->data_size > 0) {
+#ifdef _DEBUG
+                    Utils::MemoryDump(cmd_data, this->data_size);
+                    LOG_DEV(("Cleaning up. (~CommandContext)."))
+#endif
+                    delete[] cmd_data;
+                }
             }
         };
 
@@ -187,6 +218,7 @@ namespace MINTCLIENT
 
         Client(const MINTCLIENT::Client::Config& config);
         ~Client();
+        void Shutdown();
 
         void SendCommand(CommandContext* context);
 

@@ -199,9 +199,9 @@ namespace Utils
     //
     inline void* Memcpy(void* dest, const void* src, U32 count)
     {
-        ASSERT(dest)
-            ASSERT(src)
-            return (memcpy(dest, src, count));
+        ASSERT(dest);
+        ASSERT(src);
+        return (memcpy(dest, src, count));
     }
 
     //
@@ -209,9 +209,9 @@ namespace Utils
     //
     inline void* Memmove(void* dest, const void* src, U32 count)
     {
-        ASSERT(dest)
-            ASSERT(src)
-            return (memmove(dest, src, count));
+        ASSERT(dest);
+        ASSERT(src);
+        return (memmove(dest, src, count));
     }
 
     // Sprintf

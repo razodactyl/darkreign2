@@ -144,7 +144,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEVELOPMENT;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -245,6 +245,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Directory.h" />
+    <ClInclude Include="Encoding.h" />
     <ClInclude Include="Errors.h" />
     <ClInclude Include="Firewall.h" />
     <ClInclude Include="framework.h" />
@@ -255,6 +256,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Directory.cpp" />
+    <ClCompile Include="Encoding.cpp" />
     <ClCompile Include="Errors.cpp" />
     <ClCompile Include="Firewall.cpp" />
     <ClCompile Include="Identity.cpp" />

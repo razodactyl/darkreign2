@@ -24,7 +24,7 @@ namespace MINTCLIENT
                 {
                     case MINTCLIENT::Message::IdentityAuthenticate:
                     {
-                        Identity::Result result = *(Identity::Result*)cc->data;
+                        Identity::Result result = *(Identity::Result*)cc->cmd_data;
                         result.error = WONAPI::Error_Success;
                         result.context = cc->context;
                         contextList->callback(result);

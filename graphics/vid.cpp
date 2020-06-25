@@ -302,26 +302,26 @@ namespace Vid
         {
             return TRUE;
         }
-        if (mode == VIDMODEWINDOW && Vid::isStatus.initialized == TRUE && !Vid::isStatus.windowed)
-        {
-            static char* mess1 = "Device does not support windowed hardware 3D.";
-            static char* mess2 = "Device does not support windowed hardware 3D in your current desktop mode.";
-            static IControlPtr windowPtr;
-
-            char* message = CurDD().wincap ? mess2 : mess1;
-            if (!windowPtr.Alive())
-            {
-                windowPtr = IFace::MsgBox
-                (
-                    TRANSLATE(("Message")),
-                    TRANSLATE((message)), 0,
-                    new MBEvent("Ok", TRANSLATE(("#standard.buttons.ok")))
-                );
-            }
-            LOG_DIAG((message));
-
-            return TRUE;
-        }
+        // if (mode == VIDMODEWINDOW && Vid::isStatus.initialized == TRUE && !Vid::isStatus.windowed)
+        // {
+        //     static char* mess1 = "Device does not support windowed hardware 3D.";
+        //     static char* mess2 = "Device does not support windowed hardware 3D in your current desktop mode.";
+        //     static IControlPtr windowPtr;
+        //
+        //     char* message = CurDD().wincap ? mess2 : mess1;
+        //     if (!windowPtr.Alive())
+        //     {
+        //         windowPtr = IFace::MsgBox
+        //         (
+        //             TRANSLATE(("Message")),
+        //             TRANSLATE((message)), 0,
+        //             new MBEvent("Ok", TRANSLATE(("#standard.buttons.ok")))
+        //         );
+        //     }
+        //     LOG_DIAG((message));
+        //
+        //     return TRUE;
+        // }
 
         Bool wasInit = Vid::isStatus.initialized;
 

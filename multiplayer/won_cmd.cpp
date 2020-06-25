@@ -270,7 +270,16 @@ namespace Won
                         Console::GetArgString(1, username) &&
                         Console::GetArgString(2, password))
                     {
-                        WonIface::LoginAccount((CH*)username, (CH*)password);
+                        // Ansi2Unicode returns a stale pointer.
+                        // Need to duplicate into `new` string before making use.
+                        const CH* _username = Utils::Strdup(Utils::Ansi2Unicode(username));
+                        const CH* _password = Utils::Strdup(Utils::Ansi2Unicode(password));
+
+                        WonIface::LoginAccount(_username, _password);
+
+                        // Delete temp strings after use.
+                        delete _username;
+                        delete _password;
 
                         // Save the WON username/password
                         FScope fScope(nullptr, configUser.str);

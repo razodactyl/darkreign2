@@ -2,6 +2,8 @@
 
 #include "Directory.h"
 
+#include "Encoding.h"
+
 
 namespace MINTCLIENT
 {
@@ -26,15 +28,39 @@ namespace MINTCLIENT
                     {
                         MINTCLIENT::Directory::Result result;
 
-                        auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
-                        directoryEntity.name.Set((CH*)L"AuthServer");
-                        directoryEntity.address.Set((CH*)"192.168.0.106:15101");
-                        result.entityList.push_back(directoryEntity);
+                        auto* tlv = reinterpret_cast<MINTCLIENT::Encoding::TLV*>(cc->cmd_data);
 
-                        auto directoryEntity2 = MINTCLIENT::Directory::Data::DirectoryEntity();
-                        directoryEntity2.name.Set((CH*)L"TitanRoutingServer");
-                        directoryEntity2.address.Set((CH*)"192.168.0.106:15101");
-                        result.entityList.push_back(directoryEntity2);
+                        for (int i = 0; i < tlv->length; i++)
+                        {
+                            auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
+
+                            auto* i_item = &tlv->items[i];
+                            // for (int j = 0; j < i_item->length; j++)
+                            // {
+                            //     auto j_item = i_item->items[j];
+                            //     CH* str = j_item.GetString();
+                            // }
+
+                            auto j1_item = Utils::Strdup(i_item->items[0].GetString());
+                            auto j2_item = Utils::Strdup(i_item->items[1].GetString());
+
+                            LOG_DIAG((Utils::Unicode2Ansi(j1_item)));
+                            LOG_DIAG((Utils::Unicode2Ansi(j2_item)));
+
+                            directoryEntity.name.Set(j1_item);
+                            directoryEntity.address.Set(j2_item);
+                            result.entityList.push_back(directoryEntity);
+                        }
+
+                        //auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        //directoryEntity.name.Set((CH*)L"AuthServer");
+                        //directoryEntity.address.Set((CH*)"192.168.0.106:15101");
+                        //result.entityList.push_back(directoryEntity);
+
+                        //auto directoryEntity2 = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        //directoryEntity2.name.Set((CH*)L"RoutingServer");
+                        //directoryEntity2.address.Set((CH*)"192.168.0.106:15101");
+                        //result.entityList.push_back(directoryEntity2);
 
                         // Pass context to calling function.
                         result.context = cc->context;
@@ -48,13 +74,28 @@ namespace MINTCLIENT
                     {
                         MINTCLIENT::Directory::Result result;
 
-                        auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
-                        directoryEntity.name.Set((CH*)L"TitanRoutingServer");
-                        result.entityList.push_back(directoryEntity);
+                        auto* tlv = reinterpret_cast<MINTCLIENT::Encoding::TLV*>(cc->cmd_data);
+                        for (int i = 0; i < tlv->length; i++)
+                        {
+                            auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
 
-                        auto directoryEntity2 = MINTCLIENT::Directory::Data::DirectoryEntity();
-                        directoryEntity2.name.Set((CH*)L"TitanRoutingServer");
-                        result.entityList.push_back(directoryEntity2);
+                            auto* i_item = &tlv->items[i];
+                            // for (int j = 0; j < i_item->length; j++)
+                            // {
+                            //     auto j_item = i_item->items[j];
+                            //     CH* str = j_item.GetString();
+                            // }
+
+                            auto j1_item = Utils::Strdup(i_item->items[0].GetString());
+                            auto j2_item = Utils::Strdup(i_item->items[1].GetString());
+
+                            LOG_DIAG((Utils::Unicode2Ansi(j1_item)));
+                            LOG_DIAG((Utils::Unicode2Ansi(j2_item)));
+
+                            directoryEntity.name.Set(j1_item);
+                            directoryEntity.address.Set(j2_item);
+                            result.entityList.push_back(directoryEntity);
+                        }
 
                         // Pass context to calling function.
                         result.context = cc->context;
@@ -110,7 +151,11 @@ namespace MINTCLIENT
             client->SendCommand(ctx);
         }
 
-        ASSERT(!directoryThread.IsAlive());
+        //ASSERT(!directoryThread.IsAlive());
+        if (directoryThread.IsAlive())
+        {
+            LOG_DEV(("!!! An existing `Directory` thread is already running!!! (GetDirectory)"));
+        }
 
         directoryThread.Start(Directory::Process, contextList);
 
