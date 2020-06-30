@@ -8,36 +8,46 @@ namespace MINTCLIENT
     Win32::Thread identityThread;
     U32 STDCALL Process(void* context)
     {
-        LDIAG("MINTCLIENT identityThread thread enter");
+        auto* command_list = static_cast<Client::CommandList*>(context);
 
-        auto contextList = static_cast<Client::ContextList<MINTCLIENT::Identity::Result>*>(context);
+        command_list->PassToClient();
 
-        bool doneProcessing = false;
+        bool done_processing = false;
 
-        while (!doneProcessing)
+        while (!done_processing)
         {
-            void* ctx;
-            if (contextList->events.Wait(ctx, TRUE))
-            {
-                const auto cc = static_cast<Client::CommandContext*>(ctx);
-                switch (cc->command)
+            if (command_list->Busy()) {
+                void* ctx;
+                if (command_list->GetEvents()->Wait(ctx, FALSE, MINTCLIENT::DefaultTimeout))
                 {
-                    case MINTCLIENT::Message::IdentityAuthenticate:
-                    {
-                        Identity::Result result = *(Identity::Result*)cc->cmd_data;
-                        result.error = WONAPI::Error_Success;
-                        result.context = cc->context;
-                        contextList->callback(result);
-                        delete cc;
-                    }
-                    break;
-                }
+                    auto* cmd = static_cast<Client::MINTCommand*>(ctx);
 
-                doneProcessing = true;
+                    switch (cmd->command_id)
+                    {
+                        case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
+                        {
+                            Identity::Result result;
+                            result.error = cmd->GetError();
+                            result.context = cmd->context;
+                            cmd->callback(result);
+                            cmd->DropFromClient();
+                        }
+                        break;
+                    }
+                }
+                else
+                {
+                    command_list->TimeoutAll();
+                }
+            }
+            else
+            {
+                done_processing = true;
             }
         }
 
-        LDIAG("MINTCLIENT::identityThread exit");
+        command_list->ShutdownClients();
+        delete command_list;
         return TRUE;
     }
 
@@ -47,27 +57,24 @@ namespace MINTCLIENT
     //
     WONAPI::Error Identity::Authenticate(MINTCLIENT::Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context)
     {
-        auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::Identity::Result>();
-        contextList->callback = callback;
+        auto* command_list = new MINTCLIENT::Client::CommandList();
 
-        // Create a `CommandContext` with the command and data to send to the server.
-        auto* ctx = new Client::CommandContext(client);
-        ctx->command = MINTCLIENT::Message::IdentityAuthenticate;
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(client);
+        cmd->command_id = MINTCLIENT::Message::IdentityAuthenticate;
+        cmd->callback = callback;
 
         auto identity = Data::Identity();
         identity.username.Set(username);
         identity.password.Set(password);
-        ctx->SetData(identity);
-        ctx->SetContext(context);
+        cmd->SetDataFromStruct(identity);
+        cmd->SetContext(context);
 
-        contextList->Add(ctx);
-        client->SendCommand(ctx);
+        command_list->Add(cmd);
 
-        // Last call should have finished by now.
-        ASSERT(!identityThread.IsAlive());
-
-        // Go away, process the command, callback when we have a response.
-        identityThread.Start(Process, contextList);
+        if (!identityThread.IsAlive()) {
+            identityThread.Start(Process, command_list);
+        }
 
         return WONAPI::Error_Pending;
     }

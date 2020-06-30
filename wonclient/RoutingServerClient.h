@@ -18,7 +18,7 @@ namespace MINTCLIENT
                 MINTCLIENT::RoutingServerClient* routingServer;
             };
 
-            typedef unsigned short ClientId;
+            typedef U32 ClientId;
             typedef StrCrc<32, CH> ClientName;
 
             // Client data
@@ -77,14 +77,10 @@ namespace MINTCLIENT
                 static const int CHATTYPE_ASCII_EMOTE = 0x01;
                 static const int CHATTYPE_ASCII = 0x02;
 
-                ClientId mSenderId;
-                int mChatType;
-                std::string mData;
-
-                static bool IsWhisper()
-                {
-                    return 0;
-                }
+                ClientId clientId;
+                int type;
+                StrCrc<128, CH> text;
+                bool isWhisper;
             };
 
             struct UnicodeChatMessage
@@ -106,10 +102,7 @@ namespace MINTCLIENT
         // Connect to a room.
         //
 
-        struct ConnectRoomRequest : Request
-        {
-            
-        };
+        struct ConnectRoomRequest : Request {};
         struct ConnectRoomResult : Result {};
 
         //
@@ -144,9 +137,7 @@ namespace MINTCLIENT
         // Get the list of clients connected to this server.
         //
 
-        struct GetClientListRequest : Request
-        {
-        };
+        struct GetClientListRequest : Request {};
 
         struct GetClientListResult : Result
         {
@@ -160,8 +151,13 @@ namespace MINTCLIENT
 
         ////////////////////////////////////////////////////////////////
         //
-        // //
         //
+        //
+
+        struct ASCIIChatMessageRequest : Request
+        {
+            Data::ASCIIChatMessage chatMessage;
+        };
 
         struct ASCIIChatMessageResult : Result
         {
@@ -173,23 +169,84 @@ namespace MINTCLIENT
         //
         ////////////////////////////////////////////////////////////////
 
+        ////////////////////////////////////////////////////////////////
+        //
+        //
+        //
+
+        struct CreateGameRequest : Request
+        {
+            U32 clientId;
+            StrCrc<32, CH> name;
+        };
+
+        struct CreateGameResult : Result
+        {
+        };
+
+        struct UpdateGameRequest : Request
+        {
+        };
+
+        struct UpdateGameResult : Result
+        {
+        };
+
+        struct DeleteGameRequest : Request
+        {
+        };
+
+        struct DeleteGameResult : Result
+        {
+        };
+
+        //
+        //
+        //
+        ////////////////////////////////////////////////////////////////
+
         // Persistent connection to server.
         MINTCLIENT::Client* client;
+        MINTCLIENT::Client::CommandList* command_list;
+        
+        Win32::EventIndex eventQuit;
+
+        Win32::Thread h_RoutingServerClientThread;
 
         static const int ID_ASCIIPeerChatCatcher = 0;
-        std::map<int, std::list<MINTCLIENT::Client::ContextList<MINTCLIENT::RoutingServerClient::ASCIIChatMessageResult>*>> catchers;
+        std::map<int, std::list<MINTCLIENT::Client::CommandList*>> catchers;
+
+        RoutingServerClient()
+        {
+            client = nullptr;
+            command_list = new MINTCLIENT::Client::CommandList();
+        }
+
+        ~RoutingServerClient()
+        {
+            command_list->AbortAll();
+            this->eventQuit.Signal();
+            this->Close();
+        }
+
         WONAPI::Error InstallASCIIPeerChatCatcher(void (*callback)(const RoutingServerClient::ASCIIChatMessageResult& message), void* context);
 
         WONAPI::Error GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context);
         WONAPI::Error GetUserList(void (*callback)(const RoutingServerClient::GetClientListResult& result), void* context);
 
         WONAPI::Error Register(const CH* loginName, const CH* password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context);
-        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address routingAddress, MINTCLIENT::Identity* identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context);
+        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity* identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context);
 
-        WONAPI::Error BroadcastChat(std::wstring& text, bool f) const;
+        WONAPI::Error BroadcastChat(std::wstring& text, bool f);
+
+        WONAPI::Error CreateGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context);
+        WONAPI::Error UpdateGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context);
+        WONAPI::Error DeleteGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context);
+
+        U32 GetClientId();
 
         void Close();
 
-        static U32 STDCALL Process(void* context);
+        static U32 STDCALL RoutingServerClientProcess(void* context);
     };
 }

@@ -40,6 +40,8 @@ namespace MINTCLIENT
                 this->data = new U8[size];
                 Utils::Memcpy(this->data, bytes, size);
 
+                // Utils::MemoryDump(this->data, size);
+
                 // Pointer to first byte of data.
                 U8* p = data;
 
@@ -47,7 +49,9 @@ namespace MINTCLIENT
                 const int type = ReadType(*p);
 
                 // Second 4 bytes determine the length.
-                this->length = (p[1] << 24 & 0xFF000000) + (p[2] << 16 & 0x00FF0000) + (p[3] & 0x0000FF00) + (p[4] & 0x000000FF);
+                this->length = (p[1] << 24) | (p[2] << 16) | (p[3] << 8) | (p[4] << 0);
+
+                ASSERT(length < U16_MAX);
 
                 // The rest of the data follows.
                 this->offset += 5;
@@ -62,8 +66,11 @@ namespace MINTCLIENT
                     for (unsigned int i = 0; i < length; i++)
                     {
                         auto remaining = size - this->offset;
-                        items[i] = TLV(p, remaining);
+                        items[i] = *new TLV(p, remaining);
+
+                        // Increment pointer to next item's type.
                         p += items[i].DataOffset();
+                        // Set offset past this current item.
                         this->offset += items[i].DataOffset();
                     }
                 }
@@ -72,10 +79,13 @@ namespace MINTCLIENT
                     // Length contains the size of the data.
                     if (type == TLV_STRING)
                     {
-                        // What are we working with.
-                        Utils::MemoryDump(p, length * 2);
-
+                        // Increase offset past this string.
                         this->offset += (length * 2);
+                    }
+                    else
+                    {
+                        // Increase offset past this item.
+                        this->offset += length;
                     }
                 }
             }
@@ -86,21 +96,24 @@ namespace MINTCLIENT
                 {
                     if (this->type == TLV_ARRAY)
                     {
-                        //delete[] items;
+                        delete[] items;
                     }
                     else
                     {
-                        //delete data;
+                        delete data;
                     }
                 }
             }
 
             int ReadType(char type);
+
             unsigned int DataOffset()
             {
                 return this->offset;
             }
 
+            bool GetU8Bool();
+            U8 GetU8();
             U32 GetU32();
             CH* GetString();
         };

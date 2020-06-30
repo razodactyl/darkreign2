@@ -9,22 +9,23 @@ namespace MINTCLIENT
     {
         struct Data
         {
-            struct DirectoryEntity
+            struct DirectoryServer
             {
+                StrCrc<32, CH> type;
                 StrCrc<32, CH> name;
                 StrCrc<32, CH> address;
                 bool permanent = true;
             };
 
-            typedef std::list<DirectoryEntity> DirectoryEntityList;
+            typedef std::list<DirectoryServer> DirectoryServerList;
         };
 
         struct Result : CommandResult
         {
-            Data::DirectoryEntityList entityList;
+            Data::DirectoryServerList server_list;
         };
 
-        static U32 STDCALL Process(void* context);
+        static U32 STDCALL ProcessDirectoryMessage(void* context);
 
         static WONAPI::Error GetDirectory(MINTCLIENT::Identity* identity, const std::vector<MINTCLIENT::IPSocket::Address>* servers, void (*callback)(const Result& result), void* context);
     };

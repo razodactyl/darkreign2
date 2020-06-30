@@ -17,6 +17,7 @@ namespace MINTCLIENT
 
         struct DetectResult : Result
         {
+            bool behindFirewall;
         };
     };
 }

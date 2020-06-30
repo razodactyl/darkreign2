@@ -9,6 +9,7 @@
 #define __WONINC_H
 
 #pragma warning(push, 3)
+
 /*
 #include "..\3rdparty\won\Routing\RoutingAPI.h"
 #include "..\3rdparty\won\Factory\FactoryAPI.h"
@@ -26,7 +27,5 @@
 #include "Firewall.h"
 
 #pragma warning(pop)
-
-//#pragma comment (lib, "..\\3rdparty\\won\\titanapi")
 
 #endif

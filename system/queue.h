@@ -141,13 +141,13 @@ class SafeQueue
 {
 private:
 
-    System::Mutex mutex_head;              // Only one thread may add to the head at a time
-    System::Mutex mutex_tail;              // Only one thread may remove from the tail at a time
-    System::Semaphore sem_space;               // Semaphore for controlling space in the queue
-    System::Semaphore sem_items;               // Semaphore for controlling items in the queue
-    DATA queue[SIZE];             // Data in the queue
-    int head;                    // Head of the queue
-    int tail;                    // Tail of the queue
+    System::Mutex mutex_head;       // Only one thread may add to the head at a time
+    System::Mutex mutex_tail;       // Only one thread may remove from the tail at a time
+    System::Semaphore sem_space;    // Semaphore for controlling space in the queue
+    System::Semaphore sem_items;    // Semaphore for controlling items in the queue
+    DATA queue[SIZE];               // Data in the queue
+    int head;                       // Head of the queue
+    int tail;                       // Tail of the queue
 
 public:
 

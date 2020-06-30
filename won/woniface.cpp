@@ -326,7 +326,6 @@ namespace WonIface
         {
             PlayerName name;
             Utils::Strmcpy(name.str, (const CH*)client.clientName.str, Min<U32>(client.clientName.GetSize() / sizeof(CH) + 1, name.GetSize()));
-            //name.Set(client.mClientName.str);
 
             RoomClient* rc = Find(client.clientId);
 
@@ -504,7 +503,7 @@ namespace WonIface
     // static void LoginAccountCallback(const WONAPI::Identity::AuthResult& result, AbortableContext*);
     static void LoginAccountCallback(const MINTCLIENT::Identity::Result& result);
     static void ChangePasswordCallback(const MINTCLIENT::Identity::Result& result, AbortableContext*);
-    //static void DetectFirewallCallback(const MINTCLIENT::Firewall::DetectResult& result, void*);
+    static void DetectFirewallCallback(const MINTCLIENT::Firewall::DetectResult& result);
 
     static void UpdateRoomsCallback(const MINTCLIENT::Directory::Result& result);
 
@@ -515,9 +514,9 @@ namespace WonIface
     static void HTTPGetCallback(WONAPI::Error result, HTTPdata*);
     static bool HTTPProgressCallback(unsigned long progress, unsigned long size, void* callbackPrivData);
 
-    static void CreateDataObjectCallback(short status, void*);
-    static void DeleteDataObjectCallback(short status, void*);
-    static void ReplaceDataObjectCallback(short status, void*);
+    static void CreateGameCallback(const MINTCLIENT::RoutingServerClient::CreateGameResult& result);
+    static void DeleteGameCallback(const MINTCLIENT::RoutingServerClient::DeleteGameResult& result);
+    static void UpdateGameCallback(const MINTCLIENT::RoutingServerClient::UpdateGameResult& result);
     static void SubscribeDataObjectCallback(const MINTCLIENT::RoutingServerClient::Data::ReadDataObjectResult& result, void*);
 
     static void GetNumUsersCallback(const MINTCLIENT::RoutingServerClient::GetNumUsersResult& result);
@@ -1060,6 +1059,12 @@ namespace WonIface
     //
     void DetectFirewall()
     {
+        auto result = MINTCLIENT::Firewall::DetectResult();
+        result.error = WONAPI::Error_Success;
+        result.behindFirewall = false;
+
+        DetectFirewallCallback(result);
+
         // LOG_WON(("Detecting Firewall"));
         //
         // // We are now checking for a firewall
@@ -1095,25 +1100,25 @@ namespace WonIface
     //
     // DetectFirewallCallback
     //
-    void DetectFirewallCallback(const MINTCLIENT::Firewall::DetectResult& result, void*)
+    void DetectFirewallCallback(const MINTCLIENT::Firewall::DetectResult& result)
     {
-        // LOG_WON(("DetectFirewallCallback in"));
-        // LOG_WON(("DetectFirewallEx CB: %d %s", result.error, WONErrorToString(result.error)));
-        //
-        // switch (result.error)
-        // {
-        // case WONAPI::Error_Success:
-        //     firewallStatus = *(result.behindFirewall) ? Firewall::Behind : Firewall::None;
-        //     PostEvent(Message::FirewallStatus);
-        //     break;
-        //
-        // default:
-        //     LOG_ERR(("DetectFirewallEx CB: %d %s", result.error, WONErrorToString(result.error)))
-        //         firewallStatus = Firewall::Unchecked;
-        //     break;
-        // }
-        //
-        // LOG_WON(("DetectFirewallCallback out"));
+        LOG_WON(("DetectFirewallCallback in"));
+        LOG_WON(("DetectFirewallCallback CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+
+        switch (result.error)
+        {
+            case WONAPI::Error_Success:
+                firewallStatus = result.behindFirewall ? Firewall::Behind : Firewall::None;
+                PostEvent(Message::FirewallStatus);
+                break;
+
+            default:
+                LOG_ERR(("DetectFirewallEx CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+                firewallStatus = Firewall::Unchecked;
+                break;
+        }
+
+        LOG_WON(("DetectFirewallCallback out"));
     }
 
 
@@ -1161,7 +1166,7 @@ namespace WonIface
     void GetRoomList(NList<Room>& rooms)
     {
         // Wait for data mutex
-        LOG_WON(("critData.Wait"));
+        LOG_WON(("GetRoomList critData.Wait"));
         critData.Wait();
 
         // Make sure the room list is clear
@@ -1174,7 +1179,7 @@ namespace WonIface
         }
 
         // Signal data mutex
-        LOG_WON(("critData.Signal"));
+        LOG_WON(("GetRoomList critData.Signal"));
         critData.Signal();
     }
 
@@ -1299,36 +1304,36 @@ namespace WonIface
     void JoinRoom(const CH* roomname, const CH* password)
     {
         LOG_WON(("Joining room (not implemented.)"))
-        // LOG_WON(("Joining Room '%s' '%s'", Utils::Unicode2Ansi(roomname), password ? "password" : ""));
-        //
-        // if (!identity.GetLoginName().size())
-        // {
-        //     ERR_FATAL(("No Identity!"));
-        // }
-        //
-        // // Wait for data mutex
-        // LOG_WON(("critData.Wait"));
-        // critData.Wait();
-        //
-        // // Attempt to find the room in the chat server tree
-        // ChatServer* server = chatServers.Find(Crc::CalcStr(roomname));
-        //
-        // // Signal data mutex
-        // LOG_WON(("critData.Signal"));
-        // critData.Signal();
-        //
-        // // Verify that we're not currently in that room
-        // LOG_WON(("currentRoutingServer=0x%.8X", currentRoutingServer));
-        //
-        // if (server)
-        // {
-        //     ConnectRoom(server->address, roomname, password, NULL);
-        // }
-        // else
-        // {
-        //     LOG_WON(("Room '%s' not found", roomname));
-        //     PostEvent(Error::NoRoom);
-        // }
+            // LOG_WON(("Joining Room '%s' '%s'", Utils::Unicode2Ansi(roomname), password ? "password" : ""));
+            //
+            // if (!identity.GetLoginName().size())
+            // {
+            //     ERR_FATAL(("No Identity!"));
+            // }
+            //
+            // // Wait for data mutex
+            // LOG_WON(("critData.Wait"));
+            // critData.Wait();
+            //
+            // // Attempt to find the room in the chat server tree
+            // ChatServer* server = chatServers.Find(Crc::CalcStr(roomname));
+            //
+            // // Signal data mutex
+            // LOG_WON(("critData.Signal"));
+            // critData.Signal();
+            //
+            // // Verify that we're not currently in that room
+            // LOG_WON(("currentRoutingServer=0x%.8X", currentRoutingServer));
+            //
+            // if (server)
+            // {
+            //     ConnectRoom(server->address, roomname, password, NULL);
+            // }
+            // else
+            // {
+            //     LOG_WON(("Room '%s' not found", roomname));
+            //     PostEvent(Error::NoRoom);
+            // }
     }
 
 
@@ -1361,29 +1366,35 @@ namespace WonIface
     //
     void AddGame(const GameName& name, U32 size, const U8* d)
     {
-        LOG_DIAG(("MINT AddGame not implemented."));
         // WONCommon::RawBuffer data;
         // data.assign(d, size);
-        //
-        // LOG_WON(("critRouting.Wait"));
-        // critRouting.Wait();
-        //
-        // if (currentRoutingServer)
-        // {
-        //     currentRoutingServer->CreateDataObjectEx
-        //     (
-        //         WONAPI::RoutingServerClient::GROUPID_ALLUSERS,   // ClientOrGroupId theLinkId
-        //         dataGamePrefix + (U8*)name.str,                  // const WONCommon::RawBuffer& theDataTypeR
-        //         currentRoutingServer->GetClientId(),             // ClientOrGroupId theOwnerId
-        //         0,                                               // unsigned short theLifespan
-        //         data,                                            // const WONCommon::RawBuffer& theDataR
-        //         CreateDataObjectCallback,                        // void (*f)(short, privsType)
-        //         (void*)NULL                                      // privsType t)
-        //     );
-        // }
-        //
-        // LOG_WON(("critRouting.Signal"));
-        // critRouting.Signal();
+
+        LOG_WON(("critRouting.Wait"));
+        critRouting.Wait();
+
+        if (currentRoutingServer)
+        {
+            // currentRoutingServer->CreateDataObjectEx
+            // (
+            //     WONAPI::RoutingServerClient::GROUPID_ALLUSERS,   // ClientOrGroupId theLinkId
+            //     dataGamePrefix + (U8*)name.str,                  // const WONCommon::RawBuffer& theDataTypeR
+            //     currentRoutingServer->GetClientId(),             // ClientOrGroupId theOwnerId
+            //     0,                                               // unsigned short theLifespan
+            //     data,                                            // const WONCommon::RawBuffer& theDataR
+            //     CreateDataObjectCallback,                        // void (*f)(short, privsType)
+            //     (void*)NULL                                      // privsType t)
+            // );
+
+            currentRoutingServer->CreateGame(
+                Utils::Ansi2Unicode(name.str),
+                currentRoutingServer->GetClientId(),
+                CreateGameCallback,
+                nullptr
+            );
+        }
+
+        LOG_WON(("critRouting.Signal"));
+        critRouting.Signal();
     }
 
 
@@ -1421,23 +1432,22 @@ namespace WonIface
     //
     void RemoveGame(const GameName& name)
     {
-        LOG_DIAG(("MINT RemoveGame not implemented."));
-        // LOG_WON(("critRouting.Wait"));
-        // critRouting.Wait();
-        //
-        // if (currentRoutingServer)
-        // {
-        //     currentRoutingServer->DeleteDataObjectEx
-        //     (
-        //         WONAPI::RoutingServerClient::GROUPID_ALLUSERS,  // ClientOrGroupId theLinkId, 
-        //         dataGamePrefix + (U8*)name.str,               // const WONCommon::RawBuffer& theDataTypeR,
-        //         DeleteDataObjectCallback,                       // void (*f)(short, privsType), 
-        //         (void*)NULL                                   // privsType t)
-        //     );
-        // }
-        //
-        // LOG_WON(("critRouting.Signal"));
-        // critRouting.Signal();
+        LOG_WON(("critRouting.Wait"));
+        critRouting.Wait();
+
+        if (currentRoutingServer)
+        {
+            // currentRoutingServer->DeleteDataObjectEx
+            // (
+            //     WONAPI::RoutingServerClient::GROUPID_ALLUSERS,  // ClientOrGroupId theLinkId, 
+            //     dataGamePrefix + (U8*)name.str,               // const WONCommon::RawBuffer& theDataTypeR,
+            //     DeleteDataObjectCallback,                       // void (*f)(short, privsType), 
+            //     (void*)NULL                                   // privsType t)
+            // );
+        }
+
+        LOG_WON(("critRouting.Signal"));
+        critRouting.Signal();
     }
 
 
@@ -1447,7 +1457,7 @@ namespace WonIface
     void GetGameList(NList<Game>& games)
     {
         // Wait for data mutex
-        LOG_WON(("critData.Wait"));
+        LOG_WON(("GetGameList critData.Wait"));
         critData.Wait();
 
         // Make sure the room list is clear
@@ -1460,7 +1470,7 @@ namespace WonIface
         }
 
         // Signal data mutex
-        LOG_WON(("critData.Signal"));
+        LOG_WON(("GetGameList critData.Signal"));
         critData.Signal();
     }
 
@@ -1608,10 +1618,11 @@ namespace WonIface
         IgnorePlayer(name);
     }
 
+
     void IgnorePlayer(const PlayerName& name)
     {
         // Signal data mutex
-        LOG_WON(("critData.Wait"));
+        LOG_WON(("IgnorePlayer critData.Wait"));
         critData.Wait();
 
         // Clear ignored players
@@ -1621,7 +1632,7 @@ namespace WonIface
         }
 
         // Signal data mutex
-        LOG_WON(("critData.Signal"));
+        LOG_WON(("IgnorePlayer critData.Signal"));
         critData.Signal();
 
         PostEvent(Message::PlayersChanged);
@@ -1639,17 +1650,18 @@ namespace WonIface
         UnignorePlayer(name);
     }
 
+
     void UnignorePlayer(const PlayerName& name)
     {
         // Signal data mutex
-        LOG_WON(("critData.Wait"));
+        LOG_WON(("UnignorePlayer critData.Wait"));
         critData.Wait();
 
         // Remove the player from the ignored players
         ignoredPlayers.Unlink(name.crc);
 
         // Signal data mutex
-        LOG_WON(("critData.Signal"));
+        LOG_WON(("UnignorePlayer critData.Signal"));
         critData.Signal();
 
         PostEvent(Message::PlayersChanged);
@@ -1832,7 +1844,7 @@ namespace WonIface
 
 
     //
-    // Enable/Disable logging
+    // Enable / Disable logging
     //
     void Logging(Bool on)
     {
@@ -1863,7 +1875,7 @@ namespace WonIface
         critRouting.Signal();
 
         // Wait for data mutex
-        LOG_WON(("critData.Wait"));
+        LOG_WON(("Reset critData.Wait"));
         critData.Wait();
 
         // Cleanup
@@ -1876,7 +1888,7 @@ namespace WonIface
         ignoredPlayers.UnlinkAll();
 
         // Signal data mutex
-        LOG_WON(("critData.Signal"));
+        LOG_WON(("Reset critData.Signal"));
         critData.Signal();
 
         LOG_WON(("Reset out"));
@@ -1938,6 +1950,7 @@ namespace WonIface
         }
 
         // Connect to the new server
+        LOG_DEV(("woniface::ConnectRoom >>>"));
         WONAPI::Error error = routingServer->Connect
         (
             // address,                // const TCPSocket::Address& theRoutingAddress
@@ -2007,6 +2020,7 @@ namespace WonIface
                     //     context                                 // privsType t
                     // );
 
+                    LOG_DEV(("woniface::context->routingServer->Register >>>"));
                     context->routingServer->Register(
                         identity.GetLoginName(),
                         context->password.str,
@@ -2068,7 +2082,7 @@ namespace WonIface
                 case WONAPI::Error_Success:
                 {
                     // Wait for data mutex
-                    LOG_WON(("critRouting.Wait"));
+                    // LOG_WON(("RegisterPlayerCallback critRouting.Wait"));
                     critRouting.Wait();
 
                     // If there is a current server, leave it and delete it.
@@ -2081,10 +2095,10 @@ namespace WonIface
                     // Move the next server to the current server
                     currentRoutingServer = context->routingServer;
 
-                    LOG_WON(("critRouting.Signal"));
+                    // LOG_WON(("RegisterPlayerCallback critRouting.Signal"));
                     critRouting.Signal();
 
-                    LOG_WON(("critData.Wait"));
+                    // LOG_WON(("RegisterPlayerCallback critData.Wait"));
                     critData.Wait();
 
                     // Clear the next server
@@ -2099,7 +2113,7 @@ namespace WonIface
                     roomGames.DisposeAll();
 
                     // Signal for data mutex
-                    LOG_WON(("critData.Signal"));
+                    // LOG_WON(("RegisterPlayerCallback critData.Signal"));
                     critData.Signal();
 
                     // Begin player list update
@@ -2164,13 +2178,13 @@ namespace WonIface
         {
             case WONAPI::Error_Success:
             {
-                LOG_WON(("critData.Wait"));
+                LOG_WON(("ClientListCallback critData.Wait"));
                 critData.Wait();
                 for (const auto& i : result.clientDataList)
                 {
                     roomClients.AddNoDup(i);
                 }
-                LOG_WON(("critData.Signal"));
+                LOG_WON(("ClientListCallback critData.Signal"));
                 critData.Signal();
 
                 PostEvent(Message::PlayersChanged);
@@ -2255,9 +2269,9 @@ namespace WonIface
             case Message::CreatedGame:
                 return ("Message::CreatedGame");
 
-            //
-            // HTTP
-            //
+                //
+                // HTTP
+                //
 
             case Message::HTTPProgressUpdate:
                 return ("Message::HTTPProgressUpdate");
@@ -2265,9 +2279,9 @@ namespace WonIface
             case Message::HTTPCompleted:
                 return ("Message::HTTPCompleted");
 
-            //
-            // HTTP
-            //
+                //
+                // HTTP
+                //
 
             case Error::ConnectionFailure:
                 return ("Error::ConnectionFailure");
@@ -2352,7 +2366,7 @@ namespace WonIface
     //
     void UpdateRooms(AbortableContext* context)
     {
-        LOG_WON(("Updating Room List."));
+        LOG_WON(("$$$ void UpdateRooms"));
 
         if (!Utils::Strlen(identity.GetLoginName()))
         {
@@ -2416,7 +2430,8 @@ namespace WonIface
     //
     void UpdateRooms()
     {
-        UpdateRooms(nullptr);
+        LOG_WON(("Note: UpdateRooms is currently disabled."))
+        // UpdateRooms(nullptr);
     }
 
 
@@ -2454,7 +2469,7 @@ namespace WonIface
                     // }
 
                     // Enter a data safe zone
-                    LOG_WON(("critData.Wait"));
+                    LOG_WON(("UpdateRoomsCallback critData.Wait"));
                     critData.Wait();
 
                     // Resize our server arrays to accomodate these new sizes
@@ -2465,13 +2480,13 @@ namespace WonIface
                     numFactory = 0;
 
                     // Fill in the new servers
-                    for (auto i : result.entityList)
+                    for (auto i : result.server_list)
                     {
                         U32 count = 0;
                         Bool password = FALSE;
                         Bool permanent = FALSE;
 
-                        if (Utils::Strcmp(i.name.str, (CH*)serverRouting) == 0)
+                        if (Utils::Strcmp(i.type.str, (CH*)serverRouting) == 0)
                         {
                             // WONCommon::DataObjectTypeSet::const_iterator d;
                             //
@@ -2514,7 +2529,7 @@ namespace WonIface
                     }
 
                     // Leaving a data safe zone
-                    LOG_WON(("critData.Signal"));
+                    LOG_WON(("UpdateRoomsCallback critData.Signal"));
                     critData.Signal();
 
                     if (context)
@@ -2529,6 +2544,15 @@ namespace WonIface
                     }
                     break;
                 }
+
+                case WONAPI::Error_Timeout:
+                {
+                    if (context)
+                    {
+                        context->abort.Signal();
+                    }
+                }
+                break;
 
                 default:
                     LOG_ERR(("DirectoryEx CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
@@ -2559,7 +2583,7 @@ namespace WonIface
         ChatServer* lobby = NULL;
 
         // Wait for data mutex
-        LOG_WON(("critData.Wait"));
+        LOG_WON(("JoinLobby critData.Wait"));
         critData.Wait();
 
         // Look through the list of rooms for a suitable lobby with the following criteria:
@@ -2596,7 +2620,7 @@ namespace WonIface
         }
 
         // Signal data mutex
-        LOG_WON(("critData.Signal"));
+        LOG_WON(("JoinLobby critData.Signal"));
         critData.Signal();
 
         if (lobby)
@@ -2635,24 +2659,24 @@ namespace WonIface
                 U16 numProfile = 0;
 
                 // Iterate the server list and count the number of various server types.
-                for (auto i : result.entityList)
+                for (auto i : result.server_list)
                 {
-                    if (Utils::Strcmp(i.name.str, (CH*)serverAuth) == 0)
+                    if (Utils::Strcmp(i.type.str, (CH*)serverAuth) == 0)
                     {
                         numAuth++;
                     }
-                    if (Utils::Strcmp(i.name.str, (CH*)serverFirewall) == 0)
+                    if (Utils::Strcmp(i.type.str, (CH*)serverFirewall) == 0)
                     {
                         numFirewall++;
                     }
-                    else if (Utils::Strcmp(i.name.str, (CH*)serverProfile) == 0)
+                    else if (Utils::Strcmp(i.type.str, (CH*)serverProfile) == 0)
                     {
                         numProfile++;
                     }
                 }
 
                 // Wait for data mutex
-                LOG_WON(("critData.Wait"));
+                LOG_WON(("TitanServerListCallback critData.Wait"));
                 critData.Wait();
 
                 // Resize our server arrays to accomodate these new sizes
@@ -2666,21 +2690,21 @@ namespace WonIface
                 numProfile = 0;
 
                 // Fill in the new servers
-                for (auto i : result.entityList)
+                for (auto i : result.server_list)
                 {
-                    if (Utils::Strcmp(i.name.str, (CH*)serverAuth) == 0)
+                    if (Utils::Strcmp(i.type.str, (CH*)serverAuth) == 0)
                     {
                         authServers.servers[numAuth] = MINTCLIENT::IPSocket::Address(Utils::Unicode2Ansi(i.address.str));
                         LOG_WON(("Authentication Server: %s", authServers.servers[numAuth].ip));
                         numAuth++;
                     }
-                    else if (Utils::Strcmp(i.name.str, (CH*)serverFirewall) == 0)
+                    else if (Utils::Strcmp(i.type.str, (CH*)serverFirewall) == 0)
                     {
-                        //firewallServers.servers[numFirewall] = WONAPI::IPSocket::Address(*(unsigned long*)(i->mNetAddress.data() + 2), ntohs(*(unsigned short*)i->mNetAddress.data()));
-                        //LOG_WON(("Firewall Server: %s", firewallServers.servers[numFirewall].GetAddressString(TRUE).c_str()));
+                        firewallServers.servers[numFirewall] = MINTCLIENT::IPSocket::Address(Utils::Unicode2Ansi(i.address.str));
+                        LOG_WON(("Firewall Server: %s", firewallServers.servers[numFirewall].ip));
                         numFirewall++;
                     }
-                    else if (Utils::Strcmp(i.name.str, (CH*)serverProfile) == 0)
+                    else if (Utils::Strcmp(i.type.str, (CH*)serverProfile) == 0)
                     {
                         //profileServers.servers[numProfile] = WONAPI::IPSocket::Address(*(unsigned long*)(i->mNetAddress.data() + 2), ntohs(*(unsigned short*)i->mNetAddress.data()));
                         //LOG_WON(("Profile Server: %s", profileServers.servers[numProfile].GetAddressString(TRUE).c_str()));
@@ -2689,7 +2713,7 @@ namespace WonIface
                 }
 
                 // Signal data mutex
-                LOG_WON(("critData.Signal"));
+                LOG_WON(("TitanServerListCallback critData.Signal"));
                 critData.Signal();
 
                 // If there are firewall servers detect to see if we're behind a firewall
@@ -2716,7 +2740,6 @@ namespace WonIface
             break;
 
             case WONAPI::Error_Timeout:
-                // case WONMsg::StatusDir_DirNotFound:
                 PostEvent(Error::ConnectionFailure);
                 break;
 
@@ -2794,36 +2817,36 @@ namespace WonIface
 
 
     //
-    // CreateDataObjectCallback
+    // CreateGameCallback
     //
-    void CreateDataObjectCallback(short status, void*)
+    void CreateGameCallback(const MINTCLIENT::RoutingServerClient::CreateGameResult& result)
     {
-        // LOG_WON(("CreateDataObjectCallback in"));
-        // LOG_WON(("CreateDataObjectEx CB: %d %s", status, WONErrorToString(status)));
-        //
-        // switch (status)
-        // {
-        // case WONMsg::StatusCommon_Success:
-        //     PostEvent(Message::CreatedGame);
-        //     break;
-        //
-        // case WONMsg::StatusRouting_ObjectAlreadyExists:
-        //     PostEvent(Error::CreateGameFailure);
-        //     break;
-        //
-        // default:
-        //     LOG_ERR(("CreateDataObjectEx CB: %d %s", status, WONErrorToString(status)))
-        //         break;
-        // }
-        //
-        // LOG_WON(("CreateDataObjectCallback out"));
+        LOG_WON(("CreateGameCallback in"));
+        LOG_WON(("CreateGameCallback CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+
+        switch (result.error)
+        {
+            case WONAPI::Error_Success:
+                PostEvent(Message::CreatedGame);
+                break;
+
+            case WONAPI::Error_AddressInUse:
+                PostEvent(Error::CreateGameFailure);
+                break;
+
+            default:
+                LOG_WON(("!!!Unhandled Result!!! CreateGameCallback: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+                break;
+        }
+
+        LOG_WON(("CreateGameCallback out"));
     }
 
 
     //
-    // DeleleteDataObjectCallback
+    // DeleteGameCallback
     //
-    void DeleteDataObjectCallback(short status, void*)
+    void DeleteGameCallback(const MINTCLIENT::RoutingServerClient::DeleteGameResult& result)
     {
         // LOG_WON(("DeleteDataObjectCallback in"));
         // LOG_WON(("DeleteDataObjectEx CB: %d %s", status, WONErrorToString(status)));
@@ -2846,7 +2869,7 @@ namespace WonIface
     //
     // ReplaceDataObjectCallback
     //
-    void ReplaceDataObjectCallback(short status, void*)
+    void UpdateGameCallback(const MINTCLIENT::RoutingServerClient::UpdateGameResult& result)
     {
         // LOG_WON(("ReplaceDataObjectCallback in"));
         // LOG_WON(("ReplaceDataObjectEx CB: %d %s", status, WONErrorToString(status)));
@@ -2871,7 +2894,8 @@ namespace WonIface
     //
     void SubscribeDataObjectCallback(const MINTCLIENT::RoutingServerClient::Data::ReadDataObjectResult& result, void*)
     {
-        // LOG_WON(("SubscribeDataObjectCallback in"));
+        LOG_WON(("SubscribeDataObjectCallback in"));
+
         // LOG_WON(("SubscribeDataObjectEx CB: %d %s", result.mStatus, WONErrorToString(result.mStatus)));
         //
         // switch (result.mStatus)
@@ -2883,12 +2907,7 @@ namespace WonIface
         //     LOG_WON(("critData.Wait"));
         //     critData.Wait();
         //
-        //     for
-        //         (
-        //             std::list<WONAPI::RoutingServerClient::DataObject>::const_iterator i = result.mDataObjectList.begin();
-        //             i != result.mDataObjectList.end();
-        //             ++i
-        //             )
+        //     for (std::list<WONAPI::RoutingServerClient::DataObject>::const_iterator i = result.mDataObjectList.begin(); i != result.mDataObjectList.end(); ++i)
         //     {
         //         GameName name = reinterpret_cast<const char*>(i->mDataType.data() + dataGamePrefix.size());
         //
@@ -2927,11 +2946,11 @@ namespace WonIface
         // }
         //
         // default:
-        //     LOG_ERR(("SubscribeDataObjectEx CB: %d %s", result.mStatus, WONErrorToString(result.mStatus)))
+        //     LOG_ERR(("SubscribeDataObjectEx CB: %d %s", result.mStatus, WONAPI::WONErrorToString(result.mStatus)))
         //         break;
         // }
-        //
-        // LOG_WON(("SubscribeDataObjectCallback out"));
+
+        LOG_WON(("SubscribeDataObjectCallback out"));
     }
 
 
@@ -3223,24 +3242,24 @@ namespace WonIface
     //
     void ASCIIPeerChatCatcher(const MINTCLIENT::RoutingServerClient::ASCIIChatMessageResult& result)
     {
-        LOG_WON(("critData.Wait"));
+        LOG_WON(("ASCIIPeerChatCatcher critData.Wait"));
         critData.Wait();
 
-        RoomClient* from = roomClients.Find(result.chatMessage.mSenderId);
+        RoomClient* from = roomClients.Find(result.chatMessage.clientId);
 
         if (from)
         {
             // Are we ignoring messages from this player?
             if (ignoredPlayers.Exists(from->name.crc))
             {
-                LOG_WON(("critData.Signal"));
+                LOG_WON(("ASCIIPeerChatCatcher critData.Signal"));
                 critData.Signal();
             }
             else
             {
                 U32 type = Message::Data::Chat::Broadcast;
 
-                switch (result.chatMessage.mChatType)
+                switch (result.chatMessage.type)
                 {
                     case MINTCLIENT::RoutingServerClient::Data::ASCIIChatMessage::CHATTYPE_ASCII_EMOTE:
                         type = Message::Data::Chat::Emote;
@@ -3251,21 +3270,21 @@ namespace WonIface
                         break;
                 }
 
-                if (result.chatMessage.IsWhisper())
+                if (result.chatMessage.isWhisper)
                 {
                     type = Message::Data::Chat::Private;
                 }
 
                 PlayerName name = from->name.str;
 
-                LOG_WON(("critData.Signal"));
+                LOG_WON(("ASCIIPeerChatCatcher critData.Signal"));
                 critData.Signal();
-                PostEvent(Message::Chat, new Message::Data::Chat(type, result.chatMessage.mData.c_str(), name.str));
+                PostEvent(Message::Chat, new Message::Data::Chat(type, result.chatMessage.text.str, name.str));
             }
         }
         else
         {
-            LOG_WON(("critData.Signal"));
+            LOG_WON(("ASCIIPeerChatCatcher critData.Signal"));
             critData.Signal();
         }
     }

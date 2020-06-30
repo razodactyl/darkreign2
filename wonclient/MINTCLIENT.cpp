@@ -18,8 +18,8 @@ namespace MINTCLIENT
     // Bookkeeping
     static const U32 maxClients = 1;
     static Win32::CritSec clientsCritSec;
-    // static Win32::CritSec contextCritSec;
     static Client* clients[maxClients];
+    static Win32::CritSec commandsCrit;
 
     // Constructor
     Client::Client(const Config& config)
@@ -31,7 +31,6 @@ namespace MINTCLIENT
         StyxNet::AddClient();
 
         clientsCritSec.Enter();
-
         index = U32(-1);
         for (U32 c = 0; c < maxClients; c++)
         {
@@ -39,12 +38,13 @@ namespace MINTCLIENT
             {
                 index = c;
                 clients[index] = this;
+                break;
             }
         }
         clientsCritSec.Exit();
 
         // Start the thread
-        thread.Start(ThreadProc, this);
+        thread.Start(MINTMainThread, this);
 
         // Make it above normal
         thread.SetPriority(Win32::Thread::ABOVE_NORMAL);
@@ -69,6 +69,8 @@ namespace MINTCLIENT
 
         delete packetBuffer;
 
+        commands.DisposeAll();
+
         StyxNet::RemoveClient();
     }
 
@@ -84,14 +86,80 @@ namespace MINTCLIENT
         this->eventQuit.Signal();
     }
 
-    void Client::SendCommand(CommandContext* context)
+    void Client::QueueCommand(MINTCommand* command, bool notify)
     {
-        LDIAG("MINTCLIENT::Client::SendCommand");
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::QueueCommand -> " << HEX(command->command_id, 8) << " Notify: -> " << notify);
 
-        commandContext = context;
+        commandsCrit.Enter();
+        this->commands.Append(command);
+        commandsCrit.Exit();
 
-        // Signal that a command has arrived.
-        eventCommand.Signal();
+        if (notify) { eventCommand.Signal(); }
+    }
+
+    //
+    // Search for command by id
+    // Remove from client.
+    //
+    void Client::DropCommand(MINTCommand* command)
+    {
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::DropCommand -> dropping [" << HEX(command->command_id, 8) << "] from this client...");
+
+        this->commands.Unlink(command);
+
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::DropCommand -> [" << HEX(command->command_id, 8) << "] -> dropped!");
+    }
+
+    MINTCLIENT::Client::MINTCommand* MINTCLIENT::Client::GetCommand(CRC command_id)
+    {
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::GetCommand -> getting [" << HEX(command_id, 8) << "] from this client...");
+
+        Client::MINTCommand* ret = nullptr;
+
+        commandsCrit.Enter();
+
+        for (U32 i = 0; i < this->commands.GetCount(); i++)
+        {
+            auto cc = this->commands[i];
+            if (cc->command_id == command_id)
+            {
+                ret = cc;
+            }
+        }
+
+        if (!ret)
+        {
+            LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] >>> COULD NOT FIND [" << HEX(command_id, 8) << "] in command queue for this MINTCLIENT.");
+        }
+        else
+        {
+            LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] >>> FOUND [" << HEX(command_id, 8) << "] in command queue for this MINTCLIENT.");
+        }
+
+        commandsCrit.Exit();
+
+        return ret;
+    }
+
+    bool MINTCLIENT::Client::HasCommand(CRC command_id)
+    {
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::HasCommand -> [" << HEX(command_id, 8) << "] -> Searching...");
+
+        bool did_find = false;
+
+        if (this->GetCommand(command_id))
+        {
+            did_find = true;
+        }
+
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::HasCommand -> [" << HEX(command_id, 8) << "] -> " << (did_find ? "Found" : "Not Found"));
+
+        return did_find;
+    }
+
+    void _DebugShowMissingContext(const StyxNet::Packet& packet, const Client* client)
+    {
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::_DebugShowMissingContext " << Message::GetCommandString(packet.GetCommand()) << " packet found but no command was queued to handle it.");
     }
 
     //
@@ -99,9 +167,9 @@ namespace MINTCLIENT
     //
     // Thread procedure
     //
-    U32 STDCALL Client::ThreadProc(void* context)
+    U32 STDCALL Client::MINTMainThread(void* context)
     {
-        LOG_DIAG(("MINTCLIENT main thread enter."));
+        LOG_DIAG((">>> MINTCLIENT::Client::ThreadProc master MINTCLIENT thread starts here."));
 
         Client* client = static_cast<Client*>(context);
 
@@ -117,21 +185,21 @@ namespace MINTCLIENT
         Bool quit = FALSE;
 
         Win32::EventIndex::List<3> events;
-        events.AddEvent(client->event, NULL);
-        events.AddEvent(client->eventQuit, client);
-        events.AddEvent(client->eventCommand, &client->commandContext);
+        events.AddEvent(client->event, nullptr);
+        events.AddEvent(client->eventQuit, &client);
+        events.AddEvent(client->eventCommand, &client->commands);
 
         U32 nextTime = Clock::Time::Ms();
 
         while (!quit)
         {
-            void* context;
+            void* eventContext;
 
             S32 remaining = nextTime - Clock::Time::Ms();
 
-            if (remaining > 0 && events.Wait(context, FALSE, remaining))
+            if (remaining > 0 && events.Wait(eventContext, FALSE, remaining))
             {
-                if (!context)
+                if (!eventContext)
                 {
                     Win32::Socket::NetworkEvents networkEvents;
                     client->socket.EnumEvents(client->event, networkEvents);
@@ -141,12 +209,7 @@ namespace MINTCLIENT
                         S32 error = networkEvents.GetError(FD_CONNECT_BIT);
                         if (error)
                         {
-                            LDIAG("Connection to server failed");
-                        }
-                        else
-                        {
-                            LDIAG("Connection established with server");
-                            client->flags |= StyxNet::ClientFlags::Connected;
+                            LDIAG(">>> Connection to server failed...");
                         }
                     }
 
@@ -159,34 +222,94 @@ namespace MINTCLIENT
                         while (const StyxNet::Packet* pkt = StyxNet::Packet::Extract(*client->packetBuffer))
                         {
                             // Have the client process the packet
-                            client->ProcessPacket(*pkt);
+                            client->ProcessIncomingPacket(*pkt);
                         }
                     }
                 }
                 else
                 {
                     // A command queued with the event system.
-                    if (context == &client->commandContext)
+                    if (eventContext == &client->commands)
                     {
                         // If we're connected, send off the command else requeue.
                         if ((client->flags & StyxNet::ClientFlags::Connected) == StyxNet::ClientFlags::Connected)
                         {
-                            if (client->GetCommandContext()->wasProcessed)
-                            {
-                                LDIAG("A command which was already processed has been requeued. Is this correct?");
-                            }
+                            // commandsCrit.Enter();
 
-                            // Send off the command, handle in network event callback (ProcessPacket).
-                            client->GetCommandContext()->Send();
+                            // List<MINTCommand*> still_processing;
+                            // List<MINTCommand*> to_send;
+                            
+                            // // Collect all current commands.
+                            // while (!client->commands.Empty())
+                            // {
+                            //     auto cc = client->commands.RemovePre(0);
+                            //
+                            //     if (cc != nullptr)
+                            //     {
+                            //         auto c = *cc;
+                            //         still_processing.Append(&c);
+                            //     }
+                            //
+                            //     client->commands.RemovePost();
+                            //
+                            //     if (cc == nullptr)
+                            //     {
+                            //         break;
+                            //     }
+                            // }
+
+                            // Command Queue should be empty at this point:
+                            // - Now handle transfer back into the queue.
+
+                            // for (U32 i = 0; i < still_processing.GetCount(); i++)
+                            // {
+                            //     MINTCommand* current_command = *still_processing[i];
+                            //
+                            //     auto e = client->commands.AddPre();
+                            //
+                            //     if (e != nullptr)
+                            //     {
+                            //         *e = current_command;
+                            //     }
+                            //
+                            //     client->commands.AddPost();
+                            //
+                            //     // Connection established, send if required.
+                            //     if (!current_command->listener_only)
+                            //     {
+                            //         to_send.Append(&current_command);
+                            //     }
+                            // }
+
+                            // for (U32 i = 0; i < to_send.GetCount(); i++)
+                            // {
+                            //     MINTCommand* current_command = *to_send[i];
+                            //     current_command->Send();
+                            // }
+
+                            // // List doesn't allow destruction of itself unless all items have been accounted for.
+                            // still_processing.UnlinkAll();
+                            // to_send.UnlinkAll();
+
+                            // commandsCrit.Exit();
+
+                            for (U32 i = 0; i < client->commands.GetCount(); i++)
+                            {
+                                MINTCommand* cc = client->commands[i];
+                                if (!cc->listener_only)
+                                {
+                                    cc->AttemptSend();
+                                }
+                            }
                         }
                         else
                         {
                             // Not connected yet, requeue the command.
-                            client->SendCommand(client->GetCommandContext());
-                            Sleep(1000);
+                            client->eventCommand.Signal();
+                            nextTime += 500;
                         }
                     }
-                    else if (context == &client)
+                    else if (eventContext == &client)
                     {
                         quit = true;
                     }
@@ -202,7 +325,7 @@ namespace MINTCLIENT
         client->thread.Clear();
         delete client;
 
-        LOG_DIAG(("MINTCLIENT main thread exit."));
+        LOG_DIAG((">>> MINTCLIENT::Client::ThreadProc master MINTCLIENT thread has finished..."));
 
         return (0x6666);
     }
@@ -210,68 +333,157 @@ namespace MINTCLIENT
     //
     // Handle incoming packet, route to appropriate handler.
     //
-    void MINTCLIENT::Client::ProcessPacket(const StyxNet::Packet& packet)
+    void MINTCLIENT::Client::ProcessIncomingPacket(const StyxNet::Packet& packet)
     {
+        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::ProcessingIncomingPacket [" << HEX(packet.GetCommand(), 8) << "] (" << Message::GetCommandString(packet.GetCommand()) << ")");
+
         switch (packet.GetCommand())
         {
-            case MINTCLIENT::Message::ServerConnect:
+            case MINTCLIENT::Message::ServerConnect: // 0x433AB32B
             {
-                LDIAG("Successfully connected to server");
+                LDIAG(">>> Connection established with server!");
                 flags |= StyxNet::ClientFlags::Connected;
             }
             break;
 
             // For a known packet, if it's the response to a command, pull up command context and deal with it.
-            case MINTCLIENT::Message::DirectoryListServers:
+            case MINTCLIENT::Message::DirectoryListServers: // 0x77712BCE
             {
-                const auto r = MINTCLIENT::Encoding::TLV(packet.GetData(), packet.GetLength());
-                commandContext->SetData(r);
-                commandContext->commandDone.Signal();
+                auto* cmd = this->GetCommand(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
             break;
 
-            case MINTCLIENT::Message::DirectoryListRooms:
+            case MINTCLIENT::Message::DirectoryListRooms: // 0x910DB9D4
             {
-                const auto r = MINTCLIENT::Encoding::TLV(packet.GetData(), packet.GetLength());
-                LOG_DEV(("MINTCLIENT::Message::DirectoryListRooms"));
-                commandContext->SetData(r);
-                commandContext->commandDone.Signal();
+                auto* cmd = this->GetCommand(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
             break;
 
-            case MINTCLIENT::Message::IdentityAuthenticate:
+            case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
             {
                 const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
-                commandContext->SetData(r);
-                commandContext->commandDone.Signal();
+
+                auto* cmd = this->GetCommand(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataFromStruct(r);
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
             break;
 
-            case MINTCLIENT::Message::RoutingServerRoomConnect:
-            case MINTCLIENT::Message::RoutingServerRoomRegister:
-                commandContext->commandDone.Signal();
-                break;
-
-            case MINTCLIENT::Message::RoutingServerGetUserList:
+            case MINTCLIENT::Message::RoutingServerRoomConnect: // 0xEE37226B
+            case MINTCLIENT::Message::RoutingServerRoomRegister: // 0x59938A8D
             {
-                //
-            }
-            break; 
+                auto* cmd = this->GetCommand(packet.GetCommand());
 
-            case MINTCLIENT::Message::RoutingServerBroadcastChat:
-            {
-                RoutingServerClient::ASCIIChatMessageResult result;
-                bool aligned = packet.GetData(reinterpret_cast<const RoutingServerClient::ASCIIChatMessageResult*&>(result));
-                LOG_DEV(("MINTCLIENT::Message::RoutingServerBroadcastChat->SetData"));
-                commandContext->SetData(result);
-                commandContext->commandDone.Signal();
+                if (cmd)
+                {
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
             break;
 
-            case MINTCLIENT::Message::RoutingServerDisconnect:
-            case MINTCLIENT::Message::ServerShutdown:
+            case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
+            {
+                auto* cmd = this->GetCommand(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+            break;
+
+            case MINTCLIENT::Message::RoutingServerBroadcastChat: // 0xC79C5EB4
+            {
+                // auto pkt = &StyxNet::Packet::Copy(packet);
+                // const auto r = MINTCLIENT::Encoding::TLV(packet.GetData(), packet.GetLength());
+
+                auto* cmd = this->GetCommand(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+
+                // Expected that ~TLV is called as it goes off stack.
+                // cmd should have its own copy of the data.
+            }
+            break;
+
+            case MINTCLIENT::Message::RoutingServerCreateGame: // 0x2A0FB0FD
+            {
+                auto* cmd = this->GetCommand(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+            break;
+
+            case MINTCLIENT::Message::RoutingServerDisconnect: // 0xF9CE798B
+            case MINTCLIENT::Message::ServerShutdown: // 0xD26E9A5C
+            case MINTCLIENT::Message::ServerDisconnect: // 0x8542A47A
+            {
+                auto* cmd = this->GetCommand(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+
                 eventQuit.Signal();
-                break;
+            }
+            break;
 
             default:
                 // Unknown packet command

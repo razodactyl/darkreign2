@@ -8,109 +8,110 @@
 namespace MINTCLIENT
 {
     Win32::Thread directoryThread;
-    U32 STDCALL Directory::Process(void* context)
+    U32 STDCALL Directory::ProcessDirectoryMessage(void* context)
     {
-        LDIAG("MINTCLIENT directory thread enter.");
+        auto* command_list = static_cast<Client::CommandList*>(context);
 
-        auto contextList = static_cast<Client::ContextList<MINTCLIENT::Directory::Result>*>(context);
+        bool done_processing = false;
 
-        bool doneProcessing = false;
-
-        while (!doneProcessing)
+        while (!done_processing)
         {
+            command_list->PassToClient();
+
             void* ctx;
-            if (contextList->events.Wait(ctx, TRUE))
+            auto current_events = command_list->GetEvents();
+            // Note: `Wait` will reset any signal once it has been read.
+            if (current_events->Wait(ctx, FALSE, MINTCLIENT::DefaultTimeout))
             {
-                const auto cc = static_cast<Client::CommandContext*>(ctx);
-                switch (cc->command)
+                Client::MINTCommand* cc = (Client::MINTCommand*)(ctx);
+
+                switch (cc->command_id)
                 {
-                    case MINTCLIENT::Message::DirectoryListServers:
+                    case MINTCLIENT::Message::DirectoryListServers: // 0x77712BCE
                     {
+                        //
+                        // Server returns MINTCLIENT::Message::DirectoryListServers (0x77712BCE)
+                        // The `cmd_data` appears in the form of a TLV array.
+                        // - Each entry of the array is provided in the order of:
+                        //  - server.type -> TLVString          e.g "AuthServer"
+                        //  - server.name -> TLVString          e.g "<MINTCLIENT Authorisation Server>"
+                        //  - server.address -> TLVString       e.g "192.168.0.106:15101"
+                        //  - server.permanent -> TLVUint8      e.g 0x01
+                        //
                         MINTCLIENT::Directory::Result result;
 
-                        auto* tlv = reinterpret_cast<MINTCLIENT::Encoding::TLV*>(cc->cmd_data);
+                        result.error = cc->GetError();
 
-                        for (int i = 0; i < tlv->length; i++)
-                        {
-                            auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        if (result.error == WONAPI::Error_Success) {
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cc->cmd_data, cc->data_size);
 
-                            auto* i_item = &tlv->items[i];
-                            // for (int j = 0; j < i_item->length; j++)
-                            // {
-                            //     auto j_item = i_item->items[j];
-                            //     CH* str = j_item.GetString();
-                            // }
+                            for (U32 i = 0; i < tlv->length; i++)
+                            {
+                                auto server = MINTCLIENT::Directory::Data::DirectoryServer();
 
-                            auto j1_item = Utils::Strdup(i_item->items[0].GetString());
-                            auto j2_item = Utils::Strdup(i_item->items[1].GetString());
+                                auto* data = &tlv->items[i];
 
-                            LOG_DIAG((Utils::Unicode2Ansi(j1_item)));
-                            LOG_DIAG((Utils::Unicode2Ansi(j2_item)));
+                                server.type.Set(data->items[0].GetString());
+                                server.name.Set(data->items[1].GetString());
+                                server.address.Set(data->items[2].GetString());
+                                server.permanent = data->items[3].GetU8Bool();
 
-                            directoryEntity.name.Set(j1_item);
-                            directoryEntity.address.Set(j2_item);
-                            result.entityList.push_back(directoryEntity);
+                                result.server_list.push_back(server);
+                            }
+
+                            delete tlv;
                         }
 
-                        //auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
-                        //directoryEntity.name.Set((CH*)L"AuthServer");
-                        //directoryEntity.address.Set((CH*)"192.168.0.106:15101");
-                        //result.entityList.push_back(directoryEntity);
-
-                        //auto directoryEntity2 = MINTCLIENT::Directory::Data::DirectoryEntity();
-                        //directoryEntity2.name.Set((CH*)L"RoutingServer");
-                        //directoryEntity2.address.Set((CH*)"192.168.0.106:15101");
-                        //result.entityList.push_back(directoryEntity2);
-
-                        // Pass context to calling function.
                         result.context = cc->context;
-
-                        result.error = WONAPI::Error_Success;
-                        contextList->callback(result);
-                        break;
+                        cc->callback(result);
+                        LDIAG("LIST SERVERS HAS CALLED BACK TO WONIFACE");
                     }
+                    break;
 
-                    case MINTCLIENT::Message::DirectoryListRooms:
+                    case MINTCLIENT::Message::DirectoryListRooms: // 0x910DB9D4
                     {
                         MINTCLIENT::Directory::Result result;
+                        result.error = cc->GetError();
 
-                        auto* tlv = reinterpret_cast<MINTCLIENT::Encoding::TLV*>(cc->cmd_data);
-                        for (int i = 0; i < tlv->length; i++)
-                        {
-                            auto directoryEntity = MINTCLIENT::Directory::Data::DirectoryEntity();
+                        if (result.error == WONAPI::Error_Success) {
 
-                            auto* i_item = &tlv->items[i];
-                            // for (int j = 0; j < i_item->length; j++)
-                            // {
-                            //     auto j_item = i_item->items[j];
-                            //     CH* str = j_item.GetString();
-                            // }
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cc->cmd_data, cc->data_size);
 
-                            auto j1_item = Utils::Strdup(i_item->items[0].GetString());
-                            auto j2_item = Utils::Strdup(i_item->items[1].GetString());
+                            for (U32 i = 0; i < tlv->length; i++)
+                            {
+                                auto server = MINTCLIENT::Directory::Data::DirectoryServer();
 
-                            LOG_DIAG((Utils::Unicode2Ansi(j1_item)));
-                            LOG_DIAG((Utils::Unicode2Ansi(j2_item)));
+                                auto* data = &tlv->items[i];
 
-                            directoryEntity.name.Set(j1_item);
-                            directoryEntity.address.Set(j2_item);
-                            result.entityList.push_back(directoryEntity);
+                                server.type.Set(data->items[0].GetString());
+                                server.name.Set(data->items[1].GetString());
+                                server.address.Set(data->items[2].GetString());
+                                server.permanent = data->items[3].GetU8Bool();
+
+                                result.server_list.push_back(server);
+                            }
+
+                            delete tlv;
                         }
 
-                        // Pass context to calling function.
                         result.context = cc->context;
-
-                        result.error = WONAPI::Error_Success;
-                        contextList->callback(result);
-                        break;
+                        cc->callback(result);
+                        LDIAG("LIST ROOMS HAS CALLED BACK TO WONIFACE");
                     }
+                    break;
                 }
 
-                doneProcessing = true;
+                done_processing = true;
+            }
+            else
+            {
+                command_list->TimeoutAll();
             }
         }
 
-        LDIAG("MINTCLIENT directory thread exit.");
+        LDIAG("DIRECTORY THREAD HAS COMPLETED");
+        command_list->ShutdownClients();
+        delete command_list;
         return TRUE;
     }
 
@@ -124,40 +125,36 @@ namespace MINTCLIENT
         void* context
     )
     {
-        auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::Directory::Result>();
-        contextList->callback = callback;
+        auto* command_list = new MINTCLIENT::Client::CommandList();
 
         for (auto server = servers->begin(); server != servers->end(); ++server)
         {
             MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(Win32::Socket::Address(server->ip, U16(server->port)));
             MINTCLIENT::Client* client = new MINTCLIENT::Client(*c);
 
-            auto* ctx = new Client::CommandContext(client);
+            auto* cmd = new Client::MINTCommand(client);
+
+            cmd->callback = callback;
 
             if (identity)
             {
-                ctx->command = MINTCLIENT::Message::DirectoryListRooms;
-                ctx->SetData(identity);
+                cmd->command_id = MINTCLIENT::Message::DirectoryListRooms;
+                cmd->SetDataFromStruct(identity);
             }
             else
             {
-                ctx->command = MINTCLIENT::Message::DirectoryListServers;
+                cmd->command_id = MINTCLIENT::Message::DirectoryListServers;
             }
 
-            ctx->SetContext(context);
+            cmd->SetContext(context);
 
-            contextList->Add(ctx);
-
-            client->SendCommand(ctx);
+            command_list->Add(cmd);
+            break;
         }
 
-        //ASSERT(!directoryThread.IsAlive());
-        if (directoryThread.IsAlive())
-        {
-            LOG_DEV(("!!! An existing `Directory` thread is already running!!! (GetDirectory)"));
+        if (!directoryThread.IsAlive()) {
+            directoryThread.Start(ProcessDirectoryMessage, command_list);
         }
-
-        directoryThread.Start(Directory::Process, contextList);
 
         return WONAPI::Error_Pending;
     }

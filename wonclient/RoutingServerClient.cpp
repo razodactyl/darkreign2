@@ -2,121 +2,176 @@
 
 #include "RoutingServerClient.h"
 
+#include "Encoding.h"
+
 
 namespace MINTCLIENT
 {
-    Win32::Thread routingServerClientThread;
-    U32 STDCALL RoutingServerClient::Process(void* context)
+    U32 STDCALL RoutingServerClient::RoutingServerClientProcess(void* context)
     {
-        LDIAG("MINTCLIENT routingServerClient thread enter.");
+        //
+        // MINTCLIENT processed a packet.
+        // The MINTCLIENT that processed that packet had a command context sent to it.
+        // The MINTCLIENT looked for the command associated with the packet and raised the `commandDone` event.
+        //
+        //  ContextList->Add->Handles: CommandDone/Abort
+        //
+        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Client ENTER <<<");
 
-        auto contextList = static_cast<Client::ContextList<MINTCLIENT::RoutingServerClient::Result>*>(context);
+        RoutingServerClient* routing = (RoutingServerClient*)context;
 
-        bool doneProcessing = false;
+        bool done_processing = false;
 
-        while (!doneProcessing)
+        while (!done_processing)
         {
-            void* ctx;
-            if (contextList->events.Wait(ctx, TRUE))
+            LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Client Thread <<<");
+            void* event_context;
+
+            if (routing->eventQuit.Wait(0))
             {
-                const auto cc = static_cast<Client::CommandContext*>(ctx);
-                switch (cc->command)
+                done_processing = true;
+                continue;
+            }
+
+            routing->command_list->PassToClient();
+
+            if (routing->command_list->GetEvents()->Wait(event_context, FALSE, MINTCLIENT::DefaultTimeout))
+            {
+                auto* cmd = static_cast<Client::MINTCommand*>(event_context);
+                LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Received Command [" << HEX(cmd->command_id, 8) << "] (" << Message::GetCommandString(cmd->command_id) << ")");
+                LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " did_send = " << cmd->did_send << ", did_complete = " << cmd->did_complete << ", did_timeout = " << cmd->did_timeout << ", did_abort = " << cmd->did_abort);
+
+                switch (cmd->command_id)
                 {
                     //
                     // Connect first, then register to enter room.
                     //
-                    case MINTCLIENT::Message::RoutingServerRoomConnect:
+                    case MINTCLIENT::Message::RoutingServerRoomConnect: // 0xEE37226B
                     {
-                        RoutingServerClient::ConnectRoomResult result;// = *reinterpret_cast<RoutingServerClient::ConnectRoomResult*>(cc->data);
-                        result.error = WONAPI::Error_Success;
-                        result.context = cc->context;
-                        contextList->callback(result);
+                        RoutingServerClient::ConnectRoomResult result;
+                        result.error = cmd->GetError();
+                        result.context = cmd->context;
+
+                        cmd->callback(result);
+
+                        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- Connected to room.");
+
+                        // Remove from routing server and client.
+                        routing->command_list->Remove(cmd);
                     }
                     break;
 
                     //
                     // Allowed after connection is established.
                     //
-                    case MINTCLIENT::Message::RoutingServerRoomRegister:
+                    case MINTCLIENT::Message::RoutingServerRoomRegister: // 0x59938A8D
                     {
-                        RoutingServerClient::RegisterClientResult result;// = *reinterpret_cast<RoutingServerClient::RegisterClientResult*>(cc->data);
-                        result.error = WONAPI::Error_Success;
-                        result.context = cc->context;
-                        contextList->callback(result);
+                        RoutingServerClient::RegisterClientResult result;
+                        result.error = cmd->GetError();
+                        result.context = cmd->context;
+
+                        cmd->callback(result);
+
+                        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- Registered with room.");
+
+                        routing->command_list->Remove(cmd);
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerGetUserList:
+                    case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
                     {
                         RoutingServerClient::GetClientListResult result;
+                        result.error = cmd->GetError();
 
-                        auto cd1 = MINTCLIENT::RoutingServerClient::Data::ClientData();
-                        cd1.clientName.Set((CH*)L"Hello");
-                        result.clientDataList.push_back(cd1);
+                        if (result.error == WONAPI::Error_Success) {
 
-                        result.error = WONAPI::Error_Success;
-                        result.context = cc->context;
-                        contextList->callback(result);
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+
+                            for (int i = 0; i < tlv->length; i++)
+                            {
+                                auto clientEntry = MINTCLIENT::RoutingServerClient::Data::ClientData();
+                                auto* data = &tlv->items[i];
+
+                                clientEntry.clientId = data->items[0].GetU32();
+                                clientEntry.clientName.Set(data->items[1].GetString());
+                                clientEntry.isModerator = data->items[3].GetU8();
+                                clientEntry.isMuted = data->items[4].GetU8();
+
+                                result.clientDataList.push_back(clientEntry);
+                            }
+
+                            delete tlv;
+                        }
+
+                        result.context = cmd->context;
+
+                        cmd->callback(result);
+
+                        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- Get user list.");
+
+                        routing->command_list->Remove(cmd);
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerBroadcastChat:
+                    case MINTCLIENT::Message::RoutingServerBroadcastChat: // 0xC79C5EB4 <<< INBOUND ONLY
                     {
-                        auto* result = new RoutingServerClient::ASCIIChatMessageResult(); // What about Unicode? (Might need an alternate handler)
-                        const auto d = reinterpret_cast<RoutingServerClient::ASCIIChatMessageResult*>(cc->cmd_data); // What about Unicode? (Might need an alternate handler)
+                        RoutingServerClient::ASCIIChatMessageResult result;
+                        result.error = cmd->GetError();
 
-                        result->chatMessage = Data::ASCIIChatMessage();
-                        result->chatMessage.mData.assign(d->chatMessage.mData);
-                        result->chatMessage.mChatType = d->chatMessage.mChatType; // Data::ASCIIChatMessage::CHATTYPE_ASCII | Data::UnicodeChatMessage::CHATTYPE_UNICODE
-                        result->chatMessage.mSenderId = 0;//  d->chatMessage.mSenderId; // 0x1122
+                        if (result.error == WONAPI::Error_Success && cmd->client && cmd->data_size > 0)
+                        {
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
-                        contextList->callback(*result);
-                        continue;
+                            result.chatMessage.clientId = tlv->items[0].GetU32();
+                            result.chatMessage.type = tlv->items[1].GetU8();
+                            result.chatMessage.isWhisper = tlv->items[2].GetU8();
+                            result.chatMessage.text.Set(tlv->items[3].GetString());
+
+                            cmd->callback(result);
+                        }
+
+                        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- Broadcast chat.");
+
+                        cmd->times_called++;
                     }
                     break;
-                }
 
-                // Don't forget to delete objects allocated with `new`
-                // delete cc;
-                doneProcessing = true;
+                    case MINTCLIENT::Message::RoutingServerCreateGame:
+                    {
+                        RoutingServerClient::CreateGameResult result;
+                        result.error = cmd->GetError();
+
+                        cmd->callback(result);
+                    }
+                    break;
+                } // switch(cc->command_id)
             }
         }
 
-        LDIAG("MINTCLIENT routingServerClient thread exit.");
+        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << "MINTCLIENT Routing Server Client EXIT <<<");
+        delete routing->command_list;
         return TRUE;
     }
 
     WONAPI::Error RoutingServerClient::InstallASCIIPeerChatCatcher(void (*callback)(const RoutingServerClient::ASCIIChatMessageResult& message), void* context)
     {
-        auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::RoutingServerClient::ASCIIChatMessageResult>();
-        contextList->callback = callback;
-        
-        // Create a `CommandContext` with the command and data to send to the server.
-        auto* ctx = new Client::CommandContext(this->client);
-        ctx->command = MINTCLIENT::Message::RoutingServerBroadcastChat;
-        ctx->SetContext(context);
-        contextList->Add(ctx);
+        MINTCLIENT::Client::CommandList* ascii_chat_command = new MINTCLIENT::Client::CommandList();
 
-        // Can't send it off until `client` instantiated via `Connect` etc.
-        if (this->client)
-        {
-            this->client->SendCommand(ctx);
-        }
-        else
-        {
-            // Queue installation for later.
-            this->catchers[0].push_back(contextList);
-        }
-        
-        // ASSERT(!routingServerClientThread.IsAlive());
-        if (routingServerClientThread.IsAlive())
-        {
-            LOG_DEV(("!!! An existing `RoutingServerClient` thread is already running!!! (InstallASCIIPeerChatCatcher)"));
-        }
-        
-        routingServerClientThread.Start(Process, contextList);
+        auto* ctx = new Client::MINTCommand(nullptr);
+        ctx->callback = callback;
+        ctx->command_id = MINTCLIENT::Message::RoutingServerBroadcastChat;  // The command we're wired to handle.
+        ctx->recycle = true;                                                // Once processed, allow it to be handled again.
+        ctx->listener_only = true;                                          // Don't send any data to the server when this command is added to a client's command queue.
+        ctx->SetContext(context);                                           // The context of the function dealing with the callback.
 
-        return WONAPI::Error_Pending;
+        ascii_chat_command->Add(ctx);                                       // Add this context to the list of contexts.
+
+        // Queue installation for next available connection.
+        this->catchers[ID_ASCIIPeerChatCatcher].push_back(ascii_chat_command);
+
+        LDIAG("MINT Routing Server Client - RoutingServerClient::InstallASCIIPeerChatCatcher [" << HEX(&*ascii_chat_command, 8) << "].");
+
+        return WONAPI::Error_Success;
     }
 
     WONAPI::Error RoutingServerClient::GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context)
@@ -124,43 +179,34 @@ namespace MINTCLIENT
         return WONAPI::Error_Pending;
     }
 
+    //
+    // Applicable for a current routing server.
+    //
     WONAPI::Error RoutingServerClient::GetUserList(void (*callback)(const RoutingServerClient::GetClientListResult& result), void* context)
     {
-        auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::RoutingServerClient::GetClientListResult>();
-        contextList->callback = callback;
+        ASSERT(this->client);
 
-        // Create a `CommandContext` with the command and data to send to the server.
-        auto* ctx = new Client::CommandContext(this->client);
-        ctx->command = MINTCLIENT::Message::RoutingServerGetUserList;
+        auto* command_list = new MINTCLIENT::Client::CommandList();
 
-        auto getClientListResult = GetClientListResult();
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(this->client);
+        cmd->command_id = MINTCLIENT::Message::RoutingServerGetUserList; // 0x82E37940
+        cmd->callback = callback;
 
-        //ctx->SetData(getClientListResult);
-        ctx->SetContext(context);
-        contextList->Add(ctx);
-        this->client->SendCommand(ctx);
-
-        // Last call should have finished by now.
-        // ASSERT(!routingServerClientThread.IsAlive());
-        if (routingServerClientThread.IsAlive())
-        {
-            LOG_DEV(("!!! An existing `RoutingServerClient` thread is already running!!! (GetUserList)"));
-        }
-
-        // Go away, process the command, callback when we have a response.
-        routingServerClientThread.Start(Process, contextList);
+        cmd->SetContext(context);
+        command_list->Add(cmd);
 
         return WONAPI::Error_Pending;
     }
 
     WONAPI::Error RoutingServerClient::Register(const CH* loginName, const CH* password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context)
     {
-        auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::RoutingServerClient::RegisterClientResult>();
-        contextList->callback = callback;
+        ASSERT(this->client);
 
-        // Create a `CommandContext` with the command and data to send to the server.
-        auto* ctx = new Client::CommandContext(this->client);
-        ctx->command = MINTCLIENT::Message::RoutingServerRoomRegister;
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(this->client);
+        cmd->command_id = MINTCLIENT::Message::RoutingServerRoomRegister;
+        cmd->callback = callback;
 
         // Package request for server to unpack.
         auto req = RegisterClientRequest();
@@ -169,24 +215,27 @@ namespace MINTCLIENT
         req.becomeHost = becomeHost;
         req.becomeSpec = becomeSpec;
         req.joinChat = joinChat;
-        ctx->SetData(req);
+        cmd->SetDataFromStruct(req);
 
-        ctx->SetContext(context);
+        cmd->SetContext(context);
 
-        // Package list of context information for MINTCLIENT
-        contextList->Add(ctx);
-        // Notify MINTCLIENT of new command.
-        this->client->SendCommand(ctx);
+        command_list->Add(cmd);
 
-        // Last call should have finished by now.
-        // ASSERT(!routingServerClientThread.IsAlive());
-        if (routingServerClientThread.IsAlive())
+        for (auto it = this->catchers.begin(); it != this->catchers.end(); ++it)
         {
-            LOG_DEV(("!!! An existing `RoutingServerClient` thread is already running!!! (Register)"));
+            if (it->first == ID_ASCIIPeerChatCatcher)
+            {
+                for (auto command_list_iterator = it->second.begin(); command_list_iterator != it->second.end(); ++command_list_iterator)
+                {
+                    auto* catcher_command_list = *command_list_iterator;
+                    for (auto* catcher_cmd : catcher_command_list->GetAll())
+                    {
+                        catcher_cmd->client = this->client;
+                        command_list->Add(catcher_cmd);
+                    }
+                }
+            }
         }
-
-        // Go away, process the command, callback when we have a response.
-        routingServerClientThread.Start(Process, contextList);
 
         return WONAPI::Error_Pending;
     }
@@ -198,93 +247,98 @@ namespace MINTCLIENT
     // returns one of these servers with an address.
     // - Note that there's a distinction between the main server and one of these lobbies.
     //
-    WONAPI::Error RoutingServerClient::Connect(MINTCLIENT::IPSocket::Address routingAddress, MINTCLIENT::Identity* identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context)
+    WONAPI::Error RoutingServerClient::Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity* identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context)
     {
-        auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::RoutingServerClient::ConnectRoomResult>();
-        contextList->callback = callback;
+        // auto* command_list = new MINTCLIENT::Client::CommandList();
 
         // Let's instantiate a `MINTCLIENT` and connect it to the specified lobby.
-        MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(Win32::Socket::Address(routingAddress.ip, U16(routingAddress.port)));
+        MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(Win32::Socket::Address(address.ip, U16(address.port)));
         MINTCLIENT::Client* client = new MINTCLIENT::Client(*c);
-        // We're now dealing with this specific client / connection.
+
+        // We're now connected, other calls will use this `client`.
         this->client = client;
 
-        // Create a `CommandContext` with the command and data to send to the server.
-        auto* ctx = new Client::CommandContext(client);
-        ctx->command = MINTCLIENT::Message::RoutingServerRoomConnect;
+        // Set the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(client);
+        cmd->callback = callback;
+        cmd->command_id = MINTCLIENT::Message::RoutingServerRoomConnect; // 0xEE37226B
+        cmd->SetContext(context);
 
-        // At this point, we're just trying to `Connect` at all.
-        auto req = RoutingServerClient::ConnectRoomRequest();
+        command_list->Add(cmd);
 
-        // auto connectRoomContext = ConnectRoomResult();
-        // connectRoomContext.context.roomName.Set("");
-        // memset(connectRoomContext.context.roomName.str, 'N', 32);
-        // connectRoomContext.context.password.Set("");
-        // memset(connectRoomContext.context.password.str, 'P', 32);
-        // connectRoomContext.context.routingServer = this;
-        // connectRoomContext.error = WONAPI::Error_Success;
-        // connectRoomContext.message.Set("");
-        // memset(connectRoomContext.message.str, '#', 256);
-        // ctx->SetData(connectRoomContext);
-
-        for (auto c : this->catchers[0])
+        if (!h_RoutingServerClientThread.IsAlive())
         {
-            c->contexts.back().client = client;
-
-            // for (auto cc : c->contexts)
-            // {
-            //     //cc.client = client;
-            //     //contextList->Add(&cc);
-            // }
+            h_RoutingServerClientThread.Start(RoutingServerClientProcess, this);
         }
-
-        ctx->SetContext(context);
-        contextList->Add(ctx);
-        client->SendCommand(ctx);
-
-        // Last call should have finished by now.
-        // ASSERT(!routingServerClientThread.IsAlive());
-        if (routingServerClientThread.IsAlive())
-        {
-            LOG_DEV(("!!! An existing `RoutingServerClient` thread is already running!!! (Connect)"));
-        }
-
-        // Go away, process the command, callback when we have a response.
-        routingServerClientThread.Start(Process, contextList);
 
         return WONAPI::Error_Pending;
     }
 
-    WONAPI::Error RoutingServerClient::BroadcastChat(std::wstring& text, bool f) const
+    WONAPI::Error RoutingServerClient::BroadcastChat(std::wstring& text, bool f)
     {
-        auto* contextList = new MINTCLIENT::Client::ContextList<MINTCLIENT::RoutingServerClient::Result>();
+        auto* cmd = new Client::MINTCommand(this->client);
+        cmd->command_id = MINTCLIENT::Message::RoutingServerBroadcastChat;
 
-        auto* ctx = new Client::CommandContext(client);
-        ctx->command = MINTCLIENT::Message::RoutingServerBroadcastChat;
+        ASCIIChatMessageRequest request;
 
-        ASCIIChatMessageResult result;
-        result.chatMessage.mChatType = Data::ASCIIChatMessage::CHATTYPE_ASCII;
-        result.chatMessage.mData.assign(Utils::Unicode2Ansi((CH*)text.c_str()));
-        result.message.Set("The `result.message` goes here.");
-        result.error = WONAPI::Error_Success;
+        request.chatMessage.clientId = this->GetClientId();
+        request.chatMessage.type = Data::ASCIIChatMessage::CHATTYPE_ASCII;
+        request.chatMessage.text.Set((CH*)text.c_str());
+        request.context = nullptr;
 
-        ctx->SetData(result);
+        cmd->SetDataFromStruct(request);
 
-        contextList->Add(ctx);
-        client->SendCommand(ctx);
-
-        // Installed `Catcher` is responsible for interception and reporting of these events.
-        // Our job is done at this point.
+        // Bypass client, just send it through the network.
+        // Installed catcher will deal with the response from server.
+        cmd->AttemptSend();
 
         return WONAPI::Error_Success;
     }
 
+    WONAPI::Error RoutingServerClient::CreateGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context)
+    {
+        //auto* command_list = new MINTCLIENT::Client::CommandList();
+
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(this->client);
+        cmd->command_id = MINTCLIENT::Message::RoutingServerCreateGame;
+        cmd->callback = callback;
+
+        auto request = CreateGameRequest();
+        request.clientId = clientId;
+        request.name.Set(name);
+        cmd->SetDataFromStruct(request);
+
+        cmd->SetContext(context);
+
+        command_list->Add(cmd);
+        command_list->PassToClient();
+
+        return WONAPI::Error_Pending;
+    }
+
+    WONAPI::Error RoutingServerClient::UpdateGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context)
+    {
+
+        return WONAPI::Error_Pending;
+    }
+
+    WONAPI::Error RoutingServerClient::DeleteGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context)
+    {
+
+        return WONAPI::Error_Pending;
+    }
+
+    U32 RoutingServerClient::GetClientId()
+    {
+        ASSERT(this->client);
+        return 0x00000000;
+    }
+
     void RoutingServerClient::Close()
     {
-        // `RoutingServerClient` isn't responsible for deleting `MINTCLIENT`.
+        this->catchers[ID_ASCIIPeerChatCatcher].clear();
         this->client->Shutdown();
-
-        // We are however responsible for closing our own thread.
-        // TODO JONATHAN
+        this->eventQuit.Signal();
     }
 }

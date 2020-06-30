@@ -609,13 +609,13 @@ namespace Debug
         {
             switch (ep->ExceptionRecord->ExceptionCode)
             {
-            case EXCEPTION_ACCESS_VIOLATION:
-                return (EXCEPTION_EXECUTE_HANDLER);
-                break;
+                case EXCEPTION_ACCESS_VIOLATION:
+                    return (EXCEPTION_EXECUTE_HANDLER);
+                    break;
 
-            default:
-                return (EXCEPTION_CONTINUE_SEARCH);
-                break;
+                default:
+                    return (EXCEPTION_CONTINUE_SEARCH);
+                    break;
             }
         }
     }
@@ -826,104 +826,104 @@ namespace Debug
 
                     switch (ep->ExceptionRecord->ExceptionCode)
                     {
-                    case EXCEPTION_ACCESS_VIOLATION:
-                        type = "ACCESS VIOLATION";
-                        Utils::Sprintf(info, 256, "%s %08Xh",
-                            ep->ExceptionRecord->ExceptionInformation[0] ? "WRITING to" : "READING from",
-                            ep->ExceptionRecord->ExceptionInformation[1]);
-                        break;
+                        case EXCEPTION_ACCESS_VIOLATION:
+                            type = "ACCESS VIOLATION";
+                            Utils::Sprintf(info, 256, "%s %08Xh",
+                                ep->ExceptionRecord->ExceptionInformation[0] ? "WRITING to" : "READING from",
+                                ep->ExceptionRecord->ExceptionInformation[1]);
+                            break;
 
-                    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-                        type = "ARRAY BOUND EXCEEDED";
-                        break;
+                        case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+                            type = "ARRAY BOUND EXCEEDED";
+                            break;
 
-                    case EXCEPTION_BREAKPOINT:
-                        type = "BREAKPOINT";
-                        break;
+                        case EXCEPTION_BREAKPOINT:
+                            type = "BREAKPOINT";
+                            break;
 
-                    case EXCEPTION_DATATYPE_MISALIGNMENT:
-                        type = "DATATYPE MISALIGNMENT";
-                        break;
+                        case EXCEPTION_DATATYPE_MISALIGNMENT:
+                            type = "DATATYPE MISALIGNMENT";
+                            break;
 
-                    case EXCEPTION_FLT_DENORMAL_OPERAND:
-                        type = "FLOATING POINT DENORMAL OPERAND";
-                        fpuException = TRUE;
-                        break;
+                        case EXCEPTION_FLT_DENORMAL_OPERAND:
+                            type = "FLOATING POINT DENORMAL OPERAND";
+                            fpuException = TRUE;
+                            break;
 
-                    case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-                        type = "FLOATING POINT DIVIDE BY ZERO";
-                        fpuException = TRUE;
-                        break;
+                        case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+                            type = "FLOATING POINT DIVIDE BY ZERO";
+                            fpuException = TRUE;
+                            break;
 
-                    case EXCEPTION_FLT_INEXACT_RESULT:
-                        type = "FLOATING POINT INEXACT RESULT";
-                        fpuException = TRUE;
-                        break;
+                        case EXCEPTION_FLT_INEXACT_RESULT:
+                            type = "FLOATING POINT INEXACT RESULT";
+                            fpuException = TRUE;
+                            break;
 
-                    case EXCEPTION_FLT_INVALID_OPERATION:
-                        type = "FLOATING POINT INVALID OPERATION";
-                        fpuException = TRUE;
-                        break;
+                        case EXCEPTION_FLT_INVALID_OPERATION:
+                            type = "FLOATING POINT INVALID OPERATION";
+                            fpuException = TRUE;
+                            break;
 
-                    case EXCEPTION_FLT_OVERFLOW:
-                        type = "FLOATING POINT_OVERFLOW";
-                        fpuException = TRUE;
-                        break;
+                        case EXCEPTION_FLT_OVERFLOW:
+                            type = "FLOATING POINT_OVERFLOW";
+                            fpuException = TRUE;
+                            break;
 
-                    case EXCEPTION_FLT_STACK_CHECK:
-                        type = "FLOATING POINT STACK CHECK";
-                        fpuException = TRUE;
-                        break;
+                        case EXCEPTION_FLT_STACK_CHECK:
+                            type = "FLOATING POINT STACK CHECK";
+                            fpuException = TRUE;
+                            break;
 
-                    case EXCEPTION_FLT_UNDERFLOW:
-                        type = "FLOATING POINT UNDERFLOW";
-                        fpuException = TRUE;
-                        break;
+                        case EXCEPTION_FLT_UNDERFLOW:
+                            type = "FLOATING POINT UNDERFLOW";
+                            fpuException = TRUE;
+                            break;
 
-                    case EXCEPTION_ILLEGAL_INSTRUCTION:
-                        type = "ILLEGAL INSTRUCTION";
-                        break;
+                        case EXCEPTION_ILLEGAL_INSTRUCTION:
+                            type = "ILLEGAL INSTRUCTION";
+                            break;
 
-                    case EXCEPTION_IN_PAGE_ERROR:
-                        type = "IN PAGE ERROR";
-                        break;
+                        case EXCEPTION_IN_PAGE_ERROR:
+                            type = "IN PAGE ERROR";
+                            break;
 
-                    case EXCEPTION_INT_DIVIDE_BY_ZERO:
-                        type = "INTEGER DIVIDE BY ZERO";
-                        break;
+                        case EXCEPTION_INT_DIVIDE_BY_ZERO:
+                            type = "INTEGER DIVIDE BY ZERO";
+                            break;
 
-                    case EXCEPTION_INT_OVERFLOW:
-                        type = "INTEGER OVERFLOW";
-                        break;
+                        case EXCEPTION_INT_OVERFLOW:
+                            type = "INTEGER OVERFLOW";
+                            break;
 
-                    case EXCEPTION_INVALID_DISPOSITION:
-                        type = "INVALID DISPOSTION";
-                        break;
+                        case EXCEPTION_INVALID_DISPOSITION:
+                            type = "INVALID DISPOSTION";
+                            break;
 
-                    case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-                        type = "NONCONTINUABLE EXCEPTION";
-                        break;
+                        case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+                            type = "NONCONTINUABLE EXCEPTION";
+                            break;
 
-                    case EXCEPTION_PRIV_INSTRUCTION:
-                        type = "PRIV INSTRUCTION";
-                        break;
+                        case EXCEPTION_PRIV_INSTRUCTION:
+                            type = "PRIV INSTRUCTION";
+                            break;
 
-                    case EXCEPTION_SINGLE_STEP:
-                        type = "SINGLE STEP";
-                        break;
+                        case EXCEPTION_SINGLE_STEP:
+                            type = "SINGLE STEP";
+                            break;
 
-                    case EXCEPTION_STACK_OVERFLOW:
-                        type = "STACK OVERFLOW";
-                        break;
+                        case EXCEPTION_STACK_OVERFLOW:
+                            type = "STACK OVERFLOW";
+                            break;
 
-                    case DEBUG_EXCEPTION_EXCEPTION:
-                        type = "EXCEPTION IN EXCEPTION HANDLER";
-                        break;
+                        case DEBUG_EXCEPTION_EXCEPTION:
+                            type = "EXCEPTION IN EXCEPTION HANDLER";
+                            break;
 
-                    default:
-                        type = "UNKNOWN EXCEPTION";
-                        Utils::Sprintf(info, 256, "%08xh", ep->ExceptionRecord->ExceptionCode);
-                        break;
+                        default:
+                            type = "UNKNOWN EXCEPTION";
+                            Utils::Sprintf(info, 256, "%08xh", ep->ExceptionRecord->ExceptionCode);
+                            break;
                     }
 
                     Utils::Strcpy(line1, type);
@@ -986,37 +986,37 @@ namespace Debug
 
                 switch (DialogBoxIndirectParam(inst, (DLGTEMPLATE*)dlg.Get(), NULL, (DLGPROC)FatalDlgProc, (LPARAM)message))
                 {
-                case -1:
-                    MessageBox(NULL, LastError(), "Error", MB_OK | MB_ICONSTOP);
-                    if (isRealEx)
-                    {
-                        // TerminateProcess causes DirectPlay to act screwy
-                        // on some (or all?) machines with Voodoo 3's w/DX7 drivers
-                        //
-                        TerminateProcess(GetCurrentProcess(), 0);
-                    }
-                    else
-                    {
-                        return (EXCEPTION_EXECUTE_HANDLER);
-                    }
-                    break;
+                    case -1:
+                        MessageBox(NULL, LastError(), "Error", MB_OK | MB_ICONSTOP);
+                        if (isRealEx)
+                        {
+                            // TerminateProcess causes DirectPlay to act screwy
+                            // on some (or all?) machines with Voodoo 3's w/DX7 drivers
+                            //
+                            TerminateProcess(GetCurrentProcess(), 0);
+                        }
+                        else
+                        {
+                            return (EXCEPTION_EXECUTE_HANDLER);
+                        }
+                        break;
 
-                case BTN_QUIT:
-                    //          if (error)
-                    //          {
-                    //            return (EXCEPTION_EXECUTE_HANDLER);
-                    //          }
-                    //          else
-                    if (isRealEx)
-                    {
-                        TerminateProcess(GetCurrentProcess(), 0);
-                    }
-                    else
-                    {
-                        return (EXCEPTION_EXECUTE_HANDLER);
-                    }
-                case BTN_DEBUG:
-                    return (EXCEPTION_CONTINUE_SEARCH);
+                    case BTN_QUIT:
+                        //          if (error)
+                        //          {
+                        //            return (EXCEPTION_EXECUTE_HANDLER);
+                        //          }
+                        //          else
+                        if (isRealEx)
+                        {
+                            TerminateProcess(GetCurrentProcess(), 0);
+                        }
+                        else
+                        {
+                            return (EXCEPTION_EXECUTE_HANDLER);
+                        }
+                    case BTN_DEBUG:
+                        return (EXCEPTION_CONTINUE_SEARCH);
                 }
 
                 return (EXCEPTION_CONTINUE_SEARCH);
@@ -1031,68 +1031,68 @@ namespace Debug
         {
             switch (msg)
             {
-            case WM_INITDIALOG:
-            {
-                SendDlgItemMessage(hdlg, EDIT_INFO, EM_AUTOURLDETECT, TRUE, 0);
-                SendDlgItemMessage(hdlg, EDIT_INFO, EM_SETEVENTMASK, 0, (LPARAM)ENM_LINK);
-                SendDlgItemMessage(hdlg, EDIT_INFO, WM_SETTEXT, 0, lParam);
-
-                // Load the error icon onto the control
-                HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(101));
-                if (!hIcon)
+                case WM_INITDIALOG:
                 {
-                    hIcon = LoadIcon(NULL, IDI_ERROR);
-                }
-                SendMessage(GetDlgItem(hdlg, ICON_ERROR), STM_SETICON, (WPARAM)hIcon, 0);
+                    SendDlgItemMessage(hdlg, EDIT_INFO, EM_AUTOURLDETECT, TRUE, 0);
+                    SendDlgItemMessage(hdlg, EDIT_INFO, EM_SETEVENTMASK, 0, (LPARAM)ENM_LINK);
+                    SendDlgItemMessage(hdlg, EDIT_INFO, WM_SETTEXT, 0, lParam);
 
-                return (TRUE);
-                break;
-            }
-
-            case WM_NOTIFY:
-            {
-                switch (((LPNMHDR)lParam)->code)
-                {
-                case EN_LINK:
-                {
-                    ENLINK* enlink = (ENLINK*)lParam;
-
-                    switch (enlink->msg)
+                    // Load the error icon onto the control
+                    HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(101));
+                    if (!hIcon)
                     {
-                    case WM_LBUTTONDOWN:
-                    {
-                        char buffer[128];
-                        TEXTRANGE textrange;
-                        textrange.chrg = enlink->chrg;
-                        textrange.lpstrText = buffer;
-                        SendDlgItemMessage(hdlg, EDIT_INFO, EM_GETTEXTRANGE, 0, (LPARAM)&textrange);
-                        ShellExecute(NULL, NULL, buffer, NULL, NULL, SW_SHOWNORMAL);
-                        break;
+                        hIcon = LoadIcon(NULL, IDI_ERROR);
                     }
+                    SendMessage(GetDlgItem(hdlg, ICON_ERROR), STM_SETICON, (WPARAM)hIcon, 0);
 
-                    default:
-                        break;
-                    }
-
-                    break;
-                }
-                }
-                break;
-            }
-
-            case WM_COMMAND:
-            {
-                switch (LOWORD(wParam))
-                {
-                case BTN_OK:
-                    EndDialog(hdlg, BTN_QUIT);
-                    break;
-
-                default:
                     return (TRUE);
                     break;
                 }
-            }
+
+                case WM_NOTIFY:
+                {
+                    switch (((LPNMHDR)lParam)->code)
+                    {
+                        case EN_LINK:
+                        {
+                            ENLINK* enlink = (ENLINK*)lParam;
+
+                            switch (enlink->msg)
+                            {
+                                case WM_LBUTTONDOWN:
+                                {
+                                    char buffer[128];
+                                    TEXTRANGE textrange;
+                                    textrange.chrg = enlink->chrg;
+                                    textrange.lpstrText = buffer;
+                                    SendDlgItemMessage(hdlg, EDIT_INFO, EM_GETTEXTRANGE, 0, (LPARAM)&textrange);
+                                    ShellExecute(NULL, NULL, buffer, NULL, NULL, SW_SHOWNORMAL);
+                                    break;
+                                }
+
+                                default:
+                                    break;
+                            }
+
+                            break;
+                        }
+                    }
+                    break;
+                }
+
+                case WM_COMMAND:
+                {
+                    switch (LOWORD(wParam))
+                    {
+                        case BTN_OK:
+                            EndDialog(hdlg, BTN_QUIT);
+                            break;
+
+                        default:
+                            return (TRUE);
+                            break;
+                    }
+                }
             }
 
             return (FALSE);
@@ -1106,100 +1106,100 @@ namespace Debug
         {
             switch (msg)
             {
-            case WM_INITDIALOG:
-            {
-                HWND hlist = GetDlgItem(hdlg, LIST_ERROR);
-                ListView_SetExtendedListViewStyle(hlist, LVS_EX_FULLROWSELECT);
-
-                Log::ErrorsFill(hlist);
-                SetFocus(hlist);
-
-                // Load the error icon onto the control
-                SendMessage(GetDlgItem(hdlg, ICON_ERROR), STM_SETICON, (WPARAM)LoadIcon(NULL, IDI_ERROR), 0);
-
-                // Save the initialiation param
-                SetWindowLong(hdlg, DWL_USER, lParam);
-
-                return (FALSE);
-                break;
-            }
-
-            case WM_NOTIFY:
-            {
-                switch (((LPNMHDR)lParam)->code)
+                case WM_INITDIALOG:
                 {
-                case LVN_GETDISPINFO:
-                    LV_DISPINFO* pnmv;
-                    pnmv = (LV_DISPINFO*)lParam;
+                    HWND hlist = GetDlgItem(hdlg, LIST_ERROR);
+                    ListView_SetExtendedListViewStyle(hlist, LVS_EX_FULLROWSELECT);
 
-                    if (pnmv->item.mask & LVIF_TEXT)
+                    Log::ErrorsFill(hlist);
+                    SetFocus(hlist);
+
+                    // Load the error icon onto the control
+                    SendMessage(GetDlgItem(hdlg, ICON_ERROR), STM_SETICON, (WPARAM)LoadIcon(NULL, IDI_ERROR), 0);
+
+                    // Save the initialiation param
+                    SetWindowLong(hdlg, DWL_USER, lParam);
+
+                    return (FALSE);
+                    break;
+                }
+
+                case WM_NOTIFY:
+                {
+                    switch (((LPNMHDR)lParam)->code)
                     {
-                        Log::ErrorsNotify(pnmv->item.pszText, pnmv->item.lParam, pnmv->item.iSubItem);
+                        case LVN_GETDISPINFO:
+                            LV_DISPINFO* pnmv;
+                            pnmv = (LV_DISPINFO*)lParam;
+
+                            if (pnmv->item.mask & LVIF_TEXT)
+                            {
+                                Log::ErrorsNotify(pnmv->item.pszText, pnmv->item.lParam, pnmv->item.iSubItem);
+                            }
+                            break;
                     }
                     break;
                 }
-                break;
-            }
-            /*
-                    case WM_PAINT:
-                    {
-                      PAINTSTRUCT ps;
+                /*
+                        case WM_PAINT:
+                        {
+                          PAINTSTRUCT ps;
 
-                      // StartPainting;
-                      BeginPaint(hdlg, &ps);
+                          // StartPainting;
+                          BeginPaint(hdlg, &ps);
 
-                      // Get Device Context
-                      HDC hdc = GetDC(hdlg);
+                          // Get Device Context
+                          HDC hdc = GetDC(hdlg);
 
-                      // Load standard Icon
-                      HICON hIcon = LoadIcon(NULL, IDI_ERROR);
+                          // Load standard Icon
+                          HICON hIcon = LoadIcon(NULL, IDI_ERROR);
 
-                      // Convert from Dialog Units to Pixels
-                      RECT icon = { 5, 5, 10, 10 };
-                      MapDialogRect(hdlg, &icon);
-                      RECT intersect;
-                      if (IntersectRect(&intersect, &icon, &ps.rcPaint))
-                      {
-                        // Draw the Icon
-                        DrawIcon(hdc, icon.left, icon.top, hIcon);
-                      }
+                          // Convert from Dialog Units to Pixels
+                          RECT icon = { 5, 5, 10, 10 };
+                          MapDialogRect(hdlg, &icon);
+                          RECT intersect;
+                          if (IntersectRect(&intersect, &icon, &ps.rcPaint))
+                          {
+                            // Draw the Icon
+                            DrawIcon(hdc, icon.left, icon.top, hIcon);
+                          }
 
-                      // Release the Icon back to oblivion
-                      CloseHandle(hIcon);
+                          // Release the Icon back to oblivion
+                          CloseHandle(hIcon);
 
-                      // Finished Painting
-                      EndPaint(hdlg, &ps);
+                          // Finished Painting
+                          EndPaint(hdlg, &ps);
 
-                      return (FALSE);
-                      break;
-                    }
-            */
-            case WM_COMMAND:
-            {
-                switch (LOWORD(wparam))
+                          return (FALSE);
+                          break;
+                        }
+                */
+                case WM_COMMAND:
                 {
-                case BTN_QUIT:
-                    EndDialog(hdlg, BTN_QUIT);
-                    break;
+                    switch (LOWORD(wparam))
+                    {
+                        case BTN_QUIT:
+                            EndDialog(hdlg, BTN_QUIT);
+                            break;
 
-                case BTN_VIEWLOG:
-                    ShellExecute(NULL, NULL, Log::GetFileName(), NULL, NULL, SW_SHOWNORMAL);
-                    break;
+                        case BTN_VIEWLOG:
+                            ShellExecute(NULL, NULL, Log::GetFileName(), NULL, NULL, SW_SHOWNORMAL);
+                            break;
 
-                case BTN_SUBMIT:
-                    Log::Submit((const char*)GetWindowLong(hdlg, DWL_USER));
-                    EnableWindow(GetDlgItem(hdlg, BTN_SUBMIT), FALSE);
-                    break;
+                        case BTN_SUBMIT:
+                            Log::Submit((const char*)GetWindowLong(hdlg, DWL_USER));
+                            EnableWindow(GetDlgItem(hdlg, BTN_SUBMIT), FALSE);
+                            break;
 
-                case BTN_DEBUG:
-                    EndDialog(hdlg, BTN_DEBUG);
-                    break;
+                        case BTN_DEBUG:
+                            EndDialog(hdlg, BTN_DEBUG);
+                            break;
 
-                default:
-                    return (TRUE);
-                    break;
+                        default:
+                            return (TRUE);
+                            break;
+                    }
                 }
-            }
             }
 
             return (FALSE);
@@ -1259,34 +1259,34 @@ namespace Debug
 
             switch (type)
             {
-            case MEM:
-                arguments[0] = (U32)"MEMORY";
-                break;
+                case MEM:
+                    arguments[0] = (U32)"MEMORY";
+                    break;
 
-            case CONFIG:
-                arguments[0] = (U32)"CONFIG";
-                break;
+                case CONFIG:
+                    arguments[0] = (U32)"CONFIG";
+                    break;
 
-            case ASSERTION:
-                arguments[0] = (U32)"ASSERTION";
-                break;
+                case ASSERTION:
+                    arguments[0] = (U32)"ASSERTION";
+                    break;
 
-            case FATAL:
-                arguments[0] = (U32)"FATAL";
-                break;
+                case FATAL:
+                    arguments[0] = (U32)"FATAL";
+                    break;
 
-            case WAIT:
-                arguments[0] = (U32)"WARNINGS";
-                arguments[5] = 1;
-                break;
+                case WAIT:
+                    arguments[0] = (U32)"WARNINGS";
+                    arguments[5] = 1;
+                    break;
 
-            case MESSAGE:
-                arguments[0] = (U32)"MESSAGE";
-                arguments[5] = 2;
+                case MESSAGE:
+                    arguments[0] = (U32)"MESSAGE";
+                    arguments[5] = 2;
 
-            default:
-                arguments[0] = (U32)"Unknown Error";
-                break;
+                default:
+                    arguments[0] = (U32)"Unknown Error";
+                    break;
             };
 
             arguments[1] = (U32)msg;
@@ -1294,9 +1294,9 @@ namespace Debug
             arguments[3] = (U32)line;
             arguments[4] = (U32)timestamp;
 
-            LOG_ERR(("Attempting to RaiseException \"%s\" msg:%s module:%s line:%d", arguments[0], msg, module, line))
+            LOG_ERR(("Attempting to RaiseException \"%s\" msg:%s module:%s line:%d", arguments[0], msg, module, line));
 
-                RaiseException(DEBUG_EXCEPTION_ERROR, EXCEPTION_NONCONTINUABLE_EXCEPTION, 6, arguments);
+            RaiseException(DEBUG_EXCEPTION_ERROR, EXCEPTION_NONCONTINUABLE_EXCEPTION, 6, arguments);
 
 
             //
