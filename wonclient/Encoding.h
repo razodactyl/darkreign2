@@ -19,6 +19,7 @@ namespace MINTCLIENT
             static const unsigned int TLV_UINT16 = 3;
             static const unsigned int TLV_UINT32 = 4;
             static const unsigned int TLV_STRING = 5;
+            static const unsigned int TLV_BYTES = 6;
 
             int type;
             unsigned int length;
@@ -51,7 +52,7 @@ namespace MINTCLIENT
                 // Second 4 bytes determine the length.
                 this->length = (p[1] << 24) | (p[2] << 16) | (p[3] << 8) | (p[4] << 0);
 
-                ASSERT(length < U16_MAX);
+                ASSERT(length < size); // Obviously can't have data larger than the amount of bytes received.
 
                 // The rest of the data follows.
                 this->offset += 5;
@@ -115,6 +116,7 @@ namespace MINTCLIENT
             bool GetU8Bool();
             U8 GetU8();
             U32 GetU32();
+            U8* GetBytes();
             CH* GetString();
         };
     }

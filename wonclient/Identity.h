@@ -40,13 +40,19 @@ namespace MINTCLIENT
             return _identity.username.str;
         }
 
-        // Class `Identity` authenticate method.
         static WONAPI::Error Authenticate(Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context);
+        static WONAPI::Error Create(Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context);
 
-        // Instantiated `Identity` authenticate method.
+        // Instantiated `Identity` authenticate method called after `Set`.
         WONAPI::Error Authenticate(Client* client, void (*callback)(const Identity::Result& result), void* context)
         {
             return Authenticate(client, _identity.username.str, _identity.password.str, callback, context);
+        }
+
+        // Instantiated `Identity` authenticate method called after `Set`.
+        WONAPI::Error Create(Client* client, void (*callback)(const Identity::Result& result), void* context)
+        {
+            return Create(client, _identity.username.str, _identity.password.str, callback, context);
         }
     };
 }

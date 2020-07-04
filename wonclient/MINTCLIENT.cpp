@@ -44,7 +44,7 @@ namespace MINTCLIENT
         clientsCritSec.Exit();
 
         // Start the thread
-        thread.Start(MINTMainThread, this);
+        thread.Start(MINTMasterThread, this);
 
         // Make it above normal
         thread.SetPriority(Win32::Thread::ABOVE_NORMAL);
@@ -69,7 +69,10 @@ namespace MINTCLIENT
 
         delete packetBuffer;
 
-        commands.DisposeAll();
+        while (!commands.IsEmpty())
+        {
+            commands.GetHead()->DropFromClient();
+        }
 
         StyxNet::RemoveClient();
     }
@@ -110,7 +113,7 @@ namespace MINTCLIENT
         LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::DropCommand -> [" << HEX(command->command_id, 8) << "] -> dropped!");
     }
 
-    MINTCLIENT::Client::MINTCommand* MINTCLIENT::Client::GetCommand(CRC command_id)
+    MINTCLIENT::Client::MINTCommand* MINTCLIENT::Client::GetCommandById(CRC command_id)
     {
         LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::GetCommand -> getting [" << HEX(command_id, 8) << "] from this client...");
 
@@ -141,13 +144,13 @@ namespace MINTCLIENT
         return ret;
     }
 
-    bool MINTCLIENT::Client::HasCommand(CRC command_id)
+    bool MINTCLIENT::Client::HandlesCommandId(CRC command_id)
     {
         LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::HasCommand -> [" << HEX(command_id, 8) << "] -> Searching...");
 
         bool did_find = false;
 
-        if (this->GetCommand(command_id))
+        if (this->GetCommandById(command_id))
         {
             did_find = true;
         }
@@ -167,7 +170,7 @@ namespace MINTCLIENT
     //
     // Thread procedure
     //
-    U32 STDCALL Client::MINTMainThread(void* context)
+    U32 STDCALL Client::MINTMasterThread(void* context)
     {
         LOG_DIAG((">>> MINTCLIENT::Client::ThreadProc master MINTCLIENT thread starts here."));
 
@@ -222,7 +225,7 @@ namespace MINTCLIENT
                         while (const StyxNet::Packet* pkt = StyxNet::Packet::Extract(*client->packetBuffer))
                         {
                             // Have the client process the packet
-                            client->ProcessIncomingPacket(*pkt);
+                            client->HandleIncomingPacket(*pkt);
                         }
                     }
                 }
@@ -333,7 +336,7 @@ namespace MINTCLIENT
     //
     // Handle incoming packet, route to appropriate handler.
     //
-    void MINTCLIENT::Client::ProcessIncomingPacket(const StyxNet::Packet& packet)
+    void MINTCLIENT::Client::HandleIncomingPacket(const StyxNet::Packet& packet)
     {
         LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::ProcessingIncomingPacket [" << HEX(packet.GetCommand(), 8) << "] (" << Message::GetCommandString(packet.GetCommand()) << ")");
 
@@ -349,7 +352,7 @@ namespace MINTCLIENT
             // For a known packet, if it's the response to a command, pull up command context and deal with it.
             case MINTCLIENT::Message::DirectoryListServers: // 0x77712BCE
             {
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
@@ -365,7 +368,7 @@ namespace MINTCLIENT
 
             case MINTCLIENT::Message::DirectoryListRooms: // 0x910DB9D4
             {
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
@@ -379,11 +382,12 @@ namespace MINTCLIENT
             }
             break;
 
+            case MINTCLIENT::Message::IdentityCreate: // 0x14096404
             case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
             {
                 const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
 
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
@@ -400,7 +404,7 @@ namespace MINTCLIENT
             case MINTCLIENT::Message::RoutingServerRoomConnect: // 0xEE37226B
             case MINTCLIENT::Message::RoutingServerRoomRegister: // 0x59938A8D
             {
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
@@ -415,7 +419,7 @@ namespace MINTCLIENT
 
             case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
             {
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
@@ -431,10 +435,7 @@ namespace MINTCLIENT
 
             case MINTCLIENT::Message::RoutingServerBroadcastChat: // 0xC79C5EB4
             {
-                // auto pkt = &StyxNet::Packet::Copy(packet);
-                // const auto r = MINTCLIENT::Encoding::TLV(packet.GetData(), packet.GetLength());
-
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
@@ -445,18 +446,48 @@ namespace MINTCLIENT
                 {
                     _DebugShowMissingContext(packet, this);
                 }
+            }
+            break;
 
-                // Expected that ~TLV is called as it goes off stack.
-                // cmd should have its own copy of the data.
+            case MINTCLIENT::Message::RoutingServerUserEnter: // 0x75BBABEE
+            case MINTCLIENT::Message::RoutingServerUserLeave: // 0xCF1E785F
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
             break;
 
             case MINTCLIENT::Message::RoutingServerCreateGame: // 0x2A0FB0FD
             {
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+            break;
+
+            case MINTCLIENT::Message::RoutingServerGameCreated:
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
                     cmd->Done();
                 }
                 else
@@ -470,7 +501,7 @@ namespace MINTCLIENT
             case MINTCLIENT::Message::ServerShutdown: // 0xD26E9A5C
             case MINTCLIENT::Message::ServerDisconnect: // 0x8542A47A
             {
-                auto* cmd = this->GetCommand(packet.GetCommand());
+                auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {

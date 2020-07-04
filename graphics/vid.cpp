@@ -294,7 +294,9 @@ namespace Vid
     //
     Bool SetMode(U32 mode, U32 width, U32 height, Bool force) // = FALSE
     {
+#ifdef DEVELOPMENT
         mode = VIDMODEWINDOW;
+#endif
 
         // if nothing needs to be done...
         if (Vid::isStatus.initialized == TRUE && !force && curMode == mode &&

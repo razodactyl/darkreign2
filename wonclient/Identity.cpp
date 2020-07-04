@@ -16,33 +16,39 @@ namespace MINTCLIENT
 
         while (!done_processing)
         {
-            if (command_list->Busy()) {
-                void* ctx;
-                if (command_list->GetEvents()->Wait(ctx, FALSE, MINTCLIENT::DefaultTimeout))
-                {
-                    auto* cmd = static_cast<Client::MINTCommand*>(ctx);
+            void* ctx;
+            if (command_list->GetEvents()->Wait(ctx, FALSE, MINTCLIENT::DefaultTimeout))
+            {
+                auto* cmd = static_cast<Client::MINTCommand*>(ctx);
 
-                    switch (cmd->command_id)
-                    {
-                        case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
-                        {
-                            Identity::Result result;
-                            result.error = cmd->GetError();
-                            result.context = cmd->context;
-                            cmd->callback(result);
-                            cmd->DropFromClient();
-                        }
-                        break;
-                    }
-                }
-                else
+                switch (cmd->command_id)
                 {
-                    command_list->TimeoutAll();
+                    case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
+                    {
+                        Identity::Result result;
+                        result.error = cmd->GetError();
+                        result.context = cmd->context;
+                        cmd->callback(result);
+                        cmd->DropFromClient();
+                    }
+                    break;
+
+                    case MINTCLIENT::Message::IdentityCreate: // 0x14096404
+                    {
+                        Identity::Result result;
+                        result.error = cmd->GetError();
+                        result.context = cmd->context;
+                        cmd->callback(result);
+                        cmd->DropFromClient();
+                    }
+                    break;
                 }
+
+                done_processing = true;
             }
             else
             {
-                done_processing = true;
+                command_list->TimeoutAll();
             }
         }
 
@@ -62,6 +68,30 @@ namespace MINTCLIENT
         // Create a `MINTCommand` with the command and data to send to the server.
         auto* cmd = new Client::MINTCommand(client);
         cmd->command_id = MINTCLIENT::Message::IdentityAuthenticate;
+        cmd->callback = callback;
+
+        auto identity = Data::Identity();
+        identity.username.Set(username);
+        identity.password.Set(password);
+        cmd->SetDataFromStruct(identity);
+        cmd->SetContext(context);
+
+        command_list->Add(cmd);
+
+        if (!identityThread.IsAlive()) {
+            identityThread.Start(Process, command_list);
+        }
+
+        return WONAPI::Error_Pending;
+    }
+
+    WONAPI::Error Identity::Create(MINTCLIENT::Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context)
+    {
+        auto* command_list = new MINTCLIENT::Client::CommandList();
+
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(client);
+        cmd->command_id = MINTCLIENT::Message::IdentityCreate;
         cmd->callback = callback;
 
         auto identity = Data::Identity();

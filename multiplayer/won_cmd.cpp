@@ -450,13 +450,11 @@ namespace Won
                             StyxNet::Session* session = (StyxNet::Session*)(*g)->data;
 
 #ifndef DEVELOPMENT
-
                             // We're only interested in games with a matching version
                             if (session->version != U16(Version::GetBuildNumber()))
                             {
                                 break;
                             }
-
 #endif
 
                             char buf[80];

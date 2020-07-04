@@ -24,34 +24,66 @@ namespace MINTCLIENT
     struct Identity;
     struct Directory;
 
-    static const unsigned int DefaultTimeout = 5000;
+    static const unsigned int DefaultTimeout = 10000;
+
+    namespace Error
+    {
+        static const unsigned int IdentityAuthenticationFailed = 0x13BD404E;    // MINTCLIENT::Error::IdentityAuthenticationFailed
+        static const unsigned int IdentityAlreadyExists = 0x4D6ABC5b;           // MINTCLIENT::Error::IdentityAlreadyExists
+
+        inline const char* GetErrorString(U32 error_id)
+        {
+            switch (error_id)
+            {
+                case MINTCLIENT::Error::IdentityAuthenticationFailed:
+                    return "MINTCLIENT::Error::IdentityAuthenticationFailed";
+                case MINTCLIENT::Error::IdentityAlreadyExists:
+                    return "MINTCLIENT::Error::IdentityAlreadyExists";
+
+                default:
+                {
+                    char* info = new char[64];
+                    char* hh = new char[10];
+                    Utils::Sprintf(info, 32, "Unknown Error [%s]", Utils::StrFmtHex(hh, 8, error_id));
+                    return info;
+                }
+                break;
+            }
+        }
+    }
 
     namespace Message
     {
-        static const unsigned int ServerConnect = 0x433AB32B;                  // MINTCLIENT::Message::ServerConnect
-        static const unsigned int ServerShutdown = 0xD26E9A5C;                 // MINTCLIENT::Message::ServerShutdown
+        static const unsigned int ServerConnect = 0x433AB32B;                   // MINTCLIENT::Message::ServerConnect
+        static const unsigned int ServerShutdown = 0xD26E9A5C;                  // MINTCLIENT::Message::ServerShutdown
 
-        static const unsigned int IdentityAuthenticate = 0xCD5AF72B;           // MINTCLIENT::Message::IdentityAuthenticate
+        static const unsigned int IdentityCreate = 0x14096404;                  // MINTCLIENT::Message::IdentityCreate
+        static const unsigned int IdentityAuthenticate = 0xCD5AF72B;            // MINTCLIENT::Message::IdentityAuthenticate
 
-        static const unsigned int DirectoryListServers = 0x77712BCE;           // MINTCLIENT::Message::DirectoryListServers
-        static const unsigned int DirectoryListRooms = 0x910DB9D4;             // MINTCLIENT::Message::DirectoryListRooms
+        static const unsigned int DirectoryListServers = 0x77712BCE;            // MINTCLIENT::Message::DirectoryListServers
+        static const unsigned int DirectoryListRooms = 0x910DB9D4;              // MINTCLIENT::Message::DirectoryListRooms
 
-        static const unsigned int RoutingServerRoomConnect = 0xEE37226B;       // MINTCLIENT::Message::RoutingServerRoomConnect
-        static const unsigned int RoutingServerRoomRegister = 0x59938A8D;      // MINTCLIENT::Message::RoutingServerRoomRegister
+        static const unsigned int RoutingServerRoomConnect = 0xEE37226B;        // MINTCLIENT::Message::RoutingServerRoomConnect
+        static const unsigned int RoutingServerRoomRegister = 0x59938A8D;       // MINTCLIENT::Message::RoutingServerRoomRegister
 
-        static const unsigned int RoutingServerGetNumUsers = 0xACCD008F;       // MINTCLIENT::Message::RoutingServerGetNumUsers
-        static const unsigned int RoutingServerGetUserAddress = 0x24B1E0F;     // MINTCLIENT::Message::RoutingServerGetUserAddress
-        static const unsigned int RoutingServerGetUserList = 0x82E37940;       // MINTCLIENT::Message::RoutingServerGetUserList
+        static const unsigned int RoutingServerUserEnter = 0x75BBABEE;          // MINTCLIENT::Message::RoutingServerUserEnter
+        static const unsigned int RoutingServerUserLeave = 0xCF1E785F;          // MINTCLIENT::Message::RoutingServerUserLeave
 
-        static const unsigned int RoutingServerBroadcastChat = 0xC79C5EB4;     // MINTCLIENT::Message::RoutingServerBroadcastChat
-        static const unsigned int RoutingServerWhisperChat = 0x1A6C1A40;       // MINTCLIENT::Message::RoutingServerWhisperChat
+        static const unsigned int RoutingServerGetNumUsers = 0xACCD008F;        // MINTCLIENT::Message::RoutingServerGetNumUsers
+        static const unsigned int RoutingServerGetUserAddress = 0x24B1E0F;      // MINTCLIENT::Message::RoutingServerGetUserAddress
+        static const unsigned int RoutingServerGetUserList = 0x82E37940;        // MINTCLIENT::Message::RoutingServerGetUserList
 
-        static const unsigned int RoutingServerCreateGame = 0x2A0FB0FD;        // MINTCLIENT::Message::RoutingServerCreateGame
-        static const unsigned int RoutingServerUpdateGame = 0xB04C290F;        // MINTCLIENT::Message::RoutingServerUpdateGame
-        static const unsigned int RoutingServerDeleteGame = 0xDDCA3C97;        // MINTCLIENT::Message::RoutingServerDeleteGame
+        static const unsigned int RoutingServerBroadcastChat = 0xC79C5EB4;      // MINTCLIENT::Message::RoutingServerBroadcastChat
+        static const unsigned int RoutingServerWhisperChat = 0x1A6C1A40;        // MINTCLIENT::Message::RoutingServerWhisperChat
 
-        static const unsigned int RoutingServerDisconnect = 0xF9CE798B;        // MINTCLIENT::Message::RoutingServerDisconnect
-        static const unsigned int ServerDisconnect = 0x8542A47A;               // MINTCLIENT::Message::ServerDisconnect
+        static const unsigned int RoutingServerCreateGame = 0x2A0FB0FD;         // MINTCLIENT::Message::RoutingServerCreateGame
+        static const unsigned int RoutingServerUpdateGame = 0xB04C290F;         // MINTCLIENT::Message::RoutingServerUpdateGame
+        static const unsigned int RoutingServerDeleteGame = 0xDDCA3C97;         // MINTCLIENT::Message::RoutingServerDeleteGame
+
+        static const unsigned int RoutingServerGameCreated = 0xA18A092D;        // MINTCLIENT::Message::RoutingServerGameCreated
+
+        static const unsigned int RoutingServerDisconnect = 0xF9CE798B;         // MINTCLIENT::Message::RoutingServerDisconnect
+        static const unsigned int ServerDisconnect = 0x8542A47A;                // MINTCLIENT::Message::ServerDisconnect
 
         inline const char* GetCommandString(U32 command_id)
         {
@@ -94,7 +126,7 @@ namespace MINTCLIENT
                 {
                     char* info = new char[64];
                     char* hh = new char[10];
-                    Utils::Sprintf(info, 32, "UnknownCommand [%s]", Utils::StrFmtHex(hh, 8, command_id));
+                    Utils::Sprintf(info, 32, "Unknown Command [%s]", Utils::StrFmtHex(hh, 8, command_id));
                     return info;
                 }
                 break;
@@ -131,8 +163,6 @@ namespace MINTCLIENT
             {
                 // delete addr;
             };
-
-            // MINTCLIENT::IPSocket::Address FromString(const char* address);
 
             char* GetAddressString(bool andPort)
             {
@@ -186,6 +216,10 @@ namespace MINTCLIENT
             }
         };
 
+        //
+        // Template tricks for dynamically wrapping a callback.
+        //
+
         template <class R> struct MINTWrapper
         {
             void (*callback)(const R& result);
@@ -209,6 +243,23 @@ namespace MINTCLIENT
             {
                 auto w = (MINTWrapper<R>*)this->_wrapped;
                 w->callback(other);
+            }
+        };
+
+        //
+        //
+        //
+
+        struct MINTBuffer
+        {
+            U8* data;
+            U32 size;
+
+            void assign(const U8* data, U32 size)
+            {
+                this->data = new U8[size];
+                this->size = size;
+                Utils::Memcpy(this->data, data, size);
             }
         };
 
@@ -278,11 +329,13 @@ namespace MINTCLIENT
             //     event_list->AddEvent(*(this->_timeout), this);
             // }
 
-            void ExtractEvents(Win32::EventIndex::List<32>* event_list)
+            int ExtractEvents(Win32::EventIndex::List<32>* event_list)
             {
                 (*event_list).AddEvent(_done, this);
                 (*event_list).AddEvent(_abort, this);
                 (*event_list).AddEvent(_timeout, this);
+
+                return 3; // _done, _abort, _timeout.
             }
 
             //
@@ -305,6 +358,26 @@ namespace MINTCLIENT
                 Utils::Memcpy(this->cmd_data, data, this->data_size);
             }
 
+            void AddDataBytes(const U8* data, size_t len)
+            {
+                // Create buffer for previous data + new data.
+                U8* extended_data = new U8[this->data_size + len];
+                // Copy previous memory to new location.
+                Utils::Memcpy(extended_data, this->cmd_data, this->data_size);
+
+                // Free original memory.
+                delete this->cmd_data;
+
+                // Copy extended data to new location.
+                Utils::Memcpy(extended_data + this->data_size, data, len);
+
+                // Update the new data size.
+                this->data_size = this->data_size + len;
+
+                // Replace original data.
+                this->cmd_data = extended_data;
+            }
+
             template <class CONTEXT> void SetContext(const CONTEXT& context)
             {
                 this->context = context;
@@ -312,17 +385,44 @@ namespace MINTCLIENT
 
             WONAPI::Error GetError()
             {
-                return this->did_abort ? WONAPI::Error_Aborted : this->did_timeout ? WONAPI::Error_Timeout : WONAPI::Error_Success;
-            }
-
-            Bool ClientHandlesCommand(CRC command)
-            {
-                if (this->client->HasCommand(command))
+                // Catch obvious errors.
+                if (this->did_abort || this->did_timeout)
                 {
-                    return true;
+                    return this->did_abort ? WONAPI::Error_Aborted : this->did_timeout ? WONAPI::Error_Timeout : WONAPI::Error_GeneralFailure;
                 }
 
-                return false;
+                // Catch response errors.
+                if (this->data_size > 3)
+                {
+                    U32 err_val = this->cmd_data[3] << 24 | this->cmd_data[2] << 16 | this->cmd_data[1] << 8 | this->cmd_data[0];
+
+                    switch (this->command_id)
+                    {
+                        case MINTCLIENT::Message::IdentityAuthenticate:
+                        {
+                            if (err_val == MINTCLIENT::Error::IdentityAuthenticationFailed) { return MINTCLIENT::Error::IdentityAuthenticationFailed; }
+                        }
+                        break;
+
+                        case MINTCLIENT::Message::IdentityCreate:
+                        {
+                            if (err_val == MINTCLIENT::Error::IdentityAlreadyExists) { return MINTCLIENT::Error::IdentityAlreadyExists; }
+                        }
+                        break;
+
+                        default:
+                            break;
+                    }
+                }
+
+                // No errors encountered, all good!
+                return WONAPI::Error_Success;
+            }
+
+            Bool ClientHandlesCommandId(CRC command_id)
+            {
+                ASSERT(this->client);
+                return this->client->HandlesCommandId(command_id);
             }
 
             //
@@ -401,9 +501,6 @@ namespace MINTCLIENT
         struct CommandList
         {
         private:
-            // Win32::EventIndex::List<16> _events;
-            // Win32::CritSec _events_critical;
-
             std::vector<MINTCommand*> _commands;
             Win32::CritSec _commands_critical;
 
@@ -422,8 +519,7 @@ namespace MINTCLIENT
                 for (auto& command : _commands)
                 {
                     // Extract `command._events` to `events`.
-                    command->ExtractEvents(events);
-                    count += 3;
+                    count += command->ExtractEvents(events);
                 }
 
                 ASSERT(count < MINT_MAX_EVENTS);
@@ -433,15 +529,38 @@ namespace MINTCLIENT
                 return events;
             }
 
+            //
+            // Add a `MINTCommand` to this list of commands.
+            //
             void Add(MINTCommand* cmd)
             {
                 _commands_critical.Enter();
-
                 _commands.push_back(&*cmd);
-
                 _commands_critical.Exit();
             }
 
+            //
+            // Create and return a list of pointers to the current list of commands.
+            //
+            std::vector<MINTCommand*> GetAll()
+            {
+                std::vector<MINTCommand*> current;
+
+                _commands_critical.Enter();
+
+                for (auto* command : _commands)
+                {
+                    current.push_back(&*command);
+                }
+
+                _commands_critical.Exit();
+
+                return current;
+            }
+
+            //
+            // Remove from this list of commands.
+            //
             void Remove(MINTCommand* cmd)
             {
                 _commands_critical.Enter();
@@ -470,6 +589,9 @@ namespace MINTCLIENT
                 _commands_critical.Exit();
             }
 
+            //
+            // Iterate and remove all.
+            //
             void RemoveAll()
             {
                 for (auto* command : _commands)
@@ -478,63 +600,7 @@ namespace MINTCLIENT
                 }
             }
 
-            std::vector<MINTCommand*> GetAll()
-            {
-                std::vector<MINTCommand*> current;
-
-                _commands_critical.Enter();
-
-                for (auto* command : _commands)
-                {
-                    current.push_back(&*command);
-                }
-
-                _commands_critical.Exit();
-
-                return current;
-            }
-
-            void PassToClient()
-            {
-                _commands_critical.Enter();
-
-                for (auto* command : _commands)
-                {
-                    ASSERT(command->client);
-
-                    if (!command->did_pass)
-                    {
-                        command->did_pass = true;
-                        command->client->QueueCommand(command, false);
-
-                        if (command->ClientHandlesCommand(command->command_id))
-                        {
-                            command->client->eventCommand.Signal();
-                        }
-                        else
-                        {
-                            ASSERT(false == true);
-                        }
-                    }
-                }
-
-                _commands_critical.Exit();
-            }
-
-            void ShutdownClients()
-            {
-                _commands_critical.Enter();
-
-                for (auto* command : _commands)
-                {
-                    ASSERT(command->client);
-                    command->client->Shutdown();
-                }
-
-                _commands_critical.Exit();
-            }
-
-            bool HasCommand(CRC command_id)
+            bool HasCommandId(CRC command_id)
             {
                 _commands_critical.Enter();
 
@@ -551,6 +617,53 @@ namespace MINTCLIENT
                 _commands_critical.Exit();
 
                 return ret;
+            }
+
+            //
+            // Iterate through commands and send them to their attached client.
+            //
+            void PassToClient()
+            {
+                _commands_critical.Enter();
+
+                for (auto* command : _commands)
+                {
+                    ASSERT(command->client);
+
+                    if (command->did_pass)
+                    {
+                        LDIAG("MINTCLIENT::CommandList::PassToClient -> Attempting to pass `" << Message::GetCommandString(command->command_id) << "` to client when `did_pass = true`!!!");
+                    }
+
+                    // Only if we haven't passed it on previously.
+                    if (!command->did_pass)
+                    {
+                        command->did_pass = true;
+                        command->client->QueueCommand(command, false);
+
+                        ASSERT(command->ClientHandlesCommandId(command->command_id));
+
+                        command->client->eventCommand.Signal();
+                    }
+                }
+
+                _commands_critical.Exit();
+            }
+
+            //
+            // Iterate through commands, tell attached clients to `Shutdown`.
+            //
+            void ShutdownClients()
+            {
+                _commands_critical.Enter();
+
+                for (auto* command : _commands)
+                {
+                    ASSERT(command->client);
+                    command->client->Shutdown();
+                }
+
+                _commands_critical.Exit();
             }
 
             void TimeoutAll()
@@ -577,6 +690,9 @@ namespace MINTCLIENT
                 _commands_critical.Exit();
             }
 
+            //
+            // // Do all commands have a return status? (Done, Abort, Timeout etc.)
+            //
             Bool Busy()
             {
                 _commands_critical.Enter();
@@ -594,7 +710,6 @@ namespace MINTCLIENT
 
                 _commands_critical.Exit();
 
-                // All commands have a return status.
                 return ret;
             }
 
@@ -613,44 +728,49 @@ namespace MINTCLIENT
         void QueueCommand(MINTCommand* command, bool notify = true);
         void DropCommand(MINTCommand* command);
 
-        MINTCommand* GetCommand(CRC command_id);
-        bool HasCommand(CRC command_id);
+        MINTCommand* GetCommandById(CRC command_id);
+        bool HandlesCommandId(CRC command_id);
+
+        Win32::Socket* GetSocket()
+        {
+            return &this->socket;
+        }
 
     private:
-        // Client configuration
+        // Client configuration.
         MINTCLIENT::Client::Config config;
 
         // Flags
         U32 flags;
 
-        // Client Thread
+        // Client thread.
         Win32::Thread thread;
 
-        // Event to stop the client
+        // Event to stop the client.
         Win32::EventIndex eventQuit;
 
         // Event that there's a custom command incoming.
         Win32::EventIndex eventCommand;
 
-        // SafeQueue<MINTCommand*, 32> commands;
+        // List of commands that this client currently handles, must be thread safe!
         List<MINTCommand> commands;
 
-        // Thread procedure
-        static U32 STDCALL MINTMainThread(void* context);
+        // Thread procedure.
+        static U32 STDCALL MINTMasterThread(void* context);
 
-        // Handle an incoming packet
-        void ProcessIncomingPacket(const StyxNet::Packet& packet);
+        // Process data incoming from server.
+        void HandleIncomingPacket(const StyxNet::Packet& packet);
 
-        // Address of the server
+        // Address of the server.
         Win32::Socket::Address address;
 
-        // Socket which connects our client to the server
+        // Socket which connects our client to the server.
         Win32::Socket socket;
 
-        // Event handle for the above socket
+        // Event handle for the above socket.
         Win32::EventIndex event;
 
-        // Buffer for receiving data
+        // Buffer for receiving data.
         StyxNet::Packet::Buffer* packetBuffer;
 
         // Index

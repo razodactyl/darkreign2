@@ -42,10 +42,10 @@ namespace MINTCLIENT
                 //
             };
 
-            struct ClientDataWithReason
-            {
-                //
-            };
+            // struct ClientDataWithReason
+            // {
+            //     //
+            // };
 
             struct ClientIdWithReason
             {
@@ -57,10 +57,10 @@ namespace MINTCLIENT
                 //
             };
 
-            struct DataObjectWithLifespan
-            {
-                //
-            };
+            // struct DataObjectWithLifespan
+            // {
+            //     //
+            // };
 
             struct DataObject
             {
@@ -154,6 +154,26 @@ namespace MINTCLIENT
         //
         //
 
+        struct ClientEnterResult : Result
+        {
+            RoutingServerClient::Data::ClientData client;
+        };
+
+        struct ClientLeaveResult : Result
+        {
+            RoutingServerClient::Data::ClientData client;
+        };
+
+        //
+        //
+        //
+        ////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////
+        //
+        //
+        //
+
         struct ASCIIChatMessageRequest : Request
         {
             Data::ASCIIChatMessage chatMessage;
@@ -182,6 +202,11 @@ namespace MINTCLIENT
 
         struct CreateGameResult : Result
         {
+            U32 ownerId;
+            StrCrc<32, CH> name;
+            MINTCLIENT::IPSocket::Address address;
+            U8* game_data;
+            U32 game_data_size;
         };
 
         struct UpdateGameRequest : Request
@@ -214,6 +239,9 @@ namespace MINTCLIENT
         Win32::Thread h_RoutingServerClientThread;
 
         static const int ID_ASCIIPeerChatCatcher = 0;
+        static const int ID_ClientEnterCatcher = 1;
+        static const int ID_ClientLeaveCatcher = 2;
+        static const int ID_GameCreatedCatcher = 3;
         std::map<int, std::list<MINTCLIENT::Client::CommandList*>> catchers;
 
         RoutingServerClient()
@@ -229,6 +257,11 @@ namespace MINTCLIENT
             this->Close();
         }
 
+        WONAPI::Error InstallClientEnterCatcher(void (*callback)(const RoutingServerClient::ClientEnterResult& result), void* context);
+        WONAPI::Error InstallClientLeaveCatcher(void (*callback)(const RoutingServerClient::ClientLeaveResult& result), void* context);
+
+        WONAPI::Error InstallGameCreatedCatcher(void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context);
+
         WONAPI::Error InstallASCIIPeerChatCatcher(void (*callback)(const RoutingServerClient::ASCIIChatMessageResult& message), void* context);
 
         WONAPI::Error GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context);
@@ -239,11 +272,12 @@ namespace MINTCLIENT
 
         WONAPI::Error BroadcastChat(std::wstring& text, bool f);
 
-        WONAPI::Error CreateGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context);
+        WONAPI::Error CreateGame(const CH* name, const U32 clientId, const MINTCLIENT::Client::MINTBuffer& data, void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context);
         WONAPI::Error UpdateGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context);
         WONAPI::Error DeleteGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context);
 
         U32 GetClientId();
+        Win32::Socket* GetSocket();
 
         void Close();
 

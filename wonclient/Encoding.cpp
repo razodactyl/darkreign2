@@ -62,6 +62,16 @@ namespace MINTCLIENT
 
             return chars;
         }
+
+        U8* TLV::GetBytes()
+        {
+            ASSERT(this->type == TLV::TLV_BYTES);
+
+            auto* chars = new U8[this->length];
+            Utils::Memset(chars, 0, this->length);
+            Utils::Memcpy(chars, this->data + 5, this->length);
+
+            return chars;
+        }
     }
 }
-

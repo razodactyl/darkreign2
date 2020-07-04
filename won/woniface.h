@@ -412,7 +412,7 @@ namespace WonIface
         GameName name;
 
         // Name of the host
-        PlayerName host;
+        PlayerName hostUsername;
 
         // Size of the data
         U32 size;
@@ -423,7 +423,7 @@ namespace WonIface
         // Constructor
         Game(const GameName& name, const PlayerName& host, U32 size, const U8* dataIn)
             : name(name),
-            host(host),
+            hostUsername(host),
             size(size)
         {
             data = reinterpret_cast<U8*>(Alloc(size));

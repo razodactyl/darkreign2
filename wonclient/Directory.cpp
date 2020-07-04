@@ -64,7 +64,6 @@ namespace MINTCLIENT
 
                         result.context = cc->context;
                         cc->callback(result);
-                        LDIAG("LIST SERVERS HAS CALLED BACK TO WONIFACE");
                     }
                     break;
 
@@ -96,7 +95,6 @@ namespace MINTCLIENT
 
                         result.context = cc->context;
                         cc->callback(result);
-                        LDIAG("LIST ROOMS HAS CALLED BACK TO WONIFACE");
                     }
                     break;
                 }
@@ -109,14 +107,15 @@ namespace MINTCLIENT
             }
         }
 
-        LDIAG("DIRECTORY THREAD HAS COMPLETED");
         command_list->ShutdownClients();
         delete command_list;
         return TRUE;
     }
 
     //
-    // MINT:Router:GetDirectoryEx
+    // MINTCLIENT::Directory::GetDirectory
+    //  - Returns list of servers.
+    //  - Returns list of rooms.
     //
     WONAPI::Error Directory::GetDirectory(
         MINTCLIENT::Identity* identity,
