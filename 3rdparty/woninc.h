@@ -9,6 +9,7 @@
 #define __WONINC_H
 
 #pragma warning(push, 3)
+
 /*
 #include "..\3rdparty\won\Routing\RoutingAPI.h"
 #include "..\3rdparty\won\Factory\FactoryAPI.h"
@@ -17,9 +18,14 @@
 #include "..\3rdparty\won\Msg\ServerStatus.h"
 #include "..\3rdparty\won\WonHttp.h"
 */
+
+#include "MINTCLIENT.h"
+
+#include "Directory.h"
+#include "Identity.h"
+#include "RoutingServerClient.h"
+#include "Firewall.h"
+
 #pragma warning(pop)
 
-//#pragma comment (lib, "..\\3rdparty\\won\\titanapi")
-
 #endif
-

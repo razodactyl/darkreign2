@@ -21,99 +21,99 @@
 namespace Win32
 {
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Event
-  //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Event
+    //
 
 
-  //
-  // Event
-  //
-  // Create a new event
-  //
-  Event::Event(const char *name)
-  {
-    event = CreateEvent(NULL, FALSE, FALSE, name);
-    primary = name && (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
-  }
-
-  
-  //
-  // ~Event
-  //
-  // Destroy Event
-  //
-  Event::~Event()
-  {
-    CloseHandle(event);
-  }
+    //
+    // Event
+    //
+    // Create a new event
+    //
+    Event::Event(const char* name)
+    {
+        event = CreateEvent(NULL, FALSE, FALSE, name);
+        primary = name && (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
+    }
 
 
-  //
-  // GetHandle
-  //
-  // Returns the event handle if you need it
-  //
-  HANDLE Event::GetHandle() const
-  {
-    return (event);
-  }
+    //
+    // ~Event
+    //
+    // Destroy Event
+    //
+    Event::~Event()
+    {
+        CloseHandle(event);
+    }
 
 
-  //
-  // Wait
-  //
-  // Wait for event to become signaled (with optional timeout)
-  //
-  Bool Event::Wait(U32 timeout)
-  {
-    return ((WaitForSingleObject(event, timeout) == WAIT_OBJECT_0) ? TRUE : FALSE);
-  }
-
-  
-  //
-  // Signal
-  //
-  // Signal event
-  //
-  void Event::Signal()
-  {
-    SetEvent(event);
-  }
+    //
+    // GetHandle
+    //
+    // Returns the event handle if you need it
+    //
+    HANDLE Event::GetHandle() const
+    {
+        return (event);
+    }
 
 
-  //
-  // Pulse
-  //
-  // Pulse the event
-  //
-  void Event::Pulse()
-  {
-    PulseEvent(event);
-  }
+    //
+    // Wait
+    //
+    // Wait for event to become signaled (with optional timeout)
+    //
+    Bool Event::Wait(U32 timeout)
+    {
+        return ((WaitForSingleObject(event, timeout) == WAIT_OBJECT_0) ? TRUE : FALSE);
+    }
 
 
-  //
-  // IsPrimary
-  //
-  // Test to see if this is the primary event (only applies to named event)
-  //
-  Bool Event::IsPrimary()
-  {
-    return (primary);
-  }
+    //
+    // Signal
+    //
+    // Signal event
+    //
+    void Event::Signal()
+    {
+        SetEvent(event);
+    }
+
+
+    //
+    // Pulse
+    //
+    // Pulse the event
+    //
+    void Event::Pulse()
+    {
+        PulseEvent(event);
+    }
+
+
+    //
+    // IsPrimary
+    //
+    // Test to see if this is the primary event (only applies to named event)
+    //
+    Bool Event::IsPrimary()
+    {
+        return (primary);
+    }
 
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class EventIndex
-  //
-  EventIndex::EventIndex(const char *name)
-  : Event(name)
-  {
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class EventIndex
+    //
+    EventIndex::EventIndex(const char* name)
+        : Event(name)
+    {
+    }
 
 
 }

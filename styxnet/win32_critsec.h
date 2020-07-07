@@ -25,32 +25,32 @@
 namespace Win32
 {
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class CritSec
-  //
-  class CritSec
-  {
-  private:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class CritSec
+    //
+    class CritSec
+    {
+    private:
 
-    // The critical section
-    CRITICAL_SECTION critSect;
+        // The critical section
+        CRITICAL_SECTION critSect;
 
-  public:
+    public:
 
-    // Constructor
-    CritSec();
+        // Constructor
+        CritSec();
 
-    // Destructor
-    ~CritSec();
+        // Destructor
+        ~CritSec();
 
-    // Enter the critical section
-    void Enter();
+        // Enter the critical section
+        void Enter();
 
-    // Exit the critical section
-    void Exit();
+        // Exit the critical section
+        void Exit();
 
-  };
+    };
 
 }
 

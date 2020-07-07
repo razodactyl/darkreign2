@@ -41,33 +41,33 @@
 namespace StyxNet
 {
 
-  // Buffer size
-  const U32 serverBufferSize = 8192;
+    // Buffer size
+    const U32 serverBufferSize = 8192;
 
-  // Incoming buffer size
-  const U32 clientBufferSize = 8192;
+    // Incoming buffer size
+    const U32 clientBufferSize = 8192;
 
-  // Maximum sync data at once
-  const U32 maxSyncDataSize = 1024;
+    // Maximum sync data at once
+    const U32 maxSyncDataSize = 1024;
 
-  // Default update interval
-  const U32 defaultUpdateInterval = 500;
+    // Default update interval
+    const U32 defaultUpdateInterval = 500;
 
-  // Event queue size
-  const U32 eventQueueSize = 256;
+    // Event queue size
+    const U32 eventQueueSize = 256;
 
 
-  // Add client
-  void AddClient();
+    // Add client
+    void AddClient();
 
-  // Remove client
-  void RemoveClient();
+    // Remove client
+    void RemoveClient();
 
-  // Add server
-  void AddServer();
+    // Add server
+    void AddServer();
 
-  // Remove server
-  void RemoveServer();
+    // Remove server
+    void RemoveServer();
 
 }
 
