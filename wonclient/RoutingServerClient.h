@@ -102,7 +102,11 @@ namespace MINTCLIENT
         // Connect to a room.
         //
 
-        struct ConnectRoomRequest : Request {};
+        struct ConnectRoomRequest : Request
+        {
+            StrCrc<32, CH> username;
+            StrCrc<32, CH> password;
+        };
         struct ConnectRoomResult : Result {};
 
         //
@@ -117,11 +121,11 @@ namespace MINTCLIENT
 
         struct RegisterClientRequest : Request
         {
-            StrCrc<32, CH> username;    // User's login name.
-            StrCrc<32, CH> password;    // Room password.
-            bool becomeHost;            // Will we join as the host?
-            bool becomeSpec;            // Will we join as a spectator?
-            bool joinChat;              // Should we join the chat-room when the result comes back.
+            StrCrc<32, CH> username;        // User's login name.
+            StrCrc<32, CH> room_password;   // Room password.
+            bool becomeHost;                // Will we join as the host?
+            bool becomeSpec;                // Will we join as a spectator?
+            bool joinChat;                  // Should we join the chat-room when the result comes back.
         };
         struct RegisterClientResult : Result {};
 
@@ -137,9 +141,9 @@ namespace MINTCLIENT
         // Get the list of clients connected to this server.
         //
 
-        struct GetClientListRequest : Request {};
+        struct GetUserListRequest : Request {};
 
-        struct GetClientListResult : Result
+        struct GetUserListResult : Result
         {
             Data::ClientDataList clientDataList;
         };
@@ -198,9 +202,10 @@ namespace MINTCLIENT
         {
             U32 clientId;
             StrCrc<32, CH> name;
+            // <StyxNet Session data appended as bytes to payload>
         };
 
-        struct CreateGameResult : Result
+        struct GameResult : Result
         {
             U32 ownerId;
             StrCrc<32, CH> name;
@@ -209,12 +214,27 @@ namespace MINTCLIENT
             U32 game_data_size;
         };
 
-        struct UpdateGameRequest : Request
+        struct CreateGameResult : GameResult
         {
         };
 
-        struct UpdateGameResult : Result
+        struct UpdateGameRequest : Request
         {
+            U32 clientId;
+            StrCrc<32, CH> name;
+            // <StyxNet Session data appended as bytes to payload>
+        };
+
+        struct UpdateGameResult : GameResult
+        {
+        };
+
+        // Opposes convention of "GetUserList stored in Data::"
+        typedef std::list<GameResult> GameResultList;
+
+        struct GetGameListResult : Result
+        {
+            GameResultList gameResultList;
         };
 
         struct DeleteGameRequest : Request
@@ -259,22 +279,22 @@ namespace MINTCLIENT
 
         WONAPI::Error InstallClientEnterCatcher(void (*callback)(const RoutingServerClient::ClientEnterResult& result), void* context);
         WONAPI::Error InstallClientLeaveCatcher(void (*callback)(const RoutingServerClient::ClientLeaveResult& result), void* context);
-
         WONAPI::Error InstallGameCreatedCatcher(void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context);
-
         WONAPI::Error InstallASCIIPeerChatCatcher(void (*callback)(const RoutingServerClient::ASCIIChatMessageResult& message), void* context);
 
         WONAPI::Error GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context);
-        WONAPI::Error GetUserList(void (*callback)(const RoutingServerClient::GetClientListResult& result), void* context);
+        WONAPI::Error GetUserList(void (*callback)(const RoutingServerClient::GetUserListResult& result), void* context);
 
-        WONAPI::Error Register(const CH* loginName, const CH* password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context);
-        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity* identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context);
+        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity& identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context);
+        WONAPI::Error Register(const CH* username, const CH* room_password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context);
 
         WONAPI::Error BroadcastChat(std::wstring& text, bool f);
 
         WONAPI::Error CreateGame(const CH* name, const U32 clientId, const MINTCLIENT::Client::MINTBuffer& data, void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context);
-        WONAPI::Error UpdateGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context);
+        WONAPI::Error UpdateGame(const CH* name, const U32 clientId, const MINTCLIENT::Client::MINTBuffer& data, void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context);
         WONAPI::Error DeleteGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context);
+
+        WONAPI::Error GetGameList(void (*callback)(const RoutingServerClient::GetGameListResult& result), void* context);
 
         U32 GetClientId();
         Win32::Socket* GetSocket();

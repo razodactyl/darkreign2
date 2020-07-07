@@ -70,7 +70,7 @@ namespace MINTCLIENT
         cmd->command_id = MINTCLIENT::Message::IdentityAuthenticate;
         cmd->callback = callback;
 
-        auto identity = Data::Identity();
+        auto identity = Data::Credentials();
         identity.username.Set(username);
         identity.password.Set(password);
         cmd->SetDataFromStruct(identity);
@@ -94,7 +94,7 @@ namespace MINTCLIENT
         cmd->command_id = MINTCLIENT::Message::IdentityCreate;
         cmd->callback = callback;
 
-        auto identity = Data::Identity();
+        auto identity = Data::Credentials();
         identity.username.Set(username);
         identity.password.Set(password);
         cmd->SetDataFromStruct(identity);

@@ -11,6 +11,7 @@
 #include "Encoding.h"
 #include "Identity.h"
 #include "RoutingServerClient.h"
+#include "win32_dns.h"
 
 
 namespace MINTCLIENT
@@ -20,6 +21,22 @@ namespace MINTCLIENT
     static Win32::CritSec clientsCritSec;
     static Client* clients[maxClients];
     static Win32::CritSec commandsCrit;
+
+    void DNSCallback(const Win32::DNS::Host* host, void* context)
+    {
+        Client* client = static_cast<Client*>(context);
+
+        if (host) {
+            client->config.address = *host->GetAddress();
+            client->config.address.SetPort(client->config._address.GetPortI());
+
+            // Start the thread
+            client->GetThread()->Start(Client::MINTMasterThread, client);
+
+            // Make it above normal
+            client->GetThread()->SetPriority(Win32::Thread::ABOVE_NORMAL);
+        }
+    }
 
     // Constructor
     Client::Client(const Config& config)
@@ -43,11 +60,8 @@ namespace MINTCLIENT
         }
         clientsCritSec.Exit();
 
-        // Start the thread
-        thread.Start(MINTMasterThread, this);
-
-        // Make it above normal
-        thread.SetPriority(Win32::Thread::ABOVE_NORMAL);
+        Win32::DNS::Host* host;
+        Win32::DNS::GetByName(config.host, host, DNSCallback, this);
     }
 
     // Destructor
@@ -237,65 +251,6 @@ namespace MINTCLIENT
                         // If we're connected, send off the command else requeue.
                         if ((client->flags & StyxNet::ClientFlags::Connected) == StyxNet::ClientFlags::Connected)
                         {
-                            // commandsCrit.Enter();
-
-                            // List<MINTCommand*> still_processing;
-                            // List<MINTCommand*> to_send;
-                            
-                            // // Collect all current commands.
-                            // while (!client->commands.Empty())
-                            // {
-                            //     auto cc = client->commands.RemovePre(0);
-                            //
-                            //     if (cc != nullptr)
-                            //     {
-                            //         auto c = *cc;
-                            //         still_processing.Append(&c);
-                            //     }
-                            //
-                            //     client->commands.RemovePost();
-                            //
-                            //     if (cc == nullptr)
-                            //     {
-                            //         break;
-                            //     }
-                            // }
-
-                            // Command Queue should be empty at this point:
-                            // - Now handle transfer back into the queue.
-
-                            // for (U32 i = 0; i < still_processing.GetCount(); i++)
-                            // {
-                            //     MINTCommand* current_command = *still_processing[i];
-                            //
-                            //     auto e = client->commands.AddPre();
-                            //
-                            //     if (e != nullptr)
-                            //     {
-                            //         *e = current_command;
-                            //     }
-                            //
-                            //     client->commands.AddPost();
-                            //
-                            //     // Connection established, send if required.
-                            //     if (!current_command->listener_only)
-                            //     {
-                            //         to_send.Append(&current_command);
-                            //     }
-                            // }
-
-                            // for (U32 i = 0; i < to_send.GetCount(); i++)
-                            // {
-                            //     MINTCommand* current_command = *to_send[i];
-                            //     current_command->Send();
-                            // }
-
-                            // // List doesn't allow destruction of itself unless all items have been accounted for.
-                            // still_processing.UnlinkAll();
-                            // to_send.UnlinkAll();
-
-                            // commandsCrit.Exit();
-
                             for (U32 i = 0; i < client->commands.GetCount(); i++)
                             {
                                 MINTCommand* cc = client->commands[i];
@@ -466,12 +421,29 @@ namespace MINTCLIENT
             }
             break;
 
+            case MINTCLIENT::Message::RoutingServerUpdateGame: // 0xB04C290F
             case MINTCLIENT::Message::RoutingServerCreateGame: // 0x2A0FB0FD
             {
                 auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+            break;
+
+            case MINTCLIENT::Message::RoutingServerGetGameList: // 0x41D50E29
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
                     cmd->Done();
                 }
                 else
@@ -524,12 +496,12 @@ namespace MINTCLIENT
     }
 }
 
-void WONInitialize()
+void MINTInitialize()
 {
     // Get this library ready for use.
 }
 
-void WONTerminate()
+void MINTTerminate()
 {
     // Shutdown this library.
 }

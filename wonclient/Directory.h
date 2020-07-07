@@ -14,15 +14,24 @@ namespace MINTCLIENT
                 StrCrc<32, CH> type;
                 StrCrc<32, CH> name;
                 StrCrc<32, CH> address;
-                bool permanent = true;
+
+                bool permanent = false;
+            };
+
+            struct RoutingServer : DirectoryServer
+            {
+                U8 num_players = -1;
+                bool password = false;
             };
 
             typedef std::list<DirectoryServer> DirectoryServerList;
+            typedef std::list<RoutingServer> RoutingServerList;
         };
 
         struct Result : CommandResult
         {
             Data::DirectoryServerList server_list;
+            Data::RoutingServerList room_list;
         };
 
         static U32 STDCALL ProcessDirectoryMessage(void* context);

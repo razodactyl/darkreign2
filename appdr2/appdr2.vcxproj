@@ -64,7 +64,7 @@
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <OutDir>F:\Games\Dark Reign 2\</OutDir>
+    <OutDir>C:\Program Files (x86)\GOG Galaxy\Games\Dark Reign 2</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>dr2_$(Configuration)</TargetName>
     <IntDir>$(Configuration)\</IntDir>

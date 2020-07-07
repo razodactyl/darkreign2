@@ -29,14 +29,12 @@
 //
 namespace Win32
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace DNS
     //
     namespace DNS
     {
-
         ////////////////////////////////////////////////////////////////////////////////
         //
         // Struct Lookup
@@ -50,7 +48,7 @@ namespace Win32
 
             CallbackWithContext(Callback callback, void* context)
                 : callback(callback),
-                context(context)
+                  context(context)
             {
             }
         };
@@ -88,7 +86,6 @@ namespace Win32
             {
                 callbacks.DisposeAll();
             }
-
         };
 
 
@@ -176,7 +173,7 @@ namespace Win32
         {
             ASSERT(!initialized)
 
-                initialized = TRUE;
+            initialized = TRUE;
         }
 
 
@@ -187,7 +184,7 @@ namespace Win32
         {
             ASSERT(initialized)
 
-                hostsByAddress.UnlinkAll();
+            hostsByAddress.UnlinkAll();
             hostsByName.DisposeAll();
 
             lookupsByAddress.UnlinkAll();
@@ -208,7 +205,7 @@ namespace Win32
         {
             ASSERT(initialized)
 
-                hwnd = h;
+            hwnd = h;
             message = m;
 
             setup = TRUE;
@@ -222,16 +219,16 @@ namespace Win32
         {
             ASSERT(setup)
 
-                if (message == msg)
+            if (message == msg)
+            {
+                Lookup* lookup = lookups.Find(HANDLE(wParam));
+
+                if (lookup)
                 {
-                    Lookup* lookup = lookups.Find(HANDLE(wParam));
+                    Host* host = nullptr;
 
-                    if (lookup)
+                    switch (WSAGETASYNCERROR(lParam))
                     {
-                        Host* host = NULL;
-
-                        switch (WSAGETASYNCERROR(lParam))
-                        {
                         case 0:
                         {
                             // OSR2 fails by not touching the structure (ugh)
@@ -246,71 +243,72 @@ namespace Win32
                         }
 
                         case WSAENETDOWN:
-                            LDIAG("WSAAsyncGetHostByName: The network subsystem has failed.")
-                                break;
+                        LDIAG("WSAAsyncGetHostByName: The network subsystem has failed.")
+                        break;
 
                         case WSAENOBUFS:
-                            LERR("WSAAsyncGetHostByName: Insufficient buffer space is available.")
-                                break;
+                        LERR("WSAAsyncGetHostByName: Insufficient buffer space is available.")
+                        break;
 
                         case WSAHOST_NOT_FOUND:
                         case WSANO_DATA:
                             break;
 
                         case WSATRY_AGAIN:
-                            LDIAG("WSAAsyncGetHostByName: Non-Authoritative Host not found, or SERVERFAIL.")
-                                break;
+                        LDIAG("WSAAsyncGetHostByName: Non-Authoritative Host not found, or SERVERFAIL.")
+                        break;
 
                         case WSANO_RECOVERY:
-                            LDIAG("WSAAsyncGetHostByName: Nonrecoverable errors, FORMERR, REFUSED, NOTIMP.")
-                                break;
+                        LDIAG("WSAAsyncGetHostByName: Nonrecoverable errors, FORMERR, REFUSED, NOTIMP.")
+                        break;
 
                         case WSAEFAULT:
-                            LDIAG("WSAAsyncGetHostByName: Invalid name or address.")
-                                break;
+                        LDIAG("WSAAsyncGetHostByName: Invalid name or address.")
+                        break;
 
                         default:
-                            LERR("WSAASyncGetHostByName: Unknown Error " << dec << WSAGETASYNCERROR(lParam) << " [" << HEX(8, WSAGETASYNCERROR(lParam)) << "]")
-                        }
+                        LERR("WSAASyncGetHostByName: Unknown Error " << dec << WSAGETASYNCERROR(lParam) << " [" <<
+                                HEX(8, WSAGETASYNCERROR(lParam)) << "]")
+                    }
 
-                        if (!host)
-                        {
-                            // Host not found
-                            if (lookup->nodeName.InUse())
-                            {
-                                failedNames.Add(lookup->nodeName.GetKey(), NULL);
-                            }
-                            if (lookup->nodeAddress.InUse())
-                            {
-                                failedAddresses.Add(lookup->nodeAddress.GetKey(), NULL);
-                            }
-                        }
-
-                        // Call any callbacks in the lookup
-                        NList<CallbackWithContext>::Iterator c(&lookup->callbacks);
-                        while (CallbackWithContext* cwc = c++)
-                        {
-                            cwc->callback(host, cwc->context);
-                        }
-
-                        // Remove the lookup
-                        lookups.Unlink(lookup);
+                    if (!host)
+                    {
+                        // Host not found
                         if (lookup->nodeName.InUse())
                         {
-                            lookupsByName.Unlink(lookup);
+                            failedNames.Add(lookup->nodeName.GetKey(), nullptr);
                         }
                         if (lookup->nodeAddress.InUse())
                         {
-                            lookupsByAddress.Unlink(lookup);
+                            failedAddresses.Add(lookup->nodeAddress.GetKey(), nullptr);
                         }
+                    }
 
-                        delete lookup;
-                    }
-                    else
+                    // Call any callbacks in the lookup
+                    NList<CallbackWithContext>::Iterator c(&lookup->callbacks);
+                    while (CallbackWithContext* cwc = c++)
                     {
-                        LWARN("Lookup was not found for the handle " << wParam)
+                        cwc->callback(host, cwc->context);
                     }
+
+                    // Remove the lookup
+                    lookups.Unlink(lookup);
+                    if (lookup->nodeName.InUse())
+                    {
+                        lookupsByName.Unlink(lookup);
+                    }
+                    if (lookup->nodeAddress.InUse())
+                    {
+                        lookupsByAddress.Unlink(lookup);
+                    }
+
+                    delete lookup;
                 }
+                else
+                {
+                    LWARN("Lookup was not found for the handle " << wParam)
+                }
+            }
         }
 
 
@@ -322,7 +320,7 @@ namespace Win32
             ASSERT(setup);
 
             // Clear host
-            host = NULL;
+            host = nullptr;
 
             // Get name crc
             U32 crc = Crc::CalcStr(name);
@@ -333,71 +331,71 @@ namespace Win32
                 // If there's an callback, call it
                 if (callback)
                 {
-                    callback(NULL, context);
+                    callback(nullptr, context);
                 }
                 return (FALSE);
             }
+            host = hostsByName.Find(crc);
+            if (host)
+            {
+                // If there's an callback, call it
+                if (callback)
+                {
+                    callback(host, context);
+                }
+            }
             else
             {
-                host = hostsByName.Find(crc);
-                if (host)
-                {
-                    // If there's an callback, call it
-                    if (callback)
-                    {
-                        callback(host, context);
-                    }
-                }
-                else
-                {
-                    Lookup* lookup = lookupsByName.Find(crc);
+                Lookup* lookup = lookupsByName.Find(crc);
 
-                    // Is there a pending lookup of this name ?
-                    if (!lookup)
-                    {
-                        lookup = new Lookup;
-                        HANDLE handle = WSAAsyncGetHostByName(hwnd, message, name, lookup->buf, MAXGETHOSTSTRUCT);
+                // Is there a pending lookup of this name ?
+                if (!lookup)
+                {
+                    lookup = new Lookup;
+                    HANDLE handle = WSAAsyncGetHostByName(hwnd, message, name, lookup->buf, MAXGETHOSTSTRUCT);
 
-                        if (!handle)
+                    if (!handle)
+                    {
+                        switch (WSAGetLastError())
                         {
-                            switch (WSAGetLastError())
-                            {
                             case WSANOTINITIALISED:
-                                LERR("WSAAsyncGetHostByName: A successful WSAStartup must occur before using this function.")
-                                    break;
+                            LERR(
+                                    "WSAAsyncGetHostByName: A successful WSAStartup must occur before using this function.")
+                            break;
 
                             case WSAENETDOWN:
-                                LERR("WSAAsyncGetHostByName: The network subsystem has failed.")
-                                    break;
+                            LERR("WSAAsyncGetHostByName: The network subsystem has failed.")
+                            break;
 
                             case WSAEINPROGRESS:
-                                LERR("WSAAsyncGetHostByName: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
-                                    break;
+                            LERR(
+                                    "WSAAsyncGetHostByName: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+                            break;
 
                             case WSAEWOULDBLOCK:
-                                LERR("WSAAsyncGetHostByName: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation.")
-                                    break;
+                            LERR(
+                                    "WSAAsyncGetHostByName: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation.")
+                            break;
 
                             default:
-                                LERR("WSAAsyncGetHostByName: Unknown error!");
-                            }
+                            LERR("WSAAsyncGetHostByName: Unknown error!");
                         }
-
-                        // Add to the lookups by handle tree
-                        lookups.Add(handle, lookup);
-
-                        // Add to the lookups by name tree
-                        lookupsByName.Add(crc, lookup);
                     }
 
-                    // Is there an callback to be called on completion ?
-                    if (callback)
-                    {
-                        lookup->callbacks.Append(new CallbackWithContext(callback, context));
-                    }
+                    // Add to the lookups by handle tree
+                    lookups.Add(handle, lookup);
+
+                    // Add to the lookups by name tree
+                    lookupsByName.Add(crc, lookup);
                 }
-                return (TRUE);
+
+                // Is there an callback to be called on completion ?
+                if (callback)
+                {
+                    lookup->callbacks.Append(new CallbackWithContext(callback, context));
+                }
             }
+            return (TRUE);
         }
 
 
@@ -409,7 +407,7 @@ namespace Win32
             ASSERT(setup);
 
             // Clear host
-            host = NULL;
+            host = nullptr;
 
             // Is this is failed host ?
             if (failedAddresses.Exists(address.GetIP()))
@@ -417,68 +415,69 @@ namespace Win32
                 // If there's an callback, call it
                 if (callback)
                 {
-                    callback(NULL, context);
+                    callback(nullptr, context);
                 }
                 return (FALSE);
             }
+            host = hostsByAddress.Find(address.GetIP());
+            if (host)
+            {
+                // If there's an callback, call it
+                if (callback)
+                {
+                    callback(host, context);
+                }
+            }
             else
             {
-                host = hostsByAddress.Find(address.GetIP());
-                if (host)
-                {
-                    // If there's an callback, call it
-                    if (callback)
-                    {
-                        callback(host, context);
-                    }
-                }
-                else
-                {
-                    Lookup* lookup = lookupsByAddress.Find(address.GetIP());
+                Lookup* lookup = lookupsByAddress.Find(address.GetIP());
 
-                    // Is there a pending lookup of this address ?
-                    if (!lookup)
-                    {
-                        lookup = new Lookup;
-                        HANDLE handle = WSAAsyncGetHostByAddr(hwnd, message, (const char*)&address, sizeof(Socket::Address), PF_INET, lookup->buf, MAXGETHOSTSTRUCT);
+                // Is there a pending lookup of this address ?
+                if (!lookup)
+                {
+                    lookup = new Lookup;
+                    HANDLE handle = WSAAsyncGetHostByAddr(hwnd, message, (const char*)&address, sizeof(Socket::Address),
+                                                          PF_INET, lookup->buf, MAXGETHOSTSTRUCT);
 
-                        if (!handle)
+                    if (!handle)
+                    {
+                        switch (WSAGetLastError())
                         {
-                            switch (WSAGetLastError())
-                            {
                             case WSANOTINITIALISED:
-                                LERR("WSAAsyncGetHostByAddr: A successful WSAStartup must occur before using this function.")
-                                    break;
+                            LERR(
+                                    "WSAAsyncGetHostByAddr: A successful WSAStartup must occur before using this function.")
+                            break;
 
                             case WSAENETDOWN:
-                                LERR("WSAAsyncGetHostByAddr: The network subsystem has failed.")
-                                    break;
+                            LERR("WSAAsyncGetHostByAddr: The network subsystem has failed.")
+                            break;
 
                             case WSAEINPROGRESS:
-                                LERR("WSAAsyncGetHostByAddr: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
-                                    break;
+                            LERR(
+                                    "WSAAsyncGetHostByAddr: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+                            break;
 
                             case WSAEWOULDBLOCK:
-                                LERR("WSAAsyncGetHostByAddr: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation.")
-                                    break;
-                            }
+                            LERR(
+                                    "WSAAsyncGetHostByAddr: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation.")
+                            break;
                         }
-
-                        // Add to the lookups by handle tree
-                        lookups.Add(handle, lookup);
-
-                        // Add to the lookups by address tree
-                        lookupsByAddress.Add(address.GetIP(), lookup);
                     }
 
-                    // Is there an callback to be called on completion ?
-                    if (callback)
-                    {
-                        lookup->callbacks.Append(new CallbackWithContext(callback, context));
-                    }
+                    // Add to the lookups by handle tree
+                    lookups.Add(handle, lookup);
+
+                    // Add to the lookups by address tree
+                    lookupsByAddress.Add(address.GetIP(), lookup);
                 }
-                return (TRUE);
+
+                // Is there an callback to be called on completion ?
+                if (callback)
+                {
+                    lookup->callbacks.Append(new CallbackWithContext(callback, context));
+                }
             }
+            return (TRUE);
         }
 
 

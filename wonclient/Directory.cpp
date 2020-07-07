@@ -3,6 +3,7 @@
 #include "Directory.h"
 
 #include "Encoding.h"
+#include "MINTCLIENT.h"
 
 
 namespace MINTCLIENT
@@ -78,7 +79,7 @@ namespace MINTCLIENT
 
                             for (U32 i = 0; i < tlv->length; i++)
                             {
-                                auto server = MINTCLIENT::Directory::Data::DirectoryServer();
+                                auto server = MINTCLIENT::Directory::Data::RoutingServer();
 
                                 auto* data = &tlv->items[i];
 
@@ -87,7 +88,10 @@ namespace MINTCLIENT
                                 server.address.Set(data->items[2].GetString());
                                 server.permanent = data->items[3].GetU8Bool();
 
-                                result.server_list.push_back(server);
+                                server.password = data->items[4].GetU8Bool();
+                                server.num_players = data->items[5].GetU8();
+
+                                result.room_list.push_back(server);
                             }
 
                             delete tlv;
@@ -128,7 +132,7 @@ namespace MINTCLIENT
 
         for (auto server = servers->begin(); server != servers->end(); ++server)
         {
-            MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(Win32::Socket::Address(server->ip, U16(server->port)));
+            MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(server->text);
             MINTCLIENT::Client* client = new MINTCLIENT::Client(*c);
 
             auto* cmd = new Client::MINTCommand(client);
@@ -148,7 +152,6 @@ namespace MINTCLIENT
             cmd->SetContext(context);
 
             command_list->Add(cmd);
-            break;
         }
 
         if (!directoryThread.IsAlive()) {

@@ -15,8 +15,14 @@
 #include "Errors.h"
 
 
-void WONInitialize();
-void WONTerminate();
+namespace Win32 {
+    namespace DNS {
+        class Host;
+    }
+}
+
+void MINTInitialize();
+void MINTTerminate();
 
 
 namespace MINTCLIENT
@@ -79,6 +85,7 @@ namespace MINTCLIENT
         static const unsigned int RoutingServerCreateGame = 0x2A0FB0FD;         // MINTCLIENT::Message::RoutingServerCreateGame
         static const unsigned int RoutingServerUpdateGame = 0xB04C290F;         // MINTCLIENT::Message::RoutingServerUpdateGame
         static const unsigned int RoutingServerDeleteGame = 0xDDCA3C97;         // MINTCLIENT::Message::RoutingServerDeleteGame
+        static const unsigned int RoutingServerGetGameList = 0x41D50E29;       // MINTCLIENT::Message::RoutingServerGetGameList
 
         static const unsigned int RoutingServerGameCreated = 0xA18A092D;        // MINTCLIENT::Message::RoutingServerGameCreated
 
@@ -139,37 +146,56 @@ namespace MINTCLIENT
     {
         struct Address
         {
-            char* ip;
-            int port;
-            char* addr;
+            char* host;
+            char* port;
+            char* text;
 
             Address(const char* address)
             {
                 char* next_token;
 
-                addr = new char[strlen(address)];
-                memcpy_s(addr, strlen(address), address, strlen(address));
+                auto *const _addr = new char[strlen(address) + 1];
+                memset(_addr, 0, strlen(address) + 1);
+                memcpy_s(_addr, strlen(address), address, strlen(address));
+                char* host = Utils::Strdup(strtok_s(_addr, ":", &next_token));
+                char* port = Utils::Strdup(strtok_s(nullptr, ":", &next_token));
+                delete[] _addr;
 
-                char* ip = strtok_s(addr, ":", &next_token);
-                int port = atoi(strtok_s(nullptr, ":", &next_token));
-
-                this->ip = ip;
+                this->host = host;
                 this->port = port;
+                this->text = Utils::Strdup(address);
             };
+
+            Address(char* host, char* port)
+            {
+                this->host = Utils::Strdup(host);
+                this->port = Utils::Strdup(port);
+
+                this->text = Utils::Strcat(Utils::Strdup(host), ":");
+                this->text = Utils::Strcat(this->text, this->port);
+            }
 
             Address() {};
+            ~Address() {};
 
-            ~Address()
+            char* GetText()
             {
-                // delete addr;
-            };
+                return text;
+            }
 
-            char* GetAddressString(bool andPort)
+            char* GetHost()
             {
-                char buf[128];
-                Utils::Strcpy(buf, this->ip);
-                //Utils::Strcat(buf, Utils::ItoA(this->port, buf, 10));
-                return buf;
+                return host;
+            }
+
+            char* GetPort()
+            {
+                return port;
+            }
+
+            int GetPortI()
+            {
+                return atoi(this->port);
             }
         };
     }
@@ -197,22 +223,25 @@ namespace MINTCLIENT
     public:
         struct Config
         {
-            // Address of the server to connect to
+            // This needs to be a resolved `Address` for the `MINTMasterThread` to connect to.
             Win32::Socket::Address address;
+            char* host;
+            char* port;
+            IPSocket::Address _address;
 
-            Config(const Win32::Socket::Address& address) : address(address)
+            Config(const char* address)
             {
+                auto c = MINTCLIENT::IPSocket::Address(address);
+                host = Utils::Strdup(c.host);
+                port = Utils::Strdup(c.port);
+                _address = c;
             }
 
             Config(const MINTCLIENT::IPSocket::Address& address)
             {
-                this->address = Win32::Socket::Address(address.ip, U16(address.port));
-            }
-
-            Config(const char* address)
-            {
-                auto addr = IPSocket::Address(address);
-                this->address = Win32::Socket::Address(addr.ip, U16(addr.port));
+                host = Utils::Strdup(address.host);
+                port = Utils::Strdup(address.port);
+                _address = address;
             }
         };
 
@@ -736,10 +765,18 @@ namespace MINTCLIENT
             return &this->socket;
         }
 
-    private:
+        Win32::Thread* GetThread()
+        {
+            return &this->thread;
+        }
+
+        // Thread procedure.
+        static U32 STDCALL MINTMasterThread(void* context);
+
         // Client configuration.
         MINTCLIENT::Client::Config config;
 
+    private:
         // Flags
         U32 flags;
 
@@ -754,9 +791,6 @@ namespace MINTCLIENT
 
         // List of commands that this client currently handles, must be thread safe!
         List<MINTCommand> commands;
-
-        // Thread procedure.
-        static U32 STDCALL MINTMasterThread(void* context);
 
         // Process data incoming from server.
         void HandleIncomingPacket(const StyxNet::Packet& packet);

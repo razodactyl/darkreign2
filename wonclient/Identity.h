@@ -9,36 +9,44 @@ namespace MINTCLIENT
     {
         struct Data
         {
-            struct Identity
+            struct Credentials
             {
                 StrCrc<32, CH> username;
                 StrCrc<32, CH> password;
             };
         };
 
+    private:
+        Data::Credentials _credentials;
+        bool _loggedIn = false;
+
+    public:
         struct Result : CommandResult
         {
         };
 
         Identity() {};
 
-        Data::Identity _identity;
         Identity(const CH* username, const CH* password)
         {
             Set(username, password);
         }
 
-        Data::Identity Set(const CH* username, const CH* password)
+        Data::Credentials Set(const CH* username, const CH* password)
         {
-            _identity.username.Set(username);
-            _identity.password.Set(password);
-            return _identity;
+            _credentials.username.Set(username);
+            _credentials.password.Set(password);
+            return _credentials;
         }
 
-        CH* GetLoginName()
+        void SetLoggedIn(bool value)
         {
-            return _identity.username.str;
+            _loggedIn = value;
         }
+
+        bool LoggedIn() { return _loggedIn; }
+        const CH* GetLoginName() { return _credentials.username.str; }
+        const CH* GetPassword() { return _credentials.password.str; }
 
         static WONAPI::Error Authenticate(Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context);
         static WONAPI::Error Create(Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context);
@@ -46,13 +54,13 @@ namespace MINTCLIENT
         // Instantiated `Identity` authenticate method called after `Set`.
         WONAPI::Error Authenticate(Client* client, void (*callback)(const Identity::Result& result), void* context)
         {
-            return Authenticate(client, _identity.username.str, _identity.password.str, callback, context);
+            return Authenticate(client, _credentials.username.str, _credentials.password.str, callback, context);
         }
 
         // Instantiated `Identity` authenticate method called after `Set`.
         WONAPI::Error Create(Client* client, void (*callback)(const Identity::Result& result), void* context)
         {
-            return Create(client, _identity.username.str, _identity.password.str, callback, context);
+            return Create(client, _credentials.username.str, _credentials.password.str, callback, context);
         }
     };
 }

@@ -44,24 +44,22 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Network
     //
     namespace Network
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Exported data
         //
 
         // The current client
-        StyxNet::Client* client = NULL;
+        StyxNet::Client* client = nullptr;
 
         // The current server
-        StyxNet::Server* server = NULL;
+        StyxNet::Server* server = nullptr;
 
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -70,7 +68,7 @@ namespace MultiPlayer
         //
 
         static NBinTree<Player> players(&Player::node);
-        static Player* currentPlayer = NULL;
+        static Player* currentPlayer = nullptr;
         static Bool first = TRUE;
         static StyxNet::SessionData localSessionData;
         static U32 migrationNumber;
@@ -129,14 +127,14 @@ namespace MultiPlayer
             if (client)
             {
                 client->Shutdown();
-                client = NULL;
+                client = nullptr;
                 Cmd::online = FALSE;
             }
 
             if (server)
             {
                 server->Shutdown();
-                server = NULL;
+                server = nullptr;
             }
 
             if (Cmd::isHost)
@@ -147,7 +145,7 @@ namespace MultiPlayer
 
             players.DisposeAll();
             Data::LocalFlush();
-            currentPlayer = NULL;
+            currentPlayer = nullptr;
             Cmd::isHost = FALSE;
             first = TRUE;
         }
@@ -180,7 +178,7 @@ namespace MultiPlayer
                         case StyxNet::EventMessage::SessionInfo:
                         {
                             CAST(StyxNet::EventMessage::Data::SessionInfo*, sessionInfo, data)
-                                localSessionData = *sessionInfo;
+                            localSessionData = *sessionInfo;
 
                             if (Cmd::isHost)
                             {
@@ -204,14 +202,20 @@ namespace MultiPlayer
 
                                     if (first)
                                     {
-                                        LOG_DIAG(("WON AddGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
-                                        WonIface::AddGame(sessionInfo->name.str, sizeof(StyxNet::Session), reinterpret_cast<U8*>(&session));
+                                        LOG_DIAG(
+                                            ("WON AddGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
+                                                numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
+                                        WonIface::AddGame(sessionInfo->name.str, sizeof(StyxNet::Session),
+                                                          reinterpret_cast<U8*>(&session));
                                         first = FALSE;
                                     }
                                     else
                                     {
-                                        LOG_DIAG(("WON UpdateGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
-                                        WonIface::UpdateGame(sessionInfo->name.str, sizeof(StyxNet::Session), reinterpret_cast<U8*>(&session));
+                                        LOG_DIAG(
+                                            ("WON UpdateGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
+                                                numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
+                                        WonIface::UpdateGame(sessionInfo->name.str, sizeof(StyxNet::Session),
+                                                             reinterpret_cast<U8*>(&session));
                                     }
                                 }
                             }
@@ -237,7 +241,7 @@ namespace MultiPlayer
                         {
                             CAST(StyxNet::EventMessage::Data::SessionUserAdded*, sessionUserAdded, data)
 
-                                Player* player = players.Find(sessionUserAdded->name.crc);
+                            Player* player = players.Find(sessionUserAdded->name.crc);
                             if (!player)
                             {
                                 player = new Player(sessionUserAdded->name);
@@ -252,10 +256,12 @@ namespace MultiPlayer
                                 LOG_DIAG(("'%s' entered the game", player->GetName()));
 
                                 // Tell everyone that a player entered
-                                CONSOLE(0x7EF342D8, (TRANSLATE(("#multiplayer.chat.playerenter", 1, Utils::Ansi2Unicode(player->GetName()))))) // "MultiMessage"
+                                CONSOLE(0x7EF342D8,
+                                        (TRANSLATE(("#multiplayer.chat.playerenter", 1, Utils::Ansi2Unicode(player->
+                                            GetName()))))) // "MultiMessage"
 
                                 // Tell the host that a player entered
-                                    Host::EnterPlayer(sessionUserAdded->name.crc);
+                                Host::EnterPlayer(sessionUserAdded->name.crc);
 
                                 delete sessionUserAdded;
 
@@ -276,26 +282,28 @@ namespace MultiPlayer
                         case StyxNet::EventMessage::SessionUserRemoved:
                         {
                             CAST(StyxNet::EventMessage::Data::SessionUserRemoved*, sessionUserRemoved, data)
-                                Player* player = players.Find(sessionUserRemoved->name.crc);
+                            Player* player = players.Find(sessionUserRemoved->name.crc);
                             ASSERT(player)
 
-                                if (Cmd::isHost)
-                                {
-                                    LOG_DIAG(("Issuing player left order"));
+                            if (Cmd::isHost)
+                            {
+                                LOG_DIAG(("Issuing player left order"));
 
-                                    // If we're in the game, issue an order
-                                    ::Player* p = ::Player::Name2HumanPlayer(player->GetName());
-                                    if (p)
-                                    {
-                                        Orders::Game::PlayerLeft::Generate(*p);
-                                    }
+                                // If we're in the game, issue an order
+                                ::Player* p = ::Player::Name2HumanPlayer(player->GetName());
+                                if (p)
+                                {
+                                    Orders::Game::PlayerLeft::Generate(*p);
                                 }
+                            }
 
                             // Tell everyone that a player exited
-                            CONSOLE(0x7EF342D8, (TRANSLATE(("#multiplayer.chat.playerexit", 1, Utils::Ansi2Unicode(player->GetName()))))) // "MultiMessage"
+                            CONSOLE(0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.chat.playerexit", 1, Utils::Ansi2Unicode(player->GetName()
+                                    ))))) // "MultiMessage"
 
                             // Tell the host that a player left
-                                Host::ExitPlayer(sessionUserRemoved->name.crc);
+                            Host::ExitPlayer(sessionUserRemoved->name.crc);
 
                             players.Dispose(player);
                             delete sessionUserRemoved;
@@ -309,30 +317,34 @@ namespace MultiPlayer
                         case StyxNet::EventMessage::SessionUserDisconnected:
                         {
                             CAST(StyxNet::EventMessage::Data::SessionUserDisconnected*, sessionUserDisconnected, data)
-                                Player* player = players.Find(sessionUserDisconnected->name.crc);
+                            Player* player = players.Find(sessionUserDisconnected->name.crc);
                             ASSERT(player)
 
-                                // Tell everyone that a player disconnected
-                                CONSOLE(0x7EF342D8, (TRANSLATE(("#multiplayer.chat.playerdisconnected", 1, Utils::Ansi2Unicode(player->GetName()))))) // "MultiMessage"
+                            // Tell everyone that a player disconnected
+                            CONSOLE(0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.chat.playerdisconnected", 1, Utils::Ansi2Unicode(player->
+                                        GetName()))))) // "MultiMessage"
 
-                                // Mark the player as being disconnceted
+                            // Mark the player as being disconnceted
 
-                                delete sessionUserDisconnected;
+                            delete sessionUserDisconnected;
                             break;
                         }
 
                         case StyxNet::EventMessage::SessionUserReconnected:
                         {
                             CAST(StyxNet::EventMessage::Data::SessionUserReconnected*, sessionUserReconnected, data)
-                                Player* player = players.Find(sessionUserReconnected->name.crc);
+                            Player* player = players.Find(sessionUserReconnected->name.crc);
                             ASSERT(player)
 
-                                // Tell everyone that a player reconnected
-                                CONSOLE(0x7EF342D8, (TRANSLATE(("#multiplayer.chat.playerreconnected", 1, Utils::Ansi2Unicode(player->GetName()))))) // "MultiMessage"
+                            // Tell everyone that a player reconnected
+                            CONSOLE(0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.chat.playerreconnected", 1, Utils::Ansi2Unicode(player->
+                                        GetName()))))) // "MultiMessage"
 
-                                // Mark the player as being reconnected
+                            // Mark the player as being reconnected
 
-                                delete sessionUserReconnected;
+                            delete sessionUserReconnected;
                             break;
                         }
 
@@ -344,34 +356,37 @@ namespace MultiPlayer
 
                         case StyxNet::EventMessage::SessionPrivateData:
                             // Tell the data system that private data arrived
-                            Data::SessionPrivateData(reinterpret_cast<StyxNet::EventMessage::Data::SessionPrivateData*>(data));
+                            Data::SessionPrivateData(
+                                reinterpret_cast<StyxNet::EventMessage::Data::SessionPrivateData*>(data));
                             break;
 
                         case StyxNet::EventMessage::SessionSyncData:
                             // Tell the data system that syncronous data arrived
-                            Data::SessionSyncData(reinterpret_cast<StyxNet::EventMessage::Data::SessionSyncData*>(data));
+                            Data::SessionSyncData(
+                                reinterpret_cast<StyxNet::EventMessage::Data::SessionSyncData*>(data));
                             break;
 
                         case StyxNet::EventMessage::SessionMigrateRequest:
                         {
                             CAST(StyxNet::EventMessage::Data::SessionMigrateRequest*, sessionMigrateRequest, data)
 
-                                // Create a new server
-                                if (server)
-                                {
-                                    ERR_FATAL(("We are running a server and have been asked to accept a migration!"))
-                                }
+                            // Create a new server
+                            if (server)
+                            {
+                                ERR_FATAL(("We are running a server and have been asked to accept a migration!"))
+                            }
 
                             // Create the server
                             StyxNet::Server::Config config;
-                            Network::server = new StyxNet::Server(config);
+                            server = new StyxNet::Server(config);
 
                             // Setup the session for migrating to on this server
                             U32 key;
-                            Network::server->SetupMigration(localSessionData.name, localSessionData.maxUsers, sessionMigrateRequest->seq, key);
+                            server->SetupMigration(localSessionData.name, localSessionData.maxUsers,
+                                                   sessionMigrateRequest->seq, key);
 
                             // Tell the client that we're going to accept the migration
-                            Network::client->AcceptMigration(config.port, key);
+                            client->AcceptMigration(config.port, key);
 
                             // We're now the host
                             Cmd::isHost = TRUE;
@@ -379,7 +394,7 @@ namespace MultiPlayer
                             // Tell this player that they are now the host
                             CONSOLE(0x7EF342D8, (TRANSLATE(("#multiplayer.server.migrated")))) // "MultiMessage"
 
-                                delete sessionMigrateRequest;
+                            delete sessionMigrateRequest;
                             break;
                         }
 
@@ -388,7 +403,7 @@ namespace MultiPlayer
                             break;
 
                         case StyxNet::EventMessage::SessionMigrateNotNeeded:
-                            LOG_DIAG(("Migration was not needed"));
+                        LOG_DIAG(("Migration was not needed"));
                             Console::ProcessCmd("sys.game.migrate.end");
                             break;
 
@@ -396,7 +411,8 @@ namespace MultiPlayer
                         {
                             CAST(StyxNet::EventMessage::Data::Ping*, ping, data)
 
-                                Utils::Memmove(&PrivData::localPings[1], &PrivData::localPings[0], sizeof(U16) * (PrivData::maxLocalPings - 1));
+                            Utils::Memmove(&PrivData::localPings[1], &PrivData::localPings[0],
+                                           sizeof(U16) * (PrivData::maxLocalPings - 1));
                             PrivData::localPings[0] = U16(Clamp<U32>(0, ping->rtt, U16_MAX));
 
                             delete ping;
@@ -414,7 +430,7 @@ namespace MultiPlayer
                     // Send it to the registered interface control
                     if (PrivData::clientCtrl.Alive())
                     {
-                        IFace::SendEvent(PrivData::clientCtrl, NULL, IFace::NOTIFY, event);
+                        SendEvent(PrivData::clientCtrl, nullptr, IFace::NOTIFY, event);
                     }
                 }
             }
@@ -429,7 +445,7 @@ namespace MultiPlayer
                     {
                         case StyxNet::EventMessage::ServerNoSessions:
                             server->Shutdown();
-                            server = NULL;
+                            server = nullptr;
 
                             // We ain't the host any more
                             Cmd::isHost = FALSE;
@@ -446,7 +462,7 @@ namespace MultiPlayer
                     // Send it to the registered interface control
                     if (PrivData::serverCtrl.Alive())
                     {
-                        IFace::SendEvent(PrivData::serverCtrl, NULL, IFace::NOTIFY, event);
+                        SendEvent(PrivData::serverCtrl, nullptr, IFace::NOTIFY, event);
                     }
                 }
             }
@@ -490,7 +506,7 @@ namespace MultiPlayer
         const Player& GetCurrentPlayer()
         {
             ASSERT(currentPlayer)
-                return (*currentPlayer);
+            return (*currentPlayer);
         }
 
 
@@ -522,14 +538,11 @@ namespace MultiPlayer
             {
                 return (server->GetLocalAddress(address, who));
             }
-            else if (client)
+            if (client)
             {
                 return (client->GetLocalAddress(address));
             }
-            else
-            {
-                return (FALSE);
-            }
+            return (FALSE);
         }
 
 

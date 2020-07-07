@@ -210,8 +210,8 @@ namespace MultiPlayer
         //
         void Abort()
         {
-            LOG_DIAG(("Aborting"))
-                Win32::DNS::AbortByNameCallback(DNSCallback);
+            LOG_DIAG(("Aborting"));
+            Win32::DNS::AbortByNameCallback(DNSCallback);
             AbortDownload();
         }
 
@@ -301,163 +301,47 @@ namespace MultiPlayer
         {
             switch (message)
             {
-                case WonIface::Message::HTTPProgressUpdate:
+            case WonIface::Message::HTTPProgressUpdate:
+            {
+                ASSERT(data);
+                CAST(WonIface::Message::Data::HTTPProgressUpdate*, progress, data);
+
+                //LOG_DIAG(("Progress Update [%d] : %d of %d", progress->handle, progress->progress, progress->size))  
+
+                if (progress->handle == downloadContext.handle)
                 {
-                    ASSERT(data);
-                    CAST(WonIface::Message::Data::HTTPProgressUpdate*, progress, data);
-
-                    //LOG_DIAG(("Progress Update [%d] : %d of %d", progress->handle, progress->progress, progress->size))  
-
-                    if (progress->handle == downloadContext.handle)
-                    {
-                        downloadContext.size = progress->size;
-                        downloadContext.transferred = progress->progress;
-                    }
-                    else
-                    {
-                        motdContext.size = progress->size;
-                        motdContext.transferred = progress->progress;
-                    }
-
-                    delete progress;
-                    break;
+                    downloadContext.size = progress->size;
+                    downloadContext.transferred = progress->progress;
+                }
+                else
+                {
+                    motdContext.size = progress->size;
+                    motdContext.transferred = progress->progress;
                 }
 
-                case WonIface::Message::HTTPCompleted:
+                delete progress;
+                break;
+            }
+
+            case WonIface::Message::HTTPCompleted:
+            {
+                ASSERT(data);
+                CAST(WonIface::Message::Data::HTTPCompleted*, completed, data);
+
+                if (completed->handle == downloadContext.handle)
                 {
-                    ASSERT(data);
-                    CAST(WonIface::Message::Data::HTTPCompleted*, completed, data);
+                    // Clear handle
+                    downloadContext.handle = 0;
 
-                    if (completed->handle == downloadContext.handle)
+                    switch (downloadContext.type)
                     {
-                        // Clear handle
-                        downloadContext.handle = 0;
-
-                        switch (downloadContext.type)
-                        {
-                            case 0x325DC801: // "Updates"
-                            {
-                                LOG_DIAG(("Downloaded updates file"));
-
-                                // Display the motd to the console as a WonMessage
-                                PTree pTree;
-                                if (pTree.AddFile(fileUpdates.str))
-                                {
-                                    // Get the global scope
-                                    FScope* fScope = pTree.GetGlobalScope();
-
-                                    while (FScope* sScope = fScope->NextFunction())
-                                    {
-                                        switch (sScope->NameCrc())
-                                        {
-                                            case 0x5FA3D48D: // "DefaultSource"
-                                                updateHost = StdLoad::TypeString(sScope);
-                                                updatePort = U16(StdLoad::TypeU32(sScope, Range<U32>(0, U16_MAX)));
-                                                updatePath = StdLoad::TypeString(sScope);
-                                                break;
-
-                                            case 0x3D42B5CF: // "CurrentVersion"
-                                                updateVersionCode = StdLoad::TypeU32(sScope);
-                                                updateVersionData = StdLoad::TypeU32(sScope);
-                                                break;
-
-                                            case 0x1770E157: // "Patch"
-                                                patches.Append(new Patch(sScope));
-                                                break;
-
-                                            case 0xCF498E8B: // "Extra"
-                                                extras.Append(new Extra(sScope));
-                                                break;
-                                        }
-                                    }
-
-                                    // Compare our version to the version in the update
-                                    if (versionCode < updateVersionCode || versionData < updateVersionData)
-                                    {
-                                        // We have an old version, is there a patch that will work for our version ?
-                                        for (NList<Patch>::Iterator p(&patches); *p; ++p)
-                                        {
-                                            if
-                                                (
-                                                    (*p)->language == language &&
-                                                    (*p)->versionCode <= versionCode &&
-                                                    (*p)->versionData <= versionData &&
-                                                    (
-                                                        !patch ||
-                                                        (
-                                                            (*p)->versionCode > patch->versionCode &&
-                                                            (*p)->versionData > patch->versionData
-                                                            )
-                                                        )
-                                                    )
-                                            {
-                                                patch = *p;
-                                            }
-                                        }
-
-                                        if (patch)
-                                        {
-                                            LOG_DIAG(("Patching: current %d.%d patch for %d.%d patch to %d.%d",
-                                                versionCode, versionData,
-                                                updateVersionCode, updateVersionData,
-                                                patch->versionCode, patch->versionData));
-
-                                            // Get the patch
-                                            GetPatch(*patch);
-
-                                            if (PrivData::updateCtrl.Alive())
-                                            {
-                                                // Tell 'em we're getting the patch
-                                                IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x96B48B0D); // "Update::PatchAvailable"
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (PrivData::updateCtrl.Alive())
-                                            {
-                                                // We are unpatchable
-                                                IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xF9068335); // "Update::Unpatchable"
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (PrivData::updateCtrl.Alive())
-                                        {
-                                            // There is not patch required
-                                            IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xCA4DB1B4); // "Update::NoPatch"
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-
-                            case 0x1770E157: // "Patch"
-                            {
-                                // We downloaded a patch
-                                ASSERT(patch);
-
-                                // Set the game to run that the patch next
-                                Main::RegisterNextProcess(patch->file.str);
-
-                                // Patch completed
-                                IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x37976FA8); // "Download::PatchCompleted"
-                                break;
-                            }
-
-                            default:
-                                // Download completed
-                                IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x7091B101); // "Download::Completed"
-                                break;
-                        }
-                    }
-                    else
+                    case 0x325DC801: // "Updates"
                     {
-                        LOG_DIAG(("Downloaded message of the day"));
+                        LOG_DIAG(("Downloaded updates file"));
 
                         // Display the motd to the console as a WonMessage
                         PTree pTree;
-                        if (pTree.AddFile(fileMotd.str))
+                        if (pTree.AddFile(fileUpdates.str))
                         {
                             // Get the global scope
                             FScope* fScope = pTree.GetGlobalScope();
@@ -466,64 +350,164 @@ namespace MultiPlayer
                             {
                                 switch (sScope->NameCrc())
                                 {
-                                    case 0xCB28D32D: // "Text"
-                                        CONSOLE(0x70F02901, (StdLoad::TypeString(sScope))); // "MessageOfTheDay"
-                                        break;
-                                }
-                            }
-                        }
-                    }
+                                case 0x5FA3D48D: // "DefaultSource"
+                                    updateHost = StdLoad::TypeString(sScope);
+                                    updatePort = U16(StdLoad::TypeU32(sScope, Range<U32>(0, U16_MAX)));
+                                    updatePath = StdLoad::TypeString(sScope);
+                                    break;
 
-                    delete completed;
-                    break;
-                }
-
-                case WonIface::Error::HTTPFailed:
-                {
-                    ASSERT(data);
-                    CAST(WonIface::Error::Data::HTTPFailed*, failed, data);
-
-                    if (failed->handle == downloadContext.handle)
-                    {
-                        // Only send failure in the case of abort
-                        if (!downloadContext.aborted)
-                        {
-                            switch (downloadContext.type)
-                            {
-                                case 0x325DC801: // "Updates"
-                                  // Update failed
-                                    LOG_DIAG(("Update failed"));
-                                    IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x7CA15267); // "Update::CheckFailed"
+                                case 0x3D42B5CF: // "CurrentVersion"
+                                    updateVersionCode = StdLoad::TypeU32(sScope);
+                                    updateVersionData = StdLoad::TypeU32(sScope);
                                     break;
 
                                 case 0x1770E157: // "Patch"
-                                  // Patch failed
-                                    LOG_DIAG(("Patch failed"));
-                                    IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0xB2623264); // "Download::PatchFailed"
+                                    patches.Append(new Patch(sScope));
                                     break;
 
-                                default:
-                                    // Download failed
-                                    LOG_DIAG(("Download failed"));
-                                    IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x161F1710); // "Download::Failed"
+                                case 0xCF498E8B: // "Extra"
+                                    extras.Append(new Extra(sScope));
                                     break;
+                                }
+                            }
+
+                            // Compare our version to the version in the update
+                            if (versionCode < updateVersionCode || versionData < updateVersionData)
+                            {
+                                // We have an old version, is there a patch that will work for our version ?
+                                for (NList<Patch>::Iterator p(&patches); *p; ++p)
+                                {
+                                    if ((*p)->language == language && (*p)->versionCode <= versionCode && (*p)->versionData <= versionData && (!patch || ((*p)->versionCode > patch->versionCode && (*p)->versionData > patch->versionData)))
+                                    {
+                                        patch = *p;
+                                    }
+                                }
+
+                                if (patch)
+                                {
+                                    LOG_DIAG(("Patching: current %d.%d patch for %d.%d patch to %d.%d", versionCode, versionData, updateVersionCode, updateVersionData, patch->versionCode, patch->versionData));
+
+                                    GetPatch(*patch);
+
+                                    if (PrivData::updateCtrl.Alive())
+                                    {
+                                        // Tell 'em we're getting the patch
+                                        IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x96B48B0D); // "Update::PatchAvailable"
+                                    }
+                                }
+                                else
+                                {
+                                    if (PrivData::updateCtrl.Alive())
+                                    {
+                                        // We are unpatchable
+                                        IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xF9068335); // "Update::Unpatchable"
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (PrivData::updateCtrl.Alive())
+                                {
+                                    // There is no patch required
+                                    IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0xCA4DB1B4); // "Update::NoPatch"
+                                }
+                            }
+                        }
+                        break;
+                    }
+
+                    case 0x1770E157: // "Patch"
+                    {
+                        // We downloaded a patch
+                        ASSERT(patch);
+
+                        // Set the game to run that the patch next
+                        Main::RegisterNextProcess(patch->file.str);
+
+                        // Patch completed
+                        IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x37976FA8); // "Download::PatchCompleted"
+                        break;
+                    }
+
+                    default:
+                        // Download completed
+                        IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x7091B101); // "Download::Completed"
+                        break;
+                    }
+                }
+                else
+                {
+                    LOG_DIAG(("Downloaded message of the day"));
+
+                    // Display the motd to the console as a WonMessage
+                    PTree pTree;
+                    if (pTree.AddFile(fileMotd.str))
+                    {
+                        // Get the global scope
+                        FScope* fScope = pTree.GetGlobalScope();
+
+                        while (FScope* sScope = fScope->NextFunction())
+                        {
+                            switch (sScope->NameCrc())
+                            {
+                            case 0xCB28D32D: // "Text"
+                                CONSOLE(0x70F02901, (StdLoad::TypeString(sScope))); // "MessageOfTheDay"
+                                break;
                             }
                         }
                     }
-                    else if (failed->handle == motdContext.handle)
-                    {
-                        LOG_DIAG(("Failed to download message of the day"));
-
-                        // Clear the context so that it will try again
-                        motdContext.handle = NULL;
-                    }
-
-                    delete failed;
-                    break;
                 }
 
-                default:
-                    ERR_FATAL(("Unknown message %08X", message));
+                delete completed;
+                break;
+            }
+
+            case WonIface::Error::HTTPFailed:
+            {
+                ASSERT(data);
+                CAST(WonIface::Error::Data::HTTPFailed*, failed, data);
+
+                if (failed->handle == downloadContext.handle)
+                {
+                    // Only send failure in the case of abort
+                    if (!downloadContext.aborted)
+                    {
+                        switch (downloadContext.type)
+                        {
+                        case 0x325DC801: // "Updates"
+                          // Update failed
+                            LOG_DIAG(("Update failed"));
+                            IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x7CA15267); // "Update::CheckFailed"
+                            break;
+
+                        case 0x1770E157: // "Patch"
+                          // Patch failed
+                            LOG_DIAG(("Patch failed"));
+                            IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0xB2623264); // "Download::PatchFailed"
+                            break;
+
+                        default:
+                            // Download failed
+                            LOG_DIAG(("Download failed"));
+                            IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x161F1710); // "Download::Failed"
+                            break;
+                        }
+                    }
+                }
+                else if (failed->handle == motdContext.handle)
+                {
+                    LOG_DIAG(("Failed to download message of the day"));
+
+                    // Clear the context so that it will try again
+                    motdContext.handle = NULL;
+                }
+
+                delete failed;
+                break;
+            }
+
+            default:
+                ERR_FATAL(("Unknown message %08X", message));
             }
         }
 
@@ -678,20 +662,20 @@ namespace MultiPlayer
                         {
                             switch (downloadContext.type)
                             {
-                                case 0x325DC801: // "Updates"
-                                  // Update failed
-                                    IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x7CA15267); // "Update::CheckFailed"
-                                    break;
+                            case 0x325DC801: // "Updates"
+                              // Update failed
+                                IFace::SendEvent(PrivData::updateCtrl, NULL, IFace::NOTIFY, 0x7CA15267); // "Update::CheckFailed"
+                                break;
 
-                                case 0x1770E157: // "Patch"
-                                  // Patch failed
-                                    IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0xB2623264); // "Download::PatchFailed"
-                                    break;
+                            case 0x1770E157: // "Patch"
+                              // Patch failed
+                                IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0xB2623264); // "Download::PatchFailed"
+                                break;
 
-                                default:
-                                    // Download failed
-                                    IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x161F1710); // "Download::Failed"
-                                    break;
+                            default:
+                                // Download failed
+                                IFace::SendEvent(PrivData::downloadCtrl, NULL, IFace::NOTIFY, 0x161F1710); // "Download::Failed"
+                                break;
                             }
                         }
                         else

@@ -8,6 +8,7 @@
 
 # Build results
 [Dd]ebug/
+[Dd]evelopment/
 [Dd]ebugPublic/
 [Rr]elease/
 x64/
@@ -197,3 +198,4 @@ ModelManifest.xml
 /appdr2/RCa02784
 /.vs/dr2/v16
 /Development/appdr2
+.vs
