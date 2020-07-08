@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A9224019-3E9F-4474-8818-6800F6652A9F}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "appdr2", "appdr2\appdr2.vcxproj", "{899EE0C6-A146-43D4-A43A-4B6F75A5309E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DBB2C354-0F78-467C-B9A4-70CE874E63F8} = {DBB2C354-0F78-467C-B9A4-70CE874E63F8}
