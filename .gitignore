@@ -199,3 +199,4 @@ ModelManifest.xml
 /.vs/dr2/v16
 /Development/appdr2
 .vs
+*.res
