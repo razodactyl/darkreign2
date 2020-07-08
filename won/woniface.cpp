@@ -28,15 +28,15 @@
 // Libraries
 //
 
-#pragma comment(lib, "wsock32.lib")
+// #pragma comment(lib, "wsock32.lib")
 
 // #define ALLOW_BETA_KEYS
 // #pragma message("ALLOW BETA KEYS")
 
-#include <enet/enetpp.hxx>
-#include <networking/Networking.hxx>
+// #include <enet/enetpp.hxx>
+// #include <networking/Networking.hxx>
 
-#include "../styxnet/win32_dns.h"
+// #include "../styxnet/win32_dns.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -867,14 +867,6 @@ namespace WonIface
         delete context;
 
         LOG_WON(("CreateAccountCallback out"));
-    }
-
-    void DNSCallback(const Win32::DNS::Host* host, void* context)
-    {
-        if (host && host->GetAddress())
-        {
-            //
-        }
     }
 
     //

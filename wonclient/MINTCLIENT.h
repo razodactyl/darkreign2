@@ -489,9 +489,9 @@ namespace MINTCLIENT
                 return false;
             }
 
-            // MINTCommand()
-            // {
-            // };
+            MINTCommand()
+            {
+            };
 
             MINTCommand(Client* client)
             {

@@ -125,7 +125,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../3rdparty;../system;../styxnet;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3rdparty;../system;../styxnet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CallingConvention>FastCall</CallingConvention>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
@@ -148,7 +148,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>../3rdparty;../system;../styxnet;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3rdparty;../system;../styxnet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CallingConvention>FastCall</CallingConvention>
       <ShowIncludes>false</ShowIncludes>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
@@ -176,7 +176,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CallingConvention>FastCall</CallingConvention>
       <ShowIncludes>false</ShowIncludes>
-      <AdditionalIncludeDirectories>../3rdparty;../system;../styxnet;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3rdparty;../system;../styxnet;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
