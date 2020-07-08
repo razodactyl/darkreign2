@@ -186,10 +186,10 @@ namespace MultiPlayer
         //
         void Done()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                // Perform a reset
-                Reset();
+            // Perform a reset
+            Reset();
 
             // Delete the multiplayer scope
             VarSys::DeleteItem("multiplayer");
@@ -428,10 +428,10 @@ namespace MultiPlayer
             {
             case 0xACBE2E8E: // "multiplayer.abort"
             {
-                LOG_DIAG(("Aborting"))
+                LOG_DIAG(("Aborting"));
 
-                    // Reset everything
-                    MultiPlayer::Reset();
+                // Reset everything
+                MultiPlayer::Reset();
                 break;
             }
 
@@ -468,7 +468,7 @@ namespace MultiPlayer
                         }
                         else
                         {
-                            ERR_FATAL(("No user was specified on the command line and there are no users set"))
+                            ERR_FATAL(("No user was specified on the command line and there are no users set"));
                         }
                     }
                     else
@@ -482,7 +482,7 @@ namespace MultiPlayer
                         User::ExistingUser* user = const_cast<NBinTree<User::ExistingUser>&>(User::GetExistingUsers()).GetFirst();
                         if (!user || !User::Login(user))
                         {
-                            ERR_FATAL(("Could not login user '%s'", CmdLine::user.str))
+                            ERR_FATAL(("Could not login user '%s'", CmdLine::user.str));
                         }
                     }
                 }
@@ -497,8 +497,8 @@ namespace MultiPlayer
 
                     if (hostInfo)
                     {
-                        LOG_WARN(("Old hostInfo found"))
-                            delete hostInfo;
+                        LOG_WARN(("Old hostInfo found"));
+                        delete hostInfo;
                         hostInfo = NULL;
                     }
 
@@ -509,8 +509,8 @@ namespace MultiPlayer
                 {
                     if (joinInfo)
                     {
-                        LOG_WARN(("Old joinInfo found"))
-                            delete joinInfo;
+                        LOG_WARN(("Old joinInfo found"));
+                        delete joinInfo;
                         joinInfo = NULL;
                     }
 
@@ -529,30 +529,30 @@ namespace MultiPlayer
 
             case 0xB5DFB58C: // "multiplayer.launch"
             {
-                ASSERT(!Network::server)
-                    if (hostInfo)
-                    {
-                        Network::Reset();
+                ASSERT(!Network::server);
+                if (hostInfo)
+                {
+                    Network::Reset();
 
-                        // Create the server
-                        StyxNet::Server::Config config;
-                        Network::server = new StyxNet::Server(config);
-                    }
-                    else if (joinInfo)
-                    {
-                        Network::Reset();
+                    // Create the server
+                    StyxNet::Server::Config config;
+                    Network::server = new StyxNet::Server(config);
+                }
+                else if (joinInfo)
+                {
+                    Network::Reset();
 
-                        // Connect to the server
-                        StyxNet::Client::Config config
-                        (
-                            Network::GetCurrentName(),
-                            joinInfo->address,
-                            Settings::GetFirewallStatus() ==
-                            Settings::FirewallStatus::NotBehindFirewall ? TRUE : FALSE
-                        );
-                        Network::client = new StyxNet::Client(config);
-                        online = TRUE;
-                    }
+                    // Connect to the server
+                    StyxNet::Client::Config config
+                    (
+                        Network::GetCurrentName(),
+                        joinInfo->address,
+                        Settings::GetFirewallStatus() ==
+                        Settings::FirewallStatus::NotBehindFirewall ? TRUE : FALSE
+                    );
+                    Network::client = new StyxNet::Client(config);
+                    online = TRUE;
+                }
                 break;
             }
 
@@ -588,7 +588,7 @@ namespace MultiPlayer
                         break;
 
                     default:
-                        ERR_FATAL(("Unknown result from GetFirewallStatus"))
+                        ERR_FATAL(("Unknown result from GetFirewallStatus"));
                     }
                 }
                 break;
@@ -596,17 +596,17 @@ namespace MultiPlayer
 
             case 0xC0C90434: // "multiplayer.sizeof"
             {
-                CON_DIAG(("SessionData: %d", sizeof(StyxNet::SessionData)))
-                    CON_DIAG((" - name %d [%d]", sizeof(StyxNet::SessionName), &StyxNet::SessionData::name))
-                    CON_DIAG((" - flags %d [%d]", sizeof(U16), &StyxNet::SessionData::flags))
-                    CON_DIAG((" - version %d [%d]", sizeof(U16), &StyxNet::SessionData::version))
-                    CON_DIAG((" - numUsers %d [%d]", sizeof(U32), &StyxNet::SessionData::numUsers))
-                    CON_DIAG((" - maxUsers %d [%d]", sizeof(U32), &StyxNet::SessionData::maxUsers))
+                CON_DIAG(("SessionData: %d", sizeof(StyxNet::SessionData)));
+                CON_DIAG((" - name %d [%d]", sizeof(StyxNet::SessionName), &StyxNet::SessionData::name));
+                CON_DIAG((" - flags %d [%d]", sizeof(U16), &StyxNet::SessionData::flags));
+                CON_DIAG((" - version %d [%d]", sizeof(U16), &StyxNet::SessionData::version));
+                CON_DIAG((" - numUsers %d [%d]", sizeof(U32), &StyxNet::SessionData::numUsers));
+                CON_DIAG((" - maxUsers %d [%d]", sizeof(U32), &StyxNet::SessionData::maxUsers));
 
-                    CON_DIAG(("Session: %d", sizeof(StyxNet::Session)))
-                    CON_DIAG((" - address %d [%d]", sizeof(Win32::Socket::Address), &StyxNet::Session::address))
+                CON_DIAG(("Session: %d", sizeof(StyxNet::Session)));
+                CON_DIAG((" - address %d [%d]", sizeof(Win32::Socket::Address), &StyxNet::Session::address));
 
-                    break;
+                break;
             }
 
             case 0xE81812BD: // "multiplayer.flags.islocked"
@@ -727,17 +727,17 @@ namespace MultiPlayer
 
             case 0x1F1DAB22: // "multiplayer.server.start"
             {
-                ASSERT(!Network::server)
+                ASSERT(!Network::server);
 
-                    if (hostInfo)
-                    {
-                        Network::Reset();
+                if (hostInfo)
+                {
+                    Network::Reset();
 
-                        // Create the server
-                        StyxNet::Server::Config config;
-                        config.port = Settings::GetPort();
-                        Network::server = new StyxNet::Server(config);
-                    }
+                    // Create the server
+                    StyxNet::Server::Config config;
+                    config.port = Settings::GetPort();
+                    Network::server = new StyxNet::Server(config);
+                }
                 break;
             }
 
@@ -789,48 +789,48 @@ namespace MultiPlayer
 
             case 0x31E64445: // "multiplayer.session.connect"
             {
-                ASSERT(Network::client)
+                ASSERT(Network::client);
 
-                    ASSERT(Network::client)
-                    ASSERT(hostInfo || joinInfo)
+                ASSERT(Network::client);
+                ASSERT(hostInfo || joinInfo);
 
-                    if (hostInfo)
+                if (hostInfo)
+                {
+                    Network::client->CreateSession(hostInfo->session.str, hostInfo->password, hostInfo->maxUsers);
+                }
+                else if (joinInfo)
+                {
+                    // Do we need a password ?
+                    if (joinInfo->flags & StyxNet::SessionFlags::Password)
                     {
-                        Network::client->CreateSession(hostInfo->session.str, hostInfo->password, hostInfo->maxUsers);
-                    }
-                    else if (joinInfo)
-                    {
-                        // Do we need a password ?
-                        if (joinInfo->flags & StyxNet::SessionFlags::Password)
+                        // Send it to the registered interface control
+                        if (PrivData::clientCtrl.Alive())
                         {
-                            // Send it to the registered interface control
-                            if (PrivData::clientCtrl.Alive())
-                            {
-                                IFace::SendEvent(PrivData::clientCtrl, NULL, IFace::NOTIFY, 0x5A263875); // "MultiPlayer::PasswordRequired"
-                            }
-                        }
-                        else
-                        {
-                            Network::client->JoinSession(joinInfo->session.str, 0);
+                            IFace::SendEvent(PrivData::clientCtrl, NULL, IFace::NOTIFY, 0x5A263875); // "MultiPlayer::PasswordRequired"
                         }
                     }
+                    else
+                    {
+                        Network::client->JoinSession(joinInfo->session.str, 0);
+                    }
+                }
                 break;
             }
 
 
             case 0xDB3D3B75: // "multiplayer.session.joinpassword"
             {
-                ASSERT(Network::client)
-                    ASSERT(joinInfo)
+                ASSERT(Network::client);
+                ASSERT(joinInfo);
 
-                    const char* password;
+                const char* password;
                 if (Console::GetArgString(1, password))
                 {
                     Network::client->JoinSession(joinInfo->session.str, Crc::CalcStr(password));
                 }
                 else
                 {
-                    ERR_FATAL(("multiplayer.session.joinpassword password"))
+                    ERR_FATAL(("multiplayer.session.joinpassword password"));
                 }
                 break;
             }
@@ -858,15 +858,15 @@ namespace MultiPlayer
                     {
                         if (joinInfo)
                         {
-                            LOG_WARN(("Old joinInfo found"))
-                                delete joinInfo;
+                            LOG_WARN(("Old joinInfo found"));
+                            delete joinInfo;
                         }
                         joinInfo = new JoinInformation(session->address, session->name, session->flags);
                     }
                 }
                 else
                 {
-                    ERR_FATAL(("multiplayer.session.download control"))
+                    ERR_FATAL(("multiplayer.session.download control"));
                 }
                 break;
             }
@@ -887,8 +887,8 @@ namespace MultiPlayer
                     // Build up the hosting information
                     if (hostInfo)
                     {
-                        LOG_WARN(("Old hostInfo found"))
-                            delete hostInfo;
+                        LOG_WARN(("Old hostInfo found"));
+                        delete hostInfo;
                         hostInfo = NULL;
                     }
 
@@ -909,7 +909,7 @@ namespace MultiPlayer
                 }
                 else
                 {
-                    ERR_FATAL(("multiplayer.session.createdownload name password maxUsers"))
+                    ERR_FATAL(("multiplayer.session.createdownload name password maxUsers"));
                 }
                 break;
             }
@@ -1129,13 +1129,13 @@ namespace MultiPlayer
                                     Data::Send(1, &id, Commands::MessagePrivate, Utils::Strlen(chat) + 1, (const U8*)chat);
 
                                     // Echo locally
-                                    CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.privmsg", 2, playerBuff, Utils::Ansi2Unicode(chat))))) // "ChatLocal"
+                                    CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.privmsg", 2, playerBuff, Utils::Ansi2Unicode(chat))))); // "ChatLocal"
                                 }
                                 else
                                 {
                                     // Could not find player with the name!
                                     // "MultiError"
-                                    CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.chat.error.noplayer", 1, playerBuff))))
+                                    CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.chat.error.noplayer", 1, playerBuff))));
                                 }
                             }
                         }
@@ -1203,12 +1203,12 @@ namespace MultiPlayer
                                         }
 
                                         // Echo locally
-                                        CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.teammsg", 1, Utils::Ansi2Unicode(str))))) // "ChatLocal"
+                                        CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.teammsg", 1, Utils::Ansi2Unicode(str))))); // "ChatLocal"
 
-                                            if (index)
-                                            {
-                                                Data::Send(index, ids, Commands::MessageTeam, len + 1, (const U8*)str);
-                                            }
+                                        if (index)
+                                        {
+                                            Data::Send(index, ids, Commands::MessageTeam, len + 1, (const U8*)str);
+                                        }
                                     }
                                 }
                             }
@@ -1249,27 +1249,27 @@ namespace MultiPlayer
                                     {
                                         const Team* team;
                                         Data::Get(&team, tti.GetKey());
-                                        ASSERT(team)
+                                        ASSERT(team);
 
-                                            // Add all of the players in the team
-                                            for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; pi++)
+                                        // Add all of the players in the team
+                                        for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; pi++)
+                                        {
+                                            if (pi.GetKey() != Network::GetCurrentPlayer().GetId())
                                             {
-                                                if (pi.GetKey() != Network::GetCurrentPlayer().GetId())
-                                                {
-                                                    ids[index++] = pi.GetKey();
-                                                }
+                                                ids[index++] = pi.GetKey();
                                             }
+                                        }
                                     }
                                 }
                             }
 
                             // Echo locally
-                            CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.enemymsg", 1, Utils::Ansi2Unicode(str))))) // "ChatLocal"
+                            CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.enemymsg", 1, Utils::Ansi2Unicode(str))))); // "ChatLocal"
 
-                                if (index)
-                                {
-                                    Data::Send(index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1, (const U8*)str);
-                                }
+                            if (index)
+                            {
+                                Data::Send(index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1, (const U8*)str);
+                            }
                         }
                         groups.DisposeAll();
                     }
@@ -1307,25 +1307,25 @@ namespace MultiPlayer
                                     {
                                         const Team* team;
                                         Data::Get(&team, tti.GetKey());
-                                        ASSERT(team)
+                                        ASSERT(team);
 
-                                            // Add all of the players in the team
-                                            for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; pi++)
+                                        // Add all of the players in the team
+                                        for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; pi++)
+                                        {
+                                            if (pi.GetKey() != Network::GetCurrentPlayer().GetId())
                                             {
-                                                if (pi.GetKey() != Network::GetCurrentPlayer().GetId())
-                                                {
-                                                    ids[index++] = pi.GetKey();
-                                                }
+                                                ids[index++] = pi.GetKey();
                                             }
+                                        }
                                     }
 
                                     // Echo locally
-                                    CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.allymsg", 1, Utils::Ansi2Unicode(str))))) // "ChatLocal"
+                                    CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.allymsg", 1, Utils::Ansi2Unicode(str))))); // "ChatLocal"
 
-                                        if (index)
-                                        {
-                                            Data::Send(index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1, (const U8*)str);
-                                        }
+                                    if (index)
+                                    {
+                                        Data::Send(index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1, (const U8*)str);
+                                    }
                                 }
                             }
                         }
@@ -1377,29 +1377,29 @@ namespace MultiPlayer
                 break;
 
             case 0x2AA25944: // "multiplayer.cmd.help"
-                CONSOLE(0xAD95B2DF, ("Available commands:")) // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("Available commands:")); // "ChatLocal"
 
-                    CONSOLE(0xAD95B2DF, ("/me message")) // "ChatLocal"
-                    CONSOLE(0xAD95B2DF, ("  Emote a message")) // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("/me message")); // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("  Emote a message")); // "ChatLocal"
 
-                    CONSOLE(0xAD95B2DF, ("/msg player message")) // "ChatLocal"
-                    CONSOLE(0xAD95B2DF, ("  Send a private message to a player")) // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("/msg player message")); // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("  Send a private message to a player")); // "ChatLocal"
 
-                    CONSOLE(0xAD95B2DF, ("/team (or t) message")) // "ChatLocal"
-                    CONSOLE(0xAD95B2DF, ("  Send a message to your co-op teammates")) // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("/team (or t) message")); // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("  Send a message to your co-op teammates")); // "ChatLocal"
 
-                    CONSOLE(0xAD95B2DF, ("/allies (or a) message")) // "ChatLocal"
-                    CONSOLE(0xAD95B2DF, ("  Send a message to your allies")) // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("/allies (or a) message")); // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("  Send a message to your allies")); // "ChatLocal"
 
-                    CONSOLE(0xAD95B2DF, ("/enemies (or e) message")) // "ChatLocal"
-                    CONSOLE(0xAD95B2DF, ("  Send a message to your enemies")) // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("/enemies (or e) message")); // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("  Send a message to your enemies")); // "ChatLocal"
 
-                    CONSOLE(0xAD95B2DF, ("/won message")) // "ChatLocal"
-                    CONSOLE(0xAD95B2DF, ("  Send a message to the WON room")) // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("/won message")); // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("  Send a message to the WON room")); // "ChatLocal"
 
-                    CONSOLE(0xAD95B2DF, ("/kick (or k) player")) // "ChatLocal"
-                    CONSOLE(0xAD95B2DF, ("  Kick a player from the game (host only)")) // "ChatLocal"
-                    break;
+                CONSOLE(0xAD95B2DF, ("/kick (or k) player")); // "ChatLocal"
+                CONSOLE(0xAD95B2DF, ("  Kick a player from the game (host only)")); // "ChatLocal"
+                break;
 
             case 0x53AEBE8C: // "multiplayer.download.motd"
                 Download::GetMotd();

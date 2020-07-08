@@ -656,9 +656,9 @@ namespace Debug
 
 #ifdef DEBUG_MEMORY_CACHE_STATS
 
-            LOG_DIAG(("MemSize          Alloc  Current      Max     Hits    Ratio    Dregs"));
+            LOG_DIAG(("MemSize          Alloc  Current      Max     Hits    Ratio    Dregs"))
 
-            U32 totalAllocated = 0;
+                U32 totalAllocated = 0;
             U32 totalAllocatedCurrent = 0;
             U32 totalAllocatedMax = 0;
             U32 totalAllocatedHits = 0;
@@ -846,6 +846,8 @@ namespace Debug
 #endif
         }
 
+                            // Free the memory
+                            MemoryFree(ptr);
 
         //
         // SnapShot
@@ -895,6 +897,14 @@ namespace Debug
             return (allocatedBlocks);
         }
 
+        //
+        // SnapShot
+        //
+        // Takes a snap shot of memory, when the program exits it displays memory usage statistics
+        //
+        void SnapShot()
+        {
+#ifdef DEBUG_MEMORY_SNAPSHOT
 
         //
         // GetAllocatedBytes
@@ -906,6 +916,9 @@ namespace Debug
             return (allocatedBytes);
         }
 
+            if (ValidateAll())
+            {
+                BlockHead* block;
 
         //
         // GetOverheadBytes
@@ -917,6 +930,15 @@ namespace Debug
             return (overheadBytes);
         }
 
+                while (block)
+                {
+                    snapShotInfo.Append(new InfoNode(block));
+                    block = block->next;
+                }
+            }
+#else
+            ERR_FATAL(("Snap Shot is only supported if DEBUG_MEMORY_CHECKING is enabled"))
+#endif
 
         //
         // GetCacheBlocks
@@ -939,6 +961,15 @@ namespace Debug
             return (cacheBytes);
         }
 
+        //
+        // GetAllocatedBlocks
+        //
+        // Return the number of allocated blocks
+        //
+        U32 GetAllocatedBlocks()
+        {
+            return (allocatedBlocks);
+        }
 
         //
         // GetMaxAllocatedBlocks
@@ -950,6 +981,15 @@ namespace Debug
             return (maxAllocatedBlocks);
         }
 
+        //
+        // GetAllocatedBytes
+        //
+        // Return the number of allocated bytes
+        //
+        U32 GetAllocatedBytes()
+        {
+            return (allocatedBytes);
+        }
 
         //
         // GetMaxAllocatedBytes
@@ -1412,6 +1452,8 @@ namespace Debug
             return (start + 1);
         }
 
+            total += totalSize;
+            //LOG_DIAG(("Allocating %d (%d)", totalSize, total))
 
         //
         // ProtectedFree
@@ -1669,7 +1711,7 @@ namespace Debug
         {
             __try
             {
-                LOG_ERR(("Block: %08Xh [%d (%d) bytes] Next: %08Xh Prev: %08Xh", head, head->size, head->size + sizeof(BlockHead) + sizeof(BlockTail), head->prev, head->next))
+                LOG_ERR(("Block: %08Xh [%d (%d) bytes] Next: %08Xh Prev: %08Xh", head, head->size, head->size + sizeof(BlockHead) + sizeof(BlockTail), head->prev, head->next));
                     DumpBlockInternals(head);
 
                 // Search all the blocks for the block
@@ -2070,228 +2112,228 @@ namespace Debug
         {
             switch (msg)
             {
-            case WM_NOTIFY:
-            {
-                switch (((LPNMHDR)lparam)->code)
+                case WM_NOTIFY:
                 {
-                case TVN_SELCHANGED:
-                {
-                    NMTREEVIEW* tv = (NMTREEVIEW*)lparam;
-                    UsageNode* node = (UsageNode*)tv->itemNew.lParam;
-                    HWND list = GetDlgItem(hdlg, SNAPSHOT_LIST);
-
-                    SendMessage(list, WM_SETREDRAW, 0, 0);
-
-                    // Delete all the items in the listbox
-                    while (SendMessage(list, LB_DELETESTRING, 0, 0) != LB_ERR)
-                        ;
-
-                    // Add information
-                    SendMessage(list, LB_ADDSTRING, 0, (LPARAM)node);
-
-                    // Add all of the children of this node
-                    for (NBinTree<UsageNode>::Iterator i(&node->children); *i; i++)
+                    switch (((LPNMHDR)lparam)->code)
                     {
-                        SendMessage(list, LB_ADDSTRING, 0, (LPARAM)*i);
-                    }
-
-                    SendMessage(list, WM_SETREDRAW, 1, 0);
-
-                    break;
-                }
-
-                default:
-                    break;
-                }
-
-                break;
-            }
-
-            case WM_INITDIALOG:
-            {
-                // The root of the tree is passed in as lparam
-                UsageNode* root = (UsageNode*)lparam;
-
-                // Add all of the nodes to the tree view control
-                SnapShotAddItemToTree(GetDlgItem(hdlg, SNAPSHOT_TREE), TVI_ROOT, root);
-
-                return (TRUE);
-                break;
-            }
-
-            // Close dialog box
-            case WM_CLOSE:
-            {
-                EndDialog(hdlg, 0);
-                break;
-            }
-
-            // Double Click on the list box
-            case WM_COMMAND:
-            {
-                switch (LOWORD(wParam))
-                {
-                case SNAPSHOT_LIST:
-                    switch (HIWORD(wParam))
-                    {
-                    case LBN_DBLCLK:
-                    {
-                        HWND list = GetDlgItem(hdlg, SNAPSHOT_LIST);
-                        int index = SendMessage(list, LB_GETCURSEL, 0, 0);
-
-                        if (index > 0)
+                        case TVN_SELCHANGED:
                         {
-                            UsageNode* node = (UsageNode*)SendMessage(list, LB_GETITEMDATA, index, 0);
+                            NMTREEVIEW* tv = (NMTREEVIEW*)lparam;
+                            UsageNode* node = (UsageNode*)tv->itemNew.lParam;
+                            HWND list = GetDlgItem(hdlg, SNAPSHOT_LIST);
 
-                            // Select this node in the tree
-                            HWND tree = GetDlgItem(hdlg, SNAPSHOT_TREE);
-                            TreeView_SelectItem(tree, node->treeItem);
+                            SendMessage(list, WM_SETREDRAW, 0, 0);
+
+                            // Delete all the items in the listbox
+                            while (SendMessage(list, LB_DELETESTRING, 0, 0) != LB_ERR)
+                                ;
+
+                            // Add information
+                            SendMessage(list, LB_ADDSTRING, 0, (LPARAM)node);
+
+                            // Add all of the children of this node
+                            for (NBinTree<UsageNode>::Iterator i(&node->children); *i; i++)
+                            {
+                                SendMessage(list, LB_ADDSTRING, 0, (LPARAM)*i);
+                            }
+
+                            SendMessage(list, WM_SETREDRAW, 1, 0);
+
+                            break;
                         }
 
-                        return (TRUE);
+                        default:
+                            break;
+                    }
+
+                    break;
+                }
+
+                case WM_INITDIALOG:
+                {
+                    // The root of the tree is passed in as lparam
+                    UsageNode* root = (UsageNode*)lparam;
+
+                    // Add all of the nodes to the tree view control
+                    SnapShotAddItemToTree(GetDlgItem(hdlg, SNAPSHOT_TREE), TVI_ROOT, root);
+
+                    return (TRUE);
+                    break;
+                }
+
+                // Close dialog box
+                case WM_CLOSE:
+                {
+                    EndDialog(hdlg, 0);
+                    break;
+                }
+
+                // Double Click on the list box
+                case WM_COMMAND:
+                {
+                    switch (LOWORD(wParam))
+                    {
+                        case SNAPSHOT_LIST:
+                            switch (HIWORD(wParam))
+                            {
+                                case LBN_DBLCLK:
+                                {
+                                    HWND list = GetDlgItem(hdlg, SNAPSHOT_LIST);
+                                    int index = SendMessage(list, LB_GETCURSEL, 0, 0);
+
+                                    if (index > 0)
+                                    {
+                                        UsageNode* node = (UsageNode*)SendMessage(list, LB_GETITEMDATA, index, 0);
+
+                                        // Select this node in the tree
+                                        HWND tree = GetDlgItem(hdlg, SNAPSHOT_TREE);
+                                        TreeView_SelectItem(tree, node->treeItem);
+                                    }
+
+                                    return (TRUE);
+                                    break;
+                                }
+                            }
+                            break;
+                    }
+                    break;
+                }
+
+                // Get the measurement of the listbox items
+                case WM_MEASUREITEM:
+                {
+                    MEASUREITEMSTRUCT* mi;
+                    mi = (MEASUREITEMSTRUCT*)lparam;
+                    mi->itemHeight = 16;
+                    return TRUE;
+                }
+
+                // Compare items by looking at their sample values
+                case WM_COMPAREITEM:
+                {
+                    COMPAREITEMSTRUCT* ci;
+                    ci = (COMPAREITEMSTRUCT*)lparam;
+
+                    UsageNode* item1 = (UsageNode*)ci->itemData1;
+                    UsageNode* item2 = (UsageNode*)ci->itemData2;
+
+                    return (item1->size >= item2->size ? -1 : 1);
+                    break;
+                }
+
+                // Draw an item in the listbox
+                case WM_DRAWITEM:
+                {
+                    DRAWITEMSTRUCT* di;
+                    di = (DRAWITEMSTRUCT*)lparam;
+
+                    // If there are no list box items, skip this message
+                    if (di->itemID == -1)
+                    {
                         break;
                     }
-                    }
-                    break;
-                }
-                break;
-            }
 
-            // Get the measurement of the listbox items
-            case WM_MEASUREITEM:
-            {
-                MEASUREITEMSTRUCT* mi;
-                mi = (MEASUREITEMSTRUCT*)lparam;
-                mi->itemHeight = 16;
-                return TRUE;
-            }
-
-            // Compare items by looking at their sample values
-            case WM_COMPAREITEM:
-            {
-                COMPAREITEMSTRUCT* ci;
-                ci = (COMPAREITEMSTRUCT*)lparam;
-
-                UsageNode* item1 = (UsageNode*)ci->itemData1;
-                UsageNode* item2 = (UsageNode*)ci->itemData2;
-
-                return (item1->size >= item2->size ? -1 : 1);
-                break;
-            }
-
-            // Draw an item in the listbox
-            case WM_DRAWITEM:
-            {
-                DRAWITEMSTRUCT* di;
-                di = (DRAWITEMSTRUCT*)lparam;
-
-                // If there are no list box items, skip this message
-                if (di->itemID == -1)
-                {
-                    break;
-                }
-
-                // Draw the item
-                switch (di->itemAction)
-                {
-                case ODA_SELECT:
-                case ODA_DRAWENTIRE:
-                {
-                    UsageNode* node;
-
-                    node = (UsageNode*)di->itemData;
-
-                    // If the item is a profile node, draw it
-                    if (node)
+                    // Draw the item
+                    switch (di->itemAction)
                     {
-                        TEXTMETRIC tm;
-                        int        y;
-                        String str;
+                        case ODA_SELECT:
+                        case ODA_DRAWENTIRE:
+                        {
+                            UsageNode* node;
 
-                        GetTextMetrics(di->hDC, &tm);
-                        y = (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2;
+                            node = (UsageNode*)di->itemData;
 
-                        // Write Total Size
-                        SetTextColor(di->hDC, RGB(0, 0, 0));
-                        str = String::Make("%d", node->size);
-                        TextOut(di->hDC, 60, y, str, str.GetLength());
+                            // If the item is a profile node, draw it
+                            if (node)
+                            {
+                                TEXTMETRIC tm;
+                                int        y;
+                                String str;
 
-                        // Write Total Number of Blocks
-                        SetTextColor(di->hDC, RGB(0, 0, 0));
-                        str = String::Make("%d", node->blocks);
-                        TextOut(di->hDC, 120, y, str, str.GetLength());
+                                GetTextMetrics(di->hDC, &tm);
+                                y = (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2;
 
-                        // Write the Percentage of Total
-                        SetTextColor(di->hDC, RGB(128, 0, 0));
-                        str = String::Make("%01.4f", node->cutTotal);
-                        TextOut(di->hDC, 160, y, str, str.GetLength());
+                                // Write Total Size
+                                SetTextColor(di->hDC, RGB(0, 0, 0));
+                                str = String::Make("%d", node->size);
+                                TextOut(di->hDC, 60, y, str, str.GetLength());
 
-                        // Write the Percentage of Parent
-                        SetTextColor(di->hDC, RGB(0, 0, 128));
-                        str = String::Make("%01.4f", node->cutParent);
-                        TextOut(di->hDC, 200, y, str, str.GetLength());
+                                // Write Total Number of Blocks
+                                SetTextColor(di->hDC, RGB(0, 0, 0));
+                                str = String::Make("%d", node->blocks);
+                                TextOut(di->hDC, 120, y, str, str.GetLength());
 
-                        // Write the Name
-                        SetTextColor(di->hDC, RGB(0, 0, 0));
-                        const char* name = SnapShotGetName(node->address);
-                        TextOut(di->hDC, 240, y, name, Utils::Strlen(name));
+                                // Write the Percentage of Total
+                                SetTextColor(di->hDC, RGB(128, 0, 0));
+                                str = String::Make("%01.4f", node->cutTotal);
+                                TextOut(di->hDC, 160, y, str, str.GetLength());
 
-                        // Create Total Brush
-                        LOGBRUSH logbrush;
-                        logbrush.lbStyle = BS_SOLID;
-                        logbrush.lbColor = RGB(128, 0, 0);
-                        HPEN totalPen = CreatePen(PS_SOLID, 0, RGB(128, 0, 0));
-                        HBRUSH totalBrush = CreateBrushIndirect(&logbrush);
+                                // Write the Percentage of Parent
+                                SetTextColor(di->hDC, RGB(0, 0, 128));
+                                str = String::Make("%01.4f", node->cutParent);
+                                TextOut(di->hDC, 200, y, str, str.GetLength());
 
-                        // Create Parent Brush
-                        logbrush.lbColor = RGB(0, 0, 128);
-                        logbrush.lbStyle = BS_SOLID;
-                        HPEN parentPen = CreatePen(PS_SOLID, 0, RGB(0, 0, 128));
-                        HBRUSH parentBrush = CreateBrushIndirect(&logbrush);
+                                // Write the Name
+                                SetTextColor(di->hDC, RGB(0, 0, 0));
+                                const char* name = SnapShotGetName(node->address);
+                                TextOut(di->hDC, 240, y, name, Utils::Strlen(name));
 
-                        // Draw Parent Bar
-                        // HPEN oldPen = (HPEN) 
-                        SelectObject(di->hDC, parentPen);
-                        // HBRUSH oldBrush = (HBRUSH) 
-                        SelectObject(di->hDC, parentBrush);
-                        Rectangle(di->hDC, 55 - (U32)(node->cutParent * 50), y + 1, 55, y + 6);
-                        Rectangle(di->hDC, 5, y + 5, 55, y + 6);
+                                // Create Total Brush
+                                LOGBRUSH logbrush;
+                                logbrush.lbStyle = BS_SOLID;
+                                logbrush.lbColor = RGB(128, 0, 0);
+                                HPEN totalPen = CreatePen(PS_SOLID, 0, RGB(128, 0, 0));
+                                HBRUSH totalBrush = CreateBrushIndirect(&logbrush);
 
-                        // Draw Total Bar
-                        SelectObject(di->hDC, totalPen);
-                        SelectObject(di->hDC, totalBrush);
-                        Rectangle(di->hDC, 55 - (U32)(node->cutTotal * 50), y + 6, 55, y + 11);
-                        Rectangle(di->hDC, 5, y + 10, 55, y + 11);
+                                // Create Parent Brush
+                                logbrush.lbColor = RGB(0, 0, 128);
+                                logbrush.lbStyle = BS_SOLID;
+                                HPEN parentPen = CreatePen(PS_SOLID, 0, RGB(0, 0, 128));
+                                HBRUSH parentBrush = CreateBrushIndirect(&logbrush);
 
-                        // Delete Objects
-                        DeleteObject(totalPen);
-                        DeleteObject(totalBrush);
-                        DeleteObject(parentPen);
-                        DeleteObject(parentBrush);
+                                // Draw Parent Bar
+                                // HPEN oldPen = (HPEN) 
+                                SelectObject(di->hDC, parentPen);
+                                // HBRUSH oldBrush = (HBRUSH) 
+                                SelectObject(di->hDC, parentBrush);
+                                Rectangle(di->hDC, 55 - (U32)(node->cutParent * 50), y + 1, 55, y + 6);
+                                Rectangle(di->hDC, 5, y + 5, 55, y + 6);
 
+                                // Draw Total Bar
+                                SelectObject(di->hDC, totalPen);
+                                SelectObject(di->hDC, totalBrush);
+                                Rectangle(di->hDC, 55 - (U32)(node->cutTotal * 50), y + 6, 55, y + 11);
+                                Rectangle(di->hDC, 5, y + 10, 55, y + 11);
+
+                                // Delete Objects
+                                DeleteObject(totalPen);
+                                DeleteObject(totalBrush);
+                                DeleteObject(parentPen);
+                                DeleteObject(parentBrush);
+
+                            }
+                            else
+                                // Its just plain text draw it
+                            {
+                                TEXTMETRIC tm;
+                                char buff[250];
+
+                                SetTextColor(di->hDC, RGB(0, 0, 0));
+                                SendMessage(di->hwndItem, LB_GETTEXT, di->itemID, (LPARAM)buff);
+                                GetTextMetrics(di->hDC, &tm);
+                                TextOut(di->hDC, 0, (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2, buff, strlen(buff));
+                            }
+
+                            break;
+                        }
+
+                        case ODA_FOCUS:
+                            break;
                     }
-                    else
-                        // Its just plain text draw it
-                    {
-                        TEXTMETRIC tm;
-                        char buff[250];
-
-                        SetTextColor(di->hDC, RGB(0, 0, 0));
-                        SendMessage(di->hwndItem, LB_GETTEXT, di->itemID, (LPARAM)buff);
-                        GetTextMetrics(di->hDC, &tm);
-                        TextOut(di->hDC, 0, (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2, buff, strlen(buff));
-                    }
-
+                    return (TRUE);
                     break;
-                }
 
-                case ODA_FOCUS:
-                    break;
                 }
-                return (TRUE);
-                break;
-
-            }
             }
 
             return (FALSE);
@@ -2321,6 +2363,8 @@ namespace Debug
             }
         }
 
+            return (FALSE);
+        }
 
 
         ///////////////////////////////////////////////////////////////////////////////

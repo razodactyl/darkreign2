@@ -29,219 +29,216 @@
 //
 namespace Version
 {
-
-
-  #ifdef DEVELOPMENT
-    #define _dev "DEVELOPMENT "
-  #else
+#ifdef DEVELOPMENT
+#define _dev "DEVELOPMENT "
+#else
     #define _dev ""
-  #endif
+#endif
 
-  #ifdef ASSERTIONS_ACTIVE
-    #define _ass "ASSERTIONS "
-  #else
+#ifdef ASSERTIONS_ACTIVE
+#define _ass "ASSERTIONS "
+#else
     #define _ass ""
-  #endif
+#endif
 
-  #ifdef SYNC_BRUTAL_ACTIVE
+#ifdef SYNC_BRUTAL_ACTIVE
     #define _sync "SYNC_BRUTAL "
-  #else
-    #define _sync ""
-  #endif
+#else
+#define _sync ""
+#endif
 
-  #ifdef DEMO
+#ifdef DEMO
     #define _demo "DEMO "
-  #else
-    #define _demo ""
-  #endif
+#else
+#define _demo ""
+#endif
 
-  #ifdef __DO_XMM_BUILD
+#ifdef __DO_XMM_BUILD
     #define _xmm "XMM "
-  #else
-    #define _xmm ""
-  #endif
+#else
+#define _xmm ""
+#endif
 
-  #ifdef STATIC_GUARD_BLOCK_ENABLED
-    #define _guard "STATIC_GUARD "
-  #else
+#ifdef STATIC_GUARD_BLOCK_ENABLED
+#define _guard "STATIC_GUARD "
+#else
     #define _guard ""
-  #endif
+#endif
 
-  #define __BUILD_DEF _dev _ass _sync _demo _xmm _guard
+#define __BUILD_DEF _dev _ass _sync _demo _xmm _guard
 
-  #define __BUILD_TIME __TIME__ __DATE__
-
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Internal Data
-  //
-
-  static Bool initialized = FALSE;
-  static Bool available = FALSE;
-  static void *data = NULL;
-  static const char *buildString = "";
-  static const char *buildTime = "";
-  static const char *buildDate = "";
-  static const char *buildUser = "";
-  static const char *buildMachine = "";
-  static const char *buildOS = "";
-  static char buildVersion[256];
-  static U32 buildNumber = 0;
+#define __BUILD_TIME __TIME__ __DATE__
 
 
-  //
-  // Init
-  //
-  void Init()
-  {
-    ASSERT(!initialized)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Internal Data
+    //
 
-    char processName[260];
-    System::Thread::GetProcessName(processName, 260);
-   
-    U32 zero;
-    UI size = GetFileVersionInfoSize(processName, &zero);
-    data = new U8[size];
-    GetFileVersionInfo(processName, 0, size, data);
+    static Bool initialized = FALSE;
+    static Bool available = FALSE;
+    static void* data = nullptr;
+    static const char* buildString = "";
+    static const char* buildTime = "";
+    static const char* buildDate = "";
+    static const char* buildUser = "";
+    static const char* buildMachine = "";
+    static const char* buildOS = "";
+    static char buildVersion[256];
+    static U32 buildNumber = 0;
 
-    if (!VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build String"), (void **) &buildString, &size))
+
+    //
+    // Init
+    //
+    void Init()
     {
-      LOG_WARN(("Could not get 'Build String': ", Debug::LastError()))
+        ASSERT(!initialized);
+
+        char processName[260];
+        System::Thread::GetProcessName(processName, 260);
+
+        U32 zero;
+        UI size = GetFileVersionInfoSize(processName, &zero);
+        data = new U8[size];
+        GetFileVersionInfo(processName, 0, size, data);
+
+        if (!VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build String"), (void**)&buildString, &size))
+        {
+            LOG_WARN(("Could not get 'Build String': ", Debug::LastError()));
+        }
+        VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Time"), (void**)&buildTime, &size);
+        VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Date"), (void**)&buildDate, &size);
+        VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build User"), (void**)&buildUser, &size);
+        VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Machine"), (void**)&buildMachine, &size);
+        VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build OS"), (void**)&buildOS, &size);
+
+        const char* buildNumberString;
+        VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Number"), (void**)&buildNumberString, &size);
+        buildNumber = Utils::AtoI(buildNumberString);
+
+        VS_FIXEDFILEINFO* vs;
+        VerQueryValue(data, TEXT("\\"), (void**)&vs, &size);
+        Utils::Sprintf
+        (
+            buildVersion, 256, "%d.%d.%d.%d",
+            HIWORD(vs->dwFileVersionMS), LOWORD(vs->dwFileVersionMS),
+            HIWORD(vs->dwFileVersionLS), LOWORD(vs->dwFileVersionLS)
+        );
+
+        initialized = TRUE;
     }
-    VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Time"), (void **) &buildTime, &size);
-    VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Date"), (void **) &buildDate, &size);
-    VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build User"), (void **) &buildUser, &size);
-    VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Machine"), (void **) &buildMachine, &size);
-    VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build OS"), (void **) &buildOS, &size);
-
-    const char *buildNumberString;
-    VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Number"), (void **) &buildNumberString, &size);
-    buildNumber = Utils::AtoI(buildNumberString);
-
-    VS_FIXEDFILEINFO *vs;
-    VerQueryValue(data, TEXT("\\"), (void **) &vs, &size);
-    Utils::Sprintf
-    (
-      buildVersion, 256, "%d.%d.%d.%d", 
-      HIWORD(vs->dwFileVersionMS), LOWORD(vs->dwFileVersionMS),
-      HIWORD(vs->dwFileVersionLS), LOWORD(vs->dwFileVersionLS)
-    ); 
-
-    initialized = TRUE;
-  }
 
 
-  //
-  // Done
-  //
-  void Done()
-  {
-    ASSERT(initialized)
+    //
+    // Done
+    //
+    void Done()
+    {
+        ASSERT(initialized);
 
-    delete data;
+        delete data;
 
-    initialized = FALSE;
-  }
-
-
-  //
-  // GetBuildCRC
-  //
-  U32 GetBuildCRC()
-  { 
-    ASSERT(initialized)
-    return (Crc::CalcStr(buildString)); 
-  }
+        initialized = FALSE;
+    }
 
 
-  //
-  // GetBuildString
-  //
-  const char * GetBuildString()
-  { 
-    ASSERT(initialized)
-    return (buildString); 
-  }
+    //
+    // GetBuildCRC
+    //
+    U32 GetBuildCRC()
+    {
+        ASSERT(initialized);
+        return (Crc::CalcStr(buildString));
+    }
 
 
-  //
-  // GetBuildDate
-  //
-  const char * GetBuildDate()
-  { 
-    ASSERT(initialized)
-    return (buildDate); 
-  }
+    //
+    // GetBuildString
+    //
+    const char* GetBuildString()
+    {
+        ASSERT(initialized);
+        return (buildString);
+    }
 
 
-  //
-  // GetBuildTime
-  //
-  const char * GetBuildTime()
-  { 
-    ASSERT(initialized)
-    return (buildTime); 
-  }
+    //
+    // GetBuildDate
+    //
+    const char* GetBuildDate()
+    {
+        ASSERT(initialized);
+        return (buildDate);
+    }
 
 
-  //
-  // GetBuildUser
-  //
-  const char * GetBuildUser()
-  { 
-    ASSERT(initialized)
-    return (buildUser); 
-  }
+    //
+    // GetBuildTime
+    //
+    const char* GetBuildTime()
+    {
+        ASSERT(initialized);
+        return (buildTime);
+    }
 
 
-  //
-  // GetBuildMachine
-  //
-  const char * GetBuildMachine()
-  { 
-    ASSERT(initialized)
-    return (buildMachine); 
-  }
+    //
+    // GetBuildUser
+    //
+    const char* GetBuildUser()
+    {
+        ASSERT(initialized);
+        return (buildUser);
+    }
 
 
-  //
-  // GetBuildOS
-  //
-  const char * GetBuildOS()
-  { 
-    ASSERT(initialized)
-    return (buildOS); 
-  }
-
-  
-  // 
-  // GetBuildDefs
-  //
-  const char *GetBuildDefs()
-  {
-    ASSERT(initialized)
-    return (__BUILD_DEF);
-  }
+    //
+    // GetBuildMachine
+    //
+    const char* GetBuildMachine()
+    {
+        ASSERT(initialized);
+        return (buildMachine);
+    }
 
 
-  //
-  // GetBuildVersion
-  //
-  const char *GetBuildVersion()
-  {
-    ASSERT(initialized)
-    return (buildVersion);
-  }
+    //
+    // GetBuildOS
+    //
+    const char* GetBuildOS()
+    {
+        ASSERT(initialized);
+        return (buildOS);
+    }
 
 
-  //
-  // GetBuildNumber
-  //
-  U32 GetBuildNumber()
-  { 
-    ASSERT(initialized)
-    return (buildNumber); 
-  }
+    // 
+    // GetBuildDefs
+    //
+    const char* GetBuildDefs()
+    {
+        ASSERT(initialized);
+        return (__BUILD_DEF);
+    }
+
+
+    //
+    // GetBuildVersion
+    //
+    const char* GetBuildVersion()
+    {
+        ASSERT(initialized);
+        return (buildVersion);
+    }
+
+
+    //
+    // GetBuildNumber
+    //
+    U32 GetBuildNumber()
+    {
+        ASSERT(initialized);
+        return (buildNumber);
+    }
 }

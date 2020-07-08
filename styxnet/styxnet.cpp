@@ -26,146 +26,146 @@
 namespace StyxNet
 {
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Internal Data
-  //
-  static Bool initialized = FALSE;
-  static Win32::Mutex clientMutex;
-  static Win32::Mutex serverMutex;
-  static U32 numServers;
-  static U32 numClients;
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Internal Data
+    //
+    static Bool initialized = FALSE;
+    static Win32::Mutex clientMutex;
+    static Win32::Mutex serverMutex;
+    static U32 numServers;
+    static U32 numClients;
 
 
-  //
-  // Initialization
-  //
-  void Init()
-  {
-    ASSERT(!initialized)
-
-    // Initialize logging
-    Logging::Init();
-
-    // We want to send logs to DR2 and to the debugger
-    LOG_ADDDEST(new Logging::DestDR2())
-
-    // Initalize Sockets
-    Win32::Socket::Init();
-    Win32::DNS::Init();
-
-    // Initialize Ping System
-    Network::Ping::Init();
-
-    // Clear the number of clients and servers
-    numClients = 0;
-    numServers = 0;
-
-    // Set initialized flag
-    initialized = TRUE;
-  }
-
-
-  //
-  // Shutdown
-  //
-  void Done()
-  {
-    ASSERT(initialized)
-
-    // Wait for all clients/servers to shutdown
-    Bool finished = FALSE;
-    while (!finished)
+    //
+    // Initialization
+    //
+    void Init()
     {
-      finished = TRUE;
+        ASSERT(!initialized);
 
-      clientMutex.Wait();
-      if (numClients)
-      {
-        finished = FALSE;
-      }
-      clientMutex.Signal();
+        // Initialize logging
+        Logging::Init();
 
-      serverMutex.Wait();
-      if (numServers)
-      {
-        finished = FALSE;
-      }
-      serverMutex.Signal();
+        // We want to send logs to DR2 and to the debugger
+        LOG_ADDDEST(new Logging::DestDR2());
 
-      // Release our timeslice and let other threads process
-      Sleep(0);
+        // Initalize Sockets
+        Win32::Socket::Init();
+        Win32::DNS::Init();
+
+        // Initialize Ping System
+        Network::Ping::Init();
+
+        // Clear the number of clients and servers
+        numClients = 0;
+        numServers = 0;
+
+        // Set initialized flag
+        initialized = TRUE;
     }
 
-    // Shutdown Ping System
-    Network::Ping::Done();
 
-    // Shutdown sockets
-    Win32::DNS::Done();
-    Win32::Socket::Done();
+    //
+    // Shutdown
+    //
+    void Done()
+    {
+        ASSERT(initialized);
 
-    // Shutdown logging
-    Logging::Done();
+        // Wait for all clients/servers to shutdown
+        Bool finished = FALSE;
+        while (!finished)
+        {
+            finished = TRUE;
 
-    // Clear initialized flag
-    initialized = FALSE;
-  }
+            clientMutex.Wait();
+            if (numClients)
+            {
+                finished = FALSE;
+            }
+            clientMutex.Signal();
 
+            serverMutex.Wait();
+            if (numServers)
+            {
+                finished = FALSE;
+            }
+            serverMutex.Signal();
 
-  //
-  // Process
-  //
-  void Process()
-  {
-    ASSERT(initialized)
+            // Release our timeslice and let other threads process
+            Sleep(0);
+        }
 
-    // Process ping system
-    Network::Ping::Process();
-  }
+        // Shutdown Ping System
+        Network::Ping::Done();
 
+        // Shutdown sockets
+        Win32::DNS::Done();
+        Win32::Socket::Done();
 
-  //
-  // Add client
-  //
-  void AddClient()
-  {
-    clientMutex.Wait();
-    numClients++;
-    clientMutex.Signal();
-  }
+        // Shutdown logging
+        Logging::Done();
 
-
-  //
-  // Remove client
-  //
-  void RemoveClient()
-  {
-    clientMutex.Wait();
-    numClients--;
-    clientMutex.Signal();
-  }
+        // Clear initialized flag
+        initialized = FALSE;
+    }
 
 
-  //
-  // Add server
-  //
-  void AddServer()
-  {
-    serverMutex.Wait();
-    numServers++;
-    serverMutex.Signal();
-  }
+    //
+    // Process
+    //
+    void Process()
+    {
+        ASSERT(initialized);
+
+        // Process ping system
+        Network::Ping::Process();
+    }
 
 
-  //
-  // Remove server
-  //
-  void RemoveServer()
-  {
-    serverMutex.Wait();
-    numServers--;
-    serverMutex.Signal();
-  }
+    //
+    // Add client
+    //
+    void AddClient()
+    {
+        clientMutex.Wait();
+        numClients++;
+        clientMutex.Signal();
+    }
+
+
+    //
+    // Remove client
+    //
+    void RemoveClient()
+    {
+        clientMutex.Wait();
+        numClients--;
+        clientMutex.Signal();
+    }
+
+
+    //
+    // Add server
+    //
+    void AddServer()
+    {
+        serverMutex.Wait();
+        numServers++;
+        serverMutex.Signal();
+    }
+
+
+    //
+    // Remove server
+    //
+    void RemoveServer()
+    {
+        serverMutex.Wait();
+        numServers--;
+        serverMutex.Signal();
+    }
 
 }
 

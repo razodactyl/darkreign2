@@ -38,87 +38,84 @@ template <U32 STR_SIZE, class BASE = char> class StrCrc
 {
 public:
 
-  // string value
-  BASE str[STR_SIZE + 1];
+    // string value
+    BASE str[STR_SIZE + 1];
 
-  // crc value
-  U32 crc;
+    // crc value
+    U32 crc;
 
-  // Get the size of the strcrc
-  U32 GetSize() const
-  {
-    return (STR_SIZE);
-  }
+    // Get the size of the strcrc
+    U32 GetSize() const
+    {
+        return (STR_SIZE);
+    }
 
-  // calculates the crc from current string value
-  void Update()
-  {
-    // calculate new crc
-    crc = Crc::CalcStr(str);
-  }
+    // calculates the crc from current string value
+    void Update()
+    {
+        // calculate new crc
+        crc = Crc::CalcStr(str);
+    }
 
-  // set a new string value and call Update
-  void Set(const BASE *newStr)
-  {
-    // copy string
-    Utils::Strmcpy(str, newStr, STR_SIZE);
+    // set a new string value and call Update
+    void Set(const BASE* newStr)
+    {
+        // copy string
+        Utils::Strmcpy(str, newStr, STR_SIZE);
 
-    // update crc
-    Update();
-  }
+        // update crc
+        Update();
+    }
 
-  // Returns TRUE if the string is empty
-  Bool Null()
-  {
-    return (*str == '\0');
-  }
+    // Returns TRUE if the string is empty
+    Bool Null()
+    {
+        return (*str == '\0');
+    }
 
-  // default constructor
-  StrCrc<STR_SIZE, BASE>()
-  {
-    *str = '\0';
-    crc = 0;
-  }
-  
-  // constructor with string
-  StrCrc<STR_SIZE, BASE>(const BASE *newStr)
-  {
-    Set(newStr);
-  }
+    // default constructor
+    StrCrc<STR_SIZE, BASE>()
+    {
+        *str = '\0';
+        crc = 0;
+    }
 
-  // operator = (char *)
-  StrCrc<STR_SIZE, BASE>& operator=(const BASE *newStr)
-  {
-    Set(newStr);  
-    return (*this);
-  }
+    // constructor with string
+    StrCrc<STR_SIZE, BASE>(const BASE* newStr)
+    {
+        Set(newStr);
+    }
 
-  // operator = (StrCrc &)
-  StrCrc<STR_SIZE, BASE>& operator=(StrCrc<STR_SIZE, BASE> &ident)
-  {
-    Set(ident.str); 
-    return (*this);
-  }
+    // operator = (char *)
+    StrCrc<STR_SIZE, BASE>& operator=(const BASE* newStr)
+    {
+        Set(newStr);
+        return (*this);
+    }
 
-  // operator == (StrCrc &)
-  int operator==(const StrCrc<STR_SIZE, BASE> &ident)
-  {
-    return (crc == ident.crc);    
-  }
+    // operator = (StrCrc &)
+    StrCrc<STR_SIZE, BASE>& operator=(StrCrc<STR_SIZE, BASE>& ident)
+    {
+        Set(ident.str);
+        return (*this);
+    }
 
-  // operator != (StrCrc &)
-  int operator!=(const StrCrc<STR_SIZE, BASE> &ident)
-  {
-    return (crc != ident.crc);    
-  }
+    // operator == (StrCrc &)
+    int operator==(const StrCrc<STR_SIZE, BASE>& ident)
+    {
+        return (crc == ident.crc);
+    }
 
-  // operator<<
-//  friend ostream & operator<<(ostream &o, const StrCrc<STR_SIZE> &s)
-//  {
-//    return (o << s.str);
- // }
+    // operator != (StrCrc &)
+    int operator!=(const StrCrc<STR_SIZE, BASE>& ident)
+    {
+        return (crc != ident.crc);
+    }
 
+    // operator<<
+    //  friend ostream & operator<<(ostream &o, const StrCrc<STR_SIZE> &s)
+    //  {
+    //    return (o << s.str);
+    // }
 };
-
-
 #endif

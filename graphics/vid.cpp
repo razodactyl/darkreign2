@@ -661,7 +661,9 @@ namespace Vid
     //
     Bool SetMode(U32 mode, U32 width, U32 height, Bool force) // = FALSE
     {
-        //mode = VIDMODEWINDOW;
+#ifdef DEVELOPMENT
+        mode = VIDMODEWINDOW;
+#endif
 
         bool const same_dimensions = viewRect.Width() == static_cast<S32>(width) && viewRect.Height() == static_cast<S32>(height);
         bool const same_mode = curMode == mode;

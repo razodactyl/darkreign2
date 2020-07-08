@@ -13,7 +13,7 @@
 // Includes
 //
 #include <float.h>
-#include <fenv.h>	
+#include <fenv.h>
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ double Float2Int::magic = 65536.0 * 65536.0 * 65536.0 * 16.0 * 1.5;    // max ou
 //
 namespace Utils
 {
-    LOGDEFLOCAL("Utils")
+    LOGDEFLOCAL("Utils");
 
     //
     // Internal Data
@@ -333,15 +333,15 @@ namespace Utils
     //
     U32 Strcspn(const char* str, const char* charset)
     {
-        ASSERT(str)
-            ASSERT(charset)
-            return (strcspn(str, charset));
+        ASSERT(str);
+        ASSERT(charset);
+        return (strcspn(str, charset));
     }
     U32 Strcspn(const CH* str, const CH* charset)
     {
-        ASSERT(str)
-            ASSERT(charset)
-            return (wcscspn((const wchar_t*)str, (const wchar_t*)charset));
+        ASSERT(str);
+        ASSERT(charset);
+        return (wcscspn((const wchar_t*)str, (const wchar_t*)charset));
     }
 
 
@@ -403,10 +403,10 @@ namespace Utils
     //
     char* Strndup(const char* str, U32 count)
     {
-        ASSERT(str)
-            ASSERT(count > 0)
+        ASSERT(str);
+        ASSERT(count > 0);
 
-            U32 len = Strlen(str) + 1;
+        U32 len = Strlen(str) + 1;
         char* s;
 
         if (len >= count)
@@ -619,13 +619,13 @@ namespace Utils
     //
     char* ItoA(int value, char* buffer, int radix)
     {
-        ASSERT(buffer)
-            return (itoa(value, buffer, radix));
+        ASSERT(buffer);
+        return (itoa(value, buffer, radix));
     }
     CH* ItoA(int value, CH* buffer, int radix)
     {
-        ASSERT(buffer)
-            return (CH*)(_itow(value, (wchar_t*)buffer, radix));
+        ASSERT(buffer);
+        return (CH*)(_itow(value, (wchar_t*)buffer, radix));
     }
 
 
@@ -634,13 +634,13 @@ namespace Utils
     //
     int AtoI(const char* str)
     {
-        ASSERT(str)
-            return (atoi(str));
+        ASSERT(str);
+        return (atoi(str));
     }
     int AtoI(const CH* str)
     {
-        ASSERT(str)
-            return (_wtoi((const wchar_t*)str));
+        ASSERT(str);
+        return (_wtoi((const wchar_t*)str));
     }
 
 
@@ -649,8 +649,8 @@ namespace Utils
     //
     F32 AtoF(const char* str)
     {
-        ASSERT(str)
-            fesetround(FE_TONEAREST);
+        ASSERT(str);
+        fesetround(FE_TONEAREST);
         return ((F32)atof(str));
     }
 
@@ -759,8 +759,8 @@ namespace Utils
     //
     void CharEncode(char* dst, const U8* src, U32 srcSize, U32 dstSize)
     {
-        ASSERT(dstSize > srcSize * 2)
-            dstSize;
+        ASSERT(dstSize > srcSize * 2);
+        dstSize;
 
         while (srcSize--)
         {
@@ -780,11 +780,10 @@ namespace Utils
     void CharEncode64(char* dst, const U8* src, U32 srcSize, U32 dstSize)
     {
         dstSize;
+        ASSERT(dstSize * 3 > srcSize * 4);
 
-        ASSERT(dstSize * 3 > srcSize * 4)
-
-            // High byte is never used
-            base64data.ch[3] = 0;
+        // High byte is never used
+        base64data.ch[3] = 0;
 
         // Calculate number of whole runs
         S32 whole = srcSize / 3;
@@ -807,31 +806,31 @@ namespace Utils
         // Clean up remainder
         switch (remainder)
         {
-        case 1:
-        {
-            base64data.ch[2] = *src++;
-            base64data.ch[1] = 0;
-            base64data.ch[0] = 0;
+            case 1:
+            {
+                base64data.ch[2] = *src++;
+                base64data.ch[1] = 0;
+                base64data.ch[0] = 0;
 
-            *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
-            *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
-            *dst++ = '=';
-            *dst++ = '=';
-            break;
-        }
+                *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
+                *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
+                *dst++ = '=';
+                *dst++ = '=';
+                break;
+            }
 
-        case 2:
-        {
-            base64data.ch[2] = *src++;
-            base64data.ch[1] = *src++;
-            base64data.ch[0] = 0;
+            case 2:
+            {
+                base64data.ch[2] = *src++;
+                base64data.ch[1] = *src++;
+                base64data.ch[0] = 0;
 
-            *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
-            *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
-            *dst++ = base64Encode[(base64data.i & 0x000FC0) >> 6];
-            *dst++ = '=';
-            break;
-        }
+                *dst++ = base64Encode[(base64data.i & 0xFC0000) >> 18];
+                *dst++ = base64Encode[(base64data.i & 0x03F000) >> 12];
+                *dst++ = base64Encode[(base64data.i & 0x000FC0) >> 6];
+                *dst++ = '=';
+                break;
+            }
         }
 
         // Null terminate
@@ -844,8 +843,8 @@ namespace Utils
     //
     void CharDecode(U8* dst, const char* src, U32 srcSize, U32 dstSize)
     {
-        ASSERT(dstSize >= srcSize / 2)
-            dstSize;
+        ASSERT(dstSize >= srcSize / 2);
+        dstSize;
 
         while (srcSize)
         {
@@ -862,9 +861,8 @@ namespace Utils
     S32 CharDecode64(U8* dst, const char* src, U32 srcSize, U32 dstSize)
     {
         dstSize;
-
-        ASSERT((srcSize & 3) == 0)
-            const U8* orig = dst;
+        ASSERT((srcSize & 3) == 0);
+        const U8* orig = dst;
 
         // Calculate remainder
         const char* p = src + srcSize - 1;
@@ -908,8 +906,8 @@ namespace Utils
 
         // Return number of bytes decoded
         S32 len = S32(dst - orig);
-        ASSERT(len > 0 && len <= S32(dstSize))
-            return (len);
+        ASSERT(len > 0 && len <= S32(dstSize));
+        return (len);
     }
 
 
@@ -1187,11 +1185,11 @@ namespace Utils
     //
     void MakeFile(char* dst, U32 dstSize, const char* file, const char* ext)
     {
-        ASSERT(dst)
-            ASSERT(file)
-            ASSERT(ext)
+        ASSERT(dst);
+        ASSERT(file);
+        ASSERT(ext);
 
-            S32 size;
+        S32 size;
 
         // File
         size = Strlen(file);
