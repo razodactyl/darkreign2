@@ -35,6 +35,7 @@ namespace Vid
     const U32 MAXD3DDRIVERS = 5;
     const U32 D3DDRIVERNOTSET = MAXD3DDRIVERS + 1;
     const U32 MAXTEXFORMATS = 22;
+
     //-----------------------------------------------------------------------------
 
     struct VidMode
@@ -53,11 +54,13 @@ namespace Vid
         {
             ClearData();
         }
+
         VidMode(SurfaceDescDD& d)
         {
             ClearData();
             SetDesc(d);
         }
+
         void ClearData()
         {
             Utils::Memset(this, 0, sizeof(*this));
@@ -67,6 +70,7 @@ namespace Vid
         {
             return mode.rect.Width() == rect.Width() && mode.rect.Height() == rect.Height() && mode.bpp == bpp;
         }
+
         bool operator!=(VidMode& mode)
         {
             return mode.rect.Width() != rect.Width() || mode.rect.Height() != rect.Height() || mode.bpp != bpp;
@@ -75,6 +79,7 @@ namespace Vid
         void SetDesc(SurfaceDescDD& d);
         void SetName();
     };
+
     //-----------------------------------------------------------------------------
 
     struct DriverD3D
@@ -115,15 +120,18 @@ namespace Vid
         {
             ClearData();
         }
+
         void ClearData()
         {
             Utils::Memset(this, 0, sizeof(*this));
         }
+
         void SetDesc(const GUID* g, const char* n, const DeviceDescD3D& d);
 
         void SetCaps();
         void Report();
     };
+
     //-----------------------------------------------------------------------------
 
     struct DriverDD
@@ -131,7 +139,7 @@ namespace Vid
         NameString name;
         BuffString driver;
         BuffString device;
-        GUID* guidp, guid;
+        GUID *guidp, guid;
         DDCAPS desc;
 
         DeviceIdentDD ident;
@@ -165,14 +173,17 @@ namespace Vid
         {
             return vidModes[curMode];
         }
+
         DriverD3D& CurD3D()
         {
             return drivers[curDriver];
         }
+
         Bool SetDesc(GUID* g, const char* n, const DDCAPS& c);
         void SetupIdent();
         void Report();
     };
+
     //-----------------------------------------------------------------------------
 
     struct RenderState
@@ -251,7 +262,6 @@ namespace Vid
 
             // terrain
             U32 weather : 1; // show weather
-
         } status;
 
         Color ambientColor;
@@ -312,8 +322,10 @@ namespace Vid
         {
             ClearData();
         }
+
         void ClearData();
     };
+
     //-----------------------------------------------------------------------------
 
     // data members
@@ -342,11 +354,13 @@ namespace Vid
         {
             ClearData();
         }
+
         void ClearData()
         {
             Utils::Memset(this, 0, sizeof(this));
         }
     };
+
     extern Status doStatus;
     extern Status isStatus;
 
@@ -399,11 +413,13 @@ namespace Vid
         {
             ClearData();
         }
+
         void ClearData()
         {
             Utils::Memset(this, 0, sizeof(*this));
         }
     };
+
     extern Caps caps;
 
     extern Area<S32> viewRect; // used view relative to client
@@ -433,28 +449,34 @@ namespace Vid
     {
         return ddDrivers[curDD];
     }
+
     inline VidMode& CurMode()
     {
         return CurDD().vidModes[curMode];
     }
+
     inline DriverD3D& CurD3D()
     {
         return CurDD().CurD3D();
     }
+
     Pix& PixForm(U32 i);
 
     inline Pix& PixNormal()
     {
         return PixForm(normalFormat);
     }
+
     inline Pix& PixTransparent()
     {
         return PixForm(transparentFormat);
     }
+
     inline Pix& PixTranslucent()
     {
         return PixForm(translucentFormat);
     }
+
     inline Pix& BackBufFormat()
     {
         return backFormat;
@@ -485,17 +507,18 @@ namespace Vid
     {
         return SetMode(mode, viewRect.Width(), viewRect.Height(), FALSE);
     }
+
     inline Bool SetModeForce(U32 mode)
     {
         return SetMode(mode, viewRect.Width(), viewRect.Height(), TRUE);
     }
+
     Bool ToggleWindowedMode();
 
     Bool NextMode(S32 inc = 1);
     Bool NextDriver(S32 inc = 1);
-
 };
+
 //----------------------------------------------------------------------------
 
 #endif // __VIDDECL_H
-

@@ -40,9 +40,9 @@ namespace Main
         HWND win = CreateGameWindow("Dark Reign II");
 
         // JONATHAN
-        //glfwSetMouseButtonCallback(Main::GetGameWindowGLFW(), mouse_button_callback);
-        //glfwSetCursorPosCallback(Main::GetGameWindowGLFW(), &cursor_position_callback);
-        //glfwPollEvents();
+        // glfwSetMouseButtonCallback(Main::GetGameWindowGLFW(), mouse_button_callback);
+        // glfwSetCursorPosCallback(Main::GetGameWindowGLFW(), &cursor_position_callback);
+        // glfwPollEvents();
 
         return win;
     }
@@ -83,7 +83,6 @@ namespace Main
 // The Big Bahoola!
 //
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR cmdLine, int)
-//int main(int argc, const char* cmdLine[])
 {
     Utils::FP::Reset();
 

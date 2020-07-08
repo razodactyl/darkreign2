@@ -793,10 +793,11 @@ namespace Vid
             dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR, D3DRGBA(color.r, color.g, color.b, color.a));
             LOG_DXERR(("SetTextureFactor"));
         }
-
-        // JONATHAN
-        GLint loc = glGetUniformLocation(main_shader_program, "v4textureFactor");
-        glUniform4f(loc, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
+        else {
+            // JONATHAN
+            GLint loc = glGetUniformLocation(main_shader_program, "v4textureFactor");
+            glUniform4f(loc, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
+        }
     }
     //-----------------------------------------------------------------------------
 
@@ -860,9 +861,11 @@ namespace Vid
         if (!Vid::isStatus.ogl) {
             device->SetViewport(&viewDesc);
         }
-
-        // JONATHAN
-        glViewport(viewDesc.dwX, viewDesc.dwY, viewDesc.dwWidth, viewDesc.dwHeight);
+        else 
+        {
+            // JONATHAN
+            glViewport(viewDesc.dwX, viewDesc.dwY, viewDesc.dwWidth, viewDesc.dwHeight);
+        }
 
         Setup(*curCamera);
 
@@ -1056,13 +1059,18 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
+            if (!Vid::isStatus.ogl) {
 #ifndef DODXLEANANDGRUMPY
-            dxError = device->SetRenderState(D3DRENDERSTATE_AMBIENT, (D3DCOLOR)renderState.ambientColor);
-            LOG_DXERR(("SetAmbientColor"));
+                dxError = device->SetRenderState(D3DRENDERSTATE_AMBIENT, (D3DCOLOR)renderState.ambientColor);
+                LOG_DXERR(("SetAmbientColor"));
 #endif
-            // JONATHAN
-            GLint loc = glGetUniformLocation(main_shader_program, "v4ambient");
-            glUniform4f(loc, r, g, b, 1.0f);
+            }
+
+            if (Vid::isStatus.ogl) {
+                // JONATHAN
+                GLint loc = glGetUniformLocation(main_shader_program, "v4ambient");
+                glUniform4f(loc, r, g, b, 1.0f);
+            }
         }
     }
     //----------------------------------------------------------------------------
@@ -1297,25 +1305,28 @@ namespace Vid
                     LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
                 }
 
-                // JONATHAN
-                if (tex && tex->Lock()) {
-                    Vid::SetUniformBool("doTranslucent", tex->IsTranslucent());
-                    glActiveTexture(GL_TEXTURE0 + stage);
-                    glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
-                    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
-                    glGenerateMipmap(GL_TEXTURE_2D);
-                    tex->UnLock();
-                }
-                else {
-                    // Bind to empty texture.
-                    glActiveTexture(GL_TEXTURE0);
-                    glBindTexture(GL_TEXTURE_2D, 0);
+                if (Vid::isStatus.ogl)
+                {
+                    // JONATHAN
+                    if (tex && tex->Lock()) {
+                        Vid::SetUniformBool("doTranslucent", tex->IsTranslucent());
+                        glActiveTexture(GL_TEXTURE0 + stage);
+                        glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
+                        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
+                        glGenerateMipmap(GL_TEXTURE_2D);
+                        tex->UnLock();
+                    }
+                    else {
+                        // Bind to empty texture.
+                        glActiveTexture(GL_TEXTURE0);
+                        glBindTexture(GL_TEXTURE_2D, 0);
+                    }
                 }
             }
 
             if (tex)
             {
-                if (Vid::Status().ogl) { SetTexBlendState(blend, stage); }
+                SetTexBlendState(blend, stage);
                 SetTexWrapState(blend, stage);
             }
         }
@@ -1365,19 +1376,22 @@ namespace Vid
             LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
         }
 
-        // JONATHAN
-        if (tex && ((Bitmap*)tex)->Lock()) {
-            Vid::SetUniformBool("doTranslucent", ((Bitmap*)tex)->IsTranslucent());
-            glActiveTexture(GL_TEXTURE0 + stage);
-            glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
-            glGenerateMipmap(GL_TEXTURE_2D);
-            ((Bitmap*)tex)->UnLock();
-        }
-        else {
-            // Bind to empty texture.
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 0);
+        if (Vid::isStatus.ogl)
+        {
+            // JONATHAN
+            if (tex && ((Bitmap*)tex)->Lock()) {
+                Vid::SetUniformBool("doTranslucent", ((Bitmap*)tex)->IsTranslucent());
+                glActiveTexture(GL_TEXTURE0 + stage);
+                glBindTexture(GL_TEXTURE_2D, tex->GlTextureID());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex->Width(), tex->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tex->DecodedMem());
+                glGenerateMipmap(GL_TEXTURE_2D);
+                ((Bitmap*)tex)->UnLock();
+            }
+            else {
+                // Bind to empty texture.
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
         }
 
         if (tex)
@@ -1606,7 +1620,7 @@ namespace Vid
             LOG_DXERR(("device->SetRenderState( CLIPPING)"));
 
             flags &= DP_MASK;
-            //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
+            // flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
             // do the d3d call
             dxError = device->DrawPrimitive(
@@ -1646,7 +1660,7 @@ namespace Vid
         // what's with the TEX1 instead of TEX0 in LVERTEX and TLVERTEX?? HST 7/15/98
 
         // JONATHAN
-        if (vert_type == FVF_TLVERTEX) {
+        if (vert_type == FVF_TLVERTEX && Vid::isStatus.ogl) {
             int v3size = sizeof(VertexTL);
 
             glBindBuffer(GL_ARRAY_BUFFER, buffer);
@@ -1872,7 +1886,7 @@ namespace Vid
         DWORD blends = flags & RS_BLEND_MASK;
 
         flags &= DP_MASK;
-        //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
+        // flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
 
         //if (bucketdump)
@@ -1898,10 +1912,6 @@ namespace Vid
         //    //        LOG_DIAG( ("i = %d", in) );
         //    //      }
         //}
-
-        if (renderState.status.texStaged)
-        {
-        }
 
         if (!Vid::isStatus.ogl) {
             // do the d3d call
@@ -2040,7 +2050,7 @@ namespace Vid
         }
 
         // D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1
-        if (vert_type == FVF_CVERTEX) {
+        if (vert_type == FVF_CVERTEX && Vid::isStatus.ogl) {
 
             // Terrain textures but they're flat on the screen??
 
@@ -2203,7 +2213,7 @@ namespace Vid
 
         // JONATHAN
         // D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_SPECULAR | D3DFVF_TEX1
-        if (vert_type == FVF_TLVERTEX) {
+        if (vert_type == FVF_TLVERTEX && Vid::isStatus.ogl) {
 
             // DEBUGGING
             //

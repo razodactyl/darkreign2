@@ -292,10 +292,10 @@ namespace Main
         Debug::SetupInst(instance);
 
         // Clock Time
-        //Clock::Time::Init();
+        // Clock::Time::Init();
 
         // Perform pre ignition sequence
-        //Debug::PreIgnition(instance);
+        // Debug::PreIgnition(instance);
 
         // Initialize version
         Version::Init();
@@ -307,7 +307,7 @@ namespace Main
         Debug::Memory::InitMono();
 
         // Initialize Logging
-        //Log::Init();
+        // Log::Init();
 
         // Initailize Debug
         Debug::Init();
@@ -331,7 +331,7 @@ namespace Main
         FixMe::Init();
 
         // Turn off mono logging
-        //Log::ToMono(FALSE);
+        // Log::ToMono(FALSE);
 
         // Shutdown version
         Version::Done();
@@ -340,16 +340,16 @@ namespace Main
         Debug::Memory::DoneMono();
 
         // Report memory leaks
-        //Debug::Memory::Check();
+        // Debug::Memory::Check();
 
         // Shutdown Logging
-        //Log::Done();
+        // Log::Done();
 
         // Shutdown Mono
         MonoDone();
 
         // Shutdown Debug
-        //Debug::Done();
+        // Debug::Done();
     }
 
 
@@ -437,10 +437,10 @@ namespace Main
             800 + ew, 600 + eh, SWP_NOREDRAW);
 
         Vid::doStatus.ogl = false;
-        Vid::Init_PreGL(window);
+        //Vid::Init_PreGL(window);
         Vid::Init(instance, mainHwnd);
 
-        ShowWindow(mainHwnd, SW_SHOWNORMAL);
+        ShowWindow(mainHwnd, SW_SHOWMINIMIZED);
 
         // JONATHAN: Seems to set the style of the window.
         Vid::PostShowWindow();
@@ -701,14 +701,14 @@ namespace Main
                                                 vidModeY = atoi(s + 1);
                                                 vidModeSet = TRUE;
                                                 Vid::doStatus.modeOverRide = TRUE;
-                                                LOG_DIAG(("Setting mode [%dx%d]", vidModeX, vidModeY))
-                                                    break;
+                                                LOG_DIAG(("Setting mode [%dx%d]", vidModeX, vidModeY));
+                                                break;
                                             }
                                         }
                                     }
                                 }
-                                LOG_ERR(("-vidmode: bad mode [%s]", val.str))
-                                    break;
+                                LOG_ERR(("-vidmode: bad mode [%s]", val.str));
+                                break;
                             }
 
                             default:
@@ -877,10 +877,8 @@ namespace Main
             DEBUG_STATIC_GUARD_BLOCK_CHECK;
 
 #ifdef DEVELOPMENT
-
             // Ping the watchdog
             Debug::Watchdog::Poll();
-
 #endif
 
             if (active || bgProcess)
@@ -897,9 +895,9 @@ namespace Main
                 Sleep(0);
             }
 
-        } while (!quitGame && !glfwWindowShouldClose(window));
+        } while (!quitGame); // && !glfwWindowShouldClose(window));
 
-        glfwTerminate();
+        // glfwTerminate();
 
         // Reset the current run-code
         runCodes.Reset();
@@ -1197,19 +1195,17 @@ namespace Main
     HWND CreateGameWindow(const char* title)
     {
         // JONATHAN - GLFW
-        glfwWindowHint(GLFW_SAMPLES, 4);
-
-        window = glfwCreateWindow(MAININIT_SCREEN_WIDTH, MAININIT_SCREEN_HEIGHT, title, NULL, NULL);
-        if (!window) {
-            glfwTerminate();
-            return NULL;
-        }
-
-        glfwMakeContextCurrent(window);
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-        glewInit();
-
-        //glfwSetWindowFocusCallback(window, window_focus_callback);
+        // glfwWindowHint(GLFW_SAMPLES, 4);
+        //
+        // window = glfwCreateWindow(MAININIT_SCREEN_WIDTH, MAININIT_SCREEN_HEIGHT, title, NULL, NULL);
+        // if (!window) {
+        //     glfwTerminate();
+        //     return NULL;
+        // }
+        //
+        // glfwMakeContextCurrent(window);
+        // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        // glewInit();
 
         /////////////////////////
 
@@ -1253,7 +1249,7 @@ namespace Main
             NULL
         );
 
-        return glfwGetWin32Window(window);
+        // return glfwGetWin32Window(window);
 
         return hwnd;
     }

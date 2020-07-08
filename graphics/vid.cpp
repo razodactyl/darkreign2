@@ -663,9 +663,9 @@ namespace Vid
     //
     Bool SetMode(U32 mode, U32 width, U32 height, Bool force) // = FALSE
     {
-#ifdef DEVELOPMENT
-        mode = VIDMODEWINDOW;
-#endif
+        // #ifdef DEVELOPMENT
+        //         mode = VIDMODEWINDOW;
+        // #endif
 
         bool const same_dimensions = viewRect.Width() == static_cast<S32>(width) && viewRect.Height() == static_cast<S32>(height);
         bool const same_mode = curMode == mode;
@@ -858,7 +858,7 @@ namespace Vid
             ReleaseDD();
             isStatus.fullScreen = TRUE;
 
-            if ((!firstRun && /*!restore &&*/ !InitDD()) || !SetCoopLevel())
+            if ((!firstRun && !restore && !InitDD()) || !SetCoopLevel())
             {
                 return FALSE;
             }
@@ -887,6 +887,7 @@ namespace Vid
                 CurMode().rect.Width(), CurMode().rect.Height(),
                 // NULL);
                 SWP_NOREDRAW);
+
             // DoCursor();
             SetCursorPos(CurMode().rect.HalfWidth(), CurMode().rect.HalfHeight());
 
@@ -1512,6 +1513,7 @@ namespace Vid
                 return FALSE;
             }
         }
+
 #ifdef SAVEIT
         DDCOLORKEY ddck;
         Utils::Memset(&ddck, 0, sizeof(ddck));
@@ -1575,12 +1577,14 @@ namespace Vid
                         return FALSE;
                     }
                 }
+
 #ifdef SAVEIT
                 DDCOLORKEY ddck;
                 Utils::Memset(&ddck, 0, sizeof(ddck));
                 ddck.dwSize = sizeof(DDCOLORKEY);
                 BackBuffer.Surface->SetColorKey(DDCKEY_DESTBLT, &ddck);
 #endif
+
                 // create the DirectDraw Clipper object
                 // and attach it to the window and front buffer.
                 dxError = ddx->CreateClipper(0, &clipper, nullptr);
@@ -1648,6 +1652,7 @@ namespace Vid
                 }
             }
         }
+
         Utils::Memset(&backDesc, 0, sizeof(backDesc));
         backDesc.dwSize = sizeof(backDesc);
         dxError = back->Lock(nullptr, &backDesc, DDLOCK_WAIT, nullptr);
@@ -1667,7 +1672,6 @@ namespace Vid
 
         backBmp.InitPrimitives();
         backBmp.SetName("backbuffer");
-
 
         // // clear all buffers
         // S32 count = (desc.ddsCaps.dwCaps & DDSCAPS_COMPLEX) ? desc.dwBackBufferCount : 0;
@@ -1691,13 +1695,10 @@ namespace Vid
     {
         if (isStatus.fullScreen)
         {
-            dxError = ddx->SetCooperativeLevel(
-                hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE);
+            dxError = ddx->SetCooperativeLevel(hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE);
             if (dxError)
             {
-                LOG_DXERR(
-                    ("SetCoopLevel: ddx->SetCooperativeLevel( EXCLUSIVE | FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE )"
-                        ));
+                LOG_DXERR(("SetCoopLevel: ddx->SetCooperativeLevel( EXCLUSIVE | FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE )"));
 
                 if (!firstRun)
                 {
@@ -1734,7 +1735,7 @@ namespace Vid
 
         if (active)
         {
-            //#define HARSHRESTORE
+            // #define HARSHRESTORE
 #ifndef HARSHRESTORE
             RestoreSurfaces();
 #else
@@ -2177,7 +2178,7 @@ namespace Vid
 
         Bool retValue = SetMode(curMode, cx, cy);
 
-        // Vid::RestoreSurfaces();
+        Vid::RestoreSurfaces();
 
         return retValue;
     }

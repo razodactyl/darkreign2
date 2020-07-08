@@ -1033,41 +1033,41 @@ void Bitmap::SetPixFormat(const Pix* pix)
 //
 void Bitmap::InitPixFormat()
 {
-    Pix *dummyFormat = new Pix();
-
-    DDPIXELFORMAT f;
-    f.dwSize = 0x00000020;
-    f.dwFlags = 0x00000041;
-    f.dwFourCC = 0x00000000;
-    f.dwRGBBitCount = 16;
-    f.dwYUVBitCount = 16;
-    f.dwZBufferBitDepth = 16;
-    f.dwAlphaBitDepth = 16;
-    f.dwLuminanceBitCount = 16;
-    f.dwBumpBitCount = 16;
-    f.dwRBitMask = 0x00000f00;
-    f.dwYBitMask = 0x00000f00;
-    f.dwStencilBitDepth = 0x00000f00;
-    f.dwLuminanceBitMask = 0x00000f00;
-    f.dwBumpDuBitMask = 0x00000f00;
-    f.dwGBitMask = 0x000000f0;
-    f.dwUBitMask = 0x000000f0;
-    f.dwZBitMask = 0x000000f0;
-    f.dwBumpDvBitMask = 0x000000f0;
-    f.dwBBitMask = 0x0000000f;
-    f.dwVBitMask = 0x0000000f;
-    f.dwStencilBitMask = 0x0000000f;
-    f.dwBumpLuminanceBitMask = 0x0000000f;
-    f.dwRGBAlphaBitMask = 0x0000f000;
-    f.dwYUVAlphaBitMask = 0x0000f000;
-    f.dwLuminanceAlphaBitMask = 0x0000f000;
-    f.dwRGBZBitMask = 0x0000f000;
-    f.dwYUVZBitMask = 0x0000f000;
-
-    dummyFormat->SetPixFmt(f);
-    
-    pixForm = dummyFormat;
-    //return;
+    // Pix *dummyFormat = new Pix();
+    //
+    // DDPIXELFORMAT f;
+    // f.dwSize = 0x00000020;
+    // f.dwFlags = 0x00000041;
+    // f.dwFourCC = 0x00000000;
+    // f.dwRGBBitCount = 16;
+    // f.dwYUVBitCount = 16;
+    // f.dwZBufferBitDepth = 16;
+    // f.dwAlphaBitDepth = 16;
+    // f.dwLuminanceBitCount = 16;
+    // f.dwBumpBitCount = 16;
+    // f.dwRBitMask = 0x00000f00;
+    // f.dwYBitMask = 0x00000f00;
+    // f.dwStencilBitDepth = 0x00000f00;
+    // f.dwLuminanceBitMask = 0x00000f00;
+    // f.dwBumpDuBitMask = 0x00000f00;
+    // f.dwGBitMask = 0x000000f0;
+    // f.dwUBitMask = 0x000000f0;
+    // f.dwZBitMask = 0x000000f0;
+    // f.dwBumpDvBitMask = 0x000000f0;
+    // f.dwBBitMask = 0x0000000f;
+    // f.dwVBitMask = 0x0000000f;
+    // f.dwStencilBitMask = 0x0000000f;
+    // f.dwBumpLuminanceBitMask = 0x0000000f;
+    // f.dwRGBAlphaBitMask = 0x0000f000;
+    // f.dwYUVAlphaBitMask = 0x0000f000;
+    // f.dwLuminanceAlphaBitMask = 0x0000f000;
+    // f.dwRGBZBitMask = 0x0000f000;
+    // f.dwYUVZBitMask = 0x0000f000;
+    //
+    // dummyFormat->SetPixFmt(f);
+    //
+    // pixForm = dummyFormat;
+    // //return;
 
     switch ((type & bitmapTYPEMASK))
     {
