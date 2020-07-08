@@ -436,7 +436,7 @@ namespace Main
             (GetSystemMetrics(SM_CYSCREEN) - 600) >> 1,
             800 + ew, 600 + eh, SWP_NOREDRAW);
 
-        Vid::doStatus.ogl = true;
+        Vid::doStatus.ogl = false;
         Vid::Init_PreGL(window);
         Vid::Init(instance, mainHwnd);
 

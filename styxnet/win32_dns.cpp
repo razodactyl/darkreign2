@@ -20,7 +20,7 @@
 // Libraries
 //
 
-//#pragma comment(lib, "ws2_32.lib")
+// #pragma comment(lib, "ws2_32.lib")
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -347,6 +347,8 @@ namespace Win32
             else
             {
                 Lookup* lookup = lookupsByName.Find(crc);
+
+                // auto*t = gethostbyname("mintsoft.dev");
 
                 // Is there a pending lookup of this name ?
                 if (!lookup)

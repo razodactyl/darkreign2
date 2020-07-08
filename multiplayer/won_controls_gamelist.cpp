@@ -182,7 +182,7 @@ namespace Won
             ping(Clock::Time::Ms()),
             old(FALSE)
         {
-            host = Utils::Unicode2Ansi(game.host.str);
+            host = Utils::Unicode2Ansi(game.hostUsername.str);
             Utils::Memcpy(&session, game.data, sizeof(StyxNet::Session));
 
             controlStyle &= ~STYLE_INERT;

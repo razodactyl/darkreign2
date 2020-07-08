@@ -289,7 +289,9 @@ namespace Vid
         // maininit.cpp -> 439
         isStatus.ogl = doStatus.ogl;
 
-        LoadDefaultShaders();
+        if (isStatus.ogl) {
+            LoadDefaultShaders();
+        }
 
         return TRUE;
     }

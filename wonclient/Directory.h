@@ -20,7 +20,7 @@ namespace MINTCLIENT
 
             struct RoutingServer : DirectoryServer
             {
-                U8 num_players = -1;
+                U8 num_players = 0;
                 bool password = false;
             };
 
