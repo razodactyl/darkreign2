@@ -30,7 +30,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
-    <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -66,18 +65,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>../3rdparty/glfw-3.3.2.bin.WIN32/include;../3rdparty/glew-2.1.0/include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <CallingConvention>FastCall</CallingConvention>
       <DisableSpecificWarnings>4996;</DisableSpecificWarnings>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,4
@@ -101,13 +95,10 @@ rc version.rc</Command>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OutputFile>F:\Games\Dark Reign 2\dr2_release.exe</OutputFile>
       <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonlib.lib;wonclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>..\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;..\3rdparty\glew-2.1.0\lib\Release\Win32;$(SolutionDir)bin\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -115,20 +106,14 @@ rc version.rc</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>../3rdparty/glfw-3.3.2.bin.WIN32/include;../3rdparty/glew-2.1.0/include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>WIN32;NDEBUG;DEVELOPMENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <CallingConvention>FastCall</CallingConvention>
       <CallingConvention>FastCall</CallingConvention>
-      <MinimalRebuild>true</MinimalRebuild>
-      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,4
@@ -152,13 +137,10 @@ rc version.rc</Command>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonlib.lib;wonclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>..\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;..\3rdparty\glew-2.1.0\lib\Release\Win32;$(SolutionDir)bin\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -166,18 +148,13 @@ rc version.rc</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
     <ClCompile>
-      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
-      <StringPooling>true</StringPooling>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
       <AdditionalIncludeDirectories>../3rdparty/glfw-3.3.2.bin.WIN32/include;../3rdparty/glew-2.1.0/include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>WIN32;DEVELOPMENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <CallingConvention>FastCall</CallingConvention>
-      <MinimalRebuild>true</MinimalRebuild>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,4
@@ -201,13 +178,10 @@ rc version.rc</Command>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonlib.lib;wonclient.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>..\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;..\3rdparty\glew-2.1.0\lib\Release\Win32;$(SolutionDir)bin\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
