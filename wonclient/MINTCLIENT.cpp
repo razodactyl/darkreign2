@@ -75,7 +75,7 @@ namespace MINTCLIENT
         if (flags & StyxNet::ClientFlags::Connected)
         {
             // Just send it, don't care about response.
-            StyxNet::Packet::Create(MINTCLIENT::Message::RoutingServerDisconnect).Send(socket);
+            StyxNet::Packet::Create(MINTCLIENT::Message::ServerDisconnect).Send(socket);
         }
 
         // Make sure the socket is closed
@@ -338,6 +338,7 @@ namespace MINTCLIENT
             break;
 
             case MINTCLIENT::Message::IdentityCreate: // 0x14096404
+            case MINTCLIENT::Message::IdentityUpdate: // 0xB6CFD48E
             case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
             {
                 const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
@@ -454,6 +455,9 @@ namespace MINTCLIENT
             break;
 
             case MINTCLIENT::Message::RoutingServerGameCreated:
+            case MINTCLIENT::Message::RoutingServerGameUpdated:
+            case MINTCLIENT::Message::RoutingServerGameReplaced:
+            case MINTCLIENT::Message::RoutingServerGameDeleted:
             {
                 auto* cmd = this->GetCommandById(packet.GetCommand());
 

@@ -64,7 +64,7 @@
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <OutDir>C:\Program Files (x86)\GOG Galaxy\Games\Dark Reign 2</OutDir>
+    <OutDir>F:\Games\Dark Reign 2</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>dr2_$(Configuration)</TargetName>
     <IntDir>$(Configuration)\</IntDir>
@@ -118,7 +118,7 @@ rc version.rc</Command>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <OutputFile>F:\Games\Dark Reign 2\dr2_release.exe</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonclient.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
@@ -230,9 +230,7 @@ rc version.rc</Command>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\settings.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="version.res" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\coregame\coregame.vcxproj">
@@ -303,6 +301,9 @@ rc version.rc</Command>
       <Project>{1764e8da-1f79-49b1-b1d0-c7b6339c1ecf}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

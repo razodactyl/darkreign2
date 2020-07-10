@@ -503,7 +503,7 @@ namespace WonIface
 
     static void CreateAccountCallback(const MINTCLIENT::Identity::Result& result);
     static void LoginAccountCallback(const MINTCLIENT::Identity::Result& result);
-    static void ChangePasswordCallback(const MINTCLIENT::Identity::Result& result, AbortableContext*);
+    static void ChangePasswordCallback(const MINTCLIENT::Identity::Result& result);
     static void DetectFirewallCallback(const MINTCLIENT::Firewall::DetectResult& result);
 
     static void UpdateRoomsCallback(const MINTCLIENT::Directory::Result& result);
@@ -534,6 +534,9 @@ namespace WonIface
     // static void HostChangeCatcher(MINTCLIENT::RoutingServerClient::Data::ClientId client, void*);
     // static void DataObjectCreationCatcher(const MINTCLIENT::RoutingServerClient::Data::DataObjectWithLifespan& reason, void*);
     static void GameCreatedCatcher(const MINTCLIENT::RoutingServerClient::CreateGameResult& result);
+    static void GameUpdatedCatcher(const MINTCLIENT::RoutingServerClient::UpdateGameResult& result);
+    static void GameReplacedCatcher(const MINTCLIENT::RoutingServerClient::ReplaceGameResult& result);
+    static void GameDeletedCatcher(const MINTCLIENT::RoutingServerClient::DeleteGameResult& result);
     // static void DataObjectDeletionCatcher(const MINTCLIENT::RoutingServerClient::Data::DataObject& reason, void*);
     // static void DataObjectModificationCatcher(const MINTCLIENT::RoutingServerClient::Data::DataObjectModification& reason, void*);
     // static void DataObjectReplacementCatcher(const MINTCLIENT::RoutingServerClient::Data::DataObject& reason, void*);
@@ -1008,77 +1011,74 @@ namespace WonIface
     //
     void ChangePassword(const char* username, const char* oldPassword, const char* newPassword)
     {
-        // LOG_WON(("Change Identity: Username %s Community %s AuthServers %d", username, community, authServers.num));
-        //
-        // // Build an Identity
-        // identity = WONAPI::Identity
-        // (
-        //     username,
-        //     community,
-        //     oldPassword,
-        //     "",
-        //     authServers.servers,
-        //     authServers.num
-        // );
-        //
-        // // Ask WON to change this accounts password
-        // WONAPI::Error error = identity.AuthenticateNewPasswordEx
-        // (
-        //     newPassword,
-        //     requestTimeout,
-        //     TRUE,
-        //     ChangePasswordCallback,
-        //     new AbortableContext
-        // );
-        //
-        // // Ensure that the operation started
-        // switch (error)
-        // {
-        // case WONAPI::Error_Success:
-        // case WONAPI::Error_Pending:
-        // case WONMsg::StatusAuth_InvalidCDKey:
-        //     break;
-        //
-        // case WONAPI::Error_BadNewPassword:
-        //     PostEvent(Error::ChangePasswordBadNewPassword);
-        //     break;
-        //
-        // default:
-        //     ERR_FATAL(("Identity::AuthenticateNewPasswordEx: %d %s", error, WONErrorToString(error)));
-        // }
+        LOG_WON(("Change Identity: Username %s Community %s AuthServers %d", username, community, authServers.Length()));
+
+        // Build an Identity
+        identity.Set(Utils::Ansi2Unicode(Utils::Strdup(username)), Utils::Ansi2Unicode(Utils::Strdup(oldPassword)));
+        identity.SetNewPassword(Utils::Ansi2Unicode(Utils::Strdup(newPassword)));
+
+        auto c = new MINTCLIENT::Client::Config(authServers.servers.front());
+        auto client = new MINTCLIENT::Client(*c);
+
+        // Ask MINT to update this account.
+        WONAPI::Error error = identity.Update
+        (
+            client,
+            ChangePasswordCallback,
+            new AbortableContext
+        );
+
+        // Ensure that the operation started
+        switch (error)
+        {
+        case WONAPI::Error_Success:
+        case WONAPI::Error_Pending:
+            // case WONMsg::StatusAuth_InvalidCDKey:
+            break;
+
+        case WONAPI::Error_BadNewPassword:
+            PostEvent(Error::ChangePasswordBadNewPassword);
+            break;
+
+        default:
+            ERR_FATAL(("Identity::AuthenticateNewPasswordEx: %d %s", error, WONAPI::WONErrorToString(error)));
+        }
     }
 
 
     //
     // ChangePasswordCallback
     //
-    void ChangePasswordCallback(const MINTCLIENT::Identity::Result& result, AbortableContext* context)
+    void ChangePasswordCallback(const MINTCLIENT::Identity::Result& result)
     {
-        // LOG_WON(("ChangePasswordCallback in"));
-        // LOG_WON(("AuthenticateNewPasswordEx CB: %d %s", result.error, WONErrorToString(result.error)));
-        //
-        // if (context->abort.Test())
-        // {
-        //     LOG_WON(("Was Aborted"));
-        // }
-        // else
-        // {
-        //     switch (result.error)
-        //     {
-        //     case WONAPI::Error_Success:
-        //         PostEvent(Message::ChangedPassword);
-        //         break;
-        //
-        //     default:
-        //         LOG_ERR(("AuthenticateNewPasswordEx CB: %d %s", result.error, WONErrorToString(result.error)))
-        //             PostEvent(Error::ChangePasswordFailure);
-        //         break;
-        //     }
-        // }
-        //
-        // delete context;
-        //
-        // LOG_WON(("ChangePasswordCallback out"));
+        LOG_WON(("ChangePasswordCallback in"));
+        LOG_WON(("ChangePasswordCallback CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+
+        auto context = static_cast<AbortableContext*>(result.context);
+        ASSERT(context);
+
+        if (context->abort.Test())
+        {
+            LOG_WON(("Was Aborted"));
+        }
+        else
+        {
+            switch (result.error)
+            {
+            case WONAPI::Error_Success:
+                PostEvent(Message::ChangedPassword);
+                break;
+
+            default:
+                LOG_ERR(("ChangePasswordCallback CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+                PostEvent(Error::ChangePasswordFailure);
+                break;
+            }
+        }
+
+        delete context;
+
+        LOG_WON(("ChangePasswordCallback out"));
     }
 
 
@@ -1479,6 +1479,13 @@ namespace WonIface
             //     DeleteDataObjectCallback,                       // void (*f)(short, privsType), 
             //     (void*)NULL                                   // privsType t)
             // );
+
+            currentRoutingServer->DeleteGame(
+                Utils::Ansi2Unicode(name.str),
+                currentRoutingServer->GetClientId(),
+                DeleteGameCallback,
+                nullptr
+            );
         }
 
         LOG_WON(("critRouting.Signal"));
@@ -1939,13 +1946,10 @@ namespace WonIface
         // routingServer->InstallBecomeModeratorCatcherEx(BecomeModeratorCatcher, (void*)NULL);
         // routingServer->InstallHostChangeCatcherEx(HostChangeCatcher, (void *) NULL);
 
-        // routingServer->InstallDataObjectCreationCatcherEx(DataObjectCreationCatcher, (void*)NULL);
         routingServer->InstallGameCreatedCatcher(GameCreatedCatcher, nullptr);
-        // routingServer->InstallGameUpdatedCatcher(GameUpdatedCatcher, nullptr);
-
-        // routingServer->InstallDataObjectDeletionCatcherEx(DataObjectDeletionCatcher, (void*)NULL);
-        // routingServer->InstallDataObjectModificationCatcherEx(DataObjectModificationCatcher, (void *) NULL);
-        // routingServer->InstallDataObjectReplacementCatcherEx(DataObjectReplacementCatcher, (void*)NULL);
+        routingServer->InstallGameUpdatedCatcher(GameUpdatedCatcher, nullptr);
+        routingServer->InstallGameReplacedCatcher(GameReplacedCatcher, nullptr);
+        routingServer->InstallGameDeletedCatcher(GameDeletedCatcher, nullptr);
 
         // routingServer->InstallKeepAliveCatcherEx(KeepAliveCatcher, (void*)NULL);
 
@@ -2407,12 +2411,6 @@ namespace WonIface
         {
             ERR_FATAL(("No Identity!"));
         }
-
-        // // Data is the valid versions
-        // WONCommon::DataObjectTypeSet data;
-        // data.insert(WONCommon::DataObject(dataClientCount));
-        // data.insert(WONCommon::DataObject(dataFlags));
-        // data.insert(WONCommon::DataObject(dataPermanent));
 
         LOG_WON(("GetDirectoryEx: Num Servers %d", directoryServers.servers.size()));
 
@@ -2922,9 +2920,9 @@ namespace WonIface
             for (const auto& i : result.gameResultList)
             {
                 GameName name = Utils::Unicode2Ansi(Utils::Strdup(i.name.str));
-            
+
                 RoomClient* host = roomClients.Find(i.ownerId);
-            
+
                 if (host)
                 {
                     RoomGame* game = new RoomGame
@@ -2936,12 +2934,12 @@ namespace WonIface
                     );
                     roomGames.Add(name.crc, game);
                     LOG_WON(("Game: %s", name.str));
-            
+
                     RoomName gameName;
                     Utils::Ansi2Unicode(gameName.str, gameName.GetSize(), name.str);
-            
+
                     PlayerName name = host->name.str;
-            
+
                     LOG_WON(("critData.Signal"));
                     critData.Signal();
                     PostEvent(Message::Chat, new Message::Data::Chat(Message::Data::Chat::GameCreated, gameName.str, name.str));
@@ -2971,6 +2969,10 @@ namespace WonIface
     //
     void GetNumUsersCallback(const MINTCLIENT::RoutingServerClient::GetNumUsersResult& result)
     {
+        if (result.error != WONAPI::Error_Success)
+        {
+            PostEvent(Error::ReconnectFailure);
+        }
     }
 
 
@@ -3045,60 +3047,63 @@ namespace WonIface
     //
     // MuteClientCatcher
     //
-    void MuteClientCatcher(const MINTCLIENT::RoutingServerClient::Data::ClientIdWithFlag& reason, void*)
+    void MuteClientCatcher(const MINTCLIENT::RoutingServerClient::ClientUpdateResult& result)
     {
-        // LOG_WON(("MuteClient [%d] %d", reason.mClientId, reason.mFlagOnOrOff));
-        //
-        // LOG_WON(("critData.Wait"));
-        // critData.Wait();
-        // RoomClient* rc = roomClients.Find(reason.mClientId);
-        // if (rc)
-        // {
-        //     rc->muted = reason.mFlagOnOrOff;
-        // }
-        // LOG_WON(("critData.Signal"));
-        // critData.Signal();
-        //
-        // PostEvent(Message::PlayersChanged);
+        LOG_WON(("MuteClient [%d] %d", result.client.clientId, result.client.isMuted));
+        
+        LOG_WON(("critData.Wait"));
+        critData.Wait();
+        RoomClient* rc = roomClients.Find(result.client.clientId);
+        if (rc)
+        {
+            rc->muted = result.client.isMuted;
+        }
+        LOG_WON(("critData.Signal"));
+        critData.Signal();
+        
+        PostEvent(Message::PlayersChanged);
     }
 
 
     //
     // BecomeModeratorCatcher
     //
-    void BecomeModeratorCatcher(const MINTCLIENT::RoutingServerClient::Data::ClientIdWithFlag& reason, void*)
+    void BecomeModeratorCatcher(const MINTCLIENT::RoutingServerClient::ClientUpdateResult& result)
     {
-        // LOG_WON(("BecomeModerator [%d] %d", reason.mClientId, reason.mFlagOnOrOff));
-        //
-        // LOG_WON(("critData.Wait"));
-        // critData.Wait();
-        // RoomClient* rc = roomClients.Find(reason.mClientId);
-        // if (rc)
-        // {
-        //     rc->moderator = reason.mFlagOnOrOff;
-        // }
-        // LOG_WON(("critData.Signal"));
-        // critData.Signal();
-        //
-        // PostEvent(Message::PlayersChanged);
+        LOG_WON(("BecomeModerator [%d] %d", result.client.clientId, result.client.isModerator));
+        
+        LOG_WON(("critData.Wait"));
+        critData.Wait();
+        RoomClient* rc = roomClients.Find(result.client.clientId);
+        if (rc)
+        {
+            rc->moderator = result.client.isModerator;
+        }
+        LOG_WON(("critData.Signal"));
+        critData.Signal();
+        
+        PostEvent(Message::PlayersChanged);
     }
 
 
     //
     // HostChangeCatcher
     //
-    void HostChangeCatcher(const MINTCLIENT::RoutingServerClient::Data::ClientId reason, void*)
+    void HostChangeCatcher(const MINTCLIENT::RoutingServerClient::ClientUpdateResult& result)
     {
         LOG_WON(("HostChange"));
-        reason;
+        result;
     }
 
 
+    //
+    // A StyxNet Session Game has been created.
+    //
     void GameCreatedCatcher(const MINTCLIENT::RoutingServerClient::CreateGameResult& result)
     {
-        LOG_WON(("DataObjectCreationCatcher in"));
+        LOG_WON(("GameCreatedCatcher in"));
         GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
-        LOG_WON(("Game Created : %s by [%d]", name.str, result.ownerId));
+        LOG_WON(("Game Created : `%s` by [%d]", name.str, result.ownerId));
 
         LOG_WON(("critData.Wait"));
         critData.Wait();
@@ -3117,7 +3122,10 @@ namespace WonIface
             auto addr_text = session->address.GetText();
             auto addr_info = session->address.GetDisplayText();
 
+            LOG_WON((">>> Found host : `%s` at address `%s`", Utils::Unicode2Ansi(host->name.str), addr_info));
+
             session->address.SetIP(result.address.host);
+            LOG_WON((">>> Switching IP from `%s` to `%s`", session->address.GetDisplayText(), result.address.host));
 
             RoomGame* game = new RoomGame
             (
@@ -3126,6 +3134,7 @@ namespace WonIface
                 game_data_size,
                 game_data
             );
+
             roomGames.Add(game->name.crc, game);
 
             PlayerName name = host->name.str;
@@ -3149,90 +3158,90 @@ namespace WonIface
 
 
     //
-    // DataObjectDeletionCatcher
+    // A StyxNet Session Game has been updated.
     //
-    void DataObjectDeletionCatcher(const MINTCLIENT::RoutingServerClient::Data::DataObject& reason, void*)
+    void GameUpdatedCatcher(const MINTCLIENT::RoutingServerClient::UpdateGameResult& result)
     {
-        // LOG_WON(("DataObjectDeletionCatcher in"));
-        // GameName name = reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
-        // LOG_WON(("Game Deleted : %s by [%d]", name.str, reason.mOwnerId));
-        //
-        // LOG_WON(("critData.Wait"));
-        // critData.Wait();
-        //
-        // RoomGame* game = roomGames.Find(name.crc);
-        // if (game)
-        // {
-        //     roomGames.Dispose(game);
-        //
-        //     RoomName gameName;
-        //     Utils::Ansi2Unicode(gameName.str, gameName.GetSize(), name.str);
-        //
-        //     LOG_WON(("critData.Signal"));
-        //     critData.Signal();
-        //     PostEvent(Message::Chat, new Message::Data::Chat(Message::Data::Chat::GameDestroyed, gameName.str, (const CH*)NULL));
-        //     PostEvent(Message::GamesChanged);
-        // }
-        // else
-        // {
-        //     LOG_WON(("critData.Signal"));
-        //     critData.Signal();
-        // }
-        //
-        // LOG_WON(("DataObjectDeletionCatcher out"));
+        LOG_WON(("GameUpdatedCatcher in"));
+        GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
+        LOG_WON(("Game Modified: %s", name.str));
+        LOG_WON(("GameUpdatedCatcher out"));
     }
 
 
     //
-    // DataObjectModificationCatcher
+    // A StyxNet Session Game has been replaced.
     //
-    void DataObjectModificationCatcher(const MINTCLIENT::RoutingServerClient::Data::DataObjectModification& reason, void*)
+    void GameReplacedCatcher(const MINTCLIENT::RoutingServerClient::ReplaceGameResult& result)
     {
-        // LOG_WON(("DataObjectModificationCatcher in"));
-        // GameName name = reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
-        // LOG_WON(("Game Modified : %s", name.str));
-        // LOG_WON(("DataObjectModificationCatcher out"));
+        LOG_WON(("GameReplacedCatcher in"));
+        GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
+        LOG_WON(("Game Updated : %s by [%d]", name.str, result.ownerId));
+
+        LOG_WON(("critData.Wait"));
+        critData.Wait();
+
+        RoomGame* game = roomGames.Find(name.crc);
+        if (game)
+        {
+            if (game->size == result.game_data_size)
+            {
+                Utils::Memcpy(game->data, result.game_data, game->size);
+                LOG_WON(("critData.Signal"));
+                critData.Signal();
+                PostEvent(Message::GamesChanged);
+                LOG_WON(("critData.Wait"));
+                critData.Wait();
+            }
+            else
+            {
+                LOG_WON(("Data is a different size"));
+            }
+        }
+        else
+        {
+            LOG_WON(("Could not find game"));
+        }
+
+        LOG_WON(("critData.Signal"));
+        critData.Signal();
+
+        LOG_WON(("GameReplacedCatcher out"));
     }
 
 
     //
-    // DataObjectReplacementCatcher
+    // A StyxNet Session Game has been deleted.
     //
-    void DataObjectReplacementCatcher(const MINTCLIENT::RoutingServerClient::Data::DataObject& reason, void*)
+    void GameDeletedCatcher(const MINTCLIENT::RoutingServerClient::DeleteGameResult& result)
     {
-        // LOG_WON(("DataObjectReplacementCatcher in"));
-        // GameName name = reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
-        // LOG_WON(("Game Updated : %s by [%d]", name.str, reason.mOwnerId));
-        //
-        // LOG_WON(("critData.Wait"));
-        // critData.Wait();
-        //
-        // RoomGame* game = roomGames.Find(name.crc);
-        // if (game)
-        // {
-        //     if (game->size == reason.mData.size())
-        //     {
-        //         Utils::Memcpy(game->data, reason.mData.data(), game->size);
-        //         LOG_WON(("critData.Signal"));
-        //         critData.Signal();
-        //         PostEvent(Message::GamesChanged);
-        //         LOG_WON(("critData.Wait"));
-        //         critData.Wait();
-        //     }
-        //     else
-        //     {
-        //         LOG_WON(("Data is a different size"));
-        //     }
-        // }
-        // else
-        // {
-        //     LOG_WON(("Could not find game"));
-        // }
-        //
-        // LOG_WON(("critData.Signal"));
-        // critData.Signal();
-        //
-        // LOG_WON(("DataObjectReplacementCatcher out"));
+        LOG_WON(("GameDeletedCatcher in"));
+        GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
+        LOG_WON(("Game Deleted : %s by [%d]", name.str, result.ownerId));
+
+        LOG_WON(("critData.Wait"));
+        critData.Wait();
+
+        RoomGame* game = roomGames.Find(name.crc);
+        if (game)
+        {
+            roomGames.Dispose(game);
+
+            RoomName gameName;
+            Utils::Ansi2Unicode(gameName.str, gameName.GetSize(), name.str);
+
+            LOG_WON(("critData.Signal"));
+            critData.Signal();
+            PostEvent(Message::Chat, new Message::Data::Chat(Message::Data::Chat::GameDestroyed, gameName.str, (const CH*)NULL));
+            PostEvent(Message::GamesChanged);
+        }
+        else
+        {
+            LOG_WON(("critData.Signal"));
+            critData.Signal();
+        }
+
+        LOG_WON(("GameDeletedCatcher out"));
     }
 
 

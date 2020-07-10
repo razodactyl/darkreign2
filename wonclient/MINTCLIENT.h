@@ -14,12 +14,16 @@
 
 #include "Errors.h"
 
+#define MINT_MAX_EVENTS 256
+
 
 namespace Win32 {
     namespace DNS {
         class Host;
     }
 }
+
+
 
 void MINTInitialize();
 void MINTTerminate();
@@ -41,19 +45,19 @@ namespace MINTCLIENT
         {
             switch (error_id)
             {
-                case MINTCLIENT::Error::IdentityAuthenticationFailed:
-                    return "MINTCLIENT::Error::IdentityAuthenticationFailed";
-                case MINTCLIENT::Error::IdentityAlreadyExists:
-                    return "MINTCLIENT::Error::IdentityAlreadyExists";
+            case MINTCLIENT::Error::IdentityAuthenticationFailed:
+                return "MINTCLIENT::Error::IdentityAuthenticationFailed";
+            case MINTCLIENT::Error::IdentityAlreadyExists:
+                return "MINTCLIENT::Error::IdentityAlreadyExists";
 
-                default:
-                {
-                    char* info = new char[64];
-                    char* hh = new char[10];
-                    Utils::Sprintf(info, 32, "Unknown Error [%s]", Utils::StrFmtHex(hh, 8, error_id));
-                    return info;
-                }
-                break;
+            default:
+            {
+                char* info = new char[64];
+                char* hh = new char[10];
+                Utils::Sprintf(info, 32, "Unknown Error [%s]", Utils::StrFmtHex(hh, 8, error_id));
+                return info;
+            }
+            break;
             }
         }
     }
@@ -62,8 +66,10 @@ namespace MINTCLIENT
     {
         static const unsigned int ServerConnect = 0x433AB32B;                   // MINTCLIENT::Message::ServerConnect
         static const unsigned int ServerShutdown = 0xD26E9A5C;                  // MINTCLIENT::Message::ServerShutdown
+        static const unsigned int ServerDisconnect = 0x8542A47A;                // MINTCLIENT::Message::ServerDisconnect
 
         static const unsigned int IdentityCreate = 0x14096404;                  // MINTCLIENT::Message::IdentityCreate
+        static const unsigned int IdentityUpdate = 0xB6CFD48E;
         static const unsigned int IdentityAuthenticate = 0xCD5AF72B;            // MINTCLIENT::Message::IdentityAuthenticate
 
         static const unsigned int DirectoryListServers = 0x77712BCE;            // MINTCLIENT::Message::DirectoryListServers
@@ -85,61 +91,50 @@ namespace MINTCLIENT
         static const unsigned int RoutingServerCreateGame = 0x2A0FB0FD;         // MINTCLIENT::Message::RoutingServerCreateGame
         static const unsigned int RoutingServerUpdateGame = 0xB04C290F;         // MINTCLIENT::Message::RoutingServerUpdateGame
         static const unsigned int RoutingServerDeleteGame = 0xDDCA3C97;         // MINTCLIENT::Message::RoutingServerDeleteGame
-        static const unsigned int RoutingServerGetGameList = 0x41D50E29;       // MINTCLIENT::Message::RoutingServerGetGameList
+        static const unsigned int RoutingServerGetGameList = 0x41D50E29;        // MINTCLIENT::Message::RoutingServerGetGameList
 
         static const unsigned int RoutingServerGameCreated = 0xA18A092D;        // MINTCLIENT::Message::RoutingServerGameCreated
+        static const unsigned int RoutingServerGameUpdated = 0x9F97EE4D;        // MINTCLIENT::Message::RoutingServerGameUpdated
+        static const unsigned int RoutingServerGameReplaced = 0xE140DFCC;       // MINTCLIENT::Message::RoutingServerGameReplaced
+        static const unsigned int RoutingServerGameDeleted = 0xCA67C83C;        // MINTCLIENT::Message::RoutingServerGameDeleted
 
         static const unsigned int RoutingServerDisconnect = 0xF9CE798B;         // MINTCLIENT::Message::RoutingServerDisconnect
-        static const unsigned int ServerDisconnect = 0x8542A47A;                // MINTCLIENT::Message::ServerDisconnect
 
         inline const char* GetCommandString(U32 command_id)
         {
             switch (command_id)
             {
-                case MINTCLIENT::Message::DirectoryListServers:
-                    return "MINTCLIENT::Message::DirectoryListServers";
-
-                case MINTCLIENT::Message::DirectoryListRooms:
-                    return "MINTCLIENT::Message::DirectoryListRooms";
-
-                case MINTCLIENT::Message::IdentityAuthenticate:
-                    return "MINTCLIENT::Message::IdentityAuthenticate";
-
-                case MINTCLIENT::Message::RoutingServerRoomConnect:
-                    return "MINTCLIENT::Message::RoutingServerRoomConnect";
-
-                case MINTCLIENT::Message::RoutingServerRoomRegister:
-                    return "MINTCLIENT::Message::RoutingServerRoomRegister";
-
-                case MINTCLIENT::Message::RoutingServerGetUserList:
-                    return "MINTCLIENT::Message::RoutingServerGetUserList";
-
-                case MINTCLIENT::Message::RoutingServerBroadcastChat:
-                    return "MINTCLIENT::Message::RoutingServerBroadcastChat";
-
-                case MINTCLIENT::Message::RoutingServerCreateGame:
-                    return "MINTCLIENT::Message::RoutingServerCreateGame";
-
-                case MINTCLIENT::Message::RoutingServerDisconnect:
-                    return "MINTCLIENT::Message::RoutingServerDisconnect";
-
-                case MINTCLIENT::Message::ServerShutdown:
-                    return "MINTCLIENT::Message::ServerShutdown";
-
-                case MINTCLIENT::Message::ServerConnect:
-                    return "MINTCLIENT::Message::ServerConnect";
-
-                default:
-                {
-                    char* info = new char[64];
-                    char* hh = new char[10];
-                    Utils::Sprintf(info, 32, "Unknown Command [%s]", Utils::StrFmtHex(hh, 8, command_id));
-                    return info;
-                }
-                break;
+                case MINTCLIENT::Message::ServerConnect:                {          return "MINTCLIENT::Message::ServerConnect";                  }
+                case MINTCLIENT::Message::ServerShutdown:               {          return "MINTCLIENT::Message::ServerShutdown";                 }
+                case MINTCLIENT::Message::ServerDisconnect:             {          return "MINTCLIENT::Message::ServerDisconnect";               }
+                case MINTCLIENT::Message::IdentityCreate:               {          return "MINTCLIENT::Message::IdentityCreate";                 }
+                case MINTCLIENT::Message::IdentityUpdate:               {          return "MINTCLIENT::Message::IdentityUpdate";                 }
+                case MINTCLIENT::Message::IdentityAuthenticate:         {          return "MINTCLIENT::Message::IdentityAuthenticate";           }
+                case MINTCLIENT::Message::DirectoryListServers:         {          return "MINTCLIENT::Message::DirectoryListServers";           }
+                case MINTCLIENT::Message::DirectoryListRooms:           {          return "MINTCLIENT::Message::DirectoryListRooms";             }
+                case MINTCLIENT::Message::RoutingServerRoomConnect:     {          return "MINTCLIENT::Message::RoutingServerRoomConnect";       }
+                case MINTCLIENT::Message::RoutingServerRoomRegister:    {          return "MINTCLIENT::Message::RoutingServerRoomRegister";      }
+                case MINTCLIENT::Message::RoutingServerUserEnter:       {          return "MINTCLIENT::Message::RoutingServerUserEnter";         }
+                case MINTCLIENT::Message::RoutingServerUserLeave:       {          return "MINTCLIENT::Message::RoutingServerUserLeave";         }
+                case MINTCLIENT::Message::RoutingServerGetNumUsers:     {          return "MINTCLIENT::Message::RoutingServerGetNumUsers";       }
+                case MINTCLIENT::Message::RoutingServerGetUserList:     {          return "MINTCLIENT::Message::RoutingServerGetUserList";       }
+                case MINTCLIENT::Message::RoutingServerWhisperChat:     {          return "MINTCLIENT::Message::RoutingServerWhisperChat";       }
+                case MINTCLIENT::Message::RoutingServerCreateGame:      {          return "MINTCLIENT::Message::RoutingServerCreateGame";        }
+                case MINTCLIENT::Message::RoutingServerUpdateGame:      {          return "MINTCLIENT::Message::RoutingServerUpdateGame";        }
+                case MINTCLIENT::Message::RoutingServerDeleteGame:      {          return "MINTCLIENT::Message::RoutingServerDeleteGame";        }
+                case MINTCLIENT::Message::RoutingServerGetGameList:     {          return "MINTCLIENT::Message::RoutingServerGetGameList";       }
+                case MINTCLIENT::Message::RoutingServerGameCreated:     {          return "MINTCLIENT::Message::RoutingServerGameCreated";       }
+                case MINTCLIENT::Message::RoutingServerGameUpdated:     {          return "MINTCLIENT::Message::RoutingServerGameUpdated";       }
+                case MINTCLIENT::Message::RoutingServerGameReplaced:    {          return "MINTCLIENT::Message::RoutingServerGameReplaced";      }
+                case MINTCLIENT::Message::RoutingServerGameDeleted:     {          return "MINTCLIENT::Message::RoutingServerGameDeleted";       }
+                case MINTCLIENT::Message::RoutingServerDisconnect:      {          return "MINTCLIENT::Message::RoutingServerDisconnect";        }
             }
-        }
 
+            char* info = new char[64];
+            char* hh = new char[10];
+            Utils::Sprintf(info, 32, "Unknown Command [%s]", Utils::StrFmtHex(hh, 8, command_id));
+            return info;
+        }
     }
 
     namespace IPSocket
@@ -154,7 +149,7 @@ namespace MINTCLIENT
             {
                 char* next_token;
 
-                auto *const _addr = new char[strlen(address) + 1];
+                auto* const _addr = new char[strlen(address) + 1];
                 memset(_addr, 0, strlen(address) + 1);
                 memcpy_s(_addr, strlen(address), address, strlen(address));
                 char* host = Utils::Strdup(strtok_s(_addr, ":", &next_token));
@@ -276,7 +271,7 @@ namespace MINTCLIENT
         };
 
         //
-        //
+        // MINT structs for sending and receiving data.
         //
 
         struct MINTBuffer
@@ -358,7 +353,7 @@ namespace MINTCLIENT
             //     event_list->AddEvent(*(this->_timeout), this);
             // }
 
-            int ExtractEvents(Win32::EventIndex::List<32>* event_list)
+            int ExtractEvents(Win32::EventIndex::List<MINT_MAX_EVENTS>* event_list)
             {
                 (*event_list).AddEvent(_done, this);
                 (*event_list).AddEvent(_abort, this);
@@ -427,20 +422,20 @@ namespace MINTCLIENT
 
                     switch (this->command_id)
                     {
-                        case MINTCLIENT::Message::IdentityAuthenticate:
-                        {
-                            if (err_val == MINTCLIENT::Error::IdentityAuthenticationFailed) { return MINTCLIENT::Error::IdentityAuthenticationFailed; }
-                        }
-                        break;
+                    case MINTCLIENT::Message::IdentityAuthenticate:
+                    {
+                        if (err_val == MINTCLIENT::Error::IdentityAuthenticationFailed) { return MINTCLIENT::Error::IdentityAuthenticationFailed; }
+                    }
+                    break;
 
-                        case MINTCLIENT::Message::IdentityCreate:
-                        {
-                            if (err_val == MINTCLIENT::Error::IdentityAlreadyExists) { return MINTCLIENT::Error::IdentityAlreadyExists; }
-                        }
-                        break;
+                    case MINTCLIENT::Message::IdentityCreate:
+                    {
+                        if (err_val == MINTCLIENT::Error::IdentityAlreadyExists) { return MINTCLIENT::Error::IdentityAlreadyExists; }
+                    }
+                    break;
 
-                        default:
-                            break;
+                    default:
+                        break;
                     }
                 }
 
@@ -534,9 +529,6 @@ namespace MINTCLIENT
             Win32::CritSec _commands_critical;
 
         public:
-
-#define MINT_MAX_EVENTS 32
-
             Win32::EventIndex::List<MINT_MAX_EVENTS>* GetEvents()
             {
                 Win32::EventIndex::List<MINT_MAX_EVENTS>* events = new Win32::EventIndex::List<MINT_MAX_EVENTS>();
@@ -659,9 +651,9 @@ namespace MINTCLIENT
                 {
                     ASSERT(command->client);
 
-                    if (command->did_pass)
+                    if (command->did_pass && !command->recycle)
                     {
-                        LDIAG("MINTCLIENT::CommandList::PassToClient -> Attempting to pass `" << Message::GetCommandString(command->command_id) << "` to client when `did_pass = true`!!!");
+                        LDIAG("MINTCLIENT::CommandList::PassToClient -> Attempting to pass `" << Message::GetCommandString(command->command_id) << "` to client when `did_pass = true, recycle = false`!!!");
                     }
 
                     // Only if we haven't passed it on previously.

@@ -13,6 +13,7 @@ namespace MINTCLIENT
             {
                 StrCrc<32, CH> username;
                 StrCrc<32, CH> password;
+                StrCrc<32, CH> new_password;
             };
         };
 
@@ -21,9 +22,7 @@ namespace MINTCLIENT
         bool _loggedIn = false;
 
     public:
-        struct Result : CommandResult
-        {
-        };
+        struct Result : CommandResult {};
 
         Identity() {};
 
@@ -39,6 +38,12 @@ namespace MINTCLIENT
             return _credentials;
         }
 
+        Data::Credentials SetNewPassword(const CH* new_password)
+        {
+            _credentials.new_password.Set(new_password);
+            return _credentials;
+        }
+
         void SetLoggedIn(bool value)
         {
             _loggedIn = value;
@@ -50,6 +55,7 @@ namespace MINTCLIENT
 
         static WONAPI::Error Authenticate(Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context);
         static WONAPI::Error Create(Client* client, const CH* username, const CH* password, void (*callback)(const Identity::Result& result), void* context);
+        static WONAPI::Error Update(Client* client, const CH* username, const CH* password, const CH* new_password, void (*callback)(const Identity::Result& result), void* context);
 
         // Instantiated `Identity` authenticate method called after `Set`.
         WONAPI::Error Authenticate(Client* client, void (*callback)(const Identity::Result& result), void* context)
@@ -61,6 +67,12 @@ namespace MINTCLIENT
         WONAPI::Error Create(Client* client, void (*callback)(const Identity::Result& result), void* context)
         {
             return Create(client, _credentials.username.str, _credentials.password.str, callback, context);
+        }
+
+        // Instantiated `Identity` update method called after `Set`.
+        WONAPI::Error Update(Client* client, void (*callback)(const Identity::Result& result), void* context)
+        {
+            return Update(client, _credentials.username.str, _credentials.password.str, _credentials.new_password.str, callback, context);
         }
     };
 }

@@ -212,6 +212,15 @@ namespace MINTCLIENT
                     }
                     break;
 
+                    case MINTCLIENT::Message::RoutingServerDeleteGame:
+                    {
+                        RoutingServerClient::DeleteGameResult result;
+                        result.error = cmd->GetError();
+                        cmd->callback(result);
+                        routing->command_list->Remove(cmd);
+                    }
+                    break;
+
                     case MINTCLIENT::Message::RoutingServerGetGameList:
                     {
                         RoutingServerClient::GetGameListResult result;
@@ -270,8 +279,14 @@ namespace MINTCLIENT
                             result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
                             
                             auto data_bytes = tlv->items[3].GetBytes();
+
+                            // Hack: overwrite user's IP with the address they used to connect to MINT.
+                            ((StyxNet::Session*)data_bytes)->address.SetIP(result.address.host);
+
                             result.game_data = data_bytes;
                             result.game_data_size = tlv->items[3].length;
+
+                            delete tlv;
 
                             result.context = cmd->context;
                             cmd->callback(result);
@@ -279,6 +294,94 @@ namespace MINTCLIENT
                         }
 
                         LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- A game was created.");
+
+                        cmd->times_called++;
+                    }
+                    break;
+
+                    case MINTCLIENT::Message::RoutingServerGameUpdated:
+                    {
+                        RoutingServerClient::UpdateGameResult result;
+                        result.error = cmd->GetError();
+
+                        if (result.error == WONAPI::Error_Success)
+                        {
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+
+                            result.ownerId = tlv->items[0].GetU32();
+                            result.name.Set(tlv->items[1].GetString());
+                            result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
+
+                            auto data_bytes = tlv->items[3].GetBytes();
+
+                            // Hack: overwrite user's IP with the address they used to connect to MINT.
+                            ((StyxNet::Session*)data_bytes)->address.SetIP(result.address.host);
+
+                            result.game_data = data_bytes;
+                            result.game_data_size = tlv->items[3].length;
+
+                            delete tlv;
+
+                            result.context = cmd->context;
+                            cmd->callback(result);
+                        }
+
+                        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- A game was updated.");
+
+                        cmd->times_called++;
+                    }
+                    break;
+
+                    case MINTCLIENT::Message::RoutingServerGameReplaced:
+                    {
+                        RoutingServerClient::ReplaceGameResult result;
+                        result.error = cmd->GetError();
+
+                        if (result.error == WONAPI::Error_Success)
+                        {
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+
+                            result.ownerId = tlv->items[0].GetU32();
+                            result.name.Set(tlv->items[1].GetString());
+                            result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
+
+                            auto data_bytes = tlv->items[3].GetBytes();
+                            result.game_data = data_bytes;
+                            result.game_data_size = tlv->items[3].length;
+
+                            delete tlv;
+
+                            result.context = cmd->context;
+                            cmd->callback(result);
+
+                        }
+
+                        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- A game was replaced.");
+
+                        cmd->times_called++;
+                    }
+                    break;
+
+                    case MINTCLIENT::Message::RoutingServerGameDeleted:
+                    {
+                        RoutingServerClient::DeleteGameResult result;
+                        result.error = cmd->GetError();
+
+                        if (result.error == WONAPI::Error_Success)
+                        {
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+
+                            result.ownerId = tlv->items[0].GetU32();
+                            result.name.Set(tlv->items[1].GetString());
+                            result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
+
+                            delete tlv;
+
+                            result.context = cmd->context;
+                            cmd->callback(result);
+                        }
+
+                        LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- A game was deleted.");
 
                         cmd->times_called++;
                     }
@@ -350,6 +453,69 @@ namespace MINTCLIENT
         this->catchers[ID_GameCreatedCatcher].push_back(game_created_command);
 
         LDIAG("MINT Routing Server Client - RoutingServerClient::InstallGameCreatedCatcher [" << HEX(&*game_created_command, 8) << "].");
+
+        return WONAPI::Error_Success;
+    }
+
+    WONAPI::Error RoutingServerClient::InstallGameUpdatedCatcher(void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context)
+    {
+        MINTCLIENT::Client::CommandList* game_updated_command = new MINTCLIENT::Client::CommandList();
+
+        auto* cmd = new Client::MINTCommand(nullptr);
+        cmd->callback = callback;
+        cmd->command_id = MINTCLIENT::Message::RoutingServerGameUpdated;
+        cmd->recycle = true;
+        cmd->listener_only = true;
+        cmd->SetContext(context);
+
+        game_updated_command->Add(cmd);
+
+        // Push catcher into list for `Register` method to pick up.
+        this->catchers[ID_GameUpdatedCatcher].push_back(game_updated_command);
+
+        LDIAG("MINT Routing Server Client - RoutingServerClient::InstallGameUpdatedCatcher [" << HEX(&*game_updated_command, 8) << "].");
+
+        return WONAPI::Error_Success;
+    }
+
+    WONAPI::Error RoutingServerClient::InstallGameReplacedCatcher(void (*callback)(const RoutingServerClient::ReplaceGameResult& result), void* context)
+    {
+        MINTCLIENT::Client::CommandList* game_replaced_command = new MINTCLIENT::Client::CommandList();
+
+        auto* cmd = new Client::MINTCommand(nullptr);
+        cmd->callback = callback;
+        cmd->command_id = MINTCLIENT::Message::RoutingServerGameReplaced;
+        cmd->recycle = true;
+        cmd->listener_only = true;
+        cmd->SetContext(context);
+
+        game_replaced_command->Add(cmd);
+
+        // Push catcher into list for `Register` method to pick up.
+        this->catchers[ID_GameReplacedCatcher].push_back(game_replaced_command);
+
+        LDIAG("MINT Routing Server Client - RoutingServerClient::InstallGameReplacedCatcher [" << HEX(&*game_replaced_command, 8) << "].");
+
+        return WONAPI::Error_Success;
+    }
+
+    WONAPI::Error RoutingServerClient::InstallGameDeletedCatcher(void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context)
+    {
+        MINTCLIENT::Client::CommandList* game_deleted_command = new MINTCLIENT::Client::CommandList();
+
+        auto* cmd = new Client::MINTCommand(nullptr);
+        cmd->callback = callback;
+        cmd->command_id = MINTCLIENT::Message::RoutingServerGameDeleted;
+        cmd->recycle = true;
+        cmd->listener_only = true;
+        cmd->SetContext(context);
+
+        game_deleted_command->Add(cmd);
+
+        // Push catcher into list for `Register` method to pick up.
+        this->catchers[ID_GameDeletedCatcher].push_back(game_deleted_command);
+
+        LDIAG("MINT Routing Server Client - RoutingServerClient::InstallGameDeletedCatcher [" << HEX(&*game_deleted_command, 8) << "].");
 
         return WONAPI::Error_Success;
     }
@@ -460,7 +626,8 @@ namespace MINTCLIENT
 
         for (auto it = this->catchers.begin(); it != this->catchers.end(); ++it)
         {
-            if (it->first == ID_ASCIIPeerChatCatcher || it->first == ID_ClientEnterCatcher || it->first == ID_ClientLeaveCatcher || it->first == ID_GameCreatedCatcher)
+            // Code isn't written to care about type at the moment, but this is an example of filtering based on catcher type.
+            // if (it->first == ID_ASCIIPeerChatCatcher || it->first == ID_ClientEnterCatcher || it->first == ID_ClientLeaveCatcher || it->first == ID_GameCreatedCatcher)
             {
                 for (auto command_list_iterator = it->second.begin(); command_list_iterator != it->second.end(); ++command_list_iterator)
                 {
@@ -548,6 +715,19 @@ namespace MINTCLIENT
 
     WONAPI::Error RoutingServerClient::DeleteGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context)
     {
+        auto* cmd = new Client::MINTCommand(this->client);
+        cmd->command_id = MINTCLIENT::Message::RoutingServerDeleteGame;
+        cmd->callback = callback;
+
+        auto request = DeleteGameRequest();
+        request.clientId = clientId;
+        request.name.Set(name);
+        cmd->SetDataFromStruct(request);    // Request data size has to be static for this to work.
+
+        cmd->SetContext(context);
+
+        command_list->Add(cmd);
+
         return WONAPI::Error_Pending;
     }
 
