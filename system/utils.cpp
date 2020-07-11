@@ -726,7 +726,7 @@ namespace Utils
 
         while (bytes--)
         {
-            if (isprint(*src))
+            if (isprint(static_cast<unsigned char>(*src)))
             {
                 *dst = *src;
             }
