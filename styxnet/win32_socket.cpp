@@ -38,29 +38,29 @@ namespace Win32
     // To avoid staticly binding to ws2_32.lib
     //
 
-    typedef int (STDCALL *WSAConnectFunc)(SOCKET s, const struct sockaddr FAR * name, int namelen,
-                                          LPWSABUF lpCallerData, LPWSABUF lpCalleeData, LPQOS lpSQOS, LPQOS lpGQOS);
-    typedef int (STDCALL *WSAEnumNetworkEventsFunc
-    )(SOCKET s, WSAEVENT hEventObject, LPWSANETWORKEVENTS lpNetworkEvents);
-    typedef int (STDCALL *WSAEnumProtocolsFunc)(LPINT lpiProtocols, LPWSAPROTOCOL_INFO lpProtocolBuffer,
-                                                LPDWORD lpdwBufferLength);
-    typedef int (STDCALL *WSAEventSelectFunc)(SOCKET s, WSAEVENT hEventObject, long lNetworkEvents);
-    typedef int (STDCALL *WSARecvFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesRecvd,
-                                       LPDWORD lpFlags, LPWSAOVERLAPPED lpOverlapped,
-                                       LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionROUTINE);
-    typedef int (STDCALL *WSARecvFromFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
-                                           LPDWORD lpNumberOfBytesRecvd, LPDWORD lpFlags, struct sockaddr FAR * lpFrom,
-                                           LPINT lpFromlen, LPWSAOVERLAPPED lpOverlapped,
-                                           LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionROUTINE);
-    typedef int (STDCALL *WSASendFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesSent,
-                                       DWORD dwFlags, LPWSAOVERLAPPED lpOverlapped,
-                                       LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
-    typedef int (STDCALL *WSASendToFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesSent,
-                                         DWORD dwFlags, const struct sockaddr FAR * lpTo, int iToLen,
-                                         LPWSAOVERLAPPED lpOverlapped,
-                                         LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
-    typedef SOCKET (STDCALL *WSASocketFunc)(int af, int type, int protocol, LPWSAPROTOCOL_INFO lpProtocolInfo, GROUP g,
-                                            DWORD dwFlags);
+    typedef int (STDCALL* WSAConnectFunc)(SOCKET s, const struct sockaddr FAR* name, int namelen,
+        LPWSABUF lpCallerData, LPWSABUF lpCalleeData, LPQOS lpSQOS, LPQOS lpGQOS);
+    typedef int (STDCALL* WSAEnumNetworkEventsFunc
+        )(SOCKET s, WSAEVENT hEventObject, LPWSANETWORKEVENTS lpNetworkEvents);
+    typedef int (STDCALL* WSAEnumProtocolsFunc)(LPINT lpiProtocols, LPWSAPROTOCOL_INFO lpProtocolBuffer,
+        LPDWORD lpdwBufferLength);
+    typedef int (STDCALL* WSAEventSelectFunc)(SOCKET s, WSAEVENT hEventObject, long lNetworkEvents);
+    typedef int (STDCALL* WSARecvFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesRecvd,
+        LPDWORD lpFlags, LPWSAOVERLAPPED lpOverlapped,
+        LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionROUTINE);
+    typedef int (STDCALL* WSARecvFromFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount,
+        LPDWORD lpNumberOfBytesRecvd, LPDWORD lpFlags, struct sockaddr FAR* lpFrom,
+        LPINT lpFromlen, LPWSAOVERLAPPED lpOverlapped,
+        LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionROUTINE);
+    typedef int (STDCALL* WSASendFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesSent,
+        DWORD dwFlags, LPWSAOVERLAPPED lpOverlapped,
+        LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
+    typedef int (STDCALL* WSASendToFunc)(SOCKET s, LPWSABUF lpBuffers, DWORD dwBufferCount, LPDWORD lpNumberOfBytesSent,
+        DWORD dwFlags, const struct sockaddr FAR* lpTo, int iToLen,
+        LPWSAOVERLAPPED lpOverlapped,
+        LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
+    typedef SOCKET(STDCALL* WSASocketFunc)(int af, int type, int protocol, LPWSAPROTOCOL_INFO lpProtocolInfo, GROUP g,
+        DWORD dwFlags);
 
     static WSAConnectFunc WSAConnect;
     static WSAEnumNetworkEventsFunc WSAEnumNetworkEvents;
@@ -130,10 +130,10 @@ namespace Win32
         S32 diff = time - markTime;
 
         if
-        (
-            diff > MinRateTime ||
-            markSize > MinRateSize
-        )
+            (
+                diff > MinRateTime ||
+                markSize > MinRateSize
+                )
         {
             // Recompute the rate
             rate = F32(markSize) / F32(diff);
@@ -158,15 +158,15 @@ namespace Win32
     void Socket::Statistics::Flow::Report(U32 time) const
     {
         LDIAG("Time            : " << time)
-        LDIAG("Packets         : " << packets)
-        LDIAG("Avg Packets/Sec : " << (time ? F32(packets) * 1000.0f / F32(time) : 0.0f))
-        LDIAG("Bytes           : " << bytes)
-        LDIAG("Avg Bytes/Sec   : " << (time ? F32(bytes) * 1000.0f / F32(time) : 0.0f))
-        LDIAG("Bytes/Packet    : " << (packets ? F32(bytes) / F32(packets) : 0.0f))
-        LDIAG("Rate            : " << rate * 1000.0f)
-        LDIAG("Smooth Rate     : " << smoothRate * 1000.0f)
-        LDIAG("Max Rate        : " << maxRate * 1000.0f)
-        LDIAG("Min Rate        : " << minRate * 1000.0f)
+            LDIAG("Packets         : " << packets)
+            LDIAG("Avg Packets/Sec : " << (time ? F32(packets) * 1000.0f / F32(time) : 0.0f))
+            LDIAG("Bytes           : " << bytes)
+            LDIAG("Avg Bytes/Sec   : " << (time ? F32(bytes) * 1000.0f / F32(time) : 0.0f))
+            LDIAG("Bytes/Packet    : " << (packets ? F32(bytes) / F32(packets) : 0.0f))
+            LDIAG("Rate            : " << rate * 1000.0f)
+            LDIAG("Smooth Rate     : " << smoothRate * 1000.0f)
+            LDIAG("Max Rate        : " << maxRate * 1000.0f)
+            LDIAG("Min Rate        : " << minRate * 1000.0f)
     }
 
 
@@ -214,11 +214,11 @@ namespace Win32
     void Socket::Statistics::Report() const
     {
         LDIAG("Socket Statistics")
-        U32 time = Clock::Time::Ms() - timeOpened;
+            U32 time = Clock::Time::Ms() - timeOpened;
         LDIAG("Received")
-        recv.Report(time);
+            recv.Report(time);
         LDIAG("Sent")
-        sent.Report(time);
+            sent.Report(time);
     }
 
 
@@ -414,14 +414,14 @@ namespace Win32
     //
     Socket::Socket(Type type, Bool stats)
         : type(type),
-          stats(nullptr)
+        stats(nullptr)
     {
         ASSERT(initialized)
 
-        if (stats)
-        {
-            UseStats();
-        }
+            if (stats)
+            {
+                UseStats();
+            }
 
         Open();
     }
@@ -432,7 +432,7 @@ namespace Win32
     //
     Socket::Socket(const Socket& socket)
         : socket(socket.socket),
-          stats(nullptr)
+        stats(nullptr)
     {
         ASSERT(initialized)
     }
@@ -443,7 +443,7 @@ namespace Win32
     //
     Socket::Socket(const SOCKET& socket)
         : socket(socket),
-          stats(nullptr)
+        stats(nullptr)
     {
         ASSERT(initialized)
     }
@@ -480,7 +480,7 @@ namespace Win32
             return (*stats);
         }
         LERR("Socket doesn't contain statistics")
-        return (*stats);
+            return (*stats);
     }
 
 
@@ -493,37 +493,35 @@ namespace Win32
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("setsockopt: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("setsockopt: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("setsockopt: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("setsockopt: The network subsystem has failed.");
 
-                case WSAEFAULT:
-                LERR(
-                        "setsockopt: optval is not in a valid part of the process address space or optlen parameter is too small.")
+            case WSAEFAULT:
+                LERR("setsockopt: optval is not in a valid part of the process address space or optlen parameter is too small.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "setsockopt: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("setsockopt: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEINVAL:
-                LERR("setsockopt: level is not valid, or the information in optval is not valid.")
+            case WSAEINVAL:
+                LERR("setsockopt: level is not valid, or the information in optval is not valid.");
 
-                case WSAENETRESET:
-                LERR("setsockopt: Connection has timed out when SO_KEEPALIVE is set.")
+            case WSAENETRESET:
+                LERR("setsockopt: Connection has timed out when SO_KEEPALIVE is set.");
 
-                case WSAENOPROTOOPT:
-                LERR("setsockopt: The option is unknown or unsupported for the specified provider or socket")
+            case WSAENOPROTOOPT:
+                LERR("setsockopt: The option is unknown or unsupported for the specified provider or socket");
 
-                case WSAENOTCONN:
-                LERR("setsockopt: Connection has been reset when SO_KEEPALIVE is set.")
+            case WSAENOTCONN:
+                LERR("setsockopt: Connection has been reset when SO_KEEPALIVE is set.");
 
-                case WSAENOTSOCK:
-                LERR("setsockopt: The descriptor is not a socket.")
+            case WSAENOTSOCK:
+                LERR("setsockopt: The descriptor is not a socket.");
 
-                default:
-                LERR("setsockopt: Unknown error!")
+            default:
+                LERR("setsockopt: Unknown error!");
             }
         }
         return (TRUE);
@@ -539,31 +537,29 @@ namespace Win32
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("getsockopt: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("getsockopt: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("getsockopt: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("getsockopt: The network subsystem has failed.");
 
-                case WSAEFAULT:
-                LERR(
-                        "getsockopt: One of the optval or the optlen parameters is not a valid part of the user address space, or the optlen parameter is too small.")
+            case WSAEFAULT:
+                LERR("getsockopt: One of the optval or the optlen parameters is not a valid part of the user address space, or the optlen parameter is too small.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "getsockopt: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("getsockopt: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEINVAL:
-                LERR("getsockopt: The level parameter is unknown or invalid.")
+            case WSAEINVAL:
+                LERR("getsockopt: The level parameter is unknown or invalid.");
 
-                case WSAENOPROTOOPT:
-                LERR("getsockopt: The option is unknown or unsupported by the indicated protocol family. ")
+            case WSAENOPROTOOPT:
+                LERR("getsockopt: The option is unknown or unsupported by the indicated protocol family. ");
 
-                case WSAENOTSOCK:
-                LERR("getsockopt: The descriptor is not a socket.")
+            case WSAENOTSOCK:
+                LERR("getsockopt: The descriptor is not a socket.");
 
-                default:
-                LERR("getsockopt: Unknown error!")
+            default:
+                LERR("getsockopt: Unknown error!");
             }
         }
         return (TRUE);
@@ -577,75 +573,70 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        if (WSAConnect(socket, (const sockaddr*)&address, sizeof(Address), nullptr, nullptr, nullptr, nullptr) ==
-            SOCKET_ERROR)
-        {
-            switch (WSAGetLastError())
+            if (WSAConnect(socket, (const sockaddr*)&address, sizeof(Address), nullptr, nullptr, nullptr, nullptr) ==
+                SOCKET_ERROR)
             {
+                switch (WSAGetLastError())
+                {
                 case WSANOTINITIALISED:
-                LERR("WSAConnect: A successful WSAStartup call must occur before using this function.")
+                    LERR("WSAConnect: A successful WSAStartup call must occur before using this function.");
 
                 case WSAENETDOWN:
-                LERR("WSAConnect: The network subsystem has failed.")
+                    LERR("WSAConnect: The network subsystem has failed.");
 
                 case WSAEADDRINUSE:
-                LERR(
-                        "WSAConnect: The local address of the socket is already in use and the socket was not marked to allow address reuse with SO_REUSEADDR. This error usually occurs during the execution of bind, but could be delayed until this function if the bind function operates on a partially wild-card address (involving ADDR_ANY) and if a specific address needs to be \"committed\" at the time of this function.")
+                    LERR("WSAConnect: The local address of the socket is already in use and the socket was not marked to allow address reuse with SO_REUSEADDR. This error usually occurs during the execution of bind, but could be delayed until this function if the bind function operates on a partially wild-card address (involving ADDR_ANY) and if a specific address needs to be \"committed\" at the time of this function.");
 
                 case WSAEINTR:
-                LERR(
-                        "WSAConnect: The (blocking) Windows Socket 1.1 call was canceled through WSACancelBlockingCall.")
+                    LERR("WSAConnect: The (blocking) Windows Socket 1.1 call was canceled through WSACancelBlockingCall.");
 
                 case WSAEINPROGRESS:
-                LERR(
-                        "WSAConnect: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+                    LERR("WSAConnect: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
                 case WSAEALREADY:
-                LERR("WSAConnect: A nonblocking connect/WSAConnect call is in progress on the specified socket.")
+                    LERR("WSAConnect: A nonblocking connect/WSAConnect call is in progress on the specified socket.");
 
                 case WSAEADDRNOTAVAIL:
-                LDIAG("WSAConnect: The remote address is not a valid address (such as ADDR_ANY).")
+                    LDIAG("WSAConnect: The remote address is not a valid address (such as ADDR_ANY).");
                     return (FALSE);
 
                 case WSAEAFNOSUPPORT:
-                LDIAG("WSAConnect: Addresses in the specified family cannot be used with this socket.")
+                    LDIAG("WSAConnect: Addresses in the specified family cannot be used with this socket.");
                     return (FALSE);
 
                 case WSAECONNREFUSED:
-                LDIAG("WSAConnect: The attempt to connect was rejected.")
+                    LDIAG("WSAConnect: The attempt to connect was rejected.");
                     return (FALSE);
 
                 case WSAEFAULT:
-                LDIAG(
-                        "WSAConnect: The name or the namelen parameter is not a valid part of the user address space, the namelen parameter is too small, the buffer length for lpCalleeData, lpSQOS, and lpGQOS are too small, or the buffer length for lpCallerData is too large.")
+                    LDIAG("WSAConnect: The name or the namelen parameter is not a valid part of the user address space, the namelen parameter is too small, the buffer length for lpCalleeData, lpSQOS, and lpGQOS are too small, or the buffer length for lpCallerData is too large.");
                     return (FALSE);
 
                 case WSAEINVAL:
-                LERR(
-                        "WSAConnect: The parameter s is a listening socket, or the destination address specified is not consistent with that of the constrained group to which the socket belongs.")
+                    LERR("WSAConnect: The parameter s is a listening socket, or the destination address specified is not consistent with that of the constrained group to which the socket belongs.");
 
                 case WSAEISCONN:
-                LERR("WSAConnect: The socket is already connected (connection-oriented sockets only).")
+                    LERR("WSAConnect: The socket is already connected (connection-oriented sockets only).");
 
                 case WSAENETUNREACH:
-                LDIAG("WSAConnect: The network cannot be reached from this host at this time.")
+                    LDIAG("WSAConnect: The network cannot be reached from this host at this time.");
                     return (FALSE);
 
                 case WSAENOBUFS:
-                LERR("WSAConnect: No buffer space is available. The socket cannot be connected.")
+                    LERR("WSAConnect: No buffer space is available. The socket cannot be connected.");
 
                 case WSAENOTSOCK:
-                LDIAG("WSAConnect: The descriptor is not a socket.")
+                    LDIAG("WSAConnect: The descriptor is not a socket.");
                     return (FALSE);
 
                 case WSAEOPNOTSUPP:
-                LERR("WSAConnect: The FLOWSPEC structures specified in lpSQOS and lpGQOS cannot be satisfied.")
+                    LERR("WSAConnect: The FLOWSPEC structures specified in lpSQOS and lpGQOS cannot be satisfied.");
 
                 case WSAEPROTONOSUPPORT:
-                LERR("WSAConnect: The lpCallerData argument is not supported by the service provider.")
+                    LERR("WSAConnect: The lpCallerData argument is not supported by the service provider.");
 
                 case WSAETIMEDOUT:
-                LDIAG("WSAConnect: Attempt to connect timed out without establishing a connection.")
+                    LDIAG("WSAConnect: Attempt to connect timed out without establishing a connection.");
                     return (FALSE);
 
                 case WSAEWOULDBLOCK:
@@ -653,13 +644,12 @@ namespace Win32
                     return (TRUE);
 
                 case WSAEACCES:
-                LERR(
-                        "WSAConnect: Attempt to connect datagram socket to broadcast address failed because setsockopt SO_BROADCAST is not enabled.")
+                    LERR("WSAConnect: Attempt to connect datagram socket to broadcast address failed because setsockopt SO_BROADCAST is not enabled.");
 
                 default:
-                LERR("WSAConnect: Unknown Error")
+                    LERR("WSAConnect: Unknown Error");
+                }
             }
-        }
 
         return (TRUE);
     }
@@ -672,44 +662,41 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        if (bind(socket, (const sockaddr*)&address, sizeof(Address)) == SOCKET_ERROR)
-        {
-            switch (WSAGetLastError())
+            if (bind(socket, (const sockaddr*)&address, sizeof(Address)) == SOCKET_ERROR)
             {
+                switch (WSAGetLastError())
+                {
                 case WSANOTINITIALISED:
-                LERR("bind: A successful WSAStartup call must occur before using this function.")
+                    LERR("bind: A successful WSAStartup call must occur before using this function.");
 
                 case WSAENETDOWN:
-                LERR("bind: The network subsystem has failed.")
+                    LERR("bind: The network subsystem has failed.");
 
                 case WSAEADDRINUSE:
-                LERR(
-                        "bind: A process on the machine is already bound to the same fully-qualified address and the socket has not been marked to allow address re-use with SO_REUSEADDR. For example, the IP address and port are bound in the af_inet case). (See the SO_REUSEADDR socket option under setsockopt.)")
+                    LERR("bind: A process on the machine is already bound to the same fully-qualified address and the socket has not been marked to allow address re-use with SO_REUSEADDR. For example, the IP address and port are bound in the af_inet case). (See the SO_REUSEADDR socket option under setsockopt.)");
 
                 case WSAEADDRNOTAVAIL:
-                LERR("bind: The specified address is not a valid address for this machine.")
+                    LERR("bind: The specified address is not a valid address for this machine.");
 
                 case WSAEFAULT:
-                LERR(
-                        "bind: The name or namelen parameter is not a valid part of the user address space, the namelen parameter is too small, the name parameter contains an incorrect address format for the associated address family, or the first two bytes of the memory block specified by name does not match the address family associated with the socket descriptor s.")
+                    LERR("bind: The name or namelen parameter is not a valid part of the user address space, the namelen parameter is too small, the name parameter contains an incorrect address format for the associated address family, or the first two bytes of the memory block specified by name does not match the address family associated with the socket descriptor s.");
 
                 case WSAEINPROGRESS:
-                LERR(
-                        "bind: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+                    LERR("bind: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
                 case WSAEINVAL:
-                LERR("bind: The socket is already bound to an address.")
+                    LERR("bind: The socket is already bound to an address.");
 
                 case WSAENOBUFS:
-                LERR("bind: Not enough buffers available, too many connections.")
+                    LERR("bind: Not enough buffers available, too many connections.");
 
                 case WSAENOTSOCK:
-                LERR("bind: The descriptor is not a socket.")
+                    LERR("bind: The descriptor is not a socket.");
 
                 default:
-                LERR("bind: Unknown Error")
+                    LERR("bind: Unknown Error");
+                }
             }
-        }
         return (TRUE);
     }
 
@@ -721,46 +708,44 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        if (listen(socket, backlog) == SOCKET_ERROR)
-        {
-            switch (WSAGetLastError())
+            if (listen(socket, backlog) == SOCKET_ERROR)
             {
+                switch (WSAGetLastError())
+                {
                 case WSANOTINITIALISED:
-                LERR("listen: A successful WSAStartup call must occur before using this function.");
+                    LERR("listen: A successful WSAStartup call must occur before using this function.");
 
                 case WSAENETDOWN:
-                LERR("listen: The network subsystem has failed.");
+                    LERR("listen: The network subsystem has failed.");
 
                 case WSAEADDRINUSE:
-                LERR(
-                        "listen: The socket's local address is already in use and the socket was not marked to allow address reuse with SO_REUSEADDR. This error usually occurs during execution of the bind function, but could be delayed until this function if the bind was to a partially wild-card address (involving ADDR_ANY) and if a specific address needs to be committed at the time of this function.");
+                    LERR("listen: The socket's local address is already in use and the socket was not marked to allow address reuse with SO_REUSEADDR. This error usually occurs during execution of the bind function, but could be delayed until this function if the bind was to a partially wild-card address (involving ADDR_ANY) and if a specific address needs to be committed at the time of this function.");
 
                 case WSAEINPROGRESS:
-                LERR(
-                        "listen: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
+                    LERR("listen: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
                 case WSAEINVAL:
-                LERR("listen: The socket has not been bound with bind.");
+                    LERR("listen: The socket has not been bound with bind.");
 
                 case WSAEISCONN:
-                LERR("listen: The socket is already connected.");
+                    LERR("listen: The socket is already connected.");
 
                 case WSAEMFILE:
-                LERR("listen: No more socket descriptors are available.");
+                    LERR("listen: No more socket descriptors are available.");
 
                 case WSAENOBUFS:
-                LERR("listen: No buffer space is available.");
+                    LERR("listen: No buffer space is available.");
 
                 case WSAENOTSOCK:
-                LERR("listen: The descriptor is not a socket.");
+                    LERR("listen: The descriptor is not a socket.");
 
                 case WSAEOPNOTSUPP:
-                LERR("listen: The referenced socket is not of a type that supports the listen operation.");
+                    LERR("listen: The referenced socket is not of a type that supports the listen operation.");
 
                 default:
-                LERR("listen: Unknown Error")
+                    LERR("listen: Unknown Error")
+                }
             }
-        }
         return (TRUE);
     }
 
@@ -772,7 +757,7 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        SOCKET s;
+            SOCKET s;
 
         SI size = sizeof(SOCKADDR_IN);
         s = accept(socket, reinterpret_cast<SOCKADDR*>(&address), &size);
@@ -782,43 +767,41 @@ namespace Win32
             int error = WSAGetLastError();
             switch (error)
             {
-                case WSANOTINITIALISED:
-                LERR("accept: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("accept: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("accept: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("accept: The network subsystem has failed.");
 
-                case WSAEFAULT:
-                LERR(
-                        "accept: The addrlen parameter is too small or addr is not a valid part of the user address space.")
+            case WSAEFAULT:
+                LERR("accept: The addrlen parameter is too small or addr is not a valid part of the user address space.");
 
-                case WSAEINTR:
+            case WSAEINTR:
                 LERR("accept: A blocking Windows Sockets 1.1 call was canceled through WSACancelBlockingCall.")
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "accept: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("accept: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEINVAL:
-                LERR("accept: The listen function was not invoked prior to accept.")
+            case WSAEINVAL:
+                LERR("accept: The listen function was not invoked prior to accept.");
 
-                case WSAEMFILE:
-                LERR("accept: The queue is nonempty upon entry to accept and there are no descriptors available.")
+            case WSAEMFILE:
+                LERR("accept: The queue is nonempty upon entry to accept and there are no descriptors available.");
 
-                case WSAENOBUFS:
-                LERR("accept: No buffer space is available.")
+            case WSAENOBUFS:
+                LERR("accept: No buffer space is available.");
 
-                case WSAENOTSOCK:
-                LERR("accept: The descriptor is not a socket.")
+            case WSAENOTSOCK:
+                LERR("accept: The descriptor is not a socket.");
 
-                case WSAEOPNOTSUPP:
-                LERR("accept: The referenced socket is not a type that supports connection-oriented service.")
+            case WSAEOPNOTSUPP:
+                LERR("accept: The referenced socket is not a type that supports connection-oriented service.");
 
-                case WSAEWOULDBLOCK:
-                LERR("accept: The socket is marked as nonblocking and no connections are present to be accepted.")
+            case WSAEWOULDBLOCK:
+                LERR("accept: The socket is marked as nonblocking and no connections are present to be accepted.");
 
-                default:
-                LERR("accept: Unknown Error " << error)
+            default:
+                LERR("accept: Unknown Error " << error);
             }
         }
 
@@ -838,20 +821,20 @@ namespace Win32
 
         switch (type)
         {
-            case UDP:
-                socket = WSASocket(AF_INET, SOCK_DGRAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
-                break;
+        case UDP:
+            socket = WSASocket(AF_INET, SOCK_DGRAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
+            break;
 
-            case TCP:
-                socket = WSASocket(AF_INET, SOCK_STREAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
-                break;
+        case TCP:
+            socket = WSASocket(AF_INET, SOCK_STREAM, 0, nullptr, 0, WSA_FLAG_OVERLAPPED);
+            break;
 
-            case RAW: // We only endorse ICMP proto RAW sockets
-                socket = WSASocket(AF_INET, SOCK_RAW, IPPROTO_ICMP, nullptr, 0, WSA_FLAG_OVERLAPPED);
-                break;
+        case RAW: // We only endorse ICMP proto RAW sockets
+            socket = WSASocket(AF_INET, SOCK_RAW, IPPROTO_ICMP, nullptr, 0, WSA_FLAG_OVERLAPPED);
+            break;
 
-            default:
-            LERR("Unknown socket type! " << type)
+        default:
+            LERR("Unknown socket type! " << type);
             break;
         }
 
@@ -860,54 +843,52 @@ namespace Win32
             int error = WSAGetLastError();
             switch (error)
             {
-                case WSANOTINITIALISED:
-                LERR("WSASocket: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("WSASocket: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("WSASocket: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("WSASocket: The network subsystem has failed.");
 
-                case WSAEAFNOSUPPORT:
-                LERR("WSASocket: The specified address family is not supported.")
+            case WSAEAFNOSUPPORT:
+                LERR("WSASocket: The specified address family is not supported.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "WSASocket: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("WSASocket: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEMFILE:
-                LERR("WSASocket: No more socket descriptors are available.")
+            case WSAEMFILE:
+                LERR("WSASocket: No more socket descriptors are available.");
 
-                case WSAENOBUFS:
-                LERR("WSASocket: No buffer space is available. The socket cannot be created.")
+            case WSAENOBUFS:
+                LERR("WSASocket: No buffer space is available. The socket cannot be created.");
 
-                case WSAEPROTONOSUPPORT:
-                LERR("WSASocket: The specified protocol is not supported.")
+            case WSAEPROTONOSUPPORT:
+                LERR("WSASocket: The specified protocol is not supported.");
 
-                case WSAEPROTOTYPE:
-                LERR("WSASocket: The specified protocol is the wrong type for this socket.")
+            case WSAEPROTOTYPE:
+                LERR("WSASocket: The specified protocol is the wrong type for this socket.");
 
-                case WSAESOCKTNOSUPPORT:
-                LERR("WSASocket: The specified socket type is not supported in this address family.")
+            case WSAESOCKTNOSUPPORT:
+                LERR("WSASocket: The specified socket type is not supported in this address family.");
 
-                case WSAEINVAL:
-                LERR(
-                        "WSASocket: This value is true for any of the following conditions. The parameter g specified is not valid. The WSAPROTOCOL_INFO structure that lpProtocolInfo points to is incomplete, the contents are invalid or the WSAPROTOCOL_INFO structure has already been used in an earlier duplicate socket operation. The values specified for members of the socket triple <af, type, and protocol> are individually supported, but the given combination is not.")
+            case WSAEINVAL:
+                LERR("WSASocket: This value is true for any of the following conditions. The parameter g specified is not valid. The WSAPROTOCOL_INFO structure that lpProtocolInfo points to is incomplete, the contents are invalid or the WSAPROTOCOL_INFO structure has already been used in an earlier duplicate socket operation. The values specified for members of the socket triple <af, type, and protocol> are individually supported, but the given combination is not.");
 
-                case WSAEFAULT:
-                LERR("WSASocket: lpProtocolInfo argument is not in a valid part of the process address space.")
+            case WSAEFAULT:
+                LERR("WSASocket: lpProtocolInfo argument is not in a valid part of the process address space.");
 
-                    //      case WSAINVALIDPROVIDER:
-                    //        LERR("WSASocket: The service provider returned a version other than 2.2.")
+                //      case WSAINVALIDPROVIDER:
+                //        LERR("WSASocket: The service provider returned a version other than 2.2.")
 
-                    //      case WSAINVALIDPROCTABLE:
-                    //        LERR("WSASocket: The service provider returned an invalid or incomplete procedure table to the WSPStartup.")
+                //      case WSAINVALIDPROCTABLE:
+                //        LERR("WSASocket: The service provider returned an invalid or incomplete procedure table to the WSPStartup.")
 
-                case WSAEACCES:
-                    // Only occurs with RAW sockets, must be handled by maintainer of RAW sockets
-                LDIAG("WSASocket: Not enough priveleges to perform this operation")
+            case WSAEACCES:
+                // Only occurs with RAW sockets, must be handled by maintainer of RAW sockets
+                LDIAG("WSASocket: Not enough priveleges to perform this operation");
                 break;
 
-                default:
-                LERR("WSASocket: Unknown Error " << dec << error << " [" << HEX(8, error) << "]")
+            default:
+                LERR("WSASocket: Unknown Error " << dec << error << " [" << HEX(8, error) << "]");
             }
         }
     }
@@ -929,31 +910,28 @@ namespace Win32
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("closesocket: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("closesocket: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("closesocket: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("closesocket: The network subsystem has failed.");
 
-                case WSAENOTSOCK:
-                    // This happens when closing an already closed socket, we don't care about it
-                    //LERR("closesocket: The descriptor is not a socket.")
-                    break;
+            case WSAENOTSOCK:
+                // This happens when closing an already closed socket, we don't care about it
+                // LERR("closesocket: The descriptor is not a socket.");
+                break;
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "closesocket: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("closesocket: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEINTR:
-                LERR(
-                        "closesocket: The (blocking) Windows Socket 1.1 call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("closesocket: The (blocking) Windows Socket 1.1 call was canceled through WSACancelBlockingCall.");
 
-                case WSAEWOULDBLOCK:
-                LERR(
-                        "closesocket: The socket is marked as nonblocking and SO_LINGER is set to a nonzero time-out value.")
+            case WSAEWOULDBLOCK:
+                LERR("closesocket: The socket is marked as nonblocking and SO_LINGER is set to a nonzero time-out value.");
 
-                default:
-                LERR("closesocket: Unknown Error")
+            default:
+                LERR("closesocket: Unknown Error");
             }
         }
 
@@ -972,32 +950,29 @@ namespace Win32
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("getsockname: A successful WSAStartup call must occur before using this API.")
+            case WSANOTINITIALISED:
+                LERR("getsockname: A successful WSAStartup call must occur before using this API.");
 
-                case WSAENETDOWN:
-                LDIAG("getsockname: The network subsystem has failed.")
-                    return (FALSE);
+            case WSAENETDOWN:
+                LDIAG("getsockname: The network subsystem has failed.");
+                return (FALSE);
 
-                case WSAEFAULT:
-                LERR(
-                        "getsockname: The name or the namelen parameter is not a valid part of the user address space, or the namelen parameter is too small.")
+            case WSAEFAULT:
+                LERR("getsockname: The name or the namelen parameter is not a valid part of the user address space, or the namelen parameter is too small.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "getsockname: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("getsockname: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAENOTSOCK:
-                LDIAG("getsockname: The descriptor is not a socket.")
-                    return (FALSE);
+            case WSAENOTSOCK:
+                LDIAG("getsockname: The descriptor is not a socket.");
+                return (FALSE);
 
-                case WSAEINVAL:
-                LDIAG(
-                        "getsockname: The socket has not been bound to an address with bind, or ADDR_ANY is specified in bind but connection has not yet occurs.")
-                    return (FALSE);
+            case WSAEINVAL:
+                LDIAG("getsockname: The socket has not been bound to an address with bind, or ADDR_ANY is specified in bind but connection has not yet occurs.");
+                return (FALSE);
 
-                default:
-                LERR("getsockname: Unknown Error!")
+            default:
+                LERR("getsockname: Unknown Error!");
             }
         }
         return (TRUE);
@@ -1011,31 +986,29 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        if (WSAEventSelect(socket, event.GetHandle(), events) == SOCKET_ERROR)
-        {
-            switch (WSAGetLastError())
+            if (WSAEventSelect(socket, event.GetHandle(), events) == SOCKET_ERROR)
             {
+                switch (WSAGetLastError())
+                {
                 case WSANOTINITIALISED:
-                LERR("WSAEventSelect: A successful WSAStartup call must occur before using this function.")
+                    LERR("WSAEventSelect: A successful WSAStartup call must occur before using this function.");
 
                 case WSAENETDOWN:
-                LERR("WSAEventSelect: The network subsystem has failed.")
+                    LERR("WSAEventSelect: The network subsystem has failed.");
 
                 case WSAEINVAL:
-                LERR(
-                        "WSAEventSelect: Indicates that one of the specified parameters was invalid, or the specified socket is in an invalid state.")
+                    LERR("WSAEventSelect: Indicates that one of the specified parameters was invalid, or the specified socket is in an invalid state.");
 
                 case WSAEINPROGRESS:
-                LERR(
-                        "WSAEventSelect: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+                    LERR("WSAEventSelect: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
                 case WSAENOTSOCK:
-                LERR("WSAEventSelect: The descriptor is not a socket.")
+                    LERR("WSAEventSelect: The descriptor is not a socket.");
 
                 default:
-                LERR("WSAEventSelect: Unknown Error")
+                    LERR("WSAEventSelect: Unknown Error");
+                }
             }
-        }
     }
 
 
@@ -1046,35 +1019,33 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        if (WSAEnumNetworkEvents(socket, event.GetHandle(), &networkEvents) == SOCKET_ERROR)
-        {
-            switch (WSAGetLastError())
+            if (WSAEnumNetworkEvents(socket, event.GetHandle(), &networkEvents) == SOCKET_ERROR)
             {
+                switch (WSAGetLastError())
+                {
                 case WSANOTINITIALISED:
-                LERR("WSAEnumNetworkEvents: A successful WSAStartup call must occur before using this function.")
+                    LERR("WSAEnumNetworkEvents: A successful WSAStartup call must occur before using this function.");
 
                 case WSAENETDOWN:
-                LERR("WSAEnumNetworkEvents: The network subsystem has failed.")
+                    LERR("WSAEnumNetworkEvents: The network subsystem has failed.");
 
                 case WSAEINVAL:
-                LERR("WSAEnumNetworkEvents: Indicates that one of the specified parameters was invalid.")
+                    LERR("WSAEnumNetworkEvents: Indicates that one of the specified parameters was invalid.");
 
                 case WSAEINPROGRESS:
-                LERR(
-                        "WSAEnumNetworkEvents: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+                    LERR("WSAEnumNetworkEvents: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
                 case WSAENOTSOCK:
-                LDIAG("WSAEnumNetworkEvents: The descriptor is not a socket.")
+                    LDIAG("WSAEnumNetworkEvents: The descriptor is not a socket.");
                     return (FALSE);
 
                 case WSAEFAULT:
-                LERR(
-                        "WSAEnumNetworkEvents: The lpNetworkEvents argument is not a valid part of the user address space.")
+                    LERR("WSAEnumNetworkEvents: The lpNetworkEvents argument is not a valid part of the user address space.");
 
                 default:
-                LERR("WSAEnumNetworkEvents: Unknown error")
+                    LERR("WSAEnumNetworkEvents: Unknown error");
+                }
             }
-        }
         return (TRUE);
     }
 
@@ -1086,85 +1057,77 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        int sent = send(socket, (const char*)data, length, 0);
+            int sent = send(socket, (const char*)data, length, 0);
 
         if (sent == SOCKET_ERROR)
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("send: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("send: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("send: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("send: The network subsystem has failed.");
 
-                case WSAEACCES:
-                LERR(
-                        "send: The requested address is a broadcast address, but the appropriate flag was not set. Call setsockopt with the SO_BROADCAST parameter to allow the use of the broadcast address.")
+            case WSAEACCES:
+                LERR("send: The requested address is a broadcast address, but the appropriate flag was not set. Call setsockopt with the SO_BROADCAST parameter to allow the use of the broadcast address.");
 
-                case WSAEINTR:
-                LERR("send: A blocking Windows Sockets 1.1 call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("send: A blocking Windows Sockets 1.1 call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "send: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("send: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEFAULT:
-                LERR(
-                        "send: The buf parameter is not completely contained in a valid part of the user address space.")
+            case WSAEFAULT:;
+                LERR("send: The buf parameter is not completely contained in a valid part of the user address space.");
 
-                case WSAENETRESET:
-                LERR(
-                        "send: The connection has been broken due to the keep-alive activity detecting a failure while the operation was in progress.")
+            case WSAENETRESET:
+                LERR("send: The connection has been broken due to the keep-alive activity detecting a failure while the operation was in progress.");
 
-                case WSAENOBUFS:
-                LERR("send: No buffer space is available.")
+            case WSAENOBUFS:
+                LERR("send: No buffer space is available.");
 
-                case WSAENOTCONN:
-                LDIAG("send: The socket is not connected.")
-                    return (0);
+            case WSAENOTCONN:
+                LDIAG("send: The socket is not connected.");
+                return (0);
 
-                case WSAENOTSOCK:
-                LDIAG("send: The descriptor is not a socket.")
-                    return (0);
+            case WSAENOTSOCK:
+                LDIAG("send: The descriptor is not a socket.");
+                return (0);
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "send: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only receive operations.")
+            case WSAEOPNOTSUPP:
+                LERR("send: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only receive operations.");
 
-                case WSAESHUTDOWN:
-                LERR(
-                        "send: The socket has been shut down; it is not possible to send on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.")
+            case WSAESHUTDOWN:
+                LERR("send: The socket has been shut down; it is not possible to send on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.");
 
-                case WSAEWOULDBLOCK:
-                    //LDIAG("send: The socket is marked as nonblocking and the requested operation would block.")
-                    return (0);
+            case WSAEWOULDBLOCK:
+                //LDIAG("send: The socket is marked as nonblocking and the requested operation would block.")
+                return (0);
 
-                case WSAEMSGSIZE:
-                LERR(
-                        "send: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.")
+            case WSAEMSGSIZE:
+                LERR("send: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.");
 
-                case WSAEHOSTUNREACH:
-                LERR("send: The remote host cannot be reached from this host at this time.")
+            case WSAEHOSTUNREACH:
+                LERR("send: The remote host cannot be reached from this host at this time.");
 
-                case WSAEINVAL:
-                LERR(
-                        "send: The socket has not been bound with bind, or an unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled.")
+            case WSAEINVAL:
+                LERR("send: The socket has not been bound with bind, or an unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled.");
 
-                case WSAECONNABORTED:
-                    //LDIAG("send: The virtual circuit was terminated due to a time-out or other failure. The application should close the socket as it is no longer usable.")
-                    return (0);
+            case WSAECONNABORTED:
+                // LDIAG("send: The virtual circuit was terminated due to a time-out or other failure. The application should close the socket as it is no longer usable.");
+                return (0);
 
-                case WSAECONNRESET:
-                    //LDIAG("send: The virtual circuit was reset by the remote side executing a hard or abortive close. For UPD sockets, the remote host was unable to deliver a previously sent UDP datagram and responded with a \"Port Unreachable\" ICMP packet. The application should close the socket as it is no longer usable.")
-                    return (0);
+            case WSAECONNRESET:
+                // LDIAG("send: The virtual circuit was reset by the remote side executing a hard or abortive close. For UPD sockets, the remote host was unable to deliver a previously sent UDP datagram and responded with a \"Port Unreachable\" ICMP packet. The application should close the socket as it is no longer usable.");
+                return (0);
 
-                case WSAETIMEDOUT:
-                    //LERR("send: The connection has been dropped, because of a network failure or because the system on the other end went down without notice.")
-                    return (0);
+            case WSAETIMEDOUT:
+                // LERR("send: The connection has been dropped, because of a network failure or because the system on the other end went down without notice.");
+                return (0);
 
-                default:
-                LERR("send: Unknown Error")
+            default:
+                LERR("send: Unknown Error");
             }
         }
 
@@ -1179,101 +1142,95 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        int sent = sendto(socket, (const char*)data, length, 0, reinterpret_cast<const sockaddr*>(&address),
-                          sizeof(Address));
+            int sent = sendto(socket, (const char*)data, length, 0, reinterpret_cast<const sockaddr*>(&address),
+                sizeof(Address));
 
         if (sent == SOCKET_ERROR)
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("sendto: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("sendto: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                    //LDIAG("sendto: The network subsystem has failed.")
-                    return (0);
+            case WSAENETDOWN:
+                // LDIAG("sendto: The network subsystem has failed.");
+                return (0);
 
-                case WSAEACCES:
-                LDIAG(
-                        "sendto: The requested address is a broadcast address, but the appropriate flag was not set. Call setsockopt with the SO_BROADCAST parameter to allow the use of the broadcast address.")
-                    return (0);
+            case WSAEACCES:
+                LDIAG("sendto: The requested address is a broadcast address, but the appropriate flag was not set. Call setsockopt with the SO_BROADCAST parameter to allow the use of the broadcast address.");
+                return (0);
 
-                case WSAEINVAL:
-                LERR(
-                        "sendto: An unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled.")
+            case WSAEINVAL:
+                LERR("sendto: An unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled.");
 
-                case WSAEINTR:
-                LERR("sendto: A blocking Windows Sockets 1.1 call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("sendto: A blocking Windows Sockets 1.1 call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "sendto: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("sendto: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEFAULT:
-                LDIAG(
-                        "sendto: The buf or to parameters are not part of the user address space, or the tolen parameter is too small.")
-                    return (0);
+            case WSAEFAULT:
+                LDIAG("sendto: The buf or to parameters are not part of the user address space, or the tolen parameter is too small.");
+                return (0);
 
-                case WSAENETRESET:
-                    //LDIAG("sendto: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.")
-                    return (0);
+            case WSAENETRESET:
+                // LDIAG("sendto: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.");
+                return (0);
 
-                case WSAENOBUFS:
-                LERR("sendto: No buffer space is available.")
+            case WSAENOBUFS:
+                LERR("sendto: No buffer space is available.");
 
-                case WSAENOTCONN:
-                LERR("sendto: The socket is not connected (connection-oriented sockets only).")
+            case WSAENOTCONN:
+                LERR("sendto: The socket is not connected (connection-oriented sockets only).");
 
-                case WSAENOTSOCK:
-                    //LDIAG("sendto: The descriptor is not a socket.")
-                    return (0);
+            case WSAENOTSOCK:
+                // LDIAG("sendto: The descriptor is not a socket.");
+                return (0);
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "sendto: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only receive operations.")
+            case WSAEOPNOTSUPP:
+                LERR("sendto: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only receive operations.");
 
-                case WSAESHUTDOWN:
-                    //LDIAG("sendto: The socket has been shut down; it is not possible to sendto on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.")
-                    return (0);
+            case WSAESHUTDOWN:
+                // LDIAG("sendto: The socket has been shut down; it is not possible to sendto on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.");
+                return (0);
 
-                case WSAEWOULDBLOCK:
-                LERR("sendto: The socket is marked as nonblocking and the requested operation would block.")
+            case WSAEWOULDBLOCK:
+                LERR("sendto: The socket is marked as nonblocking and the requested operation would block.");
 
-                case WSAEMSGSIZE:
-                LERR(
-                        "sendto: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.")
+            case WSAEMSGSIZE:
+                LERR("sendto: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.");
 
-                case WSAEHOSTUNREACH:
-                    //LDIAG("sendto: The remote host cannot be reached from this host at this time.")
-                    return (0);
+            case WSAEHOSTUNREACH:
+                // LDIAG("sendto: The remote host cannot be reached from this host at this time.");
+                return (0);
 
-                case WSAECONNABORTED:
-                    //LDIAG("sendto: The virtual circuit was terminated due to a time-out or other failure. The application should close the socket as it is no longer usable.")
-                    return (0);
+            case WSAECONNABORTED:
+                // LDIAG("sendto: The virtual circuit was terminated due to a time-out or other failure. The application should close the socket as it is no longer usable.");
+                return (0);
 
-                case WSAECONNRESET:
-                    //LDIAG("sendto: The virtual circuit was reset by the remote side executing a hard or abortive close. For UPD sockets, the remote host was unable to deliver a previously sent UDP datagram and responded with a \"Port Unreachable\" ICMP packet. The application should close the socket as it is no longer usable.")
-                    return (0);
+            case WSAECONNRESET:
+                // LDIAG("sendto: The virtual circuit was reset by the remote side executing a hard or abortive close. For UPD sockets, the remote host was unable to deliver a previously sent UDP datagram and responded with a \"Port Unreachable\" ICMP packet. The application should close the socket as it is no longer usable.");
+                return (0);
 
-                case WSAEADDRNOTAVAIL:
-                LERR("sendto: The remote address is not a valid address, for example, ADDR_ANY.")
+            case WSAEADDRNOTAVAIL:
+                LERR("sendto: The remote address is not a valid address, for example, ADDR_ANY.");
 
-                case WSAEAFNOSUPPORT:
-                LERR("sendto: Addresses in the specified family cannot be used with this socket.")
+            case WSAEAFNOSUPPORT:
+                LERR("sendto: Addresses in the specified family cannot be used with this socket.");
 
-                case WSAEDESTADDRREQ:
-                LERR("sendto: A destination address is required.")
+            case WSAEDESTADDRREQ:
+                LERR("sendto: A destination address is required.");
 
-                case WSAENETUNREACH:
-                    //LDIAG("sendto: The network cannot be reached from this host at this time.")
-                    return (0);
+            case WSAENETUNREACH:
+                // LDIAG("sendto: The network cannot be reached from this host at this time.");
+                return (0);
 
-                case WSAETIMEDOUT:
-                    //LDIAG("sendto: The connection has been dropped, because of a network failure or because the system on the other end went down without notice.")
-                    return (0);
+            case WSAETIMEDOUT:
+                // LDIAG("sendto: The connection has been dropped, because of a network failure or because the system on the other end went down without notice.");
+                return (0);
 
-                default:
-                LERR("sendto: Unknown Error")
+            default:
+                LERR("sendto: Unknown Error");
             }
         }
 
@@ -1286,13 +1243,11 @@ namespace Win32
     //
     U32 Socket::Send(Buffer* buffers, U32 numBuffers, Overlapped& overlapped, CompletionRoutine completionRoutine)
     {
-        ASSERT(initialized)
+        ASSERT(initialized);
 
         U32 sent = 0;
-        if
-        (
-            WSASend
-            (
+        if (
+            WSASend(
                 socket,
                 buffers,
                 numBuffers,
@@ -1301,79 +1256,69 @@ namespace Win32
                 &overlapped,
                 reinterpret_cast<LPWSAOVERLAPPED_COMPLETION_ROUTINE>(completionRoutine)
             )
-        )
+            )
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("WSASend: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("WSASend: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("WSASend: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("WSASend: The network subsystem has failed.");
 
-                case WSAEACCES:
-                LERR("WSASend: The requested address is a broadcast address, but the appropriate flag was not set.")
+            case WSAEACCES:
+                LERR("WSASend: The requested address is a broadcast address, but the appropriate flag was not set.");
 
-                case WSAEINTR:
-                LERR("WSASend: A blocking Windows Socket 1.1 call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("WSASend: A blocking Windows Socket 1.1 call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "WSASend: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("WSASend: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEFAULT:
-                LERR(
-                        "WSASend: The lpBuffers, lpNumberOfBytesSent, lpOverlapped, lpCompletionRoutine argument is not totally contained in a valid part of the user address space.")
+            case WSAEFAULT:
+                LERR("WSASend: The lpBuffers, lpNumberOfBytesSent, lpOverlapped, lpCompletionRoutine argument is not totally contained in a valid part of the user address space.");
 
-                case WSAENETRESET:
-                LERR(
-                        "WSASend: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.")
+            case WSAENETRESET:
+                LERR("WSASend: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.");
 
-                case WSAENOBUFS:
-                LERR("WSASend: The Windows Sockets provider reports a buffer deadlock.")
+            case WSAENOBUFS:
+                LERR("WSASend: The Windows Sockets provider reports a buffer deadlock.");
 
-                case WSAENOTCONN:
-                LERR("WSASend: The socket is not connected.")
+            case WSAENOTCONN:
+                LERR("WSASend: The socket is not connected.");
 
-                case WSAENOTSOCK:
-                LERR("WSASend: The descriptor is not a socket.")
+            case WSAENOTSOCK:
+                LERR("WSASend: The descriptor is not a socket.");
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "WSASend: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, MSG_PARTIAL is not supported, or the socket is unidirectional and supports only receive operations.")
+            case WSAEOPNOTSUPP:
+                LERR("WSASend: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, MSG_PARTIAL is not supported, or the socket is unidirectional and supports only receive operations.");
 
-                case WSAESHUTDOWN:
-                LERR(
-                        "WSASend: The socket has been shut down; it is not possible to WSASend on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.")
+            case WSAESHUTDOWN:
+                LERR("WSASend: The socket has been shut down; it is not possible to WSASend on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.");
 
-                case WSAEWOULDBLOCK:
-                LERR(
-                        "WSASend: Overlapped sockets: There are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the send operation cannot be completed immediately.")
+            case WSAEWOULDBLOCK:
+                LERR("WSASend: Overlapped sockets: There are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the send operation cannot be completed immediately.");
 
-                case WSAEMSGSIZE:
-                LERR(
-                        "WSASend: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.")
+            case WSAEMSGSIZE:
+                LERR("WSASend: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.");
 
-                case WSAEINVAL:
-                LERR(
-                        "WSASend: The socket has not been bound with bind or the socket is not created with the overlapped flag.")
+            case WSAEINVAL:
+                LERR("WSASend: The socket has not been bound with bind or the socket is not created with the overlapped flag.");
 
-                case WSAECONNABORTED:
-                LERR("WSASend: The virtual circuit was terminated due to a time-out or other failure.")
+            case WSAECONNABORTED:
+                LERR("WSASend: The virtual circuit was terminated due to a time-out or other failure.");
 
-                case WSAECONNRESET:
-                LERR("WSASend: The virtual circuit was reset by the remote side.")
+            case WSAECONNRESET:
+                LERR("WSASend: The virtual circuit was reset by the remote side.");
 
-                case WSA_IO_PENDING:
-                LERR(
-                        "WSASend: An overlapped operation was successfully initiated and completion will be indicated at a later time.")
+            case WSA_IO_PENDING:
+                LERR("WSASend: An overlapped operation was successfully initiated and completion will be indicated at a later time.");
 
-                case WSA_OPERATION_ABORTED:
-                LERR(
-                        "WSASend: The overlapped operation has been canceled due to the closure of the socket, or the execution of the SIO_FLUSH command in WSAIoctl.")
+            case WSA_OPERATION_ABORTED:
+                LERR("WSASend: The overlapped operation has been canceled due to the closure of the socket, or the execution of the SIO_FLUSH command in WSAIoctl.");
 
-                default:
-                LERR("WSASend: Unknown Error!")
+            default:
+                LERR("WSASend: Unknown Error!");
             }
         }
 
@@ -1385,111 +1330,100 @@ namespace Win32
     // Send (to an address overlapped)
     //
     U32 Socket::Send(const Address& address, Buffer* buffers, U32 numBuffers, Overlapped& overlapped,
-                     CompletionRoutine completionRoutine)
+        CompletionRoutine completionRoutine)
     {
         ASSERT(initialized)
 
-        U32 sent = 0;
+            U32 sent = 0;
         if
-        (
-            WSASendTo
             (
-                socket,
-                buffers,
-                numBuffers,
-                &sent,
-                0,
-                reinterpret_cast<const sockaddr*>(&address),
-                sizeof(Address),
-                &overlapped,
-                reinterpret_cast<LPWSAOVERLAPPED_COMPLETION_ROUTINE>(completionRoutine)
-            )
-        )
+                WSASendTo
+                (
+                    socket,
+                    buffers,
+                    numBuffers,
+                    &sent,
+                    0,
+                    reinterpret_cast<const sockaddr*>(&address),
+                    sizeof(Address),
+                    &overlapped,
+                    reinterpret_cast<LPWSAOVERLAPPED_COMPLETION_ROUTINE>(completionRoutine)
+                )
+                )
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("WSASendTo: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("WSASendTo: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("WSASendTo: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("WSASendTo: The network subsystem has failed.");
 
-                case WSAEACCES:
-                LERR(
-                        "WSASendTo: The requested address is a broadcast address, but the appropriate flag was not set.")
+            case WSAEACCES:
+                LERR("WSASendTo: The requested address is a broadcast address, but the appropriate flag was not set.");
 
-                case WSAEINTR:
-                LERR("WSASendTo: A blocking Windows Socket 1.1 call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("WSASendTo: A blocking Windows Socket 1.1 call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "WSASendTo: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("WSASendTo: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEFAULT:
-                LERR(
-                        "WSASendTo: The lpBuffers, lpTo, lpOverlapped, lpNumberOfBytesSent, or lpCompletionRoutine parameters are not part of the user address space, or the lpTo argument is too small.")
+            case WSAEFAULT:
+                LERR("WSASendTo: The lpBuffers, lpTo, lpOverlapped, lpNumberOfBytesSent, or lpCompletionRoutine parameters are not part of the user address space, or the lpTo argument is too small.");
 
-                case WSAENETRESET:
-                LERR(
-                        "WSASendTo: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.")
+            case WSAENETRESET:
+                LERR("WSASendTo: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.");
 
-                case WSAENOBUFS:
-                LERR("WSASendTo: The Windows Sockets provider reports a buffer deadlock.")
+            case WSAENOBUFS:
+                LERR("WSASendTo: The Windows Sockets provider reports a buffer deadlock.");
 
-                case WSAENOTCONN:
-                LERR("WSASendTo: The socket is not connected (connection-oriented sockets only).")
+            case WSAENOTCONN:
+                LERR("WSASendTo: The socket is not connected (connection-oriented sockets only).");
 
-                case WSAENOTSOCK:
-                LERR("WSASendTo: The descriptor is not a socket.")
+            case WSAENOTSOCK:
+                LERR("WSASendTo: The descriptor is not a socket.");
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "WSASendTo: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, MSG_PARTIAL is not supported, or the socket is unidirectional and supports only receive operations.")
+            case WSAEOPNOTSUPP:
+                LERR("WSASendTo: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, MSG_PARTIAL is not supported, or the socket is unidirectional and supports only receive operations.");
 
-                case WSAESHUTDOWN:
-                LERR(
-                        "WSASendTo: The socket has been shut down; it is not possible to WSASendTo on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.")
+            case WSAESHUTDOWN:
+                LERR("WSASendTo: The socket has been shut down; it is not possible to WSASendTo on a socket after shutdown has been invoked with how set to SD_SEND or SD_BOTH.");
 
-                case WSAEWOULDBLOCK:
-                LERR(
-                        "WSASendTo: Overlapped sockets: there are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the send operation cannot be completed immediately.")
+            case WSAEWOULDBLOCK:
+                LERR("WSASendTo: Overlapped sockets: there are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the send operation cannot be completed immediately.");
 
-                case WSAEMSGSIZE:
-                LERR(
-                        "WSASendTo: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.")
+            case WSAEMSGSIZE:
+                LERR("WSASendTo: The socket is message oriented, and the message is larger than the maximum supported by the underlying transport.");
 
-                case WSAEINVAL:
-                LERR(
-                        "WSASendTo: The socket has not been bound with bind, or the socket is not created with the overlapped flag.")
+            case WSAEINVAL:
+                LERR("WSASendTo: The socket has not been bound with bind, or the socket is not created with the overlapped flag.");
 
-                case WSAECONNABORTED:
-                LERR("WSASendTo: The virtual circuit was terminated due to a time-out or other failure.")
+            case WSAECONNABORTED:
+                LERR("WSASendTo: The virtual circuit was terminated due to a time-out or other failure.");
 
-                case WSAECONNRESET:
-                LERR("WSASendTo: The virtual circuit was reset by the remote side.")
+            case WSAECONNRESET:
+                LERR("WSASendTo: The virtual circuit was reset by the remote side.");
 
-                case WSAEADDRNOTAVAIL:
-                LERR("WSASendTo: The remote address is not a valid address (such as ADDR_ANY).")
+            case WSAEADDRNOTAVAIL:
+                LERR("WSASendTo: The remote address is not a valid address (such as ADDR_ANY).");
 
-                case WSAEAFNOSUPPORT:
-                LERR("WSASendTo: Addresses in the specified family cannot be used with this socket.")
+            case WSAEAFNOSUPPORT:
+                LERR("WSASendTo: Addresses in the specified family cannot be used with this socket.");
 
-                case WSAEDESTADDRREQ:
-                LERR("WSASendTo: A destination address is required.")
+            case WSAEDESTADDRREQ:
+                LERR("WSASendTo: A destination address is required.");
 
-                case WSAENETUNREACH:
-                LERR("WSASendTo: The network cannot be reached from this host at this time.")
+            case WSAENETUNREACH:
+                LERR("WSASendTo: The network cannot be reached from this host at this time.");
 
-                case WSA_IO_PENDING:
-                LERR(
-                        "WSASendTo: An overlapped operation was successfully initiated and completion will be indicated at a later time.")
+            case WSA_IO_PENDING:
+                LERR("WSASendTo: An overlapped operation was successfully initiated and completion will be indicated at a later time.");
 
-                case WSA_OPERATION_ABORTED:
-                LERR(
-                        "WSASendTo: The overlapped operation has been canceled due to the closure of the socket, or the execution of the SIO_FLUSH command in WSAIoctl.")
+            case WSA_OPERATION_ABORTED:
+                LERR("WSASendTo: The overlapped operation has been canceled due to the closure of the socket, or the execution of the SIO_FLUSH command in WSAIoctl.");
 
-                default:
-                LERR("WSASendTo: Unknown Error!")
+            default:
+                LERR("WSASendTo: Unknown Error!");
             }
         }
 
@@ -1504,81 +1438,72 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        int received = recv(socket, (char*)data, length, 0);
+            int received = recv(socket, (char*)data, length, 0);
 
         if (received == SOCKET_ERROR)
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("recv: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("recv: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LDIAG("recv: The network subsystem has failed.")
-                    return (0);
+            case WSAENETDOWN:
+                LDIAG("recv: The network subsystem has failed.");
+                return (0);
 
-                case WSAEFAULT:
-                LERR(
-                        "recv: The buf parameter is not completely contained in a valid part of the user address space.")
+            case WSAEFAULT:
+                LERR("recv: The buf parameter is not completely contained in a valid part of the user address space.");
 
-                case WSAENOTCONN:
-                LDIAG("recv: The socket is not connected.")
-                    return (0);
+            case WSAENOTCONN:
+                LDIAG("recv: The socket is not connected.");
+                return (0);
 
-                case WSAEINTR:
-                LERR("recv: The (blocking) call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("recv: The (blocking) call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "recv: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("recv: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAENETRESET:
-                LDIAG(
-                        "recv: The connection has been broken due to the keep-alive activity detecting a failure while the operation was in progress.")
-                    return (0);
+            case WSAENETRESET:
+                LDIAG("recv: The connection has been broken due to the keep-alive activity detecting a failure while the operation was in progress.");
+                return (0);
 
-                case WSAENOTSOCK:
-                LDIAG("recv: The descriptor is not a socket.")
-                    return (0);
+            case WSAENOTSOCK:
+                LDIAG("recv: The descriptor is not a socket.");
+                return (0);
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "recv: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.")
+            case WSAEOPNOTSUPP:
+                LERR("recv: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.");
 
-                case WSAESHUTDOWN:
-                LDIAG(
-                        "recv: The socket has been shut down; it is not possible to receive on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.")
-                    return (0);
+            case WSAESHUTDOWN:
+                LDIAG("recv: The socket has been shut down; it is not possible to receive on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.");
+                return (0);
 
-                case WSAEWOULDBLOCK:
-                    //        LDIAG("recv: The socket is marked as nonblocking and the receive operation would block.")
-                    // The operation would block (indicating that there's not enough data so we received zero)
-                    return (0);
+            case WSAEWOULDBLOCK:
+                // LDIAG("recv: The socket is marked as nonblocking and the receive operation would block.");
+                // The operation would block (indicating that there's not enough data so we received zero)
+                return (0);
 
-                case WSAEMSGSIZE:
-                LERR("recv: The message was too large to fit into the specified buffer and was truncated.")
+            case WSAEMSGSIZE:
+                LERR("recv: The message was too large to fit into the specified buffer and was truncated.");
 
-                case WSAEINVAL:
-                LERR(
-                        "recv: The socket has not been bound with bind, or an unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled or (for byte stream sockets only) len was zero or negative.")
+            case WSAEINVAL:
+                LERR("recv: The socket has not been bound with bind, or an unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled or (for byte stream sockets only) len was zero or negative.");
 
-                case WSAECONNABORTED:
-                LDIAG(
-                        "recv: The virtual circuit was terminated due to a time-out or other failure. The application should close the socket as it is no longer usable.")
-                    return (0);
+            case WSAECONNABORTED:
+                LDIAG("recv: The virtual circuit was terminated due to a time-out or other failure. The application should close the socket as it is no longer usable.");
+                return (0);
 
-                case WSAETIMEDOUT:
-                LDIAG(
-                        "recv: The connection has been dropped because of a network failure or because the peer system failed to respond.")
-                    return (0);
+            case WSAETIMEDOUT:
+                LDIAG("recv: The connection has been dropped because of a network failure or because the peer system failed to respond.");
+                return (0);
 
-                case WSAECONNRESET:
-                LDIAG(
-                        "recv: The virtual circuit was reset by the remote side executing a hard or abortive close. The application should close the socket as it is no longer usable. On a UPD-datagram socket this error would indicate that a previous send operation resulted in an ICMP \"Port Unreachable\" message.")
-                    return (0);
+            case WSAECONNRESET:
+                LDIAG("recv: The virtual circuit was reset by the remote side executing a hard or abortive close. The application should close the socket as it is no longer usable. On a UPD-datagram socket this error would indicate that a previous send operation resulted in an ICMP \"Port Unreachable\" message.");
+                return (0);
 
-                default:
-                LERR("recv: Unknown Error")
+            default:
+                LERR("recv: Unknown Error");
             }
         }
 
@@ -1593,77 +1518,69 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        SI addressLength = sizeof(Address);
+            SI addressLength = sizeof(Address);
         int received = recvfrom(socket, (char*)data, length, 0, (sockaddr*)&address, &addressLength);
 
         if (received == SOCKET_ERROR)
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("recvfrom: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("recvfrom: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LDIAG("recvfrom: The network subsystem has failed.")
-                    return (0);
+            case WSAENETDOWN:
+                LDIAG("recvfrom: The network subsystem has failed.");
+                return (0);
 
-                case WSAEFAULT:
-                LERR(
-                        "recvfrom: The buf or from parameters are not part of the user address space, or the fromlen parameter is too small to accommodate the peer address.")
+            case WSAEFAULT:
+                LERR("recvfrom: The buf or from parameters are not part of the user address space, or the fromlen parameter is too small to accommodate the peer address.");
 
-                case WSAEINTR:
-                LERR("recvfrom: The (blocking) call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("recvfrom: The (blocking) call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "recvfrom: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("recvfrom: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEINVAL:
-                LDIAG(
-                        "recvfrom: The socket has not been bound with bind, or an unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled, or (for byte stream-style sockets only) len was zero or negative.")
-                    return (0);
+            case WSAEINVAL:
+                LDIAG("recvfrom: The socket has not been bound with bind, or an unknown flag was specified, or MSG_OOB was specified for a socket with SO_OOBINLINE enabled, or (for byte stream-style sockets only) len was zero or negative.");
+                return (0);
 
-                case WSAEISCONN:
-                LERR(
-                        "recvfrom: The socket is connected. This function is not permitted with a connected socket, whether the socket is connection-oriented or connectionless.")
+            case WSAEISCONN:
+                LERR("recvfrom: The socket is connected. This function is not permitted with a connected socket, whether the socket is connection-oriented or connectionless.");
 
-                case WSAENETRESET:
-                LDIAG(
-                        "recvfrom: The connection has been broken due to the keep-alive activity detecting a failure while the operation was in progress.")
-                    return (0);
+            case WSAENETRESET:
+                LDIAG("recvfrom: The connection has been broken due to the keep-alive activity detecting a failure while the operation was in progress.");
+                return (0);
 
-                case WSAENOTSOCK:
-                LDIAG("recvfrom: The descriptor is not a socket.")
-                    return (0);
+            case WSAENOTSOCK:
+                LDIAG("recvfrom: The descriptor is not a socket.");
+                return (0);
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "recvfrom: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.")
+            case WSAEOPNOTSUPP:
+                LERR("recvfrom: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.");
 
-                case WSAESHUTDOWN:
-                LDIAG(
-                        "recvfrom: The socket has been shut down; it is not possible to recvfrom on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.")
-                    return (0);
+            case WSAESHUTDOWN:
+                LDIAG("recvfrom: The socket has been shut down; it is not possible to recvfrom on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.");
+                return (0);
 
-                case WSAEWOULDBLOCK:
-                LDIAG("recvfrom: The socket is marked as nonblocking and the recvfrom operation would block.")
-                    return (0);
+            case WSAEWOULDBLOCK:
+                LDIAG("recvfrom: The socket is marked as nonblocking and the recvfrom operation would block.");
+                return (0);
 
-                case WSAEMSGSIZE:
-                    //LERR("recvfrom: The message was too large to fit into the specified buffer and was truncated.")
-                    return (0);
+            case WSAEMSGSIZE:
+                // LERR("recvfrom: The message was too large to fit into the specified buffer and was truncated.");
+                return (0);
 
-                case WSAETIMEDOUT:
-                LDIAG(
-                        "recvfrom: The connection has been dropped, because of a network failure or because the system on the other end went down without notice.")
-                    return (0);
+            case WSAETIMEDOUT:
+                LDIAG("recvfrom: The connection has been dropped, because of a network failure or because the system on the other end went down without notice.");
+                return (0);
 
-                case WSAECONNRESET:
-                    //LERR("recvfrom: The virtual circuit was reset by the remote side executing a hard or abortive close. The application should close the socket as it is no longer usable. On a UPD-datagram socket this error would indicate that a previous send operation resulted in an ICMP \"Port Unreachable\" message.")
-                    return (0);
+            case WSAECONNRESET:
+                // LERR("recvfrom: The virtual circuit was reset by the remote side executing a hard or abortive close. The application should close the socket as it is no longer usable. On a UPD-datagram socket this error would indicate that a previous send operation resulted in an ICMP \"Port Unreachable\" message.");
+                return (0);
 
-                default:
-                LERR("recvfrom: Unknown Error")
+            default:
+                LERR("recvfrom: Unknown Error");
             }
         }
 
@@ -1678,86 +1595,77 @@ namespace Win32
     {
         U32 received = 0;
         if
-        (
-            WSARecv
             (
-                socket,
-                buffers,
-                numBuffers,
-                &received,
-                nullptr,
-                &overlapped,
-                reinterpret_cast<LPWSAOVERLAPPED_COMPLETION_ROUTINE>(completionRoutine)
-            )
-        )
+                WSARecv
+                (
+                    socket,
+                    buffers,
+                    numBuffers,
+                    &received,
+                    nullptr,
+                    &overlapped,
+                    reinterpret_cast<LPWSAOVERLAPPED_COMPLETION_ROUTINE>(completionRoutine)
+                )
+                )
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("WSARecv: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("WSARecv: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("WSARecv: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("WSARecv: The network subsystem has failed.");
 
-                case WSAENOTCONN:
-                LERR("WSARecv: The socket is not connected.")
+            case WSAENOTCONN:
+                LERR("WSARecv: The socket is not connected.");
 
-                case WSAEINTR:
-                LERR("WSARecv: The (blocking) call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("WSARecv: The (blocking) call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "WSARecv: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("WSARecv: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAENETRESET:
-                LERR(
-                        "WSARecv: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.")
+            case WSAENETRESET:
+                LERR("WSARecv: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.");
 
-                case WSAENOTSOCK:
-                LERR("WSARecv: The descriptor is not a socket.")
+            case WSAENOTSOCK:
+                LERR("WSARecv: The descriptor is not a socket.");
 
-                case WSAEFAULT:
-                LERR(
-                        "WSARecv: The lpBuffers parameter is not completely contained in a valid part of the user address space.")
+            case WSAEFAULT:
+                LERR("WSARecv: The lpBuffers parameter is not completely contained in a valid part of the user address space.");
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "WSARecv: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.")
+            case WSAEOPNOTSUPP:
+                LERR("WSARecv: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.");
 
-                case WSAESHUTDOWN:
-                LERR(
-                        "WSARecv: The socket has been shut down; it is not possible to call WSARecv on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.")
+            case WSAESHUTDOWN:
+                LERR("WSARecv: The socket has been shut down; it is not possible to call WSARecv on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.");
 
-                case WSAEWOULDBLOCK:
-                LERR(
-                        "WSARecv: Overlapped sockets: there are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the receive operation cannot be completed immediately.")
+            case WSAEWOULDBLOCK:
+                LERR("WSARecv: Overlapped sockets: there are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the receive operation cannot be completed immediately.");
 
-                case WSAEMSGSIZE:
-                LERR(
-                        "WSARecv: The message was too large to fit into the specified buffer and (for unreliable protocols only) any trailing portion of the message that did not fit into the buffer has been discarded.")
+            case WSAEMSGSIZE:
+                LERR("WSARecv: The message was too large to fit into the specified buffer and (for unreliable protocols only) any trailing portion of the message that did not fit into the buffer has been discarded.");
 
-                case WSAEINVAL:
-                LERR("WSARecv: The socket has not been bound (for example, with bind).")
+            case WSAEINVAL:
+                LERR("WSARecv: The socket has not been bound (for example, with bind).");
 
-                case WSAECONNABORTED:
-                LERR("WSARecv: The virtual circuit was terminated due to a time-out or other failure.")
+            case WSAECONNABORTED:
+                LERR("WSARecv: The virtual circuit was terminated due to a time-out or other failure.");
 
-                case WSAECONNRESET:
-                LERR("WSARecv: The virtual circuit was reset by the remote side.")
+            case WSAECONNRESET:
+                LERR("WSARecv: The virtual circuit was reset by the remote side.");
 
-                case WSAEDISCON:
-                LERR(
-                        "WSARecv: Socket s is message oriented and the virtual circuit was gracefully closed by the remote side.")
+            case WSAEDISCON:
+                LERR("WSARecv: Socket s is message oriented and the virtual circuit was gracefully closed by the remote side.");
 
-                case WSA_IO_PENDING:
-                LERR(
-                        "WSARecv: An overlapped operation was successfully initiated and completion will be indicated at a later time.")
+            case WSA_IO_PENDING:
+                LERR("WSARecv: An overlapped operation was successfully initiated and completion will be indicated at a later time.");
 
-                case WSA_OPERATION_ABORTED:
-                LERR("WSARecv: The overlapped operation has been canceled due to the closure of the socket.")
+            case WSA_OPERATION_ABORTED:
+                LERR("WSARecv: The overlapped operation has been canceled due to the closure of the socket.");
 
-                default:
-                LERR("WSARecv: Unknown Error!")
+            default:
+                LERR("WSARecv: Unknown Error!");
             }
         }
 
@@ -1769,92 +1677,81 @@ namespace Win32
     // Recv (from an address overlapped)
     //
     U32 Socket::Recv(Address& address, Buffer* buffers, U32 numBuffers, Overlapped& overlapped,
-                     CompletionRoutine completionRoutine)
+        CompletionRoutine completionRoutine)
     {
         U32 received = 0;
         SI addressLength = sizeof(Address);
         if
-        (
-            WSARecvFrom
             (
-                socket,
-                buffers,
-                numBuffers,
-                &received,
-                nullptr,
-                reinterpret_cast<sockaddr*>(&address),
-                &addressLength,
-                &overlapped,
-                reinterpret_cast<LPWSAOVERLAPPED_COMPLETION_ROUTINE>(completionRoutine)
-            )
-        )
+                WSARecvFrom
+                (
+                    socket,
+                    buffers,
+                    numBuffers,
+                    &received,
+                    nullptr,
+                    reinterpret_cast<sockaddr*>(&address),
+                    &addressLength,
+                    &overlapped,
+                    reinterpret_cast<LPWSAOVERLAPPED_COMPLETION_ROUTINE>(completionRoutine)
+                )
+                )
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("WSARecvFrom: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("WSARecvFrom: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("WSARecvFrom: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("WSARecvFrom: The network subsystem has failed.");
 
-                case WSAEFAULT:
-                LERR(
-                        "WSARecvFrom: The lpBuffers, lpFlags, lpFrom, lpNumberOfBytesRecvd, lpFromlen, lpOverlapped, or lpCompletionRoutine argument is not totally contained in a valid part of the user address space: the lpFrom buffer was too small to accommodate the peer address.")
+            case WSAEFAULT:
+                LERR("WSARecvFrom: The lpBuffers, lpFlags, lpFrom, lpNumberOfBytesRecvd, lpFromlen, lpOverlapped, or lpCompletionRoutine argument is not totally contained in a valid part of the user address space: the lpFrom buffer was too small to accommodate the peer address.");
 
-                case WSAEINTR:
-                LERR("WSARecvFrom: A blocking Windows Socket 1.1 call was canceled through WSACancelBlockingCall.")
+            case WSAEINTR:
+                LERR("WSARecvFrom: A blocking Windows Socket 1.1 call was canceled through WSACancelBlockingCall.");
 
-                case WSAEINPROGRESS:
-                LERR(
-                        "WSARecvFrom: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+            case WSAEINPROGRESS:
+                LERR("WSARecvFrom: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
 
-                case WSAEINVAL:
-                LERR("WSARecvFrom: The socket has not been bound (with bind, for example).")
+            case WSAEINVAL:
+                LERR("WSARecvFrom: The socket has not been bound (with bind, for example).");
 
-                case WSAEISCONN:
-                LERR(
-                        "WSARecvFrom: The socket is connected. This function is not permitted with a connected socket, whether the socket is connection-oriented or connectionless.")
+            case WSAEISCONN:
+                LERR("WSARecvFrom: The socket is connected. This function is not permitted with a connected socket, whether the socket is connection-oriented or connectionless.");
 
-                case WSAENETRESET:
-                LERR(
-                        "WSARecvFrom: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.")
+            case WSAENETRESET:
+                LERR("WSARecvFrom: The connection has been broken due to keep-alive activity detecting a failure while the operation was in progress.");
 
-                case WSAENOTCONN:
-                LERR("WSARecvFrom: The socket is not connected (connection-oriented sockets only).")
+            case WSAENOTCONN:
+                LERR("WSARecvFrom: The socket is not connected (connection-oriented sockets only).");
 
-                case WSAEOPNOTSUPP:
-                LERR(
-                        "WSARecvFrom: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.")
+            case WSAEOPNOTSUPP:
+                LERR("WSARecvFrom: MSG_OOB was specified, but the socket is not stream-style such as type SOCK_STREAM, OOB data is not supported in the communication domain associated with this socket, or the socket is unidirectional and supports only send operations.");
 
-                case WSAESHUTDOWN:
-                LERR(
-                        "WSARecvFrom: The socket has been shut down; it is not possible to WSARecvFrom on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.")
+            case WSAESHUTDOWN:
+                LERR("WSARecvFrom: The socket has been shut down; it is not possible to WSARecvFrom on a socket after shutdown has been invoked with how set to SD_RECEIVE or SD_BOTH.");
 
-                case WSAEWOULDBLOCK:
-                LERR(
-                        "WSARecvFrom: Overlapped sockets: There are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the receive operation cannot be completed immediately.")
+            case WSAEWOULDBLOCK:
+                LERR("WSARecvFrom: Overlapped sockets: There are too many outstanding overlapped I/O requests. Nonoverlapped sockets: The socket is marked as nonblocking and the receive operation cannot be completed immediately.");
 
-                case WSAEMSGSIZE:
-                LERR(
-                        "WSARecvFrom: The message was too large to fit into the specified buffer and (for unreliable protocols only) any trailing portion of the message that did not fit into the buffer has been discarded.")
+            case WSAEMSGSIZE:
+                LERR("WSARecvFrom: The message was too large to fit into the specified buffer and (for unreliable protocols only) any trailing portion of the message that did not fit into the buffer has been discarded.");
 
-                case WSAECONNRESET:
-                LERR(
-                        "WSARecvFrom: The virtual circuit was reset by the remote side executing a hard or abortive close. The application should close the socket as it is no longer useable. On a UPD-datagram socket this error would indicate that a previous send operation resulted in an ICMP \"Port Unreachable\" message.")
+            case WSAECONNRESET:
+                LERR("WSARecvFrom: The virtual circuit was reset by the remote side executing a hard or abortive close. The application should close the socket as it is no longer useable. On a UPD-datagram socket this error would indicate that a previous send operation resulted in an ICMP \"Port Unreachable\" message.");
 
-                case WSAEDISCON:
-                LERR(
-                        "WSARecvFrom: Socket s is message oriented and the virtual circuit was gracefully closed by the remote side.")
+            case WSAEDISCON:
+                LERR("WSARecvFrom: Socket s is message oriented and the virtual circuit was gracefully closed by the remote side.");
 
-                case WSA_IO_PENDING:
-                LERR(
-                        "WSARecvFrom: An overlapped operation was successfully initiated and completion will be indicated at a later time.")
+            case WSA_IO_PENDING:
+                LERR("WSARecvFrom: An overlapped operation was successfully initiated and completion will be indicated at a later time.");
 
-                case WSA_OPERATION_ABORTED:
-                LERR("WSARecvFrom: The overlapped operation has been canceled due to the closure of the socket.")
+            case WSA_OPERATION_ABORTED:
+                LERR("WSARecvFrom: The overlapped operation has been canceled due to the closure of the socket.");
 
-                default:
-                LERR("WSARecvFrom: Unkown Error!")
+            default:
+                LERR("WSARecvFrom: Unkown Error!");
             }
         }
 
@@ -1891,7 +1788,7 @@ namespace Win32
     //
     void Socket::Init()
     {
-        ASSERT(!initialized)
+        ASSERT(!initialized);
 
 #define CHECKFUNC(x) if (!x) { LERR("Could not find '" #x "' in ws2_32.dll") };
 
@@ -1900,37 +1797,35 @@ namespace Win32
         if (dll)
         {
             WSAConnect = (WSAConnectFunc)GetProcAddress(dll, "WSAConnect");
-            CHECKFUNC(WSAConnect)
+            CHECKFUNC(WSAConnect);
 
             WSAEnumNetworkEvents = (WSAEnumNetworkEventsFunc)GetProcAddress(dll, "WSAEnumNetworkEvents");
-            CHECKFUNC(WSAEnumNetworkEvents)
+            CHECKFUNC(WSAEnumNetworkEvents);
 
             WSAEnumProtocols = (WSAEnumProtocolsFunc)GetProcAddress(dll, "WSAEnumProtocolsA");
-            CHECKFUNC(WSAEnumProtocols)
+            CHECKFUNC(WSAEnumProtocols);
 
             WSAEventSelect = (WSAEventSelectFunc)GetProcAddress(dll, "WSAEventSelect");
-            CHECKFUNC(WSAEventSelect)
+            CHECKFUNC(WSAEventSelect);
 
             WSARecv = (WSARecvFunc)GetProcAddress(dll, "WSARecv");
-            CHECKFUNC(WSARecv)
+            CHECKFUNC(WSARecv);
 
             WSARecvFrom = (WSARecvFromFunc)GetProcAddress(dll, "WSARecvFrom");
-            CHECKFUNC(WSARecvFrom)
+            CHECKFUNC(WSARecvFrom);
 
             WSASend = (WSASendFunc)GetProcAddress(dll, "WSASend");
-            CHECKFUNC(WSASend)
+            CHECKFUNC(WSASend);
 
             WSASendTo = (WSASendToFunc)GetProcAddress(dll, "WSASendTo");
-            CHECKFUNC(WSASendTo)
+            CHECKFUNC(WSASendTo);
 
             WSASocket = (WSASocketFunc)GetProcAddress(dll, "WSASocketA");
-            CHECKFUNC(WSASocket)
+            CHECKFUNC(WSASocket);
         }
         else
         {
-            ERR_MESSAGE(
-                ("This application requires Winsock 2.2.  The Winsock 2 DLL 'ws2_32.dll' could not be found on this system.  Winsock 2.2 can be installed from the installation CD or can be downloaded by going to http://www.microsoft.com and searching for Winsock2."
-                ))
+            ERR_MESSAGE(("This application requires Winsock 2.2.  The Winsock 2 DLL 'ws2_32.dll' could not be found on this system.  Winsock 2.2 can be installed from the installation CD or can be downloaded by going to http://www.microsoft.com and searching for Winsock2."));
         }
 
         WSADATA wsaData;
@@ -1939,78 +1834,69 @@ namespace Win32
         // Attempt to start WinSock
         switch (WSAStartup(ver, &wsaData))
         {
-            case 0:
-                break;
+        case 0:
+            break;
 
-            case WSASYSNOTREADY:
-            LERR(
-                    "WSAStartup: Indicates that the underlying network subsystem is not ready for network communication.")
+        case WSASYSNOTREADY:
+            LERR("WSAStartup: Indicates that the underlying network subsystem is not ready for network communication.");
 
-            case WSAVERNOTSUPPORTED:
-            LERR(
-                    "WSAStartup: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation.")
+        case WSAVERNOTSUPPORTED:
+            LERR("WSAStartup: The version of Windows Sockets support requested is not provided by this particular Windows Sockets implementation.");
 
-            case WSAEINPROGRESS:
-            LERR("WSAStartup: A blocking Windows Sockets 1.1 operation is in progress.")
+        case WSAEINPROGRESS:
+            LERR("WSAStartup: A blocking Windows Sockets 1.1 operation is in progress.");
 
-            case WSAEPROCLIM:
-            LERR(
-                    "WSAStartup: Limit on the number of tasks supported by the Windows Sockets implementation has been reached.")
+        case WSAEPROCLIM:
+            LERR("WSAStartup: Limit on the number of tasks supported by the Windows Sockets implementation has been reached.");
 
-            case WSAEFAULT:
-            LERR("WSAStartup: The lpWSAData is not a valid pointer.")
+        case WSAEFAULT:
+            LERR("WSAStartup: The lpWSAData is not a valid pointer.");
 
-            default:
-            LERR("WSAStartup: Unknown Error")
+        default:
+            LERR("WSAStartup: Unknown Error");
         }
 
         // Confirm version
-        if (
-            LOBYTE(wsaData.wVersion) != 2 ||
-            HIBYTE(wsaData.wVersion) != 2)
+        if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 2)
         {
             WSACleanup();
-            ERR_MESSAGE(
-                ("This application requires Winsock 2.2.  This system only has Winsock %d.%d.  Winsock 2.2 can be installed from the installation CD or can be downloaded by going to http://www.microsoft.com and searching for Winsock2."
-                    , LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion)))
+            ERR_MESSAGE(("This application requires Winsock 2.2.  This system only has Winsock %d.%d.  Winsock 2.2 can be installed from the installation CD or can be downloaded by going to http://www.microsoft.com and searching for Winsock2.", LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion)));
         }
 
-        //LDIAG("Winsock Initialized")
-        //LDIAG("Version: " << U32(LOBYTE(wsaData.wVersion)) << "." << U32(HIBYTE(wsaData.wVersion)))
-        //LDIAG("High Version: " << U32(LOBYTE(wsaData.wHighVersion)) << "." << U32(HIBYTE(wsaData.wHighVersion)))
-        //LDIAG("Description: " << wsaData.szDescription)
-        //LDIAG("Status: " << wsaData.szSystemStatus)
-        //LDIAG("Max Sockets: " << wsaData.iMaxSockets)
-        //LDIAG("Vendor Info: " << wsaData.lpVendorInfo)
-
+        // LDIAG("Winsock Initialized")
+        // LDIAG("Version: " << U32(LOBYTE(wsaData.wVersion)) << "." << U32(HIBYTE(wsaData.wVersion)))
+        // LDIAG("High Version: " << U32(LOBYTE(wsaData.wHighVersion)) << "." << U32(HIBYTE(wsaData.wHighVersion)))
+        // LDIAG("Description: " << wsaData.szDescription)
+        // LDIAG("Status: " << wsaData.szSystemStatus)
+        // LDIAG("Max Sockets: " << wsaData.iMaxSockets)
+        // LDIAG("Vendor Info: " << wsaData.lpVendorInfo)
 
         U32 sizeProtocols = 0;
         if (WSAEnumProtocols(nullptr, nullptr, &sizeProtocols) == SOCKET_ERROR)
         {
             switch (WSAGetLastError())
             {
-                case WSANOTINITIALISED:
-                LERR("WSAEnumProtocols: A successful WSAStartup call must occur before using this function.")
+            case WSANOTINITIALISED:
+                LERR("WSAEnumProtocols: A successful WSAStartup call must occur before using this function.");
 
-                case WSAENETDOWN:
-                LERR("WSAEnumProtocols: The network subsystem has failed.")
+            case WSAENETDOWN:
+                LERR("WSAEnumProtocols: The network subsystem has failed.");
 
-                case WSAEINPROGRESS:
-                LERR("WSAEnumProtocols: A blocking Windows Sockets 1.1 call is in progress.")
+            case WSAEINPROGRESS:
+                LERR("WSAEnumProtocols: A blocking Windows Sockets 1.1 call is in progress.");
 
-                case WSAEINVAL:
-                LERR("WSAEnumProtocols: Indicates that one of the specified parameters was invalid.")
+            case WSAEINVAL:
+                LERR("WSAEnumProtocols: Indicates that one of the specified parameters was invalid.");
 
-                case WSAENOBUFS:
-                    //LERR("WSAEnumProtocols: The buffer length was too small to receive all the relevant WSAPROTOCOL_INFO structures and associated information. Pass in a buffer at least as large as the value returned in lpdwBufferLength.")
-                    break;
+            case WSAENOBUFS:
+                // LERR("WSAEnumProtocols: The buffer length was too small to receive all the relevant WSAPROTOCOL_INFO structures and associated information. Pass in a buffer at least as large as the value returned in lpdwBufferLength.");
+                break;
 
-                case WSAEFAULT:
-                LERR(
-                        "WSAEnumProtocols: One or more of the lpiProtocols, lpProtocolBuffer, or lpdwBufferLength arguments are not a valid part of the user address space.")
+            case WSAEFAULT:
+                LERR("WSAEnumProtocols: One or more of the lpiProtocols, lpProtocolBuffer, or lpdwBufferLength arguments are not a valid part of the user address space.");
 
-                default:
-                LERR("WSAEnumProtocols: Unknown Error!")
+            default:
+                LERR("WSAEnumProtocols: Unknown Error!");
             }
         }
 
@@ -2025,28 +1911,26 @@ namespace Win32
             {
                 switch (WSAGetLastError())
                 {
-                    case WSANOTINITIALISED:
-                    LERR("WSAEnumProtocols: A successful WSAStartup call must occur before using this function.")
+                case WSANOTINITIALISED:
+                    LERR("WSAEnumProtocols: A successful WSAStartup call must occur before using this function.");
 
-                    case WSAENETDOWN:
-                    LERR("WSAEnumProtocols: The network subsystem has failed.")
+                case WSAENETDOWN:
+                    LERR("WSAEnumProtocols: The network subsystem has failed.");
 
-                    case WSAEINPROGRESS:
-                    LERR("WSAEnumProtocols: A blocking Windows Sockets 1.1 call is in progress.")
+                case WSAEINPROGRESS:
+                    LERR("WSAEnumProtocols: A blocking Windows Sockets 1.1 call is in progress.");
 
-                    case WSAEINVAL:
-                    LERR("WSAEnumProtocols: Indicates that one of the specified parameters was invalid.")
+                case WSAEINVAL:
+                    LERR("WSAEnumProtocols: Indicates that one of the specified parameters was invalid.");
 
-                    case WSAENOBUFS:
-                    LERR(
-                            "WSAEnumProtocols: The buffer length was too small to receive all the relevant WSAPROTOCOL_INFO structures and associated information. Pass in a buffer at least as large as the value returned in lpdwBufferLength.")
+                case WSAENOBUFS:
+                    LERR("WSAEnumProtocols: The buffer length was too small to receive all the relevant WSAPROTOCOL_INFO structures and associated information. Pass in a buffer at least as large as the value returned in lpdwBufferLength.");
 
-                    case WSAEFAULT:
-                    LERR(
-                            "WSAEnumProtocols: One or more of the lpiProtocols, lpProtocolBuffer, or lpdwBufferLength arguments are not a valid part of the user address space.")
+                case WSAEFAULT:
+                    LERR("WSAEnumProtocols: One or more of the lpiProtocols, lpProtocolBuffer, or lpdwBufferLength arguments are not a valid part of the user address space.");
 
-                    default:
-                    LERR("WSAEnumProtocols: Unknown Error!")
+                default:
+                    LERR("WSAEnumProtocols: Unknown Error!");
                 }
             }
 
@@ -2080,7 +1964,7 @@ namespace Win32
                 << (protocols[p].dwProviderFlags & PFL_RECOMMENDED_PROTO_ENTRY  ? " RecommendedProtoEntry" : "")
                 << (protocols[p].dwProviderFlags & PFL_HIDDEN ? " Hidden;)" : "")
                 << (protocols[p].dwProviderFlags & PFL_MATCHES_PROTOCOL_ZERO  ? " MatchesProtocolZero" : ""))
-      
+
               // WSAPROTOCOLCHAIN ProtocolChain;
               LDIAG(
                 "Version: " << protocols[p].iVersion <<
@@ -2099,7 +1983,7 @@ namespace Win32
             }
             */
 
-            delete [] protocols;
+            delete[] protocols;
         }
 
         initialized = TRUE;
@@ -2113,21 +1997,20 @@ namespace Win32
     {
         ASSERT(initialized)
 
-        if (!WSACleanup())
-        {
-            switch (WSAGetLastError())
+            if (!WSACleanup())
             {
+                switch (WSAGetLastError())
+                {
                 case WSANOTINITIALISED:
-                LERR("A successful WSAStartup call must occur before using this function.")
+                    LERR("A successful WSAStartup call must occur before using this function.");
 
                 case WSAENETDOWN:
-                LERR("The network subsystem has failed.")
+                    LERR("The network subsystem has failed.");
 
                 case WSAEINPROGRESS:
-                LERR(
-                        "A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
+                    LERR("A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.");
+                }
             }
-        }
 
         FreeLibrary(dll);
 

@@ -104,7 +104,10 @@ namespace MINTCLIENT
         // Get the list of clients connected to this server.
         //
 
-        struct GetNumUsersResult : Result {};
+        struct GetNumUsersResult : Result
+        {
+            U32 numUsers;
+        };
 
         struct GetUserListRequest : Request {};
 

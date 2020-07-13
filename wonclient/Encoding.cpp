@@ -33,6 +33,9 @@ namespace MINTCLIENT
             return this->data[cur];
         }
 
+        //
+        // [04] [00 00 00 04] [11 22 33 44]
+        //
         U32 TLV::GetU32()
         {
             ASSERT(this->length >= 4);
@@ -41,10 +44,10 @@ namespace MINTCLIENT
             // Data offset for the current item.
             unsigned int cur = this->offset - this->length;
 
-            U32 c1 = this->data[cur + 0] << 24;
-            U32 c2 = this->data[cur + 1] << 16;
-            U32 c3 = this->data[cur + 2] << 8;
-            U32 c4 = this->data[cur + 3] << 0;
+            U32 c1 = this->data[cur + 0] << 24; // 11 << 24     = 0x11000000
+            U32 c2 = this->data[cur + 1] << 16; // 22 << 16     = 0x00220000
+            U32 c3 = this->data[cur + 2] << 8;  // 33 << 8      = 0x00003300
+            U32 c4 = this->data[cur + 3] << 0;  // 44 << 0      = 0x00000044
 
             U32 ret = c1 | c2 | c3 | c4;
 

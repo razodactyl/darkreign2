@@ -178,7 +178,6 @@ namespace Won
 
                 case WonIface::Message::FirewallStatus:
                     // Update our firewall status
-
                     break;
 
                 case WonIface::Message::Chat:

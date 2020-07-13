@@ -374,6 +374,7 @@ namespace MINTCLIENT
             break;
 
             case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
+            case MINTCLIENT::Message::RoutingServerGetNumUsers: // 0xACCD008F
             {
                 auto* cmd = this->GetCommandById(packet.GetCommand());
 

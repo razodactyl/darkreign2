@@ -34,12 +34,21 @@ namespace MINTCLIENT
     struct Identity;
     struct Directory;
 
-    static const unsigned int DefaultTimeout = 10000;
+    static const unsigned int DefaultTimeout = 10000;       // The handler is expected to wait for a result then end.
+    static const unsigned int LoopDependentTimeout = 500;   // The handler requires new data to be requeued periodically.
 
     namespace Error
     {
-        static const unsigned int IdentityAuthenticationFailed = 0x13BD404E;    // MINTCLIENT::Error::IdentityAuthenticationFailed
-        static const unsigned int IdentityAlreadyExists = 0x4D6ABC5b;           // MINTCLIENT::Error::IdentityAlreadyExists
+        static const unsigned int Success = 0x00000000;
+
+        static const unsigned int IdentityAuthenticationFailed = 0x13BD404E;                // MINTCLIENT::Error::IdentityAuthenticationFailed
+        static const unsigned int IdentityAlreadyExists = 0x4D6ABC5B;                       // MINTCLIENT::Error::IdentityAlreadyExists
+        static const unsigned int IdentityUserNotFound = 0x3F23D447;                        // MINTCLIENT::Error::IdentityUserNotFound
+        static const unsigned int IdentityInvalidPassword = 0xA836E73C;                     // MINTCLIENT::Error::IdentityInvalidPassword
+
+        static const unsigned int RoutingServerClientAlreadyExists = 0x2FB9D09F;            // MINTCLIENT::Error::RoutingServerClientAlreadyExists
+        static const unsigned int RoutingServerInvalidPassword = 0x2455EC94;                // MINTCLIENT::Error::RoutingServerInvalidPassword
+        static const unsigned int RoutingServerFull = 0x714F21CF;                           // MINTCLIENT::Error::RoutingServerFull
 
         inline const char* GetErrorString(U32 error_id)
         {
@@ -49,6 +58,12 @@ namespace MINTCLIENT
                 return "MINTCLIENT::Error::IdentityAuthenticationFailed";
             case MINTCLIENT::Error::IdentityAlreadyExists:
                 return "MINTCLIENT::Error::IdentityAlreadyExists";
+            case MINTCLIENT::Error::RoutingServerClientAlreadyExists:
+                return "MINTCLIENT::Error::RoutingServerClientAlreadyExists";
+            case MINTCLIENT::Error::RoutingServerInvalidPassword:
+                return "MINTCLIENT::Error::RoutingServerInvalidPassword";
+            case MINTCLIENT::Error::RoutingServerFull:
+                return "MINTCLIENT::Error::RoutingServerFull";
 
             default:
             {
@@ -312,6 +327,9 @@ namespace MINTCLIENT
 
             U32 times_called = 0;           // Count of times this item has been processed.
 
+            U32 start_time;                 // (ms) Time command began processing.
+            U32 end_time;                   // (ms) Set to time in future for event to trigger timeout.
+
             MINTCallback<class T> callback;
 
             void Done()
@@ -339,6 +357,12 @@ namespace MINTCLIENT
                 // (Re)signal.
                 _timeout.Signal();
                 this->did_timeout = true;
+            }
+
+            bool Overtime()
+            {
+                S32 remaining = end_time - Clock::Time::Ms();
+                return remaining < 0;
             }
 
             Bool Finished()
@@ -424,6 +448,8 @@ namespace MINTCLIENT
                     {
                     case MINTCLIENT::Message::IdentityAuthenticate:
                     {
+                        if (err_val == MINTCLIENT::Error::IdentityUserNotFound) { return MINTCLIENT::Error::IdentityUserNotFound; }
+                        if (err_val == MINTCLIENT::Error::IdentityInvalidPassword) { return MINTCLIENT::Error::IdentityInvalidPassword; }
                         if (err_val == MINTCLIENT::Error::IdentityAuthenticationFailed) { return MINTCLIENT::Error::IdentityAuthenticationFailed; }
                     }
                     break;
@@ -431,6 +457,13 @@ namespace MINTCLIENT
                     case MINTCLIENT::Message::IdentityCreate:
                     {
                         if (err_val == MINTCLIENT::Error::IdentityAlreadyExists) { return MINTCLIENT::Error::IdentityAlreadyExists; }
+                    }
+                    break;
+
+                    case MINTCLIENT::Message::IdentityUpdate:
+                    {
+                        if (err_val == MINTCLIENT::Error::IdentityAuthenticationFailed) { return MINTCLIENT::Error::IdentityAuthenticationFailed; }
+                        if (err_val == MINTCLIENT::Error::IdentityInvalidPassword) { return MINTCLIENT::Error::IdentityInvalidPassword; }
                     }
                     break;
 
@@ -462,6 +495,10 @@ namespace MINTCLIENT
             {
                 if (!did_send) {
                     did_send = true;
+
+                    // Commence time tracking.
+                    start_time = Clock::Time::Ms();
+                    end_time = Clock::Time::Ms() + MINTCLIENT::DefaultTimeout;
 
                     // Instantiate a `Packet`.
                     StyxNet::Packet& pkt = StyxNet::Packet::Create(

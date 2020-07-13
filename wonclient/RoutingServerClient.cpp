@@ -34,9 +34,10 @@ namespace MINTCLIENT
                 continue;
             }
 
+            // Pass any new commands to the internal client handler.
             routing->command_list->PassToClient();
 
-            if (routing->command_list->GetEvents()->Wait(event_context, FALSE, MINTCLIENT::DefaultTimeout))
+            if (routing->command_list->GetEvents()->Wait(event_context, FALSE, MINTCLIENT::LoopDependentTimeout))
             {
                 auto* cmd = static_cast<Client::MINTCommand*>(event_context);
                 LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Received Command [" << HEX(cmd->command_id, 8) << "] (" << Message::GetCommandString(cmd->command_id) << ")");
@@ -114,6 +115,25 @@ namespace MINTCLIENT
 
                         LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- Get user list.");
 
+                        routing->command_list->Remove(cmd);
+                    }
+                    break;
+
+                    case MINTCLIENT::Message::RoutingServerGetNumUsers:
+                    {
+                        RoutingServerClient::GetNumUsersResult result;
+                        result.error = cmd->GetError();
+                        
+                        if (result.error == MINTCLIENT::Error::Success && cmd->client && cmd->data_size > 0)
+                        {
+                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            result.numUsers = tlv->GetU32();
+                            delete tlv;
+                        }
+                        
+                        result.context = cmd->context;
+                        cmd->callback(result);
+                        
                         routing->command_list->Remove(cmd);
                     }
                     break;
@@ -346,6 +366,10 @@ namespace MINTCLIENT
                             result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
 
                             auto data_bytes = tlv->items[3].GetBytes();
+
+                            // Hack: overwrite user's IP with the address they used to connect to MINT.
+                            ((StyxNet::Session*)data_bytes)->address.SetIP(result.address.host);
+
                             result.game_data = data_bytes;
                             result.game_data_size = tlv->items[3].length;
 
@@ -373,7 +397,6 @@ namespace MINTCLIENT
 
                             result.ownerId = tlv->items[0].GetU32();
                             result.name.Set(tlv->items[1].GetString());
-                            result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
 
                             delete tlv;
 
@@ -386,6 +409,28 @@ namespace MINTCLIENT
                         cmd->times_called++;
                     }
                     break;
+                }
+            }
+            else
+            {
+                auto currentCommands = routing->command_list->GetAll();
+                
+                for (auto& command : currentCommands)
+                {
+                    if (command->command_id == MINTCLIENT::Message::RoutingServerGetNumUsers)
+                    {
+                        if (command->Overtime()) {
+                            command->DropFromClient();
+                            command->Timeout();
+
+                            RoutingServerClient::GetNumUsersResult result;
+                            result.error = command->GetError();
+
+                            command->callback(result);
+
+                            routing->command_list->Remove(command);
+                        }
+                    }
                 }
             }
         }
@@ -543,6 +588,18 @@ namespace MINTCLIENT
 
     WONAPI::Error RoutingServerClient::GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context)
     {
+        ASSERT(this->client);
+
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(this->client);
+        cmd->command_id = MINTCLIENT::Message::RoutingServerGetNumUsers; // 0xACCD008F
+        cmd->callback = callback;
+
+        cmd->SetContext(context);
+        command_list->Add(cmd);
+
+        command_list->PassToClient(); // Want it queued straight away.
+
         return WONAPI::Error_Pending;
     }
 

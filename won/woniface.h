@@ -53,60 +53,55 @@ namespace WonIface
     namespace Message
     {
         // Successfully retrieved server list
-        const U32 RetrievedServerList = 0x167A1BD4; // "Message::RetrievedServerList"
+        const U32 RetrievedServerList = 0x167A1BD4;             // "Message::RetrievedServerList"
 
         // Firewall status updated
-        const U32 FirewallStatus = 0xB29A920F; // "Message::FirewallStatus"
+        const U32 FirewallStatus = 0xB29A920F;                  // "Message::FirewallStatus"
 
         // Account was logged in successfully
-        const U32 LoggedIn = 0xB8A78CAF; // "Message::LoggedIn"
+        const U32 LoggedIn = 0xB8A78CAF;                        // "Message::LoggedIn"
 
         // Account was created successfully
-        const U32 CreatedAccount = 0x2CF8742D; // "Message::CreatedAccount"
+        const U32 CreatedAccount = 0x2CF8742D;                  // "Message::CreatedAccount"
 
         // Password was successfully changed
-        const U32 ChangedPassword = 0xC1FDF3FE; // "Message::ChangedPassword"
+        const U32 ChangedPassword = 0xC1FDF3FE;                 // "Message::ChangedPassword"
 
         // Chat message
-        const U32 Chat = 0x0B3E6240; // "Message::Chat"
-
+        const U32 Chat = 0x0B3E6240;                            // "Message::Chat"
 
         // The first room update was completed
-        const U32 InitialRoomUpdate = 0x217B7065; // "Message::InitialRoomUpdate"
+        const U32 InitialRoomUpdate = 0x217B7065;               // "Message::InitialRoomUpdate"
 
         // A room update was completed
-        const U32 RoomsUpdated = 0x8234728F; // "Message::RoomsUpdated"
+        const U32 RoomsUpdated = 0x8234728F;                    // "Message::RoomsUpdated"
 
         // A new room was created
-        const U32 CreatedRoom = 0xBD6BF24B; // "Message::CreatedRoom"
+        const U32 CreatedRoom = 0xBD6BF24B;                     // "Message::CreatedRoom"
 
         // A new room was registered
-        const U32 RegisteredRoom = 0x5418CDEE; // "Message::RegisteredRoom"
+        const U32 RegisteredRoom = 0x5418CDEE;                  // "Message::RegisteredRoom"
 
         // We have connected to a room
-        const U32 ConnectedRoom = 0x69BC04E9; // "Message::ConnectedRoom"
+        const U32 ConnectedRoom = 0x69BC04E9;                   // "Message::ConnectedRoom"
 
         // We have entered a room
-        const U32 EnteredRoom = 0xB5704F6A; // "Message::EnteredRoom"
-
+        const U32 EnteredRoom = 0xB5704F6A;                     // "Message::EnteredRoom"
 
         // Player list changed
-        const U32 PlayersChanged = 0xB4504DF9; // "Message::PlayersChanged"
-
+        const U32 PlayersChanged = 0xB4504DF9;                  // "Message::PlayersChanged"
 
         // Game list changed
-        const U32 GamesChanged = 0x1CACB3BE; // "Message::GamesChanged"
-
+        const U32 GamesChanged = 0x1CACB3BE;                    // "Message::GamesChanged"
 
         // A new game was created
-        const U32 CreatedGame = 0x660BF5C7; // "Message::CreatedGame"
-
+        const U32 CreatedGame = 0x660BF5C7;                     // "Message::CreatedGame"
 
         // A progress update for a HTTP download
-        const U32 HTTPProgressUpdate = 0xBAD75EC2; // "Message::HTTPProgressUpdate"
+        const U32 HTTPProgressUpdate = 0xBAD75EC2;              // "Message::HTTPProgressUpdate"
 
         // A HTTP download completed
-        const U32 HTTPCompleted = 0xC41D0A90; // "Message::HTTPCompleted"
+        const U32 HTTPCompleted = 0xC41D0A90;                   // "Message::HTTPCompleted"
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -140,7 +135,6 @@ namespace WonIface
 
                 // Username
                 CH* user;
-
 
                 // Constructor
                 Chat(U32 id, const CH* text, const CH* user = nullptr);
@@ -497,6 +491,7 @@ namespace WonIface
     // Get the list of players in the current room
     void GetPlayerList(NList<Player>& players);
 
+    void PostEvent(U32 message, void* data = nullptr);
 
     // Add a game to the list of games
     void AddGame(const GameName& name, U32 size, const U8* data);

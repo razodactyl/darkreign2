@@ -266,9 +266,7 @@ namespace Won
             {
                 const char* username;
                 const char* password;
-                if (
-                    Console::GetArgString(1, username) &&
-                    Console::GetArgString(2, password))
+                if (Console::GetArgString(1, username) && Console::GetArgString(2, password))
                 {
                     // Ansi2Unicode returns a stale pointer.
                     // Need to duplicate into `new` string before making use.
@@ -303,23 +301,22 @@ namespace Won
                 const char* password1;
                 const char* password2;
 
-                if (
-                    Console::GetArgString(1, username) &&
-                    Console::GetArgString(2, password1) &&
-                    Console::GetArgString(3, password2))
+                if (Console::GetArgString(1, username) && Console::GetArgString(2, password1) && Console::GetArgString(3, password2))
                 {
                     // Check to see that they made both passwords the same
                     if (Utils::Strcmp(password1, password2))
                     {
                         // Tell the interface about it
-                        IFace::PostNotifyModal(nullptr, 0x35A9A18D); // "Error::CreateAccountPasswordMismatch""
+                        // IFace::PostNotifyFocus(nullptr, 0x35A9A18D); // "Error::CreateAccountPasswordMismatch"
+                        WonIface::PostEvent(0x35A9A18D); // "Error::CreateAccountPasswordMismatch"
+                        wonUsername = username;
                     }
                     else
                     {
-                        // Tell the interface to create an account
+                        // Tell the interface to create an account.
                         WonIface::CreateAccount(username, password1);
 
-                        // Save the WON username/password
+                        // Save the MINT username / password.
                         FScope fScope(nullptr, configUser.str);
                         StdSave::TypeString(&fScope, "UserName", username);
                         StdSave::TypeString(&fScope, "Password", password1);
@@ -342,24 +339,22 @@ namespace Won
                 const char* oldPassword;
                 const char* newPassword1;
                 const char* newPassword2;
-                if (
-                    Console::GetArgString(1, username) &&
-                    Console::GetArgString(2, oldPassword) &&
-                    Console::GetArgString(3, newPassword1) &&
-                    Console::GetArgString(4, newPassword2))
+                if (Console::GetArgString(1, username) && Console::GetArgString(2, oldPassword) && Console::GetArgString(3, newPassword1) && Console::GetArgString(4, newPassword2))
                 {
                     // Check to see that they made both passwords the same
                     if (Utils::Strcmp(newPassword1, newPassword2))
                     {
                         // Tell the interface about it
-                        IFace::PostNotifyModal(nullptr, 0x38F60295); // "Error::ChangePasswordPasswordMismatch""
+                        // IFace::PostNotifyModal(nullptr, 0x38F60295); // "Error::ChangePasswordPasswordMismatch"
+                        WonIface::PostEvent(0x38F60295); // "Error::ChangePasswordPasswordMismatch"
+                        wonUsername = username;
                     }
                     else
                     {
-                        // Tell the interface to create 
+                        // Tell the interface to change the password. 
                         WonIface::ChangePassword(username, oldPassword, newPassword2);
 
-                        // Save the WON username/password
+                        // Save the MINT username / password.
                         FScope fScope(nullptr, configUser.str);
                         StdSave::TypeString(&fScope, "UserName", username);
                         StdSave::TypeString(&fScope, "Password", newPassword1);
@@ -826,7 +821,7 @@ namespace Won
 
                             // Echo locally
                             CONSOLE(0x4ECF28BA, (TRANSLATE(("#won.chat.privmsg", 2, playerBuff, chatBuff))))
-                                // "WonChatLocal"
+                            // "WonChatLocal"
                         }
                     }
                 }
