@@ -25,7 +25,7 @@ namespace MINTCLIENT
 
         while (!done_processing)
         {
-            LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Client Thread <<<");
+            // LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Client Thread <<<");
             void* event_context;
 
             if (routing->eventQuit.Wait(0))
@@ -629,7 +629,7 @@ namespace MINTCLIENT
     //  - 2. The client has confirmed their identity and uses it subsequently to connect to a specific routing server. (The routing server itself will also verify the identity with an authentication server)
     //  - 3. The player has connected to the server, it has verified their identity and now the player can `Register` with their `username` and the appropriate `password` for this routing server's room.
     //
-    WONAPI::Error RoutingServerClient::Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity& identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context)
+    WONAPI::Error RoutingServerClient::Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity& identity, const CH* room_password, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context)
     {
         // Let's instantiate a `MINTCLIENT` and connect it to the specified lobby.
         MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(address);
@@ -645,7 +645,7 @@ namespace MINTCLIENT
 
         auto req = ConnectRoomRequest();
         req.username.Set(identity.GetLoginName());
-        req.password.Set(identity.GetPassword());
+        req.room_password.Set(room_password);
         cmd->SetDataFromStruct(req);
 
         cmd->SetContext(context);
@@ -660,7 +660,7 @@ namespace MINTCLIENT
         return WONAPI::Error_Pending;
     }
 
-    WONAPI::Error RoutingServerClient::Register(const CH* username, const CH* room_password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context)
+    WONAPI::Error RoutingServerClient::Register(const CH* username, const CH* password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context)
     {
         ASSERT(this->client);
 
@@ -671,7 +671,7 @@ namespace MINTCLIENT
 
         auto req = RegisterClientRequest();
         req.username.Set(username);
-        req.room_password.Set(room_password);
+        req.password.Set(password);
         req.becomeHost = becomeHost;
         req.becomeSpec = becomeSpec;
         req.joinChat = joinChat;

@@ -341,13 +341,16 @@ namespace MINTCLIENT
             case MINTCLIENT::Message::IdentityUpdate: // 0xB6CFD48E
             case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
             {
+                // For this to work, the struct needs to be consistently sent back from the server, which it's not.
                 const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
 
                 auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
-                    cmd->SetDataFromStruct(r);
+                    // For this to work, the struct needs to be consistently sent back from the server, which it's not.
+                    // cmd->SetDataFromStruct(r);
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
                     cmd->Done();
                 }
                 else
@@ -364,6 +367,7 @@ namespace MINTCLIENT
 
                 if (cmd)
                 {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
                     cmd->Done();
                 }
                 else

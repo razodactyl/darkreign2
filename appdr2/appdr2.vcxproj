@@ -94,7 +94,7 @@
       <DisableSpecificWarnings>4996;</DisableSpecificWarnings>
     </ClCompile>
     <PreLinkEvent>
-      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,4
+      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,452
 rc version.rc</Command>
     </PreLinkEvent>
     <PostBuildEvent>

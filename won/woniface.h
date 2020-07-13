@@ -486,7 +486,7 @@ namespace WonIface
     void CreateRoom(const CH* roomname, const CH* password);
 
     // Join a room
-    void JoinRoom(const CH* roomname, const CH* password);
+    void JoinRoom(const CH* room_name, const CH* room_password);
 
     // Get the list of players in the current room
     void GetPlayerList(NList<Player>& players);

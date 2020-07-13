@@ -70,7 +70,7 @@ namespace MINTCLIENT
         struct ConnectRoomRequest : Request
         {
             StrCrc<32, CH> username;
-            StrCrc<32, CH> password;
+            StrCrc<32, CH> room_password;
         };
         struct ConnectRoomResult : Result {};
 
@@ -87,7 +87,7 @@ namespace MINTCLIENT
         struct RegisterClientRequest : Request
         {
             StrCrc<32, CH> username;        // User's login name.
-            StrCrc<32, CH> room_password;   // Room password.
+            StrCrc<32, CH> password;        // User's password.
             bool becomeHost;                // Will we join as the host?
             bool becomeSpec;                // Will we join as a spectator?
             bool joinChat;                  // Should we join the chat-room when the result comes back.
@@ -262,8 +262,8 @@ namespace MINTCLIENT
         WONAPI::Error GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context);
         WONAPI::Error GetUserList(void (*callback)(const RoutingServerClient::GetUserListResult& result), void* context);
 
-        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity& identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context);
-        WONAPI::Error Register(const CH* username, const CH* room_password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context);
+        WONAPI::Error Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity& identity, const CH* room_password, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context);
+        WONAPI::Error Register(const CH* username, const CH* password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context);
 
         WONAPI::Error BroadcastChat(std::wstring& text, bool f);
 

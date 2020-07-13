@@ -48,6 +48,7 @@ namespace MINTCLIENT
 
         static const unsigned int RoutingServerClientAlreadyExists = 0x2FB9D09F;            // MINTCLIENT::Error::RoutingServerClientAlreadyExists
         static const unsigned int RoutingServerInvalidPassword = 0x2455EC94;                // MINTCLIENT::Error::RoutingServerInvalidPassword
+        static const unsigned int RoutingServerAuthenticationFailed = 0x00729AE0;           // MINTCLIENT::Error::RoutingServerAuthenticationFailed
         static const unsigned int RoutingServerFull = 0x714F21CF;                           // MINTCLIENT::Error::RoutingServerFull
 
         inline const char* GetErrorString(U32 error_id)
@@ -403,7 +404,10 @@ namespace MINTCLIENT
             {
                 this->data_size = len;
                 this->cmd_data = new U8[data_size];
-                Utils::Memcpy(this->cmd_data, data, this->data_size);
+
+                if (this->data_size > 0) {
+                    Utils::Memcpy(this->cmd_data, data, this->data_size);
+                }
             }
 
             void AddDataBytes(const U8* data, size_t len)
@@ -467,7 +471,22 @@ namespace MINTCLIENT
                     }
                     break;
 
+                    case MINTCLIENT::Message::RoutingServerRoomConnect:
+                    {
+                        if (err_val == MINTCLIENT::Error::RoutingServerInvalidPassword) { return MINTCLIENT::Error::RoutingServerInvalidPassword; }
+                    }
+                    break;
+
+                    case MINTCLIENT::Message::RoutingServerRoomRegister:
+                    {
+                        if (err_val == MINTCLIENT::Error::RoutingServerClientAlreadyExists) { return MINTCLIENT::Error::RoutingServerClientAlreadyExists; }
+                        if (err_val == MINTCLIENT::Error::RoutingServerAuthenticationFailed) { return MINTCLIENT::Error::RoutingServerAuthenticationFailed; }
+                    }
+                    break;
+
                     default:
+                        // This doesn't work unless the server consistently sends back an error value in this position.
+                        // return err_val;
                         break;
                     }
                 }

@@ -22,10 +22,15 @@
 - Unit path-finding is still a major controversy amongst players and will need to be resolved for enjoyment of newer players.
 
 ## Fixed (Check Releases Section)
+- Private Rooms: Users can now join private rooms if they know the password ;)
+
+- Fixed issue where a user could join a room that they're already in.
+- Fixed issue where a user could join a room but not be connected.
 - Fixed issue with MINT Lobby login authentication failing in some cases.
 - Fixed issue with player list not updating in MINT Lobby.
 - Fixed issue with game list not updating correctly when joining a room.
 - Fixed issue where [Save Stats] could crash the game when attempting to record stats at the end of match.
+
 - Online: New password would always be accepted when signing up / updating account even if they didn't match.
 - Online: Communication with lobby would lock up during some requests causing a noticeable delay (for example game creation) before they finally resolved.
 - Online: Fixed issue with certain characters in a username causing authentication to fail.
@@ -63,28 +68,19 @@
 17. Clamped the maximum range defense would attempt to maximize enemy threat (this lead to the AI believing that the gun towers in your base were threatening its base and it would send every available unit to that location).
 18. Interface vars which point at READONLY vars cannot be modified (this was the source of one of the cheats found by players).
 
-====================================================================
+---
 
 ### New Improvements:
 
 1. Addition of status icons for low performance (simulation, display and networking).  If your performance drops below a certain level it will notify you if the drop is caused by your CPU, your video card, or your net connection.
-
 2. Added frame advance when performance drops so player doesn’t feel game has locked up.
-
 3. Added a few more checks for cheating prevention.
-
 4. Change to allow low detail lights.
-
 5. Clear player selection when joining a game (so chat isn't locked onto a player once you're in the room).
-
 6. Addition of 'Resource Configuration' in Multiplayer / Instant Action setup. This will allow you to set whether all Resources will regenerate or not.
-
 7. Changes to layout in WON lobby.
-
 8. Addition of ignore functionality in WON lobby.
-
 9. Addition of player icons for ignored / muted and moderator.
-
 10. Added new key-bindings:
 
 ```
@@ -104,15 +100,10 @@ alt t - terminator
 ```
 
 11. Sped up the Pre-Post fire animations on several units to make them react faster.
-
 12. Decreased speed and LOS on Construction Rigs to help reduce the chance of a ‘Turret Rush’.
-
 13. Reduced rotation of Scorpion tank turret to 180 degrees.
-
 14. Several tweaks to the Baron Samedi to make it more effective.
-
 15. Several other minor balance tweaks.
-
 16. Improvements to Strategic AI:
 
 - Builds a lot more gun towers (defensive personality builds more than aggressive).
@@ -126,13 +117,8 @@ alt t - terminator
 - The rigs the AI gets from recycling facilities are now reused.
 
 17. Added support for language specific auto updated patches.
-
 18. New patches need only be the actual RTP patch file (no need for redistributing the patch installer and the RTPatch DLL as these have been added to the games data via the 1.1 patch).
-
 19. Added axes, which allow symmetrical painting of textures and colors on maps.
-
-- Linked buildings (like public telepads) now display their link in the studio and also there was a bug in the studio, which prevented you from changing a telepad link once it had been set.
-
-20. If any player has different data they are notified at game start so that they need not wait for the OOS message.
-
-21. Made the OOS message more confrontational giving the player to exit immediately.
+20 Linked buildings (like public telepads) now display their link in the studio and also there was a bug in the studio, which prevented you from changing a telepad link once it had been set.
+21. If any player has different data they are notified at game start so that they need not wait for the OOS message.
+22. Made the OOS message more confrontational giving the player to exit immediately.

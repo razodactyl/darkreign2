@@ -23,6 +23,8 @@
 #include "utils.h"
 
 #include <vector>
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Libraries
@@ -275,10 +277,10 @@ namespace WonIface
     struct ConnectRoomContext : public AbortableContext
     {
         // Room Name
-        RoomName roomName;
+        RoomName room_name;
 
         // Password
-        PasswordStr password;
+        PasswordStr room_password;
 
         // Routing server we're connecting to
         MINTCLIENT::RoutingServerClient* routingServer;
@@ -290,8 +292,8 @@ namespace WonIface
             const CH* password,
             MINTCLIENT::RoutingServerClient* routingServer
         )
-            : roomName(roomName),
-            password(password),
+            : room_name(roomName),
+            room_password(password),
             routingServer(routingServer)
         {
         }
@@ -488,7 +490,7 @@ namespace WonIface
     // Prototypes
     //
     static void Reset();
-    static void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* room, const CH* password, AbortableContext* context);
+    static void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* room, const CH* room_password, AbortableContext* context);
     // static void PostEvent(U32 message, void* data = nullptr);
     static const char* DecodeMessage(U32 message);
 
@@ -1266,14 +1268,14 @@ namespace WonIface
 
 
     //
-    // StartTitanServerCallback
+    // CreateRoomCallback
     //
-    void StartTitanServerCallback(const MINTCLIENT::Directory::Result& result, CreateRoomContext* context)
+    void CreateRoomCallback(const MINTCLIENT::Directory::Result& result, CreateRoomContext* context)
     {
         // ASSERT(context);
         //
-        // LOG_WON(("StartTitanServerCallback in"));
-        // LOG_WON(("StartTitanServerEx CB: %d %s", result.error, WONErrorToString(result.error)));
+        // LOG_WON(("CreateRoomCallback in"));
+        // LOG_WON(("CreateRoomCallback CB: %d %s", result.error, WONErrorToString(result.error)));
         //
         // if (context->abort.Test())
         // {
@@ -1308,16 +1310,16 @@ namespace WonIface
         //     delete context;
         // }
         //
-        // LOG_WON(("StartTitanServerCallback out"));
+        // LOG_WON(("CreateRoomCallback out"));
     }
 
 
     //
     // Join a room
     //
-    void JoinRoom(const CH* roomname, const CH* password)
+    void JoinRoom(const CH* room_name, const CH* room_password)
     {
-        LOG_WON(("Joining Room '%s' '%s'", Utils::Unicode2Ansi(roomname), password ? "password" : ""));
+        LOG_WON(("Joining Room '%s' '%s'", Utils::Unicode2Ansi(room_name), room_password ? "password" : ""));
 
         if (!identity.LoggedIn())
         {
@@ -1329,7 +1331,7 @@ namespace WonIface
         critData.Wait();
 
         // Attempt to find the room in the chat server tree
-        ChatServer* server = chatServers.Find(Crc::CalcStr(roomname));
+        ChatServer* server = chatServers.Find(Crc::CalcStr(room_name));
 
         // Signal data mutex
         LOG_WON(("critData.Signal"));
@@ -1340,11 +1342,11 @@ namespace WonIface
 
         if (server)
         {
-            ConnectRoom(server->address, roomname, password, nullptr);
+            ConnectRoom(server->address, room_name, room_password, nullptr);
         }
         else
         {
-            LOG_WON(("Room '%s' not found", roomname));
+            LOG_WON(("Room '%s' not found", room_name));
             PostEvent(Error::NoRoom);
         }
     }
@@ -1424,11 +1426,11 @@ namespace WonIface
         {
             // currentRoutingServer->ReplaceDataObjectEx
             // (
-            //     WONAPI::RoutingServerClient::GROUPID_ALLUSERS,  // ClientOrGroupId theLinkId
-            //     dataGamePrefix + (U8*)name.str,               // const WONCommon::RawBuffer& theDataTypeR
-            //     data,                                           // const WONCommon::RawBuffer& theDataR
-            //     ReplaceDataObjectCallback,                      // void (*f)(short, privsType)
-            //     (void*)NULL                                   // privsType t
+            //     WONAPI::RoutingServerClient::GROUPID_ALLUSERS,   // ClientOrGroupId theLinkId
+            //     dataGamePrefix + (U8*)name.str,                  // const WONCommon::RawBuffer& theDataTypeR
+            //     data,                                            // const WONCommon::RawBuffer& theDataR
+            //     ReplaceDataObjectCallback,                       // void (*f)(short, privsType)
+            //     (void*)NULL                                      // privsType t
             // );
 
             MINTCLIENT::Client::MINTBuffer data;
@@ -1927,10 +1929,10 @@ namespace WonIface
         routingServer->InstallClientEnterCatcher(ClientEnterCatcher, nullptr);
         routingServer->InstallClientLeaveCatcher(ClientLeaveCatcher, nullptr);
 
-        // routingServer->InstallClientJoinAttemptCatcherEx(ClientJoinAttemptCatcher, (void *) NULL);
+        // routingServer->InstallClientJoinAttemptCatcherEx(ClientJoinAttemptCatcher, (void*)NULL);
         // routingServer->InstallMuteClientCatcherEx(MuteClientCatcher, (void*)NULL);
         // routingServer->InstallBecomeModeratorCatcherEx(BecomeModeratorCatcher, (void*)NULL);
-        // routingServer->InstallHostChangeCatcherEx(HostChangeCatcher, (void *) NULL);
+        // routingServer->InstallHostChangeCatcherEx(HostChangeCatcher, (void*)NULL);
 
         routingServer->InstallGameCreatedCatcher(GameCreatedCatcher, nullptr);
         routingServer->InstallGameUpdatedCatcher(GameUpdatedCatcher, nullptr);
@@ -1939,7 +1941,7 @@ namespace WonIface
 
         // routingServer->InstallKeepAliveCatcherEx(KeepAliveCatcher, (void*)NULL);
 
-        routingServer->InstallASCIIPeerChatCatcher(ASCIIPeerChatCatcher, (void*)NULL);
+        routingServer->InstallASCIIPeerChatCatcher(ASCIIPeerChatCatcher, (void*)nullptr);
         // routingServer->InstallUnicodePeerChatCatcherEx(UnicodePeerChatCatcher, (void*)NULL);
         // routingServer->InstallReconnectFailureCatcherEx(ReconnectFailureCatcher, (void*)NULL);
 
@@ -1951,10 +1953,10 @@ namespace WonIface
     //
     // Connect to a room
     //
-    void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* roomName, const CH* password, AbortableContext* context)
+    void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* room_name, const CH* room_password, AbortableContext* context)
     {
         MINTCLIENT::RoutingServerClient* routingServer = CreateRoutingServer();
-        ConnectRoomContext* connectRoomContext = new ConnectRoomContext(roomName, password, routingServer);
+        ConnectRoomContext* connectRoomContext = new ConnectRoomContext(room_name, room_password, routingServer);
 
         // If there's a context transfer its abort status
         if (context)
@@ -1974,15 +1976,9 @@ namespace WonIface
         LOG_DEV(("$$$ ConnectRoom -> Routing Server -> Connect."));
         WONAPI::Error error = routingServer->Connect
         (
-            // address,                // const TCPSocket::Address& theRoutingAddress
-            // &identity,              // Identity* theIdentityP
-            // FALSE,                  // bool isReconnectAttempt
-            // requestTimeout,         // long theTimeout
-            // TRUE,                   // bool async
-            // ConnectRoomCallback,    // void (*f)(Error, privsType)
-            // connectRoomContext      // privsType t
             address,
             identity,
+            room_password,
             FALSE,
             requestTimeout,
             ConnectRoomCallback,
@@ -2021,7 +2017,7 @@ namespace WonIface
             {
             case WONAPI::Error_Success:
             {
-                // From our Identity, compose our username
+                // // From our Identity, compose our username
                 // WONCommon::RawBuffer loginName;
                 // loginName.assign
                 // (
@@ -2043,7 +2039,7 @@ namespace WonIface
                 LOG_DEV(("ConnectRoomCallback -> Routing Server -> Register..."));
                 context->routingServer->Register(
                     identity.GetLoginName(),
-                    context->password.str,
+                    identity.GetPassword(),
                     FALSE,
                     FALSE,
                     TRUE,
@@ -2054,7 +2050,7 @@ namespace WonIface
                 // Context is no longer our problem, problem of the `RegisterPlayerCallback`.
                 context = nullptr;
 
-                // Notify of successful connection to room
+                // Notify of successful connection to room.
                 PostEvent(Message::ConnectedRoom);
                 break;
             }
@@ -2154,7 +2150,7 @@ namespace WonIface
                     nullptr
                 );
 
-                PostEvent(Message::EnteredRoom, new Message::Data::EnteredRoom(context->roomName.str));
+                PostEvent(Message::EnteredRoom, new Message::Data::EnteredRoom(context->room_name.str));
                 PostEvent(Message::PlayersChanged);
                 PostEvent(Message::GamesChanged);
                 break;
@@ -2615,7 +2611,7 @@ namespace WonIface
 
         if (lobby)
         {
-            ConnectRoom(lobby->address, (CH*)lobby->name.str, (CH*)"", context);
+            ConnectRoom(lobby->address, lobby->name.str, (CH*)"", context);
         }
         else
         {
@@ -2820,9 +2816,9 @@ namespace WonIface
             PostEvent(Message::CreatedGame);
             break;
 
-            // case MINTCLIENT::Error::RoutingServerAddressInUse:   // Routing Server deletes all games for the client before creating a new one so this is unnecessary.
-            //     PostEvent(Error::CreateGameFailure);
-            //     break;
+        // case MINTCLIENT::Error::RoutingServerAddressInUse:   // Routing Server deletes all games for the client before creating a new one so this is unnecessary.
+        //     PostEvent(Error::CreateGameFailure);
+        //     break;
 
         default:
             LOG_WON(("!!!Unhandled Result!!! CreateGameCallback: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
@@ -3299,12 +3295,12 @@ namespace WonIface
     //
     // UnicodePeerChatCatcher
     //
-    void UnicodePeerChatCatcher(const MINTCLIENT::RoutingServerClient::Data::UnicodeChatMessage& message, void*)
+    void UnicodePeerChatCatcher(const MINTCLIENT::RoutingServerClient::Data::UnicodeChatMessage& result, void*)
     {
         // LOG_WON(("critData.Wait"));
         // critData.Wait();
         //
-        // RoomClient* from = roomClients.Find(message.mSenderId);
+        // RoomClient* from = roomClients.Find(result.chatMessage.clientId);
         //
         // if (from)
         // {
@@ -3318,18 +3314,18 @@ namespace WonIface
         //     {
         //         U32 type = Message::Data::Chat::Broadcast;
         //
-        //         switch (message.mChatType)
+        //         switch (result.chatMessage.type)
         //         {
-        //         case CHATTYPE_UNICODE_EMOTE:
+        //         case MINTCLIENT::RoutingServerClient::Data::UnicodeChatMessage::CHATTYPE_UNICODE_EMOTE:
         //             type = Message::Data::Chat::Emote;
         //             break;
         //
-        //         case CHATTYPE_UNICODE:
+        //         case MINTCLIENT::RoutingServerClient::Data::UnicodeChatMessage::CHATTYPE_UNICODE:
         //             type = Message::Data::Chat::Broadcast;
         //             break;
         //         }
         //
-        //         if (message.IsWhisper())
+        //         if (result.chatMessage.isWhisper)
         //         {
         //             type = Message::Data::Chat::Private;
         //         }
@@ -3338,7 +3334,7 @@ namespace WonIface
         //
         //         LOG_WON(("critData.Signal"));
         //         critData.Signal();
-        //         PostEvent(Message::Chat, new Message::Data::Chat(type, message.mData.c_str(), name.str));
+        //         PostEvent(Message::Chat, new Message::Data::Chat(type, result.chatMessage.text.str, name.str));
         //     }
         // }
         // else
