@@ -21,7 +21,6 @@
 //
 namespace Movement
 {
-
     // System initialised flag
     static Bool sysInit = FALSE;
 
@@ -32,8 +31,8 @@ namespace Movement
     static PTree emptyTree;
 
     // Smoothed terrain for flyers
-    static F32* smoothTerrain = NULL;
-    static F32** smoothTerrainTbl = NULL;
+    static F32* smoothTerrain = nullptr;
+    static F32** smoothTerrainTbl = nullptr;
 
 
     /////////////////////////////////////////////////////////////////////////////
@@ -75,7 +74,7 @@ namespace Movement
     {
         FScope* sScope;
 
-        while ((sScope = scope->NextFunction()) != NULL)
+        while ((sScope = scope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
@@ -109,7 +108,7 @@ namespace Movement
         // 1*--\*2
         //
         F32 dy12, dy02, dydx, dydz;
-        if (dz + WC_CELLSIZEF32 - dx < (F32)WC_CELLSIZEF32)
+        if (dz + WC_CELLSIZEF32 - dx < static_cast<F32>(WC_CELLSIZEF32))
         {
             // top tri
             // 0<---2
@@ -123,8 +122,9 @@ namespace Movement
 
             if (surfNormal)
             {
-                *surfNormal = Cross(Vector((F32)WC_CELLSIZEF32, heights[2] - heights[0], (F32)WC_CELLSIZEF32),
-                    Vector((F32)WC_CELLSIZEF32, heights[3] - heights[0], 0.0f));
+                *surfNormal = Cross(Vector(static_cast<F32>(WC_CELLSIZEF32), heights[2] - heights[0],
+                    static_cast<F32>(WC_CELLSIZEF32)),
+                    Vector(static_cast<F32>(WC_CELLSIZEF32), heights[3] - heights[0], 0.0f));
                 surfNormal->Normalize();
             }
         }
@@ -166,15 +166,15 @@ namespace Movement
 
         // trunc mode is the default
         //
-        U32 cx = (U32)Utils::FtoL(x * WC_CELLSIZEF32INV);
-        U32 cz = (U32)Utils::FtoL(z * WC_CELLSIZEF32INV);
+        U32 cx = static_cast<U32>(Utils::FtoL(x * WC_CELLSIZEF32INV));
+        U32 cz = static_cast<U32>(Utils::FtoL(z * WC_CELLSIZEF32INV));
 
         heights[0] = smoothTerrainTbl[cz][cx];
         heights[1] = smoothTerrainTbl[cz + 1][cx];
         heights[2] = smoothTerrainTbl[cz + 1][cx + 1];
         heights[3] = smoothTerrainTbl[cz][cx + 1];
 
-        return Movement::GetFloorHelper(heights, x - F32(cx) * WC_CELLSIZEF32, z - F32(cz) * WC_CELLSIZEF32, surfNormal);
+        return GetFloorHelper(heights, x - F32(cx) * WC_CELLSIZEF32, z - F32(cz) * WC_CELLSIZEF32, surfNormal);
     }
 
 
@@ -190,7 +190,7 @@ namespace Movement
         S32 dimZ = S32(WorldCtrl::CellMapZ() + 1);
 
         // Create smoothed terrain memory
-        if (smoothTerrain == NULL)
+        if (smoothTerrain == nullptr)
         {
             smoothTerrain = new F32[dimX * dimZ];
             smoothTerrainTbl = new F32 * [dimZ];
@@ -249,8 +249,8 @@ namespace Movement
             {
                 for (x = 0; x < dimX; x++)
                 {
-                    //ASSERT(x >= 0 && x < Terrain::CellPitch())
-                    //ASSERT(z >= 0 && z < Terrain::CellHeight())
+                    //ASSERT(x >= 0 && x < Terrain::CellPitch());
+                    //ASSERT(z >= 0 && z < Terrain::CellHeight());
 
                     // Terrain height at this point
                     F32 terrHeight = TerrainData::GetHeight(x, z);
@@ -258,7 +258,8 @@ namespace Movement
                     // Filtered value
                     F32& f = smoothTerrainTbl[z][x];
 
-                    if (WorldCtrl::CellOnMap(x - FLT_SIZE, z - FLT_SIZE) && WorldCtrl::CellOnMap(x + FLT_SIZE, z + FLT_SIZE))
+                    if (WorldCtrl::CellOnMap(x - FLT_SIZE, z - FLT_SIZE) && WorldCtrl::CellOnMap(
+                        x + FLT_SIZE, z + FLT_SIZE))
                     {
                         F32 height = 0.0F;
                         F32* filter = &smoothFilter[0][0];
@@ -317,10 +318,10 @@ namespace Movement
 
         // Delete smoothed terrain
         delete[] smoothTerrain;
-        smoothTerrain = NULL;
+        smoothTerrain = nullptr;
 
         delete[] smoothTerrainTbl;
-        smoothTerrainTbl = NULL;
+        smoothTerrainTbl = nullptr;
 
         sysInit = FALSE;
     }
@@ -331,7 +332,7 @@ namespace Movement
     //
     static void LoadLayerDef(Model::LayerDef& layer, FScope* fScope)
     {
-        if (fScope == NULL)
+        if (fScope == nullptr)
         {
             fScope = emptyTree.GetGlobalScope();
         }
@@ -434,12 +435,15 @@ namespace Movement
         newModel->hasDriver = StdLoad::TypeU32(fScope, "HasDriver", TRUE) ? TRUE : FALSE;
 
         // Setup can ever move flag
-        newModel->canEverMove = (newModel->layers[Claim::LAYER_LOWER].canMove || newModel->layers[Claim::LAYER_UPPER].canMove) ? TRUE : FALSE;
+        newModel->canEverMove = (newModel->layers[Claim::LAYER_LOWER].canMove || newModel->layers[Claim::LAYER_UPPER].
+            canMove)
+            ? TRUE
+            : FALSE;
 
         // Setup physics
         FScope* sScope;
 
-        if ((sScope = fScope->GetFunction("Physics", FALSE)) != NULL)
+        if ((sScope = fScope->GetFunction("Physics", FALSE)) != nullptr)
         {
             newModel->hasPhysics = TRUE;
 
@@ -484,7 +488,7 @@ namespace Movement
     {
         Model* model;
 
-        if ((model = models.Find(ident.crc)) == NULL)
+        if ((model = models.Find(ident.crc)) == nullptr)
         {
             ERR_FATAL(("Physics Model [%s] not found", ident.str));
         }
@@ -512,7 +516,7 @@ namespace Movement
     {
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {

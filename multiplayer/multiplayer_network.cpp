@@ -187,13 +187,36 @@ namespace MultiPlayer
 
                                 if (WonIface::GetLocalAddress(ip, port))
                                 {
-                                    // If there's a set address use that one
-                                    if (Settings::GetLocalAddress())
+                                    // 1.2.3.4 = 0x04030201
+                                    U32 customIp = Settings::GetLocalAddress();
+
+                                    // If the local address has been customized...
+                                    if (customIp)
                                     {
-                                        ip = ntohl(Settings::GetLocalAddress());
+                                        // If it's 0xff,ff,ff,ff or 0xff,ff,ff,00
+                                        if (ntohl(customIp) == 0xffffffff || ntohl(customIp) == 0xffffff00)
+                                        {
+                                            // Update settings to the IP specified by MINT.
+                                            Settings::SetLocalAddress(htonl(ip));
+                                            Settings::SaveToUser();
+                                        }
+                                        else
+                                        {
+                                            // If it's almost the same, update custom IP to the current address that MINT is reporting.
+                                            if ((ntohl(customIp) & 0xffffff00) == (ip & 0xffffff00))
+                                            {
+                                                Settings::SetLocalAddress(htonl(ip));
+                                                Settings::SaveToUser();
+                                            }
+                                            else
+                                            {
+                                                // User specified a custom IP
+                                                ip = ntohl(customIp);
+                                            }
+                                        }
                                     }
 
-                                    // Tell WON that we hosted a session
+                                    // Tell MINT that we hosted a session
                                     Win32::Socket::Address address(ip, Settings::GetPort());
                                     StyxNet::Session session(*sessionInfo, address);
 
@@ -203,7 +226,7 @@ namespace MultiPlayer
                                     if (first)
                                     {
                                         LOG_DIAG(
-                                            ("WON AddGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
+                                            ("MINT AddGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
                                                 numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
                                         WonIface::AddGame(sessionInfo->name.str, sizeof(StyxNet::Session),
                                                           reinterpret_cast<U8*>(&session));
@@ -212,7 +235,7 @@ namespace MultiPlayer
                                     else
                                     {
                                         LOG_DIAG(
-                                            ("WON UpdateGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
+                                            ("MINT UpdateGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
                                                 numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
                                         WonIface::UpdateGame(sessionInfo->name.str, sizeof(StyxNet::Session),
                                                              reinterpret_cast<U8*>(&session));
@@ -283,7 +306,7 @@ namespace MultiPlayer
                         {
                             CAST(StyxNet::EventMessage::Data::SessionUserRemoved*, sessionUserRemoved, data)
                             Player* player = players.Find(sessionUserRemoved->name.crc);
-                            ASSERT(player)
+                            ASSERT(player);
 
                             if (Cmd::isHost)
                             {
@@ -318,7 +341,7 @@ namespace MultiPlayer
                         {
                             CAST(StyxNet::EventMessage::Data::SessionUserDisconnected*, sessionUserDisconnected, data)
                             Player* player = players.Find(sessionUserDisconnected->name.crc);
-                            ASSERT(player)
+                            ASSERT(player);
 
                             // Tell everyone that a player disconnected
                             CONSOLE(0x7EF342D8,
@@ -335,7 +358,7 @@ namespace MultiPlayer
                         {
                             CAST(StyxNet::EventMessage::Data::SessionUserReconnected*, sessionUserReconnected, data)
                             Player* player = players.Find(sessionUserReconnected->name.crc);
-                            ASSERT(player)
+                            ASSERT(player);
 
                             // Tell everyone that a player reconnected
                             CONSOLE(0x7EF342D8,
@@ -505,7 +528,7 @@ namespace MultiPlayer
         //
         const Player& GetCurrentPlayer()
         {
-            ASSERT(currentPlayer)
+            ASSERT(currentPlayer);
             return (*currentPlayer);
         }
 

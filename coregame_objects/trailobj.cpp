@@ -38,7 +38,7 @@
 //
 TrailObj::WayPointList::WayPointList() : NList<WayPoint>()
 {
-  SetNodeMember(&WayPoint::node);
+    SetNodeMember(&WayPoint::node);
 }
 
 
@@ -49,7 +49,7 @@ TrailObj::WayPointList::WayPointList() : NList<WayPoint>()
 //
 void TrailObj::WayPointList::AppendPoint(U32 x, U32 z)
 {
-  Append(new WayPoint(x, z));
+    Append(new WayPoint(x, z));
 }
 
 
@@ -58,12 +58,12 @@ void TrailObj::WayPointList::AppendPoint(U32 x, U32 z)
 //
 // Append the given list 
 //
-void TrailObj::WayPointList::AppendList(const WayPointList &list)
+void TrailObj::WayPointList::AppendList(const WayPointList& list)
 {
-  for (WayPointList::Iterator i(&list); *i; i++)
-  {
-    AppendPoint((*i)->x, (*i)->z);
-  }
+    for (Iterator i(&list); *i; ++i)
+    {
+        AppendPoint((*i)->x, (*i)->z);
+    }
 }
 
 
@@ -72,10 +72,10 @@ void TrailObj::WayPointList::AppendList(const WayPointList &list)
 //
 // Clear all points then append the given list
 //
-void TrailObj::WayPointList::Set(const WayPointList &list)
+void TrailObj::WayPointList::Set(const WayPointList& list)
 {
-  DisposeAll();
-  AppendList(list);
+    DisposeAll();
+    AppendList(list);
 }
 
 
@@ -84,22 +84,22 @@ void TrailObj::WayPointList::Set(const WayPointList &list)
 //
 // Returns TRUE if the given point is on this trail
 //
-Bool TrailObj::WayPointList::Find(U32 x, U32 z, U32 *index)
+Bool TrailObj::WayPointList::Find(U32 x, U32 z, U32* index)
 {
-  for (WayPointList::Iterator i(this); *i; i++)
-  {
-    if ((*i)->x == x && (*i)->z == z)
+    for (Iterator i(this); *i; ++i)
     {
-      if (index)
-      {
-        *index = i.GetPos();
-      }
+        if ((*i)->x == x && (*i)->z == z)
+        {
+            if (index)
+            {
+                *index = i.GetPos();
+            }
 
-      return (TRUE);
+            return (TRUE);
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -122,42 +122,42 @@ TrailObj::Follower::Follower() : forwards(TRUE)
 //
 // Set the follower onto a given trail
 //
-void TrailObj::Follower::Set(TrailObj *t, U32 index)
+void TrailObj::Follower::Set(TrailObj* t, U32 index)
 {
-  // Setup data
-  if (t)
-  {
-    // Setup the iterator
-    iterator.SetList(&t->GetList());
-
-    // Was an index supplied
-    if (index)
+    // Setup data
+    if (t)
     {
-      // Clamp the index
-      if (index >= t->GetList().GetCount())
-      {
-        index = t->GetList().GetCount() - 1;
-      }
+        // Setup the iterator
+        iterator.SetList(&t->GetList());
 
-      // Move the iterator
-      iterator.GoTo(index);
+        // Was an index supplied
+        if (index)
+        {
+            // Clamp the index
+            if (index >= t->GetList().GetCount())
+            {
+                index = t->GetList().GetCount() - 1;
+            }
+
+            // Move the iterator
+            iterator.GoTo(index);
+        }
+
+        // Set the direction
+        if ((t->GetMode() == MODE_ONEWAY) && (t->GetList().GetCount() - 1 == index))
+        {
+            // One way trail, and last point was clicked on
+            forwards = FALSE;
+        }
+        else
+        {
+            // In any other situation, always move forwards
+            forwards = TRUE;
+        }
     }
 
-    // Set the direction
-    if ((t->GetMode() == MODE_ONEWAY) && (t->GetList().GetCount() - 1 == index))
-    {
-      // One way trail, and last point was clicked on
-      forwards = FALSE;
-    }
-    else
-    {
-      // In any other situation, always move forwards
-      forwards = TRUE;
-    }
-  }
-
-  // Save or clear the trail
-  trail = t;
+    // Save or clear the trail
+    trail = t;
 }
 
 
@@ -166,16 +166,16 @@ void TrailObj::Follower::Set(TrailObj *t, U32 index)
 //
 // Get the current position in cells (FALSE if path is finished)
 //
-Bool TrailObj::Follower::GetPos(Point<U32> &p)
+Bool TrailObj::Follower::GetPos(Point<U32>& p)
 {
-  // Is there a current point
-  if (trail.Alive() && *iterator)
-  {
-    p.Set((*iterator)->x, (*iterator)->z);
-    return (TRUE);
-  }
+    // Is there a current point
+    if (trail.Alive() && *iterator)
+    {
+        p.Set((*iterator)->x, (*iterator)->z);
+        return (TRUE);
+    }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -186,9 +186,9 @@ Bool TrailObj::Follower::GetPos(Point<U32> &p)
 //
 Bool TrailObj::Follower::AtTerminal()
 {
-  ASSERT(trail.Alive());
+    ASSERT(trail.Alive());
 
-  return (forwards ? iterator.IsTail() : iterator.IsHead());
+    return (forwards ? iterator.IsTail() : iterator.IsHead());
 }
 
 
@@ -199,9 +199,9 @@ Bool TrailObj::Follower::AtTerminal()
 //
 void TrailObj::Follower::Step()
 {
-  ASSERT(trail.Alive());
+    ASSERT(trail.Alive());
 
-  forwards ? ++iterator : --iterator;
+    forwards ? ++iterator : --iterator;
 }
 
 
@@ -212,73 +212,73 @@ void TrailObj::Follower::Step()
 //
 Bool TrailObj::Follower::Next()
 {
-  if (trail.Alive())
-  {
-    switch (trail->GetMode())
+    if (trail.Alive())
     {
-      case MODE_ONEWAY:
-      {
-        if (AtTerminal())
+        switch (trail->GetMode())
         {
-          trail = NULL;
-          return (FALSE);
-        }
-
-        Step();
-        return (TRUE);
-      }
-
-      case MODE_TWOWAY:
-      {
-        if (AtTerminal())
+        case MODE_ONEWAY:
         {
-          if (trail->MultiPoint())
-          {
-            forwards = !forwards;
-          }
-          else
-          {
-            trail = NULL;
-            return (FALSE);
-          }
-        }
-
-        Step();
-        return (TRUE);
-      }
-
-      case MODE_LOOPIN:
-      {
-        if (AtTerminal())
-        {
-          if (trail->MultiPoint())
-          {
-            if (forwards)
+            if (AtTerminal())
             {
-              iterator.GoToHead();
+                trail = nullptr;
+                return (FALSE);
+            }
+
+            Step();
+            return (TRUE);
+        }
+
+        case MODE_TWOWAY:
+        {
+            if (AtTerminal())
+            {
+                if (trail->MultiPoint())
+                {
+                    forwards = !forwards;
+                }
+                else
+                {
+                    trail = nullptr;
+                    return (FALSE);
+                }
+            }
+
+            Step();
+            return (TRUE);
+        }
+
+        case MODE_LOOPIN:
+        {
+            if (AtTerminal())
+            {
+                if (trail->MultiPoint())
+                {
+                    if (forwards)
+                    {
+                        iterator.GoToHead();
+                    }
+                    else
+                    {
+                        iterator.GoToTail();
+                    }
+                }
+                else
+                {
+                    trail = nullptr;
+                    return (FALSE);
+                }
             }
             else
             {
-              iterator.GoToTail();
+                Step();
             }
-          }
-          else
-          {
-            trail = NULL;
-            return (FALSE);
-          }
-        }
-        else
-        {
-          Step();
-        }
 
-        return (TRUE);
-      }
+            return (TRUE);
+        }
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -289,45 +289,45 @@ Bool TrailObj::Follower::Next()
 //
 U32 TrailObj::Follower::GetIndex()
 {
-  return (trail.Alive() ? iterator.GetPos() : 0);
+    return (trail.Alive() ? iterator.GetPos() : 0);
 }
 
 
 //
 // SaveState
 //
-void TrailObj::Follower::SaveState(FScope *scope)
+void TrailObj::Follower::SaveState(FScope* scope)
 {
-  StdSave::TypeReaper(scope, "Trail", trail);
-  StdSave::TypeU32(scope, "Forwards", forwards);
-  StdSave::TypeU32(scope, "Index", GetIndex());
+    StdSave::TypeReaper(scope, "Trail", trail);
+    StdSave::TypeU32(scope, "Forwards", forwards);
+    StdSave::TypeU32(scope, "Index", GetIndex());
 }
 
 
 //
 // LoadState
 //
-void TrailObj::Follower::LoadState(FScope *scope)
+void TrailObj::Follower::LoadState(FScope* scope)
 {
-  FScope *sScope;
-  
-  while ((sScope = scope->NextFunction()) != NULL)
-  {
-    switch (sScope->NameCrc())
+    FScope* sScope;
+
+    while ((sScope = scope->NextFunction()) != nullptr)
     {
-      case 0x82698073: // "Trail"
-        StdLoad::TypeReaper(sScope, trail);
-        break;
+        switch (sScope->NameCrc())
+        {
+        case 0x82698073: // "Trail"
+            StdLoad::TypeReaper(sScope, trail);
+            break;
 
-      case 0x557251DB: // "Forwards"
-        forwards = StdLoad::TypeU32(sScope);
-        break;
+        case 0x557251DB: // "Forwards"
+            forwards = StdLoad::TypeU32(sScope);
+            break;
 
-      case 0xCD634517: // "Index"
-        index = StdLoad::TypeU32(sScope);
-        break;
+        case 0xCD634517: // "Index"
+            index = StdLoad::TypeU32(sScope);
+            break;
+        }
     }
-  }
 }
 
 
@@ -336,19 +336,19 @@ void TrailObj::Follower::LoadState(FScope *scope)
 //
 void TrailObj::Follower::PostLoad()
 {
-  Resolver::Object<TrailObj, TrailObjType>(trail);
+    Resolver::Object<TrailObj, TrailObjType>(trail);
 
-  if (trail.Alive())
-  {
-    // Remember loaded forwards value
-    U32 f = forwards;
+    if (trail.Alive())
+    {
+        // Remember loaded forwards value
+        U32 f = forwards;
 
-    // Set the new trail
-    Set(trail, index);
+        // Set the new trail
+        Set(trail, index);
 
-    // Restore forwards value
-    forwards = f;
-  }
+        // Restore forwards value
+        forwards = f;
+    }
 }
 
 
@@ -361,7 +361,7 @@ void TrailObj::Follower::PostLoad()
 //
 // Constructor
 //
-TrailObjType::TrailObjType(const char *name, FScope *fScope) : GameObjType(name, fScope)
+TrailObjType::TrailObjType(const char* name, FScope* fScope) : GameObjType(name, fScope)
 {
 }
 
@@ -373,8 +373,8 @@ TrailObjType::TrailObjType(const char *name, FScope *fScope) : GameObjType(name,
 //
 void TrailObjType::PostLoad()
 {
-  // Call parent scope first
-  GameObjType::PostLoad();
+    // Call parent scope first
+    GameObjType::PostLoad();
 }
 
 
@@ -385,8 +385,8 @@ void TrailObjType::PostLoad()
 //
 GameObj* TrailObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new TrailObj(this, id));
+    // Allocate new object instance
+    return (new TrailObj(this, id));
 }
 
 
@@ -407,33 +407,33 @@ NList<TrailObj> TrailObj::trails(&TrailObj::node);
 //
 // Find a trail by crc
 //
-TrailObj * TrailObj::Find(U32 crc, Team *team)
+TrailObj* TrailObj::Find(U32 crc, Team* team)
 {
-  TrailObj *winner = NULL;
+    TrailObj* winner = nullptr;
 
-  for (NList<TrailObj>::Iterator i(&trails); *i; i++)
-  {
-    // Get the trail
-    TrailObj *trail = *i;
-
-    // Does the name match
-    if (trail->name.crc == crc)
+    for (NList<TrailObj>::Iterator i(&trails); *i; ++i)
     {
-      // Does this trail match the team (both may be NULL)
-      if (trail->team == team)
-      {
-        return (trail);
-      }
+        // Get the trail
+        TrailObj* trail = *i;
 
-      // Only remember this trail if not on a team
-      if (team)
-      {
-        winner = trail;
-      }
+        // Does the name match
+        if (trail->name.crc == crc)
+        {
+            // Does this trail match the team (both may be NULL)
+            if (trail->team == team)
+            {
+                return (trail);
+            }
+
+            // Only remember this trail if not on a team
+            if (team)
+            {
+                winner = trail;
+            }
+        }
     }
-  }
 
-  return (winner);
+    return (winner);
 }
 
 
@@ -442,11 +442,11 @@ TrailObj * TrailObj::Find(U32 crc, Team *team)
 //
 // Find a trail by name
 //
-TrailObj * TrailObj::Find(const char *name, Team *team)
+TrailObj* TrailObj::Find(const char* name, Team* team)
 {
-  ASSERT(name)
+    ASSERT(name);
 
-  return (Find(Crc::CalcStr(name), team));
+    return (Find(Crc::CalcStr(name), team));
 }
 
 
@@ -455,17 +455,17 @@ TrailObj * TrailObj::Find(const char *name, Team *team)
 //
 // Find a trail that occupies the given cell
 //
-TrailObj * TrailObj::Find(U32 x, U32 z, Team *team, U32 *index)
+TrailObj* TrailObj::Find(U32 x, U32 z, Team* team, U32* index)
 {
-  for (NList<TrailObj>::Iterator i(&trails); *i; i++)
-  {
-    if ((*i)->team == team && (*i)->GetList().Find(x, z, index))
+    for (NList<TrailObj>::Iterator i(&trails); *i; ++i)
     {
-      return (*i);
+        if ((*i)->team == team && (*i)->GetList().Find(x, z, index))
+        {
+            return (*i);
+        }
     }
-  }
 
-  return (NULL);
+    return (nullptr);
 }
 
 
@@ -474,36 +474,36 @@ TrailObj * TrailObj::Find(U32 x, U32 z, Team *team, U32 *index)
 //
 // Create a new trail (NULL if unable to create)
 //
-TrailObj * TrailObj::Create(Team *team, const char *name, Mode mode)
+TrailObj* TrailObj::Create(Team* team, const char* name, Mode mode)
 {
-  // If a name is given, make sure not a duplicate
-  if (!name || !Find(name, team))
-  {
-    // Find the type 
-    TrailObjType *type = GameObjCtrl::FindType<TrailObjType>("Trail");
-   
-    if (type)
+    // If a name is given, make sure not a duplicate
+    if (!name || !Find(name, team))
     {
-      // Create a new trail object
-      TrailObj *t = (TrailObj *) type->NewInstance(0);
+        // Find the type 
+        TrailObjType* type = GameObjCtrl::FindType<TrailObjType>("Trail");
 
-      // Set the name
-      if (name)
-      {
-        t->name = name;
-      }
+        if (type)
+        {
+            // Create a new trail object
+            TrailObj* t = static_cast<TrailObj*>(type->NewInstance(0));
 
-      // Set the team
-      t->team = team;
+            // Set the name
+            if (name)
+            {
+                t->name = name;
+            }
 
-      // And the mode
-      t->mode = mode;
+            // Set the team
+            t->team = team;
 
-      return (t);
+            // And the mode
+            t->mode = mode;
+
+            return (t);
+        }
     }
-  }
 
-  return (NULL);
+    return (nullptr);
 }
 
 
@@ -512,15 +512,15 @@ TrailObj * TrailObj::Create(Team *team, const char *name, Mode mode)
 //
 // Delete all trails belonging to the given team
 //
-void TrailObj::Delete(Team *team)
+void TrailObj::Delete(Team* team)
 {
-  for (NList<TrailObj>::Iterator i(&trails); *i; i++)
-  {
-    if ((*i)->team == team)
+    for (NList<TrailObj>::Iterator i(&trails); *i; ++i)
     {
-      (*i)->MarkForDeletion();
+        if ((*i)->team == team)
+        {
+            (*i)->MarkForDeletion();
+        }
     }
-  }
 }
 
 
@@ -529,19 +529,19 @@ void TrailObj::Delete(Team *team)
 //
 // Converts a string mode name to the enumeration value
 //
-TrailObj::Mode TrailObj::StringToMode(const char *str)
+TrailObj::Mode TrailObj::StringToMode(const char* str)
 {
-  switch (Crc::CalcStr(str))
-  {
+    switch (Crc::CalcStr(str))
+    {
     case 0xAC2E91AD: // "OneWay"
-      return (TrailObj::MODE_ONEWAY);
+        return (MODE_ONEWAY);
 
     case 0x50BEDEC9: // "Loopin"
-      return (TrailObj::MODE_LOOPIN);
+        return (MODE_LOOPIN);
 
     default:
-      return (TrailObj::MODE_TWOWAY);
-  }
+        return (MODE_TWOWAY);
+    }
 }
 
 
@@ -550,35 +550,35 @@ TrailObj::Mode TrailObj::StringToMode(const char *str)
 //
 // Converts an enumerated mode to the string value
 //
-const char * TrailObj::ModeToString(Mode mode)
+const char* TrailObj::ModeToString(Mode mode)
 {
-  switch (mode)
-  {
-    case MODE_ONEWAY: 
-      return ("OneWay");
+    switch (mode)
+    {
+    case MODE_ONEWAY:
+        return ("OneWay");
 
-    case MODE_LOOPIN: 
-      return ("Loopin");
-    
-    default : 
-      return ("TwoWay");
-  }
+    case MODE_LOOPIN:
+        return ("Loopin");
+
+    default:
+        return ("TwoWay");
+    }
 }
 
 
 //
 // Constructor
 //
-TrailObj::TrailObj(TrailObjType *objType, U32 id) : GameObj(objType, id), team(NULL)
+TrailObj::TrailObj(TrailObjType* objType, U32 id) : GameObj(objType, id), team(nullptr)
 {
-  // Set default trail name
-  Utils::Sprintf(name.str, name.GetSize(), "Trail-%d", Id());
+    // Set default trail name
+    Utils::Sprintf(name.str, name.GetSize(), "Trail-%d", Id());
 
-  // Ensure crc is updated
-  name.Update();
+    // Ensure crc is updated
+    name.Update();
 
-  // Add to the trail list
-  trails.Append(this);
+    // Add to the trail list
+    trails.Append(this);
 }
 
 
@@ -587,10 +587,10 @@ TrailObj::TrailObj(TrailObjType *objType, U32 id) : GameObj(objType, id), team(N
 //
 TrailObj::~TrailObj()
 {
-  list.DisposeAll();
+    list.DisposeAll();
 
-  // Remove from the trail list
-  trails.Unlink(this);
+    // Remove from the trail list
+    trails.Unlink(this);
 }
 
 
@@ -601,9 +601,8 @@ TrailObj::~TrailObj()
 //
 void TrailObj::PreDelete()
 {
-
-  // Call parent scope last
-  GameObj::PreDelete();
+    // Call parent scope last
+    GameObj::PreDelete();
 }
 
 
@@ -612,78 +611,78 @@ void TrailObj::PreDelete()
 //
 // Save a state configuration scope
 //
-void TrailObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void TrailObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  GameObj::SaveState(fScope);
+    // Call parent scope first
+    GameObj::SaveState(fScope);
 
-  // Save config scope with trail name
-  fScope = StdSave::TypeString(fScope, SCOPE_CONFIG, name.str);
+    // Save config scope with trail name
+    fScope = StdSave::TypeString(fScope, SCOPE_CONFIG, name.str);
 
-  // Save the team
-  if (team)
-  {
-    StdSave::TypeString(fScope, "Team", team->GetName());
-  }
+    // Save the team
+    if (team)
+    {
+        StdSave::TypeString(fScope, "Team", team->GetName());
+    }
 
-  // Save the points
-  FScope *sScope = fScope->AddFunction("Points");
+    // Save the points
+    FScope* sScope = fScope->AddFunction("Points");
 
-  for (WayPointList::Iterator i(&list); *i; i++)
-  {
-    FScope *ssScope = sScope->AddFunction("Add");
-    ssScope->AddArgInteger((*i)->x);
-    ssScope->AddArgInteger((*i)->z);
-  }
+    for (WayPointList::Iterator i(&list); *i; ++i)
+    {
+        FScope* ssScope = sScope->AddFunction("Add");
+        ssScope->AddArgInteger((*i)->x);
+        ssScope->AddArgInteger((*i)->z);
+    }
 
-  StdSave::TypeU32(fScope, "Mode", mode);
+    StdSave::TypeU32(fScope, "Mode", mode);
 }
 
-  
+
 //
 // LoadState
 //
 // Load a state configuration scope
 //
-void TrailObj::LoadState(FScope *fScope)
+void TrailObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  GameObj::LoadState(fScope);
+    // Call parent scope first
+    GameObj::LoadState(fScope);
 
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Get trail name
-  name = StdLoad::TypeString(fScope); 
+    // Get trail name
+    name = StdLoad::TypeString(fScope);
 
-  // Get the team
-  FScope *sScope = fScope->GetFunction("Team", FALSE);
+    // Get the team
+    FScope* sScope = fScope->GetFunction("Team", FALSE);
 
-  if (sScope)
-  {
-    team = Team::Name2Team(StdLoad::TypeString(sScope));
-  }
-
-  // Save the points
-  sScope = fScope->GetFunction("Points");
-
-  FScope *ssScope;
-
-  while ((ssScope = sScope->NextFunction()) != NULL)
-  {
-    switch (ssScope->NameCrc())
+    if (sScope)
     {
-      case 0x9F1D54D0: // "Add"
-      {
-        U32 x = StdLoad::TypeU32(ssScope);
-        U32 z = StdLoad::TypeU32(ssScope);
-        list.AppendPoint(x, z);
-        break;
-      }
+        team = Team::Name2Team(StdLoad::TypeString(sScope));
     }
-  }
 
-  mode = Mode(StdLoad::TypeU32(fScope, "Mode", MODE_TWOWAY));
+    // Save the points
+    sScope = fScope->GetFunction("Points");
+
+    FScope* ssScope;
+
+    while ((ssScope = sScope->NextFunction()) != nullptr)
+    {
+        switch (ssScope->NameCrc())
+        {
+        case 0x9F1D54D0: // "Add"
+        {
+            U32 x = StdLoad::TypeU32(ssScope);
+            U32 z = StdLoad::TypeU32(ssScope);
+            list.AppendPoint(x, z);
+            break;
+        }
+        }
+    }
+
+    mode = Mode(StdLoad::TypeU32(fScope, "Mode", MODE_TWOWAY));
 }
 
 
@@ -694,9 +693,6 @@ void TrailObj::LoadState(FScope *fScope)
 //
 void TrailObj::PostLoad()
 {
-  // Call parent scope first
-  GameObj::PostLoad();
-
+    // Call parent scope first
+    GameObj::PostLoad();
 }
-
-

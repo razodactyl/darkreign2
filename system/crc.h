@@ -23,7 +23,6 @@ typedef U32 CRC;
 //
 namespace Crc
 {
-
     //
     // Calculate the CRC of given buffer (32bit)
     //
@@ -43,7 +42,6 @@ namespace Crc
     // CalcStr for Unicode strings
     //
     U32 CalcStr(const CH* str, U32 crc = 0);
-
 }
 
 #endif

@@ -21,61 +21,60 @@
 //
 namespace Studio
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TeamList
+    //
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TeamList
-  //
-
-  //
-  // Constructor
-  //
-  AttachList::AttachList(IControl *parent) 
-  : ICListBox(parent)
-  {
-  }
-
-
-  //
-  // Destructor
-  //
-  AttachList::~AttachList()
-  {
-  }
-
-  //
-  // AttachList::BuildList
-  //
-  void AttachList::BuildList(MapObj *obj)
-  {
-    ASSERT(obj)
-
-    // Clear the list
-    DeleteAllItems();
-
-    // Get the mesh ent
-    MeshEnt &ent = obj->Mesh();
-
-    // Get the names
-    BuffString names[MAXMESHPERGROUP];
-    U32 count = ent.GetHierarchy(names, TRUE);
-    U32 i;
-    for (i = 0; i < count; i++)
+    //
+    // Constructor
+    //
+    AttachList::AttachList(IControl* parent)
+        : ICListBox(parent)
     {
-      char *p = names[i].str;
-      while (*p == ' ')
-      {
-        p++;
-      }
-
-      // Find this object
-      MeshObj *hp = ent.FamilyNode::FindMeshObj(p, TRUE);
-
-      // Must not have anything else attached
-      if (hp && !hp->HasAttachment())
-      {
-        AddTextItem(p, Utils::Ansi2Unicode(names[i].str));
-      }
     }
-  }
+
+
+    //
+    // Destructor
+    //
+    AttachList::~AttachList()
+    {
+    }
+
+    //
+    // AttachList::BuildList
+    //
+    void AttachList::BuildList(MapObj* obj)
+    {
+        ASSERT(obj);
+
+        // Clear the list
+        DeleteAllItems();
+
+        // Get the mesh ent
+        MeshEnt& ent = obj->Mesh();
+
+        // Get the names
+        BuffString names[MAXMESHPERGROUP];
+        U32 count = ent.GetHierarchy(names, TRUE);
+        U32 i;
+        for (i = 0; i < count; i++)
+        {
+            char* p = names[i].str;
+            while (*p == ' ')
+            {
+                p++;
+            }
+
+            // Find this object
+            MeshObj* hp = ent.FindMeshObj(p, TRUE);
+
+            // Must not have anything else attached
+            if (hp && !hp->HasAttachment())
+            {
+                AddTextItem(p, Utils::Ansi2Unicode(names[i].str));
+            }
+        }
+    }
 }

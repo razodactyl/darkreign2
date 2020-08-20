@@ -51,7 +51,6 @@
 #include "won.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // NameSpace MultiPlayer
@@ -88,7 +87,6 @@ namespace MultiPlayer
     //
     namespace PrivData
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Exported Data
@@ -98,7 +96,7 @@ namespace MultiPlayer
         Bool haveMission;
 
         // Preview for the mission, if haveMission is TRUE
-        Game::Preview* preview = NULL;
+        Game::Preview* preview = nullptr;
 
         // Local Player info
         Player player;
@@ -145,12 +143,12 @@ namespace MultiPlayer
             haveMission = FALSE;
 
             // Clear the vars for the mission description
-            Cmd::UploadMapInfo(NULL, NULL, 0, 0);
+            Cmd::UploadMapInfo(nullptr, nullptr, 0, 0);
 
             if (preview)
             {
                 delete preview;
-                preview = NULL;
+                preview = nullptr;
             }
         }
     }
@@ -183,7 +181,6 @@ namespace MultiPlayer
             password = "";
             maxPlayers = 16;
         }
-
     }
 
 
@@ -200,41 +197,41 @@ namespace MultiPlayer
 
     static Color teamColors[] =
     {
-      Color(1.0f, 0.0f, 0.0f),            // Red
-      Color(1.0f, 1.0f, 0.0f),            // Yellow
-      Color(0.5f, 1.0f, 0.5f),            // Green
-      Color(0.0f, 0.5f, 0.0f),            // DkGreen
-      Color(0.0f, 1.0f, 1.0f),            // Cyan
-      Color(0.0f, 0.0f, 1.0f),            // Blue
-      Color(0.5f, 0.0f, 0.5f),            // Purple
-      Color(1.0f, 0.5f, 1.0f),            // Pink
-      Color(1.0f, 1.0f, 1.0f)             // White
+        Color(1.0f, 0.0f, 0.0f),            // Red
+        Color(1.0f, 1.0f, 0.0f),            // Yellow
+        Color(0.5f, 1.0f, 0.5f),            // Green
+        Color(0.0f, 0.5f, 0.0f),            // DkGreen
+        Color(0.0f, 1.0f, 1.0f),            // Cyan
+        Color(0.0f, 0.0f, 1.0f),            // Blue
+        Color(0.5f, 0.0f, 0.5f),            // Purple
+        Color(1.0f, 0.5f, 1.0f),            // Pink
+        Color(1.0f, 1.0f, 1.0f)             // White
     };
 
     static Color teamBgColors[] =
     {
-      Color(0.80f, 0.00f, 0.00f, 0.40f),  // Red
-      Color(0.80f, 0.80f, 0.00f, 0.40f),  // Yellow
-      Color(0.40f, 0.80f, 0.40f, 0.40f),  // Green
-      Color(0.00f, 0.40f, 0.00f, 0.40f),  // DkGreen
-      Color(0.00f, 0.80f, 0.80f, 0.40f),  // Cyan
-      Color(0.00f, 0.00f, 0.80f, 0.40f),  // Blue
-      Color(0.40f, 0.00f, 0.40f, 0.40f),  // Purple
-      Color(0.80f, 0.40f, 0.80f, 0.40f),  // Pink
-      Color(0.80f, 0.80f, 0.80f, 0.40f)   // White
+        Color(0.80f, 0.00f, 0.00f, 0.40f),  // Red
+        Color(0.80f, 0.80f, 0.00f, 0.40f),  // Yellow
+        Color(0.40f, 0.80f, 0.40f, 0.40f),  // Green
+        Color(0.00f, 0.40f, 0.00f, 0.40f),  // DkGreen
+        Color(0.00f, 0.80f, 0.80f, 0.40f),  // Cyan
+        Color(0.00f, 0.00f, 0.80f, 0.40f),  // Blue
+        Color(0.40f, 0.00f, 0.40f, 0.40f),  // Purple
+        Color(0.80f, 0.40f, 0.80f, 0.40f),  // Pink
+        Color(0.80f, 0.80f, 0.80f, 0.40f)   // White
     };
 
     static Color playerBgColors[] =
     {
-      Color(0.50f, 0.00f, 0.00f, 0.30f),  // Red
-      Color(0.50f, 0.50f, 0.00f, 0.30f),  // Yellow
-      Color(0.25f, 0.50f, 0.25f, 0.30f),  // Green
-      Color(0.00f, 0.25f, 0.00f, 0.30f),  // DkGreen
-      Color(0.00f, 0.50f, 0.50f, 0.30f),  // Cyan
-      Color(0.00f, 0.00f, 0.50f, 0.30f),  // Blue
-      Color(0.25f, 0.00f, 0.25f, 0.30f),  // Purple
-      Color(0.50f, 0.25f, 0.50f, 0.30f),  // Pink
-      Color(0.50f, 0.50f, 0.50f, 0.30f)   // White
+        Color(0.50f, 0.00f, 0.00f, 0.30f),  // Red
+        Color(0.50f, 0.50f, 0.00f, 0.30f),  // Yellow
+        Color(0.25f, 0.50f, 0.25f, 0.30f),  // Green
+        Color(0.00f, 0.25f, 0.00f, 0.30f),  // DkGreen
+        Color(0.00f, 0.50f, 0.50f, 0.30f),  // Cyan
+        Color(0.00f, 0.00f, 0.50f, 0.30f),  // Blue
+        Color(0.25f, 0.00f, 0.25f, 0.30f),  // Purple
+        Color(0.50f, 0.25f, 0.50f, 0.30f),  // Pink
+        Color(0.50f, 0.50f, 0.50f, 0.30f)   // White
     };
 
 
@@ -254,7 +251,6 @@ namespace MultiPlayer
         Main::RegisterCmdLineHandler("password", CmdLineHookProc);
         Main::RegisterCmdLineHandler("maxplayers", CmdLineHookProc);
     }
-
 
 
     //
@@ -292,42 +288,42 @@ namespace MultiPlayer
         Won::Init();
 
         // Register data handlers
-        MultiPlayer::Data::RegisterHandler(Commands::IntegrityChallenge, Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::Message, Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::MessageQuote, Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::MessagePrivate, Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::MessageTeam, Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::MessageGroup, Handler);
+        Data::RegisterHandler(Commands::IntegrityChallenge, Handler);
+        Data::RegisterHandler(Commands::Message, Handler);
+        Data::RegisterHandler(Commands::MessageQuote, Handler);
+        Data::RegisterHandler(Commands::MessagePrivate, Handler);
+        Data::RegisterHandler(Commands::MessageTeam, Handler);
+        Data::RegisterHandler(Commands::MessageGroup, Handler);
 
-        MultiPlayer::Data::RegisterHandler(Options::key, Handler);
-        MultiPlayer::Data::RegisterHandler(Mission::key, Handler);
-        MultiPlayer::Data::RegisterHandler(Player::key, Handler);
-        MultiPlayer::Data::RegisterHandler(PlayerInfo::key, Handler);
-        MultiPlayer::Data::RegisterHandler(Team::key, Handler);
-        MultiPlayer::Data::RegisterHandler(PropertyFilter::key, Handler);
+        Data::RegisterHandler(Options::key, Handler);
+        Data::RegisterHandler(Mission::key, Handler);
+        Data::RegisterHandler(Player::key, Handler);
+        Data::RegisterHandler(PlayerInfo::key, Handler);
+        Data::RegisterHandler(Team::key, Handler);
+        Data::RegisterHandler(PropertyFilter::key, Handler);
 
         // Register transfer data handlers
-        MultiPlayer::Data::RegisterHandler(Commands::TransferOffer, Transfer::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::TransferOfferAccept, Transfer::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::TransferOfferDeny, Transfer::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::TransferInitiate, Transfer::Handler);
+        Data::RegisterHandler(Commands::TransferOffer, Transfer::Handler);
+        Data::RegisterHandler(Commands::TransferOfferAccept, Transfer::Handler);
+        Data::RegisterHandler(Commands::TransferOfferDeny, Transfer::Handler);
+        Data::RegisterHandler(Commands::TransferInitiate, Transfer::Handler);
 
         // Register host data handlers
-        MultiPlayer::Data::RegisterHandler(Commands::IntegrityResponse, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::Launch, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::LaunchReady, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::HaveMission, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::JoinTeam, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::LeaveTeam, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::SetTeamColor, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::SetTeamSide, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::SetStartLocation, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::SetDifficulty, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::SetPersonality, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::JoinGroup, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::LeaveGroup, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::JoinGroupAI, Host::Handler);
-        MultiPlayer::Data::RegisterHandler(Commands::LeaveGroupAI, Host::Handler);
+        Data::RegisterHandler(Commands::IntegrityResponse, Host::Handler);
+        Data::RegisterHandler(Commands::Launch, Host::Handler);
+        Data::RegisterHandler(Commands::LaunchReady, Host::Handler);
+        Data::RegisterHandler(Commands::HaveMission, Host::Handler);
+        Data::RegisterHandler(Commands::JoinTeam, Host::Handler);
+        Data::RegisterHandler(Commands::LeaveTeam, Host::Handler);
+        Data::RegisterHandler(Commands::SetTeamColor, Host::Handler);
+        Data::RegisterHandler(Commands::SetTeamSide, Host::Handler);
+        Data::RegisterHandler(Commands::SetStartLocation, Host::Handler);
+        Data::RegisterHandler(Commands::SetDifficulty, Host::Handler);
+        Data::RegisterHandler(Commands::SetPersonality, Host::Handler);
+        Data::RegisterHandler(Commands::JoinGroup, Host::Handler);
+        Data::RegisterHandler(Commands::LeaveGroup, Host::Handler);
+        Data::RegisterHandler(Commands::JoinGroupAI, Host::Handler);
+        Data::RegisterHandler(Commands::LeaveGroupAI, Host::Handler);
 
         initialized = TRUE;
     }
@@ -438,7 +434,6 @@ namespace MultiPlayer
 
         // Load settings from user
         Settings::LoadFromUser();
-
     }
 
 
@@ -552,7 +547,7 @@ namespace MultiPlayer
 
                 LOG_DIAG(("Data CRC initialized to %08X", dataCrc));
 
-                Mods::Mod* mod = NULL;
+                Mods::Mod* mod = nullptr;
                 if (options->ruleSet != Settings::Options::UseMissionRules)
                 {
                     mod = Mods::GetMod(Mods::Types::RuleSet, options->ruleSet);
@@ -563,7 +558,6 @@ namespace MultiPlayer
                 }
             }
         }
-
     }
 
 
@@ -586,7 +580,7 @@ namespace MultiPlayer
             {
                 ASSERT(Game::MissionPreLoaded());
 
-                Mods::Mod* mod = NULL;
+                Mods::Mod* mod = nullptr;
                 if (options->ruleSet != Settings::Options::UseMissionRules)
                 {
                     mod = Mods::GetMod(Mods::Types::RuleSet, options->ruleSet);
@@ -686,12 +680,12 @@ namespace MultiPlayer
                 }
 
                 // Execute loading config
-                for (BinTree<GroupTree>::Iterator gti(&groups); *gti; gti++)
+                for (BinTree<GroupTree>::Iterator gti(&groups); *gti; ++gti)
                 {
-                    for (BinTree<TeamTree>::Iterator tti(&(*gti)->teams); *tti; tti++)
+                    for (BinTree<TeamTree>::Iterator tti(&(*gti)->teams); *tti; ++tti)
                     {
                         // Get the next available team
-                        ::Team* team = NULL;
+                        ::Team* team = nullptr;
 
                         switch (options->placement)
                         {
@@ -732,20 +726,18 @@ namespace MultiPlayer
 
                             LOG_DIAG(("Resolved team [%s]", team->GetName()));
                         }
-                        else
+                        else if (!Data::Online())
+                        {
+                            TeamMap mapping;
 
-                            if (!Data::Online())
-                            {
-                                TeamMap mapping;
+                            // Set the name of the team
+                            mapping.teamName = team->GetName();
 
-                                // Set the name of the team
-                                mapping.teamName = team->GetName();
+                            // Store the new team info
+                            Data::Store(mapping, tti.GetKey());
 
-                                // Store the new team info
-                                Data::Store(mapping, tti.GetKey());
-
-                                LOG_DIAG(("Saved entry [%s][%d]", mapping.teamName.str, tti.GetKey()));
-                            }
+                            LOG_DIAG(("Saved entry [%s][%d]", mapping.teamName.str, tti.GetKey()));
+                        }
 
                         LOG_DIAG(("Network Team %d using team %d", tti.GetKey(), team->GetId()));
 
@@ -789,7 +781,7 @@ namespace MultiPlayer
                         }
 
                         // Create an actual player in the game
-                        ::Player* player = NULL;
+                        ::Player* player = nullptr;
 
                         if ((*tti)->team->ai)
                         {
@@ -827,14 +819,16 @@ namespace MultiPlayer
 
                             player = object;
 
-                            LOG_DIAG(("Creating AI [%08X] for Team '%s' [%d]", (*tti)->team->personality, team->GetName(), team->GetId()));
+                            LOG_DIAG(
+                                ("Creating AI [%08X] for Team '%s' [%d]", (*tti)->team->personality, team->GetName(),
+                                    team->GetId()));
                         }
 
                         // Stuff this team into the teamTree data (slight hack)
                         (*tti)->team = (Team*)team;
 
                         // Go through all the players on this team
-                        for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; pi++)
+                        for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; ++pi)
                         {
                             // Get the network player with this id
                             Network::Player* networkPlayer = Network::GetPlayers().Find(pi.GetKey());
@@ -843,7 +837,9 @@ namespace MultiPlayer
                             // Create an actual player in the game
                             ::Player* player = new ::Player(networkPlayer->GetName());
 
-                            LOG_DIAG(("Creating Player '%s' for Team '%s' [%d]", networkPlayer->GetName(), team->GetName(), team->GetId()));
+                            LOG_DIAG(
+                                ("Creating Player '%s' for Team '%s' [%d]", networkPlayer->GetName(), team->GetName(),
+                                    team->GetId()));
 
                             // If this is the local player then set the current player
                             if (networkPlayer->GetId() == Network::GetCurrentPlayer().GetId())
@@ -854,7 +850,6 @@ namespace MultiPlayer
                             // Place this player on this team
                             player->SetTeam(team);
                         }
-
                     }
                 }
 
@@ -863,13 +858,13 @@ namespace MultiPlayer
                 // Now go through and setup the relations, teams which are in the same group 
                 // get to be allied and teams which are in different groups are enemies
 
-                for (BinTree<GroupTree>::Iterator gi(&groups); *gi; gi++)
+                for (BinTree<GroupTree>::Iterator gi(&groups); *gi; ++gi)
                 {
-                    for (BinTree<TeamTree>::Iterator ti(&(*gi)->teams); *ti; ti++)
+                    for (BinTree<TeamTree>::Iterator ti(&(*gi)->teams); *ti; ++ti)
                     {
-                        for (BinTree<GroupTree>::Iterator gsi(&groups); *gsi; gsi++)
+                        for (BinTree<GroupTree>::Iterator gsi(&groups); *gsi; ++gsi)
                         {
-                            for (BinTree<TeamTree>::Iterator tsi(&(*gsi)->teams); *tsi; tsi++)
+                            for (BinTree<TeamTree>::Iterator tsi(&(*gsi)->teams); *tsi; ++tsi)
                             {
                                 // Don't change the relationship with ourself
                                 if (*ti != *tsi)
@@ -878,7 +873,9 @@ namespace MultiPlayer
                                     ::Team* teamWith = ((::Team*)(*tsi)->team);
                                     Relation relation = (*gi == *gsi) ? Relation::ALLY : Relation::ENEMY;
 
-                                    LOG_DIAG(("Setting relation between %d and %d to %s", teamWho->GetId(), teamWith->GetId(), relation.GetName()));
+                                    LOG_DIAG(
+                                        ("Setting relation between %d and %d to %s", teamWho->GetId(), teamWith->GetId()
+                                            , relation.GetName()));
 
                                     teamWho->SetRelation(teamWith->GetId(), relation);
 
@@ -926,7 +923,7 @@ namespace MultiPlayer
         {
             ASSERT(Game::MissionPreLoaded());
 
-            Mods::Mod* mod = NULL;
+            Mods::Mod* mod = nullptr;
             if (options->ruleSet != Settings::Options::UseMissionRules)
             {
                 mod = Mods::GetMod(Mods::Types::RuleSet, options->ruleSet);
@@ -953,7 +950,7 @@ namespace MultiPlayer
     void Save(FScope* scope)
     {
         // Save multiplayer data
-        MultiPlayer::Data::Save(scope);
+        Data::Save(scope);
     }
 
 
@@ -963,7 +960,7 @@ namespace MultiPlayer
     void Load(FScope* scope)
     {
         // Reset everything
-        MultiPlayer::Reset();
+        Reset();
 
         // We are the host
         Cmd::isHost = TRUE;
@@ -975,7 +972,7 @@ namespace MultiPlayer
         JoinedSession();
 
         // Load the multiplayer data
-        MultiPlayer::Data::Load(scope);
+        Data::Load(scope);
 
         UpdateMission();
     }
@@ -1051,9 +1048,9 @@ namespace MultiPlayer
             BinTree<GroupTree> groups;
             BuildPlayerHierachy(groups);
 
-            for (BinTree<GroupTree>::Iterator gti(&groups); *gti; gti++)
+            for (BinTree<GroupTree>::Iterator gti(&groups); *gti; ++gti)
             {
-                for (BinTree<TeamTree>::Iterator tti(&(*gti)->teams); *tti; tti++)
+                for (BinTree<TeamTree>::Iterator tti(&(*gti)->teams); *tti; ++tti)
                 {
                     // Check to see if that teams start location resolves to a team
                     if (PrivData::preview->FindTeamCrc((*tti)->team->startLocation))
@@ -1180,7 +1177,7 @@ namespace MultiPlayer
                 if (info && info->GetDataCrc() == mission->crc)
                 {
                     // Setup the client for this map
-                    Missions::SetSelected(info);
+                    SetSelected(info);
 
                     // Clear our current mission
                     PrivData::ClearMission();
@@ -1192,10 +1189,12 @@ namespace MultiPlayer
                     PrivData::preview = new Game::Preview(info);
 
                     // Tell the host that we have this mission
-                    Data::Send(0, NULL, Commands::HaveMission, 0, NULL);
+                    Data::Send(0, nullptr, Commands::HaveMission, 0, nullptr);
 
                     // Rebuild the vars
-                    Cmd::UploadMapInfo(info->GetGroup().GetPath().str, info->GetName().str, U32(PrivData::preview->GetSize() * WorldCtrl::CellSize()), PrivData::preview->GetTeams());
+                    Cmd::UploadMapInfo(info->GetGroup().GetPath().str, info->GetName().str,
+                        U32(PrivData::preview->GetSize() * WorldCtrl::CellSize()),
+                        PrivData::preview->GetTeams());
                 }
                 else
                 {
@@ -1283,7 +1282,7 @@ namespace MultiPlayer
             response.crc = Debug::Memory::GetCodeIntegrity(challenge->crc);
 
             // Send our response to the challenge
-            Data::Send(0, NULL, Commands::IntegrityResponse, response);
+            Data::Send(0, nullptr, Commands::IntegrityResponse, response);
             break;
         }
 
@@ -1351,7 +1350,7 @@ namespace MultiPlayer
                 }
             }
             break;
-        };
+        }
 
         case Mission::key:
         {

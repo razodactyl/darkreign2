@@ -424,7 +424,7 @@ namespace IFace
     //
     void Process(Bool processCursor, CycleSetupProc* setupProc)
     {
-        ASSERT(sysInit)
+        ASSERT(sysInit);
 
         PERF_S("IFace::Process");
 
@@ -545,8 +545,8 @@ namespace IFace
     //
     static Bool ProcessModalCursor(IControl* modalCtrl)
     {
-        ASSERT(modalCtrl)
-        ASSERT(mouseOver.Alive())
+        ASSERT(modalCtrl);
+        ASSERT(mouseOver.Alive());
 
         // Mouse is inside modal window
         if (modalCtrl->IsChild(mouseOver))
@@ -775,7 +775,7 @@ namespace IFace
     //
     void SetFade(F32 initial, F32 time, Bool up)
     {
-        ASSERT(time > 1e-4F)
+        ASSERT(time > 1e-4F);
 
         // Initial alpha scale
         data.alphaScale = initial;
@@ -1059,7 +1059,7 @@ namespace IFace
     //
     static void ConfigureMetrics(FScope* fScope)
     {
-        ASSERT(fScope)
+        ASSERT(fScope);
 
         FScope* sScope;
 
@@ -1107,7 +1107,7 @@ namespace IFace
     //
     static void ConfigureColors(FScope* fScope)
     {
-        ASSERT(fScope)
+        ASSERT(fScope);
 
         FScope* sScope;
 
@@ -1143,7 +1143,7 @@ namespace IFace
     //
     static void ConfigureDefaultConsoleColor(FScope* fScope)
     {
-        ASSERT(fScope)
+        ASSERT(fScope);
         FScopeToColor(fScope, defaultConsoleColor);
     }
 
@@ -1153,7 +1153,7 @@ namespace IFace
     //
     static void ConfigureConsoleColors(FScope* fScope)
     {
-        ASSERT(fScope)
+        ASSERT(fScope);
 
         FScope* sScope;
 
@@ -1172,7 +1172,7 @@ namespace IFace
     //
     static void ProcessCreateColorGroup(FScope* fScope)
     {
-        ASSERT(fScope)
+        ASSERT(fScope);
 
         const char* name = fScope->NextArgString();
         const char* base = fScope->GetArgCount() > 1 ? fScope->NextArgString() : nullptr;
@@ -1180,7 +1180,7 @@ namespace IFace
 
         // Find the color group
         ColorGroup* c = CreateColorGroup(name);
-        ASSERT(c)
+        ASSERT(c);
 
         // Is there a base? if so copy its ass
         if (base)
@@ -1307,7 +1307,7 @@ namespace IFace
     //
     static void ProcessCreateSkin(FScope* fScope)
     {
-        ASSERT(fScope)
+        ASSERT(fScope);
 
         const char* name = fScope->NextArgString();
         const char* base = fScope->GetArgCount() > 1 ? fScope->NextArgString() : nullptr;
@@ -1701,9 +1701,9 @@ namespace IFace
     //
     void PurgeNonSystem(Bool)
     {
-        ASSERT(sysInit)
-        ASSERT(root)
-        ASSERT(overlays)
+        ASSERT(sysInit);
+        ASSERT(root);
+        ASSERT(overlays);
 
         root->PurgeNonSystem();
         overlays->PurgeNonSystem();
@@ -1732,7 +1732,7 @@ namespace IFace
     //
     Bool Activate(IControl* ctrl)
     {
-        ASSERT(ctrl)
+        ASSERT(ctrl);
 
         if (systemFlags & DISABLE_ACTIVATE)
         {
@@ -1957,7 +1957,7 @@ namespace IFace
     //
     void InitRender()
     {
-        ASSERT(!(systemFlags & DISABLE_DRAW))
+        ASSERT(!(systemFlags & DISABLE_DRAW));
 
 #ifdef DOSTATISTICS
         Statistics::tempTris = 0;
@@ -1988,7 +1988,7 @@ namespace IFace
     //
     void DoneRender()
     {
-        ASSERT(!(systemFlags & DISABLE_DRAW))
+        ASSERT(!(systemFlags & DISABLE_DRAW));
 
         // Flush the buckets
         DoneBuckets();
@@ -2009,8 +2009,8 @@ namespace IFace
     //
     void CallRenderProc()
     {
-        ASSERT(paintProc)
-        ASSERT(!(systemFlags & DISABLE_DRAW))
+        ASSERT(paintProc);
+        ASSERT(!(systemFlags & DISABLE_DRAW));
 
         paintProc();
     }
@@ -2311,7 +2311,7 @@ namespace IFace
     //
     static Bool HandleThisEvent(IControl* ctrl, Event& e, Bool hookCheck = FALSE)
     {
-        ASSERT(ctrl)
+        ASSERT(ctrl);
 
         // Check if any controls up the hierarchy have input hooks
         if (hookCheck && ctrl->HasInputHook())
@@ -2332,7 +2332,7 @@ namespace IFace
                 }
             }
 
-            ASSERT(p)
+            ASSERT(p);
 
             if (p != ctrl)
             {
@@ -2611,7 +2611,7 @@ namespace IFace
     //
     void RegisterUnmanagedBitmap(Bitmap* bitmap)
     {
-        ASSERT(bitmap)
+        ASSERT(bitmap);
         unmanagedBitmaps.Append(bitmap);
     }
 
@@ -3116,8 +3116,8 @@ namespace IFace
     //
     static Bool IfMessageHook(const CH*, U32&, void* context)
     {
-        ASSERT(context)
-        ASSERT(*static_cast<U32 *>(context) == 0)
+        ASSERT(context);
+        ASSERT(*static_cast<U32 *>(context) == 0);
 
         // Set the flag to true
         *static_cast<U32*>(context) = TRUE;

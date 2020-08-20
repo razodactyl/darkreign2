@@ -153,8 +153,11 @@ namespace Debug
     const char* LastError()
     {
         static char text[1024];
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                      text, 1024, nullptr);
+        FormatMessage
+        (
+            FORMAT_MESSAGE_FROM_SYSTEM, nullptr, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            text, 1024, nullptr
+        );
         return (text);
     }
 
@@ -368,31 +371,25 @@ namespace Debug
         //
         void Registers(CONTEXT* context)
         {
-            LOG_ERR(("Registers:"))
-            LOG_ERR(
-                ("EAX: %08Xh   CS: %08Xh  DS: %08Xh", static_cast<U32>(context->Eax), static_cast<U32>(context->SegCs),
-                    static_cast<U32>(context->SegDs)))
-            LOG_ERR(
-                ("EBX: %08Xh  EIP: %08Xh  ES: %08Xh", static_cast<U32>(context->Ebx), static_cast<U32>(context->Eip),
-                    static_cast<U32>(context->SegEs)))
-            LOG_ERR(
-                ("ECX: %08Xh   SS: %08Xh  FS: %08Xh", static_cast<U32>(context->Ecx), static_cast<U32>(context->SegSs),
-                    static_cast<U32>(context->SegFs)))
-            LOG_ERR(
-                ("EDX: %08Xh  EBP: %08Xh  GS: %08Xh", static_cast<U32>(context->Edx), static_cast<U32>(context->Ebp),
-                    static_cast<U32>(context->SegGs)))
-            LOG_ERR(
-                ("ESI: %08Xh  ESP: %08Xh           ", static_cast<U32>(context->Esi), static_cast<U32>(context->Esp)))
-            LOG_ERR(("EDI: %08Xh                       ", static_cast<U32>(context->Edi)))
+            LOG_ERR(("Registers:"));
+            LOG_ERR(("EAX: %08Xh   CS: %08Xh  DS: %08Xh", static_cast<U32>(context->Eax), static_cast<U32>(context->SegCs), static_cast<U32>(context->SegDs)));
+            LOG_ERR(("EBX: %08Xh  EIP: %08Xh  ES: %08Xh", static_cast<U32>(context->Ebx), static_cast<U32>(context->Eip), static_cast<U32>(context->SegEs)));
+            LOG_ERR(("ECX: %08Xh   SS: %08Xh  FS: %08Xh", static_cast<U32>(context->Ecx), static_cast<U32>(context->SegSs), static_cast<U32>(context->SegFs)));
+            LOG_ERR(("EDX: %08Xh  EBP: %08Xh  GS: %08Xh", static_cast<U32>(context->Edx), static_cast<U32>(context->Ebp), static_cast<U32>(context->SegGs)));
+            LOG_ERR(("ESI: %08Xh  ESP: %08Xh           ", static_cast<U32>(context->Esi), static_cast<U32>(context->Esp)));
+            LOG_ERR(("EDI: %08Xh                       ", static_cast<U32>(context->Edi)));
 
-            LOG_ERR((" CF: %08xh PF:%d AF:%d ZF:%d SF:%d OF:%d",
-                static_cast<U32>(context->EFlags),
-                static_cast<int>(context->EFlags) & 0x0001 ? 1 : 0,
-                static_cast<int>(context->EFlags) & 0x0004 ? 1 : 0,
-                static_cast<int>(context->EFlags) & 0x0010 ? 1 : 0,
-                static_cast<int>(context->EFlags) & 0x0040 ? 1 : 0,
-                static_cast<int>(context->EFlags) & 0x0080 ? 1 : 0,
-                static_cast<int>(context->EFlags) & 0x0800 ? 1 : 0))
+            LOG_ERR
+            (
+                (" CF: %08xh PF:%d AF:%d ZF:%d SF:%d OF:%d",
+                    static_cast<U32>(context->EFlags),
+                    static_cast<int>(context->EFlags) & 0x0001 ? 1 : 0,
+                    static_cast<int>(context->EFlags) & 0x0004 ? 1 : 0,
+                    static_cast<int>(context->EFlags) & 0x0010 ? 1 : 0,
+                    static_cast<int>(context->EFlags) & 0x0040 ? 1 : 0,
+                    static_cast<int>(context->EFlags) & 0x0080 ? 1 : 0,
+                    static_cast<int>(context->EFlags) & 0x0800 ? 1 : 0)
+            );
         }
 
 
@@ -410,21 +407,27 @@ namespace Debug
             U32 sw = context->FloatSave.StatusWord;
             U32 tw = context->FloatSave.TagWord;
 
-            LOG_ERR(("CTL: %04Xh EM:%04Xh PC:%02Xh RC:%02Xh",
-                (cw & 0xFFFF),
-                (cw & 0x3F),
-                (cw & 0x3) >> 8,
-                (cw & 0x3) >> 10))
+            LOG_ERR
+            (
+                ("CTL: %04Xh EM:%04Xh PC:%02Xh RC:%02Xh",
+                    (cw & 0xFFFF),
+                    (cw & 0x3F),
+                    (cw & 0x3) >> 8,
+                    (cw & 0x3) >> 10)
+            )
 
-            LOG_ERR(("STA: %04Xh I:%d D:%d Z:%d O:%d U:%d P:%d SF:%d",
-                (sw & 0xFFFF),
-                (sw >> 0) & 1,
-                (sw >> 1) & 1,
-                (sw >> 2) & 1,
-                (sw >> 3) & 1,
-                (sw >> 4) & 1,
-                (sw >> 5) & 1,
-                (sw >> 6) & 1))
+            LOG_ERR
+            (
+                ("STA: %04Xh I:%d D:%d Z:%d O:%d U:%d P:%d SF:%d",
+                    (sw & 0xFFFF),
+                    (sw >> 0) & 1,
+                    (sw >> 1) & 1,
+                    (sw >> 2) & 1,
+                    (sw >> 3) & 1,
+                    (sw >> 4) & 1,
+                    (sw >> 5) & 1,
+                    (sw >> 6) & 1)
+            )
 
             LOG_ERR(("TAG: %04Xh", (tw & 0xFFFF)))
 
@@ -702,43 +705,55 @@ namespace Debug
             )
             {
                 // Is this a friendly error message
-                static DlgTemplate dlg("Dark Reign II", 0, 0, 200, 120,
-                                       WS_CAPTION | WS_VISIBLE | DS_SETFONT | DS_CENTER | DS_SYSMODAL);
+                static DlgTemplate dlg
+                (
+                    "Dark Reign II", 0, 0, 200, 120,
+                    WS_CAPTION | WS_VISIBLE | DS_SETFONT | DS_CENTER | DS_SYSMODAL
+                );
 
                 HMODULE richEdit = LoadLibrary("RICHED20.DLL");
 
                 // Add Error icon
-                dlg.AddItem(
+                dlg.AddItem
+                (
                     5, 5,
                     32, 32,
                     ICON_ERROR,
                     WS_VISIBLE | WS_CHILD | SS_ICON,
                     "STATIC",
-                    "");
+                    ""
+                );
 
                 // Add "Ok" Button
-                dlg.AddItem(
+                dlg.AddItem
+                (
                     145, 100,
                     50, 15,
                     BTN_OK,
                     BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
                     "BUTTON",
-                    "&Ok");
+                    "&Ok"
+                );
 
                 // Add Message Edit Box
-                dlg.AddItem(
+                dlg.AddItem
+                (
                     37, 5, 158, 90,
                     EDIT_INFO,
                     WS_VISIBLE | WS_CHILD | ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_VSCROLL | WS_BORDER,
                     richEdit ? RICHEDIT_CLASS : "EDIT",
-                    "");
+                    ""
+                );
 
                 // Perform Shutdown
                 ShutDown();
 
-                DialogBoxIndirectParam(inst, static_cast<DLGTEMPLATE*>(dlg.Get()), nullptr,
-                                       static_cast<DLGPROC>(NiceDlgProc),
-                                       static_cast<LPARAM>(ep->ExceptionRecord->ExceptionInformation[1]));
+                DialogBoxIndirectParam
+                (
+                    inst, static_cast<DLGTEMPLATE*>(dlg.Get()), nullptr,
+                    static_cast<DLGPROC>(NiceDlgProc),
+                    static_cast<LPARAM>(ep->ExceptionRecord->ExceptionInformation[1])
+                );
                 TerminateProcess(GetCurrentProcess(), 0);
                 return (EXCEPTION_CONTINUE_SEARCH);
             }
@@ -747,8 +762,11 @@ namespace Debug
             static char line1[256] = "";
             static char line2[256] = "";
             static char message[512] = "";
-            static DlgTemplate dlg("Dark Reign II: Error", 0, 0, 500, 300,
-                                   WS_CAPTION | WS_VISIBLE | DS_SETFONT | DS_CENTER | DS_SYSMODAL);
+            static DlgTemplate dlg
+            (
+                "Dark Reign II: Error", 0, 0, 500, 300,
+                WS_CAPTION | WS_VISIBLE | DS_SETFONT | DS_CENTER | DS_SYSMODAL
+            );
             Bool fpuException = FALSE;
             Bool error = FALSE;
 
@@ -762,55 +780,65 @@ namespace Debug
             Log::SetFlush(TRUE);
 
             // Add Error icon
-            dlg.AddItem(
+            dlg.AddItem
+            (
                 5, 5,
                 32, 32,
                 ICON_ERROR,
                 WS_VISIBLE | WS_CHILD | SS_ICON,
                 "STATIC",
-                "");
+                ""
+            );
 
             // Add "Quit" Button
-            dlg.AddItem(
+            dlg.AddItem
+            (
                 5, 40,
                 50, 15,
                 BTN_QUIT,
                 BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
                 "BUTTON",
-                "&Quit");
+                "&Quit"
+            );
 
             // Add "View Log" Button
-            dlg.AddItem(
+            dlg.AddItem
+            (
                 60, 40,
                 50, 15,
                 BTN_VIEWLOG,
                 BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
                 "BUTTON",
-                "View &Log");
+                "View &Log"
+            );
 
             // Add "Submit" Button
-            dlg.AddItem(
+            dlg.AddItem
+            (
                 115, 40,
                 50, 15,
                 BTN_SUBMIT,
                 BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP
 
 #ifndef DEVELOPMENT
-                    | WS_DISABLED
+                | WS_DISABLED
 #endif
 
                 ,
                 "BUTTON",
-                "&Submit");
+                "&Submit"
+            );
 
             // Add "Debug" Button
-            dlg.AddItem(
+            dlg.AddItem
+            (
                 170, 40,
                 50, 15,
                 BTN_DEBUG,
                 BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP | (UnderDebugger() ? 0 : WS_DISABLED),
                 "BUTTON",
-                "&Debug");
+                "&Debug"
+            );
 
             // Handle ERRORS separately
             if (ep->ExceptionRecord->ExceptionCode == DEBUG_EXCEPTION_ERROR)
@@ -824,11 +852,17 @@ namespace Debug
                 LOG_ERR(("Line#:   %d", ep->ExceptionRecord->ExceptionInformation[3]))
                 LOG_ERR(("Stamp:   %s", (char*)ep->ExceptionRecord->ExceptionInformation[4]))
 
-                Utils::Sprintf(line1, 256, "An Error Occured [%s]",
-                               (char*)ep->ExceptionRecord->ExceptionInformation[0]);
+                Utils::Sprintf
+                (
+                    line1, 256, "An Error Occured [%s]",
+                    (char*)ep->ExceptionRecord->ExceptionInformation[0]
+                );
                 Utils::Sprintf(line2, 256, "%s", (char*)ep->ExceptionRecord->ExceptionInformation[1]);
-                Utils::Sprintf(message, 512, "%s [%s]", (char*)ep->ExceptionRecord->ExceptionInformation[0],
-                               (char*)ep->ExceptionRecord->ExceptionInformation[1]);
+                Utils::Sprintf
+                (
+                    message, 512, "%s [%s]", (char*)ep->ExceptionRecord->ExceptionInformation[0],
+                    (char*)ep->ExceptionRecord->ExceptionInformation[1]
+                );
             }
             else
             {
@@ -839,9 +873,12 @@ namespace Debug
                 {
                     case EXCEPTION_ACCESS_VIOLATION:
                         type = "ACCESS VIOLATION";
-                        Utils::Sprintf(info, 256, "%s %08Xh",
-                                       ep->ExceptionRecord->ExceptionInformation[0] ? "WRITING to" : "READING from",
-                                       ep->ExceptionRecord->ExceptionInformation[1]);
+                        Utils::Sprintf
+                        (
+                            info, 256, "%s %08Xh",
+                            ep->ExceptionRecord->ExceptionInformation[0] ? "WRITING to" : "READING from",
+                            ep->ExceptionRecord->ExceptionInformation[1]
+                        );
                         break;
 
                     case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
@@ -940,8 +977,8 @@ namespace Debug
                 Utils::Strcpy(line1, type);
                 Utils::Strcpy(line2, info);
 
-                LOG_ERR(("Type: %s", type))
-                LOG_ERR(("Info: %s", info))
+                LOG_ERR(("Type: %s", type));
+                LOG_ERR(("Info: %s", info));
                 Utils::Sprintf(message, 512, "%s [%s]", type, info);
             }
 
@@ -961,7 +998,7 @@ namespace Debug
 
                 if (frameSize)
                 {
-                    LOG_ERR(("Stack: %u", frameSize))
+                    LOG_ERR(("Stack: %u", frameSize));
                     Utils::MemoryDump((U8*)ep->ContextRecord->Esp, Min<U32>(frameSize, DEBUG_STACKDUMP_SIZE), TRUE);
                 }
             }
@@ -985,18 +1022,23 @@ namespace Debug
             dlg.AddItem(35, 17, 260, 22, TXT_LINE2, WS_VISIBLE | WS_CHILD, "STATIC", line2);
 
             // Add Error List
-            dlg.AddItem(
+            dlg.AddItem
+            (
                 5, 60,
                 490, 235,
                 LIST_ERROR,
                 WS_CHILD | WS_VISIBLE | WS_VSCROLL | LVS_REPORT | LVS_NOSORTHEADER | WS_BORDER,
                 "SysListView32",
-                "");
+                ""
+            );
 
             LOG_DIAG(("Exception::Filter: pre DialogBox"));
 
-            switch (DialogBoxIndirectParam(inst, static_cast<DLGTEMPLATE*>(dlg.Get()), nullptr,
-                                           static_cast<DLGPROC>(FatalDlgProc), (LPARAM)message))
+            switch (DialogBoxIndirectParam
+                (
+                    inst, static_cast<DLGTEMPLATE*>(dlg.Get()), nullptr,
+                    static_cast<DLGPROC>(FatalDlgProc), (LPARAM)message
+                ))
             {
                 case -1:
                     MessageBox(nullptr, LastError(), "Error", MB_OK | MB_ICONSTOP);
@@ -1155,16 +1197,16 @@ namespace Debug
                             case WM_PAINT:
                             {
                               PAINTSTRUCT ps;
-    
+        
                               // StartPainting;
                               BeginPaint(hdlg, &ps);
-    
+        
                               // Get Device Context
                               HDC hdc = GetDC(hdlg);
-    
+        
                               // Load standard Icon
                               HICON hIcon = LoadIcon(NULL, IDI_ERROR);
-    
+        
                               // Convert from Dialog Units to Pixels
                               RECT icon = { 5, 5, 10, 10 };
                               MapDialogRect(hdlg, &icon);
@@ -1174,13 +1216,13 @@ namespace Debug
                                 // Draw the Icon
                                 DrawIcon(hdc, icon.left, icon.top, hIcon);
                               }
-    
+        
                               // Release the Icon back to oblivion
                               CloseHandle(hIcon);
-    
+        
                               // Finished Painting
                               EndPaint(hdlg, &ps);
-    
+        
                               return (FALSE);
                               break;
                             }
@@ -1393,8 +1435,11 @@ namespace Debug
     {
         watchThreadID = GetCurrentThreadId();
 
-        DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(),
-                        &watchThread, 0, TRUE, DUPLICATE_SAME_ACCESS);
+        DuplicateHandle
+        (
+            GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(),
+            &watchThread, 0, TRUE, DUPLICATE_SAME_ACCESS
+        );
 
         // Start WatchDog thread
         thread = new System::Thread(Process, static_cast<void*>(this));
@@ -1671,13 +1716,17 @@ namespace Debug
                     char *functionName, *fileName, *moduleName;
                     U32 functionDisplacement, lineNumber, lineNumberDisplacement;
 
-                    Symbol::Expand(
+                    Symbol::Expand
+                    (
                         U32(p), functionName, functionDisplacement, fileName,
-                        lineNumber, lineNumberDisplacement, moduleName);
+                        lineNumber, lineNumberDisplacement, moduleName
+                    );
 
-                    LOG_DIAG(
+                    LOG_DIAG
+                    (
                         ("Guard block at 0x%.8X [%s] failed [fill value=0x%.2X]", p->buf, functionName,
-                            STATIC_GUARD_BLOCK_DATA))
+                            STATIC_GUARD_BLOCK_DATA)
+                    )
 
                     Utils::MemoryDump(p->buf, STATIC_GUARD_BLOCK_SIZE);
                     ok = FALSE;

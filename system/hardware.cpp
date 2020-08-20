@@ -29,14 +29,12 @@
 //
 namespace Hardware
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace CPU
     //
     namespace CPU
     {
-
         // CPU Name lookup table
         static const char* CPUNAMES[MAXTYPE] =
         {
@@ -76,13 +74,13 @@ namespace Hardware
         // CPU Feature lookup table
         static const char* FEATURENAMES[MAXFEATURES] =
         {
-          "FPU",
-          "TSC",
-          "MMX",
-          "3DNow",
-          "SSE",
-          "FDIV BUG",
-          "PS#"
+            "FPU",
+            "TSC",
+            "MMX",
+            "3DNow",
+            "SSE",
+            "FDIV BUG",
+            "PS#"
         };
 
 
@@ -126,8 +124,8 @@ namespace Hardware
         // Was cache detected?
         static Bool detectCacheL1 = FALSE;
         static Bool detectCacheL2 = FALSE;
-        static U32  cacheL1 = 0;
-        static U32  cacheL2 = 0;
+        static U32 cacheL1 = 0;
+        static U32 cacheL2 = 0;
 
         // Clock speed
         static U32 mhz = 0;
@@ -177,19 +175,19 @@ namespace Hardware
 #if defined(_MSC_VER)
 
             __asm
-            {
+                {
                 pushfd
-                pop     eax
-                mov     ebx, eax
+                pop eax
+                mov ebx, eax
                 xor eax, 200000h
-                push    eax
+                push eax
                 popfd
                 pushfd
-                pop     eax
+                pop eax
                 xor eax, ebx
-                shr     eax, 21
+                shr eax, 21
                 mov[rc], eax
-            }
+                }
 
 #elif defined(__GNUC__)
 
@@ -225,21 +223,21 @@ namespace Hardware
 #if defined(_MSC_VER)
 
             __asm
-            {
+                {
                 // Compiler can't detect that ebx changes
-                push    ebx
+                push ebx
 
-                mov     eax, function
-                _emit   0x0F
-                _emit   0xA2
+                mov eax, function
+                _emit 0x0F
+                _emit 0xA2
 
-                mov     regData.Eax, eax
-                mov     regData.Ebx, ebx
-                mov     regData.Ecx, ecx
-                mov     regData.Edx, edx
+                mov regData.Eax, eax
+                mov regData.Ebx, ebx
+                mov regData.Ecx, ecx
+                mov regData.Edx, edx
 
-                pop     ebx
-            }
+                pop ebx
+                }
 
 #elif defined(__GNUC__)
 
@@ -276,17 +274,17 @@ namespace Hardware
             Bool hasBug;
 
             __asm
-            {
+                {
                 fninit
-                fld       x
-                fdiv      y
-                fmul      y
-                fld       x
-                fsubp     st(1), st(0)
+                fld x
+                fdiv y
+                fmul y
+                fld x
+                fsubp st(1), st(0)
                 fistp[hasBug]
                 fwait
                 fninit
-            }
+                }
 
             return (hasBug);
         }
@@ -380,60 +378,60 @@ namespace Hardware
         {
             switch (desc)
             {
-            case 0x06:
-                // Instruction cache, 8K, 4-way set associative, 32 byte line size
-                cacheL1 += 8;
-                break;
+                case 0x06:
+                    // Instruction cache, 8K, 4-way set associative, 32 byte line size
+                    cacheL1 += 8;
+                    break;
 
-            case 0x08:
-                // 16KB instruction cache, 4-way set associative, 32 byte line size
-                cacheL1 += 16;
-                break;
+                case 0x08:
+                    // 16KB instruction cache, 4-way set associative, 32 byte line size
+                    cacheL1 += 16;
+                    break;
 
-            case 0x0A:
-                // Data cache, 8K, 2-way set associative, 32 byte line size
-                cacheL1 += 8;
-                break;
+                case 0x0A:
+                    // Data cache, 8K, 2-way set associative, 32 byte line size
+                    cacheL1 += 8;
+                    break;
 
-            case 0x0C:
-                // 16KB data cache, 4-way set associative, 32 byte line size
-                cacheL1 += 16;
-                break;
+                case 0x0C:
+                    // 16KB data cache, 4-way set associative, 32 byte line size
+                    cacheL1 += 16;
+                    break;
 
-            case 0x40:
-                // No L2 cache
-                cacheL2 = 0;
-                break;
+                case 0x40:
+                    // No L2 cache
+                    cacheL2 = 0;
+                    break;
 
-            case 0x41:
-                // Unified cache, 32 byte cache line,4-way set associative, 128K
-                cacheL2 = 128;
-                break;
+                case 0x41:
+                    // Unified cache, 32 byte cache line,4-way set associative, 128K
+                    cacheL2 = 128;
+                    break;
 
-            case 0x42:
-                // Unified cache, 32 byte cache line, 4-way set associative, 256K
-                cacheL2 = 256;
-                break;
+                case 0x42:
+                    // Unified cache, 32 byte cache line, 4-way set associative, 256K
+                    cacheL2 = 256;
+                    break;
 
-            case 0x43:
-                // Unified cache, 32 byte cache line, 4-way set associative, 512K
-                cacheL2 = 512;
-                break;
+                case 0x43:
+                    // Unified cache, 32 byte cache line, 4-way set associative, 512K
+                    cacheL2 = 512;
+                    break;
 
-            case 0x44:
-                // Unified cache, 32 byte cache line, 4-way set associative, 1M
-                cacheL2 = 1024;
-                break;
+                case 0x44:
+                    // Unified cache, 32 byte cache line, 4-way set associative, 1M
+                    cacheL2 = 1024;
+                    break;
 
-            case 0x45:
-                // Unified cache, 32 byte cache line, 4-way set associative, 2M
-                cacheL2 = 2048;
-                break;
+                case 0x45:
+                    // Unified cache, 32 byte cache line, 4-way set associative, 2M
+                    cacheL2 = 2048;
+                    break;
 
-            case 0x82:
-                // Unified cache, 32 byte cache line, 8-way set associative, 256K
-                cacheL2 = 256;
-                break;
+                case 0x82:
+                    // Unified cache, 32 byte cache line, 8-way set associative, 256K
+                    cacheL2 = 256;
+                    break;
             }
         }
 
@@ -453,7 +451,7 @@ namespace Hardware
                 return (0);
             }
 
-            ticks = (U32)(freq / (S64)100);
+            ticks = static_cast<U32>(freq / static_cast<S64>(100));
 
             // Increase priority to realtime
             HANDLE hThread = GetCurrentThread();
@@ -468,7 +466,8 @@ namespace Hardware
             do
             {
                 QueryPerformanceCounter((LARGE_INTEGER*)&l2);
-            } while (l1 == l2);
+            }
+            while (l1 == l2);
             QueryPerformanceCounter((LARGE_INTEGER*)&l1);
 
             // Start timing
@@ -476,7 +475,8 @@ namespace Hardware
             do
             {
                 QueryPerformanceCounter((LARGE_INTEGER*)&l2);
-            } while (l1 + ticks > l2);
+            }
+            while (l1 + ticks > l2);
             Clock::CycleTimer::Stop();
 
             // Reset thread priority
@@ -484,10 +484,10 @@ namespace Hardware
             SetThreadPriority(hThread, priority);
 
             // Calculate the speed
-            ticks = (U32)(l2 - l1);
+            ticks = static_cast<U32>(l2 - l1);
             cycles = Clock::CycleTimer::GetCount();
 
-            return (((U32)(F32(freq) / F32(ticks) * F32(cycles)) + 500000) / 1000000);
+            return ((static_cast<U32>(F32(freq) / F32(ticks) * F32(cycles)) + 500000) / 1000000);
         }
 
 
@@ -638,200 +638,200 @@ namespace Hardware
                 // Work out CPU model from cpuid results
                 switch (Crc::CalcStr(vendor))
                 {
-                case 0xAD7B0D75: // "GenuineIntel"
-                {
-                    switch (sigFamily)
+                    case 0xAD7B0D75: // "GenuineIntel"
                     {
-                    case 5:
-                    {
-                        // Family "5" includes Pentium and Pentium/MMX
-                        switch (sigModel)
+                        switch (sigFamily)
                         {
-                        case 1:
-                        case 2:
-                            type = Pentium;
-                            break;
-
-                        case 4:
-                            type = PentiumMMX;
-                            break;
-                        }
-                        break;
-                    }
-
-                    case 6:
-                    {
-                        // Family "6" includes Pentium-Pro and Pentium II
-                        switch (sigModel)
-                        {
-                        case 1:
-                            type = PentiumPro;
-                            break;
-
-                        case 3:
-                        case 4:
-                        case 5:
-                        {
-                            // Use cache to differentiate between P2 and Celeron
-                            if (cacheL2 == 128)
+                            case 5:
                             {
-                                type = Celeron;
-                            }
-                            else
-                            {
-                                type = PentiumII;
-                            }
-                            break;
-                        }
-
-                        case 6:
-                            type = Celeron;
-                            break;
-
-                        case 7:
-                            type = PentiumIII;
-                            break;
-
-                        default:
-                            // Models later than 7 are at least PentiumIII
-                            if (sigModel > 7)
-                            {
-                                type = PentiumIII;
-
-                                // Model 8 introduced brand id
-                                switch (brand)
+                                // Family "5" includes Pentium and Pentium/MMX
+                                switch (sigModel)
                                 {
-                                case 1:
-                                    // 1=Celeron
-                                    type = Celeron_2;
-                                    break;
+                                    case 1:
+                                    case 2:
+                                        type = Pentium;
+                                        break;
 
-                                case 2:
-                                case 3:
-                                    // 2=P3, 3=Xeon
-                                    type = PentiumIII;
-                                    break;
+                                    case 4:
+                                        type = PentiumMMX;
+                                        break;
                                 }
+                                break;
                             }
-                            break;
-                        }
-                        break;
-                    }
-                    }
-                    break;
-                }
 
-                case 0x7E4E38F1: // "AuthenticAMD"
-                {
-                    switch (sigFamily)
-                    {
-                    case 4:
-                    {
-                        // Family "4" includes Am486 and Am5x86 processors
-                        type = AMD5x86;
-                        break;
-                    }
-
-                    case 5:
-                    {
-                        // Family "5" includes all K5 and K6 processors
-                        switch (sigModel)
-                        {
-                        case 0:
-                        case 1:
-                        case 2:
-                        case 3:
-                            type = AMDK5;
-                            break;
-
-                        case 6:
-                        case 7:
-                            type = AMDK6;
-                            break;
-
-                        case 8:
-                            type = AMDK6_2;
-                            break;
-
-                        default:
-                            /// Models greater than 8 are at least K6-3
-                            if (sigModel > 8)
+                            case 6:
                             {
-                                type = AMDK6_3;
+                                // Family "6" includes Pentium-Pro and Pentium II
+                                switch (sigModel)
+                                {
+                                    case 1:
+                                        type = PentiumPro;
+                                        break;
+
+                                    case 3:
+                                    case 4:
+                                    case 5:
+                                    {
+                                        // Use cache to differentiate between P2 and Celeron
+                                        if (cacheL2 == 128)
+                                        {
+                                            type = Celeron;
+                                        }
+                                        else
+                                        {
+                                            type = PentiumII;
+                                        }
+                                        break;
+                                    }
+
+                                    case 6:
+                                        type = Celeron;
+                                        break;
+
+                                    case 7:
+                                        type = PentiumIII;
+                                        break;
+
+                                    default:
+                                        // Models later than 7 are at least PentiumIII
+                                        if (sigModel > 7)
+                                        {
+                                            type = PentiumIII;
+
+                                            // Model 8 introduced brand id
+                                            switch (brand)
+                                            {
+                                                case 1:
+                                                    // 1=Celeron
+                                                    type = Celeron_2;
+                                                    break;
+
+                                                case 2:
+                                                case 3:
+                                                    // 2=P3, 3=Xeon
+                                                    type = PentiumIII;
+                                                    break;
+                                            }
+                                        }
+                                        break;
+                                }
+                                break;
                             }
-                            break;
                         }
                         break;
                     }
 
-                    case 6:
+                    case 0x7E4E38F1: // "AuthenticAMD"
                     {
-                        type = AMDK7;
+                        switch (sigFamily)
+                        {
+                            case 4:
+                            {
+                                // Family "4" includes Am486 and Am5x86 processors
+                                type = AMD5x86;
+                                break;
+                            }
+
+                            case 5:
+                            {
+                                // Family "5" includes all K5 and K6 processors
+                                switch (sigModel)
+                                {
+                                    case 0:
+                                    case 1:
+                                    case 2:
+                                    case 3:
+                                        type = AMDK5;
+                                        break;
+
+                                    case 6:
+                                    case 7:
+                                        type = AMDK6;
+                                        break;
+
+                                    case 8:
+                                        type = AMDK6_2;
+                                        break;
+
+                                    default:
+                                        /// Models greater than 8 are at least K6-3
+                                        if (sigModel > 8)
+                                        {
+                                            type = AMDK6_3;
+                                        }
+                                        break;
+                                }
+                                break;
+                            }
+
+                            case 6:
+                            {
+                                type = AMDK7;
+                                break;
+                            }
+                        }
                         break;
                     }
-                    }
-                    break;
-                }
 
-                case 0x3F6F565C: // "CyrixInstead"
-                {
-                    switch (sigFamily)
+                    case 0x3F6F565C: // "CyrixInstead"
                     {
-                    case 4:
-                        // Family "4" includes MediaGX
-                        switch (sigModel)
+                        switch (sigFamily)
                         {
-                        case 4:
-                            type = CyrixMediaGX;
-                            break;
-                        }
-                        break;
+                            case 4:
+                                // Family "4" includes MediaGX
+                                switch (sigModel)
+                                {
+                                    case 4:
+                                        type = CyrixMediaGX;
+                                        break;
+                                }
+                                break;
 
-                    case 5:
-                        // Family "5" includes 6x86 and GXm
-                        switch (sigModel)
-                        {
-                        case 2:
-                            type = Cyrix686;
-                            break;
+                            case 5:
+                                // Family "5" includes 6x86 and GXm
+                                switch (sigModel)
+                                {
+                                    case 2:
+                                        type = Cyrix686;
+                                        break;
 
-                        case 4:
-                            type = CyrixGXm;
-                            break;
-                        }
-                        break;
+                                    case 4:
+                                        type = CyrixGXm;
+                                        break;
+                                }
+                                break;
 
-                    case 6:
-                        // Family "6" includes 6x86MX
-                        switch (sigModel)
-                        {
-                        case 0:
-                            type = Cyrix686MX;
-                            break;
+                            case 6:
+                                // Family "6" includes 6x86MX
+                                switch (sigModel)
+                                {
+                                    case 0:
+                                        type = Cyrix686MX;
+                                        break;
+                                }
+                                break;
                         }
                         break;
                     }
-                    break;
-                }
 
-                case 0xA6B5635B: // "CentaurHauls"
-                {
-                    switch (sigFamily)
+                    case 0xA6B5635B: // "CentaurHauls"
                     {
-                    case 5:
-                    {
-                        // Family "5" include C6
-                        switch (sigModel)
+                        switch (sigFamily)
                         {
-                        case 4:
-                            type = IDTC6;
-                            break;
+                            case 5:
+                            {
+                                // Family "5" include C6
+                                switch (sigModel)
+                                {
+                                    case 4:
+                                        type = IDTC6;
+                                        break;
+                                }
+                                break;
+                            }
                         }
                         break;
                     }
-                    }
-                    break;
-                }
                 }
 
                 // Test for the FDIV bug
@@ -1003,13 +1003,12 @@ namespace Hardware
     //
     namespace Memory
     {
-
         //
         // Static data
         //
         static Bool queried = FALSE;
-        static U32  physicalMem = 0;
-        static U32  virtualMem = 0;
+        static U32 physicalMem = 0;
+        static U32 virtualMem = 0;
         static char desc[256] = "";
 
 
@@ -1027,19 +1026,19 @@ namespace Hardware
 
                 physicalMem = memStat.dwTotalPhys;
                 virtualMem = memStat.dwTotalPageFile;
-                Utils::Sprintf(desc, 256, "%.2f/%.2f", ((F32)physicalMem) / 1048576, ((F32)virtualMem / 1048576));
+                Utils::Sprintf(desc, 256, "%.2f/%.2f", static_cast<F32>(physicalMem) / 1048576, (static_cast<F32>(virtualMem) / 1048576));
 
                 queried = TRUE;
             }
         }
 
-        U32  GetPhysical()
+        U32 GetPhysical()
         {
             Identify();
             return (physicalMem);
         }
 
-        U32  GetVirtual()
+        U32 GetVirtual()
         {
             Identify();
             return (virtualMem);
@@ -1050,7 +1049,6 @@ namespace Hardware
             Identify();
             return (desc);
         }
-
     }
 
 
@@ -1060,12 +1058,11 @@ namespace Hardware
     //
     namespace Device
     {
-
         //
         // Static data
         //
         static Bool queried = FALSE;
-        static U32  numDevices = 0;
+        static U32 numDevices = 0;
         static char devices[128][128];
 
 
@@ -1084,7 +1081,7 @@ namespace Hardware
 
 #ifdef DEVELOPMENT
 
-                if (Hardware::OS::GetType() == OS::Win9x)
+                if (OS::GetType() == OS::Win9x)
                 {
                     U32 length;
                     BinTree<char> deviceTree;
@@ -1120,24 +1117,24 @@ namespace Hardware
                                 U32 crc = Crc::CalcStr(buffer);
                                 switch (crc)
                                 {
-                                    // Filter off some not so usefull part of the tree
-                                case 0xF81D1051: // "system"
-                                case 0x6A6203EB: // "ports"
-                                case 0x8E47CC6A: // "hdc"
-                                case 0x84514340: // "fdc"
-                                case 0x84970DEB: // "unknown"
-                                    break;
+                                        // Filter off some not so usefull part of the tree
+                                    case 0xF81D1051: // "system"
+                                    case 0x6A6203EB: // "ports"
+                                    case 0x8E47CC6A: // "hdc"
+                                    case 0x84514340: // "fdc"
+                                    case 0x84970DEB: // "unknown"
+                                        break;
 
-                                    // Add the rest
-                                default:
-                                {
-                                    char* deviceString = new char[256];
-                                    Utils::Sprintf(deviceString, 256, "[%s] ", buffer);
-                                    length = 128;
-                                    keyDevice.GetString("DeviceDesc", deviceString + strlen(deviceString), &length);
-                                    deviceTree.Add(crc, deviceString);
-                                    break;
-                                }
+                                        // Add the rest
+                                    default:
+                                    {
+                                        char* deviceString = new char[256];
+                                        Utils::Sprintf(deviceString, 256, "[%s] ", buffer);
+                                        length = 128;
+                                        keyDevice.GetString("DeviceDesc", deviceString + strlen(deviceString), &length);
+                                        deviceTree.Add(crc, deviceString);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1145,7 +1142,7 @@ namespace Hardware
 
                     // No put the sorted tree into the array
                     BinTree<char>::Iterator it(&deviceTree);
-                    for (!it; *it; it++)
+                    for (!it; *it; ++it)
                     {
                         Bool exists = FALSE;
 
@@ -1196,10 +1193,7 @@ namespace Hardware
             {
                 return (devices[number]);
             }
-            else
-            {
-                return (NULL);
-            }
+            return (nullptr);
         }
     }
 
@@ -1210,16 +1204,15 @@ namespace Hardware
     //
     namespace OS
     {
-
         //
         // Static data
         //
         static Bool queried = FALSE;
         static char desc[256] = "";
         static Type type = Unknown;
-        static U32  versionMajor = 0;
-        static U32  versionMinor = 0;
-        static U32  build = 0;
+        static U32 versionMajor = 0;
+        static U32 versionMinor = 0;
+        static U32 build = 0;
         static char computer[256] = "";
         static char user[256] = "";
 
@@ -1239,37 +1232,37 @@ namespace Hardware
 
                 switch (ver.dwPlatformId)
                 {
-                case VER_PLATFORM_WIN32s:
-                    type = Win32s;
-                    versionMajor = 3;
-                    versionMinor = 1;
-                    build = 0;
-                    Utils::Sprintf(desc, 256, "Windows 3.1 (with Win32s)");
-                    break;
+                    case VER_PLATFORM_WIN32s:
+                        type = Win32s;
+                        versionMajor = 3;
+                        versionMinor = 1;
+                        build = 0;
+                        Utils::Sprintf(desc, 256, "Windows 3.1 (with Win32s)");
+                        break;
 
-                case VER_PLATFORM_WIN32_WINDOWS:
-                    type = Win9x;
-                    versionMajor = HIWORD(ver.dwBuildNumber) >> 8;
-                    versionMinor = HIWORD(ver.dwBuildNumber) & 0xFF;
-                    build = LOWORD(ver.dwBuildNumber);
-                    Utils::Sprintf(desc, 256, "Windows 9x v%d.%d %s Build %d", versionMajor, versionMinor, ver.szCSDVersion, build);
-                    break;
+                    case VER_PLATFORM_WIN32_WINDOWS:
+                        type = Win9x;
+                        versionMajor = HIWORD(ver.dwBuildNumber) >> 8;
+                        versionMinor = HIWORD(ver.dwBuildNumber) & 0xFF;
+                        build = LOWORD(ver.dwBuildNumber);
+                        Utils::Sprintf(desc, 256, "Windows 9x v%d.%d %s Build %d", versionMajor, versionMinor, ver.szCSDVersion, build);
+                        break;
 
-                case VER_PLATFORM_WIN32_NT:
-                    type = WinNT;
-                    versionMajor = ver.dwMajorVersion;
-                    versionMinor = ver.dwMinorVersion;
-                    build = ver.dwBuildNumber;
-                    Utils::Sprintf(desc, 256, "Windows NT v%d.%d %s Build %d", versionMajor, versionMinor, ver.szCSDVersion, build);
-                    break;
+                    case VER_PLATFORM_WIN32_NT:
+                        type = WinNT;
+                        versionMajor = ver.dwMajorVersion;
+                        versionMinor = ver.dwMinorVersion;
+                        build = ver.dwBuildNumber;
+                        Utils::Sprintf(desc, 256, "Windows NT v%d.%d %s Build %d", versionMajor, versionMinor, ver.szCSDVersion, build);
+                        break;
 
-                default:
-                    type = Unknown;
-                    versionMajor = 0;
-                    versionMinor = 0;
-                    build = 0;
-                    Utils::Sprintf(desc, 256, "Unknown");
-                    break;
+                    default:
+                        type = Unknown;
+                        versionMajor = 0;
+                        versionMinor = 0;
+                        build = 0;
+                        Utils::Sprintf(desc, 256, "Unknown");
+                        break;
                 }
 
                 U32 len = 256;
@@ -1348,7 +1341,5 @@ namespace Hardware
             Identify();
             return (user);
         }
-
     }
-
 }

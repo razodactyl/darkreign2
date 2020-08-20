@@ -25,7 +25,6 @@
 //
 namespace Formation
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Internal Data
@@ -49,8 +48,8 @@ namespace Formation
     //
     Slot::Slot()
         : direction(0.0f),
-        distance(0.0f),
-        orientation(0.0f)
+          distance(0.0f),
+          orientation(0.0f)
     {
     }
 
@@ -60,8 +59,8 @@ namespace Formation
     //
     Slot::Slot(F32 direction, F32 distance, F32 orientation)
         : direction(direction),
-        distance(distance),
-        orientation(orientation)
+          distance(distance),
+          orientation(orientation)
     {
     }
 
@@ -75,25 +74,24 @@ namespace Formation
 
         FScope* sScope;
 
-        if ((sScope = fScope->GetFunction("Polar", FALSE)) != NULL)
+        if ((sScope = fScope->GetFunction("Polar", FALSE)) != nullptr)
         {
             direction = StdLoad::TypeF32(sScope, Range<F32>(-180.0f, 180.0f)) * DEG2RAD;
             distance = StdLoad::TypeF32(sScope);
         }
-        else
-            if ((sScope = fScope->GetFunction("Cartesian", FALSE)) != NULL)
-            {
-                Point<F32> p;
-                StdLoad::TypePoint(sScope, p);
+        else if ((sScope = fScope->GetFunction("Cartesian", FALSE)) != nullptr)
+        {
+            Point<F32> p;
+            StdLoad::TypePoint(sScope, p);
 
-                // Convert from cartesian to polar co-ordinates
-                direction = (F32)atan2(p.z, p.x);
-                distance = (F32)sqrt(p.z * p.z + p.x * p.x);
-            }
-            else
-            {
-                fScope->ScopeError("Expected Polar or Cartesian in formation slot");
-            }
+            // Convert from cartesian to polar co-ordinates
+            direction = static_cast<F32>(atan2(p.z, p.x));
+            distance = static_cast<F32>(sqrt(p.z * p.z + p.x * p.x));
+        }
+        else
+        {
+            fScope->ScopeError("Expected Polar or Cartesian in formation slot");
+        }
     }
 
 
@@ -149,17 +147,17 @@ namespace Formation
     {
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0xFF290090: // "Slot"
-                slots.Append(new Slot(sScope));
-                break;
+                case 0xFF290090: // "Slot"
+                    slots.Append(new Slot(sScope));
+                    break;
 
-            default:
-                sScope->ScopeError("Unknown function '%s' in Slot", sScope->NameStr());
-                break;
+                default:
+                    sScope->ScopeError("Unknown function '%s' in Slot", sScope->NameStr());
+                    break;
             }
         }
     }
@@ -188,9 +186,9 @@ namespace Formation
     //
     void Init()
     {
-        ASSERT(!initialized)
+        ASSERT(!initialized);
 
-            initialized = TRUE;
+        initialized = TRUE;
     }
 
 
@@ -217,7 +215,7 @@ namespace Formation
 
         F32 maxDist = 0.0f;
 
-        for (SquadObj::UnitList::Iterator u(&squad->GetList()); *u; u++)
+        for (SquadObj::UnitList::Iterator u(&squad->GetList()); *u; ++u)
         {
             if ((*u)->Alive())
             {
@@ -247,7 +245,7 @@ namespace Formation
         if (maxDist > range)
         {
             F32 modifier = range / F32(sqrt(maxDist));
-            for (SquadObj::UnitList::Iterator u(&squad->GetList()); *u; u++)
+            for (SquadObj::UnitList::Iterator u(&squad->GetList()); *u; ++u)
             {
                 if ((*u)->Alive())
                 {
@@ -292,7 +290,7 @@ namespace Formation
         // Then go through the formation in order and pull out the closest unit each time
         // Need some way of marking units as being assigned to a slot as well
 
-        for (List<Slot>::Iterator slot(&slots->slots); *slot; slot++)
+        for (List<Slot>::Iterator slot(&slots->slots); *slot; ++slot)
         {
             F32 dir = direction + (*slot)->direction;
             VectorDir::FixU(dir);
@@ -301,19 +299,19 @@ namespace Formation
             VectorDir::FixU(orient);
 
             Vector offset;
-            offset.x = (F32)cos(dir);
+            offset.x = static_cast<F32>(cos(dir));
             offset.y = 0.0f;
-            offset.z = (F32)sin(dir);
+            offset.z = static_cast<F32>(sin(dir));
             offset *= (*slot)->distance;
             offset += location;
 
             // Work out which of the remaining units is the closest to this slot
             F32 minDistance = F32_MAX;
-            UnitObj* minUnit = NULL;
+            UnitObj* minUnit = nullptr;
 
             if (formUnits.GetCount())
             {
-                for (UnitObjList::Iterator u(&formUnits); *u; u++)
+                for (UnitObjList::Iterator u(&formUnits); *u; ++u)
                 {
                     F32 distance = Vector((**u)->Origin() - offset).Magnitude2();
 
@@ -332,7 +330,7 @@ namespace Formation
 
             // Get the closest unit and give it a move task to get to the slot
             ASSERT(minUnit);
-            if(minUnit->CanEverMove() && minUnit->FlushTasks(Tasks::UnitMove::GetConfigBlockingPriority()))
+            if (minUnit->CanEverMove() && minUnit->FlushTasks(Tasks::UnitMove::GetConfigBlockingPriority()))
             {
                 LOG_AI(("Formation sending %d", minUnit->Id()));
                 LOG_AI(("Location [%f,%f,%f]", offset.x, offset.y, offset.z));
@@ -340,8 +338,7 @@ namespace Formation
 
                 minUnit->PrependTask
                 (
-                    new Tasks::UnitMove
-                    (
+                    new Tasks::UnitMove(
                         minUnit,
                         offset,
                         Vector
@@ -371,19 +368,19 @@ namespace Formation
     {
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0x5CD1FAA0: // "CreateFormation"
-            {
-                U32 id = StdLoad::TypeStringCrc(sScope);
-                formations.Add(id, new Slots(sScope));
-                break;
-            }
+                case 0x5CD1FAA0: // "CreateFormation"
+                {
+                    U32 id = StdLoad::TypeStringCrc(sScope);
+                    formations.Add(id, new Slots(sScope));
+                    break;
+                }
 
-            default:
-                sScope->ScopeError("Unknown function '%s' in Formation", sScope->NameStr());
+                default:
+                    sScope->ScopeError("Unknown function '%s' in Formation", sScope->NameStr());
             }
         }
     }

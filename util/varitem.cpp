@@ -187,31 +187,31 @@ void VarSys::VarItem::Clear()
     switch (type)
     {
         // Do nout
-        case VI_NONE:
-        case VI_INTEGER:
-        case VI_FPOINT:
-        case VI_CMD:
-            break;
+    case VI_NONE:
+    case VI_INTEGER:
+    case VI_FPOINT:
+    case VI_CMD:
+        break;
 
-            // Delete the string
-        case VI_STRING:
-            delete string.val;
-            break;
+        // Delete the string
+    case VI_STRING:
+        delete string.val;
+        break;
 
-            // Delete the data associated with the var
-        case VI_BINARY:
-            delete binary.data;
-            break;
+        // Delete the data associated with the var
+    case VI_BINARY:
+        delete binary.data;
+        break;
 
-            // Delete the sub-scope
-        case VI_SCOPE:
-            delete scope.ptr;
-            break;
+        // Delete the sub-scope
+    case VI_SCOPE:
+        delete scope.ptr;
+        break;
 
-            // Someone's stuffed up
-        default:
-            ERR_FATAL(("Unknown scope item type (%d)", type));
-            break;
+        // Someone's stuffed up
+    default:
+        ERR_FATAL(("Unknown scope item type (%d)", type));
+        break;
     }
 
     // Clear type
@@ -290,31 +290,31 @@ const char* VarSys::VarItem::GetStringValue()
 
     switch (type)
     {
-        default:
-        case VarSys::VI_SCOPE:
-        case VarSys::VI_BINARY:
-            ERR_FATAL(("Unsupported type for getting string value"))
-                break;
+    default:
+    case VarSys::VI_SCOPE:
+    case VarSys::VI_BINARY:
+        ERR_FATAL(("Unsupported type for getting string value"));
+        break;
 
-        case VarSys::VI_INTEGER:
-        {
-            Utils::Sprintf(buff, 32, "%d", Integer());
-            return (buff);
-            break;
-        }
+    case VarSys::VI_INTEGER:
+    {
+        Utils::Sprintf(buff, 32, "%d", Integer());
+        return (buff);
+        break;
+    }
 
-        case VarSys::VI_FPOINT:
-        {
-            Utils::Sprintf(buff, 32, "%f", Float());
-            return (buff);
-            break;
-        }
+    case VarSys::VI_FPOINT:
+    {
+        Utils::Sprintf(buff, 32, "%f", Float());
+        return (buff);
+        break;
+    }
 
-        case VarSys::VI_STRING:
-        {
-            return (Str());
-            break;
-        }
+    case VarSys::VI_STRING:
+    {
+        return (Str());
+        break;
+    }
     }
 }
 
@@ -337,7 +337,7 @@ String VarSys::VarItem::Str()
 {
     if (type != VI_STRING)
     {
-        ERR_FATAL(("Expected '%s' to be a string var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be a string var (%d)", itemId.str, type));
     }
 
     return (*(string.val));
@@ -353,7 +353,7 @@ void VarSys::VarItem::SetStr(const char* newVal)
 {
     if (type != VI_STRING)
     {
-        ERR_FATAL(("Expected '%s' to be a string var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be a string var (%d)", itemId.str, type));
     }
 
     // Set the new value
@@ -373,7 +373,7 @@ S32 VarSys::VarItem::Integer()
 {
     if (type != VI_INTEGER)
     {
-        ERR_FATAL(("Expected '%s' to be an integer var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be an integer var (%d)", itemId.str, type));
     }
 
     return (integer.val);
@@ -389,7 +389,7 @@ void VarSys::VarItem::SetInteger(S32 newVal)
 {
     if (type != VI_INTEGER)
     {
-        ERR_FATAL(("Expected '%s' to be an integer var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be an integer var (%d)", itemId.str, type));
     }
 
     // Set the new value
@@ -421,7 +421,7 @@ void VarSys::VarItem::SetIntegerRange(S32 low, S32 high)
 {
     if (type != VI_INTEGER)
     {
-        ERR_FATAL(("Expected '%s' to be an integer var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be an integer var (%d)", itemId.str, type));
     }
 
     // Set up clamping paramters
@@ -440,7 +440,7 @@ F32 VarSys::VarItem::Float()
 {
     if (type != VI_FPOINT)
     {
-        ERR_FATAL(("Expected '%s' to be a floating point var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be a floating point var (%d)", itemId.str, type));
     }
 
     return (fpoint.val);
@@ -456,7 +456,7 @@ void VarSys::VarItem::SetFloat(F32 newVal)
 {
     if (type != VI_FPOINT)
     {
-        ERR_FATAL(("Expected '%s' to be a floating point var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be a floating point var (%d)", itemId.str, type));
     }
 
     // Set the new value
@@ -488,7 +488,7 @@ void VarSys::VarItem::SetFloatRange(F32 low, F32 high)
 {
     if (type != VI_FPOINT)
     {
-        ERR_FATAL(("Expected '%s' to be a floating point var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be a floating point var (%d)", itemId.str, type));
     }
 
     // Set up clamping paramters
@@ -507,7 +507,7 @@ const U8* VarSys::VarItem::Binary()
 {
     if (type != VI_BINARY)
     {
-        ERR_FATAL(("Expected '%s' to be an binary var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be an binary var (%d)", itemId.str, type));
     }
 
     return (binary.data);
@@ -523,7 +523,7 @@ U32 VarSys::VarItem::BinarySize()
 {
     if (type != VI_BINARY)
     {
-        ERR_FATAL(("Expected '%s' to be an binary var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be an binary var (%d)", itemId.str, type));
     }
 
     return (binary.size);
@@ -539,7 +539,7 @@ void VarSys::VarItem::SetBinary(U32 size, const U8* newVal)
 {
     if (type != VI_BINARY)
     {
-        ERR_FATAL(("Expected '%s' to be an binary var (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be an binary var (%d)", itemId.str, type));
     }
 
     // Do we need to enlarge the binary ?
@@ -578,7 +578,7 @@ void VarSys::VarItem::TriggerCmd()
 {
     if (type != VI_CMD)
     {
-        ERR_FATAL(("Expected '%s' to be a command item (%d)", itemId.str, type))
+        ERR_FATAL(("Expected '%s' to be a command item (%d)", itemId.str, type));
     }
 
     // Value may have changed, trigger call back
@@ -663,5 +663,3 @@ void VarSys::VarItem::ClearFlags(U32 flagMask)
 {
     flags &= ~flagMask;
 }
-
-

@@ -8,6 +8,66 @@
 
 namespace MINTCLIENT
 {
+    Win32::Thread Directory::downloadThread;
+    U32 STDCALL Directory::DownloadProcessor(void* context)
+    {
+        auto *ctx = (DownloadContext<void*>*)context;
+
+        httplib::Client cli(ctx->hostname, ctx->port);
+
+        auto p = MINTCLIENT::IPSocket::Address(ctx->proxy);
+
+        // cli.set_proxy(p.GetHost(), p.GetPortI());
+
+        // struct HTTPData
+        // {
+        //     U32 handle;
+        //     bool isNew;
+        //     time_t time;
+        //     Bool abort;
+        //     void* data;
+        // };
+
+        // cli.set_follow_location(true);
+
+        std::string body;
+        
+        auto file = File();
+        file.Open(ctx->saveAsPath, File::CREATE | File::WRITE | File::FLUSH);
+        
+        std::shared_ptr<httplib::Response> res = cli.Get(
+            ctx->getPath, httplib::Headers(),
+            [&](const httplib::Response& response) {
+                if (response.status != 200)
+                {
+                    file.Close();
+                    ctx->getCallback(MINTCLIENT::Errors::GeneralFailure, ctx->data);
+                    return false;
+                }
+                return true; // return 'false' if you want to cancel the request.
+            },
+            [&](const char* data, size_t data_length) {
+                file.Write(data, data_length);
+                body.append(data, data_length);
+                return true; // return 'false' if you want to cancel the request.
+            },
+            [&](uint64_t len, uint64_t total)
+            {
+                bool result = ctx->progressCallback(len, total, ctx->data);
+        
+                if (len >= total)
+                {
+                    file.Close();
+                    ctx->getCallback(MINTCLIENT::Errors::Success, ctx->data);
+                }
+        
+                return result; // return 'false' if you want to cancel the request.
+            }
+        );
+
+        return 0;
+    }
+
     Win32::Thread directoryThread;
     U32 STDCALL Directory::ProcessDirectoryMessage(void* context)
     {

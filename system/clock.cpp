@@ -71,7 +71,7 @@ namespace Clock
         //
         void Init()
         {
-            ASSERT(!initialized)
+            ASSERT(!initialized);
 
             // Store frequency
             QueryPerformanceFrequency((LARGE_INTEGER*)&perfFreq);
@@ -107,7 +107,7 @@ namespace Clock
         //
         U64 Us()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             U64 timer;
             QueryPerformanceCounter((LARGE_INTEGER*)&timer);
@@ -121,7 +121,7 @@ namespace Clock
         //
         U32 UsLwr()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             U64 timer;
 
@@ -212,13 +212,13 @@ namespace Clock
         U32 DayOfWeek(U32 year, U32 month, U32 day)
         {
             // Only handle years above 1752
-            ASSERT(year > 1752)
+            ASSERT(year > 1752);
 
             // Make sure the month is in range
-            ASSERT(month >= 1 && month <= 12)
+            ASSERT(month >= 1 && month <= 12);
 
             // Make sure the day is in range
-            ASSERT(day >= 1 && day <= DaysInMonth(year, month))
+            ASSERT(day >= 1 && day <= DaysInMonth(year, month));
 
             year -= 1;
 
@@ -251,8 +251,8 @@ namespace Clock
         //
         U32 DaysInMonth(U32 year, U32 month)
         {
-            ASSERT(year > 1752)
-            ASSERT(month >= 1 && month <= 12)
+            ASSERT(year > 1752);
+            ASSERT(month >= 1 && month <= 12);
             return (days[month - 1] + ((LeapYear(year) && (month == 2)) ? 1 : 0));
         }
 
@@ -262,7 +262,7 @@ namespace Clock
         //
         const char* GetMonthStr(U32 month)
         {
-            ASSERT(month >= 1 && month <= 12)
+            ASSERT(month >= 1 && month <= 12);
             return (months[month - 1]);
         }
 
@@ -272,7 +272,7 @@ namespace Clock
         //
         const char* GetDayStr(U32 day)
         {
-            ASSERT(day >= 1 && day <= 7)
+            ASSERT(day >= 1 && day <= 7);
             return (daysOfWeek[day - 1]);
         }
     }
@@ -303,7 +303,7 @@ namespace Clock
                 _emit 0x0F                    // rdtsc
                 _emit 0x31
                 sub eax, ebx
-                mov [oh], eax               // store overhead
+                mov[oh], eax               // store overhead
 
                 _emit 0x0F                    // rdtsc
                 _emit 0x31
@@ -326,8 +326,8 @@ namespace Clock
                 sbb edx, [hi]
                 sub eax, [oh]
                 sbb edx, 0
-                mov [lo], eax
-                mov [hi], edx
+                mov[lo], eax
+                mov[hi], edx
                 }
         }
     }
@@ -428,8 +428,8 @@ namespace Clock
                 mov ecx, this
                 _emit 0x0F
                 _emit 0x31
-                mov [ecx]this.tscLo, eax
-                mov [ecx]this.tscHi, edx
+                mov[ecx]this.tscLo, eax
+                mov[ecx]this.tscHi, edx
 
                 pop ecx
                 pop edx
@@ -455,8 +455,8 @@ namespace Clock
             mov ecx, this
             sub eax, [ecx]this.tscLo
             sbb edx, [ecx]this.tscHi
-            mov [ecx]this.tscLo, eax
-            mov [ecx]this.tscHi, edx
+            mov[ecx]this.tscLo, eax
+            mov[ecx]this.tscHi, edx
 
             pop ecx
             pop edx

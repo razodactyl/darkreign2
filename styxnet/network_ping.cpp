@@ -55,8 +55,8 @@ namespace Network
             // Constructor
             Handle(const Win32::Socket::Address& address, Callback callback, void* context)
                 : address(address),
-                  callback(callback),
-                  context(context)
+                callback(callback),
+                context(context)
             {
             }
         };
@@ -112,7 +112,7 @@ namespace Network
         {
         private:
 
-            typedef BOOL (STDCALL *GetRTTAndHopCountFunc
+            typedef BOOL(STDCALL* GetRTTAndHopCountFunc
             )(U32 DestIpAddress, PULONG HopCount, ULONG MaxHops, PULONG RTT);
 
             // DLL
@@ -215,7 +215,7 @@ namespace Network
 
             // Receive a ping
             static Bool Recv(Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
-                             U8& hops);
+                U8& hops);
 
             // Thread for handling pings
             static U32 STDCALL ThreadProc(void* context);
@@ -243,13 +243,13 @@ namespace Network
         //
         void Init()
         {
-            ASSERT(!initialized)
+            ASSERT(!initialized);
 
-            LDIAG("Trying RawSocket")
+            LDIAG("Trying RawSocket");
             method = new RawSocket();
             if (!method->IsAvailable())
             {
-                LDIAG("Trying IP Helper API")
+                LDIAG("Trying IP Helper API");
                 delete method;
                 method = new IPHelperAPI();
                 if (!method->IsAvailable())
@@ -267,7 +267,7 @@ namespace Network
         //
         void Done()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             // Cleanup the method
             delete method;
@@ -281,7 +281,7 @@ namespace Network
         //
         void Send(const Win32::Socket::Address& address, Callback callback, void* context)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             // For this address, add an entry so that when we receive pings we can call the correct callback
             Handle* handle = new Handle(address, callback, context);
@@ -295,7 +295,7 @@ namespace Network
         //
         void Process()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             // Are there any events in the event queue ?
             while (Event* e = events.RemovePre(0))
@@ -341,7 +341,7 @@ namespace Network
                     CHECKFUNC(GetRTTAndHopCount)
                 }
 
-                LDIAG("Starting IP Helper thread")
+                LDIAG("Starting IP Helper thread");
 
                 // Start the thread
                 thread.Start(ThreadProc, this);
@@ -360,7 +360,7 @@ namespace Network
                 dll = nullptr;
             }
 
-            LDIAG("Stopping IP Helper thread")
+            LDIAG("Stopping IP Helper thread");
 
             // Signal the quit event
             eventQuit.Signal();
@@ -387,7 +387,7 @@ namespace Network
         //
         void IPHelperAPI::Send(Handle& handle)
         {
-            LDIAG("Adding ping to " << handle.address << " to queue")
+            LDIAG("Adding ping to " << handle.address << " to queue");
 
             // Add the handle to the outgoing queue
             handleCritSec.Enter();
@@ -448,7 +448,7 @@ namespace Network
                                 }
                                 else
                                 {
-                                    LDIAG("Ping failed")
+                                    LDIAG("Ping failed");
 
                                     Event* e = Ping::events.AddPre();
                                     e->handle = handle;
@@ -457,8 +457,7 @@ namespace Network
                                     Ping::events.AddPost();
                                 }
                             }
-                        }
-                        while (handle);
+                        } while (handle);
                     }
                     else
                     {
@@ -483,8 +482,8 @@ namespace Network
         //
         RawSocket::RawSocket()
             : pingSocket(Win32::Socket::RAW),
-              sequenceNumbers(&Seq::node),
-              handles(&Handle::node)
+            sequenceNumbers(&Seq::node),
+            handles(&Handle::node)
         {
             if (IsAvailable())
             {
@@ -572,7 +571,7 @@ namespace Network
 
             // For some reason we can't change TTL when winsock indicates its status as 'On Win95'
             //socket.SetSockOpt(IPPROTO_IP, IP_TTL, (char *) &ttl, sizeof (U32));
-            pingSocket.Send(handle.address, buffer, sizeof (buffer));
+            pingSocket.Send(handle.address, buffer, sizeof(buffer));
         }
 
 
@@ -601,10 +600,10 @@ namespace Network
         // Decode an incoming ping
         //
         Bool RawSocket::Recv(Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
-                             U8& hops)
+            U8& hops)
         {
             U8 buffer[512];
-            U32 recv = socket.Recv(address, buffer, sizeof (buffer));
+            U32 recv = socket.Recv(address, buffer, sizeof(buffer));
 
             // Skip ahead to the ICMP header within the IP packet
             IP::Header* headerIP = (IP::Header*)buffer;
@@ -622,23 +621,23 @@ namespace Network
 
             switch (headerICMP->type)
             {
-                case ICMP::Type::EchoReply:
-                    if (headerICMP->id != static_cast<U16>(GetCurrentProcessId()))
-                    {
-                        // This is a reply for another process
-                        return (FALSE);
-                    }
-                    break;
-
-                case ICMP::Type::TimeExceeded:
-                    break;
-
-                case ICMP::Type::DestinationUnreachable:
+            case ICMP::Type::EchoReply:
+                if (headerICMP->id != static_cast<U16>(GetCurrentProcessId()))
+                {
+                    // This is a reply for another process
                     return (FALSE);
+                }
+                break;
 
-                default:
-                    //LDIAG("Unknown ICMP packet type " << int(headerICMP->type) << " received");
-                    return (FALSE);
+            case ICMP::Type::TimeExceeded:
+                break;
+
+            case ICMP::Type::DestinationUnreachable:
+                return (FALSE);
+
+            default:
+                //LDIAG("Unknown ICMP packet type " << int(headerICMP->type);<< " received");
+                return (FALSE);
             }
 
             // Grab the sequence number
@@ -677,7 +676,7 @@ namespace Network
                 //LDIAG("TTL expired.");
                 return (FALSE);
             }
-            //LDIAG("Ping: " << (int) rtt << " Hops: " << (int) hops << " TTL: " << (int) headerIP->ttl)
+            //LDIAG("Ping: " << (int) rtt << " Hops: " << (int) hops << " TTL: " << (int) headerIP->ttl);
             return (TRUE);
         }
 

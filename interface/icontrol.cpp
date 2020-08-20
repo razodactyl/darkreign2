@@ -208,7 +208,7 @@ IControl::IControl(IControl* parentCtrl)
 IControl::~IControl()
 {
     // Make sure it isnt active
-    ASSERT(!IsActive())
+    ASSERT(!IsActive());
 
     // Delete all children
     DisposeChildren();
@@ -332,7 +332,7 @@ void IControl::Draw(PaintInfo& pi)
 //
 void IControl::SetParent(IControl* ctrl)
 {
-    ASSERT(ctrl)
+    ASSERT(ctrl);
 
     // Is the current parent different to the new one?
     if (parent != ctrl)
@@ -1374,7 +1374,7 @@ TextureInfo* IControl::GetTexture()
 //
 void IControl::GenerateMultiLine(const CH* str)
 {
-    ASSERT(controlStyle & STYLE_MULTILINE)
+    ASSERT(controlStyle & STYLE_MULTILINE);
 
     const U32 MaxItems = 32;
     MultiLine::Item items[MaxItems];
@@ -1740,7 +1740,7 @@ Bool IControl::Activate()
         // Notify that configuration is complete, only once per lifetime, 
         // and before first activation
         PostConfigure();
-        ASSERT(postConfigured)
+        ASSERT(postConfigured);
     }
 
     if (!CanActivate())
@@ -2107,7 +2107,7 @@ U32 IControl::HandleEvent(Event& e)
 
                     case IControlNotify::PreResize:
                     {
-                        ASSERT(IsActive())
+                        ASSERT(IsActive());
 
                         resizeInfo.control = this;
                         resizeInfo.capture = HasMouseCapture();
@@ -2341,7 +2341,7 @@ void IControl::Notify(IFaceVar*)
 //
 void IControl::ConfigureVar(IFaceVar* & var, FScope* fScope)
 {
-    ASSERT(fScope)
+    ASSERT(fScope);
 
     // Ensure var is not already setup
     if (var)
@@ -3206,7 +3206,7 @@ void IControl::SetPos(S32 x, S32 y)
 //
 void IControl::SetColorGroup(ColorGroup* c)
 {
-    ASSERT(c)
+    ASSERT(c);
 
     if (c)
     {
@@ -3938,7 +3938,7 @@ void IControl::ExecItem(FScope* fScope)
 //
 Bool IControl::AddEventTranslation(U32 event, U32 notify, IControl* ctrl, U32 param1, U32 param2, U32 param3)
 {
-    ASSERT(ctrl)
+    ASSERT(ctrl);
 
     // Ensure it doesnt exist already
     if (translations.Find(event))

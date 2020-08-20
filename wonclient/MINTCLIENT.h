@@ -37,33 +37,36 @@ namespace MINTCLIENT
     static const unsigned int DefaultTimeout = 10000;       // The handler is expected to wait for a result then end.
     static const unsigned int LoopDependentTimeout = 500;   // The handler requires new data to be requeued periodically.
 
-    namespace Error
+    typedef unsigned int Error;
+
+    namespace Errors
     {
-        static const unsigned int Success = 0x00000000;
+        static const Error GeneralFailure = -1;
+        static const Error Success = 0x00000000;
 
-        static const unsigned int IdentityAuthenticationFailed = 0x13BD404E;                // MINTCLIENT::Error::IdentityAuthenticationFailed
-        static const unsigned int IdentityAlreadyExists = 0x4D6ABC5B;                       // MINTCLIENT::Error::IdentityAlreadyExists
-        static const unsigned int IdentityUserNotFound = 0x3F23D447;                        // MINTCLIENT::Error::IdentityUserNotFound
-        static const unsigned int IdentityInvalidPassword = 0xA836E73C;                     // MINTCLIENT::Error::IdentityInvalidPassword
+        static const Error IdentityAuthenticationFailed = 0x13BD404E;                // MINTCLIENT::Error::IdentityAuthenticationFailed
+        static const Error IdentityAlreadyExists = 0x4D6ABC5B;                       // MINTCLIENT::Error::IdentityAlreadyExists
+        static const Error IdentityUserNotFound = 0x3F23D447;                        // MINTCLIENT::Error::IdentityUserNotFound
+        static const Error IdentityInvalidPassword = 0xA836E73C;                     // MINTCLIENT::Error::IdentityInvalidPassword
 
-        static const unsigned int RoutingServerClientAlreadyExists = 0x2FB9D09F;            // MINTCLIENT::Error::RoutingServerClientAlreadyExists
-        static const unsigned int RoutingServerInvalidPassword = 0x2455EC94;                // MINTCLIENT::Error::RoutingServerInvalidPassword
-        static const unsigned int RoutingServerAuthenticationFailed = 0x00729AE0;           // MINTCLIENT::Error::RoutingServerAuthenticationFailed
-        static const unsigned int RoutingServerFull = 0x714F21CF;                           // MINTCLIENT::Error::RoutingServerFull
+        static const Error RoutingServerClientAlreadyExists = 0x2FB9D09F;            // MINTCLIENT::Error::RoutingServerClientAlreadyExists
+        static const Error RoutingServerInvalidPassword = 0x2455EC94;                // MINTCLIENT::Error::RoutingServerInvalidPassword
+        static const Error RoutingServerAuthenticationFailed = 0x00729AE0;           // MINTCLIENT::Error::RoutingServerAuthenticationFailed
+        static const Error RoutingServerFull = 0x714F21CF;                           // MINTCLIENT::Error::RoutingServerFull
 
-        inline const char* GetErrorString(U32 error_id)
+        inline const char* GetErrorString(Error error_id)
         {
             switch (error_id)
             {
-            case MINTCLIENT::Error::IdentityAuthenticationFailed:
+            case MINTCLIENT::Errors::IdentityAuthenticationFailed:
                 return "MINTCLIENT::Error::IdentityAuthenticationFailed";
-            case MINTCLIENT::Error::IdentityAlreadyExists:
+            case MINTCLIENT::Errors::IdentityAlreadyExists:
                 return "MINTCLIENT::Error::IdentityAlreadyExists";
-            case MINTCLIENT::Error::RoutingServerClientAlreadyExists:
+            case MINTCLIENT::Errors::RoutingServerClientAlreadyExists:
                 return "MINTCLIENT::Error::RoutingServerClientAlreadyExists";
-            case MINTCLIENT::Error::RoutingServerInvalidPassword:
+            case MINTCLIENT::Errors::RoutingServerInvalidPassword:
                 return "MINTCLIENT::Error::RoutingServerInvalidPassword";
-            case MINTCLIENT::Error::RoutingServerFull:
+            case MINTCLIENT::Errors::RoutingServerFull:
                 return "MINTCLIENT::Error::RoutingServerFull";
 
             default:
@@ -120,30 +123,30 @@ namespace MINTCLIENT
         {
             switch (command_id)
             {
-                case MINTCLIENT::Message::ServerConnect:                {          return "MINTCLIENT::Message::ServerConnect";                  }
-                case MINTCLIENT::Message::ServerShutdown:               {          return "MINTCLIENT::Message::ServerShutdown";                 }
-                case MINTCLIENT::Message::ServerDisconnect:             {          return "MINTCLIENT::Message::ServerDisconnect";               }
-                case MINTCLIENT::Message::IdentityCreate:               {          return "MINTCLIENT::Message::IdentityCreate";                 }
-                case MINTCLIENT::Message::IdentityUpdate:               {          return "MINTCLIENT::Message::IdentityUpdate";                 }
-                case MINTCLIENT::Message::IdentityAuthenticate:         {          return "MINTCLIENT::Message::IdentityAuthenticate";           }
-                case MINTCLIENT::Message::DirectoryListServers:         {          return "MINTCLIENT::Message::DirectoryListServers";           }
-                case MINTCLIENT::Message::DirectoryListRooms:           {          return "MINTCLIENT::Message::DirectoryListRooms";             }
-                case MINTCLIENT::Message::RoutingServerRoomConnect:     {          return "MINTCLIENT::Message::RoutingServerRoomConnect";       }
-                case MINTCLIENT::Message::RoutingServerRoomRegister:    {          return "MINTCLIENT::Message::RoutingServerRoomRegister";      }
-                case MINTCLIENT::Message::RoutingServerUserEnter:       {          return "MINTCLIENT::Message::RoutingServerUserEnter";         }
-                case MINTCLIENT::Message::RoutingServerUserLeave:       {          return "MINTCLIENT::Message::RoutingServerUserLeave";         }
-                case MINTCLIENT::Message::RoutingServerGetNumUsers:     {          return "MINTCLIENT::Message::RoutingServerGetNumUsers";       }
-                case MINTCLIENT::Message::RoutingServerGetUserList:     {          return "MINTCLIENT::Message::RoutingServerGetUserList";       }
-                case MINTCLIENT::Message::RoutingServerWhisperChat:     {          return "MINTCLIENT::Message::RoutingServerWhisperChat";       }
-                case MINTCLIENT::Message::RoutingServerCreateGame:      {          return "MINTCLIENT::Message::RoutingServerCreateGame";        }
-                case MINTCLIENT::Message::RoutingServerUpdateGame:      {          return "MINTCLIENT::Message::RoutingServerUpdateGame";        }
-                case MINTCLIENT::Message::RoutingServerDeleteGame:      {          return "MINTCLIENT::Message::RoutingServerDeleteGame";        }
-                case MINTCLIENT::Message::RoutingServerGetGameList:     {          return "MINTCLIENT::Message::RoutingServerGetGameList";       }
-                case MINTCLIENT::Message::RoutingServerGameCreated:     {          return "MINTCLIENT::Message::RoutingServerGameCreated";       }
-                case MINTCLIENT::Message::RoutingServerGameUpdated:     {          return "MINTCLIENT::Message::RoutingServerGameUpdated";       }
-                case MINTCLIENT::Message::RoutingServerGameReplaced:    {          return "MINTCLIENT::Message::RoutingServerGameReplaced";      }
-                case MINTCLIENT::Message::RoutingServerGameDeleted:     {          return "MINTCLIENT::Message::RoutingServerGameDeleted";       }
-                case MINTCLIENT::Message::RoutingServerDisconnect:      {          return "MINTCLIENT::Message::RoutingServerDisconnect";        }
+            case MINTCLIENT::Message::ServerConnect: {          return "MINTCLIENT::Message::ServerConnect";                  }
+            case MINTCLIENT::Message::ServerShutdown: {          return "MINTCLIENT::Message::ServerShutdown";                 }
+            case MINTCLIENT::Message::ServerDisconnect: {          return "MINTCLIENT::Message::ServerDisconnect";               }
+            case MINTCLIENT::Message::IdentityCreate: {          return "MINTCLIENT::Message::IdentityCreate";                 }
+            case MINTCLIENT::Message::IdentityUpdate: {          return "MINTCLIENT::Message::IdentityUpdate";                 }
+            case MINTCLIENT::Message::IdentityAuthenticate: {          return "MINTCLIENT::Message::IdentityAuthenticate";           }
+            case MINTCLIENT::Message::DirectoryListServers: {          return "MINTCLIENT::Message::DirectoryListServers";           }
+            case MINTCLIENT::Message::DirectoryListRooms: {          return "MINTCLIENT::Message::DirectoryListRooms";             }
+            case MINTCLIENT::Message::RoutingServerRoomConnect: {          return "MINTCLIENT::Message::RoutingServerRoomConnect";       }
+            case MINTCLIENT::Message::RoutingServerRoomRegister: {          return "MINTCLIENT::Message::RoutingServerRoomRegister";      }
+            case MINTCLIENT::Message::RoutingServerUserEnter: {          return "MINTCLIENT::Message::RoutingServerUserEnter";         }
+            case MINTCLIENT::Message::RoutingServerUserLeave: {          return "MINTCLIENT::Message::RoutingServerUserLeave";         }
+            case MINTCLIENT::Message::RoutingServerGetNumUsers: {          return "MINTCLIENT::Message::RoutingServerGetNumUsers";       }
+            case MINTCLIENT::Message::RoutingServerGetUserList: {          return "MINTCLIENT::Message::RoutingServerGetUserList";       }
+            case MINTCLIENT::Message::RoutingServerWhisperChat: {          return "MINTCLIENT::Message::RoutingServerWhisperChat";       }
+            case MINTCLIENT::Message::RoutingServerCreateGame: {          return "MINTCLIENT::Message::RoutingServerCreateGame";        }
+            case MINTCLIENT::Message::RoutingServerUpdateGame: {          return "MINTCLIENT::Message::RoutingServerUpdateGame";        }
+            case MINTCLIENT::Message::RoutingServerDeleteGame: {          return "MINTCLIENT::Message::RoutingServerDeleteGame";        }
+            case MINTCLIENT::Message::RoutingServerGetGameList: {          return "MINTCLIENT::Message::RoutingServerGetGameList";       }
+            case MINTCLIENT::Message::RoutingServerGameCreated: {          return "MINTCLIENT::Message::RoutingServerGameCreated";       }
+            case MINTCLIENT::Message::RoutingServerGameUpdated: {          return "MINTCLIENT::Message::RoutingServerGameUpdated";       }
+            case MINTCLIENT::Message::RoutingServerGameReplaced: {          return "MINTCLIENT::Message::RoutingServerGameReplaced";      }
+            case MINTCLIENT::Message::RoutingServerGameDeleted: {          return "MINTCLIENT::Message::RoutingServerGameDeleted";       }
+            case MINTCLIENT::Message::RoutingServerDisconnect: {          return "MINTCLIENT::Message::RoutingServerDisconnect";        }
             }
 
             char* info = new char[64];
@@ -452,35 +455,35 @@ namespace MINTCLIENT
                     {
                     case MINTCLIENT::Message::IdentityAuthenticate:
                     {
-                        if (err_val == MINTCLIENT::Error::IdentityUserNotFound) { return MINTCLIENT::Error::IdentityUserNotFound; }
-                        if (err_val == MINTCLIENT::Error::IdentityInvalidPassword) { return MINTCLIENT::Error::IdentityInvalidPassword; }
-                        if (err_val == MINTCLIENT::Error::IdentityAuthenticationFailed) { return MINTCLIENT::Error::IdentityAuthenticationFailed; }
+                        if (err_val == MINTCLIENT::Errors::IdentityUserNotFound) { return MINTCLIENT::Errors::IdentityUserNotFound; }
+                        if (err_val == MINTCLIENT::Errors::IdentityInvalidPassword) { return MINTCLIENT::Errors::IdentityInvalidPassword; }
+                        if (err_val == MINTCLIENT::Errors::IdentityAuthenticationFailed) { return MINTCLIENT::Errors::IdentityAuthenticationFailed; }
                     }
                     break;
 
                     case MINTCLIENT::Message::IdentityCreate:
                     {
-                        if (err_val == MINTCLIENT::Error::IdentityAlreadyExists) { return MINTCLIENT::Error::IdentityAlreadyExists; }
+                        if (err_val == MINTCLIENT::Errors::IdentityAlreadyExists) { return MINTCLIENT::Errors::IdentityAlreadyExists; }
                     }
                     break;
 
                     case MINTCLIENT::Message::IdentityUpdate:
                     {
-                        if (err_val == MINTCLIENT::Error::IdentityAuthenticationFailed) { return MINTCLIENT::Error::IdentityAuthenticationFailed; }
-                        if (err_val == MINTCLIENT::Error::IdentityInvalidPassword) { return MINTCLIENT::Error::IdentityInvalidPassword; }
+                        if (err_val == MINTCLIENT::Errors::IdentityAuthenticationFailed) { return MINTCLIENT::Errors::IdentityAuthenticationFailed; }
+                        if (err_val == MINTCLIENT::Errors::IdentityInvalidPassword) { return MINTCLIENT::Errors::IdentityInvalidPassword; }
                     }
                     break;
 
                     case MINTCLIENT::Message::RoutingServerRoomConnect:
                     {
-                        if (err_val == MINTCLIENT::Error::RoutingServerInvalidPassword) { return MINTCLIENT::Error::RoutingServerInvalidPassword; }
+                        if (err_val == MINTCLIENT::Errors::RoutingServerInvalidPassword) { return MINTCLIENT::Errors::RoutingServerInvalidPassword; }
                     }
                     break;
 
                     case MINTCLIENT::Message::RoutingServerRoomRegister:
                     {
-                        if (err_val == MINTCLIENT::Error::RoutingServerClientAlreadyExists) { return MINTCLIENT::Error::RoutingServerClientAlreadyExists; }
-                        if (err_val == MINTCLIENT::Error::RoutingServerAuthenticationFailed) { return MINTCLIENT::Error::RoutingServerAuthenticationFailed; }
+                        if (err_val == MINTCLIENT::Errors::RoutingServerClientAlreadyExists) { return MINTCLIENT::Errors::RoutingServerClientAlreadyExists; }
+                        if (err_val == MINTCLIENT::Errors::RoutingServerAuthenticationFailed) { return MINTCLIENT::Errors::RoutingServerAuthenticationFailed; }
                     }
                     break;
 

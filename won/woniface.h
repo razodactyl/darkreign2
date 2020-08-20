@@ -455,7 +455,6 @@ namespace WonIface
     // Abort what ever we're doing
     void Abort();
 
-
     // Create a Won account
     void CreateAccount(const char* username, const char* password);
 
@@ -465,13 +464,11 @@ namespace WonIface
     // Change the password of an existing Won account
     void ChangePassword(const char* username, const char* oldPassword, const char* newPassword);
 
-
     // Detect if we're behind a firewall
     void DetectFirewall();
 
     // What's our firewall status
     U32 GetFirewallStatus();
-
 
     // Keep our Won connection alive
     void KeepAlive();
@@ -505,10 +502,8 @@ namespace WonIface
     // Get the list of games in the current room
     void GetGameList(NList<Game>& games);
 
-
     // Get the address which is connecting us to the internet
     Bool GetLocalAddress(U32& ip, U16& port);
-
 
     // Send broadcast chat message
     void BroadcastMessage(const CH* text);
@@ -518,7 +513,6 @@ namespace WonIface
 
     // Send private chat message
     void PrivateMessage(const char* player, const CH* text);
-
 
     // Ignore a player
     void IgnorePlayer(const char* player);
@@ -534,18 +528,14 @@ namespace WonIface
     // Check the given key
     Bool CheckKey(const char* key);
 
-
     // Retrieve a HTTP file and store it locally in the download directory
-    //U32 HTTPGet(U32 proxyIP, U16 proxyPort, const char *hostName, U32 hostPort, const char *path, const char *local, Bool allowResume);
-    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local,
-        Bool allowResume);
+    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume);
 
     // Retrieve a HTTP file and store it locally in the download directory
     U32 HTTPGet(const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume);
 
     // Stop downloading a HTTP file
     void HTTPAbortGet(U32 handle);
-
 
     // Enable/Disable logging
     void Logging(Bool on);

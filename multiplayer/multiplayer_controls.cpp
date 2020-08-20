@@ -38,176 +38,172 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Controls
     //
-    Bool initialized = FALSE;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Prototypes
-    //
-    IControl *Babel(U32 classId, IControl *parent, U32 flags);
-
-
-    //
-    // Initialization
-    //
-    void Init()
+    namespace Controls
     {
-      ASSERT(!initialized)
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        Bool initialized = FALSE;
 
-      IFace::RegisterControlClass("MultiPlayer::Sessions", Babel);
-      IFace::RegisterControlClass("MultiPlayer::AddressBook", Babel);
-      IFace::RegisterControlClass("MultiPlayer::ChatEdit", Babel);
-      IFace::RegisterControlClass("MultiPlayer::PlayerList", Babel);
-      IFace::RegisterControlClass("MultiPlayer::PlayerList::AllyWithButton", Babel);
-      IFace::RegisterControlClass("MultiPlayer::PlayerInfo", Babel);
-      IFace::RegisterControlClass("MultiPlayer::HostConfig", Babel);
-      IFace::RegisterControlClass("MultiPlayer::SyncList", Babel);
-      IFace::RegisterControlClass("MultiPlayer::Mission", Babel);
-      IFace::RegisterControlClass("MultiPlayer::Color", Babel);
-      IFace::RegisterControlClass("MultiPlayer::TeamPlayerOptions", Babel);
-      IFace::RegisterControlClass("MultiPlayer::TransferList", Babel);
-      IFace::RegisterControlClass("MultiPlayer::PropertyList", Babel);
-      IFace::RegisterControlClass("MultiPlayer::LocalPings", Babel);
-      IFace::RegisterControlClass("MultiPlayer::Earth", Babel);
-      IFace::RegisterControlClass("MultiPlayer::Report", Babel);
-      IFace::RegisterControlClass("MultiPlayer::Options", Babel);
-      IFace::RegisterControlClass("MultiPlayer::Download", Babel);
 
-      initialized = TRUE;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Prototypes
+        //
+        IControl* Babel(U32 classId, IControl* parent, U32 flags);
+
+
+        //
+        // Initialization
+        //
+        void Init()
+        {
+            ASSERT(!initialized);
+
+            IFace::RegisterControlClass("MultiPlayer::Sessions", Babel);
+            IFace::RegisterControlClass("MultiPlayer::AddressBook", Babel);
+            IFace::RegisterControlClass("MultiPlayer::ChatEdit", Babel);
+            IFace::RegisterControlClass("MultiPlayer::PlayerList", Babel);
+            IFace::RegisterControlClass("MultiPlayer::PlayerList::AllyWithButton", Babel);
+            IFace::RegisterControlClass("MultiPlayer::PlayerInfo", Babel);
+            IFace::RegisterControlClass("MultiPlayer::HostConfig", Babel);
+            IFace::RegisterControlClass("MultiPlayer::SyncList", Babel);
+            IFace::RegisterControlClass("MultiPlayer::Mission", Babel);
+            IFace::RegisterControlClass("MultiPlayer::Color", Babel);
+            IFace::RegisterControlClass("MultiPlayer::TeamPlayerOptions", Babel);
+            IFace::RegisterControlClass("MultiPlayer::TransferList", Babel);
+            IFace::RegisterControlClass("MultiPlayer::PropertyList", Babel);
+            IFace::RegisterControlClass("MultiPlayer::LocalPings", Babel);
+            IFace::RegisterControlClass("MultiPlayer::Earth", Babel);
+            IFace::RegisterControlClass("MultiPlayer::Report", Babel);
+            IFace::RegisterControlClass("MultiPlayer::Options", Babel);
+            IFace::RegisterControlClass("MultiPlayer::Download", Babel);
+
+            initialized = TRUE;
+        }
+
+
+        //
+        // Shutdown
+        //
+        void Done()
+        {
+            ASSERT(initialized);
+
+            IFace::UnregisterControlClass("MultiPlayer::Sessions");
+            IFace::UnregisterControlClass("MultiPlayer::AddressBook");
+            IFace::UnregisterControlClass("MultiPlayer::ChatEdit");
+            IFace::UnregisterControlClass("MultiPlayer::PlayerList");
+            IFace::UnregisterControlClass("MultiPlayer::PlayerList::AllyWithButton");
+            IFace::UnregisterControlClass("MultiPlayer::PlayerInfo");
+            IFace::UnregisterControlClass("MultiPlayer::HostConfig");
+            IFace::UnregisterControlClass("MultiPlayer::SyncList");
+            IFace::UnregisterControlClass("MultiPlayer::Mission");
+            IFace::UnregisterControlClass("MultiPlayer::Color");
+            IFace::UnregisterControlClass("MultiPlayer::TeamPlayerOptions");
+            IFace::UnregisterControlClass("MultiPlayer::TransferList");
+            IFace::UnregisterControlClass("MultiPlayer::PropertyList");
+            IFace::UnregisterControlClass("MultiPlayer::LocalPings");
+            IFace::UnregisterControlClass("MultiPlayer::Earth");
+            IFace::UnregisterControlClass("MultiPlayer::Report");
+            IFace::UnregisterControlClass("MultiPlayer::Options");
+            IFace::UnregisterControlClass("MultiPlayer::Download");
+
+            initialized = FALSE;
+        }
+
+
+        //
+        // Babel
+        //
+        IControl* Babel(U32 classId, IControl* parent, U32)
+        {
+            ASSERT(initialized);
+
+            IControl* ctrl = nullptr;
+
+            // Map class id to basic class type
+            switch (classId)
+            {
+                case 0xAABE7B4D: // "MultiPlayer::Sessions"
+                    ctrl = new Sessions(parent);
+                    break;
+
+                case 0x5C9A1947: // "MultiPlayer::AddressBook"
+                    ctrl = new AddressBook(parent);
+                    break;
+
+                case 0xD95DE290: // "MultiPlayer::ChatEdit"
+                    ctrl = new ChatEdit(parent);
+                    break;
+
+                case 0xC137FFE9: // "MultiPlayer::PlayerList"
+                    ctrl = new PlayerList(parent);
+                    break;
+
+                case 0x2F3BA796: // "MultiPlayer::PlayerList::AllyWithButton"
+                    ctrl = new PlayerList::AllyWithButton(parent);
+                    break;
+
+                case 0x849205B9: // "MultiPlayer::PlayerInfo"
+                    ctrl = new PlayerInfo(parent);
+                    break;
+
+                case 0xC9424004: // "MultiPlayer::HostConfig"
+                    ctrl = new HostConfig(parent);
+                    break;
+
+                case 0x2A1A8866: // "MultiPlayer::SyncList"
+                    ctrl = new SyncList(parent);
+                    break;
+
+                case 0x0D2987ED: // "MultiPlayer::Mission"
+                    ctrl = new Mission(parent);
+                    break;
+
+                case 0xD9BD6D1F: // "MultiPlayer::Color"
+                    ctrl = new Color(parent);
+                    break;
+
+                case 0x9BA70E5D: // "MultiPlayer::TeamPlayerOptions"
+                    ctrl = new TeamPlayerOptions(parent);
+                    break;
+
+                case 0xE5C45EFE: // "MultiPlayer::TransferList"
+                    ctrl = new TransferList(parent);
+                    break;
+
+                case 0xC89CCC7A: // "MultiPlayer::PropertyList"
+                    ctrl = new PropertyList(parent);
+                    break;
+
+                case 0x7C6FDFAE: // "MultiPlayer::LocalPings"
+                    ctrl = new LocalPings(parent);
+                    break;
+
+                case 0xCEA3103E: // "MultiPlayer::Earth"
+                    ctrl = new Earth(parent);
+                    break;
+
+                case 0xC0E97969: // "MultiPlayer::Report"
+                    ctrl = new Report(parent);
+                    break;
+
+                case 0x05BF3A49: // "MultiPlayer::Options"
+                    ctrl = new Options(parent);
+                    break;
+
+                case 0xE47EC488: // "MultiPlayer::Download"
+                    ctrl = new Download(parent);
+                    break;
+            }
+
+            return (ctrl);
+        }
     }
-
-
-    //
-    // Shutdown
-    //
-    void Done()
-    {
-      ASSERT(initialized)
-
-      IFace::UnregisterControlClass("MultiPlayer::Sessions");
-      IFace::UnregisterControlClass("MultiPlayer::AddressBook");
-      IFace::UnregisterControlClass("MultiPlayer::ChatEdit");
-      IFace::UnregisterControlClass("MultiPlayer::PlayerList");
-      IFace::UnregisterControlClass("MultiPlayer::PlayerList::AllyWithButton");
-      IFace::UnregisterControlClass("MultiPlayer::PlayerInfo");
-      IFace::UnregisterControlClass("MultiPlayer::HostConfig");
-      IFace::UnregisterControlClass("MultiPlayer::SyncList");
-      IFace::UnregisterControlClass("MultiPlayer::Mission");
-      IFace::UnregisterControlClass("MultiPlayer::Color");
-      IFace::UnregisterControlClass("MultiPlayer::TeamPlayerOptions");
-      IFace::UnregisterControlClass("MultiPlayer::TransferList");
-      IFace::UnregisterControlClass("MultiPlayer::PropertyList");
-      IFace::UnregisterControlClass("MultiPlayer::LocalPings");
-      IFace::UnregisterControlClass("MultiPlayer::Earth");
-      IFace::UnregisterControlClass("MultiPlayer::Report");
-      IFace::UnregisterControlClass("MultiPlayer::Options");
-      IFace::UnregisterControlClass("MultiPlayer::Download");
-
-      initialized = FALSE;
-    }
-
-
-    //
-    // Babel
-    //
-    IControl * Babel(U32 classId, IControl *parent, U32)
-    {
-      ASSERT(initialized)
-
-      IControl *ctrl = NULL;
-
-      // Map class id to basic class type
-      switch (classId)
-      {
-        case 0xAABE7B4D: // "MultiPlayer::Sessions"
-          ctrl = new Sessions(parent);
-          break;
-
-        case 0x5C9A1947: // "MultiPlayer::AddressBook"
-          ctrl = new AddressBook(parent);
-          break;
-
-        case 0xD95DE290: // "MultiPlayer::ChatEdit"
-          ctrl = new ChatEdit(parent);
-          break;
-
-        case 0xC137FFE9: // "MultiPlayer::PlayerList"
-          ctrl = new PlayerList(parent);
-          break;
-
-        case 0x2F3BA796: // "MultiPlayer::PlayerList::AllyWithButton"
-          ctrl = new PlayerList::AllyWithButton(parent);
-          break;
-
-        case 0x849205B9: // "MultiPlayer::PlayerInfo"
-          ctrl = new PlayerInfo(parent);
-          break;
-
-        case 0xC9424004: // "MultiPlayer::HostConfig"
-          ctrl = new HostConfig(parent);
-          break;
-
-        case 0x2A1A8866: // "MultiPlayer::SyncList"
-          ctrl = new SyncList(parent);
-          break;
-
-        case 0x0D2987ED: // "MultiPlayer::Mission"
-          ctrl = new Mission(parent);
-          break;
-
-        case 0xD9BD6D1F: // "MultiPlayer::Color"
-          ctrl = new Color(parent);
-          break;
-
-        case 0x9BA70E5D: // "MultiPlayer::TeamPlayerOptions"
-          ctrl = new TeamPlayerOptions(parent);
-          break;
-
-        case 0xE5C45EFE: // "MultiPlayer::TransferList"
-          ctrl = new TransferList(parent);
-          break;
-
-        case 0xC89CCC7A: // "MultiPlayer::PropertyList"
-          ctrl = new PropertyList(parent);
-          break;
-
-        case 0x7C6FDFAE: // "MultiPlayer::LocalPings"
-          ctrl = new LocalPings(parent);
-          break;
-
-        case 0xCEA3103E: // "MultiPlayer::Earth"
-          ctrl = new Earth(parent);
-          break;
-
-        case 0xC0E97969: // "MultiPlayer::Report"
-          ctrl = new Report(parent);
-          break;
-
-        case 0x05BF3A49: // "MultiPlayer::Options"
-          ctrl = new Options(parent);
-          break;
-
-        case 0xE47EC488: // "MultiPlayer::Download"
-          ctrl = new Download(parent);
-          break;
-      }
-
-      return (ctrl);
-    }
-
-  }
-
 }

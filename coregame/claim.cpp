@@ -124,10 +124,10 @@ namespace Claim
     //
     Block* Block::PrevInRow()
     {
-        ASSERT(rowNode.InUse())
+        ASSERT(rowNode.InUse());
 
-            // Grab the previous node
-            NList<Block>::Node* prev = rowNode.GetPrev();
+        // Grab the previous node
+        NList<Block>::Node* prev = rowNode.GetPrev();
 
         return (prev ? prev->GetData() : NULL);
     }
@@ -151,12 +151,12 @@ namespace Claim
     //
     void Block::AddToGroupPrev(Block* prev)
     {
-        ASSERT(!prevInGroup)
-            ASSERT(!nextInGroup)
-            ASSERT(prev)
+        ASSERT(!prevInGroup);
+        ASSERT(!nextInGroup);
+        ASSERT(prev);
 
-            // Link previous block to this one
-            prev->nextInGroup = this;
+        // Link previous block to this one
+        prev->nextInGroup = this;
 
         // Link this block back to previous
         prevInGroup = prev;
@@ -170,12 +170,12 @@ namespace Claim
     //
     void Block::AddToGroupNext(Block* next)
     {
-        ASSERT(!prevInGroup)
-            ASSERT(!nextInGroup)
-            ASSERT(next)
+        ASSERT(!prevInGroup);
+        ASSERT(!nextInGroup);
+        ASSERT(next);
 
-            // Link next block to this one
-            next->prevInGroup = this;
+        // Link next block to this one
+        next->prevInGroup = this;
 
         // Link this block to next
         nextInGroup = next;
@@ -192,18 +192,18 @@ namespace Claim
         // Unlink from previous block
         if (prevInGroup)
         {
-            ASSERT(prevInGroup->nextInGroup == this)
+            ASSERT(prevInGroup->nextInGroup == this);
 
-                prevInGroup->nextInGroup = NULL;
+            prevInGroup->nextInGroup = NULL;
             prevInGroup = NULL;
         }
 
         // Unlink from next block
         if (nextInGroup)
         {
-            ASSERT(nextInGroup->prevInGroup == this)
+            ASSERT(nextInGroup->prevInGroup == this);
 
-                nextInGroup->prevInGroup = NULL;
+            nextInGroup->prevInGroup = NULL;
             nextInGroup = NULL;
         }
     }
@@ -220,10 +220,10 @@ namespace Claim
         Block* b = this;
         for (; b->prevInGroup; b = b->prevInGroup);
 
-        ASSERT(b)
+        ASSERT(b);
 
-            // Return a reference
-            return (*b);
+        // Return a reference
+        return (*b);
     }
 
 
@@ -238,10 +238,10 @@ namespace Claim
         Block* b = this;
         for (; b->nextInGroup; b = b->nextInGroup);
 
-        ASSERT(b)
+        ASSERT(b);
 
-            // Return a reference
-            return (*b);
+        // Return a reference
+        return (*b);
     }
 
 
@@ -252,10 +252,10 @@ namespace Claim
     //
     void Block::Validate()
     {
-        ASSERT(rowNode.InUse())
+        ASSERT(rowNode.InUse());
 
-            // Get previous block
-            Block* b = PrevInRow();
+        // Get previous block
+        Block* b = PrevInRow();
 
         // Get the grain just after the previous block, or the first grain
         S32 x = b ? b->x1 + 1 : 0;
@@ -318,7 +318,7 @@ namespace Claim
     Row::~Row()
     {
         // Claimed blocks must be released before destruction
-        ASSERT(IsEmpty())
+        ASSERT(IsEmpty());
     }
 
 
@@ -418,7 +418,7 @@ namespace Claim
         // Unlink from the list
         Unlink(block);
 
-        ASSERT((slider && GetCount()) || (!slider && !GetCount()))
+        ASSERT((slider && GetCount()) || (!slider && !GetCount()));
     }
 
 
@@ -514,9 +514,9 @@ namespace Claim
     //
     Row& Layer::GetRow(S32 z)
     {
-        ASSERT(z < zGrain)
+        ASSERT(z < zGrain);
 
-            return (rows[z]);
+        return (rows[z]);
     }
 
 
@@ -887,11 +887,11 @@ namespace Claim
                 block->GetRow().RemoveBlock(block);
 
                 // Other blocks in group should also be removed
-                ASSERT(!block->prevInGroup || block->prevInGroup->key == block->key)
-                    ASSERT(!block->nextInGroup || block->nextInGroup->key == block->key)
+                ASSERT(!block->prevInGroup || block->prevInGroup->key == block->key);
+                ASSERT(!block->nextInGroup || block->nextInGroup->key == block->key);
 
-                    // Remove block from any group
-                    block->RemoveFromGroup();
+                // Remove block from any group
+                block->RemoveFromGroup();
 
                 // Delete from the manager
                 Dispose(block);

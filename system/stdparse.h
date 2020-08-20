@@ -24,17 +24,17 @@
 //
 
 class StdParse
-{ 
+{
 private:
 
-  // Private parsing methods
-  static VNode* ParseNumericVNode(TBuf *tBuf);
-  static VNode* ParseStringVNode(TBuf *tBuf);
+    // Private parsing methods
+    static VNode* ParseNumericVNode(TBuf* tBuf);
+    static VNode* ParseStringVNode(TBuf* tBuf);
 
 public:
 
-  // Parse atomic VNode data from 'tBuf', or return NULL if not valid
-  static VNode* ParseAtomicVNode(TBuf *tBuf);
+    // Parse atomic VNode data from 'tBuf', or return NULL if not valid
+    static VNode* ParseAtomicVNode(TBuf* tBuf);
 };
 
 

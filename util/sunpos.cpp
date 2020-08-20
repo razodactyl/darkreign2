@@ -57,7 +57,7 @@
 //
 static F64 SolveKeplersEquation(F64);
 static F64 SunEclipticLongitude(time_t);
-static void EclipticToEquatorial(F64, F64, F64 &, F64 &);
+static void EclipticToEquatorial(F64, F64, F64&, F64&);
 static F64 JulianDate(int, int, int);
 static F64 GST(time_t);
 
@@ -67,26 +67,26 @@ static F64 GST(time_t);
 // epoch), compute position on the earth (lat, lon) such that sun is
 // directly overhead.
 //
-void SunPosition(F64 &lat, F64 &lon)
+void SunPosition(F64& lat, F64& lon)
 {
-  time_t ssue = time(NULL);
-  F64 lambda;
-  F64 alpha;
+    time_t ssue = time(nullptr);
+    F64 lambda;
+    F64 alpha;
 
-  lambda = SunEclipticLongitude(ssue);
-  EclipticToEquatorial(lambda, 0.0, alpha, lat);
+    lambda = SunEclipticLongitude(ssue);
+    EclipticToEquatorial(lambda, 0.0, alpha, lat);
 
-  lon = alpha - (PI2 / 24) * GST(ssue);
-  if (lon < -PI)
-  {
-    do lon += PI2;
-    while (lon < -PI);
-  }
-  else if (lon > PI)
-  {
-    do lon -= PI2;
-    while (lon < -PI);
-  }
+    lon = alpha - (PI2 / 24) * GST(ssue);
+    if (lon < -PI)
+    {
+        do lon += PI2;
+        while (lon < -PI);
+    }
+    else if (lon > PI)
+    {
+        do lon -= PI2;
+        while (lon < -PI);
+    }
 }
 
 
@@ -98,21 +98,21 @@ void SunPosition(F64 &lat, F64 &lon)
 //
 static F64 SolveKeplersEquation(F64 m)
 {
-  F64 e;
-  F64 delta;
+    F64 e;
+    F64 delta;
 
-  e = m;
-  for (;;)
-  {
-    delta = e - Eccentricity * sin(e) - m;
-    if (fabs(delta) <= 1e-10) 
+    e = m;
+    for (;;)
     {
-      break;
+        delta = e - Eccentricity * sin(e) - m;
+        if (fabs(delta) <= 1e-10)
+        {
+            break;
+        }
+        e -= delta / (1 - Eccentricity * cos(e));
     }
-    e -= delta / (1 - Eccentricity * cos(e));
-  }
 
-  return (e);
+    return (e);
 }
 
 
@@ -124,29 +124,29 @@ static F64 SolveKeplersEquation(F64 m)
 //
 static F64 SunEclipticLongitude(time_t ssue)
 {
-  F64 d, n;
-  F64 sun, e;
-  F64 v;
+    F64 d, n;
+    F64 sun, e;
+    F64 v;
 
-  d = DaysSinceEpoch(ssue);
+    d = DaysSinceEpoch(ssue);
 
-  n = RadsPerDay * d;
-  n = fmod(n, PI2);
-  if (n < 0)
-  {
-    n += PI2;
-  }
+    n = RadsPerDay * d;
+    n = fmod(n, PI2);
+    if (n < 0)
+    {
+        n += PI2;
+    }
 
-  sun = n + Epsilon - OmegaBar;
-  if (sun < 0)
-  {
-    sun += PI2;
-  }
+    sun = n + Epsilon - OmegaBar;
+    if (sun < 0)
+    {
+        sun += PI2;
+    }
 
-  e = SolveKeplersEquation(sun);
-  v = 2.0 * atan(sqrt((1 + Eccentricity) / (1 - Eccentricity)) * tan(e / 2.0));
+    e = SolveKeplersEquation(sun);
+    v = 2.0 * atan(sqrt((1 + Eccentricity) / (1 - Eccentricity)) * tan(e / 2.0));
 
-  return (v + OmegaBar);
+    return (v + OmegaBar);
 }
 
 
@@ -156,19 +156,19 @@ static F64 SunEclipticLongitude(time_t ssue)
 // convert from ecliptic to equatorial coordinates
 // (after duffett-smith, section 27)
 //
-static void EclipticToEquatorial(F64 lambda, F64 beta, F64 &alpha, F64 &delta)
+static void EclipticToEquatorial(F64 lambda, F64 beta, F64& alpha, F64& delta)
 {
-  F64 sin_e, cos_e;
+    F64 sin_e, cos_e;
 
-  sin_e = sin(MeanObliquity);
-  cos_e = cos(MeanObliquity);
-  alpha = atan2(sin(lambda) * cos_e - tan(beta) * sin_e, cos(lambda));
-  delta = asin(sin(beta) * cos_e + cos(beta) * sin_e * sin(lambda));
+    sin_e = sin(MeanObliquity);
+    cos_e = cos(MeanObliquity);
+    alpha = atan2(sin(lambda) * cos_e - tan(beta) * sin_e, cos(lambda));
+    delta = asin(sin(beta) * cos_e + cos(beta) * sin_e * sin(lambda));
 
-//  if (view_rot == 0.0 && proj_type == ProjTypeOrthographic) 
-//  {
-//    view_rot = -asin(sin(beta) * cos_e + cos(beta) * sin_e * cos(lambda)) * RAD2DEG;
-//  }
+    //  if (view_rot == 0.0 && proj_type == ProjTypeOrthographic) 
+    //  {
+    //    view_rot = -asin(sin(beta) * cos_e + cos(beta) * sin_e * cos(lambda)) * RAD2DEG;
+    //  }
 }
 
 
@@ -181,25 +181,25 @@ static void EclipticToEquatorial(F64 lambda, F64 beta, F64 &alpha, F64 &delta)
 //
 static F64 JulianDate(int year, int month, int day)
 {
-  int a, b, c, d;
-  F64 jd;
+    int a, b, c, d;
+    F64 jd;
 
-  // lazy test to ensure gregorian calendar
-  ASSERT(year >= 1583)
+    // lazy test to ensure gregorian calendar
+    ASSERT(year >= 1583);
 
-  if ((month == 1) || (month == 2))
-  {
-    year -= 1;
-    month += 12;
-  }
+    if ((month == 1) || (month == 2))
+    {
+        year -= 1;
+        month += 12;
+    }
 
-  a = year / 100;
-  b = 2 - a + (a / 4);
-  c = int(365.25 * year);
-  d = int(30.6001 * (month + 1));
-  jd = b + c + d + day + 1720994.5;
+    a = year / 100;
+    b = 2 - a + (a / 4);
+    c = static_cast<int>(365.25 * year);
+    d = static_cast<int>(30.6001 * (month + 1));
+    jd = b + c + d + day + 1720994.5;
 
-  return (jd);
+    return (jd);
 }
 
 
@@ -211,34 +211,32 @@ static F64 JulianDate(int year, int month, int day)
 //
 static F64 GST(time_t ssue)
 {
-  F64 jd;
-  F64 t, t0;
-  F64 ut;
-  struct tm *tm;
+    F64 jd;
+    F64 t, t0;
+    F64 ut;
+    struct tm* tm;
 
-  tm = gmtime(&ssue);
+    tm = gmtime(&ssue);
 
-  jd = JulianDate(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-  t = (jd - 2451545) / 36525;
+    jd = JulianDate(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+    t = (jd - 2451545) / 36525;
 
-  t0 = ((t + 2.5862e-5) * t + 2400.051336) * t + 6.697374558;
+    t0 = ((t + 2.5862e-5) * t + 2400.051336) * t + 6.697374558;
 
-  t0 = fmod(t0, 24.0);
-  if (t0 < 0)
-  {
-    t0 += 24;
-  }
+    t0 = fmod(t0, 24.0);
+    if (t0 < 0)
+    {
+        t0 += 24;
+    }
 
-  ut = tm->tm_hour + (tm->tm_min + tm->tm_sec / 60.0) / 60.0;
+    ut = tm->tm_hour + (tm->tm_min + tm->tm_sec / 60.0) / 60.0;
 
-  t0 += ut * 1.002737909;
-  t0 = fmod(t0, 24.0);
-  if (t0 < 0)
-  {
-    t0 += 24;
-  }
+    t0 += ut * 1.002737909;
+    t0 = fmod(t0, 24.0);
+    if (t0 < 0)
+    {
+        t0 += 24;
+    }
 
-  return (t0);
+    return (t0);
 }
-
-

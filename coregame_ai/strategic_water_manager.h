@@ -23,66 +23,63 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Water::Manager
-  //
-  class Water::Manager
-  {
-  private:
-
-    // Strategic Object the manager belongs to
-    Object *strategic;
-
-    // The water id counter
-    U32 waterId;
-
-    // Water
-    NBinTree<Water, F32> waters;
-
-  public:
-
-    // Constructor and destructor
-    Manager();
-    ~Manager();
-
-    // Reset
-    void Reset();
-
-    // Save and load state
-    void SaveState(FScope *scope);
-    void LoadState(FScope *scope);
-
-    // Process water
-    void Process();
-
-    // Find a water
-    Water * FindWater(U32 id);
-
-  public:
-
-    // Setup
-    void Setup(Object *object)
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Water::Manager
+    //
+    class Water::Manager
     {
-      strategic = object;
-    }
+    private:
 
-    // Get the strategic object from the manager
-    Object & GetObject()
-    {
-      ASSERT(strategic)
-      return (*strategic);
-    }
+        // Strategic Object the manager belongs to
+        Object* strategic;
 
-    // Get the waters
-    const NBinTree<Water, F32> & GetWaters()
-    {
-      return (waters);
-    }
+        // The water id counter
+        U32 waterId;
 
-  };
+        // Water
+        NBinTree<Water, F32> waters;
 
+    public:
+
+        // Constructor and destructor
+        Manager();
+        ~Manager();
+
+        // Reset
+        void Reset();
+
+        // Save and load state
+        void SaveState(FScope* scope);
+        void LoadState(FScope* scope);
+
+        // Process water
+        void Process();
+
+        // Find a water
+        Water* FindWater(U32 id);
+
+    public:
+
+        // Setup
+        void Setup(Object* object)
+        {
+            strategic = object;
+        }
+
+        // Get the strategic object from the manager
+        Object& GetObject()
+        {
+            ASSERT(strategic);
+            return (*strategic);
+        }
+
+        // Get the waters
+        const NBinTree<Water, F32>& GetWaters()
+        {
+            return (waters);
+        }
+    };
 }
 
 #endif

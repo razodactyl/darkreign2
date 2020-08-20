@@ -105,7 +105,7 @@ namespace Strategic
 
             if (evaluation.tweakDefault == F32_MAX)
             {
-                ERR_CONFIG(("Tweak list must contain a default value"))
+                ERR_CONFIG(("Tweak list must contain a default value"));
             }
 
 
@@ -271,9 +271,9 @@ namespace Strategic
         //
         void Init()
         {
-            ASSERT(!initialized)
+            ASSERT(!initialized);
 
-                initialized = TRUE;
+            initialized = TRUE;
         }
 
 
@@ -282,10 +282,10 @@ namespace Strategic
         // 
         void Done()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                // Cleanup time
-                configRecruitForce.DisposeAll();
+            // Cleanup time
+            configRecruitForce.DisposeAll();
             configRecruitType.DisposeAll();
             configGeneric.DisposeAll();
 
@@ -298,9 +298,9 @@ namespace Strategic
         //
         void ProcessConfig(FScope* fScope)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                FScope* sScope;
+            FScope* sScope;
 
             // Step through each function in this scope
             while ((sScope = fScope->NextFunction()) != NULL)
@@ -373,9 +373,9 @@ namespace Strategic
         //
         RecruitForce* FindRecruitForce(U32 crc)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                return (configRecruitForce.Find(crc));
+            return (configRecruitForce.Find(crc));
         }
 
 
@@ -386,9 +386,9 @@ namespace Strategic
         //
         RecruitType* FindRecruitType(U32 crc)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                return (configRecruitType.Find(crc));
+            return (configRecruitType.Find(crc));
         }
 
 
@@ -413,7 +413,7 @@ namespace Strategic
 
             if (required)
             {
-                ERR_CONFIG(("Could not find config '%s'", config.str))
+                ERR_CONFIG(("Could not find config '%s'", config.str));
             }
             else
             {

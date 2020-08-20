@@ -192,7 +192,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -212,6 +212,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <Culture>0x0409</Culture>
@@ -246,6 +247,8 @@
     <ClCompile Include="sound_digital_reserved.cpp" />
     <ClCompile Include="sound_digital_stream.cpp" />
     <ClCompile Include="sound_redbook.cpp" />
+    <ClCompile Include="sound_redbook_proxy.cpp" />
+    <ClCompile Include="sound_vorbis.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sound.h" />

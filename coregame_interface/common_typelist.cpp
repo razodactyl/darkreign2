@@ -24,191 +24,190 @@
 //
 namespace Common
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TypeList
-  //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TypeList
+    //
 
-  //
-  // Constructor
-  //
-  TypeList::TypeList(IControl *parent) : ICListBox(parent)
-  {
-    property = new IFaceVar(this, CreateString("property", ""));
-    useKey = new IFaceVar(this, CreateInteger("showkey", FALSE));
-  }
-
-
-  //
-  // Destructor
-  //
-  TypeList::~TypeList()
-  {
-    delete property;
-    delete useKey;
-	  include.DisposeAll();
-    exclude.DisposeAll();
-  }
-
-
-  //
-  // Rebuild
-  //
-  // Rebuild the list using the current filter
-  //
-  void TypeList::Rebuild()
-  {
-    // Save the selected items (if any)
-    selectedList.PurgeDead();
-
-    UnitObjTypeList types;
-    for (SelectedList::Iterator i(&selectedList); *i; i++)
+    //
+    // Constructor
+    //
+    TypeList::TypeList(IControl* parent) : ICListBox(parent)
     {
-      UnitObjType *type = GameObjCtrl::FindType<UnitObjType>((**i)->NameCrc());
-      if (type)
-      {
-        types.Append(type);
-      }
+        property = new IFaceVar(this, CreateString("property", ""));
+        useKey = new IFaceVar(this, CreateInteger("showkey", FALSE));
     }
 
-    // Clear the list
-    DeleteAllItems();
 
-    // Get the current property filter
-    GameIdent p = property->GetStringValue();
-
-    // Use type name as key
-    Bool keyAsName = useKey->GetIntegerValue();
-
-    // Add the types
-    for (List<GameObjType>::Iterator type(&GameObjCtrl::objTypesList); *type; type++)
+    //
+    // Destructor
+    //
+    TypeList::~TypeList()
     {
-      // Check for an exclusion filter
-		List<GameIdent>::Iterator x(&exclude);
-      for (; *x && !(*type)->DerivedFrom((*x)->crc); x++);
+        delete property;
+        delete useKey;
+        include.DisposeAll();
+        exclude.DisposeAll();
+    }
 
-      // Continue if none was found, and no excluding properties
-      if (!*x && !excludeProperties.Test(*type))
-      {
-        // Check that the type matches at least one include filter
-        for (List<GameIdent>::Iterator i(&include); *i; i++)
+
+    //
+    // Rebuild
+    //
+    // Rebuild the list using the current filter
+    //
+    void TypeList::Rebuild()
+    {
+        // Save the selected items (if any)
+        selectedList.PurgeDead();
+
+        UnitObjTypeList types;
+        for (SelectedList::Iterator i(&selectedList); *i; ++i)
         {
-          // Is this type derived from this class id
-          if ((*type)->DerivedFrom((*i)->crc))
-          {
-            // Does the type have the current dynamic property
-            if (p.Null() || (*type)->HasProperty(p.crc))
+            UnitObjType* type = GameObjCtrl::FindType<UnitObjType>((**i)->NameCrc());
+            if (type)
             {
-              // Passes all filters, so add to list
-              AddTextItem((*type)->GetName(), keyAsName ? NULL : (*type)->GetDesc());
+                types.Append(type);
             }
-
-            // Done with this type
-            break;
-          }
         }
-      }
-    }
 
-    // Sort the list
-    Sort(TRUE);
-    ClearSelected();
+        // Clear the list
+        DeleteAllItems();
 
-    // Reselect the previously selected list
-    for (UnitObjTypeList::Iterator t(&types); *t; t++)
-    {
-      ASSERT((*t)->Alive())
-      SetSelectedItem((**t)->GetName());
-    }
-    types.Clear();
+        // Get the current property filter
+        GameIdent p = property->GetStringValue();
 
-  }
+        // Use type name as key
+        Bool keyAsName = useKey->GetIntegerValue();
 
-
-  //
-  // HandleEvent
-  //
-  // Event handling function
-  //
-  U32 TypeList::HandleEvent(Event &e)
-  {
-    if (e.type == IFace::EventID())
-    {
-      switch (e.subType)
-      {
-        case IFace::NOTIFY:
+        // Add the types
+        for (List<GameObjType>::Iterator type(&GameObjCtrl::objTypesList); *type; ++type)
         {
-          switch (e.iface.p1)
-          {
-            case IControlNotify::Activating:
-            {
-              property->Activate();
-              useKey->Activate();
-              break;
-            }
+            // Check for an exclusion filter
+            List<GameIdent>::Iterator x(&exclude);
+            for (; *x && !(*type)->DerivedFrom((*x)->crc); ++x);
 
-            case IControlNotify::Deactivated:
+            // Continue if none was found, and no excluding properties
+            if (!*x && !excludeProperties.Test(*type))
             {
-              property->Deactivate();
-              useKey->Deactivate();
-              break;
-            }
+                // Check that the type matches at least one include filter
+                for (List<GameIdent>::Iterator i(&include); *i; ++i)
+                {
+                    // Is this type derived from this class id
+                    if ((*type)->DerivedFrom((*i)->crc))
+                    {
+                        // Does the type have the current dynamic property
+                        if (p.Null() || (*type)->HasProperty(p.crc))
+                        {
+                            // Passes all filters, so add to list
+                            AddTextItem((*type)->GetName(), keyAsName ? nullptr : (*type)->GetDesc());
+                        }
 
-            case ICListBoxMsg::Rebuild:
-            {
-              Rebuild();
-              return (TRUE);
+                        // Done with this type
+                        break;
+                    }
+                }
             }
-          }
-          break;
         }
-      }
+
+        // Sort the list
+        Sort(TRUE);
+        ClearSelected();
+
+        // Reselect the previously selected list
+        for (UnitObjTypeList::Iterator t(&types); *t; ++t)
+        {
+            ASSERT((*t)->Alive());
+            SetSelectedItem((**t)->GetName());
+        }
+        types.Clear();
     }
 
-    return (ICListBox::HandleEvent(e));
-  }
 
-
-  //
-  // Notify
-  //
-  // Function called when a var being watched changes value
-  //
-  void TypeList::Notify(IFaceVar *var)
-  {
-    ICListBox::Notify(var);
-
-    if (var == property || var == useKey)
+    //
+    // HandleEvent
+    //
+    // Event handling function
+    //
+    U32 TypeList::HandleEvent(Event& e)
     {
-      Rebuild();
+        if (e.type == IFace::EventID())
+        {
+            switch (e.subType)
+            {
+                case IFace::NOTIFY:
+                {
+                    switch (e.iface.p1)
+                    {
+                        case IControlNotify::Activating:
+                        {
+                            property->Activate();
+                            useKey->Activate();
+                            break;
+                        }
+
+                        case IControlNotify::Deactivated:
+                        {
+                            property->Deactivate();
+                            useKey->Deactivate();
+                            break;
+                        }
+
+                        case ICListBoxMsg::Rebuild:
+                        {
+                            Rebuild();
+                            return (TRUE);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return (ICListBox::HandleEvent(e));
     }
-  }
 
 
-  //
-  // Setup
-  //
-  // Setup this control from one scope function
-  //
-  void TypeList::Setup(FScope *fScope)
-  {
-    switch (fScope->NameCrc())
+    //
+    // Notify
+    //
+    // Function called when a var being watched changes value
+    //
+    void TypeList::Notify(IFaceVar* var)
     {
-      case 0x8CBCE90A: // "Include"
-  		  StdLoad::TypeStrCrcList(fScope, include);
-        break;
+        ICListBox::Notify(var);
 
-      case 0x2AA8CA38: // "Exclude"
-  		  StdLoad::TypeStrCrcList(fScope, exclude);
-        break;
-
-      case 0xF89CC45D: // "ExcludeProperties"
-        excludeProperties.Load(fScope);
-        break;
-
-      default:
-        ICListBox::Setup(fScope);
-        break;
+        if (var == property || var == useKey)
+        {
+            Rebuild();
+        }
     }
-  }
+
+
+    //
+    // Setup
+    //
+    // Setup this control from one scope function
+    //
+    void TypeList::Setup(FScope* fScope)
+    {
+        switch (fScope->NameCrc())
+        {
+            case 0x8CBCE90A: // "Include"
+                StdLoad::TypeStrCrcList(fScope, include);
+                break;
+
+            case 0x2AA8CA38: // "Exclude"
+                StdLoad::TypeStrCrcList(fScope, exclude);
+                break;
+
+            case 0xF89CC45D: // "ExcludeProperties"
+                excludeProperties.Load(fScope);
+                break;
+
+            default:
+                ICListBox::Setup(fScope);
+                break;
+        }
+    }
 }

@@ -42,24 +42,25 @@ const U32 MAXMIPMAPS = 22;
 //
 S32 PowerOf2(S32 x)
 {
-    ASSERT(x >= 0)
+    ASSERT(x >= 0);
 
-        S32 exp;
+    S32 exp;
     for (exp = -1; x; x >>= 1)
     {
         exp++;
     }
     return exp;
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::ClearData()
 {
-    bmpData = NULL;
+    bmpData = nullptr;
 
-    pixForm = NULL;
+    pixForm = nullptr;
 
-    surface = NULL;
+    surface = nullptr;
 
     bmpWidth = bmpHeight = bmpDepth = bmpPitch = bmpBytePP = 0;
     invWidth = invHeight = 0.0F;
@@ -71,13 +72,13 @@ void Bitmap::ClearData()
     Utils::Memset(&desc, 0, sizeof(desc));
     desc.dwSize = sizeof(desc);
 
-    bink = NULL;
-    binkFile = NULL;
+    bink = nullptr;
+    binkFile = nullptr;
 
     RootObj::ClearData();
     status.ClearData();
     mipMapCount = 0;
-    fnMakeRGBA = NULL;
+    fnMakeRGBA = nullptr;
 
     // animating textures
     nextMap = this;
@@ -87,6 +88,7 @@ void Bitmap::ClearData()
     status.video = FALSE;
     status.binkStart = TRUE;    // for non-binks
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Clear(Color color, Area<S32>* rect) // = NULL
@@ -95,7 +97,7 @@ void Bitmap::Clear(Color color, Area<S32>* rect) // = NULL
     {
         // use a DD blt
         //
-        Area <S32> r;
+        Area<S32> r;
         if (!rect)
         {
             r.Set(0, 0, bmpWidth, bmpHeight);
@@ -105,7 +107,7 @@ void Bitmap::Clear(Color color, Area<S32>* rect) // = NULL
         Utils::Memset(&ddbltfx, 0, sizeof(ddbltfx));
         ddbltfx.dwSize = sizeof(DDBLTFX);
         ddbltfx.dwFillColor = pixForm->MakeRGBA(color);
-        dxError = surface->Blt((RECT*)rect, NULL, NULL, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
+        dxError = surface->Blt((RECT*)rect, nullptr, nullptr, DDBLT_COLORFILL | DDBLT_WAIT, &ddbltfx);
         LOG_DXERR(("Bitmap::Clear: surface->Blt"));
     }
     else
@@ -113,6 +115,7 @@ void Bitmap::Clear(Color color, Area<S32>* rect) // = NULL
         FillRectangle(0, 0, bmpWidth - 1, bmpHeight - 1, color);
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bitmap::Bitmap(U32 reduce, const char* name, U32 mips, U32 type) // = 0, = bitmapTEXTURE)
@@ -121,6 +124,7 @@ Bitmap::Bitmap(U32 reduce, const char* name, U32 mips, U32 type) // = 0, = bitma
 
     Manager::Setup(reduce, *this, name, mips, type);
 }
+
 //----------------------------------------------------------------------------
 
 Bitmap::Bitmap(U32 t) // = bitmapNORMAL
@@ -135,6 +139,7 @@ Bitmap::Bitmap(U32 t) // = bitmapNORMAL
         SetName("");
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::ReleaseBink()
@@ -146,14 +151,15 @@ void Bitmap::ReleaseBink()
     if (bink)
     {
         BinkClose(bink);
-        bink = NULL;
+        bink = nullptr;
     }
     if (binkFile)
     {
-        FileSys::Close(binkFile);
-        binkFile = NULL;
+        Close(binkFile);
+        binkFile = nullptr;
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bitmap::~Bitmap()
@@ -164,6 +170,7 @@ Bitmap::~Bitmap()
     }
     Release();
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::Release()
@@ -174,13 +181,14 @@ void Bitmap::Release()
 
     if (bmpData && status.ownsData)
     {
-        delete[](char*) bmpData;
+        delete[]static_cast<char*>(bmpData);
     }
-    bmpData = NULL;
+    bmpData = nullptr;
 
     Utils::Memset(&desc, 0, sizeof(desc));
     desc.dwSize = sizeof(desc);
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bitmap::MemSize() const
@@ -188,6 +196,7 @@ U32 Bitmap::MemSize() const
     //  return bmpPitch * bmpHeight * bmpBytePP;
     return bmpWidth * bmpHeight * bmpBytePP;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bitmap::GetMem() const
@@ -204,6 +213,7 @@ U32 Bitmap::GetMem() const
 
     return mmm;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -215,7 +225,7 @@ void* Bitmap::Lock()
 
     if (surface)
     {
-        dxError = surface->Lock(NULL, &desc, DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, NULL);
+        dxError = surface->Lock(nullptr, &desc, DDLOCK_SURFACEMEMORYPTR | DDLOCK_WAIT, nullptr);
         /*
             if (dxError)
             {
@@ -227,6 +237,7 @@ void* Bitmap::Lock()
     }
     return bmpData;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -236,11 +247,12 @@ void Bitmap::UnLock()
 {
     if (surface)
     {
-        dxError = surface->Unlock(NULL);
+        dxError = surface->Unlock(nullptr);
         LOG_DXERR(("Bitmap::UnLock: surface->Unlock"));
-        bmpData = NULL;
+        bmpData = nullptr;
     }
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -259,8 +271,8 @@ Bool Bitmap::Create(S32 width, S32 height, S32 depth, S32 pitch, void* data)
 
     if (!Vid::caps.texNoHalf)
     {
-        uvShiftWidth = 0.5f / (F32)bmpWidth;
-        uvShiftHeight = 0.5f / (F32)bmpHeight;
+        uvShiftWidth = 0.5f / static_cast<F32>(bmpWidth);
+        uvShiftHeight = 0.5f / static_cast<F32>(bmpHeight);
     }
     else
     {
@@ -277,6 +289,7 @@ Bool Bitmap::Create(S32 width, S32 height, S32 depth, S32 pitch, void* data)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -312,8 +325,8 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
         invHeight = bmpHeight ? 1.0F / F32(bmpHeight) : 0.0F;
 
         // Allocate the bitmap data
-        bmpData = (void*) new char[bmpPitch * bmpHeight * bmpBytePP];
-        if (bmpData == NULL)
+        bmpData = static_cast<void*>(new char[bmpPitch * bmpHeight * bmpBytePP]);
+        if (bmpData == nullptr)
         {
             LOG_ERR(("Error allocating %dx%dx%d bitmap", bmpWidth, bmpHeight, bmpDepth));
             return FALSE;
@@ -367,11 +380,14 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
 
             // manage textures if writable, requested or necessary
             //
-            status.managed = (type & bitmapWRITABLE) || !Vid::renderState.status.texNoSwap || Vid::renderState.texNoSwapMem >= Vid::totalTexMemory ? TRUE : FALSE;
+            status.managed = (type & bitmapWRITABLE) || !Vid::renderState.status.texNoSwap || Vid::renderState.
+                             texNoSwapMem >= Vid::totalTexMemory
+                                 ? TRUE
+                                 : FALSE;
             if (status.managed)
             {
                 desc.ddsCaps.dwCaps2 |= DDSCAPS2_TEXTUREMANAGE;       // driver if available
-    //  			desc.ddsCaps.dwCaps2 |= DDSCAPS2_D3DTEXTUREMANAGE;
+                //  			desc.ddsCaps.dwCaps2 |= DDSCAPS2_D3DTEXTUREMANAGE;
             }
             else
             {
@@ -389,7 +405,7 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
 
             // don't mip map multi-pass, animating, or writable textures
             //
-      //      if (stage > 0 || status.checkAnim || (type & bitmapWRITABLE))
+            //      if (stage > 0 || status.checkAnim || (type & bitmapWRITABLE))
             if ((type & bitmapWRITABLE) || (!Vid::renderState.status.overlayMip && stage > 0))
             {
                 mips = 0;
@@ -432,7 +448,7 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
         }
         //    LOG_DIAG( ("Bitmap::Create: %s: %dx%d %s", name, desc.dwWidth, desc.dwHeight, pixForm->name) );
 
-        dxError = Vid::ddx->CreateSurface(&desc, &surface, NULL);
+        dxError = Vid::ddx->CreateSurface(&desc, &surface, nullptr);
         if (dxError)
         {
             LOG_DXERR(("Bitmap::Create: ddx->CreateSurface"));
@@ -468,8 +484,8 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
     //
     if (!Vid::caps.texNoHalf)
     {
-        uvShiftWidth = 0.5f / (F32)bmpWidth;
-        uvShiftHeight = 0.5f / (F32)bmpHeight;
+        uvShiftWidth = 0.5f / static_cast<F32>(bmpWidth);
+        uvShiftHeight = 0.5f / static_cast<F32>(bmpHeight);
     }
     else
     {
@@ -487,6 +503,7 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -514,6 +531,7 @@ Bool Bitmap::LoadVideo()
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -583,7 +601,7 @@ Bool Bitmap::ReLoad(const char* filename) // = NULL
         // animating textures
         //
         U32 count = 1;
-        Bitmap* bmp = this, * lbmp = NULL, * fbmp = NULL;
+        Bitmap *bmp = this, *lbmp = nullptr, *fbmp = nullptr;
         do
         {
             bmp->ReleaseBink();
@@ -618,8 +636,8 @@ Bool Bitmap::ReLoad(const char* filename) // = NULL
 
             lbmp = bmp;
             bmp = bmp->GetNext();
-
-        } while (bmp && FileSys::Exists(texname.str));
+        }
+        while (bmp && FileSys::Exists(texname.str));
 
         // complete the loop
         //
@@ -682,6 +700,7 @@ Bool Bitmap::ReLoad(const char* filename) // = NULL
 
     return retValue;
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::ReleaseDD()
@@ -691,23 +710,27 @@ void Bitmap::ReleaseDD()
     if (surface && status.ownsSurface)
     {
         RELEASEDX(surface);
-        bmpData = NULL;
+        bmpData = nullptr;
     }
-    surface = NULL;
+    surface = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
-void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 width, S32 height, Color* srcKey, Color fill, Color alpha) // = NULL, 0x00000000, 255
+void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 width, S32 height, Color* srcKey,
+                      Color fill, Color alpha) // = NULL, 0x00000000, 255
 {
     ASSERT(&dst && dst.pixForm && pixForm);
 
     Bool sameFormat =
-        (
-            (dst.pixForm->rMask != pixForm->rMask) ||
-            (dst.pixForm->gMask != pixForm->gMask) ||
-            (dst.pixForm->bMask != pixForm->bMask) ||
-            (dst.pixForm->aMask != pixForm->aMask)
-            ) ? FALSE : TRUE;
+    (
+        (dst.pixForm->rMask != pixForm->rMask) ||
+        (dst.pixForm->gMask != pixForm->gMask) ||
+        (dst.pixForm->bMask != pixForm->bMask) ||
+        (dst.pixForm->aMask != pixForm->aMask)
+    )
+        ? FALSE
+        : TRUE;
 
     // clip
     //
@@ -778,14 +801,16 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
                 flags |= DDBLTFAST_SRCCOLORKEY;
             }
             dxError = dst.surface->BltFast(dstx, dsty, surface, &srcRect, flags);
-            LOG_DXERR(("BitMap::CopyBits: BltFast dstx=%d dsty=%d surface=0x%.8x srcrect=(%d,%d,%d,%d)", dstx, dsty, surface, srcRect.left, srcRect.top, srcRect.right, srcRect.bottom));
+            LOG_DXERR(
+                ("BitMap::CopyBits: BltFast dstx=%d dsty=%d surface=0x%.8x srcrect=(%d,%d,%d,%d)", dstx, dsty, surface,
+                    srcRect.left, srcRect.top, srcRect.right, srcRect.bottom));
         }
         else
         {
             U32 flags = DDBLT_WAIT;
             if (srcKey)
             {
-                bltFx.ddckSrcColorkey.dwColorSpaceLowValue = (DWORD)pixForm->MakeRGBA(*srcKey);
+                bltFx.ddckSrcColorkey.dwColorSpaceLowValue = static_cast<DWORD>(pixForm->MakeRGBA(*srcKey));
                 bltFx.ddckSrcColorkey.dwColorSpaceHighValue = bltFx.ddckSrcColorkey.dwColorSpaceLowValue;
                 flags |= DDBLT_KEYSRCOVERRIDE;
             }
@@ -819,8 +844,8 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
                 ASSERT(dst.bmpData);
 
                 U32 copyBytes = width * bmpBytePP;
-                U8* dstBits = (U8*)(dst.Data()) + (dsty * dst.Pitch()) + (dstx * bmpBytePP);
-                U8* srcBits = (U8*)(Data()) + (srcy * Pitch()) + (srcx * bmpBytePP);
+                U8* dstBits = static_cast<U8*>(dst.Data()) + (dsty * dst.Pitch()) + (dstx * bmpBytePP);
+                U8* srcBits = static_cast<U8*>(Data()) + (srcy * Pitch()) + (srcx * bmpBytePP);
 
                 if (sameFormat && !srcKey)
                 {
@@ -838,7 +863,7 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
                     //          LOG_DIAG(("Using very non-optimal copy bits %dbit->%dbit", Depth(), dst.Depth()));
                     //          LOG_DIAG(("dst = %s, src = %s", dst.pixForm->name.str, pixForm->name.str) );
 
-                              // Slow
+                    // Slow
                     for (int y = 0; y < height; y++)
                     {
                         U8* oldDst = dstBits;
@@ -854,20 +879,23 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
 
                             switch (Depth())
                             {
-                            case 16:
-                                data = U32(*(U16*)srcBits);
-                                break;
+                                case 16:
+                                    data = U32(*(U16*)srcBits);
+                                    break;
 
-                            case 32:
-                                data = U32(*(U32*)srcBits);
-                                break;
+                                case 32:
+                                    data = U32(*(U32*)srcBits);
+                                    break;
                             }
 
                             if (alpha == 0)                     // alpha replicate
                             {
-                                r = (U8)(((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->rScaleInv));
-                                g = (U8)(((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->gScaleInv));
-                                b = (U8)(((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->bScaleInv));
+                                r = static_cast<U8>(((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->rScaleInv)
+                                );
+                                g = static_cast<U8>(((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->gScaleInv)
+                                );
+                                b = static_cast<U8>(((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->bScaleInv)
+                                );
                                 a = r;
 
                                 data = dst.pixForm->MakeRGBA(r, g, b, a);
@@ -878,10 +906,13 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
                             }
                             else                                // alpha set
                             {
-                                r = (U8)(((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->rScaleInv));
-                                g = (U8)(((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->gScaleInv));
-                                b = (U8)(((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->bScaleInv));
-                                a = (U8)alpha;
+                                r = static_cast<U8>(((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->rScaleInv)
+                                );
+                                g = static_cast<U8>(((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->gScaleInv)
+                                );
+                                b = static_cast<U8>(((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->bScaleInv)
+                                );
+                                a = static_cast<U8>(alpha);
 
                                 data = dst.pixForm->MakeRGBA(r, g, b, a);
                             }
@@ -889,13 +920,13 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
                             // Write a pixel
                             switch (dst.Depth())
                             {
-                            case 16:
-                                *(U16*)dstBits = (U16)data;
-                                break;
+                                case 16:
+                                    *(U16*)dstBits = static_cast<U16>(data);
+                                    break;
 
-                            case 32:
-                                *(U32*)dstBits = (U32)data;
-                                break;
+                                case 32:
+                                    *(U32*)dstBits = static_cast<U32>(data);
+                                    break;
                             }
 
                             dstBits += dst.bmpBytePP;
@@ -921,12 +952,14 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::CopyBits(Bitmap& dst)
 {
     CopyBits(dst, 0, 0, 0, 0, Width(), Height());
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -1013,6 +1046,7 @@ void Bitmap::InitPrimitives()
         fnMakeRGBA = &Bitmap::MakeRGBAPixForm;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::SetPixFormat(const Pix* pix)
@@ -1020,6 +1054,7 @@ void Bitmap::SetPixFormat(const Pix* pix)
     ASSERT(pix);
     pixForm = (Pix*)pix;
 }
+
 //----------------------------------------------------------------------------
 
 
@@ -1030,30 +1065,29 @@ void Bitmap::InitPixFormat()
 {
     switch ((type & bitmapTYPEMASK))
     {
-    case bitmapTEXTURE:
-    {
-        // Set the pixel format for the texture
-        if (status.transparent)
+        case bitmapTEXTURE:
         {
-            pixForm = &Vid::PixTransparent();
+            // Set the pixel format for the texture
+            if (status.transparent)
+            {
+                pixForm = &Vid::PixTransparent();
+            }
+            else if (status.translucent)
+            {
+                pixForm = &Vid::PixTranslucent();
+            }
+            else
+            {
+                pixForm = &Vid::PixNormal();
+            }
+            return;
         }
-        else if (status.translucent)
-        {
-            pixForm = &Vid::PixTranslucent();
-        }
-        else
-        {
-            pixForm = &Vid::PixNormal();
-        }
-        return;
-    }
 
-    case bitmapSURFACE:
-    case bitmapNORMAL:
-    {
-        pixForm = &Vid::BackBufFormat();
-        return;
-    }
+        case bitmapSURFACE:
+        case bitmapNORMAL:
+        {
+            pixForm = &Vid::BackBufFormat();
+        }
     }
 }
 
@@ -1067,6 +1101,7 @@ void Bitmap::SetSystemPalette(Palette* pal, U8* clut)
     sysPal = pal;
     sysCLUT = clut;
 }
+
 //----------------------------------------------------------------------------
 
 
@@ -1151,6 +1186,7 @@ Bool Bitmap::Read(const char* filename, Pix* pixelFormat)
     }
     return retValue;
 }
+
 //----------------------------------------------------------------------------
 
 // check for animating/movie textures
@@ -1175,6 +1211,7 @@ void Bitmap::SetName(const char* _name)
 
     status.checkBink = FileSys::Exists(texname);
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -1187,10 +1224,10 @@ Bool Bitmap::ReadBMP(const char* filename, Pix* pixelFormat)
     BITMAPFILEHEADER fileHeader;
     BITMAPINFOHEADER infoHeader;
     FileSys::DataFile* fp;
-    U8* rowData = NULL;
+    U8* rowData = nullptr;
 
     // Open the file
-    if ((fp = FileSys::Open(filename)) == NULL)
+    if ((fp = FileSys::Open(filename)) == nullptr)
     {
         LOG_ERR(("Error opening [%s]", filename));
         goto Error;
@@ -1243,7 +1280,6 @@ Bool Bitmap::ReadBMP(const char* filename, Pix* pixelFormat)
     else if (infoHeader.biBitCount == 16)
     {
         // read in bitfields
-
     }
 
     // Read in the bits
@@ -1278,7 +1314,8 @@ Bool Bitmap::ReadBMP(const char* filename, Pix* pixelFormat)
     else
     {
         // Create a new bitmap, if a pixel format was passed in use that
-        if (!Create(infoHeader.biWidth, abs(infoHeader.biHeight), infoHeader.biBitCount == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount))
+        if (!Create(infoHeader.biWidth, abs(infoHeader.biHeight),
+                    infoHeader.biBitCount == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount))
         {
             goto Error;
         }
@@ -1324,13 +1361,13 @@ Bool Bitmap::ReadBMP(const char* filename, Pix* pixelFormat)
 
         CopyLine
         (
-            rowData, (U8*)bmpData + (thisRow * bmpPitch),
+            rowData, static_cast<U8*>(bmpData) + (thisRow * bmpPitch),
             copyWidth, infoHeader.biBitCount, palRGB
         );
     }
     UnLock();
 
-    FileSys::Close(fp);
+    Close(fp);
 
     if (rowData)
     {
@@ -1347,7 +1384,7 @@ Error:
 
     if (fp)
     {
-        FileSys::Close(fp);
+        Close(fp);
     }
     if (rowData)
     {
@@ -1356,6 +1393,7 @@ Error:
 
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -1367,11 +1405,11 @@ Bool Bitmap::WriteBMP(const char* filename, Bool keepTrying)
 {
     BITMAPFILEHEADER fileHeader;
     BITMAPINFOHEADER infoHeader;
-    FILE* fp = NULL;
-    U8* lineBuf = NULL;
+    FILE* fp = nullptr;
+    U8* lineBuf = nullptr;
 
     fp = fopen(filename, "wb");
-    if (fp == NULL)
+    if (fp == nullptr)
     {
         goto Error;
     }
@@ -1390,7 +1428,7 @@ Bool Bitmap::WriteBMP(const char* filename, Bool keepTrying)
     infoHeader.biWidth = bmpWidth;
     infoHeader.biHeight = bmpHeight;
     infoHeader.biPlanes = 1;
-    infoHeader.biBitCount = (WORD)(bmpDepth == 8 ? 8 : 24);
+    infoHeader.biBitCount = static_cast<WORD>(bmpDepth == 8 ? 8 : 24);
     infoHeader.biCompression = BI_RGB;
     infoHeader.biSizeImage = 0;
     infoHeader.biXPelsPerMeter = 0;
@@ -1416,9 +1454,9 @@ Bool Bitmap::WriteBMP(const char* filename, Bool keepTrying)
             U32 i;
             for (i = 0; i < 256; i++)
             {
-                rgb.rgbRed = (BYTE)i;
-                rgb.rgbGreen = (BYTE)i;
-                rgb.rgbBlue = (BYTE)i;
+                rgb.rgbRed = static_cast<BYTE>(i);
+                rgb.rgbGreen = static_cast<BYTE>(i);
+                rgb.rgbBlue = static_cast<BYTE>(i);
 
                 fwrite(&rgb, sizeof(RGBQUAD), 1, fp);
             }
@@ -1465,7 +1503,7 @@ Bool Bitmap::WriteBMP(const char* filename, Bool keepTrying)
         {
             for (i = 0; i < bmpHeight; i++)
             {
-                U8* data = (U8*)bmpData + ((bmpHeight - 1 - i) * bmpPitch);
+                U8* data = static_cast<U8*>(bmpData) + ((bmpHeight - 1 - i) * bmpPitch);
 
                 if (bmpDepth == 8)
                 {
@@ -1481,7 +1519,7 @@ Bool Bitmap::WriteBMP(const char* filename, Bool keepTrying)
                     {
                         if (bmpDepth == 16)
                         {
-                            pixel = (U32) * (U16*)data;
+                            pixel = static_cast<U32>(*(U16*)data);
                         }
                         else
                         {
@@ -1490,9 +1528,9 @@ Bool Bitmap::WriteBMP(const char* filename, Bool keepTrying)
 
                         ASSERT(pixForm);
 
-                        r = (U8)(((pixel & pixForm->rMask) >> pixForm->rShift) << (8 - pixForm->rScale));
-                        g = (U8)(((pixel & pixForm->gMask) >> pixForm->gShift) << (8 - pixForm->gScale));
-                        b = (U8)(((pixel & pixForm->bMask) >> pixForm->bShift) << (8 - pixForm->bScale));
+                        r = static_cast<U8>(((pixel & pixForm->rMask) >> pixForm->rShift) << (8 - pixForm->rScale));
+                        g = static_cast<U8>(((pixel & pixForm->gMask) >> pixForm->gShift) << (8 - pixForm->gScale));
+                        b = static_cast<U8>(((pixel & pixForm->bMask) >> pixForm->bShift) << (8 - pixForm->bScale));
 
                         *(outBuf + 0) = b;
                         *(outBuf + 1) = g;
@@ -1530,6 +1568,7 @@ Error:
     }
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -1539,179 +1578,189 @@ void Bitmap::CopyLine(U8* src, U8* dst, int width, int srcDepth, RGBQUAD* pal)
 {
     switch (srcDepth)
     {
-    case 8:
-        if (bmpDepth == 8)
-        {
-            // Directly copy an 8-bit image into this 8-bit surface
-            memcpy((U8*)dst, src, width);
-        }
-        else if (bmpDepth == 16)
-        {
-            // Expand the 8-bit image into this 16-bit surface
-            U16* bits = (U16*)dst;
-
-            for (int i = 0; i < width; i++)
+        case 8:
+            if (bmpDepth == 8)
             {
-                RGBQUAD clr = pal[*(src + i)];
-
-                *bits++ = (U16)MakeRGBA(clr.rgbRed, clr.rgbGreen, clr.rgbBlue);
+                // Directly copy an 8-bit image into this 8-bit surface
+                memcpy(static_cast<U8*>(dst), src, width);
             }
-        }
-        else if (bmpDepth == 24)
-        {
-            // Expand the 8-bit image into this 24-bit surface
-            Bit24Color* bits = (Bit24Color*)dst;
-
-            for (int i = 0; i < width; i++)
+            else if (bmpDepth == 16)
             {
-                RGBQUAD clr = pal[*(src + i)];
-                U32 color = MakeRGBA(clr.rgbRed, clr.rgbGreen, clr.rgbBlue);
-                *bits++ = *((Bit24Color*)&color);
+                // Expand the 8-bit image into this 16-bit surface
+                U16* bits = (U16*)dst;
+
+                for (int i = 0; i < width; i++)
+                {
+                    RGBQUAD clr = pal[*(src + i)];
+
+                    *bits++ = static_cast<U16>(MakeRGBA(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+                }
             }
-        }
-        else if (bmpDepth == 32)
-        {
-            // Expand the 8-bit image into this 32-bit surface
-            U32* bits = (U32*)dst;
-
-            for (int i = 0; i < width; i++)
+            else if (bmpDepth == 24)
             {
-                RGBQUAD clr = pal[*(src + i)];
-                *bits++ = (U32)MakeRGBA(clr.rgbRed, clr.rgbGreen, clr.rgbBlue);
+                // Expand the 8-bit image into this 24-bit surface
+                Bit24Color* bits = (Bit24Color*)dst;
+
+                for (int i = 0; i < width; i++)
+                {
+                    RGBQUAD clr = pal[*(src + i)];
+                    U32 color = MakeRGBA(clr.rgbRed, clr.rgbGreen, clr.rgbBlue);
+                    *bits++ = *((Bit24Color*)&color);
+                }
+            }
+            else if (bmpDepth == 32)
+            {
+                // Expand the 8-bit image into this 32-bit surface
+                U32* bits = (U32*)dst;
+
+                for (int i = 0; i < width; i++)
+                {
+                    RGBQUAD clr = pal[*(src + i)];
+                    *bits++ = static_cast<U32>(MakeRGBA(clr.rgbRed, clr.rgbGreen, clr.rgbBlue));
+                }
+            }
+            break;
+
+        case 16:
+            if (bmpDepth == 16)
+            {
+                U16* bits = (U16*)dst;
+                U16* data = (U16*)src;
+
+                for (int i = 0; i < width; i++)
+                {
+                    *bits++ = static_cast<U16>(MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2,
+                                                        (*data & 0x001F) << 3,
+                                                        (*data & 0x8000) >> 8));
+                    data++;
+                }
+            }
+            else if (bmpDepth == 24)
+            {
+                Bit24Color* bits = (Bit24Color*)static_cast<U8*>(dst);
+                U16* data = (U16*)src;
+
+                for (int i = 0; i < width; i++)
+                {
+                    U32 color = MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2, (*data & 0x001F) << 3,
+                                         (*data & 0x8000) >> 8);
+                    *bits++ = *((Bit24Color*)&color);
+                    data++;
+                }
+            }
+            else if (bmpDepth == 32)
+            {
+                U32* bits = (U32*)dst;
+                U16* data = (U16*)src;
+
+                for (int i = 0; i < width; i++)
+                {
+                    *bits++ = static_cast<U32>(MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2,
+                                                        (*data & 0x001F) << 3,
+                                                        (*data & 0x8000) >> 8));
+                    data++;
+                }
+            }
+            break;
+
+        case 24:
+        {
+            if (bmpDepth == 8)
+            {
+                LOG_ERR(("Cannot load 24-bit image into 8-bit bitmap"));
+                return;
+            }
+            if (bmpDepth == 16)
+            {
+                U16* bits = (U16*)static_cast<U8*>(dst);
+                U8* rgb = src;
+
+                for (int i = 0; i < width; i++)
+                {
+                    *bits++ = static_cast<U16>(MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0)));
+                    rgb += 3;
+                }
+            }
+            else if (bmpDepth == 24)
+            {
+                memcpy((Bit24Color*)dst, (Bit24Color*)src, width * 3);
+            }
+            else if (bmpDepth == 32)
+            {
+                U32* bits = (U32*)static_cast<U8*>(dst);
+                U8* rgb = src;
+
+                for (int i = 0; i < width; i++)
+                {
+                    *bits++ = static_cast<U32>(MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0)));
+                    rgb += 3;
+                }
             }
         }
         break;
-
-    case 16:
-        if (bmpDepth == 16)
+        case 32:
         {
-            U16* bits = (U16*)dst;
-            U16* data = (U16*)src;
-
-            for (int i = 0; i < width; i++)
+            if (bmpDepth == 8)
             {
-                *bits++ = (U16)MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2, (*data & 0x001F) << 3, (*data & 0x8000) >> 8);
-                data++;
+                LOG_ERR(("Cannot load 32-bit image into 8-bit bitmap"));
+                return;
             }
-        }
-        else if (bmpDepth == 24)
-        {
-            Bit24Color* bits = (Bit24Color*)((U8*)dst);
-            U16* data = (U16*)src;
-
-            for (int i = 0; i < width; i++)
+            if (bmpDepth == 16)
             {
-                U32 color = MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2, (*data & 0x001F) << 3, (*data & 0x8000) >> 8);
-                *bits++ = *((Bit24Color*)&color);
-                data++;
+                U16* bits = (U16*)static_cast<U8*>(dst);
+                U8* rgb = src;
+
+                for (int i = 0; i < width; i++)
+                {
+                    *bits++ = static_cast<U16>(MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0), *(rgb + 3)));
+                    rgb += 4;
+                }
             }
-        }
-        else if (bmpDepth == 32)
-        {
-            U32* bits = (U32*)dst;
-            U16* data = (U16*)src;
-
-            for (int i = 0; i < width; i++)
+            else if (bmpDepth == 24)
             {
-                *bits++ = (U32)MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2, (*data & 0x001F) << 3, (*data & 0x8000) >> 8);
-                data++;
+                Bit24Color* bits = (Bit24Color*)static_cast<U8*>(dst);
+                U8* rgb = src;
+
+                for (int i = 0; i < width; i++)
+                {
+                    U32 color = MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0), *(rgb + 3));
+                    *bits++ = *((Bit24Color*)&color);
+                    rgb += 4;
+                }
             }
-        }
-        break;
-
-    case 24:
-        if (bmpDepth == 8)
-        {
-            LOG_ERR(("Cannot load 24-bit image into 8-bit bitmap"));
-            return;
-        }
-        else if (bmpDepth == 16)
-        {
-            U16* bits = (U16*)((U8*)dst);
-            U8* rgb = src;
-
-            for (int i = 0; i < width; i++)
+            else if (bmpDepth == 32)
             {
-                *bits++ = (U16)MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0));
-                rgb += 3;
-            }
-        }
-        else if (bmpDepth == 24)
-        {
-            memcpy((Bit24Color*)dst, (Bit24Color*)src, width * 3);
-        }
-        else if (bmpDepth == 32)
-        {
-            U32* bits = (U32*)((U8*)dst);
-            U8* rgb = src;
+                U32* bits = (U32*)static_cast<U8*>(dst);
+                U8* rgb = src;
 
-            for (int i = 0; i < width; i++)
-            {
-                *bits++ = (U32)MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0));
-                rgb += 3;
-            }
-        }
-        break;
-    case 32:
-        if (bmpDepth == 8)
-        {
-            LOG_ERR(("Cannot load 32-bit image into 8-bit bitmap"));
-            return;
-        }
-        else if (bmpDepth == 16)
-        {
-            U16* bits = (U16*)((U8*)dst);
-            U8* rgb = src;
-
-            for (int i = 0; i < width; i++)
-            {
-                *bits++ = (U16)MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0), *(rgb + 3));
-                rgb += 4;
-            }
-        }
-        else if (bmpDepth == 24)
-        {
-            Bit24Color* bits = (Bit24Color*)((U8*)dst);
-            U8* rgb = src;
-
-            for (int i = 0; i < width; i++)
-            {
-                U32 color = MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0), *(rgb + 3));
-                *bits++ = *((Bit24Color*)&color);
-                rgb += 4;
-            }
-        }
-        else if (bmpDepth == 32)
-        {
-            U32* bits = (U32*)((U8*)dst);
-            U8* rgb = src;
-
-            for (int i = 0; i < width; i++)
-            {
-                *bits++ = (U32)MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0), *(rgb + 3));
-                rgb += 4;
+                for (int i = 0; i < width; i++)
+                {
+                    *bits++ = static_cast<U32>(MakeRGBA(*(rgb + 2), *(rgb + 1), *(rgb + 0), *(rgb + 3)));
+                    rgb += 4;
+                }
             }
         }
         break;
     }
 }
+
 //----------------------------------------------------------------------------
 
 #pragma pack(push,1)
 struct TARGAFILEHEADER
 {
-    U8  imageIdLen;
-    U8  colorMapType;
-    U8  imageType;
+    U8 imageIdLen;
+    U8 colorMapType;
+    U8 imageType;
     U16 clrMapOrigin;
     U16 clrMapLength;
-    U8  clrMapEntrySize;
+    U8 clrMapEntrySize;
     U16 originX;
     U16 originY;
     U16 imageWidth;
     U16 imageHeight;
-    U8  imageDepth;
-    U8  imageDesc;
+    U8 imageDepth;
+    U8 imageDesc;
 };
 #pragma pack(pop)
 
@@ -1722,11 +1771,11 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
 
     TARGAFILEHEADER fileHdr;
     FileSys::DataFile* fp;
-    U8* rowData = NULL;
+    U8* rowData = nullptr;
     U32 rowBytes, rowCount = 0, copyWidth;
     RGBQUAD palRGB[256];
 
-    if ((fp = FileSys::Open(filename)) == NULL)
+    if ((fp = FileSys::Open(filename)) == nullptr)
     {
         return FALSE;
     }
@@ -1734,7 +1783,7 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
     // Read in the header
     if (fp->Read(&fileHdr, sizeof(fileHdr)) != sizeof(fileHdr))
     {
-        FileSys::Close(fp);
+        Close(fp);
         return FALSE;
     }
     SetName(filename);
@@ -1749,53 +1798,54 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
 
     switch (fileHdr.imageType)
     {
-    case 1:
-    case 2:
-    case 3:
-    case 9:
-    case 10:
-    case 11:
-        if (fileHdr.imageDepth == 8 || fileHdr.imageDepth == 16 || fileHdr.imageDepth == 24 || fileHdr.imageDepth == 32)
-        {
-            if (!bmpData)
+        case 1:
+        case 2:
+        case 3:
+        case 9:
+        case 10:
+        case 11:
+            if (fileHdr.imageDepth == 8 || fileHdr.imageDepth == 16 || fileHdr.imageDepth == 24 || fileHdr.imageDepth ==
+                32)
             {
-                if (!Create(fileHdr.imageWidth, fileHdr.imageHeight, fileHdr.imageDepth == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount,
-                    (type & bitmapTYPEMASK) == bitmapNORMAL ? fileHdr.imageDepth : 0))
+                if (!bmpData)
                 {
-                    ERR_FATAL(("Unable to create bitmap data for '%s'", filename));
+                    if (!Create(fileHdr.imageWidth, fileHdr.imageHeight,
+                                fileHdr.imageDepth == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount,
+                                (type & bitmapTYPEMASK) == bitmapNORMAL ? fileHdr.imageDepth : 0))
+                    {
+                        ERR_FATAL(("Unable to create bitmap data for '%s'", filename));
+                    }
+
+                    //if (surfaceFmt)
+                    //{
+                    //  SetPixelFormat(*surfaceFmt);
+                    //}
+
+                    Lock();
                 }
+                isAlpha = status.translucent;
 
-                //if (surfaceFmt)
-                //{
-                //  SetPixelFormat(*surfaceFmt);
-                //}
+                status.tga = TRUE;
+                status.bmp = FALSE;
+                status.pic = FALSE;
 
-                Lock();
+                rowCount = min(bmpHeight, abs(fileHdr.imageHeight));
+                rowBytes = /*DWORDALIGN*/(fileHdr.imageWidth * (fileHdr.imageDepth / 8));
+
+                rowData = new U8[rowBytes];
             }
-            isAlpha = status.translucent;
+            else
+            {
+                LOG_ERR(("Unsupported bit depth [%d]", fileHdr.imageDepth));
+                goto $Error;
+            }
+            break;
 
-            status.tga = TRUE;
-            status.bmp = FALSE;
-            status.pic = FALSE;
-
-            rowCount = min(bmpHeight, abs(fileHdr.imageHeight));
-            rowBytes = /*DWORDALIGN*/(fileHdr.imageWidth * (fileHdr.imageDepth / 8));
-
-            rowData = new U8[rowBytes];
-        }
-        else
-        {
-            LOG_ERR(("Unsupported bit depth [%d]", fileHdr.imageDepth));
-            goto $Error;
-        }
-        break;
-
-    case 32:
-    case 33:
-    default:
+        case 32:
+        case 33:
+        default:
         LOG_ERR(("Unsupported TGA image type [%d]", fileHdr.imageType));
-        goto $Error;
-
+            goto $Error;
     }
 
     // Read in the color table
@@ -1831,9 +1881,9 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
                 U16 rgb = MAKEWORD(buf[0], buf[1]);
 
                 // Extract RGB from ABBBBBGGGGGRRRRR format
-                palRGB[i].rgbRed = (U8)((rgb & 0x001F) << 3);
-                palRGB[i].rgbGreen = (U8)((rgb & 0x03E0) >> 2);
-                palRGB[i].rgbBlue = (U8)((rgb & 0x7C00) >> 7);
+                palRGB[i].rgbRed = static_cast<U8>((rgb & 0x001F) << 3);
+                palRGB[i].rgbGreen = static_cast<U8>((rgb & 0x03E0) >> 2);
+                palRGB[i].rgbBlue = static_cast<U8>((rgb & 0x7C00) >> 7);
             }
 
             palRGB[i].rgbReserved = 0;
@@ -1872,38 +1922,38 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
     {
         switch (fileHdr.imageType)
         {
-        case 9:   // rle color mapped
-        {
-            U32 count, n = 0, j;
-
-            while (n < rowBytes)
+            case 9:   // rle color mapped
             {
-                U8 ch;
+                U32 count, n = 0, j;
 
-                fp->Read(&ch, 1);
-                count = (ch & 0x7F) + 1;
-                if (ch & 0x80)
+                while (n < rowBytes)
                 {
+                    U8 ch;
+
                     fp->Read(&ch, 1);
-                    for (j = 0; j < count; j++)
+                    count = (ch & 0x7F) + 1;
+                    if (ch & 0x80)
                     {
-                        rowData[n++] = ch;
+                        fp->Read(&ch, 1);
+                        for (j = 0; j < count; j++)
+                        {
+                            rowData[n++] = ch;
+                        }
+                    }
+                    else
+                    {
+                        for (j = 0; j < count; j++)
+                        {
+                            fp->Read(&rowData[n++], 1);
+                        }
                     }
                 }
-                else
-                {
-                    for (j = 0; j < count; j++)
-                    {
-                        fp->Read(&rowData[n++], 1);
-                    }
-                }
+                break;
             }
-            break;
-        }
 
-        case 10:   // rle rgba
-        {
-            ERR_FATAL(("RLE not supported"))
+            case 10:   // rle rgba
+            {
+                ERR_FATAL(("RLE not supported"))
 
 #if 0
                 // True color image with RLE compression
@@ -1965,38 +2015,38 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
                 }
             }
 #endif
-        }
-        break;
-
-        case 1:   // uncompressed color mapped
-        case 2:   // uncompressed rgba
-        case 3:   // uncompressed black and white
-        {
-            if (fp->Read(rowData, rowBytes) != rowBytes)
-            {
-                goto $Error;
             }
-            if (isAlpha)
+            break;
+
+            case 1:   // uncompressed color mapped
+            case 2:   // uncompressed rgba
+            case 3:   // uncompressed black and white
             {
-                U32 ab;
-                for (ab = 3; ab < rowBytes; ab += 4)
+                if (fp->Read(rowData, rowBytes) != rowBytes)
                 {
-                    if (rowData[ab] > 0x00 && rowData[ab] < 0xff)
+                    goto $Error;
+                }
+                if (isAlpha)
+                {
+                    U32 ab;
+                    for (ab = 3; ab < rowBytes; ab += 4)
                     {
-                        // semi-transparent
-                        isTransparent = FALSE;
+                        if (rowData[ab] > 0x00 && rowData[ab] < 0xff)
+                        {
+                            // semi-transparent
+                            isTransparent = FALSE;
+                        }
                     }
                 }
             }
-        }
-        break;
+                break;
         }
 
         copyWidth = min(bmpWidth, fileHdr.imageWidth);
 
         CopyLine
         (
-            rowData, (U8*)bmpData + (thisRow * bmpPitch),
+            rowData, static_cast<U8*>(bmpData) + (thisRow * bmpPitch),
             copyWidth, fileHdr.imageDepth, palRGB
         );
     }
@@ -2012,7 +2062,7 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
       }
     */
 
-    FileSys::Close(fp);
+    Close(fp);
 
     if (rowData)
     {
@@ -2028,7 +2078,7 @@ $Error:
     UnLock();
     if (fp)
     {
-        FileSys::Close(fp);
+        Close(fp);
     }
 
     if (rowData)
@@ -2038,15 +2088,16 @@ $Error:
 
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool Bitmap::WriteTGA(const char* filename, Bool keepTrying)
 {
-    FILE* fp = NULL;
-    U8* lineBuf = NULL;
+    FILE* fp = nullptr;
+    U8* lineBuf = nullptr;
 
     fp = fopen(filename, "wb");
-    if (fp == NULL)
+    if (fp == nullptr)
     {
         goto Error;
     }
@@ -2063,8 +2114,8 @@ Bool Bitmap::WriteTGA(const char* filename, Bool keepTrying)
 
     fileHeader.imageType = 2;
     fileHeader.imageDepth = U8(status.translucent ? 32 : 24);
-    fileHeader.imageWidth = (U16)bmpWidth;
-    fileHeader.imageHeight = (U16)bmpHeight;
+    fileHeader.imageWidth = static_cast<U16>(bmpWidth);
+    fileHeader.imageHeight = static_cast<U16>(bmpHeight);
     fileHeader.originX = 0;
     fileHeader.originY = 0;
     fileHeader.imageDesc = 2 << 4;    // top down
@@ -2110,7 +2161,7 @@ Bool Bitmap::WriteTGA(const char* filename, Bool keepTrying)
 
         if (ptr)
         {
-            U8* data = (U8*)bmpData;
+            U8* data = static_cast<U8*>(bmpData);
             for (i = 0; i < bmpHeight; i++, data += bmpPitch)
             {
                 if (bmpDepth == 8)
@@ -2121,13 +2172,13 @@ Bool Bitmap::WriteTGA(const char* filename, Bool keepTrying)
                 {
                     U32 pixel;
                     U8 r, g, b;
-                    U8* outBuf = lineBuf, * d = data;
+                    U8 *outBuf = lineBuf, *d = data;
 
                     for (int j = 0; j < bmpWidth; j++, d += bmpBytePP)
                     {
                         if (bmpDepth == 16)
                         {
-                            pixel = (U32) * (U16*)d;
+                            pixel = static_cast<U32>(*(U16*)d);
                         }
                         else
                         {
@@ -2136,13 +2187,14 @@ Bool Bitmap::WriteTGA(const char* filename, Bool keepTrying)
 
                         ASSERT(pixForm);
 
-                        r = (U8)(((pixel & pixForm->rMask) >> pixForm->rShift) << (8 - pixForm->rScale));
-                        g = (U8)(((pixel & pixForm->gMask) >> pixForm->gShift) << (8 - pixForm->gScale));
-                        b = (U8)(((pixel & pixForm->bMask) >> pixForm->bShift) << (8 - pixForm->bScale));
+                        r = static_cast<U8>(((pixel & pixForm->rMask) >> pixForm->rShift) << (8 - pixForm->rScale));
+                        g = static_cast<U8>(((pixel & pixForm->gMask) >> pixForm->gShift) << (8 - pixForm->gScale));
+                        b = static_cast<U8>(((pixel & pixForm->bMask) >> pixForm->bShift) << (8 - pixForm->bScale));
 
                         if (fileHeader.imageDepth == 32)
                         {
-                            *outBuf = (U8)(((pixel & pixForm->aMask) >> pixForm->aShift) << (8 - pixForm->aScale));
+                            *outBuf = static_cast<U8>(((pixel & pixForm->aMask) >> pixForm->aShift) << (8 - pixForm->
+                                aScale));
                             outBuf += 1;
                         }
                         *(outBuf + 0) = b;
@@ -2180,19 +2232,20 @@ Error:
     }
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 struct PICFILEHEADER
 {
-    U32         magic;
-    F32         version;
-    char        comment[80];
-    char        id[4];
-    U16         width;
-    U16         height;
-    F32         aspectRatio;
-    U16         fields;
-    U16         pad;
+    U32 magic;
+    F32 version;
+    char comment[80];
+    char id[4];
+    U16 width;
+    U16 height;
+    F32 aspectRatio;
+    U16 fields;
+    U16 pad;
 };
 
 enum picFieldEnum
@@ -2205,10 +2258,10 @@ enum picFieldEnum
 
 struct PICCHANNELINFO
 {
-    U8          chained;
-    U8          size;
-    U8          type;
-    U8          channel;
+    U8 chained;
+    U8 size;
+    U8 type;
+    U8 channel;
 };
 
 enum picEncodeEnum
@@ -2246,7 +2299,7 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
 {
     pixelFormat;
 
-    U8* rowData = NULL;
+    U8* rowData = nullptr;
     U32 bitspp = 0;
     S32 rowCount, thisRow, copyWidth;
     U32 rowBytes;
@@ -2258,7 +2311,7 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
 
     // Open the file
     FileSys::DataFile* fp;
-    if ((fp = FileSys::Open(filename)) == NULL)
+    if ((fp = FileSys::Open(filename)) == nullptr)
     {
         LOG_ERR(("Error opening [%s]", filename));
         goto Error;
@@ -2273,7 +2326,7 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
     }
 
     // Get pointer to start of file
-    ptr = (U8*)fp->GetMemoryPtr();
+    ptr = static_cast<U8*>(fp->GetMemoryPtr());
 
     // Read the file header
     PICFILEHEADER fileHeader;
@@ -2283,54 +2336,54 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
     for (i = 3; i >= 0; i--)
     {
         CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.magic)[i] = *(ptr++);
+        reinterpret_cast<U8*>(&fileHeader.magic)[i] = *(ptr++);
     }
 
     // Read Version
     for (i = 3; i >= 0; i--)
     {
         CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.version)[i] = *(ptr++);
+        reinterpret_cast<U8*>(&fileHeader.version)[i] = *(ptr++);
     }
 
     // Read Comment and Id
     CHECK_SIZE(84)
-        memcpy(fileHeader.comment, ptr, 84);
+    memcpy(fileHeader.comment, ptr, 84);
     ptr += 84;
 
     // Read Width
     for (i = 1; i >= 0; i--)
     {
         CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.width)[i] = *(ptr++);
+        reinterpret_cast<U8*>(&fileHeader.width)[i] = *(ptr++);
     }
 
     // Read Height
     for (i = 1; i >= 0; i--)
     {
         CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.height)[i] = *(ptr++);
+        reinterpret_cast<U8*>(&fileHeader.height)[i] = *(ptr++);
     }
 
     // Read Aspect Ratio
     for (i = 3; i >= 0; i--)
     {
         CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.aspectRatio)[i] = *(ptr++);
+        reinterpret_cast<U8*>(&fileHeader.aspectRatio)[i] = *(ptr++);
     }
 
     // Read Fields
     for (i = 1; i >= 0; i--)
     {
         CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.fields)[i] = *(ptr++);
+        reinterpret_cast<U8*>(&fileHeader.fields)[i] = *(ptr++);
     }
 
     // Read Pad
     for (i = 1; i >= 0; i--)
     {
         CHECK_SIZE(1)
-            reinterpret_cast<U8*>(&fileHeader.pad)[i] = *(ptr++);
+        reinterpret_cast<U8*>(&fileHeader.pad)[i] = *(ptr++);
     }
 
     // Test magic and header id
@@ -2347,7 +2400,7 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
     PICCHANNELINFO chanAlpha;
 
     CHECK_SIZE(sizeof(chanRGB))
-        memcpy(&chanRGB, ptr, sizeof(chanRGB));
+    memcpy(&chanRGB, ptr, sizeof(chanRGB));
     ptr += sizeof(chanRGB);
 
     bitspp = chanRGB.size * 3;
@@ -2362,7 +2415,7 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
     if (chanRGB.chained)
     {
         CHECK_SIZE(sizeof(chanAlpha))
-            memcpy(&chanAlpha, ptr, sizeof(chanAlpha));
+        memcpy(&chanAlpha, ptr, sizeof(chanAlpha));
         ptr += sizeof(chanRGB);
 
         bitspp += chanAlpha.size;
@@ -2419,103 +2472,24 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
 
         switch (chanRGB.type)
         {
-        case encodeMIXEDRUNLEN:
-        {
-            while (n < rowBytes)
-            {
-                CHECK_SIZE(1)
-                    byte = *(ptr++);
-
-                if (byte < 128)
-                {
-                    count = byte + 1;
-                    // non repeated sequence
-                    for (j = 0; j < count; j++)
-                    {
-                        for (k = colorbytes - 1; k >= 0; k--)
-                        {
-                            CHECK_SIZE(1)
-                                rowData[n + k] = *(ptr++);
-                        }
-                        n += totalbytes;
-                    }
-                }
-                else
-                {
-                    if (byte == 128)
-                    {
-                        // single repeat more than 128 times
-                        U8 uu8[2];
-                        CHECK_SIZE(2)
-                            uu8[1] = *(ptr++);
-                        uu8[0] = *(ptr++);
-                        count = *((U16*)uu8);
-                    }
-                    else
-                    {
-                        // single repeat less than 128 times
-                        count = byte - 127;
-                    }
-                    for (k = colorbytes - 1; k >= 0; k--)
-                    {
-                        CHECK_SIZE(1)
-                            color[k] = *(ptr++);
-                    }
-                    for (j = 0; j < count; j++)
-                    {
-                        for (k = 0; k < colorbytes; k++, n++)
-                        {
-                            rowData[n] = color[k];
-                        }
-                        n += alphabytes;
-                    }
-                }
-            }
-        }
-        break;
-
-        default:
-        {
-            // encodeUNCOMPRESSED
-            for (j = 0; j < fileHeader.width; j++)
-            {
-                for (k = colorbytes - 1; k >= 0; k--)
-                {
-                    CHECK_SIZE(1)
-                        rowData[n + k] = *(ptr++);
-                }
-                n += totalbytes;
-            }
-        }
-        break;
-        }
-
-        if (chanRGB.chained)
-        {
-            n = 0;
-            switch (chanAlpha.type)
-            {
             case encodeMIXEDRUNLEN:
             {
                 while (n < rowBytes)
                 {
                     CHECK_SIZE(1)
-                        byte = *(ptr++);
+                    byte = *(ptr++);
+
                     if (byte < 128)
                     {
                         count = byte + 1;
                         // non repeated sequence
                         for (j = 0; j < count; j++)
                         {
-                            CHECK_SIZE(1)
-                                byte = *(ptr++);
-
-                            if (byte > 0x00 && byte < 0xff)
+                            for (k = colorbytes - 1; k >= 0; k--)
                             {
-                                // semi-transparent
-                                isTransparent = FALSE;
+                                CHECK_SIZE(1)
+                                rowData[n + k] = *(ptr++);
                             }
-                            rowData[n + 3] = byte;
                             n += totalbytes;
                         }
                     }
@@ -2525,9 +2499,8 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                         {
                             // single repeat more than 128 times
                             U8 uu8[2];
-
                             CHECK_SIZE(2)
-                                uu8[1] = *(ptr++);
+                            uu8[1] = *(ptr++);
                             uu8[0] = *(ptr++);
                             count = *((U16*)uu8);
                         }
@@ -2536,19 +2509,18 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                             // single repeat less than 128 times
                             count = byte - 127;
                         }
-
-                        CHECK_SIZE(1)
-                            color[0] = *(ptr++);
-
-                        if (color[0] > 0x00 && color[0] < 0xff)
+                        for (k = colorbytes - 1; k >= 0; k--)
                         {
-                            // semi-transparent
-                            isTransparent = FALSE;
+                            CHECK_SIZE(1)
+                            color[k] = *(ptr++);
                         }
                         for (j = 0; j < count; j++)
                         {
-                            rowData[n + 3] = color[0];
-                            n += totalbytes;
+                            for (k = 0; k < colorbytes; k++, n++)
+                            {
+                                rowData[n] = color[k];
+                            }
+                            n += alphabytes;
                         }
                     }
                 }
@@ -2560,26 +2532,107 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
                 // encodeUNCOMPRESSED
                 for (j = 0; j < fileHeader.width; j++)
                 {
-                    CHECK_SIZE(1)
-                        byte = *(ptr++);
-
-                    if (byte > 0x00 && byte < 0xff)
+                    for (k = colorbytes - 1; k >= 0; k--)
                     {
-                        // semi-transparent
-                        isTransparent = FALSE;
+                        CHECK_SIZE(1)
+                        rowData[n + k] = *(ptr++);
                     }
-                    rowData[n + 3] = byte;
                     n += totalbytes;
                 }
             }
             break;
+        }
+
+        if (chanRGB.chained)
+        {
+            n = 0;
+            switch (chanAlpha.type)
+            {
+                case encodeMIXEDRUNLEN:
+                {
+                    while (n < rowBytes)
+                    {
+                        CHECK_SIZE(1)
+                        byte = *(ptr++);
+                        if (byte < 128)
+                        {
+                            count = byte + 1;
+                            // non repeated sequence
+                            for (j = 0; j < count; j++)
+                            {
+                                CHECK_SIZE(1)
+                                byte = *(ptr++);
+
+                                if (byte > 0x00 && byte < 0xff)
+                                {
+                                    // semi-transparent
+                                    isTransparent = FALSE;
+                                }
+                                rowData[n + 3] = byte;
+                                n += totalbytes;
+                            }
+                        }
+                        else
+                        {
+                            if (byte == 128)
+                            {
+                                // single repeat more than 128 times
+                                U8 uu8[2];
+
+                                CHECK_SIZE(2)
+                                uu8[1] = *(ptr++);
+                                uu8[0] = *(ptr++);
+                                count = *((U16*)uu8);
+                            }
+                            else
+                            {
+                                // single repeat less than 128 times
+                                count = byte - 127;
+                            }
+
+                            CHECK_SIZE(1)
+                            color[0] = *(ptr++);
+
+                            if (color[0] > 0x00 && color[0] < 0xff)
+                            {
+                                // semi-transparent
+                                isTransparent = FALSE;
+                            }
+                            for (j = 0; j < count; j++)
+                            {
+                                rowData[n + 3] = color[0];
+                                n += totalbytes;
+                            }
+                        }
+                    }
+                }
+                break;
+
+                default:
+                {
+                    // encodeUNCOMPRESSED
+                    for (j = 0; j < fileHeader.width; j++)
+                    {
+                        CHECK_SIZE(1)
+                        byte = *(ptr++);
+
+                        if (byte > 0x00 && byte < 0xff)
+                        {
+                            // semi-transparent
+                            isTransparent = FALSE;
+                        }
+                        rowData[n + 3] = byte;
+                        n += totalbytes;
+                    }
+                }
+                break;
             }
         }
 
         CopyLine
         (
-            rowData, (U8*)bmpData + (thisRow * bmpPitch),
-            copyWidth, bitspp, NULL
+            rowData, static_cast<U8*>(bmpData) + (thisRow * bmpPitch),
+            copyWidth, bitspp, nullptr
         );
     }
     UnLock();
@@ -2603,7 +2656,7 @@ Bool Bitmap::ReadPIC(const char* filename, Pix* pixelFormat)
     LoadVideo();
 
     // Close the file
-    FileSys::Close(fp);
+    Close(fp);
 
     return TRUE;
 
@@ -2611,13 +2664,13 @@ SizeError:
 
     LOG_ERR(("Unexpected EOF"))
 
-        Error :
+Error :
 
-        UnLock();
+    UnLock();
 
     if (fp)
     {
-        FileSys::Close(fp);
+        Close(fp);
     }
     if (rowData)
     {
@@ -2626,6 +2679,7 @@ SizeError:
 
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 /////////////////////////////////////////////////////////////////////
@@ -2639,8 +2693,9 @@ SizeError:
 //
 Palette::Palette()
 {
-    clut = NULL;
+    clut = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -2651,9 +2706,10 @@ Palette::~Palette()
     if (clut)
     {
         delete[] clut;
-        clut = NULL;
+        clut = nullptr;
     }
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -2661,10 +2717,9 @@ Palette::~Palette()
 //
 Bool Palette::Read(const char* /*filename*/)
 {
-
-
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -2675,19 +2730,19 @@ Bool Palette::ReadMSPal(const char* filename, Bool generateCLUT)
     const FOURCC ckidData = mmioFOURCC('d', 'a', 't', 'a');
 
     HMMIO hfile;
-    MMCKINFO ckHdr, ckData = { ckidData };
+    MMCKINFO ckHdr, ckData = {ckidData};
 
     // Read in the palette file
-    hfile = mmioOpen((char*)filename, NULL, MMIO_READ);
-    if (hfile == NULL)
+    hfile = mmioOpen((char*)filename, nullptr, MMIO_READ);
+    if (hfile == nullptr)
     {
         LOG_ERR(("Error opening palette [%s]", filename));
         return FALSE;
     }
 
-    if (mmioDescend(hfile, &ckHdr, NULL, 0) == 0)
+    if (mmioDescend(hfile, &ckHdr, nullptr, 0) == 0)
     {
-        if (mmioDescend(hfile, &ckData, NULL, MMIO_FINDCHUNK) == 0)
+        if (mmioDescend(hfile, &ckData, nullptr, MMIO_FINDCHUNK) == 0)
         {
             U32 ver;
             U32 size;
@@ -2723,6 +2778,7 @@ Bool Palette::ReadMSPal(const char* filename, Bool generateCLUT)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -2730,10 +2786,9 @@ Bool Palette::ReadMSPal(const char* filename, Bool generateCLUT)
 //
 Bool Palette::Write(const char* /*filename*/)
 {
-
-
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -2782,17 +2837,18 @@ void Palette::GenerateCLUT()
                 }
 
                 // store palette index in lookup table
-                clut[(r << (LUTGREENBITS + LUTBLUEBITS)) + (g << LUTBLUEBITS) + b] = (U8)bestI;
+                clut[(r << (LUTGREENBITS + LUTBLUEBITS)) + (g << LUTBLUEBITS) + b] = static_cast<U8>(bestI);
             }
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 struct MIPMAP_CONTEXT
 {
-    SurfaceDD      lpDDSurface;
-    SurfaceDescDD  ddsd;
+    SurfaceDD lpDDSurface;
+    SurfaceDescDD ddsd;
 
     S32 Width;
     S32 Height;
@@ -2814,11 +2870,12 @@ struct MIPMAP_CONTEXT
     U8* Src_Ptr;
     U8* Dst_Ptr;
 };
+
 //----------------------------------------------------------------------------
 
 U16 Filter16(MIPMAP_CONTEXT& context, S32 x, S32 y)
 {
-    U16 Pixel, * Src = (U16*)context.Src_Ptr;
+    U16 Pixel, *Src = (U16*)context.Src_Ptr;
     U32 R, G, B, A;
 
     Pixel = Src[(y) * (context.Pitch >> 1) + (x)];
@@ -2850,18 +2907,17 @@ U16 Filter16(MIPMAP_CONTEXT& context, S32 x, S32 y)
     B >>= (context.blue_scale + 2);
     A >>= (context.alpha_scale + 2);
 
-    return (U16)(
-        (R << context.red_shift) +
+    return static_cast<U16>((R << context.red_shift) +
         (G << context.green_shift) +
         (B << context.blue_shift) +
-        (A << context.alpha_shift)
-        );
+        (A << context.alpha_shift));
 }
+
 //----------------------------------------------------------------------------
 
 U32 Filter32(MIPMAP_CONTEXT& context, S32 x, S32 y)
 {
-    U32 Pixel, * Src = (U32*)context.Src_Ptr;
+    U32 Pixel, *Src = (U32*)context.Src_Ptr;
     U32 R, G, B, A;
 
     Pixel = Src[(y) * (context.Pitch >> 2) + (x)];
@@ -2896,18 +2952,17 @@ U32 Filter32(MIPMAP_CONTEXT& context, S32 x, S32 y)
     if (context.alpha_shift == 0)
         A = 0xFF000000;
 
-    return (U32)(
-        (R << context.red_shift) +
+    return static_cast<U32>((R << context.red_shift) +
         (G << context.green_shift) +
         (B << context.blue_shift) +
-        (A << context.alpha_shift)
-        );
+        (A << context.alpha_shift));
 }
+
 //----------------------------------------------------------------------------
 
 U32 FilterRight32(MIPMAP_CONTEXT& context, S32 x, S32 y)
 {
-    U32 Pixel, * Src = (U32*)context.Src_Ptr;
+    U32 Pixel, *Src = (U32*)context.Src_Ptr;
     U32 R, G, B, A;
 
     Pixel = Src[(y) * (context.Pitch >> 2) + (x)];
@@ -2930,18 +2985,17 @@ U32 FilterRight32(MIPMAP_CONTEXT& context, S32 x, S32 y)
     if (context.alpha_shift == 0)
         A = 0xFF000000;
 
-    return (U32)(
-        (R << context.red_shift) +
+    return static_cast<U32>((R << context.red_shift) +
         (G << context.green_shift) +
         (B << context.blue_shift) +
-        (A << context.alpha_shift)
-        );
+        (A << context.alpha_shift));
 }
+
 //----------------------------------------------------------------------------
 
 U16 FilterRight16(MIPMAP_CONTEXT& context, S32 x, S32 y)
 {
-    U16 Pixel, * Src = (U16*)context.Src_Ptr;
+    U16 Pixel, *Src = (U16*)context.Src_Ptr;
     U32 R, G, B, A;
 
     Pixel = Src[(y) * (context.Pitch >> 1) + (x)];
@@ -2964,18 +3018,17 @@ U16 FilterRight16(MIPMAP_CONTEXT& context, S32 x, S32 y)
     if (context.alpha_shift == 0)
         A = 0;
 
-    return (U16)(
-        (R << context.red_shift) +
+    return static_cast<U16>((R << context.red_shift) +
         (G << context.green_shift) +
         (B << context.blue_shift) +
-        (A << context.alpha_shift)
-        );
+        (A << context.alpha_shift));
 }
+
 //----------------------------------------------------------------------------
 
 U32 FilterBottom32(MIPMAP_CONTEXT& context, S32 x, S32 y)
 {
-    U32 Pixel, * Src = (U32*)context.Src_Ptr;
+    U32 Pixel, *Src = (U32*)context.Src_Ptr;
     U32 R, G, B, A;
 
     Pixel = Src[(y) * (context.Pitch >> 2) + (x)];
@@ -3003,13 +3056,14 @@ U32 FilterBottom32(MIPMAP_CONTEXT& context, S32 x, S32 y)
         (G << context.green_shift) +
         (B << context.blue_shift) +
         (A << context.alpha_shift)
-        );
+    );
 }
+
 //----------------------------------------------------------------------------
 
 U16 FilterBottom16(MIPMAP_CONTEXT& context, S32 x, S32 y)
 {
-    U16 Pixel, * Src = (U16*)context.Src_Ptr;
+    U16 Pixel, *Src = (U16*)context.Src_Ptr;
     U32 R, G, B, A;
 
     Pixel = Src[(y) * (context.Pitch >> 1) + (x)];
@@ -3032,13 +3086,12 @@ U16 FilterBottom16(MIPMAP_CONTEXT& context, S32 x, S32 y)
     if (context.alpha_shift == 0)
         A = 0;
 
-    return (U16)(
-        (R << context.red_shift) +
+    return static_cast<U16>((R << context.red_shift) +
         (G << context.green_shift) +
         (B << context.blue_shift) +
-        (A << context.alpha_shift)
-        );
+        (A << context.alpha_shift));
 }
+
 //----------------------------------------------------------------------------
 
 U16 FilterBottomRight16(MIPMAP_CONTEXT& context, S32 x, S32 y)
@@ -3046,6 +3099,7 @@ U16 FilterBottomRight16(MIPMAP_CONTEXT& context, S32 x, S32 y)
     U16* Src = (U16*)context.Src_Ptr;
     return Src[(y) * (context.Pitch >> 1) + (x)];
 }
+
 //----------------------------------------------------------------------------
 
 U32 FilterBottomRight32(MIPMAP_CONTEXT& context, S32 x, S32 y)
@@ -3053,11 +3107,12 @@ U32 FilterBottomRight32(MIPMAP_CONTEXT& context, S32 x, S32 y)
     U32* Src = (U32*)(context.Src_Ptr + y * context.Pitch);
     return Src[x];
 }
+
 //----------------------------------------------------------------------------
 
 static void STDCALL FilterTexture32(void* data)
 {
-    MIPMAP_CONTEXT& context = *((MIPMAP_CONTEXT*)data);
+    MIPMAP_CONTEXT& context = *static_cast<MIPMAP_CONTEXT*>(data);
     U32* Dst = (U32*)context.Dst_Ptr;
     S32 y, x;
 
@@ -3108,11 +3163,12 @@ static void STDCALL FilterTexture32(void* data)
 #endif
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 static void STDCALL FilterTexture16(void* data)
 {
-    MIPMAP_CONTEXT& context = *((MIPMAP_CONTEXT*)data);
+    MIPMAP_CONTEXT& context = *static_cast<MIPMAP_CONTEXT*>(data);
     U16* Dst = (U16*)context.Dst_Ptr;
     S32 y, x;
 
@@ -3162,21 +3218,22 @@ static void STDCALL FilterTexture16(void* data)
 #endif
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 static void CreateMip(SurfaceDD surface, SurfaceDescDD* desc, LPVOID data)
 {
-    struct MIPMAP_CONTEXT* context = (MIPMAP_CONTEXT*)data;
+    struct MIPMAP_CONTEXT* context = static_cast<MIPMAP_CONTEXT*>(data);
 
-    dxError = context->lpDDSurface->Lock(NULL, &context->ddsd, 0, 0);
+    dxError = context->lpDDSurface->Lock(nullptr, &context->ddsd, 0, nullptr);
     LOG_DXERR(("CreateMip: context->lpDDSurface->Lock"));
 
-    context->Src_Ptr = (U8*)context->ddsd.lpSurface;
+    context->Src_Ptr = static_cast<U8*>(context->ddsd.lpSurface);
 
-    dxError = surface->Lock(NULL, desc, 0, 0);
+    dxError = surface->Lock(nullptr, desc, 0, nullptr);
     LOG_DXERR(("CreateMip: surface->Lock"));
 
-    context->Dst_Ptr = (U8*)desc->lpSurface;
+    context->Dst_Ptr = static_cast<U8*>(desc->lpSurface);
 
     if (desc->ddpfPixelFormat.dwRGBBitCount == 32)
     {
@@ -3187,8 +3244,8 @@ static void CreateMip(SurfaceDD surface, SurfaceDescDD* desc, LPVOID data)
         FilterTexture16(context);
     }
 
-    surface->Unlock(NULL);
-    context->lpDDSurface->Unlock(NULL);
+    surface->Unlock(nullptr);
+    context->lpDDSurface->Unlock(nullptr);
 
     // make this surface the source surface
     context->lpDDSurface = surface;
@@ -3197,6 +3254,7 @@ static void CreateMip(SurfaceDD surface, SurfaceDescDD* desc, LPVOID data)
     context->Width = desc->dwWidth;
     context->Height = desc->dwHeight;
 }
+
 //----------------------------------------------------------------------------
 
 static HRESULT WINAPI EnumSurfacesCallback(SurfaceDD surface, SurfaceDescDD* desc, LPVOID data)
@@ -3207,6 +3265,7 @@ static HRESULT WINAPI EnumSurfacesCallback(SurfaceDD surface, SurfaceDescDD* des
 
     return DDENUMRET_CANCEL;
 }
+
 //----------------------------------------------------------------------------
 
 void CalcMaskScale(const U32 mask, U32& shift, U32& scale)
@@ -3227,6 +3286,7 @@ void CalcMaskScale(const U32 mask, U32& shift, U32& scale)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::CreateMipMaps()
@@ -3274,11 +3334,11 @@ void Bitmap::CreateMipMaps()
     {
         reduce = 0;
 
-        if (bmpWidth > (S32) Vid::caps.maxTexWid)
+        if (bmpWidth > static_cast<S32>(Vid::caps.maxTexWid))
         {
             LOG_WARN(("binked texture is too wide: %d  max: %d", bmpWidth, Vid::caps.maxTexWid));
         }
-        if (bmpHeight > (S32)Vid::caps.maxTexHgt)
+        if (bmpHeight > static_cast<S32>(Vid::caps.maxTexHgt))
         {
             LOG_WARN(("binked texture is too hig: %d  max: %d", bmpHeight, Vid::caps.maxTexHgt));
         }
@@ -3349,6 +3409,7 @@ void Bitmap::CreateMipMaps()
 
     surface->EnumAttachedSurfaces(&context, EnumSurfacesCallback);
 }
+
 //----------------------------------------------------------------------------
 
 Bool Bitmap::LoadBink(const char* _name, Bool exclusive, Bool stretch) // = FALSE, = FALSE
@@ -3373,16 +3434,16 @@ Bool Bitmap::LoadBink(const char* _name, Bool exclusive, Bool stretch) // = FALS
     {
         // check for a bink movie; only for DX surfaces of the right format
         //
-        if ((binkFile = FileSys::Open(texname)) != NULL)
+        if ((binkFile = FileSys::Open(texname)) != nullptr)
         {
             ASSERT(binkFile->GetMemoryPtr());
 
-            bink = BinkOpen((char*)binkFile->GetMemoryPtr(), BINKFROMMEMORY);
+            bink = BinkOpen(static_cast<char*>(binkFile->GetMemoryPtr()), BINKFROMMEMORY);
 
             if (!bink)
             {
-                FileSys::Close(binkFile);
-                binkFile = NULL;
+                Close(binkFile);
+                binkFile = nullptr;
 
                 LOG_ERR(("Can't open bink file %s : %s", texname, BinkGetError()));
             }
@@ -3392,26 +3453,29 @@ Bool Bitmap::LoadBink(const char* _name, Bool exclusive, Bool stretch) // = FALS
                 {
                     if (S32(bink->Width) > Vid::backBmp.Width() || S32(bink->Height) > Vid::backBmp.Height())
                     {
-                        LOG_WARN(("Bink file %s is bigger than the back buffer: %d, %d", texname, bink->Width, bink->Height));
+                        LOG_WARN(
+                            ("Bink file %s is bigger than the back buffer: %d, %d", texname, bink->Width, bink->Height
+                            ));
                         //            ReleaseBink();
                         //            return FALSE;
                     }
-                    if (!Create(bink->Width, bink->Height, FALSE, 0, pixForm && pixForm->pixFmt.dwRGBBitCount == 32 ? 32 : 16))
+                    if (!Create(bink->Width, bink->Height, FALSE, 0,
+                                pixForm && pixForm->pixFmt.dwRGBBitCount == 32 ? 32 : 16))
                     {
                         LOG_WARN(("Bitmap::LoadBink: Can't create surface"));
                         ReleaseBink();
                         return FALSE;
                     }
                 }
-                else if (bink->Width > (U32)Width())
+                else if (bink->Width > static_cast<U32>(Width()))
                 {
                     WARN_CON_DIAG(("Bink file %s width %d doesn't match surface %s width %d",
                         texname, bink->Width, name.str, Width()));
 
                     BinkClose(bink);
-                    bink = NULL;
-                    FileSys::Close(binkFile);
-                    binkFile = NULL;
+                    bink = nullptr;
+                    Close(binkFile);
+                    binkFile = nullptr;
                     return FALSE;
                 }
 
@@ -3444,6 +3508,7 @@ Bool Bitmap::LoadBink(const char* _name, Bool exclusive, Bool stretch) // = FALS
     }
     return retValue;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bitmap::BinkSetFlags()
@@ -3485,14 +3550,15 @@ U32 Bitmap::BinkSetFlags()
   }
 #endif
 
-  if (this == &Vid::backBmp && Vid::isStatus.pageFlip)
-  {
-      binkFlags |= BINKCOPYALL | BINKNOTHREADEDIO;
-      //LOG_DIAG(("bink on back buffer"));
-  }
+    if (this == &Vid::backBmp && Vid::isStatus.pageFlip)
+    {
+        binkFlags |= BINKCOPYALL | BINKNOTHREADEDIO;
+        //LOG_DIAG(("bink on back buffer"));
+    }
 
-  return binkFlags;
+    return binkFlags;
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::BinkDoFrame()
@@ -3512,7 +3578,7 @@ void Bitmap::BinkDoFrame()
 
     // copy the data onto the screen
     BinkCopyToBuffer(bink, desc.lpSurface,
-        desc.lPitch, desc.dwHeight, x, y, binkFlags);
+                     desc.lPitch, desc.dwHeight, x, y, binkFlags);
 
     UnLock();
 
@@ -3528,6 +3594,7 @@ void Bitmap::BinkDoFrame()
         ::BinkNextFrame(bink);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::BinkNextFrame()
@@ -3540,6 +3607,7 @@ void Bitmap::BinkNextFrame()
         }
     }
 }
+
 //----------------------------------------------------------------------------
 //
 // initial startup in Bitmap::Manager::SetTexture
@@ -3554,7 +3622,7 @@ void Bitmap::BinkSetActive(Bool active)
         return;
     }
 
-    if (active == (Bool)status.binkActive || !bink)
+    if (active == static_cast<Bool>(status.binkActive) || !bink)
     {
         return;
     }
@@ -3569,6 +3637,7 @@ void Bitmap::BinkSetActive(Bool active)
     BinkPause(bink, 0);
     ::BinkDoFrame(bink);
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::BinkGotoFrame(U32 frame)
@@ -3581,6 +3650,7 @@ void Bitmap::BinkGotoFrame(U32 frame)
 
     BinkDoFrame();
 }
+
 //----------------------------------------------------------------------------
 
 void Bitmap::GetLost()
@@ -3591,4 +3661,5 @@ void Bitmap::GetLost()
         ReleaseDD();
     }
 }
+
 //----------------------------------------------------------------------------

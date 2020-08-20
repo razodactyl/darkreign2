@@ -29,8 +29,8 @@
 //
 // Constructor
 //
-PhysicsType::PhysicsType() 
-: contacts(NULL)
+PhysicsType::PhysicsType()
+    : contacts(nullptr)
 {
 }
 
@@ -40,11 +40,11 @@ PhysicsType::PhysicsType()
 //
 PhysicsType::~PhysicsType()
 {
-  if (contacts)
-  {
-    delete[] contacts;
-    contacts = NULL;
-  }
+    if (contacts)
+    {
+        delete[] contacts;
+        contacts = nullptr;
+    }
 }
 
 
@@ -53,23 +53,23 @@ PhysicsType::~PhysicsType()
 //
 // Configure a physics type
 //
-void PhysicsType::Setup(FScope *fScope)
+void PhysicsType::Setup(FScope* fScope)
 {
-  // Mass in g (convert to kg)
-  mass = StdLoad::TypeF32(fScope, "Mass", 1E6f) * 1E-3f;
-  massInv = (mass > F32_EPSILON) ? (1.0F / mass) : 0;
+    // Mass in g (convert to kg)
+    mass = StdLoad::TypeF32(fScope, "Mass", 1E6f) * 1E-3f;
+    massInv = (mass > F32_EPSILON) ? (1.0F / mass) : 0;
 
-  // Elasticity
-  elasticity = StdLoad::TypeF32(fScope, "Elasticity", 0.05F, Range<F32>(0.0F, 1.0F));
+    // Elasticity
+    elasticity = StdLoad::TypeF32(fScope, "Elasticity", 0.05F, Range<F32>(0.0F, 1.0F));
 
-  // Grip
-  grip = StdLoad::TypeF32(fScope, "Grip", 3.0F, Range<F32>(0.1F, 100.0F));
+    // Grip
+    grip = StdLoad::TypeF32(fScope, "Grip", 3.0F, Range<F32>(0.1F, 100.0F));
 
-  // Drag coefficient
-  dragCoefficient = StdLoad::TypeF32(fScope, "DragCoefficient", 0.1f, Range<F32>(0.0F, 1.0F));
+    // Drag coefficient
+    dragCoefficient = StdLoad::TypeF32(fScope, "DragCoefficient", 0.1f, Range<F32>(0.0F, 1.0F));
 
-  // Body type
-  bodyType = StdLoad::TypeStringCrc(fScope, "BodyType", 0x1CCAFDCC); // "Box"
+    // Body type
+    bodyType = StdLoad::TypeStringCrc(fScope, "BodyType", 0x1CCAFDCC); // "Box"
 }
 
 
@@ -91,7 +91,7 @@ void PhysicsType::PostLoad(MeshEnt &mesh)
 //
 void PhysicsType::SetupContactsBox(MeshEnt &mesh)
 {
-  ASSERT(!contacts)
+  ASSERT(!contacts);
 
   const Sphere &s = mesh.WorldBounds();
 
@@ -112,23 +112,23 @@ void PhysicsType::SetupContactsBox(MeshEnt &mesh)
 //
 // Constructor 
 //
-PhysicsObj::PhysicsObj(PhysicsType *type) 
-: type(type) 
+PhysicsObj::PhysicsObj(PhysicsType* type)
+    : type(type)
 {
-  velocity.ClearData();
-  omega.ClearData();
-  force.ClearData();
-  torque.ClearData();
+    velocity.ClearData();
+    omega.ClearData();
+    force.ClearData();
+    torque.ClearData();
 }
 
 
 //
 // Setup position
 //
-void PhysicsObj::Setup(const Matrix &m)
+void PhysicsObj::Setup(const Matrix& m)
 {
-  position = m.posit;
-  attitude.Set(m);
+    position = m.posit;
+    attitude.Set(m);
 }
 
 
@@ -137,44 +137,44 @@ void PhysicsObj::Setup(const Matrix &m)
 //
 void PhysicsObj::BasicSimulation(F32 step, F32)
 {
-  F32 weight = type->mass * PhysicsCtrl::GetGravity();
+    F32 weight = type->mass * PhysicsCtrl::GetGravity();
 
-  // Gravity
-  force.y -= weight;
+    // Gravity
+    force.y -= weight;
 
-  // Ground friction?
+    // Ground friction?
 
-  // Air friction
-  force  -= velocity * (type->dragCoefficient * type->mass);
-  torque -= omega * (type->dragCoefficient * type->mass);
+    // Air friction
+    force -= velocity * (type->dragCoefficient * type->mass);
+    torque -= omega * (type->dragCoefficient * type->mass);
 
-  // Integrate position
-  position += Integrate(velocity, step);
+    // Integrate position
+    position += Integrate(velocity, step);
 
-  // Integrate velocity
-  velocity += Integrate(force * type->massInv, step);
+    // Integrate velocity
+    velocity += Integrate(force * type->massInv, step);
 
-  // Damping
-  //velocity -= velocity * (0.02F * cd);
+    // Damping
+    //velocity -= velocity * (0.02F * cd);
 
-  // Integrate angular momentum
-  omega += Integrate(torque * type->massInv, step);
+    // Integrate angular momentum
+    omega += Integrate(torque * type->massInv, step);
 
-  // Integrate orientation
-  if (omega.Magnitude2() > PhysicsConst::EPSILON)
-  {
-    Quaternion dq;
-    dq.s = 0.0F;
-    dq.v = omega;
+    // Integrate orientation
+    if (omega.Magnitude2() > PhysicsConst::EPSILON)
+    {
+        Quaternion dq;
+        dq.s = 0.0F;
+        dq.v = omega;
 
-    attitude += Integrate(dq * attitude * 0.5F, step);
-  }
+        attitude += Integrate(dq * attitude * 0.5F, step);
+    }
 
-  //CollisionCtrl::AddItem(this, mapObj);
+    //CollisionCtrl::AddItem(this, mapObj);
 
-  // Clear forces
-  force.ClearData();
-  torque.ClearData();
+    // Clear forces
+    force.ClearData();
+    torque.ClearData();
 }
 
 

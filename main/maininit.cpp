@@ -33,18 +33,15 @@
 #include "sound.h"
 
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Namespace Main
 //
 namespace Main
 {
-
     // Windows data
-    static HINSTANCE instance = NULL;
-    static HWND mainHwnd = NULL;
+    static HINSTANCE instance = nullptr;
+    static HWND mainHwnd = nullptr;
     static const char* cmdLine;
 
     // TRUE if game is to be terminated next message loop
@@ -70,7 +67,9 @@ namespace Main
         GUIHookProc* proc;
         NBinTree<GUIHookItem>::Node node;
 
-        GUIHookItem(GUIHookProc* proc) : proc(proc) {}
+        GUIHookItem(GUIHookProc* proc) : proc(proc)
+        {
+        }
     };
 
     struct GUIHookList
@@ -78,7 +77,9 @@ namespace Main
         NBinTree<GUIHookItem> items;
         NBinTree<GUIHookList>::Node node;
 
-        GUIHookList() : items(&GUIHookItem::node) {}
+        GUIHookList() : items(&GUIHookItem::node)
+        {
+        }
     };
 
     static NBinTree<GUIHookList> guiHooks(&GUIHookList::node);
@@ -148,7 +149,7 @@ namespace Main
     //
     F32 ElapTimeGame()
     {
-        return ((F32)(thisTime - startTime)) * 0.001F;
+        return static_cast<F32>(thisTime - startTime) * 0.001F;
     }
 
 
@@ -186,7 +187,7 @@ namespace Main
         LowLevelSystemInit();
 
         // Register the "QUIT" run code
-        runCodes.Register("QUIT", ProcessQuit, NULL, NULL);
+        runCodes.Register("QUIT", ProcessQuit, nullptr, nullptr);
 
 #ifdef DO_MOVING_AVERAGE_FRAMERATE
 #define AVGFRAMECOUNT  3
@@ -216,14 +217,16 @@ namespace Main
         if (!nextProcess.Null())
         {
             STARTUPINFO si;
+            ZeroMemory(&si, sizeof(si));
+
             si.cb = sizeof(STARTUPINFO);
-            si.lpReserved = NULL;
-            si.lpDesktop = NULL;
-            si.lpTitle = NULL;
+            si.lpReserved = nullptr;
+            si.lpDesktop = nullptr;
+            si.lpTitle = nullptr;
             si.dwFlags = 0;
             si.wShowWindow = SW_SHOWNORMAL;
             si.cbReserved2 = 0;
-            si.lpReserved2 = NULL;
+            si.lpReserved2 = nullptr;
 
             // If the next process ends in rtp then execute the patcher
             FileDrive drive;
@@ -237,38 +240,38 @@ namespace Main
                 char environ_fix[1024];
                 Utils::Sprintf(environ_fix, 1024, "patch=%s\0", nextProcess.str);
 
-                LOG_DIAG(("Executing patcher with environment %s", environ_fix))
+                LOG_DIAG(("Executing patcher with environment %s", environ_fix));
 
-                    PROCESS_INFORMATION pi;
+                PROCESS_INFORMATION pi;
                 CreateProcess
                 (
                     "library\\patch\\patch.exe",  // name of executable module
                     "library\\patch\\patch.exe",  // command line string
-                    NULL,                         // SD
-                    NULL,                         // SD
+                    nullptr,                      // SD
+                    nullptr,                      // SD
                     FALSE,                        // handle inheritance option
                     0,                            // creation flags
                     environ_fix,                  // new environment block
-                    NULL,                         // current directory name
+                    nullptr,                      // current directory name
                     &si,                          // startup information
                     &pi                           // process information
                 );
             }
             else
             {
-                LOG_DIAG(("Executing downloaded program %s", nextProcess.str))
+                LOG_DIAG(("Executing downloaded program %s", nextProcess.str));
 
-                    PROCESS_INFORMATION pi;
+                PROCESS_INFORMATION pi;
                 CreateProcess
                 (
                     nextProcess.str,  // name of executable module
                     nextProcess.str,  // command line string
-                    NULL,             // SD
-                    NULL,             // SD
+                    nullptr,          // SD
+                    nullptr,          // SD
                     FALSE,            // handle inheritance option
                     0,                // creation flags
-                    NULL,             // new environment block
-                    NULL,             // current directory name
+                    nullptr,          // new environment block
+                    nullptr,          // current directory name
                     &si,              // startup information
                     &pi               // process information
                 );
@@ -288,10 +291,10 @@ namespace Main
         Debug::SetupInst(instance);
 
         // Clock Time
-        //Clock::Time::Init();
+        // Clock::Time::Init();
 
         // Perform pre ignition sequence
-        //Debug::PreIgnition(instance);
+        // Debug::PreIgnition(instance);
 
         // Initialize version
         Version::Init();
@@ -303,7 +306,7 @@ namespace Main
         Debug::Memory::InitMono();
 
         // Initialize Logging
-        //Log::Init();
+        // Log::Init();
 
         // Initailize Debug
         Debug::Init();
@@ -375,7 +378,7 @@ namespace Main
         LogSystemInfo();
 
         // Create the main window if it doesnt already exist
-        if (mainHwnd == NULL)
+        if (mainHwnd == nullptr)
         {
             mainHwnd = CreateMainWindow();
 
@@ -422,15 +425,15 @@ namespace Main
 
         PERF_INIT
 
-            Area<S32> wr, cr;
+        Area<S32> wr, cr;
         GetWindowRect(mainHwnd, (RECT*)&wr);
         GetClientRect(mainHwnd, (RECT*)&cr);
         U32 ew = wr.Width() - cr.Width();
         U32 eh = wr.Height() - cr.Height();
         SetWindowPos(mainHwnd, HWND_TOP,
-            (GetSystemMetrics(SM_CXSCREEN) - 640) >> 1,
-            (GetSystemMetrics(SM_CYSCREEN) - 480) >> 1,
-            640 + ew, 480 + eh, SWP_NOREDRAW);
+                     (GetSystemMetrics(SM_CXSCREEN) - 640) >> 1,
+                     (GetSystemMetrics(SM_CYSCREEN) - 480) >> 1,
+                     640 + ew, 480 + eh, SWP_NOREDRAW);
 
         Vid::Init(instance, mainHwnd);
 
@@ -461,8 +464,8 @@ namespace Main
 
         PERF_DONE
 
-            // console command system
-            Console::Done();
+        // console command system
+        Console::Done();
 
         // Shut down font system
         FontSys::Done();
@@ -495,7 +498,7 @@ namespace Main
         if (profileOn)
         {
             LOG_DIAG(("Someone did some profiling, so lets report it"))
-                Profile::Report();
+            Profile::Report();
             Profile::Done();
         }
 
@@ -543,7 +546,7 @@ namespace Main
             arg.Update();
 
             // Extract optional value
-            if (cmdLine[i] && (strchr(ARG_SEPERATORS, cmdLine[i]) != NULL))
+            if (cmdLine[i] && (strchr(ARG_SEPERATORS, cmdLine[i]) != nullptr))
             {
                 i++;
 
@@ -593,10 +596,7 @@ namespace Main
 
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -616,110 +616,110 @@ namespace Main
 
             while (cmdLine[i])
             {
-                ASSERT(i <= Utils::Strlen(cmdLine))
+                ASSERT(i <= Utils::Strlen(cmdLine));
 
-                    if (NextArg(cmdLine, i, arg, val))
+                if (NextArg(cmdLine, i, arg, val))
+                {
+                    LOG_DIAG(("CmdLine [%s%s%s]", arg.str, *val.str ? ":" : "", *val.str ? val.str : ""))
+
+                    switch (arg.crc)
                     {
-                        LOG_DIAG(("CmdLine [%s%s%s]", arg.str, *val.str ? ":" : "", *val.str ? val.str : ""))
+                        case 0xFE16C91E: // "cwd"
+                            SetCurrentDirectory(val.str);
+                            break;
 
-                            switch (arg.crc)
+                        case 0x4F040DA9: // "w"
+                            Vid::doStatus.fullScreen = FALSE;
+                            Vid::doStatus.modeOverRide = TRUE;
+                            break;
+
+                        case 0x5C007B75: // "s"
+                            Vid::doStatus.softD3D = TRUE;       // software driver
+                            Vid::doStatus.modeOverRide = TRUE;
+                            break;
+
+                        case 0x3B5A6B64: // "h"
+                            Vid::doStatus.mode32 = TRUE;        // pick a 32 bit mode
+                            Vid::doStatus.modeOverRide = TRUE;
+                            break;
+
+                        case 0x42472B70: // "t"
+                            Vid::doStatus.tripleBuf = FALSE;    // don't use a triple buffered flip chain
+                            break;
+
+                        case 0xA16D7A25: // "nofpucheck"
+                            fpuExceptions = FALSE;
+                            break;
+
+                        case 0x48625100: // "safevid"
+                        {
+                            break;
+                        }
+
+                        case 0xC4FD8F50: // "cmd"
+                        {
+                            AddRunOnceCmd(val.str);
+                            break;
+                        }
+                        case 0x700ABCC9: // "flushlog"
+                            // Flush every log from now on
+                            Log::SetFlush(TRUE);
+                            break;
+
+                        case 0x15BE0E80: // "watchdog"
+                            Debug::Watchdog::Enable();
+                            break;
+
+                        case 0x873A066D: // "vidmode"
+                        {
+                            if (*val.str)
                             {
-                            case 0xFE16C91E: // "cwd"
-                                SetCurrentDirectory(val.str);
-                                break;
+                                char* s = strchr(val.str, 'x');
+                                char buf[32];
 
-                            case 0x4F040DA9: // "w"
-                                Vid::doStatus.fullScreen = FALSE;
-                                Vid::doStatus.modeOverRide = TRUE;
-                                break;
-
-                            case 0x5C007B75: // "s"
-                                Vid::doStatus.softD3D = TRUE;       // software driver
-                                Vid::doStatus.modeOverRide = TRUE;
-                                break;
-
-                            case 0x3B5A6B64: // "h"
-                                Vid::doStatus.mode32 = TRUE;        // pick a 32 bit mode
-                                Vid::doStatus.modeOverRide = TRUE;
-                                break;
-
-                            case 0x42472B70: // "t"
-                                Vid::doStatus.tripleBuf = FALSE;    // don't use a triple buffered flip chain
-                                break;
-
-                            case 0xA16D7A25: // "nofpucheck"
-                                fpuExceptions = FALSE;
-                                break;
-
-                            case 0x48625100: // "safevid"
-                            {
-                                break;
-                            }
-
-                            case 0xC4FD8F50: // "cmd"
-                            {
-                                AddRunOnceCmd(val.str);
-                                break;
-                            }
-                            case 0x700ABCC9: // "flushlog"
-                              // Flush every log from now on
-                                Log::SetFlush(TRUE);
-                                break;
-
-                            case 0x15BE0E80: // "watchdog"
-                                Debug::Watchdog::Enable();
-                                break;
-
-                            case 0x873A066D: // "vidmode"
-                            {
-                                if (*val.str)
+                                if (s && s != val.str)
                                 {
-                                    char* s = strchr(val.str, 'x');
-                                    char buf[32];
-
-                                    if (s && s != val.str)
+                                    if (!Utils::Strnicmp(s - 2, "max", 3))
                                     {
-                                        if (!Utils::Strnicmp(s - 2, "max", 3))
-                                        {
-                                            Vid::doStatus.modeMax = TRUE;
-                                            Vid::doStatus.modeOverRide = TRUE;
-                                        }
-                                        else
-                                        {
-                                            Utils::Strmcpy(buf, val.str, s - val.str + 1);
-                                            vidModeX = atoi(buf);
+                                        Vid::doStatus.modeMax = TRUE;
+                                        Vid::doStatus.modeOverRide = TRUE;
+                                    }
+                                    else
+                                    {
+                                        Utils::Strmcpy(buf, val.str, s - val.str + 1);
+                                        vidModeX = atoi(buf);
 
-                                            if (s < ((char*)val.str + Utils::Strlen(val.str) - 1))
-                                            {
-                                                vidModeY = atoi(s + 1);
-                                                vidModeSet = TRUE;
-                                                Vid::doStatus.modeOverRide = TRUE;
-                                                LOG_DIAG(("Setting mode [%dx%d]", vidModeX, vidModeY))
-                                                    break;
-                                            }
+                                        if (s < (static_cast<char*>(val.str) + Utils::Strlen(val.str) - 1))
+                                        {
+                                            vidModeY = atoi(s + 1);
+                                            vidModeSet = TRUE;
+                                            Vid::doStatus.modeOverRide = TRUE;
+                                            LOG_DIAG(("Setting mode [%dx%d]", vidModeX, vidModeY))
+                                            break;
                                         }
                                     }
                                 }
-                                LOG_ERR(("-vidmode: bad mode [%s]", val.str))
-                                    break;
                             }
+                            LOG_ERR(("-vidmode: bad mode [%s]", val.str))
+                            break;
+                        }
 
-                            default:
+                        default:
+                        {
+                            // Is there a registered hook ?
+                            CmdLineHookItem* item = cmdLineHooks.Find(arg.crc);
+                            if (item)
                             {
-                                // Is there a registered hook ?
-                                CmdLineHookItem* item = cmdLineHooks.Find(arg.crc);
-                                if (item)
-                                {
-                                    item->proc(arg, val);
-                                }
-                                else
-                                {
-                                    LOG_ERR(("Unknown command line option '%s'", arg.str));
-                                }
-                                break;
+                                item->proc(arg, val);
                             }
+                            else
+                            {
+                                LOG_ERR(("Unknown command line option '%s'", arg.str));
                             }
+                            break;
+                        }
                     }
+                }
             }
         }
     }
@@ -732,7 +732,7 @@ namespace Main
     //
     static void ExecCommandLine()
     {
-        for (List<char>::Iterator i(&runOnceCmds); *i; i++)
+        for (List<char>::Iterator i(&runOnceCmds); *i; ++i)
         {
             Console::ProcessCmd(*i);
         }
@@ -762,7 +762,7 @@ namespace Main
     {
         PERF_S("BeginFrame")
 
-            frameNumber++;
+        frameNumber++;
 
         // get the current time
         U32 theTime;
@@ -818,18 +818,17 @@ namespace Main
 
         PERF_E("BeginFrame")
 
-            // Redraw performance stats
-            PERF_REDRAW
+        // Redraw performance stats
+        PERF_REDRAW
 
-            if (
-                GetAsyncKeyState(VK_CONTROL) < 0 &&
-                GetAsyncKeyState(VK_LWIN) < 0 &&
-                GetAsyncKeyState('Z') < 0)
-            {
-                // Redraw init system
-                Debug::Memory::DisplayMono();
-            }
-
+        if (
+            GetAsyncKeyState(VK_CONTROL) < 0 &&
+            GetAsyncKeyState(VK_LWIN) < 0 &&
+            GetAsyncKeyState('Z') < 0)
+        {
+            // Redraw init system
+            Debug::Memory::DisplayMono();
+        }
     }
 
 
@@ -856,7 +855,7 @@ namespace Main
         do
         {
             // Process all windows messages
-            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+            while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
             {
                 if (msg.message == WM_QUIT)
                 {
@@ -889,8 +888,8 @@ namespace Main
                 // Be nice in the background
                 Sleep(0);
             }
-
-        } while (!quitGame);
+        }
+        while (!quitGame);
 
         // Reset the current run-code
         runCodes.Reset();
@@ -928,13 +927,13 @@ namespace Main
     //
     void RegisterGUIHook(const char* name, GUIHookProc* proc)
     {
-        ASSERT(proc)
+        ASSERT(proc);
 
-            U32 crc = Crc::CalcStr(name);
+        U32 crc = Crc::CalcStr(name);
         GUIHookList* list;
 
         // Create a new list if its not already there
-        if ((list = guiHooks.Find(crc)) == NULL)
+        if ((list = guiHooks.Find(crc)) == nullptr)
         {
             list = new GUIHookList;
             guiHooks.Add(crc, list);
@@ -943,7 +942,7 @@ namespace Main
         // Add this item to the end of the list
         if (list->items.Find(U32(proc)))
         {
-            ERR_FATAL(("Hook for [%s] already exists", name))
+            ERR_FATAL(("Hook for [%s] already exists", name));
         }
 
         list->items.Add(U32(proc), new GUIHookItem(proc));
@@ -957,30 +956,24 @@ namespace Main
     //
     void UnregisterGUIHook(const char* name, GUIHookProc* proc)
     {
-        ASSERT(proc)
+        ASSERT(proc);
 
-            U32 crc = Crc::CalcStr(name);
+        U32 crc = Crc::CalcStr(name);
         GUIHookList* list;
 
         // Find the list
-        if ((list = guiHooks.Find(crc)) == NULL)
+        if ((list = guiHooks.Find(crc)) == nullptr)
         {
             ERR_FATAL(("Hook list for [%s] is empty", name))
         }
-        else
-        {
-            GUIHookItem* p;
+        GUIHookItem* p;
 
-            if ((p = list->items.Find(U32(proc))) == NULL)
-            {
-                ERR_FATAL(("Hook for [%s] not found", name))
-            }
-            else
-            {
-                ASSERT(p->proc == proc)
-                    list->items.Dispose(p);
-            }
+        if ((p = list->items.Find(U32(proc))) == nullptr)
+        {
+            ERR_FATAL(("Hook for [%s] not found", name))
         }
+        ASSERT(p->proc == proc);
+        list->items.Dispose(p);
     }
 
 
@@ -1023,9 +1016,9 @@ namespace Main
     {
         GUIHookList* list;
 
-        if ((list = guiHooks.Find(id)) != NULL)
+        if ((list = guiHooks.Find(id)) != nullptr)
         {
-            for (NBinTree<GUIHookItem>::Iterator i(&list->items); *i; i++)
+            for (NBinTree<GUIHookItem>::Iterator i(&list->items); *i; ++i)
             {
                 (*i)->proc(id, msg, wParam, lParam);
             }
@@ -1055,102 +1048,102 @@ namespace Main
 
         switch (msg)
         {
-            // Shut down our application when the main window is destroyed
-        case WM_DESTROY:
-        {
-            PostQuitMessage(0);
-            return (0);
-        }
-
-        // Destroy the main window when a close message (e.g. close button) is recieved
-        case WM_CLOSE:
-        {
-            Quit();
-            return (0);
-        }
-
-        // Window size has changed
-        case WM_SIZE:
-        {
-            Vid::OnSize((UINT)wParam, LOWORD(lParam), HIWORD(lParam));
-            break;
-        }
-
-        case WM_MOVE:
-        {
-            Vid::OnMove(LOWORD(lParam), HIWORD(lParam));
-            break;
-        }
-
-        case WM_SETCURSOR:
-        {
-            // suppress the windows cursor
-            if (hwnd == (HWND)wParam && active)
+                // Shut down our application when the main window is destroyed
+            case WM_DESTROY:
             {
-                POINT point;
-                RECT rect;
-
-                GetCursorPos(&point);
-                ScreenToClient(hwnd, &point);
-                GetClientRect(hwnd, &rect);
-
-                if (point.x >= 0 && point.x <= rect.right && point.y >= 0 && point.y <= rect.bottom)
-                {
-                    // only suppress when the cursor is in the client window
-                    SetCursor(NULL);
-                    return (1);
-                }
+                PostQuitMessage(0);
+                return (0);
             }
-            break;
-        }
 
-        // System menu command
-        case WM_SYSCOMMAND:
-        {
-            switch (wParam & 0xFFF0)
+                // Destroy the main window when a close message (e.g. close button) is recieved
+            case WM_CLOSE:
             {
-            case SC_CLOSE:
-            {
-                // Shut down the application cleanly
                 Quit();
                 return (0);
             }
 
-            case SC_MONITORPOWER:
-            case SC_SCREENSAVE:
-                return (0);
-            }
-            break;
-        }
-
-        // Our application is being (de)activated
-        case WM_ACTIVATEAPP:
-        {
-            active = (Bool)wParam;
-
-            Vid::OnActivate(active);
-
-            Input::OnActivate(active);
-            IFace::OnActivate(active);
-
-            CallHookFunctions(0x01E5156C, msg, wParam, lParam); // "Activate"
-
-            break;
-        }
-
-        // Alt+Key pressed
-        case WM_SYSKEYDOWN:
-        {
-            switch ((int)wParam)
+                // Window size has changed
+            case WM_SIZE:
             {
-            case VK_F4:
+                Vid::OnSize(static_cast<UINT>(wParam), LOWORD(lParam), HIWORD(lParam));
+                break;
+            }
+
+            case WM_MOVE:
             {
-                // Free up Alt+F4 for other uses
-                return (0);
+                Vid::OnMove(LOWORD(lParam), HIWORD(lParam));
+                break;
             }
+
+            case WM_SETCURSOR:
+            {
+                // suppress the windows cursor
+                if (hwnd == (HWND)wParam && active)
+                {
+                    POINT point;
+                    RECT rect;
+
+                    GetCursorPos(&point);
+                    ScreenToClient(hwnd, &point);
+                    GetClientRect(hwnd, &rect);
+
+                    if (point.x >= 0 && point.x <= rect.right && point.y >= 0 && point.y <= rect.bottom)
+                    {
+                        // only suppress when the cursor is in the client window
+                        SetCursor(nullptr);
+                        return (1);
+                    }
+                }
+                break;
             }
-            break; // allow default behavior
-        }
+
+                // System menu command
+            case WM_SYSCOMMAND:
+            {
+                switch (wParam & 0xFFF0)
+                {
+                    case SC_CLOSE:
+                    {
+                        // Shut down the application cleanly
+                        Quit();
+                        return (0);
+                    }
+
+                    case SC_MONITORPOWER:
+                    case SC_SCREENSAVE:
+                        return (0);
+                }
+                break;
+            }
+
+                // Our application is being (de)activated
+            case WM_ACTIVATEAPP:
+            {
+                active = static_cast<Bool>(wParam);
+
+                Vid::OnActivate(active);
+
+                Input::OnActivate(active);
+                IFace::OnActivate(active);
+
+                CallHookFunctions(0x01E5156C, msg, wParam, lParam); // "Activate"
+
+                break;
+            }
+
+                // Alt+Key pressed
+            case WM_SYSKEYDOWN:
+            {
+                switch (static_cast<int>(wParam))
+                {
+                    case VK_F4:
+                    {
+                        // Free up Alt+F4 for other uses
+                        // return (0);
+                    }
+                }
+                break; // allow default behavior
+            }
 
 #ifndef MONO_DISABLED
 
@@ -1175,10 +1168,10 @@ namespace Main
     HWND CreateGameWindow(const char* title)
     {
         // If there's a window with the same class already there, then abort
-        if (HWND h = FindWindow("DR2", NULL))
+        if (HWND h = FindWindow("DR2", nullptr))
         {
             ShowWindow(h, SW_SHOWNORMAL);
-            return (NULL);
+            return (nullptr);
         }
 
         WNDCLASS wc;
@@ -1189,15 +1182,15 @@ namespace Main
         wc.cbClsExtra = 0;
         wc.cbWndExtra = 0;
         wc.hInstance = instance;
-        wc.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(101));
-        wc.hCursor = NULL;
-        wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-        wc.lpszMenuName = NULL;
+        wc.hIcon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(101));
+        wc.hCursor = nullptr;
+        wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
+        wc.lpszMenuName = nullptr;
         wc.lpszClassName = "DR2";
 
         if (!RegisterClass(&wc))
         {
-            return NULL;
+            return nullptr;
         }
 
         // Create the window, leave it hidden until a video mode is set
@@ -1208,10 +1201,10 @@ namespace Main
             title,
             WS_CAPTION | WS_BORDER,
             0, 0, 0, 0,
-            NULL,
-            NULL,
+            nullptr,
+            nullptr,
             instance,
-            NULL
+            nullptr
         );
 
         return hwnd;
@@ -1262,7 +1255,7 @@ namespace Main
         {
             SetWindowPos(mainHwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_HIDEWINDOW);
         }
-        RedrawWindow(NULL, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+        RedrawWindow(nullptr, nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 
         LOG_DIAG(("Leaving Main::CriticalShutdown"));
     }
@@ -1285,22 +1278,25 @@ namespace Main
         LOG_DIAG(("Mem: %s", Hardware::Memory::GetDesc()));
 
         // User Details
-        LOG_DIAG(("Executed by %s\\%s on %s", Hardware::OS::GetComputer(), Hardware::OS::GetUser(), Hardware::OS::GetDesc()));
+        LOG_DIAG(
+            ("Executed by %s\\%s on %s", Hardware::OS::GetComputer(), Hardware::OS::GetUser(), Hardware::OS::GetDesc()
+            ));
 
         // Compilation details
-        LOG_DIAG(("Compiled by %s\\%s on %s", Version::GetBuildMachine(), Version::GetBuildUser(), Version::GetBuildOS()));
+        LOG_DIAG(
+            ("Compiled by %s\\%s on %s", Version::GetBuildMachine(), Version::GetBuildUser(), Version::GetBuildOS()));
         LOG_DIAG(("Compiler flags: %s", Version::GetBuildDefs()))
 
-            // OS language
-            LANGID id = GetUserDefaultLangID();
+        // OS language
+        LANGID id = GetUserDefaultLangID();
         LOG_DIAG(("Language: 0x%.2X 0x%.2X", PRIMARYLANGID(id), SUBLANGID(id)))
 
-            // Devices
-            int i = 0;
+        // Devices
+        int i = 0;
         while (Hardware::Device::Enum(i))
         {
             LOG_DIAG(("%s", Hardware::Device::Enum(i)))
-                i++;
+            i++;
         }
     }
 }

@@ -18,7 +18,8 @@
 //
 // Doubly Linked List
 //
-template <class DATA> class List
+template <class DATA>
+class List
 {
 private:
 
@@ -34,7 +35,7 @@ private:
         //
         // Node (constructor)
         //
-        Node(DATA* _data, Node* _next = NULL, Node* _prev = NULL)
+        Node(DATA* _data, Node* _next = nullptr, Node* _prev = nullptr)
         {
             data = _data;
             next = _next;
@@ -46,7 +47,7 @@ protected:
 
     Node* head;                           // pointer to first element in the list
     Node* tail;                           // pointer to last element in the list
-    U32  count;                           // number of items in the list
+    U32 count;                           // number of items in the list
 
 public:
 
@@ -58,7 +59,7 @@ public:
     private:
         const List<DATA>* list;             // list in question
         Node* current;          // pointer to the current element in the list
-        U32              pos;               // position in list
+        U32 pos;               // position in list
 
     public:
 
@@ -67,7 +68,9 @@ public:
         //
         // NULL Constructor
         //
-        Iterator() : list(NULL), current(NULL), pos(0) { }
+        Iterator() : list(nullptr), current(nullptr), pos(0)
+        {
+        }
 
 
         //
@@ -77,8 +80,8 @@ public:
         //
         Iterator(const List<DATA>* list) : list(list)
         {
-            ASSERT(list)
-                GoToHead();
+            ASSERT(list);
+            GoToHead();
         }
 
 
@@ -89,8 +92,8 @@ public:
         //
         void SetList(const List<DATA>* _list)
         {
-            ASSERT(_list)
-                list = _list;
+            ASSERT(_list);
+            list = _list;
             GoToHead();
         }
 
@@ -130,8 +133,8 @@ public:
         //
         void GoToHead()
         {
-            ASSERT(list)
-                current = list->head;
+            ASSERT(list);
+            current = list->head;
             pos = 0;
         }
 
@@ -143,8 +146,8 @@ public:
         //
         void GoToTail()
         {
-            ASSERT(list)
-                current = list->tail;
+            ASSERT(list);
+            current = list->tail;
             pos = (list->count) ? list->count - 1 : 0;
         }
 
@@ -167,8 +170,8 @@ public:
         //
         Bool IsHead() const
         {
-            ASSERT(list)
-                return ((current == list->head) ? TRUE : FALSE);
+            ASSERT(list);
+            return ((current == list->head) ? TRUE : FALSE);
         }
 
 
@@ -179,8 +182,8 @@ public:
         //
         Bool IsTail() const
         {
-            ASSERT(list)
-                return ((current == list->tail) ? TRUE : FALSE);
+            ASSERT(list);
+            return ((current == list->tail) ? TRUE : FALSE);
         }
 
 
@@ -212,7 +215,7 @@ public:
         //
         DATA* operator++(int)
         {
-            List<DATA>::Node* obj;
+            Node* obj;
 
             obj = current;
             pos++;
@@ -247,7 +250,7 @@ public:
         //
         DATA* operator--(int)
         {
-            List<DATA>::Node* obj;
+            Node* obj;
 
             obj = current;
             if (current)
@@ -281,7 +284,9 @@ public:
     //
     // Constructor
     //
-    List<DATA>() : head(NULL), tail(NULL), count(0) { }
+    List<DATA>() : head(nullptr), tail(nullptr), count(0)
+    {
+    }
 
 
     //
@@ -588,10 +593,7 @@ public:
             delete data;
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -645,7 +647,6 @@ public:
 
     // Friends of the list :)
     friend class Iterator;
-
 };
 
 

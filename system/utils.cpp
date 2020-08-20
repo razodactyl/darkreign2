@@ -35,25 +35,25 @@ namespace Utils
     // Internal Data
     //
     const char translateEncode[] = "0123456789ABCDEF";
-    const U8   translateDecode[] =
+    const U8 translateDecode[] =
     {
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7, 0x8,0x9,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0xA,0xB,0xC,0xD,0xE,0xF,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-      0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0, 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
     };
 
     // Base64 encoding table
@@ -62,22 +62,22 @@ namespace Utils
     // Base64 decoding table
     static const U8 base64Decode[256] =
     {
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,  62,   0,   0,   0,  63,
-     52,  53,  54,  55,  56,  57,  58,  59,    60,  61,   0,   0,   0,   0,   0,   0,
-      0,   0,   1,   2,   3,   4,   5,   6,     7,   8,   9,  10,  11,  12,  13,  14,
-     15,  16,  17,  18,  19,  20,  21,  22,    23,  24,  25,   0,   0,   0,   0,   0,
-      0,  26,  27,  28,  29,  30,  31,  32,    33,  34,  35,  36,  37,  38,  39,  40,
-     41,  42,  43,  44,  45,  46,  47,  48,    49,  50,  51,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
-      0,   0,   0,   0,   0,   0,   0,   0,     0,   0,   0,   0,   0,   0,   0,   0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 62, 0, 0, 0, 63,
+        52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+        15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 0, 0, 0, 0, 0,
+        0, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     };
 
     // Base64 decode structure
@@ -94,49 +94,49 @@ namespace Utils
     U32 Div(U32 upr, U32 lwr, U32 by)
     {
         __asm
-        {
+            {
             mov edx, [upr]
             mov eax, [lwr]
             div[by]
             mov[by], eax
-        }
+            }
         return (by);
     }
 
     void Div(U32 upr, U32 lwr, U32 by, U32& quot, U32& rem)
     {
         __asm
-        {
+            {
             mov edx, [upr]
             mov eax, [lwr]
             div[by]
             mov[quot], eax
             mov[rem], edx
-        }
+            }
     }
 
     S32 Div(S32 upr, U32 lwr, S32 by)
     {
         __asm
-        {
+            {
             mov edx, [upr]
             mov eax, [lwr]
             idiv[by]
             mov[by], eax
-        }
+            }
         return (by);
     }
 
     void Div(S32 upr, U32 lwr, S32 by, S32& quot, S32& rem)
     {
         __asm
-        {
+            {
             mov edx, [upr]
             mov eax, [lwr]
             idiv[by]
             mov[quot], eax
             mov[rem], edx
-        }
+            }
     }
 
 
@@ -148,6 +148,7 @@ namespace Utils
         ASSERT(str);
         return (strlen(str));
     }
+
     U32 Strlen(const CH* str)
     {
         ASSERT(str);
@@ -163,6 +164,7 @@ namespace Utils
         ASSERT(str1 && str2);
         return (strcmp(str1, str2));
     }
+
     S32 Strcmp(const CH* str1, const CH* str2)
     {
         ASSERT(str1 && str2);
@@ -178,6 +180,7 @@ namespace Utils
         ASSERT(str1 && str2);
         return (stricmp(str1, str2));
     }
+
     S32 Stricmp(const CH* str1, const CH* str2)
     {
         ASSERT(str1 && str2);
@@ -193,6 +196,7 @@ namespace Utils
         ASSERT(str1 && str2);
         return (strncmp(str1, str2, count));
     }
+
     S32 Strncmp(const CH* str1, const CH* str2, U32 count)
     {
         ASSERT(str1 && str2);
@@ -208,6 +212,7 @@ namespace Utils
         ASSERT(str1 && str2);
         return (strnicmp(str1, str2, count));
     }
+
     S32 Strnicmp(const CH* str1, const CH* str2, U32 count)
     {
         ASSERT(str1 && str2);
@@ -223,6 +228,7 @@ namespace Utils
         ASSERT(dest && src);
         return (strcpy(dest, src));
     }
+
     CH* Strcpy(CH* dest, const CH* src)
     {
         ASSERT(dest && src);
@@ -239,6 +245,7 @@ namespace Utils
         ASSERT(count >= 0);
         return (strncpy(dest, src, count));
     }
+
     CH* Strncpy(CH* dest, const CH* src, U32 count)
     {
         ASSERT(dest && src);
@@ -256,15 +263,16 @@ namespace Utils
         ASSERT(count > 0);
         strncpy(dest, src, count);
         dest[count - 1] = '\0';
-        return(dest);
+        return (dest);
     }
+
     CH* Strmcpy(CH* dest, const CH* src, U32 count)
     {
         ASSERT(dest && src);
         ASSERT(count > 0);
         wcsncpy((wchar_t*)dest, (const wchar_t*)src, count);
         dest[count - 1] = L'\0';
-        return(dest);
+        return (dest);
     }
 
 
@@ -276,6 +284,7 @@ namespace Utils
         ASSERT(dest && src);
         return (strcat(dest, src));
     }
+
     CH* Strcat(CH* dest, const CH* src)
     {
         ASSERT(dest && src);
@@ -291,10 +300,11 @@ namespace Utils
         ASSERT(str);
         return (char*)(strchr(str, c));
     }
+
     CH* Strchr(const CH* str, CH c)
     {
         ASSERT(str);
-        return (CH*)(wcschr((const wchar_t*)str, (wchar_t)c));
+        return (CH*)(wcschr((const wchar_t*)str, static_cast<wchar_t>(c)));
     }
 
 
@@ -304,8 +314,9 @@ namespace Utils
     char* Strrchr(const char* str, char c)
     {
         ASSERT(str);
-        return (char*)(strrchr(str, (int)c));
+        return (char*)(strrchr(str, static_cast<int>(c)));
     }
+
     CH* Strrchr(const CH* str, CH c)
     {
         ASSERT(str);
@@ -321,6 +332,7 @@ namespace Utils
         ASSERT(str && substr);
         return (char*)(strstr(str, substr));
     }
+
     CH* Strstr(const CH* str, const CH* substr)
     {
         ASSERT(str && substr);
@@ -337,6 +349,7 @@ namespace Utils
         ASSERT(charset);
         return (strcspn(str, charset));
     }
+
     U32 Strcspn(const CH* str, const CH* charset)
     {
         ASSERT(str);
@@ -353,6 +366,7 @@ namespace Utils
         ASSERT(str);
         return (strlwr(str));
     }
+
     CH* Strlwr(CH* str)
     {
         ASSERT(str);
@@ -368,6 +382,7 @@ namespace Utils
         ASSERT(str);
         return (strupr(str));
     }
+
     CH* Strupr(CH* str)
     {
         ASSERT(str);
@@ -387,6 +402,7 @@ namespace Utils
         Memcpy(s, str, len);
         return s;
     }
+
     CH* Strdup(const CH* str)
     {
         ASSERT(str);
@@ -422,6 +438,7 @@ namespace Utils
         }
         return (s);
     }
+
     CH* Strndup(const CH* str, U32 count)
     {
         ASSERT(str);
@@ -451,6 +468,7 @@ namespace Utils
     {
         return (isalnum(c));
     }
+
     Bool IsAlphaNum(CH c)
     {
         return (iswalnum(c));
@@ -464,6 +482,7 @@ namespace Utils
     {
         return (isalpha(c));
     }
+
     Bool IsAlpha(CH c)
     {
         return (iswalpha(c));
@@ -477,6 +496,7 @@ namespace Utils
     {
         return (isdigit(c));
     }
+
     Bool IsDigit(CH c)
     {
         return (iswdigit(c));
@@ -490,6 +510,7 @@ namespace Utils
     {
         return (isgraph(c));
     }
+
     Bool IsGraph(CH c)
     {
         return (iswgraph(c));
@@ -503,6 +524,7 @@ namespace Utils
     {
         return (isxdigit(c));
     }
+
     Bool IsHexDigit(CH c)
     {
         return (iswxdigit(c));
@@ -516,6 +538,7 @@ namespace Utils
     {
         return (islower(c));
     }
+
     Bool IsLower(CH c)
     {
         return (iswlower(c));
@@ -529,6 +552,7 @@ namespace Utils
     {
         return (isprint(c));
     }
+
     Bool IsPrintable(CH c)
     {
         return (iswprint(c));
@@ -542,6 +566,7 @@ namespace Utils
     {
         return (ispunct(c));
     }
+
     Bool IsPunctuation(CH c)
     {
         return (iswpunct(c));
@@ -555,6 +580,7 @@ namespace Utils
     {
         return (isspace(c));
     }
+
     Bool IsWhiteSpace(CH c)
     {
         return (iswspace(c));
@@ -568,6 +594,7 @@ namespace Utils
     {
         return (isupper(c));
     }
+
     Bool IsUpper(CH c)
     {
         return (iswupper(c));
@@ -594,6 +621,7 @@ namespace Utils
 
         return (count);
     }
+
     S32 CDECL Sprintf(CH* buffer, S32 bufSize, const CH* format, ...)
     {
         va_list args;
@@ -622,6 +650,7 @@ namespace Utils
         ASSERT(buffer);
         return (itoa(value, buffer, radix));
     }
+
     CH* ItoA(int value, CH* buffer, int radix)
     {
         ASSERT(buffer);
@@ -637,6 +666,7 @@ namespace Utils
         ASSERT(str);
         return (atoi(str));
     }
+
     int AtoI(const CH* str)
     {
         ASSERT(str);
@@ -651,7 +681,7 @@ namespace Utils
     {
         ASSERT(str);
         fesetround(FE_TONEAREST);
-        return ((F32)atof(str));
+        return static_cast<F32>(atof(str));
     }
 
 
@@ -678,7 +708,6 @@ namespace Utils
     }
 
 
-
     //
     // Ansi2Unicode
     //
@@ -696,7 +725,11 @@ namespace Utils
     int Unicode2Ansi(char* str, U32 size, const CH* unicode)
     {
         int unicodelen = Min(Strlen(unicode), size - 1);
-        int i = WideCharToMultiByte(GetACP(), WC_COMPOSITECHECK, (const wchar_t*)unicode, unicodelen, str, size, NULL, NULL);
+        int i = WideCharToMultiByte
+        (
+            GetACP(), WC_COMPOSITECHECK, (const wchar_t*)unicode, unicodelen, str, size,
+            nullptr, nullptr
+        );
         str[i++] = CH('\0');
         return (i);
     }
@@ -771,7 +804,6 @@ namespace Utils
         // Null terminate the string
         *dst = '\0';
     }
-
 
 
     //
@@ -849,7 +881,7 @@ namespace Utils
 
         while (srcSize)
         {
-            *(dst) = (U8)(translateDecode[*(src++)] & 0x0F);
+            *(dst) = static_cast<U8>(translateDecode[*(src++)] & 0x0F);
             *(dst++) |= (translateDecode[*(src++)] << 4) & 0xF0;
             srcSize -= 2;
         }
@@ -929,7 +961,7 @@ namespace Utils
         while (size)
         {
             // Print the offset
-            Utils::StrFmtHex(buf + 2, 6, offs);
+            StrFmtHex(buf + 2, 6, offs);
             buf[8] = ' ';
 
             // Print each byte
@@ -943,8 +975,8 @@ namespace Utils
                     U8 ch = data[offs];
 
                     // Store hex value
-                    *(hexPtr) = Utils::translateEncode[(ch & 0xF0) >> 4];
-                    *(hexPtr + 1) = Utils::translateEncode[(ch & 0x0F)];
+                    *(hexPtr) = translateEncode[(ch & 0xF0) >> 4];
+                    *(hexPtr + 1) = translateEncode[(ch & 0x0F)];
 
                     // Store ASCII value
                     *(ascPtr) = ch > ' ' ? ch : '.';
@@ -982,7 +1014,7 @@ namespace Utils
     {
         Bool end = FALSE;
         Bool neg = FALSE;
-        S32  comma = 3;
+        S32 comma = 3;
         char* start = s;
         char* p = nullptr;
 
@@ -993,7 +1025,7 @@ namespace Utils
         }
 
         // Use default buffer if none specified
-        if (s == NULL)
+        if (s == nullptr)
         {
             ASSERT(width < sizeof(fmtBuf));
             start = fmtBuf;
@@ -1007,7 +1039,7 @@ namespace Utils
         {
             if (!end)
             {
-                *p-- = char((value % 10) + '0');
+                *p-- = static_cast<char>((value % 10) + '0');
                 value /= 10;
                 end = value == 0;
 
@@ -1047,10 +1079,10 @@ namespace Utils
     char* StrFmtHex(char* s, U32 width, U32 value, U32 flags)
     {
         Bool end = FALSE;
-        char* start = s, * p;
+        char *start = s, *p;
 
         // Use default buffer if not specified
-        if (s == NULL)
+        if (s == nullptr)
         {
             ASSERT(width < sizeof(fmtBuf));
             start = fmtBuf;
@@ -1108,10 +1140,10 @@ namespace Utils
 
         Bool end = FALSE;
         Bool neg = FALSE;
-        char* start = s, * p;
+        char *start = s, *p;
 
         // Use default buffer if not specified
-        if (s == NULL)
+        if (s == nullptr)
         {
             ASSERT(width < sizeof(fmtBuf));
             start = fmtBuf;
@@ -1135,7 +1167,7 @@ namespace Utils
                 fFrac *= 10.0;
             }
 
-            iFrac = Utils::FtoL(F32(fFrac));
+            iFrac = FtoL(F32(fFrac));
 
             if (iFrac < 0)
             {
@@ -1144,14 +1176,14 @@ namespace Utils
 
             while (decpt--)
             {
-                *p-- = char((iFrac % 10) + '0');
+                *p-- = static_cast<char>((iFrac % 10) + '0');
                 iFrac /= 10;
             }
             *p-- = '.';
         }
 
         // Format integer part
-        iInt = Utils::FtoL(F32(fInt));
+        iInt = FtoL(F32(fInt));
 
         if (iInt < 0)
         {
@@ -1163,7 +1195,7 @@ namespace Utils
         {
             if (!end)
             {
-                *p-- = char((iInt % 10) + '0');
+                *p-- = static_cast<char>((iInt % 10) + '0');
                 iInt /= 10;
                 end = iInt == 0;
 
@@ -1295,7 +1327,7 @@ namespace Utils
                 return p;
             }
         }
-        return NULL;
+        return nullptr;
     }
 
 
@@ -1315,28 +1347,28 @@ namespace Utils
         NAKED U16 FASTCALL SetTruncMode()
         {
             __asm
-            {
+                {
                 // 1. Store control word into ECX
-                fstcw   tmpCW
+                fstcw tmpCW
 
                 // 2. Store control word into ECX
-                mov     ecx, tmpCW
+                mov ecx, tmpCW
 
                 // 3. Backup control word into EAX as the return value
-                mov     eax, ecx
+                mov eax, ecx
 
                 // 4. Set truncation mode, bit 10=1 11=1
                 or ecx, 0x00000C00
 
                 // 5. Load control word
-                mov     tmpCW, ecx
+                mov tmpCW, ecx
 
                 // 6. Load control word
-                fldcw   word ptr tmpCW
+                fldcw word ptr tmpCW
 
                 // 7. Return
                 ret
-            }
+                }
         }
 
 
@@ -1346,29 +1378,29 @@ namespace Utils
         NAKED U16 FASTCALL SetRoundUpModeProc()
         {
             __asm
-            {
+                {
                 // 1. Store control word into ECX
-                fstcw   tmpCW
+                fstcw tmpCW
 
                 // 2. Store control word into ECX
-                mov     ecx, tmpCW
+                mov ecx, tmpCW
 
                 // 3. Backup control word into EAX as the return value
-                mov     eax, ecx
+                mov eax, ecx
 
                 // 4. Set truncation mode, bit 10=0 11=1
                 and ecx, 0x0000FBFF
                 or ecx, 0x00000800
 
                 // 5. Load control word
-                mov     tmpCW, ecx
+                mov tmpCW, ecx
 
                 // 6. Load control word
-                fldcw   word ptr tmpCW
+                fldcw word ptr tmpCW
 
                 // 7. Return
                 ret
-            }
+                }
         }
 
 
@@ -1378,29 +1410,29 @@ namespace Utils
         NAKED U16 FASTCALL SetRoundDownModeProc()
         {
             __asm
-            {
+                {
                 // 1. Store control word into ECX
-                fstcw   tmpCW
+                fstcw tmpCW
 
                 // 2. Store control word into ECX
-                mov     ecx, tmpCW
+                mov ecx, tmpCW
 
                 // 3. Backup control word into EAX as the return value
-                mov     eax, ecx
+                mov eax, ecx
 
                 // 4. Set truncation mode, bit 10=1 11=0
                 and ecx, 0x0000F7FF
                 or ecx, 0x00000400
 
                 // 5. Load control word
-                mov     tmpCW, ecx
+                mov tmpCW, ecx
 
                 // 6. Load control word
-                fldcw   word ptr tmpCW
+                fldcw word ptr tmpCW
 
                 // 7. Return
                 ret
-            }
+                }
         }
 
 
@@ -1410,28 +1442,28 @@ namespace Utils
         NAKED U16 FASTCALL SetNearestModeProc()
         {
             __asm
-            {
+                {
                 // 1. Store control word into ECX
-                fstcw   tmpCW
+                fstcw tmpCW
 
                 // 2. Store control word into ECX
-                mov     ecx, tmpCW
+                mov ecx, tmpCW
 
                 // 3. Backup control word into EAX as the return value
-                mov     eax, ecx
+                mov eax, ecx
 
                 // 4. Set truncation mode, bit 10=0 11=0
                 and ecx, 0xFFFFF3FF
 
                 // 5. Load control word
-                mov     tmpCW, ecx
+                mov tmpCW, ecx
 
                 // 6. Load control word
-                fldcw   word ptr tmpCW
+                fldcw word ptr tmpCW
 
                 // 7. Return
                 ret
-            }
+                }
         }
 
 
@@ -1441,16 +1473,16 @@ namespace Utils
         NAKED void FASTCALL RestoreModeProc(U16)
         {
             __asm
-            {
+                {
                 // 1. Move arg0 into temp var
-                mov     tmpCW, ecx
+                mov tmpCW, ecx
 
                 // 2. Load control word
-                fldcw   word ptr tmpCW
+                fldcw word ptr tmpCW
 
                 // 3. Return
                 ret
-            }
+                }
         }
 
 
@@ -1460,31 +1492,30 @@ namespace Utils
         NAKED U16 FASTCALL SetPrecision53()
         {
             __asm
-            {
+                {
                 // 1. Store control word into ECX
-                fstcw   tmpCW
+                fstcw tmpCW
 
                 // 2. Store control word into ECX
-                mov     ecx, tmpCW
+                mov ecx, tmpCW
 
                 // 3. Backup control word into EAX as the return value
-                mov     eax, ecx
+                mov eax, ecx
 
                 // 4. Set precision to 53-bit, bit 8=0 9=1
                 and ecx, 0x0000FEFF
                 or ecx, 0x00000200
 
                 // 5. Load control word
-                mov     tmpCW, ecx
+                mov tmpCW, ecx
 
                 // 6. Load control word
-                fldcw   word ptr tmpCW
+                fldcw word ptr tmpCW
 
                 // 7. Return
                 ret
-            }
+                }
         }
-
 
 
         //
@@ -1493,30 +1524,29 @@ namespace Utils
         NAKED U16 FASTCALL SetPrecision64()
         {
             __asm
-            {
+                {
                 // 1. Store control word into ECX
-                fstcw   tmpCW
+                fstcw tmpCW
 
                 // 2. Store control word into ECX
-                mov     ecx, tmpCW
+                mov ecx, tmpCW
 
                 // 3. Backup control word into EAX as the return value
-                mov     eax, ecx
+                mov eax, ecx
 
                 // 4. Set precision to 64-bit, bit 8=1 9=1
                 or ecx, 0x00000300
 
                 // 5. Load control word
-                mov     tmpCW, ecx
+                mov tmpCW, ecx
 
                 // 6. Load control word
-                fldcw   word ptr tmpCW
+                fldcw word ptr tmpCW
 
                 // 7. Return
                 ret
-            }
+                }
         }
-
 
 
         //
@@ -1584,10 +1614,10 @@ namespace Utils
             U16 ctl, stat;
 
             __asm
-            {
+                {
                 fstcw word ptr ctl
                 fstsw word ptr stat
-            }
+                }
 
             sprintf(buf, "PC: %d RC: %d INF: %d", (ctl >> 8) & 0x3, (ctl >> 10) & 0x3, (ctl >> 12) & 1);
             return (buf);
@@ -1609,19 +1639,19 @@ namespace Utils
     NAKED S32 STDCALL FastFtoLProc(F32)
     {
         __asm
-        {
+            {
             // 1. Load F32 value from arg0
-            fld     dword ptr[esp + 4]
+            fld dword ptr[esp + 4]
 
             // 2. Store S32 back into arg0
-            fistp   dword ptr[esp + 4]
+            fistp dword ptr[esp + 4]
 
             // 3. Copy S32 into EAX as the return value
-            mov     eax, [esp + 4]
+            mov eax, [esp + 4]
 
             // 4. Return
-            ret     4
-        }
+            ret 4
+            }
     }
 
     //
@@ -1632,43 +1662,43 @@ namespace Utils
         static U16 tmpCW;
 
         __asm
-        {
+            {
             // 1. Store control word into EAX
-            fstcw   tmpCW
+            fstcw tmpCW
 
             // 7. Move float argument into FP register
-            fld     dword ptr[esp + 4]
+            fld dword ptr[esp + 4]
 
             // 2. Store control word into EAX
-            mov     ax, tmpCW
+            mov ax, tmpCW
 
             // 3. Save original control word into ECX
-            mov     ecx, eax
+            mov ecx, eax
 
             // 4. Set truncation mode, bit 10=1 11=1
             or eax, 0x00000C00
 
             // 5. Move adjusted control word back to temp var
-            mov     tmpCW, ax
+            mov tmpCW, ax
 
             // 6. Set control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 8. Store float as integer
-            fistp   dword ptr[esp + 4]
+            fistp dword ptr[esp + 4]
 
             // 9. Restore original control word
-            mov     tmpCW, cx
+            mov tmpCW, cx
 
             // 11. Store result into EAX
-            mov     eax, dword ptr[esp + 4]
+            mov eax, dword ptr[esp + 4]
 
             // 10. Restore original control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 12. Return
-            ret     4
-        }
+            ret 4
+            }
     }
 
     //
@@ -1679,44 +1709,44 @@ namespace Utils
         static U16 tmpCW;
 
         __asm
-        {
+            {
             // 1. Store control word into EAX
-            fstcw   tmpCW
+            fstcw tmpCW
 
             // 7. Move float argument into FP register
-            fld     dword ptr[esp + 4]
+            fld dword ptr[esp + 4]
 
             // 2. Store control word into EAX
-            mov     ax, tmpCW
+            mov ax, tmpCW
 
             // 3. Save original control word into ECX
-            mov     ecx, eax
+            mov ecx, eax
 
             // 4. Set truncation mode, bit 10=0 11=1
             and eax, 0x0000FBFF
             or eax, 0x00000800
 
             // 5. Move adjusted control word back to temp var
-            mov     tmpCW, ax
+            mov tmpCW, ax
 
             // 6. Set control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 8. Store float as integer
-            fistp   dword ptr[esp + 4]
+            fistp dword ptr[esp + 4]
 
             // 9. Restore original control word
-            mov     tmpCW, cx
+            mov tmpCW, cx
 
             // 11. Store result into EAX
-            mov     eax, dword ptr[esp + 4]
+            mov eax, dword ptr[esp + 4]
 
             // 10. Restore original control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 12. Return
-            ret     4
-        }
+            ret 4
+            }
     }
 
     //
@@ -1727,44 +1757,44 @@ namespace Utils
         static U16 tmpCW;
 
         __asm
-        {
+            {
             // 1. Store control word into EAX
-            fstcw   tmpCW
+            fstcw tmpCW
 
             // 7. Move float argument into FP register
-            fld     dword ptr[esp + 4]
+            fld dword ptr[esp + 4]
 
             // 2. Store control word into EAX
-            mov     ax, tmpCW
+            mov ax, tmpCW
 
             // 3. Save original control word into ECX
-            mov     ecx, eax
+            mov ecx, eax
 
             // 4. Set truncation mode, bit 10=1 11=0
             and eax, 0x0000F7FF
             or eax, 0x00000400
 
             // 5. Move adjusted control word back to temp var
-            mov     tmpCW, ax
+            mov tmpCW, ax
 
             // 6. Set control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 8. Store float as integer
-            fistp   dword ptr[esp + 4]
+            fistp dword ptr[esp + 4]
 
             // 9. Restore original control word
-            mov     tmpCW, cx
+            mov tmpCW, cx
 
             // 11. Store result into EAX
-            mov     eax, dword ptr[esp + 4]
+            mov eax, dword ptr[esp + 4]
 
             // 10. Restore original control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 12. Return
-            ret     4
-        }
+            ret 4
+            }
     }
 
 
@@ -1776,43 +1806,42 @@ namespace Utils
         static U16 tmpCW;
 
         __asm
-        {
+            {
             // 1. Store control word into EAX
-            fstcw   tmpCW
+            fstcw tmpCW
 
             // 7. Move float argument into FP register
-            fld     dword ptr[esp + 4]
+            fld dword ptr[esp + 4]
 
             // 2. Store control word into EAX
-            mov     ax, tmpCW
+            mov ax, tmpCW
 
             // 3. Save original control word into ECX
-            mov     ecx, eax
+            mov ecx, eax
 
             // 4. Set nearest mode, bit 10=0 11=0
             and eax, 0x0000F3FF
 
             // 5. Move adjusted control word back to temp var
-            mov     tmpCW, ax
+            mov tmpCW, ax
 
             // 6. Set control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 8. Store float as integer
-            fistp   dword ptr[esp + 4]
+            fistp dword ptr[esp + 4]
 
             // 9. Restore original control word
-            mov     tmpCW, cx
+            mov tmpCW, cx
 
             // 11. Store result into EAX
-            mov     eax, dword ptr[esp + 4]
+            mov eax, dword ptr[esp + 4]
 
             // 10. Restore original control word
-            fldcw   tmpCW
+            fldcw tmpCW
 
             // 12. Return
-            ret     4
-        }
+            ret 4
+            }
     }
-
 }

@@ -16,662 +16,712 @@
 
 #define ANIMFPS               20.0f
 #define DEFBLENDTIME          10.0f
+
 //----------------------------------------------------------------------------
 
 class MeshObj : public FamilyNode
 {
 protected:
-  friend Mesh::Manager;
-  friend class MeshEnt;
+    friend Mesh::Manager;
+    friend class MeshEnt;
 
 public:
 
-  Mesh                   *mesh;              // the geometry
-  U32                     clipFlagCache;     // cashed clip flags set by Camera::BoundsTest( MeshEnt &)
+    Mesh* mesh;              // the geometry
+    U32 clipFlagCache;     // cashed clip flags set by Camera::BoundsTest( MeshEnt &)
 
 protected:
-  int GetMeshArray( MeshObj **array, int MaxSize, int Count);
+    int GetMeshArray(MeshObj** array, int MaxSize, int Count);
 
-  Bool SetupFamily( const Mesh * _mesh, Array<FamilyState> & stateArray);
+    Bool SetupFamily(const Mesh* _mesh, Array<FamilyState>& stateArray);
 
 public:
-  void ClearData();
+    void ClearData();
 
-  MeshObj( FamilyState *state = NULL)
-  {
-    ClearData();
-    if (state)
+    MeshObj(FamilyState* state = nullptr)
     {
-      SetState( *state);
+        ClearData();
+        if (state)
+        {
+            SetState(*state);
+        }
     }
-  }
-  ~MeshObj();
 
-  int GetMeshArray (MeshObj **array, int MaxSize)
-  {
-	  return GetMeshArray (array, MaxSize, 0);
-  }
+    ~MeshObj();
+
+    int GetMeshArray(MeshObj** array, int MaxSize)
+    {
+        return GetMeshArray(array, MaxSize, 0);
+    }
 };
+
 //----------------------------------------------------------------------------
 
 // animation play data (need 2 sets; 1 for Sim, 1 for Interp)
 //
 struct AnimState
 {
-  U32                     active    : 1;        // is it currently animating
-  U32                     blend     : 1;        // is it currently blending between animations
+    U32 active : 1;        // is it currently animating
+    U32 blend : 1;        // is it currently blending between animations
 
-  F32                     curFrame, lastFrame;  // < 0: blending, > 0 & < maxFrame: normal anim
-  F32                     dir;                  // 1 or -1 factor for fps
+    F32 curFrame, lastFrame;  // < 0: blending, > 0 & < maxFrame: normal anim
+    F32 dir;                  // 1 or -1 factor for fps
 
-  F32                     conFrame, targetFrame;// control overlay
-  F32                     conDir;
+    F32 conFrame, targetFrame;// control overlay
+    F32 conDir;
 
-  Bounds                  bounds;               // object space
-  Vector                  origin;               // world space
-  Vector                  rootOrigin;           // non-changing origin; world space
+    Bounds bounds;               // object space
+    Vector origin;               // world space
+    Vector rootOrigin;           // non-changing origin; world space
 
-  void ClearData()
-  {
-    active = blend = FALSE;
+    void ClearData()
+    {
+        active = blend = FALSE;
 
-    curFrame = 0.0f;
-    dir = 1.0f;
-    conFrame = targetFrame = 0.0f;
-    conDir = 1.0f;
+        curFrame = 0.0f;
+        dir = 1.0f;
+        conFrame = targetFrame = 0.0f;
+        conDir = 1.0f;
 
-    bounds.ClearData();
-    origin.ClearData();
-    rootOrigin.ClearData();
-  }
+        bounds.ClearData();
+        origin.ClearData();
+        rootOrigin.ClearData();
+    }
 };
+
 //----------------------------------------------------------------------------
 
 class MeshEnt : public MeshObj
 {
 protected:
-  friend Mesh::Manager;
-  friend Mesh;
-  friend MeshObj;
+    friend Mesh::Manager;
+    friend Mesh;
+    friend MeshObj;
 
-  NList<MeshEnt>::Node    listNode;               // node for Mesh manager list
+    NList<MeshEnt>::Node listNode;               // node for Mesh manager list
 
-  MeshEnt                 *eParent;               // parent/child MeshEnt's
-  NList<MeshEnt>          eChildren;
-  NList<MeshEnt>::Node    eChildNode;
+    MeshEnt* eParent;               // parent/child MeshEnt's
+    NList<MeshEnt> eChildren;
+    NList<MeshEnt>::Node eChildNode;
 
-//  Array<BucketLock>       buckys;                 // instance buckys
-  Array<FaceGroup>        buckys;
+    //  Array<BucketLock>       buckys;                 // instance buckys
+    Array<FaceGroup> buckys;
 
-  typedef void (MeshEnt::*ENTRENDERPROCPTR)();    // render function
-  ENTRENDERPROCPTR        renderProc;
+    typedef void (MeshEnt::*ENTRENDERPROCPTR)();    // render function
+    ENTRENDERPROCPTR renderProc;
 
-  friend class MeshEffect;                        //  mesh effects
+    friend class MeshEffect;                        //  mesh effects
 
-  MeshEffect *            effect;
-  ENTRENDERPROCPTR        renderProcSave;         // save real render func during effect
+    MeshEffect* effect;
+    ENTRENDERPROCPTR renderProcSave;         // save real render func during effect
 
-  MeshRoot & RootPriv() const
-  {
-    return *((MeshRoot *) mesh);
-  }
-
-public:                               
-
-  ShadowInfo              shadowInfo;
-  Bitmap *                shadowTexture;
-  U32                     shadowTime;
-  S32                     shadowAlpha0;
-  S32                     shadowAlpha1;
-
-  S32                     fogCurrent;
-  S32                     alphaCurrent;
-  S32                     extraFog;
-
-  Array<FamilyState>      states0, statesR;   // sim current and render current state arrays
-  Array<AnimKey>          states1, blends;    // sim target and anim temp blend key arrays (no matrices)
-
-  struct TreadState
-  {
-    F32 offset;
-    F32 rate;
-  };
-  Array<TreadState>       treads;             // tread offsets per state
-
-  AnimState               animState0, animStateR;
-  F32                     interpFrame;        // for root interpolation
-
-  ENTRENDERPROCPTR        renderProcEffect;
-  MeshRoot::ROOTRENDERPROCPTR  rootRenderProc;       // handy pointers
-
-
-  Color                   color;       // general effects data
-  Color                   baseColor;
-  Color                   teamColor;
-  Bitmap *                texture;
-
-  U32                     controlFlags;
-  F32                     lodValue;
-
-  U32                     shadowType   : 2;
-  U32                     noLight      : 1;   // emissive lighting?
-  U32                     envMap       : 1;   // does it have specularity?
-  U32                     hasAnim      : 1;   // does it have animations?
-  U32                     hasTexAnim   : 1;   // does it have animating textures?
-  U32                     hasTread     : 1;   // does it have treads
-  U32                     hasControl   : 1;   // does it have control nodes
-  U32                     textureAnim  : 1;   // is it texture animating?
-  U32                     dirtyRoot    : 1;   // are the 1st and 2nd generation world matrices dirty
-  U32                     dirtyAll     : 1;   // are the other world matrices dirty
-  U32                     dirtyIntRoot : 1;   
-  U32                     dirtyIntAll  : 1;   
-  U32                     dirtyShadow  : 1;   
-  U32                     interpolated : 1;   
-  U32                     effecting    : 1;   
-  U32                     visible      : 1;   
-
-  AnimList *              curCycle;           // current animation cycle
-  AnimList *              conCycle;           // control cycle overlay
-  U32                     curCycleID;         // current cycle id number
-  Vector                  viewOrigin;         // last camera transformed sphere origin
-
-  F32                     fps;                // current anim frame rate
-  F32                     texTimer, texTime;  // texture animation
-
-  U32                     faceCount;          // current mrm facecount
-  U32                     vertCount;          // current mrm vertcount
-  U32                     nextVertCount;      // requested mrm vertcount
-
-  U32                     texAnimPoll, lastTexPoll, texAnimAuto;
-
-  U32                     clipFlagSave;
-
-  void ClipSave()
-  {
-    clipFlagSave = clipFlagCache;
-  }
-  void ClipRestore()
-  {
-    clipFlagCache = clipFlagSave;
-  }
-
-protected:
-  void ClearData();
-
-  Bool SetupStates( const MeshRoot &root);
-
-  void ClampFrame( AnimState & animState);
-
-  // inserts 'node' as 'this's' primary/last child depending on 'insert' flag
-  virtual void Attach( FamilyNode &node, Bool insert = TRUE);
-
-  void SetFeatureLOD();
-  U32  MrmUpdate();
-
-  void SetupBuckys( const MeshRoot & root);
-  void ReleaseBuckys();
+    MeshRoot& RootPriv() const
+    {
+        return *static_cast<MeshRoot*>(mesh);
+    }
 
 public:
 
-  void SetBucketDataZ( F32 z = 1);
+    ShadowInfo shadowInfo;
+    Bitmap* shadowTexture;
+    U32 shadowTime;
+    S32 shadowAlpha0;
+    S32 shadowAlpha1;
 
-  void Reset( const MeshRoot & root);
+    S32 fogCurrent;
+    S32 alphaCurrent;
+    S32 extraFog;
 
-  void SetFogTarget( S32 fog, S32 alpha = 255, Bool immediate = FALSE);
+    Array<FamilyState> states0, statesR;   // sim current and render current state arrays
+    Array<AnimKey> states1, blends;    // sim target and anim temp blend key arrays (no matrices)
 
-  void SaveState( FScope * fScope);
-  void LoadState( FScope * fScope);
-
-  U32 GetMem() const;
-
-  //  meshviewer editing
-  //
-  struct SelectData
-  {
-    List<U16> verts;
-    List<U16> faces;
-
-    ~SelectData()
+    struct TreadState
     {
-      verts.DisposeAll();
-      faces.DisposeAll();
-    }
-  };
+        F32 offset;
+        F32 rate;
+    };
 
-  SelectData *            selData;
+    Array<TreadState> treads;             // tread offsets per state
 
-  // NULL = all
-  //
-  void SelectVerts( Area<S32> * rect = NULL, Bool append = FALSE, Bool toggle = FALSE);
-  void SelectFaces( Area<S32> * rect = NULL, Bool append = FALSE, Bool toggle = FALSE);
-  void UnSelectVerts( Area<S32> * rect = NULL);
-  void UnSelectFaces( Area<S32> * rect = NULL);
+    AnimState animState0, animStateR;
+    F32 interpFrame;        // for root interpolation
 
-  Bool SelectVert( U16 index, Bool append = FALSE);
-  Bool SelectFace( U16 index, Bool append = FALSE);
-  Bool UnSelectVert( U16 index);
-  Bool UnSelectFace( U16 index);
+    ENTRENDERPROCPTR renderProcEffect;
+    MeshRoot::ROOTRENDERPROCPTR rootRenderProc;       // handy pointers
 
-  void RenderSelVerts( Color color0, Bool show = FALSE, Color color1 = 0x00000000)
-  {
-    if ((show || (selData && selData->verts.GetCount())) && clipFlagCache != clipOUTSIDE)
+
+    Color color;       // general effects data
+    Color baseColor;
+    Color teamColor;
+    Bitmap* texture;
+
+    U32 controlFlags;
+    F32 lodValue;
+
+    U32 shadowType : 2;
+    U32 noLight : 1;   // emissive lighting?
+    U32 envMap : 1;   // does it have specularity?
+    U32 hasAnim : 1;   // does it have animations?
+    U32 hasTexAnim : 1;   // does it have animating textures?
+    U32 hasTread : 1;   // does it have treads
+    U32 hasControl : 1;   // does it have control nodes
+    U32 textureAnim : 1;   // is it texture animating?
+    U32 dirtyRoot : 1;   // are the 1st and 2nd generation world matrices dirty
+    U32 dirtyAll : 1;   // are the other world matrices dirty
+    U32 dirtyIntRoot : 1;
+    U32 dirtyIntAll : 1;
+    U32 dirtyShadow : 1;
+    U32 interpolated : 1;
+    U32 effecting : 1;
+    U32 visible : 1;
+
+    AnimList* curCycle;           // current animation cycle
+    AnimList* conCycle;           // control cycle overlay
+    U32 curCycleID;         // current cycle id number
+    Vector viewOrigin;         // last camera transformed sphere origin
+
+    F32 fps;                // current anim frame rate
+    F32 texTimer, texTime;  // texture animation
+
+    U32 faceCount;          // current mrm facecount
+    U32 vertCount;          // current mrm vertcount
+    U32 nextVertCount;      // requested mrm vertcount
+
+    U32 texAnimPoll, lastTexPoll, texAnimAuto;
+
+    U32 clipFlagSave;
+
+    void ClipSave()
     {
-      RootPriv().RenderSelVerts( show, selData ? &selData->verts : NULL, 
-        statesR, color0, color1, clipFlagCache);
+        clipFlagSave = clipFlagCache;
     }
-  }
-  void RenderSelFaces( Color color0, Bool show = FALSE, Color color1 = 0x00000000)
-  {
-    if ((show || (selData && selData->verts.GetCount())) && clipFlagCache != clipOUTSIDE)
+
+    void ClipRestore()
     {
-      RootPriv().RenderSelFaces( show, selData ? &selData->faces : NULL,
-        statesR, color0, color1, clipFlagCache);
+        clipFlagCache = clipFlagSave;
     }
-  }
 
-  // constructors
-  //
-  MeshEnt( const MeshRoot *root = NULL);
-  MeshEnt( const char *name);
+protected:
+    void ClearData();
 
-  virtual ~MeshEnt();
+    Bool SetupStates(const MeshRoot& root);
 
-  void SetTeamColor( Color tColor);
-  void SetBaseColor( Color bColor);
-  void ModulateBaseColor( Color bColor);
+    void ClampFrame(AnimState& animState);
 
-  void SetOpaque( Color oColor);
-  void SetOpaque( U32 o);
-  void SetTranslucent( U32 t);
+    // inserts 'node' as 'this's' primary/last child depending on 'insert' flag
+    void Attach(FamilyNode& node, Bool insert = TRUE) override;
 
-  const MeshEnt * EntParent() const
-  {
-    return eParent;
-  }
+    void SetFeatureLOD();
+    U32 MrmUpdate();
 
-  NList<MeshEnt> * EntChildren()
-  {
-    return &eChildren;
-  }
+    void SetupBuckys(const MeshRoot& root);
+    void ReleaseBuckys();
 
-  const MeshEnt * EntChild() const
-  {
-    return eChildren.GetHead();
-  }
+public:
 
-  void SetTreadRate( NodeIdent & ident, F32 rate);
-  void SetUVAnimRate( F32 rate);
+    void SetBucketDataZ(F32 z = 1);
 
-  // removes 'this' and all its children from parent
-  virtual void Detach();
+    void Reset(const MeshRoot& root);
 
-  void AttachAt( FamilyNode & at, FamilyNode & node, Bool insert = TRUE);
+    void SetFogTarget(S32 fog, S32 alpha = 255, Bool immediate = FALSE);
 
-  inline MeshObj * Get( NodeIdent &ident) const
-  {
-    ASSERT( ident.index < statesR.count);
+    void SaveState(FScope* fScope);
+    void LoadState(FScope* fScope);
 
-    return states0[ident.index].GetMeshObj();
-  }
+    U32 GetMem() const;
 
-  inline MeshObj * FindIdent( NodeIdent &ident) const
-  {
-    return Root().FindIdent( ident) ? Get( ident) : NULL;
-  }
+    //  meshviewer editing
+    //
+    struct SelectData
+    {
+        List<U16> verts;
+        List<U16> faces;
 
-  MeshEffect * GetEffect() const
-  {
-    return effect;
-  }
-  void GetVertWorld( Vector &vert, U32 index) const;
-  void GetNormWorld( Vector &norm, U32 index) const;
+        ~SelectData()
+        {
+            verts.DisposeAll();
+            faces.DisposeAll();
+        }
+    };
 
-  void Copy( const MeshEnt *orig, Bool local = FALSE);
-  void Setup( const MeshRoot &root);
+    SelectData* selData;
 
-  const MeshRoot & Root() const
-  {
-    ASSERT(mesh)
-    return *((MeshRoot *) mesh);
-  }
-  void MRMGen( Bool doSelVerts = TRUE);
+    // NULL = all
+    //
+    void SelectVerts(Area<S32>* rect = nullptr, Bool append = FALSE, Bool toggle = FALSE);
+    void SelectFaces(Area<S32>* rect = nullptr, Bool append = FALSE, Bool toggle = FALSE);
+    void UnSelectVerts(Area<S32>* rect = nullptr);
+    void UnSelectFaces(Area<S32>* rect = nullptr);
 
-  void Render( const Matrix &world);
-  void RenderColor( const Matrix &world, Color _color);
-  void RenderColor( Color _color);
-  void RenderChildren();
+    Bool SelectVert(U16 index, Bool append = FALSE);
+    Bool SelectFace(U16 index, Bool append = FALSE);
+    Bool UnSelectVert(U16 index);
+    Bool UnSelectFace(U16 index);
 
-  virtual void RenderSingle( Color teamColor = 0xffffffff, U32 _controlFlags = controlDEF);
-  virtual void Render();
+    void RenderSelVerts(Color color0, Bool show = FALSE, Color color1 = 0x00000000)
+    {
+        if ((show || (selData && selData->verts.GetCount())) && clipFlagCache != clipOUTSIDE)
+        {
+            RootPriv().RenderSelVerts(show, selData ? &selData->verts : nullptr,
+                                      statesR, color0, color1, clipFlagCache);
+        }
+    }
 
-  void SetupRenderProc();
-  void SetRenderProc( ENTRENDERPROCPTR proc)
-  {
-    renderProc = proc;
-  }
-  U32 BoundsTest();
+    void RenderSelFaces(Color color0, Bool show = FALSE, Color color1 = 0x00000000)
+    {
+        if ((show || (selData && selData->verts.GetCount())) && clipFlagCache != clipOUTSIDE)
+        {
+            RootPriv().RenderSelFaces(show, selData ? &selData->faces : nullptr,
+                                      statesR, color0, color1, clipFlagCache);
+        }
+    }
 
-  virtual void SetWorldRecurse( const Matrix & world);
-  virtual void SetWorldRecurseRender( const Matrix & world, FamilyState * stateArray);
+    // constructors
+    //
+    MeshEnt(const MeshRoot* root = nullptr);
+    MeshEnt(const char* name);
 
-  // Set the current and next simulation frame's rotation, position, and scale
-  //
-  void SetSimCurrent( const Matrix & matrix);
-  void SetSimCurrent( const Quaternion & quaternion);
-  void SetSimCurrent( const Vector & position);
-  void SetSimCurrent( const Quaternion & quaternion, const Vector & position);
-  void SetSimCurrentScale( const Vector & scale);
+    virtual ~MeshEnt();
 
-  // Set the next simulation frame's rotation, position, and scale
-  //
-  void SetSimTarget( const Matrix & matrix);
-  void SetSimTarget( const Quaternion & quaternion);
-  void SetSimTarget( const Vector & position);
-  void SetSimTarget( const Quaternion & quaternion, const Vector & position);
-  void SetSimTargetScale( const Vector & scale);
-  void SetTreeDirty( Bool rootDirty = TRUE);
+    void SetTeamColor(Color tColor);
+    void SetBaseColor(Color bColor);
+    void ModulateBaseColor(Color bColor);
 
-  // Set the next simulation frame's rotation, position, and scale for a child node
-  //
-  void SetSimTarget( const NodeIdent & ident, const Matrix & matrix);
-  void SetSimTarget( const NodeIdent & ident, const Quaternion & quaternion);
-  void SetSimTarget( const NodeIdent & ident, const Vector & position);
-  void SetSimTarget( const NodeIdent & ident, const Quaternion & quaternion, const Vector & position);
-  void SetSimTargetScale( const NodeIdent & ident, const Vector & scale);
+    void SetOpaque(Color oColor);
+    void SetOpaque(U32 o);
+    void SetTranslucent(U32 t);
 
-  void SetWorldRender();
+    const MeshEnt* EntParent() const
+    {
+        return eParent;
+    }
 
-  // get sim
-  //
-  const Matrix & GetSimObjectMatrix() const
-  {
-    return states0.data->ObjectMatrixPriv();
-  }
-  const Quaternion & GetSimRotation() const
-  {
-    return states0.data->GetRotation();
-  }
-  const Vector & GetSimPosition() const
-  {
-    return states0.data->GetPosition();
-  }
-  const Vector & GetSimScale() const
-  {
-    return states0.data->GetScale();
-  }
+    NList<MeshEnt>* EntChildren()
+    {
+        return &eChildren;
+    }
 
-  // get sim child
-  //
-  const Matrix & GetSimObjectMatrix( U32 index) const
-  {
-    return states0[index].ObjectMatrixPriv();
-  }
-  const Quaternion & GetSimRotation( U32 index) const
-  {
-    return states0[index].GetRotation();
-  }
-  const Vector & GetSimPosition( U32 index) const
-  {
-    return states0[index].GetPosition();
-  }
-  const Vector & GetSimScale( U32 index) const
-  {
-    return states0[index].GetScale();
-  }
+    const MeshEnt* EntChild() const
+    {
+        return eChildren.GetHead();
+    }
 
-  // get interp
-  //
-  const Matrix & GetIntObjectMatrix() const
-  {
-    return statesR.data->ObjectMatrixPriv();
-  }
-  const Quaternion & GetIntRotation() const
-  {
-    return statesR.data->GetRotation();
-  }
-  const Vector & GetIntPosition() const
-  {
-    return statesR.data->GetPosition();
-  }
-  const Vector & GetIntScale() const
-  {
-    return statesR.data->GetScale();
-  }
+    void SetTreadRate(NodeIdent& ident, F32 rate);
+    void SetUVAnimRate(F32 rate);
 
-  // get interp child
-  //
-  const Matrix & GetIntObjectMatrix( U32 index) const
-  {
-    return statesR[index].ObjectMatrixPriv();
-  }
-  const Quaternion & GetIntRotation( U32 index) const
-  {
-    return statesR[index].GetRotation();
-  }
-  const Vector & GetIntPosition( U32 index) const
-  {
-    return statesR[index].GetPosition();
-  }
-  const Vector & GetIntScale( U32 index) const
-  {
-    return statesR[index].GetScale();
-  }
+    // removes 'this' and all its children from parent
+    void Detach() override;
 
-  // get target
-  //
-  const Quaternion & GetTargetRotation() const
-  {
-    return states1.data->GetRotation();
-  }
-  const Vector & GetTargetPosition() const
-  {
-    return states1.data->GetPosition();
-  }
-  const Vector & GetTargetScale() const
-  {
-    return states1.data->GetScale();
-  }
+    void AttachAt(FamilyNode& at, FamilyNode& node, Bool insert = TRUE);
 
-  // get target child
-  //
-  const Quaternion & GetTargetRotation( const NodeIdent & node) const
-  {
-    return states1[node.index].GetRotation();
-  }
-  const Vector & GetTargetPosition( const NodeIdent & node) const
-  {
-    return states1[node.index].GetPosition();
-  }
-  const Vector & GetTargetScale( const NodeIdent & node) const
-  {
-    return states1[node.index].GetScale();
-  }
+    MeshObj* Get(NodeIdent& ident) const
+    {
+        ASSERT(ident.index < statesR.count);
 
-  // returns was dirty
-  //
-  Bool UpdateSim( F32 dt);
+        return states0[ident.index].GetMeshObj();
+    }
 
-  void SimulateSim( F32 dt);
-  void SimulateInt( F32 dt, Bool isInterpFrame = TRUE);
-  void SimulateIntRecurse( F32 dt, F32 dtdi);
-  void SimulateIntBasic( F32 dt, Bool simFrame = TRUE);
-  void SimulateTex( F32 dt, Bool simFrame = TRUE);
-  void SetTexFrame( U32 frame = 0);
+    MeshObj* FindIdent(NodeIdent& ident) const
+    {
+        return Root().FindIdent(ident) ? Get(ident) : nullptr;
+    }
 
-  const Matrix & WorldMatrixChild( U32 index)
-  {
-    return states0[index].WorldMatrix();
-  }
-  const Vector & Origin()
-  {
-    return animState0.origin;
-  }
-  const Vector & Offset()
-  {
-    return animState0.bounds.Offset();
-  }
-  const Bounds & ObjectBounds()
-  {
-    return animState0.bounds;
-  }
+    MeshEffect* GetEffect() const
+    {
+        return effect;
+    }
 
-  const Matrix & WorldMatrixRender()
-  {
-    return statesR.data->WorldMatrix();
-  }
-  const Matrix & WorldMatrixChildRender( U32 index)
-  {
-    return statesR[index].WorldMatrix();
-  }
-  const Vector & OriginRender()
-  {
-    return animStateR.origin;
-  }
-  const Vector & OffsetRender()
-  {
-    return animStateR.bounds.Offset();
-  }
-  const Bounds & ObjectBoundsRender()
-  {
-    return animStateR.bounds;
-  }
+    void GetVertWorld(Vector& vert, U32 index) const;
+    void GetNormWorld(Vector& norm, U32 index) const;
 
-  const Vector & RootOrigin()
-  {
-    return animState0.rootOrigin;
-  }
-  const Vector & RootOriginRender()
-  {
-    return animStateR.rootOrigin;
-  }
-  const Bounds & RootBounds() const
-  {
-    return Root().fixedBounds;
-  }
+    void Copy(const MeshEnt* orig, Bool local = FALSE);
+    void Setup(const MeshRoot& root);
 
-  virtual void Render( Array<FamilyState> & stateArray, Color tColor, U32 clipFlags = clipALL, U32 _controlFlags = controlDEF);
-  virtual void RenderColor( Array<FamilyState> & stateArray, Color color, U32 clipFlags = clipALL, U32 _controlFlags = controlDEF);
+    const MeshRoot& Root() const
+    {
+        ASSERT(mesh);
+        return *static_cast<MeshRoot*>(mesh);
+    }
 
-  void RenderBounds( Color color, Bitmap *texture = NULL)
-  {
-    RenderBoundingBox( color, texture);
-    RenderBoundingSphere( color, texture);
-  }
-  void RenderBoundingSphere( Color color, Bitmap *texture = NULL);
-  void RenderBoundingBox( Color color, Bitmap *texture = NULL);
+    void MRMGen(Bool doSelVerts = TRUE);
 
-  void RenderHardPoints( Color color);
-  void RenderOrigin( Color color, MeshObj * childMesh = NULL, Color color1 = 0xffffffff);
+    void Render(const Matrix& world);
+    void RenderColor(const Matrix& world, Color _color);
+    void RenderColor(Color _color);
+    void RenderChildren();
 
-  void RenderNormals( Color color)
-  {
-    RootPriv().RenderNormals( statesR, color, clipFlagCache); 
-  }
+    void RenderSingle(Color teamColor = 0xffffffff, U32 _controlFlags = controlDEF) override;
+    void Render() override;
 
-  void RenderShadowPlane( U32 number, Color color)
-  {
-    RootPriv().RenderShadowPlane( number, statesR, color, clipFlagCache); 
-  }
+    void SetupRenderProc();
 
-  void RenderNone();
-  void RenderAnimVtl();
-  void RenderNoAnimVtl();
-  void RenderNoLightAnimVtl();
-  void RenderNoLightNoAnimVtl();
-  void RenderQuickLightAnimVtl();
-  void RenderQuickLightNoAnimVtl();
-  void RenderOverlayVtl();
-  void RenderEnvMapVtl( Color color = 0xffffffff, Bitmap * tex = NULL, U32 blend = RS_BLEND_DEF, U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0);
+    void SetRenderProc(ENTRENDERPROCPTR proc)
+    {
+        renderProc = proc;
+    }
 
-  void RenderAnimV();
-  void RenderNoAnimV();
-  void RenderNoLightAnimV();
-  void RenderNoLightNoAnimV();
-  void RenderQuickLightAnimV();
-  void RenderQuickLightNoAnimV();
-  void RenderOverlayV();
-  void RenderEnvMapV( Color color = 0xffffffff, Bitmap * tex = NULL, U32 blend = RS_BLEND_DEF, U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0);
+    U32 BoundsTest();
 
-  // mesh effects generic renders
-  //
-  void RenderShadowTexture( const Matrix ** lightA = NULL, U32 lCount = 1, Color color = 0xffffffff, U32 blend = RS_BLEND_DEF);
+    void SetWorldRecurse(const Matrix& world) override;
+    void SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray) override;
 
-  // mesh effects specialized renders
-  //
-  void RenderTextCrossFadeEffect();
-  void RenderColorEffect();
-  void RenderGlowEffect();
-  void RenderPlaneEffect();
-  void RenderPlaneBuildEffect();
-  void RenderLiquidMetalEffect();
+    // Set the current and next simulation frame's rotation, position, and scale
+    //
+    void SetSimCurrent(const Matrix& matrix);
+    void SetSimCurrent(const Quaternion& quaternion);
+    void SetSimCurrent(const Vector& position);
+    void SetSimCurrent(const Quaternion& quaternion, const Vector& position);
+    void SetSimCurrentScale(const Vector& scale);
 
-  // 2 = auto run
-  void ActivateTexAnim( U32 active = TRUE);
-  void PollActivateTexAnim();
+    // Set the next simulation frame's rotation, position, and scale
+    //
+    void SetSimTarget(const Matrix& matrix);
+    void SetSimTarget(const Quaternion& quaternion);
+    void SetSimTarget(const Vector& position);
+    void SetSimTarget(const Quaternion& quaternion, const Vector& position);
+    void SetSimTargetScale(const Vector& scale);
+    void SetTreeDirty(Bool rootDirty = TRUE);
 
-  void SetAnimType( AnimType _type);
-  void ActivateAnim( Bool activate = TRUE);
-  Bool IsAnimCompleted();
+    // Set the next simulation frame's rotation, position, and scale for a child node
+    //
+    void SetSimTarget(const NodeIdent& ident, const Matrix& matrix);
+    void SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion);
+    void SetSimTarget(const NodeIdent& ident, const Vector& position);
+    void SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion, const Vector& position);
+    void SetSimTargetScale(const NodeIdent& ident, const Vector& scale);
 
-  Bool SetAnimCycle( const char * cycleName)
-  {
-    return SetAnimCycle( Crc::CalcStr( cycleName)); 
-  }
-  Bool SetAnimCycle( U32 cycleID);
-  Bool SetAnimCycle( AnimList & cycle);
+    void SetWorldRender();
 
-  Bool BlendAnimCycle( const char * cycleName, F32 blendTime = DEFBLENDTIME)
-  {
-    return BlendAnimCycle( Crc::CalcStr( cycleName), blendTime); 
-  }
-  Bool BlendAnimCycle( U32 cycleID, F32 blendTime = DEFBLENDTIME);
-  Bool BlendAnimCycle( AnimList & cycle, F32 blendTime = DEFBLENDTIME);
+    // get sim
+    //
+    const Matrix& GetSimObjectMatrix() const
+    {
+        return states0.data->ObjectMatrixPriv();
+    }
 
-  Bool SetAnimOverlay( const char * cycleName)
-  {
-    return SetAnimOverlay( Crc::CalcStr( cycleName)); 
-  }
-  Bool SetAnimOverlay( U32 cycleID);
-  Bool SetAnimOverlay( AnimList * cycle);
-  void SetAnimTargetFrame( F32 target);
-  void SetAnimTarget( F32 targetNormal);  // -1, 0, 1
+    const Quaternion& GetSimRotation() const
+    {
+        return states0.data->GetRotation();
+    }
 
-  Bool AnimIsActive()
-  {
-    return animState0.active;
-  }
-  Bool AnimCheckFrame( F32 frame)
-  {
-    return frame >= animState0.lastFrame && frame < animState0.curFrame;
-  }
-  F32 AnimDirection()
-  {
-    return animState0.dir;
-  }
-  F32 AnimCurFrame()
-  {
-    return animState0.curFrame;
-  }
-  F32 AnimLastFrame()
-  {
-    return animState0.lastFrame;
-  }
+    const Vector& GetSimPosition() const
+    {
+        return states0.data->GetPosition();
+    }
 
-  Bool SetFrame( F32 frame = 0.0);
-  void SetFrameSimulate( AnimState &animState, F32 lastFrame, Array<FamilyState> & stateArray);
-  void SetFrameSimulate( AnimState &animState, F32 lastFrame, Array<AnimKey> & keyArray);
+    const Vector& GetSimScale() const
+    {
+        return states0.data->GetScale();
+    }
 
-  Bool CollideBounds(const Vector &vStart, const Vector &vEnd);
+    // get sim child
+    //
+    const Matrix& GetSimObjectMatrix(U32 index) const
+    {
+        return states0[index].ObjectMatrixPriv();
+    }
 
-  U32  MRMSetVertCount();
-  void MRMSetVertCount( U32 count);
-  U32  MRMSetResolution();
-  U32  MRMSetFull();
+    const Quaternion& GetSimRotation(U32 index) const
+    {
+        return states0[index].GetRotation();
+    }
 
-  void Chunkify();
+    const Vector& GetSimPosition(U32 index) const
+    {
+        return states0[index].GetPosition();
+    }
 
-  const MeshObj * CollidePoly(const Vector &vStart, const Vector &vEnd, F32 &t);
+    const Vector& GetSimScale(U32 index) const
+    {
+        return states0[index].GetScale();
+    }
+
+    // get interp
+    //
+    const Matrix& GetIntObjectMatrix() const
+    {
+        return statesR.data->ObjectMatrixPriv();
+    }
+
+    const Quaternion& GetIntRotation() const
+    {
+        return statesR.data->GetRotation();
+    }
+
+    const Vector& GetIntPosition() const
+    {
+        return statesR.data->GetPosition();
+    }
+
+    const Vector& GetIntScale() const
+    {
+        return statesR.data->GetScale();
+    }
+
+    // get interp child
+    //
+    const Matrix& GetIntObjectMatrix(U32 index) const
+    {
+        return statesR[index].ObjectMatrixPriv();
+    }
+
+    const Quaternion& GetIntRotation(U32 index) const
+    {
+        return statesR[index].GetRotation();
+    }
+
+    const Vector& GetIntPosition(U32 index) const
+    {
+        return statesR[index].GetPosition();
+    }
+
+    const Vector& GetIntScale(U32 index) const
+    {
+        return statesR[index].GetScale();
+    }
+
+    // get target
+    //
+    const Quaternion& GetTargetRotation() const
+    {
+        return states1.data->GetRotation();
+    }
+
+    const Vector& GetTargetPosition() const
+    {
+        return states1.data->GetPosition();
+    }
+
+    const Vector& GetTargetScale() const
+    {
+        return states1.data->GetScale();
+    }
+
+    // get target child
+    //
+    const Quaternion& GetTargetRotation(const NodeIdent& node) const
+    {
+        return states1[node.index].GetRotation();
+    }
+
+    const Vector& GetTargetPosition(const NodeIdent& node) const
+    {
+        return states1[node.index].GetPosition();
+    }
+
+    const Vector& GetTargetScale(const NodeIdent& node) const
+    {
+        return states1[node.index].GetScale();
+    }
+
+    // returns was dirty
+    //
+    Bool UpdateSim(F32 dt);
+
+    void SimulateSim(F32 dt);
+    void SimulateInt(F32 dt, Bool isInterpFrame = TRUE);
+    void SimulateIntRecurse(F32 dt, F32 dtdi);
+    void SimulateIntBasic(F32 dt, Bool simFrame = TRUE);
+    void SimulateTex(F32 dt, Bool simFrame = TRUE);
+    void SetTexFrame(U32 frame = 0);
+
+    const Matrix& WorldMatrixChild(U32 index)
+    {
+        return states0[index].WorldMatrix();
+    }
+
+    const Vector& Origin()
+    {
+        return animState0.origin;
+    }
+
+    const Vector& Offset()
+    {
+        return animState0.bounds.Offset();
+    }
+
+    const Bounds& ObjectBounds()
+    {
+        return animState0.bounds;
+    }
+
+    const Matrix& WorldMatrixRender()
+    {
+        return statesR.data->WorldMatrix();
+    }
+
+    const Matrix& WorldMatrixChildRender(U32 index)
+    {
+        return statesR[index].WorldMatrix();
+    }
+
+    const Vector& OriginRender()
+    {
+        return animStateR.origin;
+    }
+
+    const Vector& OffsetRender()
+    {
+        return animStateR.bounds.Offset();
+    }
+
+    const Bounds& ObjectBoundsRender()
+    {
+        return animStateR.bounds;
+    }
+
+    const Vector& RootOrigin()
+    {
+        return animState0.rootOrigin;
+    }
+
+    const Vector& RootOriginRender()
+    {
+        return animStateR.rootOrigin;
+    }
+
+    const Bounds& RootBounds() const
+    {
+        return Root().fixedBounds;
+    }
+
+    virtual void Render(Array<FamilyState>& stateArray, Color tColor, U32 clipFlags = clipALL,
+                        U32 _controlFlags = controlDEF);
+    virtual void RenderColor(Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL,
+                             U32 _controlFlags = controlDEF);
+
+    void RenderBounds(Color color, Bitmap* texture = nullptr)
+    {
+        RenderBoundingBox(color, texture);
+        RenderBoundingSphere(color, texture);
+    }
+
+    void RenderBoundingSphere(Color color, Bitmap* texture = nullptr);
+    void RenderBoundingBox(Color color, Bitmap* texture = nullptr);
+
+    void RenderHardPoints(Color color);
+    void RenderOrigin(Color color, MeshObj* childMesh = nullptr, Color color1 = 0xffffffff);
+
+    void RenderNormals(Color color)
+    {
+        RootPriv().RenderNormals(statesR, color, clipFlagCache);
+    }
+
+    void RenderShadowPlane(U32 number, Color color)
+    {
+        RootPriv().RenderShadowPlane(number, statesR, color, clipFlagCache);
+    }
+
+    void RenderNone();
+    void RenderAnimVtl();
+    void RenderNoAnimVtl();
+    void RenderNoLightAnimVtl();
+    void RenderNoLightNoAnimVtl();
+    void RenderQuickLightAnimVtl();
+    void RenderQuickLightNoAnimVtl();
+    void RenderOverlayVtl();
+    void RenderEnvMapVtl(Color color = 0xffffffff, Bitmap* tex = nullptr, U32 blend = RS_BLEND_DEF,
+                         U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0);
+
+    void RenderAnimV();
+    void RenderNoAnimV();
+    void RenderNoLightAnimV();
+    void RenderNoLightNoAnimV();
+    void RenderQuickLightAnimV();
+    void RenderQuickLightNoAnimV();
+    void RenderOverlayV();
+    void RenderEnvMapV(Color color = 0xffffffff, Bitmap* tex = nullptr, U32 blend = RS_BLEND_DEF,
+                       U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0);
+
+    // mesh effects generic renders
+    //
+    void RenderShadowTexture(const Matrix** lightA = nullptr, U32 lCount = 1, Color color = 0xffffffff,
+                             U32 blend = RS_BLEND_DEF);
+
+    // mesh effects specialized renders
+    //
+    void RenderTextCrossFadeEffect();
+    void RenderColorEffect();
+    void RenderGlowEffect();
+    void RenderPlaneEffect();
+    void RenderPlaneBuildEffect();
+    void RenderLiquidMetalEffect();
+
+    // 2 = auto run
+    void ActivateTexAnim(U32 active = TRUE);
+    void PollActivateTexAnim();
+
+    void SetAnimType(AnimType _type);
+    void ActivateAnim(Bool activate = TRUE);
+    Bool IsAnimCompleted();
+
+    Bool SetAnimCycle(const char* cycleName)
+    {
+        return SetAnimCycle(Crc::CalcStr(cycleName));
+    }
+
+    Bool SetAnimCycle(U32 cycleID);
+    Bool SetAnimCycle(AnimList& cycle);
+
+    Bool BlendAnimCycle(const char* cycleName, F32 blendTime = DEFBLENDTIME)
+    {
+        return BlendAnimCycle(Crc::CalcStr(cycleName), blendTime);
+    }
+
+    Bool BlendAnimCycle(U32 cycleID, F32 blendTime = DEFBLENDTIME);
+    Bool BlendAnimCycle(AnimList& cycle, F32 blendTime = DEFBLENDTIME);
+
+    Bool SetAnimOverlay(const char* cycleName)
+    {
+        return SetAnimOverlay(Crc::CalcStr(cycleName));
+    }
+
+    Bool SetAnimOverlay(U32 cycleID);
+    Bool SetAnimOverlay(AnimList* cycle);
+    void SetAnimTargetFrame(F32 target);
+    void SetAnimTarget(F32 targetNormal);  // -1, 0, 1
+
+    Bool AnimIsActive()
+    {
+        return animState0.active;
+    }
+
+    Bool AnimCheckFrame(F32 frame)
+    {
+        return frame >= animState0.lastFrame && frame < animState0.curFrame;
+    }
+
+    F32 AnimDirection()
+    {
+        return animState0.dir;
+    }
+
+    F32 AnimCurFrame()
+    {
+        return animState0.curFrame;
+    }
+
+    F32 AnimLastFrame()
+    {
+        return animState0.lastFrame;
+    }
+
+    Bool SetFrame(F32 frame = 0.0);
+    void SetFrameSimulate(AnimState& animState, F32 lastFrame, Array<FamilyState>& stateArray);
+    void SetFrameSimulate(AnimState& animState, F32 lastFrame, Array<AnimKey>& keyArray);
+
+    Bool CollideBounds(const Vector& vStart, const Vector& vEnd);
+
+    U32 MRMSetVertCount();
+    void MRMSetVertCount(U32 count);
+    U32 MRMSetResolution();
+    U32 MRMSetFull();
+
+    void Chunkify();
+
+    const MeshObj* CollidePoly(const Vector& vStart, const Vector& vEnd, F32& t);
 };
+
 //----------------------------------------------------------------------------
 
 #endif    // __MESHENT_H

@@ -58,84 +58,84 @@
 namespace Logging
 {
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declarations
-  //
-  struct Destination;
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward Declarations
+    //
+    struct Destination;
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Enum Level
-  //
-  enum Level
-  {
-    ERR,
-    WARN,
-    DIAG
-  };
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Client
-  //
-  class Client 
-  {
-  private:                      
-
-    // Source file
-    const char *file;
-
-    // Line number of source
-    U32 line;
-
-    // Log level
-    Level level;
-    
-    // Name of the label
-    const char *name;
-
-  public:
-
-    // The stream
-    ostrstream stream;
-
-    // Constructor and Destructor
-    Client(const char *name);
-    ~Client();
-
-    // Set
-    void Set(const char *fileIn, U32 lineIn, Level levelIn)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Enum Level
+    //
+    enum Level
     {
-      file = fileIn;
-      line = lineIn;
-      level = levelIn;
-    }
-
-    // Write
-    void Write();
-
-  };
+        ERR,
+        WARN,
+        DIAG
+    };
 
 
-  extern const char *levelDescShort[5];
-  extern const char *levelDescVerbose[5];
-  extern Win32::Mutex mutex;
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Client
+    //
+    class Client
+    {
+    private:
+
+        // Source file
+        const char* file;
+
+        // Line number of source
+        U32 line;
+
+        // Log level
+        Level level;
+
+        // Name of the label
+        const char* name;
+
+    public:
+
+        // The stream
+        ostrstream stream;
+
+        // Constructor and Destructor
+        Client(const char* name);
+        ~Client();
+
+        // Set
+        void Set(const char* fileIn, U32 lineIn, Level levelIn)
+        {
+            file = fileIn;
+            line = lineIn;
+            level = levelIn;
+        }
+
+        // Write
+        void Write();
+
+    };
 
 
-  // Initialize Logging System
-  void Init();
+    extern const char* levelDescShort[5];
+    extern const char* levelDescVerbose[5];
+    extern Win32::Mutex mutex;
 
-  // Shutdown Logging System
-  void Done();
 
-  // Add a destination
-  void AddDestination(Destination *destination);
+    // Initialize Logging System
+    void Init();
 
-  // Remove a destination
-  void RemoveDestination(Destination *destination);
+    // Shutdown Logging System
+    void Done();
+
+    // Add a destination
+    void AddDestination(Destination* destination);
+
+    // Remove a destination
+    void RemoveDestination(Destination* destination);
 
 }
 

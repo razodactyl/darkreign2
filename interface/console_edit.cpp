@@ -27,32 +27,32 @@
 //
 // ConsoleEdit::ConsoleEdit
 //
-ConsoleEdit::ConsoleEdit(IControl *parent) 
-: ICEdit(parent),
-  mode(EDIT),
-  insertPos(-1),
-  syncBuffers(FALSE),
-  viewerName(NULL),
-  vcItr(&vcList),
-  histItr(&histList)
+ConsoleEdit::ConsoleEdit(IControl* parent)
+    : ICEdit(parent),
+      mode(EDIT),
+      vcItr(&vcList),
+      histItr(&histList),
+      insertPos(-1),
+      viewerName(nullptr),
+      syncBuffers(FALSE)
 {
-  ResetWorkBuf();
+    ResetWorkBuf();
 }
 
 
 //
 // ConsoleEdit::~ConsoleEdit
 //
-ConsoleEdit::~ConsoleEdit() 
+ConsoleEdit::~ConsoleEdit()
 {
-  if (viewerName)
-  {
-    delete[] viewerName;
-    viewerName = NULL;
-  }
+    if (viewerName)
+    {
+        delete[] viewerName;
+        viewerName = nullptr;
+    }
 
-  vcList.DisposeAll();
-  histList.DisposeAll();
+    vcList.DisposeAll();
+    histList.DisposeAll();
 }
 
 
@@ -63,30 +63,30 @@ ConsoleEdit::~ConsoleEdit()
 //
 void ConsoleEdit::SetMode(ConsoleMode m)
 {
-  mode = m;
+    mode = m;
 
-  switch (mode)
-  {
-    case EDIT:
+    switch (mode)
     {
-      break;
-    }
+        case EDIT:
+        {
+            break;
+        }
 
-    case VARCOMPLETION:
-    {
-      vcList.DisposeAll();
-      vcItr.GoToHead();
-      insertPos = -1;
-      break;
-    }
+        case VARCOMPLETION:
+        {
+            vcList.DisposeAll();
+            vcItr.GoToHead();
+            insertPos = -1;
+            break;
+        }
 
-    case HISTORYSEARCH:
-    {
-      histList.DisposeAll();
-      histItr.GoToHead();
-      break;
+        case HISTORYSEARCH:
+        {
+            histList.DisposeAll();
+            histItr.GoToHead();
+            break;
+        }
     }
-  }
 }
 
 
@@ -95,7 +95,7 @@ void ConsoleEdit::SetMode(ConsoleMode m)
 //
 void ConsoleEdit::ResetWorkBuf()
 {
-  *workBuf = 0;
+    *workBuf = 0;
 }
 
 
@@ -106,7 +106,7 @@ void ConsoleEdit::ResetWorkBuf()
 //
 void ConsoleEdit::SyncWorkBuf()
 {
-  Utils::Strmcpy(workBuf, editBuf, sizeof(workBuf));
+    Utils::Strmcpy(workBuf, editBuf, sizeof(workBuf));
 }
 
 
@@ -115,19 +115,19 @@ void ConsoleEdit::SyncWorkBuf()
 //
 // Reset the input buffer for the next command
 //
-void ConsoleEdit::ResetInputBuf(const char *cmd)
+void ConsoleEdit::ResetInputBuf(const char* cmd)
 {
-  ASSERT(editBuf)
+    ASSERT(editBuf);
 
-  // Delete all text
-  DeleteText(0, editMax);
-  SetCaretPos(0);
+    // Delete all text
+    DeleteText(0, editMax);
+    SetCaretPos(0);
 
-  // Optionally insert new text
-  if (cmd)
-  {
-    InsertText(0, cmd, Utils::Strlen(cmd));
-  }
+    // Optionally insert new text
+    if (cmd)
+    {
+        InsertText(0, cmd, Utils::Strlen(cmd));
+    }
 }
 
 
@@ -138,32 +138,32 @@ void ConsoleEdit::ResetInputBuf(const char *cmd)
 //
 Bool ConsoleEdit::StartCompletion(Bool head)
 {
-  insertPos = caretPos;
+    insertPos = caretPos;
 
-  // Store initial buffer
-  Utils::Strmcpy(workBuf, editBuf, sizeof(workBuf));
+    // Store initial buffer
+    Utils::Strmcpy(workBuf, editBuf, sizeof(workBuf));
 
-  // Move the pointer back to the start of this var name
-  while 
-  (
-    (insertPos > 0) 
-    && 
-    (!isspace(editBuf[insertPos - 1]))
-    && 
-    (Utils::Strchr(PTREE_PUNCTUATION, editBuf[insertPos - 1]) == NULL)
-    &&
-    (editBuf[insertPos - 1] != ':') 
-    &&
-    (editBuf[insertPos - 1] != '!')
-  )
-  {
-    --insertPos;
-  }
+    // Move the pointer back to the start of this var name
+    while
+    (
+        (insertPos > 0)
+        &&
+        (!isspace(editBuf[insertPos - 1]))
+        &&
+        (Utils::Strchr(PTREE_PUNCTUATION, editBuf[insertPos - 1]) == nullptr)
+        &&
+        (editBuf[insertPos - 1] != ':')
+        &&
+        (editBuf[insertPos - 1] != '!')
+    )
+    {
+        --insertPos;
+    }
 
-  ASSERT(insertPos >= 0 && insertPos <= editMax)
+    ASSERT(insertPos >= 0 && insertPos <= editMax);
 
-  // Ask console for a list of matching vars
-  return (Console::BuildVarCompletionList(editBuf + insertPos, vcList, vcItr, head));
+    // Ask console for a list of matching vars
+    return (Console::BuildVarCompletionList(editBuf + insertPos, vcList, vcItr, head));
 }
 
 
@@ -174,28 +174,28 @@ Bool ConsoleEdit::StartCompletion(Bool head)
 //
 void ConsoleEdit::ContinueCompletion(Bool forward)
 {
-  if (vcList.GetCount() == 0)
-  {
-    return;
-  }  
+    if (vcList.GetCount() == 0)
+    {
+        return;
+    }
 
-  // Cycle through all vars
-  if (forward)
-  {
-    vcItr++;
-    if (!(*(vcItr)))
+    // Cycle through all vars
+    if (forward)
     {
-      vcItr.GoToHead();
+        ++vcItr;
+        if (!(*(vcItr)))
+        {
+            vcItr.GoToHead();
+        }
     }
-  }
-  else
-  {
-    vcItr--;
-    if (!(*(vcItr)))
+    else
     {
-      vcItr.GoToTail();
+        --vcItr;
+        if (!(*(vcItr)))
+        {
+            vcItr.GoToTail();
+        }
     }
-  }
 }
 
 
@@ -206,19 +206,19 @@ void ConsoleEdit::ContinueCompletion(Bool forward)
 //
 void ConsoleEdit::UpdateCompletion()
 {
-  ASSERT(*vcItr)
-  ASSERT(insertPos != -1)
+    ASSERT(*vcItr);
+    ASSERT(insertPos != -1);
 
-  // Get completion string
-  const char *str = (*vcItr)->str;
-  U32 len = Utils::Strlen(str);
+    // Get completion string
+    const char* str = (*vcItr)->str;
+    U32 len = Utils::Strlen(str);
 
-  // Replace rest of buffer with completion
-  SelectText(insertPos, editLen);
-  ReplaceSelectedText(len ? str : NULL);
+    // Replace rest of buffer with completion
+    SelectText(insertPos, editLen);
+    ReplaceSelectedText(len ? str : nullptr);
 
-  // Move caret to end
-  SetCaretPos(caretPos + len);
+    // Move caret to end
+    SetCaretPos(caretPos + len);
 }
 
 
@@ -229,7 +229,7 @@ void ConsoleEdit::UpdateCompletion()
 //
 void ConsoleEdit::CancelCompletion()
 {
-  insertPos = -1;
+    insertPos = -1;
 }
 
 
@@ -240,7 +240,7 @@ void ConsoleEdit::CancelCompletion()
 //
 Bool ConsoleEdit::StartHistRecall(Bool head)
 {
-  return (Console::BuildHistoryRecallList(editBuf, histList, histItr, head));
+    return (Console::BuildHistoryRecallList(editBuf, histList, histItr, head));
 }
 
 
@@ -251,28 +251,28 @@ Bool ConsoleEdit::StartHistRecall(Bool head)
 //
 void ConsoleEdit::ContinueHistRecall(Bool forward)
 {
-  if (histList.GetCount() == 0)
-  {
-    return;
-  }  
+    if (histList.GetCount() == 0)
+    {
+        return;
+    }
 
-  // Cycle through all vars
-  if (forward)
-  {
-    histItr++;
-    if (!(*(histItr)))
+    // Cycle through all vars
+    if (forward)
     {
-      histItr.GoToHead();
+        ++histItr;
+        if (!(*(histItr)))
+        {
+            histItr.GoToHead();
+        }
     }
-  }
-  else
-  {
-    histItr--;
-    if (!(*(histItr)))
+    else
     {
-      histItr.GoToTail();
+        --histItr;
+        if (!(*(histItr)))
+        {
+            histItr.GoToTail();
+        }
     }
-  }
 }
 
 
@@ -283,19 +283,19 @@ void ConsoleEdit::ContinueHistRecall(Bool forward)
 //
 void ConsoleEdit::UpdateHistRecall()
 {
-  ASSERT(*histItr)
+    ASSERT(*histItr);
 
-  // Get completion string
-  const char *str = *histItr;
-  U32 len = Utils::Strlen(str);
+    // Get completion string
+    const char* str = *histItr;
+    U32 len = Utils::Strlen(str);
 
-  // Replace entire buffer with completion
-  SelectText(0, editLen);
-  ReplaceSelectedText(NULL);
-  InsertText(0, str, len);
+    // Replace entire buffer with completion
+    SelectText(0, editLen);
+    ReplaceSelectedText(nullptr);
+    InsertText(0, str, len);
 
-  // Move caret to end
-  SetCaretPos(len);
+    // Move caret to end
+    SetCaretPos(len);
 }
 
 
@@ -306,16 +306,16 @@ void ConsoleEdit::UpdateHistRecall()
 //
 void ConsoleEdit::CancelHistRecall()
 {
-  // Restore original buffer
-  U32 len = Utils::Strlen(workBuf);
+    // Restore original buffer
+    U32 len = Utils::Strlen(workBuf);
 
-  // Replace entire buffer with completion
-  SelectText(0, editLen);
-  ReplaceSelectedText(NULL);
-  InsertText(0, workBuf, len);
+    // Replace entire buffer with completion
+    SelectText(0, editLen);
+    ReplaceSelectedText(nullptr);
+    InsertText(0, workBuf, len);
 
-  // Move caret to end
-  SetCaretPos(len);
+    // Move caret to end
+    SetCaretPos(len);
 }
 
 
@@ -326,15 +326,15 @@ void ConsoleEdit::CancelHistRecall()
 //
 Bool ConsoleEdit::Activate()
 {
-  if (ICEdit::Activate())
-  {
-    if (viewerName)
+    if (ICEdit::Activate())
     {
-      viewerCtrl = IFace::FindByName(viewerName, this);
+        if (viewerName)
+        {
+            viewerCtrl = IFace::FindByName(viewerName, this);
+        }
+        return (TRUE);
     }
-    return (TRUE);
-  }
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -345,12 +345,12 @@ Bool ConsoleEdit::Activate()
 //
 Bool ConsoleEdit::Deactivate()
 {
-  if (ICEdit::Deactivate())
-  {
-    viewerCtrl.Clear();
-    return (TRUE);
-  }
-  return (FALSE);
+    if (ICEdit::Deactivate())
+    {
+        viewerCtrl.Clear();
+        return (TRUE);
+    }
+    return (FALSE);
 }
 
 
@@ -359,16 +359,16 @@ Bool ConsoleEdit::Deactivate()
 //
 // Draw the control
 //
-void ConsoleEdit::DrawSelf(PaintInfo &pi)
+void ConsoleEdit::DrawSelf(PaintInfo& pi)
 {
-  if (syncBuffers)
-  {
-    SyncWorkBuf();
-    syncBuffers = FALSE;
-  }
+    if (syncBuffers)
+    {
+        SyncWorkBuf();
+        syncBuffers = FALSE;
+    }
 
-  // Draw Edit
-  ICEdit::DrawSelf(pi);
+    // Draw Edit
+    ICEdit::DrawSelf(pi);
 }
 
 
@@ -377,22 +377,22 @@ void ConsoleEdit::DrawSelf(PaintInfo &pi)
 //
 // Configure the control
 //
-void ConsoleEdit::Setup(FScope *fScope)
+void ConsoleEdit::Setup(FScope* fScope)
 {
-  switch (fScope->NameCrc())
-  {
-    case 0x23FE9CCA: // "LinkViewer"
+    switch (fScope->NameCrc())
     {
-      viewerName = Utils::Strdup(fScope->NextArgString());
-      break;
-    }
+        case 0x23FE9CCA: // "LinkViewer"
+        {
+            viewerName = Utils::Strdup(fScope->NextArgString());
+            break;
+        }
 
-    default:
-    {
-      ICEdit::Setup(fScope);
-      break;
+        default:
+        {
+            ICEdit::Setup(fScope);
+            break;
+        }
     }
-  }
 }
 
 
@@ -401,235 +401,233 @@ void ConsoleEdit::Setup(FScope *fScope)
 //
 // Event handler
 //
-U32 ConsoleEdit::HandleEvent(Event &e)
+U32 ConsoleEdit::HandleEvent(Event& e)
 {
-  if (e.type == Input::EventID())
-  {
-    switch (e.subType)
+    if (e.type == Input::EventID())
     {
-      case Input::KEYCHAR:
-      {
-        // Return to edit mode
-        SetMode(EDIT);
-
-        // Ensure work buffer is in sync with input buffer
-        syncBuffers = TRUE;
-
-        // Default processing
-        break;
-      }
-
-      case Input::KEYDOWN:
-      case Input::KEYREPEAT:
-      {
-        switch (e.input.code)
+        switch (e.subType)
         {
-          // Var completion
-          case DIK_TAB:
-          {
-            #ifndef CONSOLE_DISABLED
-
-            // Var completion
-            if (mode != VARCOMPLETION)
+            case Input::KEYCHAR:
             {
-              // Enter Var completion mode 
-              SetMode(VARCOMPLETION);
-
-              if (StartCompletion(e.input.state & Input::SHIFTDOWN ? FALSE : TRUE))
-              {
-                // Something was inserted into the list so insert it into the command line
-                UpdateCompletion();
-              }
-              else
-              {
-                // There was nothing in the completion list so return to edit mode
+                // Return to edit mode
                 SetMode(EDIT);
-              }
-            }
-            else
-            {
-              // Cycle through the vars
-              ContinueCompletion(e.input.state & Input::SHIFTDOWN ? FALSE : TRUE);
-              UpdateCompletion();
-            }
-            #endif
 
-            // Handled
-            return (TRUE);
-          }
+                // Ensure work buffer is in sync with input buffer
+                syncBuffers = TRUE;
 
-          // Command recall
-          case DIK_UP:
-          case DIK_DOWN:
-          {
-            #ifndef CONSOLE_DISABLED
-
-            if (e.input.state == 0)
-            {
-              // Command recall
-              if (mode != HISTORYSEARCH)
-              {
-                SetMode(HISTORYSEARCH);
-
-                if (StartHistRecall(e.input.code == DIK_UP))
-                {
-                  UpdateHistRecall();
-                }
-                else
-                {
-                  // Return to edit mode
-                  SetMode(EDIT);
-                }
-              }
-              else
-              {
-                // Cycle through history
-                ContinueHistRecall(e.input.code == DIK_UP);
-                UpdateHistRecall();
-              }
-            }
-
-            #endif
-
-            // Handled
-            return (TRUE);
-          }
-
-          // Page up/down in viewer
-          case DIK_PRIOR:
-          {
-            if (e.input.state == 0 && viewerCtrl.Alive())
-            {
-              SendNotify(viewerCtrl, ICListBoxMsg::ScrollPage, FALSE, U32(-1));
-            }
-
-            // Handled
-            return (TRUE);
-          }
-
-          case DIK_NEXT:
-          {
-            if (e.input.state == 0 && viewerCtrl.Alive())
-            {
-              SendNotify(viewerCtrl, ICListBoxMsg::ScrollPage, FALSE, 1);
-            }
-
-            // Handled
-            return (TRUE);
-          }
-
-          default:
-          {
-            // Printable chars
-            switch (e.input.code)
-            {
-              case DIK_L:
-              {
-                if (e.input.state & Input::CTRLDOWN)
-                {
-                  // Clear the viewer
-                  if (viewerCtrl.Alive())
-                  {
-                    SendNotify(viewerCtrl, ConsoleViewerMsg::Clear, FALSE);
-                  }
-
-                  // Handled
-                  return (TRUE);
-                }
+                // Default processing
                 break;
-              }
             }
 
-            // Return to edit mode
-            SetMode(EDIT);
+            case Input::KEYDOWN:
+            case Input::KEYREPEAT:
+            {
+                switch (e.input.code)
+                {
+                        // Var completion
+                    case DIK_TAB:
+                    {
+#ifndef CONSOLE_DISABLED
 
-            // Ensure work buffer is in sync with input buffer
-            syncBuffers = TRUE;
+                        // Var completion
+                        if (mode != VARCOMPLETION)
+                        {
+                            // Enter Var completion mode 
+                            SetMode(VARCOMPLETION);
 
-            // Default processing
-            break;
-          }
+                            if (StartCompletion(e.input.state & Input::SHIFTDOWN ? FALSE : TRUE))
+                            {
+                                // Something was inserted into the list so insert it into the command line
+                                UpdateCompletion();
+                            }
+                            else
+                            {
+                                // There was nothing in the completion list so return to edit mode
+                                SetMode(EDIT);
+                            }
+                        }
+                        else
+                        {
+                            // Cycle through the vars
+                            ContinueCompletion(e.input.state & Input::SHIFTDOWN ? FALSE : TRUE);
+                            UpdateCompletion();
+                        }
+#endif
+
+                        // Handled
+                        return (TRUE);
+                    }
+
+                        // Command recall
+                    case DIK_UP:
+                    case DIK_DOWN:
+                    {
+#ifndef CONSOLE_DISABLED
+
+                        if (e.input.state == 0)
+                        {
+                            // Command recall
+                            if (mode != HISTORYSEARCH)
+                            {
+                                SetMode(HISTORYSEARCH);
+
+                                if (StartHistRecall(e.input.code == DIK_UP))
+                                {
+                                    UpdateHistRecall();
+                                }
+                                else
+                                {
+                                    // Return to edit mode
+                                    SetMode(EDIT);
+                                }
+                            }
+                            else
+                            {
+                                // Cycle through history
+                                ContinueHistRecall(e.input.code == DIK_UP);
+                                UpdateHistRecall();
+                            }
+                        }
+
+#endif
+
+                        // Handled
+                        return (TRUE);
+                    }
+
+                        // Page up/down in viewer
+                    case DIK_PRIOR:
+                    {
+                        if (e.input.state == 0 && viewerCtrl.Alive())
+                        {
+                            SendNotify(viewerCtrl, ICListBoxMsg::ScrollPage, FALSE, U32(-1));
+                        }
+
+                        // Handled
+                        return (TRUE);
+                    }
+
+                    case DIK_NEXT:
+                    {
+                        if (e.input.state == 0 && viewerCtrl.Alive())
+                        {
+                            SendNotify(viewerCtrl, ICListBoxMsg::ScrollPage, FALSE, 1);
+                        }
+
+                        // Handled
+                        return (TRUE);
+                    }
+
+                    default:
+                    {
+                        // Printable chars
+                        switch (e.input.code)
+                        {
+                            case DIK_L:
+                            {
+                                if (e.input.state & Input::CTRLDOWN)
+                                {
+                                    // Clear the viewer
+                                    if (viewerCtrl.Alive())
+                                    {
+                                        SendNotify(viewerCtrl, ConsoleViewerMsg::Clear, FALSE);
+                                    }
+
+                                    // Handled
+                                    return (TRUE);
+                                }
+                                break;
+                            }
+                        }
+
+                        // Return to edit mode
+                        SetMode(EDIT);
+
+                        // Ensure work buffer is in sync with input buffer
+                        syncBuffers = TRUE;
+
+                        // Default processing
+                        break;
+                    }
+                }
+            }
         }
-      }
+
+        // Pass input events to ICEdit
     }
+    else
 
-    // Pass input events to ICEdit
-  }
-  else
-
-  // Interface events
-  if (e.type == IFace::EventID())
-  {
-    switch (e.subType)
-    {
-      // Notification events
-      case IFace::NOTIFY:
-      {
-        switch (e.iface.p1)
+        // Interface events
+        if (e.type == IFace::EventID())
         {
-          case ICEditMsg::Enter:
-          {
-            // Enable console support
-            #ifdef CONSOLE_DISABLED
+            switch (e.subType)
+            {
+                    // Notification events
+                case IFace::NOTIFY:
+                {
+                    switch (e.iface.p1)
+                    {
+                        case ICEditMsg::Enter:
+                        {
+                            // Enable console support
+#ifdef CONSOLE_DISABLED
               CON_MSG(("Console commands disbled for demo"))
-            #else
-              // Add the command to the console
-              Console::AddCmdHist(editBuf);
+#else
+                            // Add the command to the console
+                            Console::AddCmdHist(editBuf);
 
-              // Execute the console command
-              Console::ProcessCmd(editBuf);
-            #endif
+                            // Execute the console command
+                            Console::ProcessCmd(editBuf);
+#endif
 
-            // Reset buffers
-            if (IsActive())
-            {
-              ResetInputBuf();
-              ResetWorkBuf();
+                            // Reset buffers
+                            if (IsActive())
+                            {
+                                ResetInputBuf();
+                                ResetWorkBuf();
 
-              // Grab keyboard focus
-              GetKeyFocus();
+                                // Grab keyboard focus
+                                GetKeyFocus();
+                            }
+
+                            // Generate enter notification
+                            SendNotify(this, ICEditNotify::Entered);
+
+                            // Handled
+                            return (TRUE);
+                        }
+
+                        case ICEditMsg::Escape:
+                        {
+                            // Clear editbox or last completion
+                            if (mode == VARCOMPLETION)
+                            {
+                                CancelCompletion();
+                                SetMode(EDIT);
+                            }
+                            else if (mode == HISTORYSEARCH)
+                            {
+                                CancelHistRecall();
+                                SetMode(EDIT);
+
+                                // Don't clear buffer
+                                return (TRUE);
+                            }
+
+                            // Clear
+                            ResetInputBuf();
+                            ResetWorkBuf();
+
+                            // Generate escape notification
+                            SendNotify(this, ICEditNotify::Escaped);
+
+                            // Handled
+                            return (TRUE);
+                        }
+                    }
+                }
             }
-
-            // Generate enter notification
-            SendNotify(this, ICEditNotify::Entered);
-
-            // Handled
-            return (TRUE);
-          }
-
-          case ICEditMsg::Escape:
-          {
-            // Clear editbox or last completion
-            if (mode == VARCOMPLETION)
-            {
-              CancelCompletion();
-              SetMode(EDIT);
-            }
-            else
-
-            if (mode == HISTORYSEARCH)
-            {
-              CancelHistRecall();
-              SetMode(EDIT);
-
-              // Don't clear buffer
-              return (TRUE);
-            }
-
-            // Clear
-            ResetInputBuf();
-            ResetWorkBuf();
-
-            // Generate escape notification
-            SendNotify(this, ICEditNotify::Escaped);
-
-            // Handled
-            return (TRUE);
-          }
         }
-      }
-    }
-  }
 
-  return (ICEdit::HandleEvent(e));
+    return (ICEdit::HandleEvent(e));
 }

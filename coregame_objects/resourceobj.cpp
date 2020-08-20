@@ -111,7 +111,6 @@ void ResourceObjType::EnableAllRegen(U32 multiplier, U32 absolute)
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class ResourceObj - Instance class for above type
@@ -124,9 +123,9 @@ void ResourceObjType::EnableAllRegen(U32 multiplier, U32 absolute)
 //
 ResourceObj::ResourceObj(ResourceObjType* objType, U32 id) :
     MapObj(objType, id),
+    resource(ResourceType()->GetResourceMax()),
     teamsCanSee(0),
-    teamsHaveSeen(0),
-    resource(ResourceType()->GetResourceMax())
+    teamsHaveSeen(0)
 {
 }
 
@@ -148,7 +147,6 @@ ResourceObj::~ResourceObj()
 //
 void ResourceObj::PreDelete()
 {
-
     // Call parent scope last
     MapObj::PreDelete();
 }
@@ -188,11 +186,11 @@ void ResourceObj::LoadState(FScope* fScope)
     // Call parent scope first
     MapObj::LoadState(fScope);
 
-    if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
+    if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != nullptr)
     {
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
@@ -239,10 +237,10 @@ void ResourceObj::CaptureMapHooks(Bool capture)
 
     if (capture)
     {
-        ASSERT(currentCluster)
+        ASSERT(currentCluster);
 
-            // Hook the resource list
-            currentCluster->resourceList.Append(this);
+        // Hook the resource list
+        currentCluster->resourceList.Append(this);
 
         // Update AI
         currentCluster->ai.AddResource(resource);
@@ -394,6 +392,7 @@ void ResourceObj::AdjustResource()
 {
     if (Mesh().curCycle)
     {
-        Mesh().SetFrame((Mesh().curCycle->maxFrame - 1) * (1.0f - (F32(resource) * ResourceType()->GetResourceMaxInv())));
+        Mesh().SetFrame(
+            (Mesh().curCycle->maxFrame - 1) * (1.0f - (F32(resource) * ResourceType()->GetResourceMaxInv())));
     }
 }

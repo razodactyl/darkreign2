@@ -13,6 +13,7 @@
 #include "perfstats.h"
 #include "console.h"
 #include "stdload.h"
+
 //----------------------------------------------------------------------------
 
 namespace Vid
@@ -23,32 +24,32 @@ namespace Vid
 #define RANGEFACTOR_POINT     0.3f
 
         // static light manager stuff
-        NBinTree<Obj>             tree;
+        NBinTree<Obj> tree;
 
-        NList<Obj>                activeList;    // active light list
-        U32                       lastActiveCount;
+        NList<Obj> activeList;    // active light list
+        U32 lastActiveCount;
         Obj* closest;
         Obj* sun;
-        Color                     sunColor;
-        Color                     shadowColor;
-        Matrix                    shadowMatrix;
-        Matrix                    sunMatrix;
-        Quaternion                sunAngle;
-        Vector                    lastSunFront;
-        Bool                      isSunUp;
+        Color sunColor;
+        Color shadowColor;
+        Matrix shadowMatrix;
+        Matrix sunMatrix;
+        Quaternion sunAngle;
+        Vector lastSunFront;
+        Bool isSunUp;
 
         Bitmap* coneTex;
         Bitmap* flareTex0;
         Bitmap* flareTex1;
 
-        Bool                      switchedOn;
+        Bool switchedOn;
 
-        F32                       sunTime;
-        F32                       saveTime;
-        ColorF32                  saveColor;
-        Bool                      saveSunUp;
-        F32                       sunMinAngle;
-        F32                       sunRange;
+        F32 sunTime;
+        F32 saveTime;
+        ColorF32 saveColor;
+        Bool saveSunUp;
+        F32 sunMinAngle;
+        F32 sunRange;
         //----------------------------------------------------------------------------
 
         Desc::Desc(FScope* fScope)
@@ -64,19 +65,24 @@ namespace Vid
             // And convert to the enumeration value
             switch (Crc::CalcStr(typeName))
             {
-            case 0x5FE84C61: // "point" : 
-                type = lightPOINT; break;
-            case 0x2831DB4A: // "parallel"
-                type = lightPARALLEL; break;
-            case 0x04BC5B80: // "direction"
-                type = lightDIRECTION; break;
-            case 0xEB041EC4: // "spot"
-                type = lightSPOT; break;
-            case 0x65CFBDCD: // "dword"
-                type = lightDWORD; break;
+                case 0x5FE84C61: // "point" : 
+                    type = lightPOINT;
+                    break;
+                case 0x2831DB4A: // "parallel"
+                    type = lightPARALLEL;
+                    break;
+                case 0x04BC5B80: // "direction"
+                    type = lightDIRECTION;
+                    break;
+                case 0xEB041EC4: // "spot"
+                    type = lightSPOT;
+                    break;
+                case 0x65CFBDCD: // "dword"
+                    type = lightDWORD;
+                    break;
 
-            default:
-                fScope->ScopeError("Unknown light type '%s'", typeName);
+                default:
+                    fScope->ScopeError("Unknown light type '%s'", typeName);
             }
 
             // Name of the point to attach to
@@ -126,12 +132,14 @@ namespace Vid
                 priority = sScope->NextArgFPoint();
             }
         }
+
         //----------------------------------------------------------------------------
 
         Obj::Obj()
         {
             ClearData();
         }
+
         //----------------------------------------------------------------------------
 
         Obj::Obj(const char* name, Type type, Bool on) // = lightPOINT, TRUE
@@ -143,6 +151,7 @@ namespace Vid
             // turn it on/off
             Switch(IsSwitchable() ? on : TRUE);
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::ClearData()
@@ -172,6 +181,7 @@ namespace Vid
             SetRange(10);
             SetCone(.25f, .5f, 1);
         }
+
         //----------------------------------------------------------------------------
 
         Obj::~Obj()
@@ -186,6 +196,7 @@ namespace Vid
                 tree.Unlink(this);
             }
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetBeamFactor(F32 _beam)
@@ -204,6 +215,7 @@ namespace Vid
                 Min<F32>(beam, 1.0f)
             );
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetColor(F32 r, F32 g, F32 b)
@@ -225,11 +237,12 @@ namespace Vid
             );
             colorFull.Set(d3d.dcvDiffuse.r, d3d.dcvDiffuse.g, d3d.dcvDiffuse.b, 1.0f);
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetType(Type type)
         {
-            d3d.dltType = (D3DLIGHTTYPE)type;
+            d3d.dltType = static_cast<D3DLIGHTTYPE>(type);
             bounds.SetRadius(d3d.dvRange * (d3d.dltType == D3DLIGHT_SPOT ? RANGEFACTOR_SPOT : RANGEFACTOR_POINT));
 
             if (type == lightDIRECTION)
@@ -237,6 +250,7 @@ namespace Vid
                 SetRange(D3DLIGHT_RANGE_MAX);
             }
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetRange(F32 range)
@@ -244,9 +258,10 @@ namespace Vid
             d3d.dvRange = range;
             bounds.SetRadius(d3d.dvRange * (d3d.dltType == D3DLIGHT_SPOT ? RANGEFACTOR_SPOT : RANGEFACTOR_POINT));
 
-            invRange = (F32)fabs(d3d.dvRange) > F32_EPSILON ? 1.0f / d3d.dvRange : 1e6f;
+            invRange = static_cast<F32>(fabs(d3d.dvRange)) > F32_EPSILON ? 1.0f / d3d.dvRange : 1e6f;
             bounds.SetRadius(d3d.dvRange * (d3d.dltType == D3DLIGHT_SPOT ? RANGEFACTOR_SPOT : RANGEFACTOR_POINT));
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetCone(F32 theta, F32 phi, F32 falloff) //  = -1.0 = 1.0f)
@@ -255,12 +270,13 @@ namespace Vid
             d3d.dvPhi = phi == -1.0f ? theta : phi;
             d3d.dvFalloff = falloff;
 
-            cosTheta = (F32)cos((double)(d3d.dvTheta * 0.5f));
-            sinTheta = (F32)sin((double)(d3d.dvTheta * 0.5f));
-            cosPhi = (F32)cos((double)(d3d.dvPhi * 0.5f));
-            sinPhi = (F32)sin((double)(d3d.dvPhi * 0.5f));
-            invAngle = (F32)fabs(cosTheta - cosPhi) > F32_EPSILON ? 1.0f / (cosTheta - cosPhi) : 1e6f;
+            cosTheta = static_cast<F32>(cos(static_cast<double>(d3d.dvTheta * 0.5f)));
+            sinTheta = static_cast<F32>(sin(static_cast<double>(d3d.dvTheta * 0.5f)));
+            cosPhi = static_cast<F32>(cos(static_cast<double>(d3d.dvPhi * 0.5f)));
+            sinPhi = static_cast<F32>(sin(static_cast<double>(d3d.dvPhi * 0.5f)));
+            invAngle = static_cast<F32>(fabs(cosTheta - cosPhi)) > F32_EPSILON ? 1.0f / (cosTheta - cosPhi) : 1e6f;
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetAtten(F32 a0, F32 a1, F32 a2)
@@ -269,6 +285,7 @@ namespace Vid
             d3d.dvAttenuation1 = a1;
             d3d.dvAttenuation2 = a2;
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetWorldRecurse(const Matrix& world)
@@ -277,6 +294,7 @@ namespace Vid
 
             Setup(WorldMatrix());
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray)
@@ -285,13 +303,14 @@ namespace Vid
 
             NList<FamilyNode>::Iterator kids(&children);
             FamilyNode* node;
-            while ((node = kids++) != NULL)
+            while ((node = kids++) != nullptr)
             {
                 node->SetWorldRecurseRender(statePtr->WorldMatrix(), stateArray);
             }
 
             Setup(WorldMatrix());
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::Light(Color* lightvals, const Vector* norms, U32 count)
@@ -311,7 +330,7 @@ namespace Vid
 
             // loop
             const Vector* n = norms;
-            for (Color* le = lightvals + count, *ls = lightvals; ls < le; ls++, n++)
+            for (Color *le = lightvals + count, *ls = lightvals; ls < le; ls++, n++)
             {
                 F32 diffuse_reflect = n->Dot(direction); // -1.0f <= diffuse_reflect <= 1.0f
 
@@ -332,6 +351,7 @@ namespace Vid
                 }
             }
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::Switch(Bool switchOn)
@@ -341,13 +361,15 @@ namespace Vid
                 SetActive(switchOn);
             }
         }
+
         //----------------------------------------------------------------------------
 
         void ResetData()
         {
-            closest = NULL;
+            closest = nullptr;
             lastActiveCount = 0;
         }
+
         //----------------------------------------------------------------------------
 
         Bool Init()
@@ -355,7 +377,7 @@ namespace Vid
             tree.SetNodeMember(&Obj::treeNode);
             activeList.SetNodeMember(&Obj::activeNode);
 
-            sun = NULL;
+            sun = nullptr;
 
             ResetData();
 
@@ -363,20 +385,22 @@ namespace Vid
 
             sunAngle.Set(PI * 0.5f, Matrix::I.Up());
 
-            coneTex = flareTex0 = flareTex1 = NULL;
+            coneTex = flareTex0 = flareTex1 = nullptr;
 
             switchedOn = TRUE;
 
             return TRUE;
         }
+
         //----------------------------------------------------------------------------
 
         void Done()
         {
             DisposeAll();
 
-            sun = NULL;
+            sun = nullptr;
         }
+
         //----------------------------------------------------------------------------
 
         void InitResources()
@@ -385,6 +409,7 @@ namespace Vid
             flareTex0 = Bitmap::Manager::FindCreate(Bitmap::reduceMED, "engine_light_halo.tga");
             flareTex1 = Bitmap::Manager::FindCreate(Bitmap::reduceMED, "engine_light_flare.tga");
         }
+
         //----------------------------------------------------------------------------
 
         // seasonal shift from pure east/west
@@ -393,6 +418,7 @@ namespace Vid
         {
             sunAngle.Set(PI * 0.5f + degrees * DEG2RAD, Matrix::I.Up());
         }
+
         //----------------------------------------------------------------------------
 
         void SaveSun()
@@ -402,12 +428,14 @@ namespace Vid
             saveColor.Set(sun->R(), sun->G(), sun->B(), 1);
             saveSunUp = isSunUp;
         }
+
         //----------------------------------------------------------------------------
 
         void RestoreSun()
         {
             SetSun(saveTime, saveColor.r, saveColor.g, saveColor.b, saveSunUp);
         }
+
         //----------------------------------------------------------------------------
 
         void SetSunMinAngle(F32 angle)
@@ -415,6 +443,7 @@ namespace Vid
             sunMinAngle = angle * DEG2RAD;
             sunRange = 2 * sunMinAngle - PI;
         }
+
         //----------------------------------------------------------------------------
 
         void SetSun(F32 time, F32 r, F32 g, F32 b, Bool _isSunUp) // = TRUE
@@ -434,11 +463,11 @@ namespace Vid
             sq *= q1;
             shadowMatrix.Set(sq);
 
-            if (shadowMatrix.front.y > -Vid::renderState.shadowY)
+            if (shadowMatrix.front.y > -renderState.shadowY)
             {
                 // clamp angle
                 //
-                shadowMatrix.front.y = -Vid::renderState.shadowY;
+                shadowMatrix.front.y = -renderState.shadowY;
             }
             shadowMatrix.front.z = 0;
             shadowMatrix.front.Normalize();
@@ -456,10 +485,11 @@ namespace Vid
 
             sun->SetColor(r, g, b);
 
-            sunColor.Set(r, g, b, (U32)255);
+            sunColor.Set(r, g, b, static_cast<U32>(255));
 
             SetupShadow();
         }
+
         //----------------------------------------------------------------------------
 
         void SetSun(const Vector& vect, F32 r, F32 g, F32 b, Bool _isSunUp) // = TRUE
@@ -473,11 +503,11 @@ namespace Vid
             shadowMatrix.ClearData();
             shadowMatrix.SetFromFront(vect);
 
-            if (shadowMatrix.front.y > -Vid::renderState.shadowY)
+            if (shadowMatrix.front.y > -renderState.shadowY)
             {
                 // clamp angle
                 //
-                shadowMatrix.front.y = -Vid::renderState.shadowY;
+                shadowMatrix.front.y = -renderState.shadowY;
             }
             shadowMatrix.front.z = 0;
             shadowMatrix.front.Normalize();
@@ -486,15 +516,16 @@ namespace Vid
 
             sun->SetColor(r, g, b);
 
-            sunColor.Set(r, g, b, (U32)255);
+            sunColor.Set(r, g, b, static_cast<U32>(255));
 
             SetupShadow();
         }
+
         //----------------------------------------------------------------------------
 
         void SetupShadow()
         {
-            F32 alpha = F32(sunColor.r + sunColor.g + sunColor.b) * F32(Vid::renderState.shadowAlpha) * U8toNormF32;
+            F32 alpha = F32(sunColor.r + sunColor.g + sunColor.b) * F32(renderState.shadowAlpha) * U8toNormF32;
 
             if (sunTime < .01f)
             {
@@ -505,21 +536,24 @@ namespace Vid
                 alpha *= (1 - sunTime) / .01f;
             }
 
-            shadowColor.Set((U32)0, (U32)0, (U32)0,
-                Min<U32>((U32)Utils::FtoL(alpha), 255));
+            shadowColor.Set(static_cast<U32>(0), static_cast<U32>(0), static_cast<U32>(0),
+                            Min<U32>(static_cast<U32>(Utils::FtoL(alpha)), 255));
         }
+
         //----------------------------------------------------------------------------
 
         Obj* Find(const char* name)
         {
             return tree.Find(Crc::CalcStr(name));
         }
+
         //----------------------------------------------------------------------------
 
         Obj* FindCreateSun(const char* name)
         {
             return sun = FindCreate(name, lightDIRECTION);
         }
+
         //----------------------------------------------------------------------------
 
         Obj* FindCreate(const char* name, Type type, F32 priority, Bool on) // = lightPOINT, = 0.0f, TRUE
@@ -533,15 +567,16 @@ namespace Vid
 
             return light;
         }
+
         //----------------------------------------------------------------------------
 
         Obj* Create(const char* name, Type type, F32 priority, Bool on) // = lightPOINT, 0.0f, TRUE
         {
-            Obj* light = NULL;
+            Obj* light = nullptr;
 
-            if (!Vid::renderState.status.lightSingle || (tree.GetCount() == 0 && type == lightDIRECTION))
+            if (!renderState.status.lightSingle || (tree.GetCount() == 0 && type == lightDIRECTION))
             {
-                if (priority * (1.0f - Vid::renderState.perfs[3]) < 0.5f)
+                if (priority * (1.0f - renderState.perfs[3]) < 0.5f)
                 {
                     light = new Obj;
 
@@ -553,6 +588,7 @@ namespace Vid
             }
             return light;
         }
+
         //----------------------------------------------------------------------------
 
         Obj* Create(const Desc& desc, Bool on) // = TRUE
@@ -573,6 +609,7 @@ namespace Vid
             }
             return light;
         }
+
         //----------------------------------------------------------------------------
 
         void Setup(Obj& light, const char* name, Type type) // = lightPOINT)
@@ -585,6 +622,7 @@ namespace Vid
 
             activeList.Append(&light);
         }
+
         //----------------------------------------------------------------------------
 
         void SetActiveListSun()
@@ -592,6 +630,7 @@ namespace Vid
             ASSERT(sun);
             SetActiveList(*sun);
         }
+
         //----------------------------------------------------------------------------
 
         void SetActiveList(const Vector& origin, const Bounds& bounds)
@@ -610,25 +649,25 @@ namespace Vid
                 {
                     switch (light->GetType())
                     {
-                    case lightDIRECTION:
-                        break;
+                        case lightDIRECTION:
+                            break;
 
-                    case lightSPOT:
-                    case lightPOINT:
-                    {
-                        if (Vid::renderState.perfs[0] <= .5f)
+                        case lightSPOT:
+                        case lightPOINT:
                         {
-                            continue;
-                        }
+                            if (renderState.perfs[0] <= .5f)
+                            {
+                                continue;
+                            }
 
-                        F32 range2 = light->GetRange() + bounds.Radius();
-                        range2 *= range2;
+                            F32 range2 = light->GetRange() + bounds.Radius();
+                            range2 *= range2;
 
-                        Vector d = light->WorldMatrix().Position();
-                        d -= origin;
-                        F32 dist2 = d.Magnitude2();
+                            Vector d = light->WorldMatrix().Position();
+                            d -= origin;
+                            F32 dist2 = d.Magnitude2();
 
-                        active = dist2 > range2 ? FALSE : TRUE;
+                            active = dist2 > range2 ? FALSE : TRUE;
 
 #ifdef DOCLOSESTLIGHT
                         if (active && dist2 < mindist)
@@ -637,8 +676,8 @@ namespace Vid
                             mindist = dist2;
                         }
 #endif
-                    }
-                    break;
+                        }
+                            break;
                     }
                 }
 
@@ -691,6 +730,7 @@ namespace Vid
             }
 #endif
         }
+
         //----------------------------------------------------------------------------
 
         void SetActiveList(Obj& light)
@@ -698,6 +738,7 @@ namespace Vid
             activeList.UnlinkAll();
             activeList.Append(&light);
         }
+
         //----------------------------------------------------------------------------
 
         void SwitchLights(Bool switchOn)
@@ -710,6 +751,7 @@ namespace Vid
                 light->Switch(switchOn);
             }
         }
+
         //----------------------------------------------------------------------------
 
         ColorF32 GetMaterialDiffuse(ColorF32& diffInit)
@@ -717,13 +759,14 @@ namespace Vid
             ASSERT(BucketMan::GetMaterial());
             ColorF32 diff = BucketMan::GetMaterial()->Diffuse();
 
-            diffInit.r = diff.r * Vid::renderState.ambientColorF32.r;
-            diffInit.g = diff.g * Vid::renderState.ambientColorF32.g;
-            diffInit.b = diff.b * Vid::renderState.ambientColorF32.b;
+            diffInit.r = diff.r * renderState.ambientColorF32.r;
+            diffInit.g = diff.g * renderState.ambientColorF32.g;
+            diffInit.b = diff.b * renderState.ambientColorF32.b;
             diffInit.a = diff.a;
 
             return diff;
         }
+
         //----------------------------------------------------------------------------
 
         void DisposeAll()
@@ -733,6 +776,7 @@ namespace Vid
 
             ResetData();
         }
+
         //----------------------------------------------------------------------------
 
         U32 Report(Obj& light)
@@ -743,15 +787,16 @@ namespace Vid
                 light.GetName(),
                 light.GetType() == lightDIRECTION ? "sun" : light.GetType() == lightPOINT ? "point" : "spot",
                 S32(light.R() * 255), S32(light.G() * 255), S32(light.B())
-                ));
+            ));
             LOG_DIAG(("%-36s:             %-8s %3d %3d %3d",
                 light.GetName(),
                 light.GetType() == lightDIRECTION ? "sun" : light.GetType() == lightPOINT ? "point" : "spot",
                 S32(light.R() * 255), S32(light.G() * 255), S32(light.B())
-                ));
+            ));
 
             return mem;
         }
+
         //----------------------------------------------------------------------------
 
         U32 ReportList(const char* name) // = NULL
@@ -774,6 +819,7 @@ namespace Vid
 
             return mem;
         }
+
         //----------------------------------------------------------------------------
 
         U32 Report()
@@ -791,6 +837,7 @@ namespace Vid
 
             return mem;
         }
+
         //----------------------------------------------------------------------------
 
 #if 0 //ndef DODXLEANANDGRUMPY

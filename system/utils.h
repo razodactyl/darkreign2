@@ -24,13 +24,15 @@ struct Float2Int
     //
     union
     {
-        S32     i;
-        double  f;
+        S32 i;
+        double f;
     };
 
     // constructor
     //
-    Float2Int() { }
+    Float2Int()
+    {
+    }
 
     Float2Int(double _f)
     {
@@ -53,7 +55,9 @@ struct Float2Int
 
         // constructor
         //
-        Sign() {}
+        Sign()
+        {
+        }
 
         Sign(F32 _f)
         {
@@ -69,7 +73,6 @@ struct Float2Int
 //
 namespace Utils
 {
-
     // Division
     U32 Div(U32 upr, U32 lwr, U32 by);
     void Div(U32 upr, U32 lwr, U32 by, U32& quot, U32& rem);
@@ -389,21 +392,23 @@ namespace Utils
         {
             return SetRoundUpModeProc();
         }
+
         inline U16 FASTCALL SetRoundDownMode()
         {
             return SetRoundDownModeProc();
         }
+
         inline U16 FASTCALL SetNearestMode()
         {
             return SetNearestModeProc();
         }
+
         inline void FASTCALL RestoreMode(U16 last)
         {
             RestoreModeProc(last);
         }
 
 #endif
-
     }
 
     S32 STDCALL FastFtoLProc(F32);
@@ -447,14 +452,17 @@ namespace Utils
     {
         return FtoLUpProc(f);
     }
+
     inline S32 STDCALL FtoLDown(F32 f)
     {
         return FtoLDownProc(f);
     }
+
     inline S32 STDCALL FtoLNearest(F32 f)
     {
         return FtoLNearestProc(f);
     }
+
     inline S32 STDCALL FastFtoL(F32 f)
     {
         return FastFtoLProc(f);
@@ -469,8 +477,7 @@ namespace Utils
 
     // Exports
     extern const char translateEncode[];
-    extern const U8   translateDecode[];
-
+    extern const U8 translateDecode[];
 };
 
 #endif

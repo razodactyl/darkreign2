@@ -13,9 +13,9 @@
 #include "statistics.h"
 //----------------------------------------------------------------------------
 
-void Vid::SetBucket( BucketLock & bucky, U32 _controlFlags, Bitmap * tex, U32 blend) // = NULL, = RS_BLEND_DEF
+void Vid::SetBucket(BucketLock& bucky, U32 _controlFlags, Bitmap* tex, U32 blend) // = NULL, = RS_BLEND_DEF
 {
-  SetBucketMaterial( bucky.material);
+    SetBucketMaterial(bucky.material);
 
 #if 0
   if (blend & RS_TEX_DECAL)
@@ -25,124 +25,135 @@ void Vid::SetBucket( BucketLock & bucky, U32 _controlFlags, Bitmap * tex, U32 bl
   }
 #endif
 
-  if (tex)
-  {
-    SetBucketFlags( (BucketMan::GetPrimitiveDesc().flags & ~RS_BUCKY_MASK) | (bucky.flags0 & ~RS_BLEND_MASK) | blend);
-    SetBucketTexture( tex, FALSE, 0, blend);
-  }
-  else
-  {
-    blend = bucky.flags0 & RS_BLEND_MASK;
-
-    if (blend == RS_BLEND_DECAL)
+    if (tex)
     {
-      blend = RS_BLEND_MODULATE;
+        SetBucketFlags(
+            (BucketMan::GetPrimitiveDesc().flags & ~RS_BUCKY_MASK) | (bucky.flags0 & ~RS_BLEND_MASK) | blend);
+        SetBucketTexture(tex, FALSE, 0, blend);
     }
-
-    SetBucketFlags( (BucketMan::GetPrimitiveDesc().flags & ~RS_BUCKY_MASK) | (bucky.flags0 & ~RS_BLEND_MASK) | blend);
-    SetBucketTexture( bucky.texture0, FALSE, 0, blend);
-
-    if (bucky.overlay && (_controlFlags & controlOVERLAY1PASS))
+    else
     {
-      SetBucketTexture( bucky.texture1, FALSE, 1, bucky.flags1);
+        blend = bucky.flags0 & RS_BLEND_MASK;
+
+        if (blend == RS_BLEND_DECAL)
+        {
+            blend = RS_BLEND_MODULATE;
+        }
+
+        SetBucketFlags(
+            (BucketMan::GetPrimitiveDesc().flags & ~RS_BUCKY_MASK) | (bucky.flags0 & ~RS_BLEND_MASK) | blend);
+        SetBucketTexture(bucky.texture0, FALSE, 0, blend);
+
+        if (bucky.overlay && (_controlFlags & controlOVERLAY1PASS))
+        {
+            SetBucketTexture(bucky.texture1, FALSE, 1, bucky.flags1);
+        }
     }
-  }
 }
+
 //----------------------------------------------------------------------------
 
-Bool Vid::LockBucket( BucketLock & bucky, U32 _controlFlags, const void * id, Bitmap * tex, U32 blend) // = clipNONE, = 0xcdcdcdcd, = NULL, = RS_BLEND_DEF
+Bool Vid::LockBucket(BucketLock& bucky, U32 _controlFlags, const void* id, Bitmap* tex,
+                     U32 blend) // = clipNONE, = 0xcdcdcdcd, = NULL, = RS_BLEND_DEF
 {
-  SetBucket( bucky, _controlFlags, tex, blend);
+    SetBucket(bucky, _controlFlags, tex, blend);
 
-  if (bucky.indexCount)
-  {
-    if (!LockIndexedPrimitiveMem( (void **)&bucky.vert, bucky.vertCount, &bucky.index, bucky.indexCount, id))
+    if (bucky.indexCount)
     {
-	  	return FALSE;
+        if (!LockIndexedPrimitiveMem((void**)&bucky.vert, bucky.vertCount, &bucky.index, bucky.indexCount, id))
+        {
+            return FALSE;
+        }
+        ASSERT(bucky.index);
     }
-  	ASSERT( bucky.index );
-  }
-  ASSERT( bucky.vert );
+    ASSERT(bucky.vert);
 
-  bucky.bucket = currentBucketMan->CurrentBucket();
+    bucky.bucket = currentBucketMan->CurrentBucket();
 
-	return TRUE;
+    return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
-Bool Vid::LockBucket( BucketLock & bucky, U32 _controlFlags, U32 vCount, U32 iCount, const void * id, Bitmap * tex, U32 blend) // = clipNONE, = 0xcdcdcdcd, = NULL, = RS_BLEND_DEF
+Bool Vid::LockBucket(BucketLock& bucky, U32 _controlFlags, U32 vCount, U32 iCount, const void* id, Bitmap* tex,
+                     U32 blend) // = clipNONE, = 0xcdcdcdcd, = NULL, = RS_BLEND_DEF
 {
-  SetBucket( bucky, _controlFlags, tex, blend);
+    SetBucket(bucky, _controlFlags, tex, blend);
 
-  if (bucky.indexCount)
-  {
-    if (!LockIndexedPrimitiveMem( (void **)&bucky.vert, vCount, &bucky.index, iCount, id))
+    if (bucky.indexCount)
     {
-	  	return FALSE;
+        if (!LockIndexedPrimitiveMem((void**)&bucky.vert, vCount, &bucky.index, iCount, id))
+        {
+            return FALSE;
+        }
+        ASSERT(bucky.index);
     }
-  	ASSERT( bucky.index );
-  }
-  ASSERT( bucky.vert );
+    ASSERT(bucky.vert);
 
-  bucky.bucket = currentBucketMan->CurrentBucket();
+    bucky.bucket = currentBucketMan->CurrentBucket();
 
-	return TRUE;
+    return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
-void Vid::UnLockBucket( BucketLock & bucky)
+void Vid::UnLockBucket(BucketLock& bucky)
 {
-  ASSERT( bucky.bucket && !(bucky.bucket->flags & RS_NOINDEXED));
+    ASSERT(bucky.bucket && !(bucky.bucket->flags & RS_NOINDEXED));
 
-  bucky.bucket->UnlockIndexedPrimitiveMemManager( bucky.vCount, bucky.iCount, TRUE);
-  bucky.offset = bucky.bucket->offset;
+    bucky.bucket->UnlockIndexedPrimitiveMemManager(bucky.vCount, bucky.iCount, TRUE);
+    bucky.offset = bucky.bucket->offset;
 }
+
 //----------------------------------------------------------------------------
 
-Bool Vid::LockBucket( BucketLock & bucky, U32 _controlFlags, U32 clipFlags, const void * id, Bitmap * tex, U32 blend) // = clipNONE, = 0xcdcdcdcd, = NULL, = RS_BLEND_DEF
+Bool Vid::LockBucket(BucketLock& bucky, U32 _controlFlags, U32 clipFlags, const void* id, Bitmap* tex,
+                     U32 blend) // = clipNONE, = 0xcdcdcdcd, = NULL, = RS_BLEND_DEF
 {
-  // clear bucky counts
-  bucky.vCount = 0;
-  bucky.iCount = 0;
+    // clear bucky counts
+    bucky.vCount = 0;
+    bucky.iCount = 0;
 
-  if (clipFlags == clipNONE)
-  {
-    if (!LockBucket( bucky, _controlFlags, id, tex, blend))
+    if (clipFlags == clipNONE)
     {
-      return FALSE;
+        if (!LockBucket(bucky, _controlFlags, id, tex, blend))
+        {
+            return FALSE;
+        }
     }
-  }
-  else
-  {
-    SetBucket( bucky, _controlFlags, tex, blend);
+    else
+    {
+        SetBucket(bucky, _controlFlags, tex, blend);
 
-    bucky.bucket = NULL;
-    bucky.vert  = Heap::tempVtx;
-    bucky.index = Heap::tempIdx;
-  }
+        bucky.bucket = nullptr;
+        bucky.vert = Heap::tempVtx;
+        bucky.index = Heap::tempIdx;
+    }
 
-	return TRUE;
+    return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
-Bool Vid::UnLockBucket( BucketLock & bucky, U32 clipFlags, const void * id) // = 0xcdcdcdcd
+Bool Vid::UnLockBucket(BucketLock& bucky, U32 clipFlags, const void* id) // = 0xcdcdcdcd
 {
-  ASSERT( bucky.vCount <= Vid::renderState.maxVerts && bucky.iCount <= Vid::renderState.maxIndices);
+    ASSERT(bucky.vCount <= Vid::renderState.maxVerts && bucky.iCount <= Vid::renderState.maxIndices);
 
-  if (clipFlags == clipNONE)
-  {
-    UnLockBucket( bucky);
+    if (clipFlags == clipNONE)
+    {
+        UnLockBucket(bucky);
 
 #ifdef DOSTATISTICS
-    Statistics::noClipTris += bucky.iCount / 3;
+        Statistics::noClipTris += bucky.iCount / 3;
 #endif
-  
-    return TRUE;
-  }
-  // clipFlags != clipNONE      
 
-  return Clip::ToBucket( bucky, id, clipFlags) != NULL;
+        return TRUE;
+    }
+    // clipFlags != clipNONE      
+
+    return Clip::ToBucket(bucky, id, clipFlags) != nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 /*

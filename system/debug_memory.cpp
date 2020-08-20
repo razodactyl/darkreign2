@@ -35,7 +35,7 @@
 
 #if defined(DEVELOPMENT) || defined(SYNC_BRUTAL_ACTIVE)
 
-  // Use this define to enable memory checking 
+// Use this define to enable memory checking 
 #define DEBUG_MEMORY_CHECKING
 #pragma message("DEBUG MEMORY CHECKING")
 
@@ -65,7 +65,7 @@
 //#pragma message("DEBUG MEMORY GLOBAL HEAP")
 
 #ifdef DEVELOPMENT
-  // Use this define to enable memory cache statistics
+// Use this define to enable memory cache statistics
 #define DEBUG_MEMORY_CACHE_STATS
 #pragma message("DEBUG MEMORY CACHE STATS")
 
@@ -137,14 +137,12 @@ static U8 DEBUG_MEMORY_INIT = 0xCD;
 //
 namespace Debug
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Memory
     //
     namespace Memory
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Struct Module
@@ -156,7 +154,6 @@ namespace Debug
 
             // Size of the module
             U32 size;
-
         };
 
 
@@ -305,7 +302,6 @@ namespace Debug
             {
                 children.DisposeAll();
             }
-
         };
 
 
@@ -331,7 +327,7 @@ namespace Debug
 
         void* MemoryAlloc(U32 size);
         void MemoryFree(void* data);
-        U32  MemorySize(void* data);
+        U32 MemorySize(void* data);
         void MemoryValidate(void* data);
 
         Bool ValidateAll();
@@ -370,7 +366,7 @@ namespace Debug
         static U32 maxCacheBytes = 0;
         static U32 totalNewCalls = 0;
         static BlockHead* blocks;
-        static HANDLE heap = 0;
+        static HANDLE heap = nullptr;
         static void* memCache[DEBUG_MEMORY_CACHE_SLOTS];
         static CacheStats memCacheStats[DEBUG_MEMORY_CACHE_SLOTS];
         static U32 debugHeapThreadId;
@@ -415,9 +411,9 @@ namespace Debug
         //
         void Init()
         {
-            ASSERT(!initialized)
+            ASSERT(!initialized);
 
-                SYSTEM_INFO sysInfo;
+            SYSTEM_INFO sysInfo;
             GetSystemInfo(&sysInfo);
 
 #ifdef SYNC_BRUTAL_ACTIVE
@@ -481,12 +477,12 @@ namespace Debug
         //
         void Done()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
 #ifndef DEBUG_MEMORY_USE_GLOBAL
 
-                // Free memory resources
-                HeapDestroy(heap);
+            // Free memory resources
+            HeapDestroy(heap);
 
 #endif
 
@@ -505,7 +501,7 @@ namespace Debug
         //
         void InitMono()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
 #ifdef SYNC_BRUTAL_ACTIVE
 
@@ -516,8 +512,8 @@ namespace Debug
 
 #endif
 
-                // Create mono buffers
-                MonoBufCreate("Memory", &monoBuffer);
+            // Create mono buffers
+            MonoBufCreate("Memory", &monoBuffer);
 
             // Write headings
             MonoBufWrite(monoBuffer, 0, 0, "Process Memory", Mono::BRIGHT);
@@ -559,10 +555,10 @@ namespace Debug
         //
         void DoneMono()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                // Delete mono buffer
-                MonoBufDestroy(&monoBuffer);
+            // Delete mono buffer
+            MonoBufDestroy(&monoBuffer);
         }
 
 
@@ -587,13 +583,21 @@ namespace Debug
             MonoBufWriteV(monoBuffer, (7, 19, Mono::BRIGHT, "%10d", memory.dwMemoryLoad));
             MonoBufWriteV(monoBuffer, (8, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG(memory.dwTotalPhys)));
             MonoBufWriteV(monoBuffer, (9, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG(memory.dwAvailPhys)));
-            MonoBufWriteV(monoBuffer, (10, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG((memory.dwTotalPageFile - memory.dwAvailPageFile))));
+            MonoBufWriteV
+            (
+                monoBuffer,
+                (10, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG((memory.dwTotalPageFile - memory.dwAvailPageFile)))
+            );
             MonoBufWriteV(monoBuffer, (11, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG(memory.dwAvailPageFile)));
-            MonoBufWriteV(monoBuffer, (12, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG((memory.dwTotalVirtual - memory.dwAvailVirtual))));
+            MonoBufWriteV
+            (
+                monoBuffer,
+                (12, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG((memory.dwTotalVirtual - memory.dwAvailVirtual)))
+            );
             MonoBufWriteV(monoBuffer, (13, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG(memory.dwAvailVirtual)));
 
             // Internal Memory System
-            newSampler.Sample(Debug::Memory::GetTotalNewCalls() - prevNew);
+            newSampler.Sample(GetTotalNewCalls() - prevNew);
             MonoBufWriteV(monoBuffer, (15, 20, Mono::NORMAL, "%9d", Debug::Memory::GetAllocatedBlocks()));
             MonoBufWriteV(monoBuffer, (15, 30, Mono::BRIGHT, "%9d", Debug::Memory::GetMaxAllocatedBlocks()));
             MonoBufWriteV(monoBuffer, (16, 20, Mono::NORMAL, "%9d", Debug::Memory::GetAllocatedBytes()));
@@ -604,14 +608,29 @@ namespace Debug
             MonoBufWriteV(monoBuffer, (18, 30, Mono::BRIGHT, "%9d", Debug::Memory::GetMaxCacheBlocks()));
             MonoBufWriteV(monoBuffer, (19, 20, Mono::NORMAL, "%9d", Debug::Memory::GetCacheBytes()));
             MonoBufWriteV(monoBuffer, (19, 30, Mono::BRIGHT, "%9d", Debug::Memory::GetMaxCacheBytes()));
-            MonoBufWriteV(monoBuffer, (20, 20, Mono::NORMAL, "%9d", Debug::Memory::GetAllocatedBytes() - Debug::Memory::GetOverheadBytes() - Debug::Memory::GetCacheBytes()));
-            MonoBufWriteV(monoBuffer, (20, 30, Mono::BRIGHT, "%9d", Debug::Memory::GetMaxAllocatedBytes() - Debug::Memory::GetMaxOverheadBytes() - Debug::Memory::GetMaxCacheBytes()));
+            MonoBufWriteV
+            (
+                monoBuffer,
+                (20, 20, Mono::NORMAL, "%9d", Debug::Memory::GetAllocatedBytes() - Debug::Memory::GetOverheadBytes() -
+                    Debug::Memory::GetCacheBytes())
+            );
+            MonoBufWriteV
+            (
+                monoBuffer,
+                (20, 30, Mono::BRIGHT, "%9d", Debug::Memory::GetMaxAllocatedBytes() - Debug::Memory::GetMaxOverheadBytes
+                    () - Debug::Memory::GetMaxCacheBytes())
+            );
             MonoBufWriteV(monoBuffer, (21, 20, Mono::NORMAL, "%9d", newSampler.GetSmooth()));
             MonoBufWriteV(monoBuffer, (21, 30, Mono::BRIGHT, "%9d", Debug::Memory::GetTotalNewCalls()));
 
-            MonoBufWriteV(monoBuffer, (22, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG(processStats.totalFixed - (Debug::Memory::GetAllocatedBytes() - Debug::Memory::GetOverheadBytes() + Debug::Memory::GetCacheBytes()))));
+            MonoBufWriteV
+            (
+                monoBuffer,
+                (22, 19, Mono::BRIGHT, "%10d [%7.2f]", MEG(processStats.totalFixed - (Debug::Memory::GetAllocatedBytes()
+                    - Debug::Memory::GetOverheadBytes() + Debug::Memory::GetCacheBytes())))
+            );
 
-            prevNew = Debug::Memory::GetTotalNewCalls();
+            prevNew = GetTotalNewCalls();
 
             // Display modules
             MonoBufWriteV(monoBuffer, (0, 53, Mono::BRIGHT, "{%4d}", processStats.moduleNumPrivate));
@@ -619,9 +638,12 @@ namespace Debug
             U32 i = 0;
             for (; i < processStats.moduleNumPrivate; i++)
             {
-                MonoBufWriteV(monoBuffer, (i + 1, 40, Mono::NORMAL, "%-20s %9d [%7.2f]",
-                    processStats.modulesPrivate[i].name.str,
-                    MEG(processStats.modulesPrivate[i].size)));
+                MonoBufWriteV
+                (
+                    monoBuffer, (i + 1, 40, Mono::NORMAL, "%-20s %9d [%7.2f]",
+                        processStats.modulesPrivate[i].name.str,
+                        MEG(processStats.modulesPrivate[i].size))
+                );
             }
             for (; i < 22; i++)
             {
@@ -644,12 +666,12 @@ namespace Debug
                 return;
             }
 
-            ASSERT(initialized)
+            ASSERT(initialized);
 
 #ifdef DEBUG_MEMORY_CACHING
 
-                // Don't flush log while dumping memory
-                Log::SetFlush(FALSE);
+            // Don't flush log while dumping memory
+            Log::SetFlush(FALSE);
 
             // Print out memory cache stats
             U32 i;
@@ -658,7 +680,7 @@ namespace Debug
 
             LOG_DIAG(("MemSize          Alloc  Current      Max     Hits    Ratio    Dregs"))
 
-                U32 totalAllocated = 0;
+            U32 totalAllocated = 0;
             U32 totalAllocatedCurrent = 0;
             U32 totalAllocatedMax = 0;
             U32 totalAllocatedHits = 0;
@@ -675,7 +697,7 @@ namespace Debug
                 while (ptr)
                 {
                     void* next;
-                    next = (void*)(*(U32*)ptr);
+                    next = (void*)(*static_cast<U32*>(ptr));
                     ptr = next;
                     stat++;
                 }
@@ -691,21 +713,23 @@ namespace Debug
                 totalDregs += stat;
 
 #endif
-
             }
 
 #ifdef DEBUG_MEMORY_CACHE_STATS
 
-            LOG_DIAG(("[%05d-00001] %8d %8d %8d %8d %8f %8d",
-                DEBUG_MEMORY_CACHE_MAX_SIZE,
-                totalAllocated,
-                totalAllocatedCurrent,
-                totalAllocatedMax,
-                totalAllocatedHits,
-                (totalAllocatedHits + totalAllocatedMax) ?
-                ((F32)totalAllocatedHits) / ((F32)(totalAllocatedHits + totalAllocatedMax)) :
-                0,
-                totalDregs))
+            LOG_DIAG
+            (
+                ("[%05d-00001] %8d %8d %8d %8d %8f %8d",
+                    DEBUG_MEMORY_CACHE_MAX_SIZE,
+                    totalAllocated,
+                    totalAllocatedCurrent,
+                    totalAllocatedMax,
+                    totalAllocatedHits,
+                    (totalAllocatedHits + totalAllocatedMax) ?
+                    (static_cast<F32>(totalAllocatedHits)) / (static_cast<F32>(totalAllocatedHits + totalAllocatedMax)) :
+                    0,
+                    totalDregs)
+            )
 
 #endif
 
@@ -713,63 +737,63 @@ namespace Debug
 
 #ifdef DEBUG_MEMORY_CHECKING
 
-                if (blocks)
-                {
-                    // Write directly to video memory
-                    //MonoBufDef(hndlMono);
-                    //MonoGetClientPanel(hndlMono);
+            if (blocks)
+            {
+                // Write directly to video memory
+                //MonoBufDef(hndlMono);
+                //MonoGetClientPanel(hndlMono);
 
-                    // Activate the panel
-                    //MonoPanelChange(hndlMono);
+                // Activate the panel
+                //MonoPanelChange(hndlMono);
 
-                    //MonoBufClear(hndlMono);
+                //MonoBufClear(hndlMono);
 
-                    BlockHead* head = blocks;
-                    F32 count = 0;
-                    U32 size = 0;
+                BlockHead* head = blocks;
+                F32 count = 0;
+                U32 size = 0;
 
 #ifdef DEBUG_MEMORY_CACHE_STATS
-                    F32 blocks = (F32)(allocatedBlocks - totalDregs);
+                F32 blocks = static_cast<F32>(allocatedBlocks - totalDregs);
 #else
                     F32 blocks = (F32)allocatedBlocks;
 #endif
 
-                    LOG_DIAG(("%.0f memory leaks", blocks))
+                LOG_DIAG(("%.0f memory leaks", blocks))
 
-                        //MonoBufWriteV(hndlMono, (1, 0, Mono::BRIGHT, "There were %.0f unfreed blocks", blocks));
-                        //MonoBufWrite(hndlMono, 2, 0, "Writing allocators of unfreed blocks to the Log File", Mono::NORMAL);
-                        //MonoBufWrite(hndlMono, 4, 0, "Progress:", Mono::NORMAL);
-                        //MonoBufWrite(hndlMono, 5, 0, "Memory:", Mono::NORMAL);
+                //MonoBufWriteV(hndlMono, (1, 0, Mono::BRIGHT, "There were %.0f unfreed blocks", blocks));
+                //MonoBufWrite(hndlMono, 2, 0, "Writing allocators of unfreed blocks to the Log File", Mono::NORMAL);
+                //MonoBufWrite(hndlMono, 4, 0, "Progress:", Mono::NORMAL);
+                //MonoBufWrite(hndlMono, 5, 0, "Memory:", Mono::NORMAL);
 
-                        if (ValidateAll())
-                        {
-                            while (head)
-                            {
-                                count++;
-                                size += head->size;
+                if (ValidateAll())
+                {
+                    while (head)
+                    {
+                        count++;
+                        size += head->size;
 
-                                //MonoBufWriteV(hndlMono, (4, 10, Mono::BRIGHT, "%7.4f %%", count * 100 / blocks));
-                                //MonoBufWriteV(hndlMono, (5, 10, Mono::BRIGHT, "%d bytes", size));
+                        //MonoBufWriteV(hndlMono, (4, 10, Mono::BRIGHT, "%7.4f %%", count * 100 / blocks));
+                        //MonoBufWriteV(hndlMono, (5, 10, Mono::BRIGHT, "%d bytes", size));
 
-                                LOG_ERR(("%d bytes allocated by", head->size))
-                                    CallStack::Display(head->callStack);
+                        LOG_ERR(("%d bytes allocated by", head->size))
+                        CallStack::Display(head->callStack);
 
-                                // Dump memory contents
-                                LOG_ERR(("Memory contents"));
-                                Utils::MemoryDump((U8*)head + sizeof(BlockHead), Min<U32>(head->size, DEBUG_MEMORY_DUMP_MAX));
+                        // Dump memory contents
+                        LOG_ERR(("Memory contents"));
+                        Utils::MemoryDump((U8*)head + sizeof(BlockHead), Min<U32>(head->size, DEBUG_MEMORY_DUMP_MAX));
 
-                                head = head->next;
-                            }
-                        }
+                        head = head->next;
+                    }
                 }
+            }
 
 #endif
 
 #ifdef DEBUG_MEMORY_STATS
 
             LOG_DIAG(("Max Memory Blocks  : %d", maxAllocatedBlocks))
-                LOG_DIAG(("Max Memory Bytes   : %d", maxAllocatedBytes))
-                LOG_DIAG(("Max Overhead Bytes : %d", maxOverheadBytes))
+            LOG_DIAG(("Max Memory Bytes   : %d", maxAllocatedBytes))
+            LOG_DIAG(("Max Overhead Bytes : %d", maxOverheadBytes))
 
 #endif
 
@@ -798,46 +822,46 @@ namespace Debug
 
             LOG_DIAG(("Flushing Memory Cache"))
 
-                if (ValidateAll())
+            if (ValidateAll())
+            {
+                LOG_DIAG(("There were %d blocks %d bytes on the cache", cacheBlocks, cacheBytes))
+                cacheBlocks = 0;
+                maxCacheBlocks = 0;
+                cacheBytes = 0;
+                maxCacheBytes = 0;
+
+                for (int i = 0; i < DEBUG_MEMORY_CACHE_SLOTS; i++)
                 {
-                    LOG_DIAG(("There were %d blocks %d bytes on the cache", cacheBlocks, cacheBytes))
-                        cacheBlocks = 0;
-                    maxCacheBlocks = 0;
-                    cacheBytes = 0;
-                    maxCacheBytes = 0;
+                    U32 stat = 0;
 
-                    for (int i = 0; i < DEBUG_MEMORY_CACHE_SLOTS; i++)
+                    void* ptr = memCache[i];
+
+                    while (ptr)
                     {
-                        U32 stat = 0;
+                        void* next;
+                        next = (void*)(*static_cast<U32*>(ptr));
 
-                        void* ptr = memCache[i];
+                        // Free the memory
+                        MemoryFree(ptr);
 
-                        while (ptr)
-                        {
-                            void* next;
-                            next = (void*)(*(U32*)ptr);
-
-                            // Free the memory
-                            MemoryFree(ptr);
-
-                            ptr = next;
-                            stat++;
-                        }
+                        ptr = next;
+                        stat++;
+                    }
 
 #ifdef DEBUG_MEMORY_CACHE_STATS
 
-                        // Write Stats
-                        CacheReport(i, stat);
+                    // Write Stats
+                    CacheReport(i, stat);
 
-                        // Reset some stats
-                        memCacheStats[i].allocated = 0;
+                    // Reset some stats
+                    memCacheStats[i].allocated = 0;
 
 #endif
 
-                        // Clear the cache
-                        memCache[i] = NULL;
-                    }
+                    // Clear the cache
+                    memCache[i] = nullptr;
                 }
+            }
 
 #ifdef DEBUG_MEMORY_THREAD_SAFE
             LeaveCriticalSection(&memoryCriticalSection);
@@ -1016,12 +1040,12 @@ namespace Debug
         //
         void* Alloc(U32 size)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                if (!size)
-                {
-                    return (NULL);
-                }
+            if (!size)
+            {
+                return (nullptr);
+            }
 
 #ifdef DEBUG_MEMORY_THREAD_SAFE
 
@@ -1032,13 +1056,13 @@ namespace Debug
 #ifdef DEBUG_MEMORY_TEST_HEAP_SAFETY
 
             // Check to make sure that we're in the correct thread
-            ASSERT(debugHeapThreadId == System::Thread::GetCurrentId())
+            ASSERT(debugHeapThreadId == System::Thread::GetCurrentId());
 
 #endif
 
 #ifdef DEBUG_MEMORY_CHECKING
 
-                U32       regs_ebp;
+            U32 regs_ebp;
             U8* ptr;
             BlockHead* head;
             BlockTail* tail;
@@ -1060,7 +1084,7 @@ namespace Debug
             ptr = (U8*)ProtectedAlloc(size + sizeof(BlockHead) + sizeof(BlockTail));
 #else
             // Grab a chunk of memory
-            ptr = (U8*)CacheAlloc(size + sizeof(BlockHead) + sizeof(BlockTail));
+            ptr = static_cast<U8*>(CacheAlloc(size + sizeof(BlockHead) + sizeof(BlockTail)));
 #endif
 
             // Set pointers into this memory
@@ -1069,8 +1093,8 @@ namespace Debug
             tail = (BlockTail*)(ptr + sizeof(BlockHead) + size);
 
             // Initialize the head block
-            head->prev = NULL;
-            head->next = NULL;
+            head->prev = nullptr;
+            head->next = nullptr;
             head->size = size;
 
             CallStack::Collect(regs_ebp, head->callStack, DEBUG_MEMORY_CALLSTACK_DEPTH, 1);
@@ -1104,7 +1128,7 @@ namespace Debug
 #ifdef DEBUG_MEMORY_PROTECTED
                 U8* ptr = (U8*)ProtectedAlloc(size);
 #else
-                U8* ptr = (U8*)CacheAlloc(size);
+            U8* ptr = static_cast<U8*>(CacheAlloc(size));
 #endif
 
 #ifdef DEBUG_MEMORY_THREAD_SAFE
@@ -1126,12 +1150,12 @@ namespace Debug
         //
         void Free(void* data)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
 #ifdef DEBUG_MEMORY_TEST_HEAP_SAFETY
 
                 // Check to make sure that we're in the correct thread
-                ASSERT(debugHeapThreadId == System::Thread::GetCurrentId());
+                ASSERT(debugHeapThreadId == System::Thread::GetCurrentId();;
 
 #endif
 
@@ -1179,7 +1203,7 @@ namespace Debug
             // Make sure that the pointer is safe
             if (ValidatePtr(data))
             {
-                ptr = (U8*)data;
+                ptr = static_cast<U8*>(data);
                 head = (BlockHead*)(ptr - sizeof(BlockHead));
                 tail = (BlockTail*)(ptr + head->size);
 
@@ -1235,7 +1259,7 @@ namespace Debug
                 // Adjust the memory overhead statistics
 #ifdef DEBUG_MEMORY_STATS
 
-  // Adjust memory overhead statistics
+                // Adjust memory overhead statistics
                 overheadBytes -= sizeof(BlockHead) + sizeof(BlockTail);
 
 #endif
@@ -1269,7 +1293,6 @@ namespace Debug
             LeaveCriticalSection(&memoryCriticalSection);
 
 #endif
-
         }
 
 
@@ -1294,30 +1317,29 @@ namespace Debug
 
             if (index < DEBUG_MEMORY_CACHE_SLOTS && memCache[index])
             {
-
 #ifdef DEBUG_MEMORY_CACHE_STATS
 
                 memCacheStats[index].allocatedHits++;
 
-                ASSERT(cacheBlocks)
-                    cacheBlocks--;
+                ASSERT(cacheBlocks);
+                cacheBlocks--;
 
-                ASSERT(cacheBytes >= size)
-                    cacheBytes -= size;
+                ASSERT(cacheBytes >= size);
+                cacheBytes -= size;
 
 #endif
 
                 // Check to see if there are any blocks we can use
-                ptr = (U8*)memCache[index];
+                ptr = static_cast<U8*>(memCache[index]);
                 memCache[index] = (void*)(*(U32*)ptr);
 
-                ASSERT(MemorySize(ptr) >= size)
+                ASSERT(MemorySize(ptr) >= size);
             }
             else
             {
-                ptr = (U8*)MemoryAlloc(size);
+                ptr = static_cast<U8*>(MemoryAlloc(size));
 
-                ASSERT(size == MemorySize(ptr))
+                ASSERT(size == MemorySize(ptr));
             }
 
 #ifdef DEBUG_MEMORY_CACHE_STATS
@@ -1356,8 +1378,8 @@ namespace Debug
 
 #ifdef DEBUG_MEMORY_CACHE_STATS
 
-                ASSERT(memCacheStats[index].allocatedCurrent)
-                    memCacheStats[index].allocatedCurrent--;
+                ASSERT(memCacheStats[index].allocatedCurrent);
+                memCacheStats[index].allocatedCurrent--;
 
                 cacheBlocks++;
                 cacheBytes += size;
@@ -1367,7 +1389,7 @@ namespace Debug
 #endif
 
                 // We can cache this memory
-                * ((U32*)data) = (U32)memCache[index];
+                *static_cast<U32*>(data) = (U32)memCache[index];
                 memCache[index] = data;
             }
             else
@@ -1380,7 +1402,6 @@ namespace Debug
             MemoryFree(data);
 
 #endif
-
         };
 
         U32 total = 0;
@@ -1398,15 +1419,15 @@ namespace Debug
             total += totalSize;
             //LOG_DIAG(("Allocating %d (%d)", totalSize, total))
 
-            void* ptr = VirtualAlloc(NULL, totalSize, MEM_COMMIT, PAGE_READWRITE);
+            void* ptr = VirtualAlloc(nullptr, totalSize, MEM_COMMIT, PAGE_READWRITE);
 
             // Change the protection on the the no access pages
             U32 old;
             VirtualProtect(ptr, 0x10000, PAGE_NOACCESS, &old);
-            VirtualProtect(((U8*)ptr) + totalSize - 0x10000, 0x10000, PAGE_NOACCESS, &old);
+            VirtualProtect(static_cast<U8*>(ptr) + totalSize - 0x10000, 0x10000, PAGE_NOACCESS, &old);
 
             // Write the size into the the start
-            U32* start = (U32*)(((U8*)ptr) + 0x10000);
+            U32* start = (U32*)(static_cast<U8*>(ptr) + 0x10000);
             *start = totalSize;
 
             return (start + 1);
@@ -1418,7 +1439,7 @@ namespace Debug
         //
         void ProtectedFree(void* data)
         {
-            U32* start = (U32*)data;
+            U32* start = static_cast<U32*>(data);
             start -= 1;
 
             U32 size = *start;
@@ -1427,7 +1448,7 @@ namespace Debug
             //LOG_DIAG(("Freeing %d (%d)", size, total))
 
             // Extract the size
-            VirtualFree(((U8*)data) - 0x10000, size, MEM_RELEASE);
+            VirtualFree(static_cast<U8*>(data) - 0x10000, size, MEM_RELEASE);
         }
 
 
@@ -1439,7 +1460,7 @@ namespace Debug
             U8* ptr;
 
             // Allocate the memory the old fashioned way
-            ptr = (U8*)HeapAlloc(heap, 0, size + 4);
+            ptr = static_cast<U8*>(HeapAlloc(heap, 0, size + 4));
 
             if (!ptr)
             {
@@ -1470,17 +1491,17 @@ namespace Debug
         //
         void MemoryFree(void* data)
         {
-            U8* ptr = (U8*)data;
+            U8* ptr = static_cast<U8*>(data);
             ptr -= 4;
 
 #ifdef DEBUG_MEMORY_STATS
 
             // Adjust the memory statistics
-            ASSERT(allocatedBlocks)
-                allocatedBlocks--;
+            ASSERT(allocatedBlocks);
+            allocatedBlocks--;
 
-            ASSERT(allocatedBytes >= *(U32*)ptr)
-                allocatedBytes -= *(U32*)ptr;
+            ASSERT(allocatedBytes >= *(U32*)ptr);
+            allocatedBytes -= *(U32*)ptr;
 
 #endif
 
@@ -1494,7 +1515,7 @@ namespace Debug
         //
         U32 MemorySize(void* ptr)
         {
-            return (*(((U32*)ptr) - 1));
+            return (*(static_cast<U32*>(ptr) - 1));
         }
 
 
@@ -1503,7 +1524,7 @@ namespace Debug
         //
         void MemoryValidate(void* ptr)
         {
-            if (!HeapValidate(heap, 0, ((U8*)ptr) - 4))
+            if (!HeapValidate(heap, 0, static_cast<U8*>(ptr) - 4))
             {
                 ERR_FATAL(("Heap indicates that the memory is invalid"))
             }
@@ -1520,33 +1541,33 @@ namespace Debug
 #else
         Bool ValidatePtr(void* data)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
 #ifdef DEBUG_MEMORY_CHECKING
 
-                if (!data)
-                {
-                    ERR_FATAL(("Pointer is NULL"))
-                }
+            if (!data)
+            {
+                ERR_FATAL(("Pointer is NULL"))
+            }
 
             U8* ptr;
 
             __try
             {
-                ptr = (U8*)data;
+                ptr = static_cast<U8*>(data);
 
                 // Firstly test to see if this is freed memory
                 U32 val = (U32)data;
 
                 __asm
-                {
+                    {
                     cld
                     mov edi, val
                     mov ecx, 4
                     mov al, DEBUG_MEMORY_FREE
                     repe scasb
                     mov val, ecx
-                }
+                    }
 
                 if (!val)
                 {
@@ -1562,7 +1583,6 @@ namespace Debug
 
                 // Validate the Block
                 ValidateBlock(head);
-
             }
             __except (Exception::Filter(GetExceptionInformation()))
             {
@@ -1573,7 +1593,7 @@ namespace Debug
 
 #else
 
-                data;
+            data;
             return (TRUE);
 
 #endif
@@ -1590,10 +1610,10 @@ namespace Debug
         //
         Bool ValidateBlock(BlockHead* head)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                BlockTail* tail;
-            U32       result;
+            BlockTail* tail;
+            U32 result;
             U8* guard;
 
             // Get pointer to tail block from head block information
@@ -1602,38 +1622,38 @@ namespace Debug
             // Test guarded header
             guard = head->headGuard;
             __asm
-            {
+                {
                 cld
                 mov edi, guard
                 mov ecx, DEBUG_MEMORY_HEAD_GUARD_SIZE
                 mov al, DEBUG_MEMORY_GUARD
                 repe scasb
                 mov result, ecx
-            }
+                }
 
             if (result)
             {
                 LOG_ERR(("Dump caused by Invalid Head Guard Block"))
-                    DumpBlock(head);
+                DumpBlock(head);
                 ERR_MEM(("Head Guard Block is invalid!"))
             }
 
             // Test guarded tail
             guard = tail->tailGuard;
             __asm
-            {
+                {
                 cld
                 mov edi, guard
                 mov ecx, DEBUG_MEMORY_TAIL_GUARD_SIZE
                 mov al, DEBUG_MEMORY_GUARD
                 repe scasb
                 mov result, ecx
-            }
+                }
 
             if (result)
             {
                 LOG_ERR(("Dump caused by Invalid Tail Guard Block"))
-                    DumpBlock(head);
+                DumpBlock(head);
                 ERR_MEM(("Tail Guard Block is invalid!"))
             }
 
@@ -1647,16 +1667,16 @@ namespace Debug
         void DumpBlockInternals(BlockHead* head)
         {
             LOG_ERR(("Allocator:"))
-                CallStack::Display(head->callStack);
+            CallStack::Display(head->callStack);
 
             LOG_ERR(("Contents: %d bytes", head->size))
-                Utils::MemoryDump((U8*)head + sizeof(BlockHead), head->size);
+            Utils::MemoryDump((U8*)head + sizeof(BlockHead), head->size);
 
             LOG_ERR(("Head: %d bytes", sizeof(BlockHead)))
-                Utils::MemoryDump((U8*)head, sizeof(BlockHead));
+            Utils::MemoryDump((U8*)head, sizeof(BlockHead));
 
             LOG_ERR(("Tail: %d bytes", sizeof(BlockTail)))
-                Utils::MemoryDump((U8*)head + sizeof(BlockHead) + head->size, sizeof(BlockTail));
+            Utils::MemoryDump((U8*)head + sizeof(BlockHead) + head->size, sizeof(BlockTail));
         }
 
 
@@ -1669,12 +1689,16 @@ namespace Debug
         {
             __try
             {
-                LOG_ERR(("Block: %08Xh [%d (%d) bytes] Next: %08Xh Prev: %08Xh", head, head->size, head->size + sizeof(BlockHead) + sizeof(BlockTail), head->prev, head->next));
-                    DumpBlockInternals(head);
+                LOG_ERR
+                (
+                    ("Block: %08Xh [%d (%d) bytes] Next: %08Xh Prev: %08Xh", head, head->size, head->size + sizeof(
+                        BlockHead) + sizeof(BlockTail), head->prev, head->next)
+                );
+                DumpBlockInternals(head);
 
                 // Search all the blocks for the block
                 // which is before and after this block
-                BlockHead* before = (BlockHead*)0x00000000;
+                BlockHead* before = static_cast<BlockHead*>(nullptr);
                 BlockHead* after = (BlockHead*)0xFFFFFFFF;
                 BlockHead* ptr = blocks;
 
@@ -1694,17 +1718,25 @@ namespace Debug
                 }
 
                 // Was there a block before this block ?
-                if (before != (BlockHead*)0x00000000)
+                if (before != static_cast<BlockHead*>(nullptr))
                 {
-                    LOG_ERR(("Before Block: %08Xh [%d (%d) bytes] %d away", before, before->size, before->size + sizeof(BlockHead) + sizeof(BlockTail), (U32)head - (U32)before))
-                        DumpBlockInternals(before);
+                    LOG_ERR
+                    (
+                        ("Before Block: %08Xh [%d (%d) bytes] %d away", before, before->size, before->size + sizeof(
+                            BlockHead) + sizeof(BlockTail), (U32)head - (U32)before)
+                    )
+                    DumpBlockInternals(before);
                 }
 
                 // Was there a block after this block ?
                 if (after != (BlockHead*)0xFFFFFFFF)
                 {
-                    LOG_ERR(("After Block: %08Xh [%d (%d) bytes] %d away", after, after->size, after->size + sizeof(BlockHead) + sizeof(BlockTail), (U32)after - (U32)head))
-                        DumpBlockInternals(after);
+                    LOG_ERR
+                    (
+                        ("After Block: %08Xh [%d (%d) bytes] %d away", after, after->size, after->size + sizeof(
+                            BlockHead) + sizeof(BlockTail), (U32)after - (U32)head)
+                    )
+                    DumpBlockInternals(after);
                 }
             }
             __except (Exception::Filter(GetExceptionInformation()))
@@ -1721,11 +1753,11 @@ namespace Debug
         //
         Bool ValidateAll()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
 #ifdef DEBUG_MEMORY_CHECKING
 
-                BlockHead* head;
+            BlockHead* head;
 
             __try
             {
@@ -1749,7 +1781,7 @@ namespace Debug
 
 #else
 
-                return (TRUE);
+            return (TRUE);
 
 #endif
         }
@@ -1850,30 +1882,28 @@ namespace Debug
                     {
                         privateTotal += memInfo.RegionSize;
                     }
-
                 }
 
                 // Addjust address to the next block
-                addr = ((U8*)memInfo.BaseAddress) + memInfo.RegionSize;
+                addr = static_cast<U8*>(memInfo.BaseAddress) + memInfo.RegionSize;
             }
 
             LOG_DIAG(("Memory Info:"))
-                LOG_DIAG(("Total Commited     : %9d", total))
-                LOG_DIAG(("Read Only          : %9d", readOnlyTotal))
-                LOG_DIAG(("Read Write         : %9d", readWriteTotal))
-                LOG_DIAG(("Write Copy         : %9d", writeCopyTotal))
-                LOG_DIAG(("Execute            : %9d", executeTotal))
-                LOG_DIAG(("Execute Read       : %9d", executeReadTotal))
-                LOG_DIAG(("Execute Read Write : %9d", executeReadWriteTotal))
-                LOG_DIAG(("Execute Write Copy : %9d", executeWriteCopyTotal))
-                LOG_DIAG(("Guard              : %9d", guardTotal))
-                LOG_DIAG(("No Access          : %9d", noAccessTotal))
-                LOG_DIAG(("No Cache           : %9d", noCacheTotal))
+            LOG_DIAG(("Total Commited     : %9d", total))
+            LOG_DIAG(("Read Only          : %9d", readOnlyTotal))
+            LOG_DIAG(("Read Write         : %9d", readWriteTotal))
+            LOG_DIAG(("Write Copy         : %9d", writeCopyTotal))
+            LOG_DIAG(("Execute            : %9d", executeTotal))
+            LOG_DIAG(("Execute Read       : %9d", executeReadTotal))
+            LOG_DIAG(("Execute Read Write : %9d", executeReadWriteTotal))
+            LOG_DIAG(("Execute Write Copy : %9d", executeWriteCopyTotal))
+            LOG_DIAG(("Guard              : %9d", guardTotal))
+            LOG_DIAG(("No Access          : %9d", noAccessTotal))
+            LOG_DIAG(("No Cache           : %9d", noCacheTotal))
 
-                LOG_DIAG(("Memory Image       : %9d", imageTotal))
-                LOG_DIAG(("Memory Mapped      : %9d", mappedTotal))
-                LOG_DIAG(("Memory Private     : %9d", privateTotal))
-
+            LOG_DIAG(("Memory Image       : %9d", imageTotal))
+            LOG_DIAG(("Memory Mapped      : %9d", mappedTotal))
+            LOG_DIAG(("Memory Private     : %9d", privateTotal))
         }
 
 
@@ -1914,9 +1944,9 @@ namespace Debug
             {
                 // If we walk up the stack we get the bottom up view
 
-                // If we walk down the stack we get the top down view
+        // If we walk down the stack we get the top down view
 
-                // Proceed through the call stack members and add the neccesary 
+        // Proceed through the call stack members and add the neccesary 
                 // tree node elements, if the node exist's then just add to it
 
                 U32* walk = (*info)->callStack;
@@ -2000,7 +2030,7 @@ namespace Debug
         //
         void SnapShotUpdatePercentages(UsageNode* root, UsageNode* node)
         {
-            ASSERT(node)
+            ASSERT(node);
 
                 for (NBinTree<UsageNode>::Iterator i(&node->children); *i; i++)
                 {
@@ -2308,19 +2338,23 @@ namespace Debug
             if (memCacheStats[slot].allocated || memCacheStats[slot].allocated)
             {
                 U32 attempts = memCacheStats[slot].allocatedHits + memCacheStats[slot].allocatedMax;
-                F32 ratio = attempts ? ((F32)memCacheStats[slot].allocatedHits) / ((F32)attempts) : 0;
+                F32 ratio = attempts
+                                ? static_cast<F32>(memCacheStats[slot].allocatedHits) / static_cast<F32>(attempts)
+                                : 0;
 
-                LOG_DIAG(("[%05d-%05d] %8d %8d %8d %8d %8f %8d",
-                    ((slot + 1) << DEBUG_MEMORY_CACHE_GRANULARITY), (slot << DEBUG_MEMORY_CACHE_GRANULARITY) + 1,
-                    memCacheStats[slot].allocated,
-                    memCacheStats[slot].allocatedCurrent,
-                    memCacheStats[slot].allocatedMax,
-                    memCacheStats[slot].allocatedHits,
-                    ratio,
-                    stat))
+                LOG_DIAG
+                (
+                    ("[%05d-%05d] %8d %8d %8d %8d %8f %8d",
+                        ((slot + 1) << DEBUG_MEMORY_CACHE_GRANULARITY), (slot << DEBUG_MEMORY_CACHE_GRANULARITY) + 1,
+                        memCacheStats[slot].allocated,
+                        memCacheStats[slot].allocatedCurrent,
+                        memCacheStats[slot].allocatedMax,
+                        memCacheStats[slot].allocatedHits,
+                        ratio,
+                        stat)
+                )
             }
         }
-
 
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -2356,7 +2390,7 @@ namespace Debug
         void Aligning::AligningFree(void* ptr)
         {
             // Calculate the pointer
-            void* ptr2 = (void*)*(((U32*)ptr) - 1);
+            void* ptr2 = (void*)*(static_cast<U32*>(ptr) - 1);
 
             // Free it
             delete ptr2;
@@ -2412,13 +2446,13 @@ namespace Debug
             if (cache)
             {
                 // Check to see if there are any blocks we can use
-                ptr = (U8*)cache;
+                ptr = static_cast<U8*>(cache);
                 cache = (void*)(*(U32*)ptr);
             }
             else
             {
                 // Allocate the memory the old fashioned way
-                ptr = (U8*)HeapAlloc(GetProcessHeap(), 0, size);
+                ptr = static_cast<U8*>(HeapAlloc(GetProcessHeap(), 0, size));
             }
 
 #else
@@ -2445,7 +2479,7 @@ namespace Debug
 #ifdef DEBUG_MEMORY_CACHING
 
             // We can cache this memory
-            * ((U32*)data) = (U32)cache;
+            *static_cast<U32*>(data) = (U32)cache;
             cache = data;
 
 #else
@@ -2473,7 +2507,7 @@ namespace Debug
             processStats.moduleNumShared = 0;
             processStats.moduleMemoryShared = 0;
 
-            HANDLE snapShot = NULL;
+            HANDLE snapShot = nullptr;
 
             // Take a snapshot of all modules in the specified process. 
             snapShot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPHEAPLIST, 0);
@@ -2483,7 +2517,7 @@ namespace Debug
             }
 
             // Fill the size of the structure before using it. 
-            MODULEENTRY32 me32 = { 0 };
+            MODULEENTRY32 me32 = {0};
             me32.dwSize = sizeof(MODULEENTRY32);
 
             // Walk the module list of the process, and find the module of 
@@ -2516,7 +2550,8 @@ namespace Debug
                         processStats.moduleNumPrivate++;
                         processStats.moduleMemoryPrivate += me32.modBaseSize;
                     }
-                } while (Module32Next(snapShot, &me32));
+                }
+                while (Module32Next(snapShot, &me32));
             }
 
             // Iterate the HeapLists
@@ -2527,7 +2562,7 @@ namespace Debug
             {
                 do
                 {
-                    HEAPENTRY32 he32 = { 0 };
+                    HEAPENTRY32 he32 = {0};
                     he32.dwSize = sizeof(HEAPENTRY32);
 
                     U32 fixed = 0;
@@ -2553,26 +2588,26 @@ namespace Debug
                             {
                                 moveable += he32.dwBlockSize;
                             }
-                        } while (Heap32Next(&he32));
+                        }
+                        while (Heap32Next(&he32));
                     }
 
                     processStats.totalFixed += fixed;
                     processStats.totalFree += free;
                     processStats.totalMoveable += moveable;
-                } while (Heap32ListNext(snapShot, &hl32));
-
+                }
+                while (Heap32ListNext(snapShot, &hl32));
             }
 
             // Calculate the total private
-            processStats.totalPrivate = processStats.moduleMemoryPrivate + processStats.totalFixed + processStats.totalMoveable;
+            processStats.totalPrivate = processStats.moduleMemoryPrivate + processStats.totalFixed + processStats.
+                totalMoveable;
 
             // Close snapshot
             CloseHandle(snapShot);
             return (TRUE);
         }
-
     }
-
 }
 
 /*
@@ -2729,10 +2764,7 @@ void* CDECL operator new(size_t size)
     {
         return (Debug::Memory::Alloc(size));
     }
-    else
-    {
-        return (Debug::Memory::UnCached::Alloc(size));
-    }
+    return (Debug::Memory::UnCached::Alloc(size));
 }
 
 
@@ -2749,10 +2781,7 @@ void* CDECL operator new(unsigned int size, int, const char*, int)
     {
         return (Debug::Memory::Alloc(size));
     }
-    else
-    {
-        return (Debug::Memory::UnCached::Alloc(size));
-    }
+    return (Debug::Memory::UnCached::Alloc(size));
 }
 
 

@@ -21,12 +21,12 @@
 // Constructor
 //
 TBuf::TBuf()
-{  
-  // Reset char type settings
-  ResetCharTypes();
+{
+    // Reset char type settings
+    ResetCharTypes();
 
-  // Clear setup flag
-  setup = FALSE;
+    // Clear setup flag
+    setup = FALSE;
 }
 
 
@@ -37,8 +37,8 @@ TBuf::TBuf()
 //
 TBuf::~TBuf()
 {
-  // Shutdown if still open
-  Done();
+    // Shutdown if still open
+    Done();
 }
 
 
@@ -47,32 +47,32 @@ TBuf::~TBuf()
 //
 // Setup with a buffer
 //
-void TBuf::Setup(const char *buffer, U32 size, const char *name, ErrorCallBack *err)
+void TBuf::Setup(const char* buffer, U32 size, const char* name, ErrorCallBack* err)
 {
-  ASSERT(buffer);
-  ASSERT(name);
-  
-  // Ensure we're shutdown
-  Done();
+    ASSERT(buffer);
+    ASSERT(name);
 
-  // Setup buffer information
-  bufSize = size;
-  bufData = buffer;
-  bufName = name;
-  bufPos = xPos = 0;
-  yPos = 1;
-  commentOn = FALSE;
-  constantOn = FALSE;
-  setup = TRUE;
-  peekState = PS_OFF;
+    // Ensure we're shutdown
+    Done();
 
-  // Clear token buffers
-  *lastToken = '\0';
-  *prevToken = '\0'; 
-  *peekToken = '\0'; 
+    // Setup buffer information
+    bufSize = size;
+    bufData = buffer;
+    bufName = name;
+    bufPos = xPos = 0;
+    yPos = 1;
+    commentOn = FALSE;
+    constantOn = FALSE;
+    setup = TRUE;
+    peekState = PS_OFF;
 
-  // Set error handler
-  errHandler = (err) ? err : DefaultError;
+    // Clear token buffers
+    *lastToken = '\0';
+    *prevToken = '\0';
+    *peekToken = '\0';
+
+    // Set error handler
+    errHandler = (err) ? err : DefaultError;
 }
 
 
@@ -83,12 +83,12 @@ void TBuf::Setup(const char *buffer, U32 size, const char *name, ErrorCallBack *
 //
 void TBuf::Done()
 {
-  // Are we active
-  if (setup)
-  {
-    // This used to do something ok!
-    setup = FALSE;
-  }
+    // Are we active
+    if (setup)
+    {
+        // This used to do something ok!
+        setup = FALSE;
+    }
 }
 
 
@@ -107,102 +107,102 @@ void TBuf::Done()
 //
 TBufResult TBuf::NextToken()
 {
-  ASSERT(setup);
+    ASSERT(setup);
 
-  U8 c;
-  U32 tokenLen = 0;
-  char *sPtr;
+    U8 c;
+    U32 tokenLen = 0;
+    char* sPtr;
 
-  // Have we peeked at the next token
-  if (peekState == PS_ON)
-  {
-    peekState = PS_OFF;
-    Utils::Strcpy(prevToken, lastToken);
-    Utils::Strcpy(lastToken, peekToken);
-    return (peekVal);
-  }
-
-  // Setup peek operation
-  if (peekState == PS_PRE)
-  {
-    // Store next token in peek buffer
-    sPtr = peekToken;
-
-    // We are now in peek mode
-    peekState = PS_ON;
-  }
-  else
-  { 
-    // Save previous token
-    Utils::Strcpy(prevToken, lastToken);
-  
-    // Store next token in last token buffer
-    sPtr = lastToken;
-  }
-
-  // Clear token buffer
-  *sPtr = '\0';
-
-  // Read next token
-  for (;;)
-  {
-    // Have we reached the end of the data
-    if (!NextChar(&c))
+    // Have we peeked at the next token
+    if (peekState == PS_ON)
     {
-      // Return token if we have one
-      return (tokenLen ? TR_OK : TR_EOF);
+        peekState = PS_OFF;
+        Utils::Strcpy(prevToken, lastToken);
+        Utils::Strcpy(lastToken, peekToken);
+        return (peekVal);
     }
 
-    // Finish reading constant
-    if (constantOn && c == constantChar)
-    { 
-      constantOn = FALSE;
-    }
-   
-    // Ignore these checks if reading a constant
-    if (!constantOn)
+    // Setup peek operation
+    if (peekState == PS_PRE)
     {
-      // What char have we got
-      if ((c == TBUF_CH_SPACE) || (c == TBUF_CH_EOL))
-      {
-        // Have we read a token
-        if (tokenLen)
-        {
-          return (TR_OK);
-        }
+        // Store next token in peek buffer
+        sPtr = peekToken;
 
-        // Ignore this character
-        continue;
-      }
-
-      // Check for punctuation
-      if (CharType(c) == PUNCTUATION)
-      {
-        // Haven't read anything yet
-        if (!tokenLen)
-        {
-          sPtr[0] = c;
-          sPtr[1] = '\0';
-          return(TR_PUN);
-        }
-
-        // Successfully read a token
-        StepBack();
-        return(TR_OK);
-      }
-    }
-
-    // Add this char to the current token
-    if (tokenLen < TBUF_MAX_TOKEN - 1)
-    {
-      sPtr[tokenLen++] = c;
-      sPtr[tokenLen] = '\0';
+        // We are now in peek mode
+        peekState = PS_ON;
     }
     else
     {
-      TokenError("maximum token length [%d bytes] exceeded", TBUF_MAX_TOKEN-1);
+        // Save previous token
+        Utils::Strcpy(prevToken, lastToken);
+
+        // Store next token in last token buffer
+        sPtr = lastToken;
     }
-  }
+
+    // Clear token buffer
+    *sPtr = '\0';
+
+    // Read next token
+    for (;;)
+    {
+        // Have we reached the end of the data
+        if (!NextChar(&c))
+        {
+            // Return token if we have one
+            return (tokenLen ? TR_OK : TR_EOF);
+        }
+
+        // Finish reading constant
+        if (constantOn && c == constantChar)
+        {
+            constantOn = FALSE;
+        }
+
+        // Ignore these checks if reading a constant
+        if (!constantOn)
+        {
+            // What char have we got
+            if ((c == TBUF_CH_SPACE) || (c == TBUF_CH_EOL))
+            {
+                // Have we read a token
+                if (tokenLen)
+                {
+                    return (TR_OK);
+                }
+
+                // Ignore this character
+                continue;
+            }
+
+            // Check for punctuation
+            if (CharType(c) == PUNCTUATION)
+            {
+                // Haven't read anything yet
+                if (!tokenLen)
+                {
+                    sPtr[0] = c;
+                    sPtr[1] = '\0';
+                    return (TR_PUN);
+                }
+
+                // Successfully read a token
+                StepBack();
+                return (TR_OK);
+            }
+        }
+
+        // Add this char to the current token
+        if (tokenLen < TBUF_MAX_TOKEN - 1)
+        {
+            sPtr[tokenLen++] = c;
+            sPtr[tokenLen] = '\0';
+        }
+        else
+        {
+            TokenError("maximum token length [%d bytes] exceeded", TBUF_MAX_TOKEN - 1);
+        }
+    }
 }
 
 
@@ -214,20 +214,19 @@ TBufResult TBuf::NextToken()
 //
 TBufResult TBuf::PeekToken()
 {
-  // Only get next token if we haven't peeked already
-  if (peekState != PS_ON)
-  {
-    // Signal pre-peek state
-    peekState = PS_PRE;
+    // Only get next token if we haven't peeked already
+    if (peekState != PS_ON)
+    {
+        // Signal pre-peek state
+        peekState = PS_PRE;
 
-    // Get the next token
-    peekVal = NextToken();
-  }
+        // Get the next token
+        peekVal = NextToken();
+    }
 
-  // Return saved value
-  return (peekVal);
+    // Return saved value
+    return (peekVal);
 }
-
 
 
 //
@@ -237,20 +236,20 @@ TBufResult TBuf::PeekToken()
 //
 void TBuf::AcceptIdent()
 {
-  // Get next token
-  switch (NextToken())
-  { 
-    case TR_OK  :
-      break;
+    // Get next token
+    switch (NextToken())
+    {
+        case TR_OK:
+            break;
 
-    case TR_PUN :
-      ExpectError("identifier", lastToken);
-      break;
+        case TR_PUN:
+            ExpectError("identifier", lastToken);
+            break;
 
-    case TR_EOF :
-      EofError("identifier");
-      break;
-  }
+        case TR_EOF:
+            EofError("identifier");
+            break;
+    }
 }
 
 
@@ -261,18 +260,18 @@ void TBuf::AcceptIdent()
 //
 void TBuf::AcceptPunct()
 {
-  // Get next token
-  switch (NextToken())
-  { 
-    case TR_OK  :
-      ExpectError("punctuation", lastToken);
+    // Get next token
+    switch (NextToken())
+    {
+        case TR_OK:
+            ExpectError("punctuation", lastToken);
 
-    case TR_PUN :
-      break;
+        case TR_PUN:
+            break;
 
-    case TR_EOF :
-      EofError("punctuation");
-  }
+        case TR_EOF:
+            EofError("punctuation");
+    }
 }
 
 
@@ -281,24 +280,24 @@ void TBuf::AcceptPunct()
 //
 // Accept token 'accept', or generate error if different
 //
-void TBuf::Accept(const char *accept)
+void TBuf::Accept(const char* accept)
 {
-  ASSERT(accept);
-  
-  // get next token
-  switch (NextToken())
-  { 
-    case TR_OK  :
-    case TR_PUN :
-      if (Utils::Strcmp(accept, lastToken))
-      {
-        TokenError("Expecting '%s' but found '%s'", accept, lastToken);
-      }
-      break;
+    ASSERT(accept);
 
-    case TR_EOF :
-      EofError(accept);
-  }
+    // get next token
+    switch (NextToken())
+    {
+        case TR_OK:
+        case TR_PUN:
+            if (Utils::Strcmp(accept, lastToken))
+            {
+                TokenError("Expecting '%s' but found '%s'", accept, lastToken);
+            }
+            break;
+
+        case TR_EOF:
+            EofError(accept);
+    }
 }
 
 
@@ -307,15 +306,15 @@ void TBuf::Accept(const char *accept)
 //
 // Generates an error if lastToken is not 'expect'
 //
-void TBuf::Expect(const char *expect)
+void TBuf::Expect(const char* expect)
 {
-  ASSERT(expect);
-  
-  // check last read token
-  if (Utils::Strcmp(expect, lastToken))
-  {
-    TokenError("Expecting '%s' but found '%s'", expect, lastToken);
-  }
+    ASSERT(expect);
+
+    // check last read token
+    if (Utils::Strcmp(expect, lastToken))
+    {
+        TokenError("Expecting '%s' but found '%s'", expect, lastToken);
+    }
 }
 
 
@@ -326,8 +325,8 @@ void TBuf::Expect(const char *expect)
 //
 void TBuf::ReadConstant(U8 c)
 {
-  constantOn = TRUE;
-  constantChar = c;
+    constantOn = TRUE;
+    constantChar = c;
 }
 
 
@@ -337,13 +336,13 @@ void TBuf::ReadConstant(U8 c)
 // Sets the type of each char in 'pStr' to 'type'
 // File does not need to be open to use this function
 //
-void TBuf::SetCharType(const char *pStr, TBufCharType type)
+void TBuf::SetCharType(const char* pStr, TBufCharType type)
 {
-  // step through char array
-  for (const char *p = pStr; *p; p++)
-  {
-    pArray[*p] = type;
-  }
+    // step through char array
+    for (const char* p = pStr; *p; p++)
+    {
+        pArray[*p] = type;
+    }
 }
 
 
@@ -355,7 +354,7 @@ void TBuf::SetCharType(const char *pStr, TBufCharType type)
 //
 void TBuf::ResetCharTypes()
 {
-  Utils::Memset(pArray, NORMAL, sizeof(pArray));
+    Utils::Memset(pArray, NORMAL, sizeof(pArray));
 }
 
 
@@ -365,77 +364,77 @@ void TBuf::ResetCharTypes()
 // Get the next char from the buffer, returning FALSE
 // when there is no data left.
 //
-Bool TBuf::NextChar(U8 *c)
+Bool TBuf::NextChar(U8* c)
 {
-  ASSERT(c);
+    ASSERT(c);
 
-  U8 n;
-    
-  // Filter comments and carriage returns
-  do
-  {
-    ASSERT(bufPos <= bufSize);
+    U8 n;
 
-    // Check if at end of data
-    if (bufPos == bufSize)
+    // Filter comments and carriage returns
+    do
     {
-      // Are we reading a string constant
-      if (constantOn)
-      {
-        TokenError("reached end of data in string constant");
-      }
+        ASSERT(bufPos <= bufSize);
 
-      return (FALSE);
+        // Check if at end of data
+        if (bufPos == bufSize)
+        {
+            // Are we reading a string constant
+            if (constantOn)
+            {
+                TokenError("reached end of data in string constant");
+            }
+
+            return (FALSE);
+        }
+
+        // Get the next character
+        n = static_cast<U8>(bufData[bufPos++]);
+
+        // Adjust parse position
+        if (n == TBUF_CH_EOL)
+        {
+            // Are we reading a string constant
+            if (constantOn)
+            {
+                TokenError("newline in string constant");
+            }
+
+            lastXPos = xPos;
+            xPos = 0;
+            yPos++;
+        }
+        else if (n != TBUF_CH_CR)
+        {
+            xPos++;
+        }
+
+        // if not in a constant, check commenting
+        if (!constantOn)
+        {
+            // turn line comment mode on
+            if (!commentOn && (CharType(n) == COMMENT))
+            {
+                commentOn = TRUE;
+            }
+
+            // turn line comment mode off
+            if (commentOn && (n == TBUF_CH_EOL))
+            {
+                commentOn = FALSE;
+            }
+        }
+    }
+    while (commentOn || (n == TBUF_CH_CR));
+
+    // convert tabs to spaces
+    if (n == TBUF_CH_TAB)
+    {
+        n = TBUF_CH_SPACE;
     }
 
-    // Get the next character
-    n = (U8) bufData[bufPos++];
-
-    // Adjust parse position
-    if (n == TBUF_CH_EOL)
-    {
-      // Are we reading a string constant
-      if (constantOn)
-      {
-        TokenError("newline in string constant");
-      }
-    
-      lastXPos = xPos;
-      xPos = 0;
-      yPos++;
-    }
-    else if (n != TBUF_CH_CR)
-    {
-      xPos++;
-    }
-
-    // if not in a constant, check commenting
-    if (!constantOn)
-    {
-      // turn line comment mode on
-      if (!commentOn && (CharType(n) == COMMENT))
-      { 
-        commentOn = TRUE;
-      }
-
-      // turn line comment mode off
-      if (commentOn && (n == TBUF_CH_EOL))
-      {
-        commentOn = FALSE;
-      }
-    }
-  }
-  while(commentOn || (n == TBUF_CH_CR));
-
-  // convert tabs to spaces
-  if (n == TBUF_CH_TAB)
-  {
-    n = TBUF_CH_SPACE;
-  }
-
-  // set the char value
-  *c = n;
-  return(TRUE);
+    // set the char value
+    *c = n;
+    return (TRUE);
 }
 
 
@@ -447,23 +446,23 @@ Bool TBuf::NextChar(U8 *c)
 //
 void TBuf::StepBack()
 {
-  // Make sure we've progressed
-  if (bufPos)
-  {
-    // Step back to previous char
-    bufPos--;
+    // Make sure we've progressed
+    if (bufPos)
+    {
+        // Step back to previous char
+        bufPos--;
 
-    // Adjust parse position
-    if (bufData[bufPos] == TBUF_CH_EOL)
-    {
-      xPos = lastXPos;
-      yPos--;
+        // Adjust parse position
+        if (bufData[bufPos] == TBUF_CH_EOL)
+        {
+            xPos = lastXPos;
+            yPos--;
+        }
+        else
+        {
+            xPos--;
+        }
     }
-    else
-    {
-      xPos--;
-    }
-  }
 }
 
 
@@ -474,7 +473,7 @@ void TBuf::StepBack()
 //
 TBuf::TBufCharType TBuf::CharType(U8 c)
 {
-  return (pArray[c]);
+    return (pArray[c]);
 }
 
 
@@ -483,9 +482,9 @@ TBuf::TBufCharType TBuf::CharType(U8 c)
 //
 // Triggers error "Expecting %s but found '%s'
 //
-void TBuf::ExpectError(const char *expected, const char *found)
+void TBuf::ExpectError(const char* expected, const char* found)
 {
-  TokenError("Expected %s but found '%s'", expected, found);
+    TokenError("Expected %s but found '%s'", expected, found);
 }
 
 
@@ -494,9 +493,9 @@ void TBuf::ExpectError(const char *expected, const char *found)
 //
 // Triggers error "Expecting %s but reached end of data"
 //
-void TBuf::EofError(const char *expected)
+void TBuf::EofError(const char* expected)
 {
-  TokenError("Expected %s but reached end of data", expected);
+    TokenError("Expected %s but reached end of data", expected);
 }
 
 
@@ -506,19 +505,19 @@ void TBuf::EofError(const char *expected)
 // Triggers a fatal parse error with context info
 // (must not return from this function)
 //
-void CDECL TBuf::TokenError(const char *fmt, ...)
+void CDECL TBuf::TokenError(const char* fmt, ...)
 {
-  ASSERT(errHandler);
+    ASSERT(errHandler);
 
-  // Process the variable args
-  va_list args;
-  char fmtBuf[1024];
-  va_start(args, fmt);
-  vsprintf(fmtBuf, fmt, args);
-  va_end(args);
+    // Process the variable args
+    va_list args;
+    char fmtBuf[1024];
+    va_start(args, fmt);
+    vsprintf(fmtBuf, fmt, args);
+    va_end(args);
 
-  // Call error handler
-  errHandler(bufName.str, xPos, yPos, fmtBuf);
+    // Call error handler
+    errHandler(bufName.str, xPos, yPos, fmtBuf);
 }
 
 
@@ -527,8 +526,8 @@ void CDECL TBuf::TokenError(const char *fmt, ...)
 //
 // Fatal error handler
 //
-void FASTCALL TBuf::DefaultError(const char *bufName, U32 x, U32 y, const char *errStr)
+void FASTCALL TBuf::DefaultError(const char* bufName, U32 x, U32 y, const char* errStr)
 {
-  // Trigger the error
-  ERR_CONFIG(("%s(%d): Error! (col %d) %s", bufName, y, x, errStr));
+    // Trigger the error
+    ERR_CONFIG(("%s(%d): Error! (col %d) %s", bufName, y, x, errStr));
 }

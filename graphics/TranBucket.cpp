@@ -14,307 +14,314 @@
 
 void TranBucketMan::ClearData()
 {
-  BucketMan::ClearData();
+    BucketMan::ClearData();
 
-	maxZ = 1.0f;
-	minZ = 0.0f;
-	maxBucketCount = 1.0f;
-	UpdateScaleZ();
-  doSort = TRUE;
+    maxZ = 1.0f;
+    minZ = 0.0f;
+    maxBucketCount = 1.0f;
+    UpdateScaleZ();
+    doSort = TRUE;
 }
+
 //----------------------------------------------------------------------------
 
-void TranBucketMan::SetPrimitiveDesc( PrimitiveDesc & prim)
+void TranBucketMan::SetPrimitiveDesc(PrimitiveDesc& prim)
 {
-  primitive.SetPrimitiveDescTag( prim);
+    primitive.SetPrimitiveDescTag(prim);
 }
+
 //----------------------------------------------------------------------------
 
-void TranBucketMan::SetPrimitiveDesc( Bucket & bucket, PrimitiveDesc & prim)
+void TranBucketMan::SetPrimitiveDesc(Bucket& bucket, PrimitiveDesc& prim)
 {
-  bucket.SetPrimitiveDescTag( prim);
+    bucket.SetPrimitiveDescTag(prim);
 }
+
 //----------------------------------------------------------------------------
 
-Bool TranBucketMan::CompareRenderState( const PrimitiveDesc & other) const 
+Bool TranBucketMan::CompareRenderState(const PrimitiveDesc& other) const
 {
-	if (
+    if (
 #ifndef DODXLEANANDGRUMPY
-		   primitive.material       == other.material       &&
-		   primitive.vertex_type    == other.vertex_type    &&
+        primitive.material == other.material &&
+        primitive.vertex_type == other.vertex_type &&
 #endif
-       primitive.tag            == other.tag            && 
-			 primitive.primitive_type == other.primitive_type &&
-			 primitive.flags          == other.flags          &&
-       primitive.texture_count  == other.texture_count)
-	{
-		for ( U32 i = 0; i < primitive.texture_count; i++ )
-		{
-			if (primitive.textureStages[i] != other.textureStages[i] )
-			{
-				return FALSE;
-			}
-		}
+        primitive.tag == other.tag &&
+        primitive.primitive_type == other.primitive_type &&
+        primitive.flags == other.flags &&
+        primitive.texture_count == other.texture_count)
+    {
+        for (U32 i = 0; i < primitive.texture_count; i++)
+        {
+            if (primitive.textureStages[i] != other.textureStages[i])
+            {
+                return FALSE;
+            }
+        }
 
-		return TRUE;
-	}
+        return TRUE;
+    }
 
-	return FALSE;
+    return FALSE;
 }
+
 //-----------------------------------------------------------------------------
 
-void TranBucketMan::Flush( Bool doDraw)  // = TRUE
-{ 
-  if (!doDraw)
-	{
-		BucketMan::Flush(FALSE);
-		return;
-	}
-
-  Vid::SetZWriteState( FALSE);
-  Bool alpha = Vid::SetAlphaState( TRUE);
-
-	// figure out how many buckets actually have vertices in them
-	// so that we don't have to look at any empty buckets
-
-	NList<Bucket>::Iterator li(&bucketList); 
-  Bucket * list[444];
-  S32 count = 0;
-  while (Bucket * bucket = li++)
-  {
-    if (bucket->vCount)
+void TranBucketMan::Flush(Bool doDraw)  // = TRUE
+{
+    if (!doDraw)
     {
-      list[count] = bucket;
-      count++;
-
-      ASSERT( count <= 444);
+        BucketMan::Flush(FALSE);
+        return;
     }
-#ifdef DOLASTBUCKET
-    if (bucket == lastUsedBucket)
+
+    Vid::SetZWriteState(FALSE);
+    Bool alpha = Vid::SetAlphaState(TRUE);
+
+    // figure out how many buckets actually have vertices in them
+    // so that we don't have to look at any empty buckets
+
+    NList<Bucket>::Iterator li(&bucketList);
+    Bucket* list[444];
+    S32 count = 0;
+    while (Bucket* bucket = li++)
     {
-      break;
-    }
-#endif
-  }
-
-	// for each bucket that is not empty...
-	for (count--; count >= 0; count--)
-	{
-		Bucket *max = list[count];
-  
-		// find the bucket with the maximum z value
-    S32 i, current = count;
-		for (i = count - 1; i >= 0; i--)
-		{
-			if (list[i]->tag > max->tag)
-			{
-				max = list[i];
-        current = i;
-			}
-/*
-			else if (list[i]->tag == max->tag)
-      {
-        if (list[i]->tag1 > max->tag1)
+        if (bucket->vCount)
         {
-	  			max = list[i];
-          current = i;
+            list[count] = bucket;
+            count++;
+
+            ASSERT(count <= 444);
         }
-      }
-*/
-		}
-
-    if (!Vid::caps.noTransort && !(max->flags & RS_NOSORT) && primitive.primitive_type != PT_LINELIST)
-    {
-      max->Sort();
-    }
-		// flush the bucket with the maximum z value
-    if ((max->flags & RS_DST_MASK) == RS_DST_ONE)
-    {
-      Vid::SetFogColorD3D( 0);
-
-  		FlushBucket( *max);
-
-      Vid::SetFogColorD3D( Vid::renderState.fogColor);
-    }
-    else
-    {
-  		FlushBucket( *max);
+#ifdef DOLASTBUCKET
+        if (bucket == lastUsedBucket)
+        {
+            break;
+        }
+#endif
     }
 
-    max->Reset();
+    // for each bucket that is not empty...
+    for (count--; count >= 0; count--)
+    {
+        Bucket* max = list[count];
 
-    // move end of list to current position 
-    //
-    list[current] = list[count];
-	}
+        // find the bucket with the maximum z value
+        S32 i, current = count;
+        for (i = count - 1; i >= 0; i--)
+        {
+            if (list[i]->tag > max->tag)
+            {
+                max = list[i];
+                current = i;
+            }
+            /*
+                        else if (list[i]->tag == max->tag)
+                  {
+                    if (list[i]->tag1 > max->tag1)
+                    {
+                              max = list[i];
+                      current = i;
+                    }
+                  }
+            */
+        }
+
+        if (!Vid::caps.noTransort && !(max->flags & RS_NOSORT) && primitive.primitive_type != PT_LINELIST)
+        {
+            max->Sort();
+        }
+        // flush the bucket with the maximum z value
+        if ((max->flags & RS_DST_MASK) == RS_DST_ONE)
+        {
+            Vid::SetFogColorD3D(0);
+
+            FlushBucket(*max);
+
+            Vid::SetFogColorD3D(Vid::renderState.fogColor);
+        }
+        else
+        {
+            FlushBucket(*max);
+        }
+
+        max->Reset();
+
+        // move end of list to current position 
+        //
+        list[current] = list[count];
+    }
 
 
-  Vid::SetAlphaState( alpha);
-  Vid::SetZWriteState( TRUE);
+    Vid::SetAlphaState(alpha);
+    Vid::SetZWriteState(TRUE);
 
-  curMem  = memBlock;
-  curSize = memSize;
+    curMem = memBlock;
+    curSize = memSize;
 
-  currentBucket = NULL;
-  lastUsedBucket = NULL;
+    currentBucket = nullptr;
+    lastUsedBucket = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
-void TranBucketMan::FlushTex( const Bitmap * texture, Bool doDraw)  // = TRUE
-{ 
-  if (!doDraw)
-	{
-		BucketMan::Flush(FALSE);
-		return;
-	}
+void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw)  // = TRUE
+{
+    if (!doDraw)
+    {
+        BucketMan::Flush(FALSE);
+        return;
+    }
 
-  Vid::SetZWriteState( FALSE);
-  Bool alpha = Vid::SetAlphaState( TRUE);
+    Vid::SetZWriteState(FALSE);
+    Bool alpha = Vid::SetAlphaState(TRUE);
 
 #if 1
 
-  NList<Bucket>::Iterator li(&bucketList); 
-  for (!li; *li; li++)
-	{
-    Bucket *bucket = *li;
-
-    if (bucket->texture_count && bucket->textureStages[0].texture == texture && bucket->vCount)
+    NList<Bucket>::Iterator li(&bucketList);
+    for (!li; *li; ++li)
     {
+        Bucket* bucket = *li;
 
-		  // flush the bucket with the maximum z value
-      if ((bucket->flags & RS_DST_MASK) == RS_DST_ONE)
-      {
-        Vid::SetFogColorD3D( 0);
+        if (bucket->texture_count && bucket->textureStages[0].texture == texture && bucket->vCount)
+        {
+            // flush the bucket with the maximum z value
+            if ((bucket->flags & RS_DST_MASK) == RS_DST_ONE)
+            {
+                Vid::SetFogColorD3D(0);
 
-  		  FlushBucket( *bucket);
+                FlushBucket(*bucket);
 
-        Vid::SetFogColorD3D( Vid::renderState.fogColor);
-      }
-      else
-      {
-  		  FlushBucket( *bucket);
-      }
+                Vid::SetFogColorD3D(Vid::renderState.fogColor);
+            }
+            else
+            {
+                FlushBucket(*bucket);
+            }
+        }
+        bucket->Reset();
     }
-    bucket->Reset();
-	}
 
-  currentBucket = NULL;
+    currentBucket = nullptr;
 
 #else
 
-	// figure out how many buckets actually have vertices in them
-	// so that we don't have to look at any empty buckets
-	NList<Bucket>::Iterator li(&bucketList); 
-  Bucket *list[222];
-  S32 count = 0;
+    // figure out how many buckets actually have vertices in them
+    // so that we don't have to look at any empty buckets
+    NList<Bucket>::Iterator li(&bucketList);
+    Bucket* list[222];
+    S32 count = 0;
 #if 0
-  S32 ic = 0;
-	NList<Bucket>::Node *lnode = NULL;
-  NList<Bucket>::Node *llnode = NULL;
+    S32 ic = 0;
+    NList<Bucket>::Node* lnode = NULL;
+    NList<Bucket>::Node* llnode = NULL;
 #endif
-  for (!li; *li; li++)
-  {
-
-		if ((*li)->vCount)
-		{
-      list[count] = *li;
-      count++;
-		}
-	}
-
-	// for each bucket that is not empty...
-	for (count--; count >= 0; count--)
-	{
-		Bucket *max = list[count];
-  
-		// find the bucket with the maximum z value
-    S32 i, current = count;
-		for (i = count - 1; i >= 0; i--)
-		{
-			if (list[i]->tag > max->tag)
-			{
-				max = list[i];
-        current = i;
-			}
-		}
-
-    if (!Vid::caps.notransort && !(max->flags & RS_NOSORT))
+    for (!li; *li; li++)
     {
-      max->Sort();
+
+        if ((*li)->vCount)
+        {
+            list[count] = *li;
+            count++;
+        }
     }
 
-
-		// flush the bucket with the maximum z value
-    if ((max->flags & RS_DST_MASK) == RS_DST_ONE)
+    // for each bucket that is not empty...
+    for (count--; count >= 0; count--)
     {
-      Vid::SetFogColorD3D( 0);
+        Bucket* max = list[count];
 
-  		FlushBucket( *max);
+        // find the bucket with the maximum z value
+        S32 i, current = count;
+        for (i = count - 1; i >= 0; i--)
+        {
+            if (list[i]->tag > max->tag)
+            {
+                max = list[i];
+                current = i;
+            }
+        }
 
-      Vid::SetFogColorD3D( Vid::renderState.fogColor);
+        if (!Vid::caps.notransort && !(max->flags & RS_NOSORT))
+        {
+            max->Sort();
+        }
+
+
+        // flush the bucket with the maximum z value
+        if ((max->flags & RS_DST_MASK) == RS_DST_ONE)
+        {
+            Vid::SetFogColorD3D(0);
+
+            FlushBucket(*max);
+
+            Vid::SetFogColorD3D(Vid::renderState.fogColor);
+        }
+        else
+        {
+            FlushBucket(*max);
+        }
+        max->Reset();
+
+        // move end of list to current position 
+        //
+        list[current] = list[count];
     }
-    else
-    {
-  		FlushBucket( *max);
-    }
-    max->Reset();
-
-    // move end of list to current position 
-    //
-    list[current] = list[count];
-	}
 #endif
 
-  Vid::SetAlphaState( alpha);
-  Vid::SetZWriteState( TRUE);
+    Vid::SetAlphaState(alpha);
+    Vid::SetZWriteState(TRUE);
 
-  curMem  = memBlock;
-  curSize = memSize;
-  currentBucket = NULL;
+    curMem = memBlock;
+    curSize = memSize;
+    currentBucket = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 void TranBucketMan::UpdateScaleZ()
 {
-	ASSERT( minZ <= maxZ );
-	ASSERT( maxBucketCount > 0.0f );
+    ASSERT(minZ <= maxZ);
+    ASSERT(maxBucketCount > 0.0f);
 
-//  scaleZ = (maxZ - minZ) / (maxBucketCount - 1);
-  scaleZ = (maxBucketCount - 1) / (maxZ - minZ);
+    //  scaleZ = (maxZ - minZ) / (maxBucketCount - 1);
+    scaleZ = (maxBucketCount - 1) / (maxZ - minZ);
 }
+
 //----------------------------------------------------------------------------
 
-void TranBucketMan::SetZ( F32 _z)
+void TranBucketMan::SetZ(F32 _z)
 {
-	ASSERT( scaleZ > 0.0f );
-  
-  U32 sort_z;
+    ASSERT(scaleZ > 0.0f);
 
-  if (_z < minZ)
-  {
-    sort_z = 0;
-  }
-  else if (_z > maxZ)
-  {
-    sort_z = (U32) Utils::FtoLDown(maxBucketCount);
-  }
-  else
-  {
-  	// calculate z value to use for sorting buckets
-//	  sort_z = (U32) Utils::FtoLDown( ( ( _z - minZ ) / scaleZ ) + 1.0f );
-	  sort_z = (U32) Utils::FtoLDown( ( _z - minZ ) * scaleZ );
-  }
-	
-	// sort_z values start at 1 and maxBucketCount values start at 0;
-	// thus, sort_z must be less-that-or-equal-to max_bucket count
+    U32 sort_z;
+
+    if (_z < minZ)
+    {
+        sort_z = 0;
+    }
+    else if (_z > maxZ)
+    {
+        sort_z = static_cast<U32>(Utils::FtoLDown(maxBucketCount));
+    }
+    else
+    {
+        // calculate z value to use for sorting buckets
+        // sort_z = (U32) Utils::FtoLDown( ( ( _z - minZ ) / scaleZ ) + 1.0f );
+        sort_z = static_cast<U32>(Utils::FtoLDown((_z - minZ) * scaleZ));
+    }
+
+    // sort_z values start at 1 and maxBucketCount values start at 0;
+    // thus, sort_z must be less-that-or-equal-to max_bucket count
 #ifdef DEVELOPMENT
-  if (!(sort_z <= (U32) maxBucketCount))
-  {
-  	ASSERT( sort_z <= (U32) maxBucketCount );  // paranoia, paranoia, don't you know they're right behind me...
-  }
-	ASSERT( sort_z < U16_MAX );
+    if (!(sort_z <= (U32)maxBucketCount))
+    {
+        ASSERT(sort_z <= (U32)maxBucketCount);  // paranoia, paranoia, don't you know they're right behind me...
+    }
+    ASSERT(sort_z < U16_MAX);
 #endif
 
-	BucketMan::SetTag( U16( sort_z));
+    SetTag(U16(sort_z));
 }
+
 //----------------------------------------------------------------------------

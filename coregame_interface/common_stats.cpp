@@ -482,7 +482,7 @@ namespace Common
                                             team = TRANSLATE(("#game.stats.total"));
                                             break;
                                     }
-                                    ASSERT(team)
+                                    ASSERT(team);
 
                                     const CH* info = nullptr;
                                     switch (button->informationType)
@@ -495,7 +495,7 @@ namespace Common
                                             info = TRANSLATE((infoHeadings[button->informationType]));
                                             break;
                                     }
-                                    ASSERT(info)
+                                    ASSERT(info);
 
                                     CH buff[256];
                                     Utils::Sprintf(buff, 256, (const CH*)L"%s - %s", team, info);
@@ -825,7 +825,7 @@ namespace Common
             case TEAM_ID:
             {
                 Team* team = Team::Id2Team(teamId);
-                ASSERT(team)
+                ASSERT(team);
                 switch (informationType)
                 {
                     case INFO_ALL:
@@ -871,7 +871,7 @@ namespace Common
     //
     void Stats::Query(TeamType teamType, InformationType informationType, U32 teamId, ICListBox* listBox)
     {
-        ASSERT(listBox)
+        ASSERT(listBox);
 
         switch (teamType)
         {
@@ -1004,8 +1004,10 @@ namespace Common
 
         out << "<table>" << endl;
         out << "<tr><td><b>Completed:</b></td><td>" << Clock::Date::GetVerbose() << "</td></tr>" << endl;
-        out << "<tr><td><b>Duration:</b></td><td>" << U32(GameTime::SimTotalTime() / 60.0f) << "min " << fmod(GameTime::SimTotalTime(), 60.0f) << "sec" << "</td></tr>" << endl;
-        out << "<tr><td><b>Map:</b></td><td>" << (Missions::GetActive() ? Missions::GetActive()->GetName().str : "???") << "</td></tr>" << endl;
+        out << "<tr><td><b>Duration:</b></td><td>" << U32(GameTime::SimTotalTime() / 60.0f) << "min " <<
+            fmod(GameTime::SimTotalTime(), 60.0f) << "sec" << "</td></tr>" << endl;
+        out << "<tr><td><b>Map:</b></td><td>" << (Missions::GetActive() ? Missions::GetActive()->GetName().str : "???")
+            << "</td></tr>" << endl;
         out << "</table>" << endl;
 
         out << "<br>" << endl;
@@ -1023,7 +1025,7 @@ namespace Common
                 numCols++;
 
                 Team* team = Team::Id2Team(t);
-                ASSERT(team)
+                ASSERT(team);
 
                 out << "<td align=center width=100 bgcolor=" << team->GetDimColor() << ">";
 
@@ -1044,7 +1046,7 @@ namespace Common
             if (teams[t])
             {
                 Team* team = Team::Id2Team(t);
-                ASSERT(team)
+                ASSERT(team);
 
                 out << "<td align=center bgcolor=" << team->GetDimColor() << ">" <<
                     Utils::Unicode2Ansi(TRANSLATE((Team::EndGame::resultName[team->GetEndGame().result]))) << "</td>" <<
@@ -1057,7 +1059,8 @@ namespace Common
         for (NList<QueryGroup>::Iterator g(&queryGroups); *g; ++g)
         {
             // Write group title
-            out << "<tr><td colspan=" << std::dec << numCols << " bgcolor=#DFDFDF><font color=#000000>" << Utils::Unicode2Ansi(TRANSLATE(((*g)->title))) << "</font></td></tr>" << endl;
+            out << "<tr><td colspan=" << std::dec << numCols << " bgcolor=#DFDFDF><font color=#000000>" <<
+                Utils::Unicode2Ansi(TRANSLATE(((*g)->title))) << "</font></td></tr>" << endl;
 
             // Write the items in the query set
             for (NBinTree<QuerySet>::Iterator q(&(*g)->querySets); *q; ++q)
@@ -1084,7 +1087,10 @@ namespace Common
                     {
                         Team* team = Team::Id2Team(t);
 
-                        out << "<td align=right bgcolor=" << ((t < Game::MAX_TEAMS) ? team->GetDimColor() : Color(U32(0x30), U32(0x30), U32(0x30))) << ">" << std::dec << (*q)->value[t] << "</td>" << endl;
+                        out << "<td align=right bgcolor=" << ((t < Game::MAX_TEAMS)
+                                                                  ? team->GetDimColor()
+                                                                  : Color(U32(0x30), U32(0x30), U32(0x30))) << ">" <<
+                            std::dec << (*q)->value[t] << "</td>" << endl;
                     }
                 }
                 out << "</tr>" << endl;
@@ -1125,7 +1131,7 @@ namespace Common
     //
     void Stats::PrintResults(NList<QueryGroup>& queryGroups, Bool* teams, ICListBox* listBox)
     {
-        ASSERT(listBox)
+        ASSERT(listBox);
         listBox->DeleteAllItems();
 
         U32 numColumns = 0;
@@ -1140,7 +1146,7 @@ namespace Common
             }
         }
 
-        ASSERT(numColumns)
+        ASSERT(numColumns);
 
         // Add the query groups
         for (NList<QueryGroup>::Iterator g(&queryGroups); *g; ++g)

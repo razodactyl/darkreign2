@@ -168,8 +168,8 @@ namespace CollisionCtrl
             // Setup projectile
             if (obj1->MapType()->IsProjectile())
             {
-                ASSERT((Promote::Object<ProjectileObjType, ProjectileObj>(obj1)))
-                    proj1 = (ProjectileObj*)obj1;
+                ASSERT((Promote::Object<ProjectileObjType, ProjectileObj>(obj1)));
+                proj1 = (ProjectileObj*)obj1;
             }
             else
             {
@@ -271,7 +271,7 @@ namespace CollisionCtrl
 
                 // Check for object collision
                 MapCluster *cluster = obj1->currentCluster;
-                ASSERT(obj1->currentCluster == WorldCtrl::MetresToCluster(worldPos.x, worldPos.z))
+                ASSERT(obj1->currentCluster == WorldCtrl::MetresToCluster(worldPos.x, worldPos.z));
 
                 // Check collisions with each other object in the cluster
                 for (NList<MapObj>::Iterator objIt(&cluster->listObjs); *objIt; objIt++)

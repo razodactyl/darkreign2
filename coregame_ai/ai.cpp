@@ -262,8 +262,8 @@ namespace AI
             }
         }
 
-        LOG_DIAG(("Type Stream Crc: %08X", tFile.GetCrc()))
-            MultiPlayer::SetDataCrc(tFile.GetCrc());
+        LOG_DIAG(("Type Stream Crc: %08X", tFile.GetCrc()));
+        MultiPlayer::SetDataCrc(tFile.GetCrc());
 
         // success
         return (TRUE);

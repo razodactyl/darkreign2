@@ -22,6 +22,7 @@
 #include "console.h"
 #include "mesh.h"
 #include "mesheffect_system.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -35,88 +36,88 @@ namespace Vid
     Bool SetCoopLevel();
     //-----------------------------------------------------------------------------
 
-    U8   startVar;          // calc size of Vid namespace
+    U8 startVar;          // calc size of Vid namespace
 
-    U32  extraFog;
+    U32 extraFog;
 
     // static Vid class variables
-    Status                  doStatus;
-    Status		            Vid::isStatus;
-    Caps                    caps;
+    Status doStatus;
+    Status Vid::isStatus;
+    Caps caps;
 
-    U32                     indexCount = 0;
+    U32 indexCount = 0;
 
     // standard windows rectangles
-    Area<S32>					      winRect;	      // relative to screen
-    Area<S32>               lastRect;
-    Area<S32>					      clientRect;			// relative to winRect
+    Area<S32> winRect;	      // relative to screen
+    Area<S32> lastRect;
+    Area<S32> clientRect;			// relative to winRect
 
     // useful rectangles
-    Area<S32>					      frontRect;			// client relative to screen
-    Area<S32>					      viewRect;				// used view relative to client
-    Area<S32>					      bltRect;				// used view relative to screen
-    Area<F32>							clipRect;
+    Area<S32> frontRect;			// client relative to screen
+    Area<S32> viewRect;				// used view relative to client
+    Area<S32> bltRect;				// used view relative to screen
+    Area<F32> clipRect;
 
     // windows
-    HINSTANCE			          hInst;
-    HWND					          hWnd;
-    HFONT					          hFont;
-    HMENU					          hMenu;
+    HINSTANCE hInst;
+    HWND hWnd;
+    HFONT hFont;
+    HMENU hMenu;
 
     // direct draw
-    DriverDD                ddDrivers[MAXDDDRIVERS + 1];
-    U32                     numDDs, curDD, winDD, fullDD, lastDD;
-    U32                     curMode, lastMode, lastDriver;
+    DriverDD ddDrivers[MAXDDDRIVERS + 1];
+    U32 numDDs, curDD, winDD, fullDD, lastDD;
+    U32 curMode, lastMode, lastDriver;
 
-    DirectDD                ddx = NULL;
-    Bool                    firstRun;
-    U32                     totalTexMemory;
+    DirectDD ddx = nullptr;
+    Bool firstRun;
+    U32 totalTexMemory;
 
-    LPDIRECTDRAWCLIPPER	    clipper = NULL;
-    SurfaceDD               back = NULL;
-    SurfaceDD               front = NULL;
-    SurfaceDD               zBuffer = NULL;
-    SurfaceDescDD	   	      backDesc;
+    LPDIRECTDRAWCLIPPER clipper = nullptr;
+    SurfaceDD back = nullptr;
+    SurfaceDD front = nullptr;
+    SurfaceDD zBuffer = nullptr;
+    SurfaceDescDD backDesc;
 
-    Bitmap                  backBmp;
-    Pix                     backFormat;
+    Bitmap backBmp;
+    Pix backFormat;
 
     // direct 3D
-    Direct3D                d3d = NULL;
-    DeviceD3D               device = NULL;
-    D3DSTATS				        stats, lastStats;
+    Direct3D d3d = nullptr;
+    DeviceD3D device = nullptr;
+    D3DSTATS stats, lastStats;
 
-    List<Pix>               pixFormatList;
-    U32						          normalFormat, transparentFormat, translucentFormat;
+    List<Pix> pixFormatList;
+    U32 normalFormat, transparentFormat, translucentFormat;
 
-    List<Pix>               zbuffFormatList;
-    S32						          curZbuffFormat;
+    List<Pix> zbuffFormatList;
+    S32 curZbuffFormat;
 
-    ViewPortDescD3D         viewDesc;
-    Material* defMaterial = NULL;
-    Material* blackMaterial = NULL;
-    Bitmap* turtleTex = NULL;
-    Bool                    showTexSwap;
-    U32                     texMemPerFrame;
+    ViewPortDescD3D viewDesc;
+    Material* defMaterial = nullptr;
+    Material* blackMaterial = nullptr;
+    Bitmap* turtleTex = nullptr;
+    Bool showTexSwap;
+    U32 texMemPerFrame;
 
-    RenderState				      Vid::renderState;
+    RenderState Vid::renderState;
     Camera* curCamera;
     Camera* mainCamera;
 
-    MODECHANGEPROC* modeChangeProc = NULL;
+    MODECHANGEPROC* modeChangeProc = nullptr;
 
-    BucketMan               bucket;
-    TranBucketMan           tranbucket;
+    BucketMan bucket;
+    TranBucketMan tranbucket;
     BucketMan* currentBucketMan;
 
     // first 3 for a tri
     // first 6 for a 2 tri rectangle
     //  all 12 for a 4 tri rectangle
     //
-    U16                     rectIndices[12] = { 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1 };
+    U16 rectIndices[12] = { 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1 };
 
 
-    Bool                    shutdown = FALSE;
+    Bool shutdown = FALSE;
 
     U8 endVar;          // calc size of Vid namespace
     //-----------------------------------------------------------------------------
@@ -125,12 +126,12 @@ namespace Vid
     //
     void ClearData()
     {
-        Utils::Memset(&Vid::isStatus, 0, sizeof(Vid::isStatus));
+        Utils::Memset(&isStatus, 0, sizeof(isStatus));
         Utils::Memset(&doStatus, 0, sizeof(doStatus));
         doStatus.fullScreen = TRUE;		// request fullscreen mode
         doStatus.pageFlip = TRUE;		// request page fliping
 
-        Vid::isStatus.inWindow = TRUE;   // everything starts in a window
+        isStatus.inWindow = TRUE;   // everything starts in a window
 
 #ifdef DODXLEANANDGRUMPY
         doStatus.hardTL = FALSE;
@@ -149,26 +150,26 @@ namespace Vid
         lastMode = VIDMODEWINDOW;
 
         // windows
-        hWnd = NULL;
-        hFont = NULL;
+        hWnd = nullptr;
+        hFont = nullptr;
 
         // direct draw
-        ddx = NULL;
-        back = NULL;
-        front = NULL;
-        zBuffer = NULL;
-        clipper = NULL;
+        ddx = nullptr;
+        back = nullptr;
+        front = nullptr;
+        zBuffer = nullptr;
+        clipper = nullptr;
 
         // direct 3D
-        d3d = NULL;
-        device = NULL;
+        d3d = nullptr;
+        device = nullptr;
 
-        Vid::caps.ClearData();
+        caps.ClearData();
 
-        defMaterial = NULL;
-        blackMaterial = NULL;
+        defMaterial = nullptr;
+        blackMaterial = nullptr;
 
-        curCamera = NULL;
+        curCamera = nullptr;
 
         lastDriver = D3DDRIVERNOTSET;
 
@@ -176,6 +177,7 @@ namespace Vid
 
         normalFormat = transparentFormat = translucentFormat = 0;
     }
+
     //-----------------------------------------------------------------------------
     static LONG theStyle = WS_CAPTION | WS_BORDER | WS_VISIBLE | WS_THICKFRAME;
 
@@ -184,17 +186,18 @@ namespace Vid
         //  theStyle = GetWindowLong( hWnd, GWL_STYLE);
         theStyle = WS_CAPTION | WS_BORDER | WS_VISIBLE | WS_THICKFRAME;
     }
+
     //-----------------------------------------------------------------------------
 
 #define MAXVERTS              1400
 #define MAXTRIS               1400
 #define MAXINDICES            MAXTRIS * 3
 
-  // the main intialization function
-  //
+    // the main intialization function
+    //
     Bool Init(HINSTANCE hI, HWND hW)
     {
-        d3d = NULL;
+        d3d = nullptr;
         extraFog = 0;
 
         // initialize dependent systems
@@ -216,14 +219,14 @@ namespace Vid
         hMenu = GetMenu(hWnd);
 
         // xmm (katmai) status flags
-        Vid::caps.xmm = Hardware::CPU::HasFeature(Hardware::CPU::KNI);
+        caps.xmm = HasFeature(Hardware::CPU::KNI);
 #ifdef __DO_XMM_BUILD
         doStatus.xmm = Vid::isStatus.xmm = Vid::caps.xmm;
         AllocXmm();
 #endif
 
         // no saved size data
-          // center the window on the display
+        // center the window on the display
         Area<S32> wr, cr;
         GetWindowRect(hWnd, (RECT*)&wr);
         GetClientRect(hWnd, (RECT*)&cr);
@@ -237,10 +240,10 @@ namespace Vid
         // save the window's style
         theStyle = GetWindowLong(hWnd, GWL_STYLE);
 
-        Vid::isStatus.fullScreen = doStatus.fullScreen;    // for initial InitDD
+        isStatus.fullScreen = doStatus.fullScreen;    // for initial InitDD
         if (!InitDD() || !SetMode(curMode))
         {
-            if (Vid::isStatus.gotDD)
+            if (isStatus.gotDD)
             {
                 ERR_MESSAGE(("%s\n\n%s %s\n\n%s",
                     dxwarning,
@@ -248,12 +251,9 @@ namespace Vid
                     dxmessage
                     ));
             }
-            else
-            {
-                ERR_MESSAGE(("%s\n\n%s",
-                    dxwarning, dxmessage
-                    ));
-            }
+            ERR_MESSAGE(("%s\n\n%s",
+                dxwarning, dxmessage
+                ));
             TerminateProcess(GetCurrentProcess(), 0);
         }
         InitBuckets();
@@ -265,12 +265,13 @@ namespace Vid
         Settings::SetupFinal();
         Command::Setup();
 
-        Vid::isStatus.active = TRUE;
+        isStatus.active = TRUE;
         firstRun = FALSE;
         shutdown = FALSE;
 
         return TRUE;
     }
+
     //-----------------------------------------------------------------------------
 
     Bool ToggleWindowedMode()
@@ -286,6 +287,7 @@ namespace Vid
         }
         return SetMode(VIDMODEWINDOW);
     }
+
     //-----------------------------------------------------------------------------
 
     static Bool restore = FALSE;
@@ -299,8 +301,8 @@ namespace Vid
 #endif
 
         // if nothing needs to be done...
-        if (Vid::isStatus.initialized == TRUE && !force && curMode == mode &&
-            viewRect.Width() == (S32)width && viewRect.Height() == (S32)height)
+        if (isStatus.initialized == TRUE && !force && curMode == mode &&
+            viewRect.Width() == static_cast<S32>(width) && viewRect.Height() == static_cast<S32>(height))
         {
             return TRUE;
         }
@@ -325,21 +327,21 @@ namespace Vid
         //     return TRUE;
         // }
 
-        Bool wasInit = Vid::isStatus.initialized;
+        Bool wasInit = isStatus.initialized;
 
         if (wasInit)
         {
             Input::OnActivate(FALSE);
         }
 
-        Vid::isStatus.initialized = FALSE;
+        isStatus.initialized = FALSE;
         curMode = mode;
 
         // clip to min/max
-        if (width < MINWINWIDTH)  width = MINWINWIDTH;
+        if (width < MINWINWIDTH) width = MINWINWIDTH;
         if (height < MINWINHEIGHT) height = MINWINHEIGHT;
-        if (width > (U32) CurMode().rect.Width())  width = CurMode().rect.Width();
-        if (height > (U32) CurMode().rect.Height()) height = CurMode().rect.Height();
+        if (width > static_cast<U32>(CurMode().rect.Width())) width = CurMode().rect.Width();
+        if (height > static_cast<U32>(CurMode().rect.Height())) height = CurMode().rect.Height();
 
         viewRect.SetSize(0, 0, width, height);
 
@@ -354,7 +356,7 @@ namespace Vid
             ReleaseDD();
 
             Area<S32> cr = viewRect;
-            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != NULL ? TRUE : FALSE);
+            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
             if (cr.Width() > CurMode().rect.Width())
             {
                 width -= cr.Width() - CurMode().rect.Width();
@@ -376,7 +378,7 @@ namespace Vid
                     LOG_DXERR(("SetMode: ddx->RestoreDisplayMode"));
                     ERR_FATAL(("SetMode: ddx->RestoreDisplayMode"));
                 }
-                Vid::isStatus.inWindow = TRUE;
+                isStatus.inWindow = TRUE;
 
                 SetMenu(hWnd, hMenu);
                 SetWindowLong(hWnd, GWL_STYLE, theStyle);
@@ -384,7 +386,7 @@ namespace Vid
 
                 // setup window
                 Area<S32> cr = viewRect = Settings::viewRect;
-                AdjustWindowRect((RECT*)&cr, theStyle, hMenu != NULL ? TRUE : FALSE);
+                AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
                 SetWindowPos(hWnd, HWND_TOP, lastRect.p0.x, lastRect.p0.y, cr.Width(), cr.Height(), NULL);
             }
             if (firstRun && !Settings::firstEver)
@@ -396,7 +398,7 @@ namespace Vid
             Settings::viewRect = viewRect;
 
             // nice for windows 
-            Vid::isStatus.fullScreen = FALSE;
+            isStatus.fullScreen = FALSE;
             if (lastMode != mode && !SetCoopLevel())
             {
                 return FALSE;
@@ -416,7 +418,7 @@ namespace Vid
             curMode = mode;
 
             cr = viewRect;
-            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != NULL ? TRUE : FALSE);
+            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
 
             width = cr.Width();
             height = cr.Height();
@@ -432,7 +434,7 @@ namespace Vid
             {
                 return FALSE;
             }
-            ClipCursor(NULL);
+            ClipCursor(nullptr);
 
             // reset the windowed mode name string
             //
@@ -450,7 +452,7 @@ namespace Vid
         {
             if (lastMode == VIDMODEWINDOW)
             {
-                Vid::isStatus.fullScreen = TRUE;
+                isStatus.fullScreen = TRUE;
 
                 // save window rect for return from fullscreen
                 Area<S32> cl;
@@ -462,7 +464,7 @@ namespace Vid
                     // setup windowed size from settings file
                     //
                     lastRect = cl = Settings::viewRect;
-                    AdjustWindowRect((RECT*)&lastRect, theStyle, hMenu != NULL ? TRUE : FALSE);
+                    AdjustWindowRect((RECT*)&lastRect, theStyle, hMenu != nullptr ? TRUE : FALSE);
                 }
 
                 // windows
@@ -471,12 +473,12 @@ namespace Vid
                 {
                     hMenu = hm;
                 }
-                SetMenu(hWnd, NULL);
+                SetMenu(hWnd, nullptr);
                 SetWindowLong(hWnd, GWL_STYLE, WS_POPUP);
                 DrawMenuBar(hWnd);
             }
             ReleaseDD();
-            Vid::isStatus.fullScreen = TRUE;
+            isStatus.fullScreen = TRUE;
 
             if ((!firstRun && /*!restore &&*/ !InitDD()) || !SetCoopLevel())
             {
@@ -491,7 +493,9 @@ namespace Vid
                 CurMode().bpp, 0, 0);
             if (dxError)
             {
-                LOG_DXERR(("SetMode(): ddx->SetDisplayMode %dx%d %d", CurMode().rect.Width(), CurMode().rect.Height(), CurMode().bpp));
+                LOG_DXERR(
+                    ("SetMode(): ddx->SetDisplayMode %dx%d %d", CurMode().rect.Width(), CurMode().rect.Height(), CurMode
+                    ().bpp));
 
                 if (!firstRun)
                 {
@@ -499,7 +503,7 @@ namespace Vid
                 }
                 return FALSE;
             }
-            Vid::isStatus.inWindow = FALSE;
+            isStatus.inWindow = FALSE;
 
             // setup window
             SetWindowPos(hWnd, HWND_TOPMOST,
@@ -517,7 +521,7 @@ namespace Vid
             {
                 return FALSE;
             }
-            RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE);
+            RedrawWindow(hWnd, nullptr, nullptr, RDW_INVALIDATE);
 
             //      ClipCursor( (RECT *) &CurMode().rect);
         }
@@ -525,7 +529,7 @@ namespace Vid
         lastDD = curDD;
         CurDD().curMode = mode;
 
-        Vid::isStatus.initialized = TRUE;
+        isStatus.initialized = TRUE;
 
         if (wasInit)
         {
@@ -533,6 +537,7 @@ namespace Vid
         }
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // setup the Vid class retangles
@@ -547,13 +552,13 @@ namespace Vid
         S32 width = clientRect.Width();
         S32 height = clientRect.Height();
 
-        if (!Vid::isStatus.fullScreen)
+        if (!isStatus.fullScreen)
         {
             GetWindowRect(hWnd, (RECT*)&winRect);
 
             // rectangle within client (centered)
-  //		  viewRect.SetSize( 0, 0, width, height);
-  //      Settings::viewRect = viewRect;
+            //		  viewRect.SetSize( 0, 0, width, height);
+            //      Settings::viewRect = viewRect;
 
             // direct draw blt rectangle; on screen view rectangle
             bltRect.SetSize(
@@ -588,6 +593,7 @@ namespace Vid
 
         //	if (!(Status & sysMAXIMIZED)) SaveGW.WinRect = WinRect;
     }
+
     //----------------------------------------------------------------------------
 
     // set the windows window size
@@ -602,16 +608,16 @@ namespace Vid
         {
             height = MINWINHEIGHT;
         }
-        if (width > (U32) CurMode().rect.Width())
+        if (width > static_cast<U32>(CurMode().rect.Width()))
         {
             width = CurMode().rect.Width();
         }
-        if (height > (U32)CurMode().rect.Height())
+        if (height > static_cast<U32>(CurMode().rect.Height()))
         {
             height = CurMode().rect.Height();
         }
 
-        if (Vid::isStatus.fullScreen)
+        if (isStatus.fullScreen)
         {
             SetMode(curMode, width, height);
         }
@@ -620,7 +626,7 @@ namespace Vid
             U32 left = winRect.p0.x;
             U32 top = winRect.p0.y;
 
-            if (Vid::isStatus.maximized)
+            if (isStatus.maximized)
             {
                 SetMode(curMode, width, height);
             }
@@ -644,6 +650,7 @@ namespace Vid
         }
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // callback for texture format enumeration
@@ -680,11 +687,12 @@ namespace Vid
 
         if (bpp == 32)
         {
-            Vid::caps.tex32 = TRUE;
+            caps.tex32 = TRUE;
         }
 
         return DDENUMRET_OK;
     }
+
     //----------------------------------------------------------------------------
 
     // callback for z-buffer format enumeration
@@ -693,7 +701,7 @@ namespace Vid
     {
         context;
 
-        if (zFmt == NULL)
+        if (zFmt == nullptr)
         {
             return DDENUMRET_CANCEL;
         }
@@ -721,6 +729,7 @@ namespace Vid
         }
         return DDENUMRET_OK;
     }
+
     //----------------------------------------------------------------------------
 
     extern U32 clipScreenCounter;
@@ -748,6 +757,7 @@ namespace Vid
 
         clipScreenCounter = 0;
     }
+
     //----------------------------------------------------------------------------
 
     // create the Direct 3D device object
@@ -810,7 +820,7 @@ namespace Vid
 
                 curZbuffFormat = 0;
                 zbuffFormatList.DisposeAll();
-                d3d->EnumZBufferFormats(CurD3D().guid, EnumZBufferCallback, NULL);
+                d3d->EnumZBufferFormats(CurD3D().guid, EnumZBufferCallback, nullptr);
 
                 if (dxError || zbuffFormatList.GetCount() == 0)
                 {
@@ -834,7 +844,7 @@ namespace Vid
 
                 // find the best zbuffer format that will work
                 U32 frameSize = CurMode().rect.Width() * CurMode().rect.Height();
-                zBuffer = NULL;
+                zBuffer = nullptr;
                 S32 backupformat = -1;
                 for (; curZbuffFormat >= 0; curZbuffFormat--)
                 {
@@ -875,8 +885,8 @@ namespace Vid
 
                 // create the zbuffer
                 desc.ddpfPixelFormat = ZBufferFormat().pixFmt;
-                dxError = ddx->CreateSurface(&desc, &zBuffer, NULL);
-                if (dxError || zBuffer == NULL)
+                dxError = ddx->CreateSurface(&desc, &zBuffer, nullptr);
+                if (dxError || zBuffer == nullptr)
                 {
                     // failed
                     LOG_DXERR(("InitD3D: ddx->CreateSurface( zBuffer)"));
@@ -887,20 +897,17 @@ namespace Vid
                     }
                     return FALSE;
                 }
-                else
+                // attach it to the backbuffer
+                dxError = back->AddAttachedSurface(zBuffer);
+                if (dxError)
                 {
-                    // attach it to the backbuffer
-                    dxError = back->AddAttachedSurface(zBuffer);
-                    if (dxError)
-                    {
-                        LOG_DXERR(("InitD3D: back->AddAttachedSurface( zBuffer)"));
+                    LOG_DXERR(("InitD3D: back->AddAttachedSurface( zBuffer)"));
 
-                        if (!firstRun)
-                        {
-                            ERR_FATAL(("InitD3D: back->AddAttachedSurface( zBuffer)"));
-                        }
-                        return FALSE;
+                    if (!firstRun)
+                    {
+                        ERR_FATAL(("InitD3D: back->AddAttachedSurface( zBuffer)"));
                     }
+                    return FALSE;
                 }
             }
 
@@ -1016,14 +1023,14 @@ namespace Vid
 
             CurD3D().SetCaps();
             //      Vid::renderState.status.hardTL = Vid::caps.hardTL && *Var::varHardTL;
-            Vid::renderState.status.hardTL = FALSE;
+            renderState.status.hardTL = FALSE;
             //      Vid::renderState.status.dxTL   = Vid::renderState.status.hardTL;
-            Vid::caps.voodoo = CurDD().ident.dwVendorId == 4634 ? TRUE : FALSE;
+            caps.voodoo = CurDD().ident.dwVendorId == 4634 ? TRUE : FALSE;
 
             // get this device's supported texture formats
             //
-            Vid::caps.tex32 = FALSE;
-            dxError = device->EnumTextureFormats(EnumPixCallback, NULL);
+            caps.tex32 = FALSE;
+            dxError = device->EnumTextureFormats(EnumPixCallback, nullptr);
             if (dxError)
             {
                 LOG_DXERR(("InitD3D: device->EnumTextureFormats()"));
@@ -1046,8 +1053,11 @@ namespace Vid
                 Pix& pix = *pixFormatList[i];
 
                 if (!(pix.pixFmt.dwFlags & DDPF_RGB)
-                    || (CurMode().desc.ddpfPixelFormat.dwRGBBitCount == 32 && Vid::renderState.status.tex32 && pix.pixFmt.dwRGBBitCount != 32)
-                    || (!Vid::renderState.status.tex32 && pix.pixFmt.dwRGBBitCount != 16)
+                    || (CurMode().desc.ddpfPixelFormat.dwRGBBitCount == 32 && renderState.status.tex32 && pix
+                        .pixFmt.
+                        dwRGBBitCount
+                        != 32)
+                    || (!renderState.status.tex32 && pix.pixFmt.dwRGBBitCount != 16)
                     )
                 {
                     // only 16 & 32 bit rgba
@@ -1072,7 +1082,8 @@ namespace Vid
                 {
                     transparentFormat = i;
                 }
-                else if (translucentFormat == pixFormatList.GetCount() || (pix.aScale > PixTranslucent().aScale && pix.aScale < 8))
+                else if (translucentFormat == pixFormatList.GetCount() || (pix.aScale > PixTranslucent().aScale && pix.
+                    aScale < 8))
                 {
                     translucentFormat = i;
                 }
@@ -1143,13 +1154,13 @@ namespace Vid
             totalTexMemory = FreeVidMem(FALSE);
 
             lastDriver = CurDD().curDriver;
-
         }     // CurDD().curDriver != lastDriver
 
         LOG_DIAG(("[VID INITD3D: 1]"));
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // create the front and back surfaces
@@ -1168,9 +1179,9 @@ namespace Vid
         desc.dwFlags = DDSD_CAPS;
         desc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
 
-        Vid::isStatus.pageFlip = FALSE;
-        Vid::isStatus.tripleBuf = FALSE;
-        if (Vid::isStatus.fullScreen && doStatus.pageFlip)
+        isStatus.pageFlip = FALSE;
+        isStatus.tripleBuf = FALSE;
+        if (isStatus.fullScreen && doStatus.pageFlip)
         {
             // create a complex flipping surface
             desc.dwBackBufferCount = 1;
@@ -1181,7 +1192,7 @@ namespace Vid
                 if (CurMode().tripleBuf)
                 {
                     desc.dwBackBufferCount = 2;
-                    Vid::isStatus.tripleBuf = TRUE;
+                    isStatus.tripleBuf = TRUE;
                 }
                 else
                 {
@@ -1190,19 +1201,19 @@ namespace Vid
             }
             desc.dwFlags |= DDSD_BACKBUFFERCOUNT;
             desc.ddsCaps.dwCaps |= DDSCAPS_FLIP | DDSCAPS_COMPLEX;
-            Vid::isStatus.pageFlip = TRUE;
+            isStatus.pageFlip = TRUE;
             // create a D3D compatible surface
             desc.ddsCaps.dwCaps |= DDSCAPS_3DDEVICE;
         }
 
-        dxError = ddx->CreateSurface(&desc, &front, NULL);
+        dxError = ddx->CreateSurface(&desc, &front, nullptr);
         if (dxError)
         {
             if (doStatus.pageFlip && desc.dwBackBufferCount > 1)
             {
                 // failed triple buffer, try double
                 desc.dwBackBufferCount = 1;
-                dxError = ddx->CreateSurface(&desc, &front, NULL);
+                dxError = ddx->CreateSurface(&desc, &front, nullptr);
             }
             if (dxError)
             {
@@ -1247,11 +1258,11 @@ namespace Vid
             desc.dwWidth = viewRect.Width();
             desc.dwHeight = viewRect.Height();
 
-            if (!Vid::isStatus.fullScreen)
+            if (!isStatus.fullScreen)
             {
                 // double buffered
                 //
-                dxError = ddx->CreateSurface(&desc, &back, NULL);
+                dxError = ddx->CreateSurface(&desc, &back, nullptr);
                 if (dxError)
                 {
                     if (desc.ddsCaps.dwCaps & DDSCAPS_VIDEOMEMORY)
@@ -1286,7 +1297,7 @@ namespace Vid
 #endif
                 // create the DirectDraw Clipper object
                 // and attach it to the window and front buffer.
-                dxError = ddx->CreateClipper(0, &clipper, NULL);
+                dxError = ddx->CreateClipper(0, &clipper, nullptr);
                 if (dxError)
                 {
                     LOG_DXERR(("InitSurfaces: ddx->CreateClipper()"));
@@ -1322,7 +1333,7 @@ namespace Vid
             }
             else
             {
-                dxError = ddx->CreateSurface(&desc, &back, NULL);
+                dxError = ddx->CreateSurface(&desc, &back, nullptr);
                 if (dxError)
                 {
                     if (desc.ddsCaps.dwCaps & DDSCAPS_VIDEOMEMORY)
@@ -1353,9 +1364,9 @@ namespace Vid
         }
         Utils::Memset(&backDesc, 0, sizeof(backDesc));
         backDesc.dwSize = sizeof(backDesc);
-        dxError = back->Lock(NULL, &backDesc, DDLOCK_WAIT, NULL);
+        dxError = back->Lock(nullptr, &backDesc, DDLOCK_WAIT, nullptr);
         LOG_DXERR(("InitSurfaces: back->Lock"));
-        back->Unlock(NULL);
+        back->Unlock(nullptr);
 
         // Set the back buffer pixel format
         backFormat.SetPixFmt(backDesc.ddpfPixelFormat);
@@ -1384,6 +1395,7 @@ namespace Vid
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // set the cooperative level
@@ -1391,12 +1403,15 @@ namespace Vid
     //
     Bool SetCoopLevel()
     {
-        if (Vid::isStatus.fullScreen)
+        if (isStatus.fullScreen)
         {
-            dxError = ddx->SetCooperativeLevel(hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE);
+            dxError = ddx->SetCooperativeLevel(
+                hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE);
             if (dxError)
             {
-                LOG_DXERR(("SetCoopLevel: ddx->SetCooperativeLevel( EXCLUSIVE | FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE )"));
+                LOG_DXERR(
+                    ("SetCoopLevel: ddx->SetCooperativeLevel( EXCLUSIVE | FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE )"
+                        ));
 
                 if (!firstRun)
                 {
@@ -1421,6 +1436,7 @@ namespace Vid
         }
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     void OnActivate(Bool active)
@@ -1434,7 +1450,7 @@ namespace Vid
         {
             //#define HARSHRESTORE
 #ifndef HARSHRESTORE
-            Vid::RestoreSurfaces();
+            RestoreSurfaces();
 #else
             if (curMode != VIDMODEWINDOW)
             {
@@ -1449,20 +1465,20 @@ namespace Vid
             }
 #endif
 
-            Vid::isStatus.active = TRUE;
+            isStatus.active = TRUE;
         }
         else
         {
-            Vid::isStatus.active = FALSE;
+            isStatus.active = FALSE;
 
             if (device)
             {
                 // Clear internal directx texture pointer
                 if (caps.texMulti)
                 {
-                    SetTextureDX(NULL, 1, RS_BLEND_DEF);
+                    SetTextureDX(nullptr, 1, RS_BLEND_DEF);
                 }
-                SetTextureDX(NULL, 0, RS_BLEND_DEF);
+                SetTextureDX(nullptr, 0, RS_BLEND_DEF);
             }
 
 #ifdef HARSHRESTORE
@@ -1475,11 +1491,12 @@ namespace Vid
 #endif
         }
     }
+
     //----------------------------------------------------------------------------
 
     void RestoreSurfaces()
     {
-        if (!Vid::isStatus.initialized)
+        if (!isStatus.initialized)
         {
             return;
         }
@@ -1489,9 +1506,9 @@ namespace Vid
             // Clear internal directx texture pointer
             if (caps.texMulti)
             {
-                SetTextureDX(NULL, 1, RS_BLEND_DEF);
+                SetTextureDX(nullptr, 1, RS_BLEND_DEF);
             }
-            SetTextureDX(NULL, 0, RS_BLEND_DEF);
+            SetTextureDX(nullptr, 0, RS_BLEND_DEF);
             Bitmap::Manager::ResetData();
         }
 #if 1
@@ -1502,7 +1519,7 @@ namespace Vid
 
             front->Restore();
         }
-        if (Vid::isStatus.pageFlip)
+        if (isStatus.pageFlip)
         {
             RELEASEDX(back);
 
@@ -1527,6 +1544,7 @@ namespace Vid
         Bitmap::Manager::OnModeChange();    // restore
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     // release all direct 3D related objects
@@ -1538,12 +1556,12 @@ namespace Vid
             //      LOG_DIAG((""));
             //      LOG_DIAG(("[VID RELEASE D3D]"));
 
-                  // Clear internal directx texture pointer
+            // Clear internal directx texture pointer
             if (caps.texMulti)
             {
-                SetTextureDX(NULL, 1, RS_BLEND_DEF);
+                SetTextureDX(nullptr, 1, RS_BLEND_DEF);
             }
-            SetTextureDX(NULL, 0, RS_BLEND_DEF);
+            SetTextureDX(nullptr, 0, RS_BLEND_DEF);
         }
         RELEASEDX(device);
 
@@ -1551,13 +1569,14 @@ namespace Vid
 
         pixFormatList.DisposeAll();
     }
+
     //----------------------------------------------------------------------------
 
     // release all direct draw surface related objects
     //
     void ReleaseDD()
     {
-        Vid::isStatus.initialized = FALSE;
+        isStatus.initialized = FALSE;
 
         ReleaseD3D();
         Bitmap::Manager::ReleaseDD();
@@ -1570,7 +1589,7 @@ namespace Vid
             U32 refcount = zBuffer->Release();
             if (refcount == 0)
             {
-                zBuffer = NULL;
+                zBuffer = nullptr;
             }
         }
         RELEASEDX(zBuffer);
@@ -1578,7 +1597,7 @@ namespace Vid
 
         if (front && clipper)
         {
-            dxError = front->SetClipper(NULL);
+            dxError = front->SetClipper(nullptr);
             LOG_DXERR(("ReleaseDD(): front->SetClipper( NULL)"));
 
             RELEASEDX(clipper);
@@ -1587,6 +1606,7 @@ namespace Vid
 
         RELEASEDX(front);
     }
+
     //----------------------------------------------------------------------------
 
     // release all directX related objects
@@ -1600,26 +1620,27 @@ namespace Vid
 
         curMode = VIDMODENOTSET;
     }
+
     //----------------------------------------------------------------------------
 
     void DisposeAll()
     {
-        Vid::Var::farOverride = 0;
+        Var::farOverride = 0;
 
         if (device)
         {
             //      LOG_DIAG((""));
             //      LOG_DIAG(("[VID RELEASE D3D]"));
 
-                  // Clear internal directx texture pointer
+            // Clear internal directx texture pointer
             if (caps.texMulti)
             {
-                SetTextureDX(NULL, 1, RS_BLEND_DEF);
+                SetTextureDX(nullptr, 1, RS_BLEND_DEF);
             }
-            SetTextureDX(NULL, 0, RS_BLEND_DEF);
+            SetTextureDX(nullptr, 0, RS_BLEND_DEF);
         }
-        Vid::ClearBack();
-        Vid::RenderFlush();
+        ClearBack();
+        RenderFlush();
 
         bucket.Flush(FALSE);
         tranbucket.Flush(FALSE);
@@ -1630,6 +1651,7 @@ namespace Vid
         // must be after Material::DisposeAll because material refer to bitmaps
         Bitmap::Manager::DisposeAll();
     }
+
     //----------------------------------------------------------------------------
 
     // completely close down the the Vid device
@@ -1652,7 +1674,7 @@ namespace Vid
         if (mainCamera)
         {
             delete mainCamera;
-            mainCamera = NULL;
+            mainCamera = nullptr;
         }
         DoneBuckets();
 
@@ -1687,16 +1709,17 @@ namespace Vid
         zbuffFormatList.DisposeAll();
         pixFormatList.DisposeAll();
 
-        ClipCursor(NULL);
+        ClipCursor(nullptr);
 
-        Vid::isStatus.initialized = FALSE;
+        isStatus.initialized = FALSE;
         shutdown = TRUE;
     }
+
     //-----------------------------------------------------------------------------
 
     void CriticalShutdown()
     {
-        if (Vid::isStatus.initialized)
+        if (isStatus.initialized)
         {
             //      Settings::Save();
 
@@ -1704,7 +1727,7 @@ namespace Vid
             FreeXmm();
 #endif
 
-            Vid::isStatus.initialized = FALSE;
+            isStatus.initialized = FALSE;
 
             //      DoneBuckets();
 
@@ -1734,13 +1757,13 @@ namespace Vid
             RELEASEDX(d3d);
             RELEASEDX(ddx);
 
-            ClipCursor(NULL);
+            ClipCursor(nullptr);
 
             //      Heap::Done();
-
         }
         shutdown = TRUE;
     }
+
     //-----------------------------------------------------------------------------
 
     // display the back buffer, call DrawInfo first
@@ -1751,7 +1774,7 @@ namespace Vid
     {
         Heap::Check();
 
-        if (Vid::isStatus.pageFlip)
+        if (isStatus.pageFlip)
         {
             /*
                       if (Vid::renderState.status.waitRetrace)
@@ -1760,21 +1783,22 @@ namespace Vid
                   }
                 DDFLIP_DONOTWAIT
             */
-            dxError = front->Flip(NULL, DDFLIP_WAIT | (Vid::renderState.status.waitRetrace ? DDFLIP_NOVSYNC : 0));
+            dxError = front->Flip(nullptr, DDFLIP_WAIT | (renderState.status.waitRetrace ? DDFLIP_NOVSYNC : 0));
             LOG_DXERR(("RenderFlush: front->Flip"));
         }
         else
         {
-            if (Vid::renderState.status.waitRetrace)
+            if (renderState.status.waitRetrace)
             {
-                ddx->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, NULL);
+                ddx->WaitForVerticalBlank(DDWAITVB_BLOCKBEGIN, nullptr);
             }
 
-            dxError = front->Blt(bltRect, back, viewRect, DDBLT_WAIT, NULL);
+            dxError = front->Blt(bltRect, back, viewRect, DDBLT_WAIT, nullptr);
             LOG_DXERR(("RenderFlush: front->Blt"));
         }
         return TRUE;
     }
+
     //-----------------------------------------------------------------------------
 
     // respond to a WM_MOVE message
@@ -1782,9 +1806,10 @@ namespace Vid
     // 
     Bool OnMove(S32 x, S32 y)
     {
-        x; y;
+        x;
+        y;
 
-        if (!Vid::isStatus.initialized)
+        if (!isStatus.initialized)
         {
             return FALSE;
         }
@@ -1794,45 +1819,46 @@ namespace Vid
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // respond to a WM_SIZE message
     //
     Bool OnSize(UINT nType, S32 cx, S32 cy)
     {
-        if (!Vid::isStatus.initialized)
+        if (!isStatus.initialized)
         {
             return FALSE;
         }
 
         if (nType == SIZE_MINIMIZED)
         {
-            Vid::isStatus.minimized = TRUE;
+            isStatus.minimized = TRUE;
             return TRUE;
         }
-        if (Vid::isStatus.fullScreen)
+        if (isStatus.fullScreen)
         {
             //  CheckDD();
-            Vid::isStatus.minimized = FALSE;
+            isStatus.minimized = FALSE;
             return TRUE;
         }
 
         // if we are minimized, this is the un-minimized size msg
-        if (Vid::isStatus.minimized)
+        if (isStatus.minimized)
         {
-            Vid::isStatus.minimized = FALSE;
+            isStatus.minimized = FALSE;
             return TRUE;
         }
 
         if (nType == SIZE_MAXIMIZED)
         {
             //		Bool erase = !(Status & sysMAXIMIZED) || cx < BltRect.Size.cx || cy < BltRect.Size.cy ? TRUE : FALSE;
-            Vid::isStatus.maximized = TRUE;
+            isStatus.maximized = TRUE;
             SetRects();
             //		if (erase) OnErase();
             return TRUE;
         }
-        Vid::isStatus.maximized = FALSE;
+        isStatus.maximized = FALSE;
 
         if (cx < MINWINWIDTH)
         {
@@ -1858,6 +1884,7 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     // cycle through the available video modes
@@ -1868,12 +1895,12 @@ namespace Vid
 
         if (curMode != VIDMODEWINDOW)
         {
-            S32 mode = (S32)curMode + inc;
+            S32 mode = static_cast<S32>(curMode) + inc;
             while (mode < 0)
             {
                 mode += CurDD().numModes;
             }
-            while (mode >= (S32)CurDD().numModes)
+            while (mode >= static_cast<S32>(CurDD().numModes))
             {
                 mode -= CurDD().numModes;
             }
@@ -1887,6 +1914,7 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     // cycle through the available 3D drivers
@@ -1895,13 +1923,13 @@ namespace Vid
     {
         Bool retValue;
 
-        S32 driver = (S32)CurDD().curDriver + inc;
+        S32 driver = static_cast<S32>(CurDD().curDriver) + inc;
 
         while (driver < 0)
         {
             driver += CurDD().numDrivers;
         }
-        while (driver >= (S32)CurDD().numDrivers)
+        while (driver >= static_cast<S32>(CurDD().numDrivers))
         {
             driver -= CurDD().numDrivers;
         }
@@ -1911,6 +1939,7 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     U32 FreeVidMem(U32 report) // = FALSE
@@ -1946,7 +1975,7 @@ namespace Vid
         LOG_DXERR(("FreeVidMem: ddx->GetAvailableVidMem"));
 
         U32 bytes = 0;
-        if (CurDD().wincap && Vid::isStatus.inWindow)
+        if (CurDD().wincap && isStatus.inWindow)
         {
             // add windows vid memory back in
             VidMode& mode = CurDD().vidModes[VIDMODEWINDOW];
@@ -1996,6 +2025,7 @@ namespace Vid
 
         return freeTexMem;
     }
+
     //----------------------------------------------------------------------------
 
     // convert DDSURFACEDESC bit depth flags to an actual bit depth value
@@ -2033,6 +2063,7 @@ namespace Vid
 
         return 0L;
     }
+
     //----------------------------------------------------------------------------
 
     //
@@ -2045,11 +2076,12 @@ namespace Vid
 
         return prev;
     }
+
     //----------------------------------------------------------------------------
 
     LPDDGAMMARAMP SelectGammaRamp(S32 index, LPDDGAMMARAMP tmpRamp)
     {
-        F32	p = 0;
+        F32 p = 0;
 
         if (index < 0)
         {
@@ -2065,11 +2097,11 @@ namespace Vid
             S32 j;
             if (index != 0)
             {
-                j = (S32)(65535. * pow(i * (1. / 256.), p));
+                j = static_cast<S32>(65535. * pow(i * (1. / 256.), p));
             }
             else
             {
-                j = (S32)(i * (65535. / 256.));
+                j = static_cast<S32>(i * (65535. / 256.));
             }
 
             if (j < 0)
@@ -2088,18 +2120,19 @@ namespace Vid
 
         return tmpRamp;
     }
+
     //-----------------------------------------------------------------------------
 
     Bool SetGamma(S32 val)
     {
-        if (!device || !Vid::isStatus.fullScreen || !Vid::caps.gamma)
+        if (!device || !isStatus.fullScreen || !caps.gamma)
         {
             return FALSE;
         }
 
         //    LOG_DIAG(("SetGamma: %d", val));
 
-        LPDIRECTDRAWGAMMACONTROL	ddg;
+        LPDIRECTDRAWGAMMACONTROL ddg;
         dxError = front->QueryInterface(IID_IDirectDrawGammaControl, (LPVOID*)&ddg);
         if (dxError)
         {
@@ -2108,7 +2141,7 @@ namespace Vid
         }
 
         DDGAMMARAMP tmpRamp;
-        dxError = ddg->SetGammaRamp(Vid::caps.gammaCal ? DDSGR_CALIBRATE : 0, SelectGammaRamp(val, &tmpRamp));
+        dxError = ddg->SetGammaRamp(caps.gammaCal ? DDSGR_CALIBRATE : 0, SelectGammaRamp(val, &tmpRamp));
         if (dxError)
         {
             LOG_DXERR(("SetGamma: ddg->SetGammaRamp()"));
@@ -2117,6 +2150,7 @@ namespace Vid
 
         return dxError == 0;
     }
+
     //-----------------------------------------------------------------------------
 
     void CDECL LogPerf(const char* format, ...)
@@ -2133,6 +2167,7 @@ namespace Vid
 
         fclose(fp);
     }
+
     //-----------------------------------------------------------------------------
 
     void ReportMode(U32 report) // = 3
@@ -2143,7 +2178,7 @@ namespace Vid
             LOG_DIAG(("[VID CURRENT]"));
             LOG_DIAG(("%s", CurDD().device.str));
             LOG_DIAG(("%s : %s", CurMode().name.str, CurD3D().name.str));
-            if (Vid::isStatus.pageFlip)
+            if (isStatus.pageFlip)
             {
                 LOG_DIAG(("mode: using a flipable surface %s", Vid::isStatus.tripleBuf ? "triplet" : "pair"));
             }
@@ -2163,7 +2198,8 @@ namespace Vid
                 *Var::varTexReduce, *Var::varTex32, *Var::varMultiTex, *Var::varMirror, *Var::varMovie
                 ));
             LOG_DIAG(("perf:   %d triplebuf; %d  mipmap; %d  mipfilter; %d antialias; %d  weather; %d gamma",
-                *Var::varTripleBuf, *Var::varMipmap, *Var::varMipfilter, *Var::varAntiAlias, *Var::varWeather, *Var::varGamma
+                *Var::varTripleBuf, *Var::varMipmap, *Var::varMipfilter, *Var::varAntiAlias, *Var::varWeather, *Var::
+                varGamma
                 ));
             LOG_DIAG(("perf:   %.2f obj; %.2f ter; %.2f par; %.2f lig;",
                 *Var::perfs[0], *Var::perfs[1], *Var::perfs[2], *Var::perfs[3]
@@ -2177,7 +2213,7 @@ namespace Vid
             CON_DIAG((""));
             CON_DIAG(("%s", CurDD().device.str));
             CON_DIAG(("%s : %s", CurMode().name.str, CurD3D().name.str));
-            if (Vid::isStatus.pageFlip)
+            if (isStatus.pageFlip)
             {
                 CON_DIAG(("mode:   using a flipable surface %s", Vid::isStatus.tripleBuf ? "triplet" : "pair"));
             }
@@ -2202,6 +2238,7 @@ namespace Vid
             CON_DIAG((""));
         }
     }
+
     //-----------------------------------------------------------------------------
 
     U32 Report()
@@ -2230,6 +2267,6 @@ namespace Vid
 
         return mem;
     }
-    //-----------------------------------------------------------------------------
 
+    //-----------------------------------------------------------------------------
 };

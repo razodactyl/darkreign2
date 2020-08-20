@@ -30,7 +30,6 @@
 //
 namespace Main
 {
-
     //
     // CreateMainWindow
     //
@@ -60,7 +59,7 @@ namespace Main
             // Config is not required
             if (fScope)
             {
-                Main::ProcessCmdScope(fScope);
+                ProcessCmdScope(fScope);
             }
         }
         else
@@ -85,9 +84,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR cmdLine, int)
     Main::Init(hInst, cmdLine);
 
     // Register application specific run codes
-    Main::runCodes.Register("KeyCheck", GameRunCodes::KeyCheck::Process, GameRunCodes::KeyCheck::Init, GameRunCodes::KeyCheck::Done, NULL, GameRunCodes::KeyCheck::Notify);
+    Main::runCodes.Register("KeyCheck", GameRunCodes::KeyCheck::Process, GameRunCodes::KeyCheck::Init, GameRunCodes::KeyCheck::Done, nullptr, GameRunCodes::KeyCheck::Notify);
     Main::runCodes.Register("Intro", GameRunCodes::Intro::Process, GameRunCodes::Intro::Init, GameRunCodes::Intro::Done);
-    Main::runCodes.Register("Login", GameRunCodes::Login::Process, GameRunCodes::Login::Init, GameRunCodes::Login::Done, NULL, GameRunCodes::Login::Notify);
+    Main::runCodes.Register("Login", GameRunCodes::Login::Process, GameRunCodes::Login::Init, GameRunCodes::Login::Done, nullptr, GameRunCodes::Login::Notify);
     Main::runCodes.Register("Shell", GameRunCodes::Shell::Process, GameRunCodes::Shell::Init, GameRunCodes::Shell::Done);
     Main::runCodes.Register("Mission", GameRunCodes::Mission::Process, GameRunCodes::Mission::Init, GameRunCodes::Mission::Done);
     Main::runCodes.Register("Outro", GameRunCodes::Outro::Process, GameRunCodes::Outro::Init, GameRunCodes::Outro::Done);
@@ -97,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR cmdLine, int)
 #pragma message("MeshView disabled")
 #else
     Main::runCodes.Register("Studio", Studio::Process, Studio::Init, Studio::Done, Studio::PostInit);
-    //Main::runCodes.Register("MeshView", MeshView::Process, MeshView::Init, MeshView::Done);
+    // Main::runCodes.Register("MeshView", MeshView::Process, MeshView::Init, MeshView::Done);
 #endif
 
     // Run the game

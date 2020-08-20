@@ -112,10 +112,11 @@ void ICSoundConfig::Notify(IFaceVar* var)
 
             if (var == redbookVolume)
             {
+                Sound::Vorbis::SetVolume(redbookVolume->GetFloatValue());
                 Sound::Redbook::SetVolume(redbookVolume->GetFloatValue());
             }
             else
-
+            {
                 if (var == redbookEnabled)
                 {
                     // Are we turning audio on
@@ -123,23 +124,45 @@ void ICSoundConfig::Notify(IFaceVar* var)
                     {
                         // Set the enabled status
                         Sound::Redbook::SetEnabled(TRUE);
+                        Sound::Vorbis::SetEnabled(TRUE);
 
-                        // Ignore if already claimed
-                        if (!Sound::Redbook::Claimed())
+                        if (File::Exists("music"))
                         {
-                            // Attempt to claim
-                            if (Sound::Redbook::Claim())
+                            if (!Sound::Vorbis::Claimed())
                             {
-                                // Grab the volume from the driver
-                                redbookVolume->SetFloatValue(Sound::Redbook::Volume());
-
-                                // Start a random track
-                                Sound::Redbook::Play(Random::nonSync.Integer(Sound::Redbook::TrackCount()));
+                                // Attempt to claim
+                                if (Sound::Vorbis::Claim())
+                                {
+                                    F32 current_music_volume = redbookVolume->GetFloatValue();
+                                    Sound::Vorbis::SetVolume(current_music_volume);
+                                    Sound::Vorbis::Play(Random::nonSync.Integer(Sound::Vorbis::TrackCount()));
+                                }
+                                else
+                                {
+                                    // Automatically pop the button back up because we couldn't claim.
+                                    redbookEnabled->SetIntegerValue(FALSE);
+                                }
                             }
-                            else
+                        }
+                        else
+                        {
+                            // Ignore if already claimed
+                            if (!Sound::Redbook::Claimed())
                             {
-                                // Automatically pop the button up
-                                redbookEnabled->SetIntegerValue(FALSE);
+                                // Attempt to claim
+                                if (Sound::Redbook::Claim())
+                                {
+                                    // Grab the volume from the driver
+                                    redbookVolume->SetFloatValue(Sound::Redbook::Volume());
+
+                                    // Start a random track
+                                    Sound::Redbook::Play(Random::nonSync.Integer(Sound::Redbook::TrackCount()));
+                                }
+                                else
+                                {
+                                    // Automatically pop the button up
+                                    redbookEnabled->SetIntegerValue(FALSE);
+                                }
                             }
                         }
                     }
@@ -147,8 +170,12 @@ void ICSoundConfig::Notify(IFaceVar* var)
                     {
                         Sound::Redbook::SetEnabled(FALSE);
                         Sound::Redbook::Release();
+
+                        Sound::Vorbis::SetEnabled(FALSE);
+                        Sound::Vorbis::Release();
                     }
                 }
+            }
 }
 
 
@@ -163,56 +190,56 @@ U32 ICSoundConfig::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
-        case IFace::NOTIFY:
-        {
-            switch (e.iface.p1)
+            case IFace::NOTIFY:
             {
-            case 0x0F9DCBFF: // "SoundConfig::Message::Open"
-            {
-                if (providerIndex->GetIntegerValue() > 0)
+                switch (e.iface.p1)
                 {
-                    // Set the new provider preference
-                    Sound::Digital::SetProviderPreference(providerIndex->GetIntegerValue() - 1);
-
-                    // Change the digital 3D provider
-                    if (Sound::Digital::Change3DProvider())
+                    case 0x0F9DCBFF: // "SoundConfig::Message::Open"
                     {
-                        lastError->SetStringValue("Go big n spin!");
-                    }
-                    else
-                    {
-                        lastError->SetStringValue(Sound::LastError());
+                        if (providerIndex->GetIntegerValue() > 0)
+                        {
+                            // Set the new provider preference
+                            Sound::Digital::SetProviderPreference(providerIndex->GetIntegerValue() - 1);
+
+                            // Change the digital 3D provider
+                            if (Sound::Digital::Change3DProvider())
+                            {
+                                lastError->SetStringValue("Go big n spin!");
+                            }
+                            else
+                            {
+                                lastError->SetStringValue(Sound::LastError());
+                            }
+
+                            // Update control state
+                            UpdateState();
+                        }
+
+                        return (TRUE);
                     }
 
-                    // Update control state
-                    UpdateState();
+                    case 0x02D5D57F: // "SoundConfig::Message::Release"
+                    {
+                        // Release the digital 3D provider
+                        Sound::Digital::Change3DProvider(FALSE);
+
+                        // Clear last error
+                        lastError->SetStringValue("");
+
+                        // Update control state
+                        UpdateState();
+
+                        return (TRUE);
+                    }
+
+                    case IControlNotify::Activated:
+                    {
+                        // Update the current state
+                        UpdateState();
+                        break;
+                    }
                 }
-
-                return (TRUE);
             }
-
-            case 0x02D5D57F: // "SoundConfig::Message::Release"
-            {
-                // Release the digital 3D provider
-                Sound::Digital::Change3DProvider(FALSE);
-
-                // Clear last error
-                lastError->SetStringValue("");
-
-                // Update control state
-                UpdateState();
-
-                return (TRUE);
-            }
-
-            case IControlNotify::Activated:
-            {
-                // Update the current state
-                UpdateState();
-                break;
-            }
-            }
-        }
         }
     }
 

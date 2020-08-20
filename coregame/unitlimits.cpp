@@ -22,70 +22,68 @@
 //
 namespace UnitLimits
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // System Functions
-  //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // System Functions
+    //
 
-  // Is the system initialized
-  static Bool initialized = FALSE;
+    // Is the system initialized
+    static Bool initialized = FALSE;
 
-  // The name of the config file
-  static const char *CONFIG_FILE_NAME = "unitlimits.cfg";
+    // The name of the config file
+    static const char* CONFIG_FILE_NAME = "unitlimits.cfg";
 
-  // The per team command point limit
-  static U32 limit = 40;
+    // The per team command point limit
+    static U32 limit = 40;
 
 
-  //
-  // Init
-  //
-  // Initialize system
-  //
-  void Init()
-  {
-    ASSERT(!initialized)
-
-    PTree pTree;
-
-    // Process the configuration
-    if (pTree.AddFile(CONFIG_FILE_NAME))
+    //
+    // Init
+    //
+    // Initialize system
+    //
+    void Init()
     {
-      // Get the global scope
-      FScope *fScope = pTree.GetGlobalScope();
+        ASSERT(!initialized);
 
-      // Load limit
-      limit = StdLoad::TypeU32(fScope, "Limit");
+        PTree pTree;
+
+        // Process the configuration
+        if (pTree.AddFile(CONFIG_FILE_NAME))
+        {
+            // Get the global scope
+            FScope* fScope = pTree.GetGlobalScope();
+
+            // Load limit
+            limit = StdLoad::TypeU32(fScope, "Limit");
+        }
+
+        // System now initialized
+        initialized = TRUE;
     }
 
-    // System now initialized
-    initialized = TRUE;
-  }
+
+    //
+    // Done
+    //
+    // Shutdown system
+    //
+    void Done()
+    {
+        ASSERT(initialized);
+
+        // System now shutdown
+        initialized = FALSE;
+    }
 
 
-  //
-  // Done
-  //
-  // Shutdown system
-  //
-  void Done()
-  {
-    ASSERT(initialized)
-
-    // System now shutdown
-    initialized = FALSE;
-  }
-
-
-  //
-  // GetLimit
-  //
-  // Returns the per team command point limit
-  //
-  U32 GetLimit()
-  {
-    return (limit);
-  }
+    //
+    // GetLimit
+    //
+    // Returns the per team command point limit
+    //
+    U32 GetLimit()
+    {
+        return (limit);
+    }
 }
-
-

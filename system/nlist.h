@@ -19,7 +19,8 @@
 // A list that requires the target data to have a NList::Node member that
 // is used for list insertion.
 //
-template <class DATA> class NList
+template <class DATA>
+class NList
 {
 public:
 
@@ -37,7 +38,7 @@ public:
         DATA* data;
 
         // List linking
-        Node* prev, * next;
+        Node *prev, *next;
 
         // Clear data
         void ClearData()
@@ -59,7 +60,11 @@ public:
     public:
 
         // Constructor
-        Node() { ClearData(); ClearLinks(); }
+        Node()
+        {
+            ClearData();
+            ClearLinks();
+        }
 
         // Returns the next node
         Node* GetNext() { return (next); }
@@ -79,15 +84,12 @@ public:
                 // Must be on a list
                 return (TRUE);
             }
-            else
-            {
-                // Pointers must be maintained in code
-                ASSERT(!next);
-                ASSERT(!prev);
+            // Pointers must be maintained in code
+            ASSERT(!next);
+            ASSERT(!prev);
 
-                // We aren't on a list
-                return (FALSE);
-            }
+            // We aren't on a list
+            return (FALSE);
         }
     };
 
@@ -142,7 +144,7 @@ public:
         //
         // NULL constructor
         //
-        Iterator() : list(NULL), current(NULL), pos(0)
+        Iterator() : list(nullptr), current(nullptr), pos(0)
         {
         }
 
@@ -165,8 +167,8 @@ public:
         //
         Iterator(const Iterator& i)
             : list(i.list),
-            current(i.current),
-            pos(i.pos)
+              current(i.current),
+              pos(i.pos)
         {
         }
 
@@ -178,9 +180,9 @@ public:
         //
         void SetList(const NList<DATA>* _list)
         {
-            ASSERT(_list)
-                ASSERT(_list->haveMember)
-                list = _list;
+            ASSERT(_list);
+            ASSERT(_list->haveMember);
+            list = _list;
             GoToHead();
         }
 
@@ -238,8 +240,8 @@ public:
         //
         void GoToHead()
         {
-            ASSERT(list)
-                current = list->head;
+            ASSERT(list);
+            current = list->head;
             pos = 0;
         }
 
@@ -251,8 +253,8 @@ public:
         //
         void GoToTail()
         {
-            ASSERT(list)
-                current = list->tail;
+            ASSERT(list);
+            current = list->tail;
             pos = (list->count) ? list->count - 1 : 0;
         }
 
@@ -275,8 +277,8 @@ public:
         //
         Bool IsHead()
         {
-            ASSERT(list)
-                return ((current == list->head) ? TRUE : FALSE);
+            ASSERT(list);
+            return ((current == list->head) ? TRUE : FALSE);
         }
 
 
@@ -287,8 +289,8 @@ public:
         //
         Bool IsTail()
         {
-            ASSERT(list)
-                return ((current == list->tail) ? TRUE : FALSE);
+            ASSERT(list);
+            return ((current == list->tail) ? TRUE : FALSE);
         }
 
 
@@ -329,7 +331,7 @@ public:
                 return (obj->data);
             }
 
-            return (NULL);
+            return (nullptr);
         }
 
 
@@ -364,7 +366,7 @@ public:
                 return (obj->data);
             }
 
-            return (NULL);
+            return (nullptr);
         }
 
 
@@ -548,10 +550,10 @@ public:
         // Get the node
         Node* node = &(data->*nodeMember);
 
-        ASSERT(node->InUse())
+        ASSERT(node->InUse());
 
-            // Get the next node
-            Node* next = node->GetNext();
+        // Get the next node
+        Node* next = node->GetNext();
 
         return (next ? next->data : NULL);
     }
@@ -567,10 +569,10 @@ public:
         // Get the node
         Node* node = &(data->*nodeMember);
 
-        ASSERT(node->InUse())
+        ASSERT(node->InUse());
 
-            // Get the next node
-            Node* prev = node->GetPrev();
+        // Get the next node
+        Node* prev = node->GetPrev();
 
         return (prev ? prev->data : NULL);
     }
@@ -998,7 +1000,7 @@ public:
     //
     DATA* UnlinkHead()
     {
-        DATA* data = NULL;
+        DATA* data = nullptr;
 
         // Are there any items on the list
         if (head)
@@ -1018,7 +1020,7 @@ public:
     //
     DATA* UnlinkTail()
     {
-        DATA* data = NULL;
+        DATA* data = nullptr;
 
         // Are there any items on the list
         if (tail)

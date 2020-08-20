@@ -26,10 +26,10 @@
 // Internal Data
 //
 Bool Player::initialized = FALSE;
-Player *Player::currentPlayer;
+Player* Player::currentPlayer;
 NBinTree<Player> Player::playersByName(&Player::node);
 NBinTree<Player> Player::humanPlayersByName(&Player::nodeHuman);
-Player *Player::playersById[Game::MAX_PLAYERS];
+Player* Player::playersById[Game::MAX_PLAYERS];
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,29 +41,29 @@ Player *Player::playersById[Game::MAX_PLAYERS];
 //
 // Player::Player
 //
-Player::Player(GameIdent name, U32 type, const CH *display, Bool route) 
-: name(name), 
-  id(NewId()), 
-  team(NULL), 
-  type(type), 
-  route(route),
-  departed(FALSE)
+Player::Player(GameIdent name, U32 type, const CH* display, Bool route)
+    : id(NewId()),
+      name(name),
+      type(type),
+      team(nullptr),
+      route(route),
+      departed(FALSE)
 {
-  ASSERT(initialized)
+    ASSERT(initialized);
 
-  // Add the player to the id array
-  playersById[id] = this;
+    // Add the player to the id array
+    playersById[id] = this;
 
-  // Add the player to the tree
-  playersByName.Add(name.crc, this);
+    // Add the player to the tree
+    playersByName.Add(name.crc, this);
 
-  if (type != AI)
-  {
-    humanPlayersByName.Add(name.crc, this);
-  }
+    if (type != AI)
+    {
+        humanPlayersByName.Add(name.crc, this);
+    }
 
-  // Generate display name
-  displayName = Utils::Strdup(display ? display : Utils::Ansi2Unicode(name.str));
+    // Generate display name
+    displayName = Utils::Strdup(display ? display : Utils::Ansi2Unicode(name.str));
 }
 
 
@@ -72,24 +72,24 @@ Player::Player(GameIdent name, U32 type, const CH *display, Bool route)
 //
 Player::~Player()
 {
-  ASSERT(initialized)
+    ASSERT(initialized);
 
-  // Remove all objects from the selected list
-  selectedObjList.Clear();
+    // Remove all objects from the selected list
+    selectedObjList.Clear();
 
-  // Free the player id
-  playersById[id] = NULL;
+    // Free the player id
+    playersById[id] = nullptr;
 
-  // Remove from the player tree
-  playersByName.Unlink(this);
+    // Remove from the player tree
+    playersByName.Unlink(this);
 
-  if (type != AI)
-  {
-    humanPlayersByName.Unlink(this);
-  }
+    if (type != AI)
+    {
+        humanPlayersByName.Unlink(this);
+    }
 
-  // Delete display name
-  delete[] displayName;
+    // Delete display name
+    delete[] displayName;
 }
 
 
@@ -98,7 +98,6 @@ Player::~Player()
 //
 void Player::PostLoad()
 {
-
 }
 
 
@@ -109,7 +108,7 @@ void Player::PostLoad()
 //
 void Player::AddToSelectedList(UnitObj* obj)
 {
-  selectedObjList.Append(obj);
+    selectedObjList.Append(obj);
 }
 
 
@@ -120,8 +119,8 @@ void Player::AddToSelectedList(UnitObj* obj)
 //
 void Player::ClearSelectedList()
 {
-  ASSERT(initialized)
-  selectedObjList.Clear();
+    ASSERT(initialized);
+    selectedObjList.Clear();
 }
 
 
@@ -130,28 +129,28 @@ void Player::ClearSelectedList()
 //
 // Returns a reference to the selected objects list of this player
 //
-UnitObjList &Player::GetSelectedList()
+UnitObjList& Player::GetSelectedList()
 {
-  // Remove dead objects and objects not on our team
-  UnitObjListUtil::PurgeNonTeamOffMap(selectedObjList, team);
-  return (selectedObjList);
+    // Remove dead objects and objects not on our team
+    UnitObjListUtil::PurgeNonTeamOffMap(selectedObjList, team);
+    return (selectedObjList);
 }
 
 
 //
 // Player::SetTeam
 //
-void Player::SetTeam(Team *t)
+void Player::SetTeam(Team* t)
 {
-  ASSERT(initialized)
-  ASSERT(!team)
-  ASSERT(t)
-  team = t; 
+    ASSERT(initialized);
+    ASSERT(!team);
+    ASSERT(t);
+    team = t;
 
-  if (this == currentPlayer)
-  {
-    Team::SetDisplayTeam(team);
-  }
+    if (this == currentPlayer)
+    {
+        Team::SetDisplayTeam(team);
+    }
 }
 
 
@@ -160,34 +159,34 @@ void Player::SetTeam(Team *t)
 //
 // Clears the team with which this player is associated
 //
-void Player::ClearTeam() 
-{ 
-  ASSERT(initialized)
-  ASSERT(team)
+void Player::ClearTeam()
+{
+    ASSERT(initialized);
+    ASSERT(team);
 
-  team = NULL;
+    team = nullptr;
 
-  // If this is the current player and there's a display team
-  // (which is not neccesarily the case in the studio) then
-  // clear the display team
-  if (this == currentPlayer && Team::GetDisplayTeam())
-  {
-    Team::ClearDisplayTeam();
-  }
+    // If this is the current player and there's a display team
+    // (which is not neccesarily the case in the studio) then
+    // clear the display team
+    if (this == currentPlayer && Team::GetDisplayTeam())
+    {
+        Team::ClearDisplayTeam();
+    }
 }
 
 
 //
 // Notification
 //
-Bool Player::Notify(GameObj *from, U32 message, U32 param1, U32 param2)
+Bool Player::Notify(GameObj* from, U32 message, U32 param1, U32 param2)
 {
-  // If this is the current player then offer the message to the client for processing
-  if (this == currentPlayer)
-  {
-    return (Client::Notify(from, message, param1, param2));
-  }
-  return (TRUE);
+    // If this is the current player then offer the message to the client for processing
+    if (this == currentPlayer)
+    {
+        return (Client::Notify(from, message, param1, param2));
+    }
+    return (TRUE);
 }
 
 
@@ -196,9 +195,9 @@ Bool Player::Notify(GameObj *from, U32 message, U32 param1, U32 param2)
 //
 // Returns the last trail created, or NULL if none
 //
-TrailObj * Player::GetLastTrail()
+TrailObj* Player::GetLastTrail()
 {
-  return (lastTrail.GetPointer());
+    return (lastTrail.GetPointer());
 }
 
 
@@ -207,9 +206,9 @@ TrailObj * Player::GetLastTrail()
 //
 // Sets the last trail reaper
 //
-void Player::SetLastTrail(TrailObj *trail)
+void Player::SetLastTrail(TrailObj* trail)
 {
-  lastTrail = trail;
+    lastTrail = trail;
 }
 
 
@@ -220,16 +219,16 @@ void Player::SetLastTrail(TrailObj *trail)
 //
 void Player::Init()
 {
-  ASSERT(!initialized)
+    ASSERT(!initialized);
 
-  // Clear the current player
-  currentPlayer = NULL;
+    // Clear the current player
+    currentPlayer = nullptr;
 
-  // Ensure used Ids are clear
-  Utils::Memset(playersById, 0x00, sizeof (playersById));
+    // Ensure used Ids are clear
+    Utils::Memset(playersById, 0x00, sizeof (playersById));
 
-  // Define player commands
-  VarSys::RegisterHandler("player", CmdHandler);
+    // Define player commands
+    VarSys::RegisterHandler("player", CmdHandler);
 
 #ifdef DEVELOPMENT
 
@@ -239,8 +238,8 @@ void Player::Init()
 
 #endif
 
-  // Set the initialized flag
-  initialized = TRUE;
+    // Set the initialized flag
+    initialized = TRUE;
 }
 
 
@@ -251,23 +250,23 @@ void Player::Init()
 //
 void Player::Done()
 {
-  ASSERT(initialized)
+    ASSERT(initialized);
 
-  // Delete Players
-  for (int i = 0; i < Game::MAX_PLAYERS; i++)
-  {
-    if (playersById[i])
+    // Delete Players
+    for (int i = 0; i < Game::MAX_PLAYERS; i++)
     {
-      delete playersById[i];
-      playersById[i] = NULL;
+        if (playersById[i])
+        {
+            delete playersById[i];
+            playersById[i] = nullptr;
+        }
     }
-  }
 
-  // Delete player scope
-  VarSys::DeleteItem("player");
+    // Delete player scope
+    VarSys::DeleteItem("player");
 
-  // Clear the initialied flag
-  initialized = FALSE;
+    // Clear the initialied flag
+    initialized = FALSE;
 }
 
 
@@ -276,29 +275,29 @@ void Player::Done()
 //
 // Set the current player to go on auto pilot
 //
-void Player::SetAutoPilot(const char *pilot)
+void Player::SetAutoPilot(const char* pilot)
 {
-  pilot;
+    pilot;
 
-  ASSERT(currentPlayer)
+    ASSERT(currentPlayer);
 
-  // Save some of the player information
-  //Team *team = currentPlayer->GetTeam();
+    // Save some of the player information
+    //Team *team = currentPlayer->GetTeam();
 
-  // Delete old player 
-  delete currentPlayer;
-/*
-  // Create a Strategic AI
-  Strategic::Object *object = Strategic::Create(pilot, TRUE);
-
-  if (team)
-  {
-    object->SetTeam(team);
-  }
-
-  // AI is now this player
-  currentPlayer = object;
-  */
+    // Delete old player 
+    delete currentPlayer;
+    /*
+      // Create a Strategic AI
+      Strategic::Object *object = Strategic::Create(pilot, TRUE);
+    
+      if (team)
+      {
+        object->SetTeam(team);
+      }
+    
+      // AI is now this player
+      currentPlayer = object;
+      */
 }
 
 
@@ -309,16 +308,16 @@ void Player::SetAutoPilot(const char *pilot)
 //
 void Player::PostLoadAll()
 {
-  ASSERT(initialized)
+    ASSERT(initialized);
 
-  // Post load each of the players
-  for (int i = 0; i < Game::MAX_PLAYERS; i++)
-  {
-    if (playersById[i])
+    // Post load each of the players
+    for (int i = 0; i < Game::MAX_PLAYERS; i++)
     {
-      playersById[i]->PostLoad();
+        if (playersById[i])
+        {
+            playersById[i]->PostLoad();
+        }
     }
-  }
 }
 
 
@@ -327,15 +326,15 @@ void Player::PostLoadAll()
 //
 // Set the current client-side player
 //
-void Player::SetCurrentPlayer(Player *player)
+void Player::SetCurrentPlayer(Player* player)
 {
-  ASSERT(initialized)
-  currentPlayer = player;
+    ASSERT(initialized);
+    currentPlayer = player;
 
-  if (currentPlayer->GetTeam())
-  {
-    Team::SetDisplayTeam(currentPlayer->GetTeam());
-  }
+    if (currentPlayer->GetTeam())
+    {
+        Team::SetDisplayTeam(currentPlayer->GetTeam());
+    }
 }
 
 
@@ -344,39 +343,39 @@ void Player::SetCurrentPlayer(Player *player)
 //
 // Get the the commander of this unit (or NULL)
 //
-Player * Player::GetCommander(UnitObj *unit)
+Player* Player::GetCommander(UnitObj* unit)
 {
-  ASSERT(initialized)
-  ASSERT(unit)
-  
-  // Ignore request if no current player
-  if (currentPlayer)
-  {
-    // Check each players selected list
-    for (int i = 0; i < Game::MAX_PLAYERS; i++)
+    ASSERT(initialized);
+    ASSERT(unit);
+
+    // Ignore request if no current player
+    if (currentPlayer)
     {
-      // Is this an active player
-      if (Player *player = playersById[i])
-      {
-        // Does this player have the unit selected
-        if (player->GetSelectedList().Find(unit))
+        // Check each players selected list
+        for (int i = 0; i < Game::MAX_PLAYERS; i++)
         {
-          // If selected by the current player
-          return ((player == currentPlayer) ? NULL : player);
+            // Is this an active player
+            if (Player* player = playersById[i])
+            {
+                // Does this player have the unit selected
+                if (player->GetSelectedList().Find(unit))
+                {
+                    // If selected by the current player
+                    return ((player == currentPlayer) ? nullptr : player);
+                }
+            }
         }
-      }
+
+        // Is it on a team different to the current player
+        if (unit->GetTeam() && (unit->GetTeam() != currentPlayer->GetTeam()))
+        {
+            // Get the leader of this team
+            return (unit->GetTeam()->GetTeamLeader());
+        }
     }
 
-    // Is it on a team different to the current player
-    if (unit->GetTeam() && (unit->GetTeam() != currentPlayer->GetTeam()))
-    {
-      // Get the leader of this team
-      return (unit->GetTeam()->GetTeamLeader());
-    }
-  }
-
-  // No commander
-  return (NULL);
+    // No commander
+    return (nullptr);
 }
 
 
@@ -387,22 +386,24 @@ Player * Player::GetCommander(UnitObj *unit)
 //
 void Player::CmdHandler(U32 pathCrc)
 {
-  ASSERT(initialized)
+    ASSERT(initialized);
 
-  switch (pathCrc)
-  {
-    case 0x2717CAD3: // "player.list"
+    switch (pathCrc)
     {
-      NBinTree<Player>::Iterator i(&playersByName);
+        case 0x2717CAD3: // "player.list"
+        {
+            NBinTree<Player>::Iterator i(&playersByName);
 
-      CON_DIAG(("Current Players", (*i)->GetName()))
-      for (!i; *i; i++)
-      {
-        CON_DIAG((" %3d - %s [%s]", (*i)->GetId(), (*i)->GetName(), (*i)->GetTeam() ? (*i)->GetTeam()->GetName() : "----"))
-      }
-      break;
+            CON_DIAG(("Current Players", (*i)->GetName()))
+            for (!i; *i; ++i)
+            {
+                CON_DIAG(
+                    (" %3d - %s [%s]", (*i)->GetId(), (*i)->GetName(), (*i)->GetTeam() ? (*i)->GetTeam()->GetName() :
+                        "----"))
+            }
+            break;
+        }
     }
-  }
 }
 
 
@@ -413,15 +414,15 @@ void Player::CmdHandler(U32 pathCrc)
 //
 U32 Player::NewId()
 {
-  ASSERT(initialized)
+    ASSERT(initialized);
 
-  for (int i = 0; i < Game::MAX_PLAYERS; i++)
-  {
-    if (!playersById[i])
+    for (int i = 0; i < Game::MAX_PLAYERS; i++)
     {
-      return (i);
+        if (!playersById[i])
+        {
+            return (i);
+        }
     }
-  }
 
-  ERR_FATAL(("Ran out of player id's!"))
+    ERR_FATAL(("Ran out of player id's!"))
 }

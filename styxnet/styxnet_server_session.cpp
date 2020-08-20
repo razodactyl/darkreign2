@@ -26,7 +26,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Server::Session
@@ -49,13 +48,13 @@ namespace StyxNet
             Clamp<U32>(minimumSessionUsers, maxUsers, maximumSessionUsers)
         ),
         server(server),
-        host(host),
         password(password),
         sequenceNumber(1),
         users(&User::nodeSession),
         items(&Item::nodeSession),
+        host(host),
         oldPktsIndex(0),
-        migration(NULL)
+        migration(nullptr)
     {
         Utils::Memset(&oldPkts, 0x00, sizeof(oldPkts));
 
@@ -125,7 +124,7 @@ namespace StyxNet
         if (user.session)
         {
             user.session->RemoveUser(user);
-            user.session = NULL;
+            user.session = nullptr;
         }
 
         // Send info about the session to this user
@@ -182,7 +181,7 @@ namespace StyxNet
 
         users.Unlink(&user);
         --numUsers;
-        user.session = NULL;
+        user.session = nullptr;
 
         // If we're migrating, tell the migration
         if (migration)
@@ -210,7 +209,7 @@ namespace StyxNet
             }
             else
             {
-                host = NULL;
+                host = nullptr;
             }
         }
     }
@@ -243,7 +242,7 @@ namespace StyxNet
         // Pull out sync data from the incomming queue 
         // and build an update packet to send to all users
 
-        // LDIAG("Sending SessionData Seq:" << sequenceNumber << " Size:" << size)
+        // LDIAG("Sending SessionData Seq:" << sequenceNumber << " Size:" << size);
 
         Packet& pkt = Packet::Create(ServerMessage::SessionSyncData, maxSyncDataSize);
         U8* ptr = pkt.GetData();
@@ -261,7 +260,7 @@ namespace StyxNet
         NList<Item>::Iterator i(&items);
 
         Item* item;
-        while ((item = i++) != NULL && !ranOut)
+        while ((item = i++) != nullptr && !ranOut)
         {
             Packet& p = item->packet;
             Bool fromHost = (host && item->user == host->name.crc) ? TRUE : FALSE;
@@ -332,7 +331,8 @@ namespace StyxNet
                 }
 
                 // Attempt to store into our database
-                if (data.Store(sessionStoreData->key, sessionStoreData->index, length, sessionStoreData->data, fromHost))
+                if (data.Store(sessionStoreData->key, sessionStoreData->index, length, sessionStoreData->data,
+                    fromHost))
                 {
                     CAST(ServerMessage::Data::SessionSyncDataStoreData*, d, ptr);
 
@@ -349,7 +349,8 @@ namespace StyxNet
                 }
                 else
                 {
-                    LDIAG("Data " << sessionStoreData->key << ":" << sessionStoreData->index << " [" << length << "] could not be stored by " << item->user);
+                    LDIAG("Data " << sessionStoreData->key << ":" << sessionStoreData->index << " [" << length <<
+                        "] could not be stored by " << item->user);
                 }
                 break;
             }
@@ -452,31 +453,31 @@ namespace StyxNet
         else
         {
             // We're not standalone, migrate to another client
-            LDIAG("Initiating migration sequence for session '" << name.str << "'")
+            LDIAG("Initiating migration sequence for session '" << name.str << "'");
 
-                // If there's only one user in the session tell them that migration was a success
-                if (users.GetCount() <= 1)
+            // If there's only one user in the session tell them that migration was a success
+            if (users.GetCount() <= 1)
+            {
+                LDIAG("Only one user, no need to migrate");
+
+                User* user = users.GetFirst();
+                if (user)
                 {
-                    LDIAG("Only one user, no need to migrate");
-
-                    User* user = users.GetFirst();
-                    if (user)
-                    {
-                        // Tell the use that no migration was needed
-                        Packet::Create(ServerResponse::UserMigrateNotNeeded).Send(user->socket);
-                    }
+                    // Tell the use that no migration was needed
+                    Packet::Create(ServerResponse::UserMigrateNotNeeded).Send(user->socket);
                 }
-                else
+            }
+            else
+            {
+                LDIAG("Migration Commencing");
+
+                // Make the current host as an old host
+                if (host)
                 {
-                    LDIAG("Migration Commencing");
-
-                    // Make the current host as an old host
-                    if (host)
-                    {
-                        host->flags |= UserFlags::PreviousHost;
-                    }
-                    server.migrations.Append(migration = new Migration(*this));
+                    host->flags |= UserFlags::PreviousHost;
                 }
+                server.migrations.Append(migration = new Migration(*this));
+            }
         }
     }
 
@@ -560,5 +561,4 @@ namespace StyxNet
         // Adjust index
         oldPktsIndex = GetNextIndex(oldPktsIndex);
     }
-
 }

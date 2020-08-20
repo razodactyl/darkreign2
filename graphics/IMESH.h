@@ -36,19 +36,19 @@ typedef unsigned long IDWORD;
 // Attribute present flag masks:
 typedef union IMODE_FLAGS_TAG
 {
-	struct 
-	{
-		unsigned int faceAttrib			: 1;
-		unsigned int triStripAttrib		: 1;
-		unsigned int genericHeader		: 1;
-		unsigned int genericVertex      : 1;
-		unsigned int genericFace		: 1;
-		unsigned int genericTriStrip	: 1;
-		unsigned int intelReserved1		: 1;
-		unsigned int intelReserved2		: 1;
-		unsigned int perVertexNormals	: 1;
-	};
-	IDWORD allBits;	// ... extra bits for future additions
+    struct
+    {
+        unsigned int faceAttrib : 1;
+        unsigned int triStripAttrib : 1;
+        unsigned int genericHeader : 1;
+        unsigned int genericVertex : 1;
+        unsigned int genericFace : 1;
+        unsigned int genericTriStrip : 1;
+        unsigned int intelReserved1 : 1;
+        unsigned int intelReserved2 : 1;
+        unsigned int perVertexNormals : 1;
+    };
+    IDWORD allBits;	// ... extra bits for future additions
 
 } IMODE_FLAGS;
 
@@ -60,116 +60,116 @@ typedef union IMODE_FLAGS_TAG
 // pointed to by IGENERIC.pData.
 typedef struct IGENERIC_TAG
 {
-	unsigned long num;
-	unsigned long	size;
-	char *pData;
+    unsigned long num;
+    unsigned long	size;
+    char* pData;
 } IGENERIC;
 
 
-typedef struct IV2D_TAG 
+typedef struct IV2D_TAG
 {
-	float u;
-	float v;
+    float u;
+    float v;
 } IV2D;
 
-	
-typedef struct IV3D_TAG 
+
+typedef struct IV3D_TAG
 {
-	float x;
-	float y;
-	float z;
+    float x;
+    float y;
+    float z;
 } IV3D;
 
-typedef struct ICOLOR_TAG 
+typedef struct ICOLOR_TAG
 {
-	float r;
-	float g;
-	float b;
-	float a;
+    float r;
+    float g;
+    float b;
+    float a;
 } ICOLOR;
 
 typedef struct IMATERIAL_TAG
 {
-	char matName[IMESH_NAME_LENGTH];
-	ICOLOR ambient;
-	ICOLOR diffuse;
-	ICOLOR specular;
-	float shininess;
-	int	 textureFlag;
-	char texturePath[IMESH_PATH_LENGTH];
+    char matName[IMESH_NAME_LENGTH];
+    ICOLOR ambient;
+    ICOLOR diffuse;
+    ICOLOR specular;
+    float shininess;
+    int	 textureFlag;
+    char texturePath[IMESH_PATH_LENGTH];
 } IMATERIAL;
 
 
 typedef struct IFACE_ATTRIBUTE_TAG
 {
-	unsigned long			matID;			// index into material list
-	unsigned long			smoothID;		// Smoothing group.
-	unsigned long			ta, tb, tc;		// Texture Coordinate indices
-	unsigned long			na, nb, nc;		// Normal Indices.
-								// user data
+    unsigned long			matID;			// index into material list
+    unsigned long			smoothID;		// Smoothing group.
+    unsigned long			ta, tb, tc;		// Texture Coordinate indices
+    unsigned long			na, nb, nc;		// Normal Indices.
+                                // user data
 } IFACE_ATTRIBUTE;
 
 
 typedef struct ITRISTRIP_ATTRIBUTE_TAG
 {
-	unsigned long		matID;				// index into material list
-	unsigned long		*n,					// pointer to normal indices
-						*t;					// pointer to tex coord indices
+    unsigned long		matID;				// index into material list
+    unsigned long* n,					// pointer to normal indices
+        * t;					// pointer to tex coord indices
 } ITRISTRIP_ATTRIBUTE;
 
 
-typedef struct IFACE_TAG 
+typedef struct IFACE_TAG
 {
-	unsigned long				a, b, c;		// Indices to vertices
-} IFACE;	  
+    unsigned long				a, b, c;		// Indices to vertices
+} IFACE;
 
 
 typedef struct ITRISTRIP_TAG
 {
-	unsigned long		numVertices;			// Num vertices in this tristrip.
-	unsigned long		*v;						// Ptr to indices to vertices
+    unsigned long		numVertices;			// Num vertices in this tristrip.
+    unsigned long* v;						// Ptr to indices to vertices
 } ITRISTRIP;
 
 
-typedef struct IMESH_TAG 
+typedef struct IMESH_TAG
 {
-	char				meshName[IMESH_NAME_LENGTH];
-	unsigned long		numVertices;
-	unsigned long		numFaces;
-	unsigned long		numTriStrips;
-	unsigned long		numMaterials;
-	unsigned long		numTexCoords;
-	unsigned long		numNormals;
-	IMODE_FLAGS			mode;
+    char				meshName[IMESH_NAME_LENGTH];
+    unsigned long		numVertices;
+    unsigned long		numFaces;
+    unsigned long		numTriStrips;
+    unsigned long		numMaterials;
+    unsigned long		numTexCoords;
+    unsigned long		numNormals;
+    IMODE_FLAGS			mode;
 
-	// User defined header (optional)
-	IGENERIC			*pGenericHeader;
+    // User defined header (optional)
+    IGENERIC* pGenericHeader;
 
-	IV3D				*pVertex;
-	IFACE				*pFace;
-	ITRISTRIP			*pTriStrip;
-	IV2D				*pTexCoord;
-	IV3D				*pNormal;
+    IV3D* pVertex;
+    IFACE* pFace;
+    ITRISTRIP* pTriStrip;
+    IV2D* pTexCoord;
+    IV3D* pNormal;
 
-	IFACE_ATTRIBUTE		*pFaceAttrib;
-	ITRISTRIP_ATTRIBUTE *pTriStripAttrib;
-	
-	IMATERIAL			*pMaterial;
+    IFACE_ATTRIBUTE* pFaceAttrib;
+    ITRISTRIP_ATTRIBUTE* pTriStripAttrib;
 
-	// User defined per face and per vertex data (optional):
-	IGENERIC			*pGenericFace;
-	IGENERIC			*pGenericVertex;
-	IGENERIC			*pGenericTriStrip;
+    IMATERIAL* pMaterial;
+
+    // User defined per face and per vertex data (optional):
+    IGENERIC* pGenericFace;
+    IGENERIC* pGenericVertex;
+    IGENERIC* pGenericTriStrip;
 } IMESH;
 
 
 typedef struct IMESHGROUP_TAG
 {
-	unsigned long		numMeshes;
-	unsigned long		numMaterials;
+    unsigned long		numMeshes;
+    unsigned long		numMaterials;
 
-	IMESH		*pMesh;
-	IMATERIAL	*pMaterial;
+    IMESH* pMesh;
+    IMATERIAL* pMaterial;
 } IMESHGROUP;
 
 

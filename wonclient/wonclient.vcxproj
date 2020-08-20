@@ -180,6 +180,7 @@
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -249,6 +250,7 @@
     <ClInclude Include="Errors.h" />
     <ClInclude Include="Firewall.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="httplib.h" />
     <ClInclude Include="Identity.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="MINTCLIENT.h" />

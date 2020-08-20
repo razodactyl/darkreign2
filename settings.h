@@ -12,8 +12,8 @@
 
 #else
 
-  // Disable the mono
-  #define MONO_DISABLED
+// Disable the mono
+#define MONO_DISABLED
 
 #endif
 

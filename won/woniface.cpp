@@ -163,7 +163,8 @@ namespace WonIface
         Bool permanent;
 
         // Constructor
-        ChatServer(const CH* name, const MINTCLIENT::IPSocket::Address& address, U32 numPlayers, Bool password, Bool permanent)
+        ChatServer(const CH* name, const MINTCLIENT::IPSocket::Address& address, U32 numPlayers, Bool password,
+            Bool permanent)
             : name(name),
             address(address),
             numPlayers(numPlayers),
@@ -326,7 +327,8 @@ namespace WonIface
         RoomClient* AddNoDup(const MINTCLIENT::RoutingServerClient::Data::ClientData& client)
         {
             PlayerName name;
-            Utils::Strmcpy(name.str, (const CH*)client.clientName.str, Min<U32>(client.clientName.GetSize() / sizeof(CH) + 1, name.GetSize()));
+            Utils::Strmcpy(name.str, static_cast<const CH*>(client.clientName.str),
+                Min<U32>(client.clientName.GetSize() / sizeof(CH) + 1, name.GetSize()));
 
             RoomClient* rc = Find(client.clientId);
 
@@ -336,7 +338,9 @@ namespace WonIface
                 rc->moderator = client.isModerator;
                 rc->muted = client.isMuted;
 
-                LOG_WON(("Updated RoomClient [%s] mod:%d mute:%d", Utils::Unicode2Ansi(name.str), rc->moderator, rc->muted));
+                LOG_WON(
+                    ("Updated RoomClient [%s] mod:%d mute:%d", Utils::Unicode2Ansi(name.str), rc->moderator, rc->muted
+                        ));
             }
             else
             {
@@ -348,7 +352,8 @@ namespace WonIface
                 addr.s_addr = client.IPAddress;
                 LOG_WON(("Added RoomClient [%s] ip:%s mod:%d mute:%d", Utils::Unicode2Ansi(name.str), inet_ntoa(addr), rc->moderator, rc->muted));
 #else
-                LOG_WON(("Added RoomClient [%s] mod:%d mute:%d", Utils::Unicode2Ansi(name.str), rc->moderator, rc->muted));
+                LOG_WON(
+                    ("Added RoomClient [%s] mod:%d mute:%d", Utils::Unicode2Ansi(name.str), rc->moderator, rc->muted));
 #endif
 
                 return (rc);
@@ -490,7 +495,8 @@ namespace WonIface
     // Prototypes
     //
     static void Reset();
-    static void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* room, const CH* room_password, AbortableContext* context);
+    static void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* room, const CH* room_password,
+        AbortableContext* context);
     // static void PostEvent(U32 message, void* data = nullptr);
     static const char* DecodeMessage(U32 message);
 
@@ -511,8 +517,8 @@ namespace WonIface
     static void ConnectRoomCallback(const MINTCLIENT::RoutingServerClient::ConnectRoomResult& result);
     static void RegisterPlayerCallback(const MINTCLIENT::RoutingServerClient::RegisterClientResult& result);
     static void UserListCallback(const MINTCLIENT::RoutingServerClient::GetUserListResult& result);
-    static void HTTPGetCallback(WONAPI::Error result, HTTPdata*);
     static bool HTTPProgressCallback(unsigned long progress, unsigned long size, void* callbackPrivData);
+    static void HTTPGetCallback(MINTCLIENT::Error result, HTTPdata*);
 
     static void CreateGameCallback(const MINTCLIENT::RoutingServerClient::CreateGameResult& result);
     static void DeleteGameCallback(const MINTCLIENT::RoutingServerClient::DeleteGameResult& result);
@@ -692,8 +698,7 @@ namespace WonIface
             nullptr,
             &directoryServers.servers,
             ServerListCallback,
-            new AbortableContext
-        );
+            new AbortableContext);
 
         switch (error)
         {
@@ -771,7 +776,8 @@ namespace WonIface
     //
     void CreateAccount(const char* username, const char* password)
     {
-        LOG_WON(("Create Identity: Username %s Community %s AuthServers %d", username, community, authServers.Length()));
+        LOG_WON(
+            ("Create Identity: Username %s Community %s AuthServers %d", username, community, authServers.Length()));
 
         // Build an Identity
         // identity = WONAPI::Identity(username, community, password, "", authServers.servers, authServers.num);
@@ -787,8 +793,7 @@ namespace WonIface
         WONAPI::Error error = identity.Create(
             client,
             CreateAccountCallback,
-            new AbortableContext
-        );
+            new AbortableContext);
 
         // Ensure the operation started
         switch (error)
@@ -826,7 +831,7 @@ namespace WonIface
                 PostEvent(Message::CreatedAccount);
                 break;
 
-            case MINTCLIENT::Error::IdentityAlreadyExists:
+            case MINTCLIENT::Errors::IdentityAlreadyExists:
                 PostEvent(Error::CreateAccountBadUser);
                 break;
 
@@ -867,7 +872,9 @@ namespace WonIface
     //
     void LoginAccount(const CH* username, const CH* password)
     {
-        LOG_WON(("Login Identity: Username %s Community %s AuthServers %d", Utils::Unicode2Ansi(username), community, authServers.Length()));
+        LOG_WON(
+            ("Login Identity: Username %s Community %s AuthServers %d", Utils::Unicode2Ansi(username), community,
+                authServers.Length()));
 
         // Build an Identity
         identity.Set(username, password);
@@ -889,8 +896,7 @@ namespace WonIface
         WONAPI::Error error = identity.Authenticate(
             client,
             LoginAccountCallback,
-            new AbortableContext
-        );
+            new AbortableContext);
 
         // WONAPI::Error error = identity.AuthenticateEx
         // (
@@ -944,17 +950,17 @@ namespace WonIface
                 UpdateRooms(context);
 
                 // Context has been passed to update rooms
-                context = NULL;
+                context = nullptr;
             }
             break;
 
-            case MINTCLIENT::Error::IdentityUserNotFound:
+            case MINTCLIENT::Errors::IdentityUserNotFound:
             {
                 PostEvent(Error::LoginInvalidUsername);
             }
             break;
 
-            case MINTCLIENT::Error::IdentityInvalidPassword:
+            case MINTCLIENT::Errors::IdentityInvalidPassword:
             {
                 PostEvent(Error::LoginInvalidPassword);
             }
@@ -995,7 +1001,7 @@ namespace WonIface
             }
         }
 
-        //delete context;
+        // delete context;
 
         LOG_WON(("LoginAccountCallback out"));
     }
@@ -1030,9 +1036,9 @@ namespace WonIface
         case WONAPI::Error_Pending:
             break;
 
-        // case WONAPI::Error_BadNewPassword:
-        //     PostEvent(Error::ChangePasswordBadNewPassword);
-        //     break;
+            // case WONAPI::Error_BadNewPassword:
+            //     PostEvent(Error::ChangePasswordBadNewPassword);
+            //     break;
 
         default:
             ERR_FATAL(("ChangePassword: %d %s", error, WONAPI::WONErrorToString(error)));
@@ -1059,7 +1065,7 @@ namespace WonIface
         {
             switch (result.error)
             {
-            case MINTCLIENT::Error::Success:
+            case MINTCLIENT::Errors::Success:
                 PostEvent(Message::ChangedPassword);
                 break;
 
@@ -1367,7 +1373,8 @@ namespace WonIface
         // Transfer the list of rooms over
         for (RoomClientList::Iterator c(&roomClients); *c; ++c)
         {
-            players.Append(new Player((*c)->name.str, (*c)->id, (*c)->moderator, (*c)->muted, ignoredPlayers.Exists((*c)->name.crc)));
+            players.Append(new Player((*c)->name.str, (*c)->id, (*c)->moderator, (*c)->muted,
+                ignoredPlayers.Exists((*c)->name.crc)));
         }
 
         // Signal data mutex
@@ -1655,7 +1662,7 @@ namespace WonIface
         // Clear ignored players
         if (!ignoredPlayers.Exists(name.crc))
         {
-            ignoredPlayers.Add(name.crc, NULL);
+            ignoredPlayers.Add(name.crc, nullptr);
         }
 
         // Signal data mutex
@@ -1701,6 +1708,7 @@ namespace WonIface
     Bool CheckStoredKey()
     {
         return (TRUE);
+
         //         WONCDKey::ClientCDKey key(productName);
         //
         //         key.Load();
@@ -1766,8 +1774,8 @@ namespace WonIface
     //
     // Retrieve a HTTP file and store it locally in the download directory
     //
-    //U32 HTTPGet(U32 proxyIP, U16 proxyPort, const char *hostName, U16 hostPort, const char *path, const char *local, Bool allowResume)
-    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume)
+    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local,
+        Bool allowResume)
     {
         LOG_WON(("HTTPGet: %s %s %d %s %s %d", proxy, hostName, hostPort, path, local, allowResume));
 
@@ -1791,6 +1799,8 @@ namespace WonIface
         //     data                              // privsType privs
         // );
 
+        // https://gist.githubusercontent.com/razodactyl/f797184f78cd2c05dc4868363efbbbdf/raw/16ad3dcbcb68a96fa43066833e5493eb098ed1c6/motd.cfg
+
         LOG_WON(("httpDataCritSect.Wait"));
         httpDataCritSect.Wait();
         httpData.Append(data);
@@ -1799,46 +1809,114 @@ namespace WonIface
 
         LOG_WON(("HTTPGet: handle %d", data->handle));
 
-        return (data->handle);
+        U32 handle = data->handle;
+
+        MINTCLIENT::Directory::HTTPGet(
+            proxy,
+            hostName,
+            hostPort,
+            path,
+            local,
+            HTTPProgressCallback,
+            HTTPGetCallback,
+            data
+        );
+
+        return handle;
+        //return (data->handle);
+    }
+
+
+    // //
+    // // Retrieve a HTTP file and store it locally in the download directory
+    // //
+    // U32 HTTPGet(const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume)
+    // {
+    //     LOG_WON(("HTTPGet: %s %d %s %s %d", hostName, hostPort, path, local, allowResume));
+    //
+    //     HTTPdata* data = new HTTPdata(httpHandle++);
+    //
+    //     // WONAPI::HTTPGet
+    //     // (
+    //     //     hostName,                         // const std::string& hostName
+    //     //     hostPort,                         // unsigned short httpPort
+    //     //     path,                             // const std::string& getPath 
+    //     //     local,                            // const std::string& saveAsFile
+    //     //     &data->isNew,                     // bool* isNew
+    //     //     &data->time,                      // time_t* modTime
+    //     //     allowResume ? true : false,       // bool allowResume
+    //     //     HTTPProgressCallback,             // ProgressCallback callback
+    //     //     data,                             // void* callbackPrivData
+    //     //     requestTimeout,                   // long timeout
+    //     //     TRUE,                             // bool async
+    //     //     HTTPGetCallback,                  // void (*f)(Error, privsType), 
+    //     //     data                              // privsType privs
+    //     // );
+    //
+    //     LOG_WON(("httpDataCritSect.Wait"));
+    //     httpDataCritSect.Wait();
+    //     httpData.Append(data);
+    //     LOG_WON(("httpDataCritSect.Signal"));
+    //     httpDataCritSect.Signal();
+    //
+    //     LOG_WON(("HTTPGet: handle %d", data->handle));
+    //
+    //     return (data->handle);
+    // }
+
+
+    //
+    // HTTPProgressCallback
+    //
+    bool HTTPProgressCallback(unsigned long progress, unsigned long size, void* callbackPrivData)
+    {
+        HTTPdata* data = static_cast<HTTPdata*>(callbackPrivData);
+
+        LOG_WON(("httpDataCritSect.Wait"));
+        httpDataCritSect.Wait();
+        Bool abort = data->abort;
+        LOG_WON(("httpDataCritSect.Signal"));
+        httpDataCritSect.Signal();
+
+        // If this updates for every byte we'll probably need to throttle it back a tad
+        PostEvent(Message::HTTPProgressUpdate, new Message::Data::HTTPProgressUpdate(data->handle, progress, size));
+
+        if (abort)
+        {
+            LOG_WON(("HTTPProgressCallback: aborting download"));
+        }
+
+        return (abort ? FALSE : TRUE);
     }
 
 
     //
-    // Retrieve a HTTP file and store it locally in the download directory
+    // HTTPGetCallback
     //
-    //U32 DLL_DECL HTTPGet(const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume)
-    U32 HTTPGet(const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume)
+    void HTTPGetCallback(MINTCLIENT::Error result, HTTPdata* data)
     {
-        LOG_WON(("HTTPGet: %s %d %s %s %d", hostName, hostPort, path, local, allowResume));
+        LOG_WON(("HTTPGetCallback in"));
 
-        HTTPdata* data = new HTTPdata(httpHandle++);
+        switch (result)
+        {
+        case MINTCLIENT::Errors::Success:
+            // The file was downloaded successfully
+            PostEvent(Message::HTTPCompleted, new Message::Data::HTTPCompleted(data->handle, data->isNew));
+            break;
 
-        // WONAPI::HTTPGet
-        // (
-        //     hostName,                         // const std::string& hostName
-        //     hostPort,                         // unsigned short httpPort
-        //     path,                             // const std::string& getPath 
-        //     local,                            // const std::string& saveAsFile
-        //     &data->isNew,                     // bool* isNew
-        //     &data->time,                      // time_t* modTime
-        //     allowResume ? true : false,       // bool allowResume
-        //     HTTPProgressCallback,             // ProgressCallback callback
-        //     data,                             // void* callbackPrivData
-        //     requestTimeout,                   // long timeout
-        //     TRUE,                             // bool async
-        //     HTTPGetCallback,                  // void (*f)(Error, privsType), 
-        //     data                              // privsType privs
-        // );
+        default:
+            // LOG_ERR(("HTTPGetCallback CB: %d %s", result, WONAPI::WONErrorToString(result)));
+            PostEvent(Error::HTTPFailed, new Error::Data::HTTPFailed(data->handle));
+            break;
+        }
 
         LOG_WON(("httpDataCritSect.Wait"));
         httpDataCritSect.Wait();
-        httpData.Append(data);
+        httpData.Dispose(data);
         LOG_WON(("httpDataCritSect.Signal"));
         httpDataCritSect.Signal();
 
-        LOG_WON(("HTTPGet: handle %d", data->handle));
-
-        return (data->handle);
+        LOG_WON(("HTTPGetCallback out"));
     }
 
 
@@ -1941,7 +2019,7 @@ namespace WonIface
 
         // routingServer->InstallKeepAliveCatcherEx(KeepAliveCatcher, (void*)NULL);
 
-        routingServer->InstallASCIIPeerChatCatcher(ASCIIPeerChatCatcher, (void*)nullptr);
+        routingServer->InstallASCIIPeerChatCatcher(ASCIIPeerChatCatcher, static_cast<void*>(nullptr));
         // routingServer->InstallUnicodePeerChatCatcherEx(UnicodePeerChatCatcher, (void*)NULL);
         // routingServer->InstallReconnectFailureCatcherEx(ReconnectFailureCatcher, (void*)NULL);
 
@@ -1953,7 +2031,8 @@ namespace WonIface
     //
     // Connect to a room
     //
-    void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* room_name, const CH* room_password, AbortableContext* context)
+    void ConnectRoom(const MINTCLIENT::IPSocket::Address& address, const CH* room_name, const CH* room_password,
+        AbortableContext* context)
     {
         MINTCLIENT::RoutingServerClient* routingServer = CreateRoutingServer();
         ConnectRoomContext* connectRoomContext = new ConnectRoomContext(room_name, room_password, routingServer);
@@ -2156,15 +2235,15 @@ namespace WonIface
                 break;
             }
 
-            case MINTCLIENT::Error::RoutingServerClientAlreadyExists:
+            case MINTCLIENT::Errors::RoutingServerClientAlreadyExists:
                 PostEvent(Error::JoinRoomBadUsername); // "That username is already taken in that room"
                 break;
 
-            case MINTCLIENT::Error::RoutingServerInvalidPassword:
+            case MINTCLIENT::Errors::RoutingServerInvalidPassword:
                 PostEvent(Error::JoinRoomBadPassword); // "Incorrect password"
                 break;
 
-            case MINTCLIENT::Error::RoutingServerFull:
+            case MINTCLIENT::Errors::RoutingServerFull:
                 PostEvent(Error::JoinRoomFull);
                 break;
 
@@ -2383,7 +2462,8 @@ namespace WonIface
     {
         LOG_WON(("$$$ void UpdateRooms"));
 
-        if (!Utils::Strlen(identity.GetLoginName()))
+        //if (!Utils::Strlen(identity.GetLoginName()))
+        if (!identity.LoggedIn())
         {
             ERR_FATAL(("No Identity!"));
         }
@@ -2503,7 +2583,9 @@ namespace WonIface
                         char buf[128];
                         Utils::Unicode2Ansi(buf, 128, server->name.str);
 
-                        LOG_WON(("Routing Server: %s [%s] [%d] [%s]", buf, server->address.GetHost(), i.num_players, i.password ? "locked" : "unlocked"));
+                        LOG_WON(
+                            ("Routing Server: %s [%s] [%d] [%s]", buf, server->address.GetHost(), i.num_players, i.
+                                password ? "locked" : "unlocked"));
                         chatServers.Add(server->name.crc, server);
                     }
                     // else if (i.mName == serverFactory)
@@ -2561,12 +2643,13 @@ namespace WonIface
         ASSERT(context);
         LOG_WON(("Joining a Lobby"));
 
-        if (!Utils::Strlen(identity.GetLoginName()))
+        //if (!Utils::Strlen(identity.GetLoginName()))
+        if (!identity.LoggedIn())
         {
             ERR_FATAL(("No Identity!"));
         }
 
-        ChatServer* lobby = NULL;
+        ChatServer* lobby = nullptr;
 
         // Wait for data mutex
         LOG_WON(("JoinLobby critData.Wait"));
@@ -2611,7 +2694,7 @@ namespace WonIface
 
         if (lobby)
         {
-            ConnectRoom(lobby->address, lobby->name.str, (CH*)"", context);
+            ConnectRoom(lobby->address, lobby->name.str, (CH*)L"", context);
         }
         else
         {
@@ -2680,13 +2763,15 @@ namespace WonIface
             {
                 if (Utils::Strcmp(i.type.str, (CH*)serverAuth) == 0)
                 {
-                    authServers.servers[numAuth] = MINTCLIENT::IPSocket::Address(Utils::Unicode2Ansi(i.address.str));
+                    authServers.servers[numAuth] =
+                        MINTCLIENT::IPSocket::Address(Utils::Unicode2Ansi(i.address.str));
                     LOG_WON(("Authentication Server: %s", authServers.servers[numAuth].GetText()));
                     numAuth++;
                 }
                 else if (Utils::Strcmp(i.type.str, (CH*)serverFirewall) == 0)
                 {
-                    firewallServers.servers[numFirewall] = MINTCLIENT::IPSocket::Address(Utils::Unicode2Ansi(i.address.str));
+                    firewallServers.servers[numFirewall] = MINTCLIENT::IPSocket::Address(
+                        Utils::Unicode2Ansi(i.address.str));
                     LOG_WON(("Firewall Server: %s", firewallServers.servers[numFirewall].GetText()));
                     numFirewall++;
                 }
@@ -2742,67 +2827,6 @@ namespace WonIface
 
 
     //
-    // HTTPGetCallback
-    //
-    void HTTPGetCallback(WONAPI::Error result, HTTPdata* data)
-    {
-        // LOG_WON(("HTTPGetCallback in"));
-        //
-        // switch (result)
-        // {
-        // case WONMsg::StatusCommon_Success:
-        // {
-        //     // The file was downloaded successfully
-        //     PostEvent(Message::HTTPCompleted, new Message::Data::HTTPCompleted(data->handle, data->isNew));
-        //     break;
-        // }
-        //
-        // default:
-        // {
-        //     LOG_ERR(("HTTPGetCallback CB: %d %s", result, WONErrorToString(result)))
-        //         PostEvent(Error::HTTPFailed, new Error::Data::HTTPFailed(data->handle));
-        //     break;
-        // }
-        // }
-        //
-        // LOG_WON(("httpDataCritSect.Wait"));
-        // httpDataCritSect.Wait();
-        // httpData.Dispose(data);
-        // LOG_WON(("httpDataCritSect.Signal"));
-        // httpDataCritSect.Signal();
-        //
-        // LOG_WON(("HTTPGetCallback out"));
-    }
-
-
-    //
-    // HTTPProgressCallback
-    //
-    bool HTTPProgressCallback(unsigned long progress, unsigned long size, void* callbackPrivData)
-    {
-        return TRUE;
-
-        // HTTPdata* data = static_cast<HTTPdata*>(callbackPrivData);
-        //
-        // LOG_WON(("httpDataCritSect.Wait"));
-        // httpDataCritSect.Wait();
-        // Bool abort = data->abort;
-        // LOG_WON(("httpDataCritSect.Signal"));
-        // httpDataCritSect.Signal();
-        //
-        // // If this updates for every byte we'll probably need to throttle it back a tad
-        // PostEvent(Message::HTTPProgressUpdate, new Message::Data::HTTPProgressUpdate(data->handle, progress, size));
-        //
-        // if (abort)
-        // {
-        //     LOG_WON(("HTTPProgressCallback: aborting download"));
-        // }
-        //
-        // return (abort ? FALSE : TRUE);
-    }
-
-
-    //
     // CreateGameCallback
     //
     void CreateGameCallback(const MINTCLIENT::RoutingServerClient::CreateGameResult& result)
@@ -2812,16 +2836,18 @@ namespace WonIface
 
         switch (result.error)
         {
-        case MINTCLIENT::Error::Success:
+        case MINTCLIENT::Errors::Success:
             PostEvent(Message::CreatedGame);
             break;
 
-        // case MINTCLIENT::Error::RoutingServerAddressInUse:   // Routing Server deletes all games for the client before creating a new one so this is unnecessary.
-        //     PostEvent(Error::CreateGameFailure);
-        //     break;
+            // case MINTCLIENT::Error::RoutingServerAddressInUse:   // Routing Server deletes all games for the client before creating a new one so this is unnecessary.
+            //     PostEvent(Error::CreateGameFailure);
+            //     break;
 
         default:
-            LOG_WON(("!!!Unhandled Result!!! CreateGameCallback: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+            LOG_WON(
+                ("!!!Unhandled Result!!! CreateGameCallback: %d %s", result.error, WONAPI::WONErrorToString(result.
+                    error)));
             break;
         }
 
@@ -2844,7 +2870,9 @@ namespace WonIface
             break;
 
         default:
-            LOG_ERR(("!!!Unhandled Result!!! DeleteGameCallback CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+            LOG_ERR(
+                ("!!!Unhandled Result!!! DeleteGameCallback CB: %d %s", result.error, WONAPI::WONErrorToString(
+                    result.error)));
             break;
         }
 
@@ -2867,7 +2895,9 @@ namespace WonIface
             break;
 
         default:
-            LOG_ERR(("!!!Unhandled Result!!! UpdateGameCallback CB: %d %s", result.error, WONAPI::WONErrorToString(result.error)));
+            LOG_ERR(
+                ("!!!Unhandled Result!!! UpdateGameCallback CB: %d %s", result.error, WONAPI::WONErrorToString(
+                    result.error)));
             break;
         }
 
@@ -2900,8 +2930,7 @@ namespace WonIface
 
                 if (host)
                 {
-                    RoomGame* game = new RoomGame
-                    (
+                    RoomGame* game = new RoomGame(
                         name,
                         host->name,
                         i.game_data_size,
@@ -2917,7 +2946,8 @@ namespace WonIface
 
                     LOG_WON(("critData.Signal"));
                     critData.Signal();
-                    PostEvent(Message::Chat, new Message::Data::Chat(Message::Data::Chat::GameCreated, gameName.str, name.str));
+                    PostEvent(Message::Chat,
+                        new Message::Data::Chat(Message::Data::Chat::GameCreated, gameName.str, name.str));
                     PostEvent(Message::GamesChanged);
                     LOG_WON(("critData.Wait"));
                     critData.Wait();
@@ -2980,7 +3010,9 @@ namespace WonIface
             PostEvent(Message::PlayersChanged);
 
             // Print a message with this player's name.
-            PostEvent(Message::Chat, new Message::Data::Chat(Message::Data::Chat::PlayerEntered, (const CH*)nullptr, newClient->name.str));
+            PostEvent(Message::Chat,
+                new Message::Data::Chat(Message::Data::Chat::PlayerEntered, static_cast<const CH*>(nullptr),
+                    newClient->name.str));
         }
         else
         {
@@ -3009,7 +3041,9 @@ namespace WonIface
             PostEvent(Message::PlayersChanged);
 
             // Print a message with this player's name.
-            PostEvent(Message::Chat, new Message::Data::Chat(Message::Data::Chat::PlayerLeft, (const CH*)nullptr, name.str));
+            PostEvent(Message::Chat,
+                new Message::Data::Chat(Message::Data::Chat::PlayerLeft, static_cast<const CH*>(nullptr),
+                    name.str));
         }
         else
         {
@@ -3077,7 +3111,10 @@ namespace WonIface
     void GameCreatedCatcher(const MINTCLIENT::RoutingServerClient::CreateGameResult& result)
     {
         LOG_WON(("GameCreatedCatcher in"));
-        GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
+        GameName name =
+            Utils::Strdup(
+                Utils::Unicode2Ansi(
+                    result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
         LOG_WON(("Game Created : `%s` by [%d]", name.str, result.ownerId));
 
         LOG_WON(("critData.Wait"));
@@ -3102,8 +3139,7 @@ namespace WonIface
             session->address.SetIP(result.address.host);
             LOG_WON((">>> Switching IP from `%s` to `%s`", session->address.GetDisplayText(), result.address.host));
 
-            RoomGame* game = new RoomGame
-            (
+            RoomGame* game = new RoomGame(
                 name.str,
                 host->name,
                 game_data_size,
@@ -3138,8 +3174,15 @@ namespace WonIface
     void GameUpdatedCatcher(const MINTCLIENT::RoutingServerClient::UpdateGameResult& result)
     {
         LOG_WON(("GameUpdatedCatcher in"));
-        GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
-        LOG_WON(("Game Modified: %s", name.str));
+        GameName name =
+            Utils::Strdup(
+                Utils::Unicode2Ansi(
+                    result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
+        LOG_WON(("Game Updated: %s", name.str));
+
+        // Hack: Expects that `ReplaceGameResult` and `UpdateGameResult` have the same layout and can cast between.
+        GameReplacedCatcher((MINTCLIENT::RoutingServerClient::ReplaceGameResult&)result);
+
         LOG_WON(("GameUpdatedCatcher out"));
     }
 
@@ -3150,8 +3193,11 @@ namespace WonIface
     void GameReplacedCatcher(const MINTCLIENT::RoutingServerClient::ReplaceGameResult& result)
     {
         LOG_WON(("GameReplacedCatcher in"));
-        GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
-        LOG_WON(("Game Updated : %s by [%d]", name.str, result.ownerId));
+        GameName name =
+            Utils::Strdup(
+                Utils::Unicode2Ansi(
+                    result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
+        LOG_WON(("Game Replaced : %s by [%d]", name.str, result.ownerId));
 
         LOG_WON(("critData.Wait"));
         critData.Wait();
@@ -3191,7 +3237,10 @@ namespace WonIface
     void GameDeletedCatcher(const MINTCLIENT::RoutingServerClient::DeleteGameResult& result)
     {
         LOG_WON(("GameDeletedCatcher in"));
-        GameName name = Utils::Strdup(Utils::Unicode2Ansi(result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
+        GameName name =
+            Utils::Strdup(
+                Utils::Unicode2Ansi(
+                    result.name.str)); // reinterpret_cast<const char*>(reason.mDataType.data() + dataGamePrefix.size());
         LOG_WON(("Game Deleted : %s by [%d]", name.str, result.ownerId));
 
         LOG_WON(("critData.Wait"));
@@ -3207,7 +3256,9 @@ namespace WonIface
 
             LOG_WON(("critData.Signal"));
             critData.Signal();
-            PostEvent(Message::Chat, new Message::Data::Chat(Message::Data::Chat::GameDestroyed, gameName.str, (const CH*)nullptr));
+            PostEvent(Message::Chat,
+                new Message::Data::Chat(Message::Data::Chat::GameDestroyed, gameName.str,
+                    static_cast<const CH*>(nullptr)));
             PostEvent(Message::GamesChanged);
         }
         else

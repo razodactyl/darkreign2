@@ -20,6 +20,12 @@
 #include "utiltypes.h"
 
 
+namespace Sound {
+    namespace Vorbis {
+        class VorbisPath;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class TrackPlayer - Reusable MP3 Playing Class
@@ -28,152 +34,152 @@ class TrackPlayer
 {
 protected:
 
-  // A single path record
-  class Path
-  {
-  public:
-
-    // The tree node
-    NList<Path>::Node node;
-
-  protected:
-
-    // The actual path
-    PathIdent path;
-
-  public:
-
-    // Constructor
-    Path(const char *path) : path(path)
+    // A single path record
+    class Path
     {
-    }
+    public:
 
-    // Get the path
-    const PathIdent & GetPath() const
-    {
-      return (path);
-    }
-  };
+        // The tree node
+        NList<Path>::Node node;
+
+    protected:
+
+        // The actual path
+        PathIdent path;
+
+    public:
+
+        // Constructor
+        Path(const char* path) : path(path)
+        {
+        }
+
+        // Get the path
+        const PathIdent& GetPath() const
+        {
+            return (path);
+        }
+    };
 
 public:
 
-  // A single track record
-  class Track
-  {
-  public:
-
-    // The list node
-    NList<Track>::Node node;
-
-  protected:
-
-    // The path containing this track
-    const Path &path;
-
-    // The name of the mp3 file
-    PathString name;
-
-  public:
-
-    // Constructor
-    Track(const Path &path, const char *name) : path(path), name(name)
+    // A single track record
+    class Track
     {
-    }
+    public:
 
-    // Returns the path string
-    const char * GetPath() const
-    {
-      return (path.GetPath().str);
-    }
+        // The list node
+        NList<Track>::Node node;
 
-    // Returns the file name
-    const char * GetName() const
-    {
-      return (name.str);
-    }
+    protected:
 
-    // Get the next track
-    Track * GetNext()
-    {
-      return (node.GetNext() ? node.GetNext()->GetData() : NULL);
-    }
+        // The path containing this track
+        const Path& path;
 
-    // Get the previous track
-    Track * GetPrev()
-    {
-      return (node.GetPrev() ? node.GetPrev()->GetData() : NULL);
-    }
-  };
+        // The name of the mp3 file
+        PathString name;
 
-protected:
-  
-  // Stop the stream playing
-  void StopStream();
+    public:
 
-  // Find the given path
-  Path * FindPath(U32 crc);
+        // Constructor
+        Track(const Path& path, const char* name) : path(path), name(name)
+        {
+        }
+
+        // Returns the path string
+        const char* GetPath() const
+        {
+            return (path.GetPath().str);
+        }
+
+        // Returns the file name
+        const char* GetName() const
+        {
+            return (name.str);
+        }
+
+        // Get the next track
+        Track* GetNext()
+        {
+            return (node.GetNext() ? node.GetNext()->GetData() : NULL);
+        }
+
+        // Get the previous track
+        Track* GetPrev()
+        {
+            return (node.GetPrev() ? node.GetPrev()->GetData() : NULL);
+        }
+    };
 
 protected:
 
-  // Stream name unique to this player
-  GameString stream;
+    // Stop the stream playing
+    void StopStream();
 
-  // Ordered list of paths
-  NList<Path> paths;
+    // Find the given path
+    Path* FindPath(U32 crc);
 
-  // Ordered list of tracks
-  NList<Track> tracks;
+protected:
 
-  // Has a track currently been requested
-  Bool requested;
+    // Stream name unique to this player
+    GameString stream;
 
-  // Pointer to the active track
-  Track *active;
+    // Ordered list of paths
+    NList<Path> paths;
+
+    // Ordered list of tracks
+    NList<Track> tracks;
+
+    // Has a track currently been requested
+    Bool requested;
+
+    // Pointer to the active track
+    Track* active;
 
 public:
 
-  // Constructor and destructor
-  TrackPlayer();
-  ~TrackPlayer();
+    // Constructor and destructor
+    TrackPlayer();
+    ~TrackPlayer();
 
-  // Add tracks to the playlist (returns number of tracks added)
-  U32 Add(const char *path);
+    // Add tracks to the playlist (returns number of tracks added)
+    U32 Add(const char* path);
 
-  // Clear the current playlist
-  void Clear();
+    // Clear the current playlist
+    void Clear();
 
-  // Play the active track
-  Bool Play();
+    // Play the active track
+    Bool Play();
 
-  // Stop playing
-  void Stop();
+    // Stop playing
+    void Stop();
 
-  // Move to the next track
-  Bool NextTrack();
+    // Move to the next track
+    Bool NextTrack();
 
-  // Move to the previous track
-  Bool PrevTrack();
+    // Move to the previous track
+    Bool PrevTrack();
 
-  // Move to a random track
-  Bool RandomTrack();
+    // Move to a random track
+    Bool RandomTrack();
 
-  // Is the active track currently playing
-  Bool Playing();
+    // Is the active track currently playing
+    Bool Playing();
 
-  // Poll for track advancement
-  Bool Poll();
+    // Poll for track advancement
+    Bool Poll();
 
-  // Get the active track
-  const Track * GetActive()
-  {
-    return (active);
-  }
+    // Get the active track
+    const Track* GetActive()
+    {
+        return (active);
+    }
 
-  // Get the ordered list of tracks
-  const NList<Track> & GetTracks()
-  {
-    return (tracks);
-  }
+    // Get the ordered list of tracks
+    const NList<Track>& GetTracks()
+    {
+        return (tracks);
+    }
 };
 
 #endif

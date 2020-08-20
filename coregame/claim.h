@@ -121,7 +121,7 @@ namespace Claim
     class Row : public NList<Block>
     {
         // The sliding pointer
-        NList<Block>::Node* slider;
+        Node* slider;
 
         // Slides to the first block infront of the given grain
         void Slide(S32 x);
@@ -231,16 +231,16 @@ namespace Claim
         LayerId ChangeDefaultLayer(LayerId id);
 
         // Probe the given region using bit array
-        Bool Probe(S32 x0, S32 z0, S32 x1, S32 z1, ProbeInfo* probeInfo = NULL);
+        Bool Probe(S32 x0, S32 z0, S32 x1, S32 z1, ProbeInfo* probeInfo = nullptr);
 
         // Probe the given region using bit array, but ignoring our own region
-        Bool ProbeIgnore(S32 x0, S32 z0, S32 x1, S32 z1, U32 key, ProbeInfo* probeInfo = NULL);
+        Bool ProbeIgnore(S32 x0, S32 z0, S32 x1, S32 z1, U32 key, ProbeInfo* probeInfo = nullptr);
 
         // Claim using the default layer
         void Claim(S32 x0, S32 z0, S32 x1, S32 z1, U32 key = 0);
 
         // Release all blocks with the given key
-        void Release(U32 key = 0, Layer* l = NULL);
+        void Release(U32 key = 0, Layer* l = nullptr);
 
         // Finds the closest movable/claimable grain
         Bool FindClosestGrain(S32& xPos, S32& zPos, U32 grainSize, U8 tractionType, U32 range = 8);
@@ -254,15 +254,15 @@ namespace Claim
         // Return the layer that this manager is currently using
         LayerId GetLayer()
         {
-            ASSERT(layer)
-                return (layer->GetId());
+            ASSERT(layer);
+            return (layer->GetId());
         }
 
         // Return layer pointer
         Layer* GetLayerPtr()
         {
-            ASSERT(layer)
-                return (layer);
+            ASSERT(layer);
+            return (layer);
         }
 
 #ifdef DEVELOPMENT
@@ -284,13 +284,14 @@ namespace Claim
     void Done();
 
     // Probe a region
-    Bool Probe(S32 x0, S32 z0, S32 x1, S32 z1, LayerId layer = LAYER_LOWER, UnitObj* filter = NULL);
+    Bool Probe(S32 x0, S32 z0, S32 x1, S32 z1, LayerId layer = LAYER_LOWER, UnitObj* filter = nullptr);
 
     // Probe a game cell
-    Bool ProbeCell(S32 x, S32 z, LayerId layer = LAYER_LOWER, UnitObj* filter = NULL);
+    Bool ProbeCell(S32 x, S32 z, LayerId layer = LAYER_LOWER, UnitObj* filter = nullptr);
 
     // Find the first available grain in the given cell
-    Bool FindGrainInCell(S32 x, S32 z, S32& gx, S32& gz, U32 grains, LayerId layer = LAYER_LOWER, UnitObj* filter = NULL);
+    Bool FindGrainInCell(S32 x, S32 z, S32& gx, S32& gz, U32 grains, LayerId layer = LAYER_LOWER,
+                         UnitObj* filter = nullptr);
 
     // Return the owner of a given grain
     UnitObj* GetOwner(S32 x, S32 z, LayerId layer);

@@ -16,11 +16,11 @@
 //
 // Constructor
 //
-MBEvent::MBEvent(const char *ident, const CH *caption)
-: ident(ident)
+MBEvent::MBEvent(const char* ident, const CH* caption)
+    : ident(ident)
 {
-  // Duplicate the caption
-  this->caption = Utils::Strdup(caption);
+    // Duplicate the caption
+    this->caption = Utils::Strdup(caption);
 }
 
 
@@ -29,19 +29,19 @@ MBEvent::MBEvent(const char *ident, const CH *caption)
 //
 MBEvent::~MBEvent()
 {
-  // Delete the caption
-  delete[] caption;
-  caption = NULL;
+    // Delete the caption
+    delete[] caption;
+    caption = nullptr;
 }
 
 
 //
 // MBEventNotify::MBEventNotify
 //
-MBEventNotify::MBEventNotify(const char *ident, const CH *caption, IControl *control, U32 notifyId) 
-: MBEvent(ident, caption),
-  ctrl(control), 
-  notifyId(notifyId)
+MBEventNotify::MBEventNotify(const char* ident, const CH* caption, IControl* control, U32 notifyId)
+    : MBEvent(ident, caption),
+      ctrl(control),
+      notifyId(notifyId)
 {
 }
 
@@ -53,23 +53,23 @@ MBEventNotify::MBEventNotify(const char *ident, const CH *caption, IControl *con
 //
 void MBEventNotify::Process()
 {
-  if (ctrl.Alive())
-  {
-    // Control is still alive so send it the event
-    IFace::SendEvent(ctrl, NULL, IFace::NOTIFY, notifyId);
-  }
+    if (ctrl.Alive())
+    {
+        // Control is still alive so send it the event
+        SendEvent(ctrl, nullptr, IFace::NOTIFY, notifyId);
+    }
 }
 
 
 //
 // MBEventCallback::MBEventCallback
 //
-MBEventCallback::MBEventCallback(const char *ident, const CH *caption, Proc *proc, U32 context)
-: MBEvent(ident, caption),
-  proc(proc),
-  context(context)
+MBEventCallback::MBEventCallback(const char* ident, const CH* caption, Proc* proc, U32 context)
+    : MBEvent(ident, caption),
+      context(context),
+      proc(proc)
 {
-  ASSERT(proc)
+    ASSERT(proc);
 }
 
 
@@ -78,5 +78,5 @@ MBEventCallback::MBEventCallback(const char *ident, const CH *caption, Proc *pro
 //
 void MBEventCallback::Process()
 {
-  proc(ident.crc, context);
+    proc(ident.crc, context);
 }

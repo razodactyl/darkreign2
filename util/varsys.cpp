@@ -15,7 +15,6 @@
 #include "varsys.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class VarSys - Manages the game var system
@@ -25,15 +24,15 @@
 // Static data members
 //
 Bool VarSys::sysInit = FALSE;
-VarSys::VarScope* VarSys::gScope = NULL;
-NBinTree<VarSys::VarItem> VarSys::allItems(&VarSys::VarItem::allItemsNode);
+VarSys::VarScope* VarSys::gScope = nullptr;
+NBinTree<VarSys::VarItem> VarSys::allItems(&VarItem::allItemsNode);
 NBinTree<VarSys::Substitution, char> VarSys::substitutions(&Substitution::node);
 
 
 // Type string representations
-char* VarSys::itemTypeStrings[VI_MAXIMUM] = 
+char* VarSys::itemTypeStrings[VI_MAXIMUM] =
 {
-  "none", "string", "integer", "float", "binary", "command", "scope"
+    "none", "string", "integer", "float", "binary", "command", "scope"
 };
 
 
@@ -49,55 +48,52 @@ char* VarSys::itemTypeStrings[VI_MAXIMUM] =
 //
 // Returns FALSE when no delimiter is found
 //
-Bool VarSys::SplitDelimited(String &one, String &two, String source, Bool matchLeft)
+Bool VarSys::SplitDelimited(String& one, String& two, String source, Bool matchLeft)
 {
-  // Ensure not exceeding max string limit
-  if (source.GetLength() > VARSYS_MAXVARPATH)
-  {
-    ERR_FATAL(("Var path '%s' exceeds max length (%d)", *source, VARSYS_MAXVARPATH))
-  }
+    // Ensure not exceeding max string limit
+    if (source.GetLength() > VARSYS_MAXVARPATH)
+    {
+        ERR_FATAL(("Var path '%s' exceeds max length (%d)", *source, VARSYS_MAXVARPATH))
+    }
 
-  // Get a pointer to the start of 'one'
-  const char *oneStart = source;
+    // Get a pointer to the start of 'one'
+    const char* oneStart = source;
 
-  ASSERT(oneStart);
+    ASSERT(oneStart);
 
-  // Get a pointer to the delimiter
-  const char *twoStart = (matchLeft) ? 
-    String::MatchLeft(source, VARSYS_SCOPEDELIM) :
-      String::MatchRight(source, VARSYS_SCOPEDELIM);
+    // Get a pointer to the delimiter
+    const char* twoStart = (matchLeft)
+        ? String::MatchLeft(source, VARSYS_SCOPEDELIM)
+        : String::MatchRight(source, VARSYS_SCOPEDELIM);
 
-  // Copy both sections
-  if (twoStart)
-  {    
-    // Copy group
-    VarPathIdent pBuf;
-    Utils::Memcpy(pBuf.str, oneStart, twoStart - oneStart);
-    pBuf.str[twoStart - oneStart] = '\0';
-    one.Dup(pBuf.str);
+    // Copy both sections
+    if (twoStart)
+    {
+        // Copy group
+        VarPathIdent pBuf;
+        Utils::Memcpy(pBuf.str, oneStart, twoStart - oneStart);
+        pBuf.str[twoStart - oneStart] = '\0';
+        one.Dup(pBuf.str);
 
-    // Copy last portion
-    twoStart++;
-    two.Dup(twoStart);
+        // Copy last portion
+        twoStart++;
+        two.Dup(twoStart);
 
-    return (TRUE);
-  }
-  else
-  {
+        return (TRUE);
+    }
     // No delimiter
     if (matchLeft)
     {
-      one.Dup(oneStart);
-      two.Dup("");
+        one.Dup(oneStart);
+        two.Dup("");
     }
     else
     {
-      one.Dup("");   
-      two.Dup(oneStart);
+        one.Dup("");
+        two.Dup(oneStart);
     }
 
     return (FALSE);
-  }
 }
 
 
@@ -108,78 +104,78 @@ Bool VarSys::SplitDelimited(String &one, String &two, String source, Bool matchL
 // last item in the path must NOT exist. The resulting varItem is NOT 
 // setup but IS added to the specified scope.
 //
-VarSys::VarItem* VarSys::CreateVarItem(const char *path, void *context)
+VarSys::VarItem* VarSys::CreateVarItem(const char* path, void* context)
 {
-  ASSERT(sysInit);
-  
-  // Build the full var name
-  path = BuildVarName(path, context);
+    ASSERT(sysInit);
 
-  String ripped, scope1, scope2, process = path;
-  VarItem *item = NULL;
+    // Build the full var name
+    path = BuildVarName(path, context);
 
-  // Point current scope at global scope
-  VarScope *cScope = gScope;
+    String ripped, scope1, scope2, process = path;
+    VarItem* item = nullptr;
 
-  // Ensure destination scope exists
-  while (SplitDelimited(scope1, scope2, process, TRUE))
-  {
+    // Point current scope at global scope
+    VarScope* cScope = gScope;
+
+    // Ensure destination scope exists
+    while (SplitDelimited(scope1, scope2, process, TRUE))
+    {
+        ASSERT(scope1.GetLength() > 0);
+        ASSERT(scope2.GetLength() > 0);
+
+        // Add to total ripped string
+        ripped += scope1;
+
+        // Does this scope already exist
+        item = cScope->FindItem(scope1.Crc());
+
+        // Check item
+        if (item)
+        {
+            // Make sure it's a scope
+            if (item->type != VI_SCOPE)
+            {
+                ERR_FATAL(("Unable to create '%s' since '%s' is not a scope", path, *scope1))
+            }
+        }
+        else
+        {
+            // Create new item at current scope
+            item = cScope->CreateNewItem(scope1, ripped.Crc());
+
+            // Setup as a scope
+            item->InitScope();
+        }
+
+        ASSERT(item);
+        ASSERT(item->type == VI_SCOPE);
+
+        // Point at new scope level
+        cScope = item->ScopePtr();
+
+        // Process remaining
+        process = scope2;
+
+        // Add the dot
+        ripped += ".";
+    }
+
     ASSERT(scope1.GetLength() > 0);
-    ASSERT(scope2.GetLength() > 0);
 
-    // Add to total ripped string
-    ripped += scope1;
-
-    // Does this scope already exist
-    item = cScope->FindItem(scope1.Crc());
-
-    // Check item
-    if (item)
+    // Ensure does not exist at this level
+    if (cScope->FindItem(scope1.Crc()))
     {
-      // Make sure it's a scope
-      if (item->type != VI_SCOPE)
-      {
-        ERR_FATAL(("Unable to create '%s' since '%s' is not a scope", path, *scope1))
-      }
-    }
-    else
-    {
-      // Create new item at current scope
-      item = cScope->CreateNewItem(scope1, ripped.Crc());
-    
-      // Setup as a scope
-      item->InitScope();
+        ERR_FATAL(("Unable to create '%s' since item '%s' already exists", path, *scope1))
     }
 
-    ASSERT(item);
-    ASSERT(item->type == VI_SCOPE);
+    // Create new item at current scope
+    item = cScope->CreateNewItem(scope1, Crc::CalcStr(path));
 
-    // Point at new scope level
-    cScope = item->ScopePtr();
-
-    // Process remaining
-    process = scope2;
-
-    // Add the dot
-    ripped += ".";
-  }
-
-  ASSERT(scope1.GetLength() > 0); 
-
-  // Ensure does not exist at this level
-  if (cScope->FindItem(scope1.Crc()))
-  {
-    ERR_FATAL(("Unable to create '%s' since item '%s' already exists", path, *scope1))  
-  }
-
-  // Create new item at current scope
-  item = cScope->CreateNewItem(scope1, Crc::CalcStr(path));
-  
-  // And return it
-  return (item);
+    // And return it
+    return (item);
 }
 
-  
+
 //
 // VarSys::Init
 //
@@ -187,13 +183,13 @@ VarSys::VarItem* VarSys::CreateVarItem(const char *path, void *context)
 //
 void VarSys::Init()
 {
-  ASSERT(!sysInit);
+    ASSERT(!sysInit);
 
-  // Create global scope
-  gScope = new VarScope();
+    // Create global scope
+    gScope = new VarScope();
 
-  // Set init flag
-  sysInit = TRUE;
+    // Set init flag
+    sysInit = TRUE;
 };
 
 
@@ -204,24 +200,24 @@ void VarSys::Init()
 //
 void VarSys::Done()
 {
-  ASSERT(sysInit);
-  ASSERT(gScope);
+    ASSERT(sysInit);
+    ASSERT(gScope);
 
-  // Everything should be deleted before this
-  for (NBinTree<VarSys::VarItem>::Iterator i(&allItems); *i; i++)
-  {
-    // If at the global scope and not a command
-    if ((*i)->pScope == gScope && (*i)->type != VI_CMD)
+    // Everything should be deleted before this
+    for (NBinTree<VarItem>::Iterator i(&allItems); *i; ++i)
     {
-      LOG_DIAG(("VarItem '%s' (%s) not being deleted", (*i)->itemId.str, GetTypeString((*i)->type)));
+        // If at the global scope and not a command
+        if ((*i)->pScope == gScope && (*i)->type != VI_CMD)
+        {
+            LOG_DIAG(("VarItem '%s' (%s) not being deleted", (*i)->itemId.str, GetTypeString((*i)->type)));
+        }
     }
-  }
 
-  // Delete the global scope
-  delete gScope;
+    // Delete the global scope
+    delete gScope;
 
-  // Clear init flag
-  sysInit = FALSE;
+    // Clear init flag
+    sysInit = FALSE;
 };
 
 
@@ -230,9 +226,9 @@ void VarSys::Done()
 //
 // Register a substitution
 //
-void VarSys::RegisterSubstitution(Substitution &sub)
+void VarSys::RegisterSubstitution(Substitution& sub)
 {
-  substitutions.Add(sub.ch, &sub);
+    substitutions.Add(sub.ch, &sub);
 }
 
 
@@ -241,9 +237,9 @@ void VarSys::RegisterSubstitution(Substitution &sub)
 //
 // Unregister a substitution
 //
-void VarSys::UnregisterSubstitution(Substitution &sub)
+void VarSys::UnregisterSubstitution(Substitution& sub)
 {
-  substitutions.Unlink(&sub);
+    substitutions.Unlink(&sub);
 }
 
 
@@ -252,48 +248,42 @@ void VarSys::UnregisterSubstitution(Substitution &sub)
 //
 // Find a var using substitution, or NULL if not found
 //
-const char * VarSys::BuildVarName(const char *path, void *context)
+const char* VarSys::BuildVarName(const char* path, void* context)
 {
-  ASSERT(path)
+    ASSERT(path);
 
-  // Is the first character a registered substitution ?
-  Substitution *substitution;
+    // Is the first character a registered substitution ?
+    Substitution* substitution;
 
-  char ch = *path;
+    char ch = *path;
 
-  if ((substitution = substitutions.Find(ch)) != NULL)
-  {
-    path++;
-
-    // Make sure that the context is valid
-    if (ch != substitution->ch)
+    if ((substitution = substitutions.Find(ch)) != nullptr)
     {
-      context = NULL;
-    }
+        path++;
 
-    // Grab everything up to the first '.' and get the substitution to expand it
-    const char *dot = Utils::Strchr(path, '.');
-    static char buf[VARSYS_MAXVARPATH];
+        // Make sure that the context is valid
+        if (ch != substitution->ch)
+        {
+            context = nullptr;
+        }
 
-    if (dot)
-    {
-      U32 length = dot - path;
-      Utils::Strncpy(buf, path, Min<U32>(length, 256));
-      buf[length] = '\0';
-      Utils::Strcpy(buf, substitution->Expand(buf, context));
-      Utils::Strcat(buf, dot);
-      return (buf);
+        // Grab everything up to the first '.' and get the substitution to expand it
+        const char* dot = Utils::Strchr(path, '.');
+        static char buf[VARSYS_MAXVARPATH];
+
+        if (dot)
+        {
+            U32 length = dot - path;
+            Utils::Strncpy(buf, path, Min<U32>(length, 256));
+            buf[length] = '\0';
+            Utils::Strcpy(buf, substitution->Expand(buf, context));
+            Utils::Strcat(buf, dot);
+            return (buf);
+        }
+        Utils::Strncpy(buf, path, 256);
+        return (substitution->Expand(buf, context));
     }
-    else
-    {
-      Utils::Strncpy(buf, path, 256);
-      return (substitution->Expand(buf, context));
-    }
-  }
-  else
-  {
     return (path);
-  }
 }
 
 
@@ -302,23 +292,23 @@ const char * VarSys::BuildVarName(const char *path, void *context)
 //
 // Find a var using substitution, or NULL if not found
 //
-VarSys::VarItem * VarSys::FindVarItem(const char *path, void *context, Bool required)
+VarSys::VarItem* VarSys::FindVarItem(const char* path, void* context, Bool required)
 {
-  const char *name = BuildVarName(path, context);
+    const char* name = BuildVarName(path, context);
 
-  // Split path into path and item names
-  String s1, s2;
-  SplitDelimited(s1, s2, name, FALSE);
+    // Split path into path and item names
+    String s1, s2;
+    SplitDelimited(s1, s2, name, FALSE);
 
-  // Find using full path crc and item name
-  VarSys::VarItem *item = FindVarItemHelper(Crc::CalcStr(name), *s2);
+    // Find using full path crc and item name
+    VarItem* item = FindVarItemHelper(Crc::CalcStr(name), *s2);
 
-  if (required && !item)
-  {
-    ERR_FATAL(("Could not find var '%s'", name))
-  }
+    if (required && !item)
+    {
+        ERR_FATAL(("Could not find var '%s'", name))
+    }
 
-  return (item);
+    return (item);
 }
 
 
@@ -327,20 +317,20 @@ VarSys::VarItem * VarSys::FindVarItem(const char *path, void *context, Bool requ
 //
 // Find a var using a path and an identifier
 //
-VarSys::VarItem* VarSys::FindVarItem(const char *path, const char *ident, void *context)
+VarSys::VarItem* VarSys::FindVarItem(const char* path, const char* ident, void* context)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Build the expanded var name
-  path = BuildVarName(path, context);
+    // Build the expanded var name
+    path = BuildVarName(path, context);
 
-  // Build full path out of path and ident
-  StrCrc<VARSYS_MAXVARPATH> fullPath = path;
-  Utils::Strcat(fullPath.str, VARSYS_SCOPEDELIMSTR);
-  Utils::Strcat(fullPath.str, ident);
-  fullPath.Update();
+    // Build full path out of path and ident
+    StrCrc<VARSYS_MAXVARPATH> fullPath = path;
+    Utils::Strcat(fullPath.str, VARSYS_SCOPEDELIMSTR);
+    Utils::Strcat(fullPath.str, ident);
+    fullPath.Update();
 
-  return (FindVarItemHelper(fullPath.crc, ident));
+    return (FindVarItemHelper(fullPath.crc, ident));
 }
 
 
@@ -349,28 +339,27 @@ VarSys::VarItem* VarSys::FindVarItem(const char *path, const char *ident, void *
 //
 // Returns a pointer to the var item 'pathCrc', or NULL if not found
 //
-VarSys::VarItem* VarSys::FindVarItemHelper(U32 pathCrc, const char *itemName)
+VarSys::VarItem* VarSys::FindVarItemHelper(U32 pathCrc, const char* itemName)
 {
-  U32 key = pathCrc;
+    U32 key = pathCrc;
 
-  // CRC of item name
-  U32 itemCrc = Crc::CalcStr(itemName);
+    // CRC of item name
+    U32 itemCrc = Crc::CalcStr(itemName);
 
-  // Find first item with matching key
-  NBinTree<VarSys::VarItem>::Iterator i(&allItems);
+    // Find first item with matching key
+    NBinTree<VarItem>::Iterator i(&allItems);
 
-  if (i.Find(key))
-  {
-    do
+    if (i.Find(key))
     {
-      if ((*i)->itemId.crc == itemCrc)
-      {
-        return (*i);
-      }
-    } 
-    while (i.FindNext(key));
-  }
-  return (NULL);
+        do
+        {
+            if ((*i)->itemId.crc == itemCrc)
+            {
+                return (*i);
+            }
+        } while (i.FindNext(key));
+    }
+    return (nullptr);
 }
 
 
@@ -379,36 +368,36 @@ VarSys::VarItem* VarSys::FindVarItemHelper(U32 pathCrc, const char *itemName)
 //
 // Returns TRUE if the variable 'path' exists
 //
-Bool VarSys::FindVariable(const char *path)
+Bool VarSys::FindVariable(const char* path)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Get the item
-  VarItem *item = FindVarItem(path);
+    // Get the item
+    VarItem* item = FindVarItem(path);
 
-  // Did we find anything
-  if (item)
-  {
-    // Check that it's a variable
-    switch (item->type)
+    // Did we find anything
+    if (item)
     {
-      case VI_STRING:
-      case VI_INTEGER:
-      case VI_FPOINT:
-      case VI_BINARY:
-        return (TRUE);
+        // Check that it's a variable
+        switch (item->type)
+        {
+        case VI_STRING:
+        case VI_INTEGER:
+        case VI_FPOINT:
+        case VI_BINARY:
+            return (TRUE);
 
-      case VI_NONE :
-      case VI_SCOPE :
-        break;
+        case VI_NONE:
+        case VI_SCOPE:
+            break;
 
-      default:
-        ERR_FATAL(("Unknown var item type"))
-    }   
-  }
+        default:
+            ERR_FATAL(("Unknown var item type"))
+        }
+    }
 
-  // Didn't find or wrong type
-  return (FALSE);
+    // Didn't find or wrong type
+    return (FALSE);
 }
 
 
@@ -417,23 +406,20 @@ Bool VarSys::FindVariable(const char *path)
 //
 // Returns a pointer to the var scope 'path', or NULL if not found
 //
-VarSys::VarScope* VarSys::FindVarScope(const char *path)
+VarSys::VarScope* VarSys::FindVarScope(const char* path)
 {
-  // Split path into path and item names
-  String s1, s2;
-  SplitDelimited(s1, s2, path, FALSE);
+    // Split path into path and item names
+    String s1, s2;
+    SplitDelimited(s1, s2, path, FALSE);
 
-  // Find using full path crc and item name
-  VarItem *item = FindVarItemHelper(Crc::CalcStr(path), *s2);
+    // Find using full path crc and item name
+    VarItem* item = FindVarItemHelper(Crc::CalcStr(path), *s2);
 
-  if (item && (item->type == VI_SCOPE))
-  {
-    return (item->scope.ptr);
-  }
-  else
-  {
-    return (NULL);
-  }
+    if (item && (item->type == VI_SCOPE))
+    {
+        return (item->scope.ptr);
+    }
+    return (nullptr);
 }
 
 
@@ -442,23 +428,20 @@ VarSys::VarScope* VarSys::FindVarScope(const char *path)
 //
 // Copy a var (src MUST exist)
 //
-VarSys::VarItem* VarSys::CopyVarItem(const char *dst, const char *src)
+VarSys::VarItem* VarSys::CopyVarItem(const char* dst, const char* src)
 {
-  ASSERT(sysInit)
-  ASSERT(dst)
-  ASSERT(src)
+    ASSERT(sysInit);
+    ASSERT(dst);
+    ASSERT(src);
 
-  // Find the source item
-  VarItem *oldItem = FindVarItem(src);
+    // Find the source item
+    VarItem* oldItem = FindVarItem(src);
 
-  if (oldItem)
-  {
-    return (CopyVarItem(dst, oldItem));
-  }
-  else
-  {
+    if (oldItem)
+    {
+        return (CopyVarItem(dst, oldItem));
+    }
     ERR_FATAL(("Source of copy '%s' does not exist!"))
-  }
 }
 
 
@@ -467,57 +450,57 @@ VarSys::VarItem* VarSys::CopyVarItem(const char *dst, const char *src)
 //
 // Copies the var item in src to a new var item called dst
 //
-VarSys::VarItem* VarSys::CopyVarItem(const char *dst, VarItem *src)
+VarSys::VarItem* VarSys::CopyVarItem(const char* dst, VarItem* src)
 {
-  ASSERT(src);
-  ASSERT(dst);
+    ASSERT(src);
+    ASSERT(dst);
 
-  VarItem *newItem;
+    VarItem* newItem;
 
-  switch(src->type)
-  {
+    switch (src->type)
+    {
     case VI_STRING:
-      newItem = CreateString(dst, src->Str());
-      break;
+        newItem = CreateString(dst, src->Str());
+        break;
 
     case VI_INTEGER:
-      newItem = CreateInteger(dst, src->Integer());
-      break;
+        newItem = CreateInteger(dst, src->Integer());
+        break;
 
     case VI_FPOINT:
-      newItem = CreateFloat(dst, src->Float());
-      break;
+        newItem = CreateFloat(dst, src->Float());
+        break;
 
     case VI_BINARY:
-      newItem = CreateBinary(dst, src->BinarySize(), src->Binary());
-      break;
+        newItem = CreateBinary(dst, src->BinarySize(), src->Binary());
+        break;
 
     case VI_SCOPE:
     {
-      newItem = CreateVarItem(dst);
-      newItem->InitScope();
+        newItem = CreateVarItem(dst);
+        newItem->InitScope();
 
-      // For each item in the scope, copy them over to the new scope
-      BinTree<VarSys::VarItem>::Iterator i(&src->scope.ptr->items);
-      for (!i; *i; i++)
-      {
-        // Compose the new name
-        StrBuf<VARSYS_MAXVARPATH> newName;
-        newName = dst;
-        Utils::Strcat(newName.str, VARSYS_SCOPEDELIMSTR);
-        Utils::Strcat(newName.str, (*i)->itemId.str);
+        // For each item in the scope, copy them over to the new scope
+        BinTree<VarItem>::Iterator i(&src->scope.ptr->items);
+        for (!i; *i; ++i)
+        {
+            // Compose the new name
+            StrBuf<VARSYS_MAXVARPATH> newName;
+            newName = dst;
+            Utils::Strcat(newName.str, VARSYS_SCOPEDELIMSTR);
+            Utils::Strcat(newName.str, (*i)->itemId.str);
 
-        // Copy it over
-        CopyVarItem(newName.str, (*i));
-      }
-      break;
+            // Copy it over
+            CopyVarItem(newName.str, (*i));
+        }
+        break;
     }
 
     default:
-      ERR_FATAL(("Unable to copy var item type %d", src->type))
-  }
+        ERR_FATAL(("Unable to copy var item type %d", src->type))
+    }
 
-  return (newItem);
+    return (newItem);
 }
 
 
@@ -526,37 +509,37 @@ VarSys::VarItem* VarSys::CopyVarItem(const char *dst, VarItem *src)
 //
 // Registers a command handler for scope 'path', creating if not found
 //
-void VarSys::RegisterHandler(const char *path, VarSysCallBack *func, U32 flagsIn)
+void VarSys::RegisterHandler(const char* path, VarSysCallBack* func, U32 flagsIn)
 {
-  ASSERT(func);
+    ASSERT(func);
 
-  VarItem *item = FindVarItem(path);
+    VarItem* item = FindVarItem(path);
 
-  if (item)
-  {
-    // Make sure it's a scope
-    if (item->type != VI_SCOPE)
+    if (item)
     {
-      ERR_FATAL(("Attempt to register handler with an item that wasn't a scope"))
+        // Make sure it's a scope
+        if (item->type != VI_SCOPE)
+        {
+            ERR_FATAL(("Attempt to register handler with an item that wasn't a scope"))
+        }
     }
-  }
-  else
-  {
-    // Create new item
-    item = CreateVarItem(path);
+    else
+    {
+        // Create new item
+        item = CreateVarItem(path);
 
-    // Initialize as a scope
-    item->InitScope();
-  }
+        // Initialize as a scope
+        item->InitScope();
+    }
 
-  ASSERT(item);
-  ASSERT(item->type == VI_SCOPE);
+    ASSERT(item);
+    ASSERT(item->type == VI_SCOPE);
 
-  // Set the handler
-  item->scope.ptr->callBack = func;
+    // Set the handler
+    item->scope.ptr->callBack = func;
 
-  // Set the flags for for this scope ... yes they are duplicated
-  item->flags = item->scope.ptr->flags = flagsIn;
+    // Set the flags for for this scope ... yes they are duplicated
+    item->flags = item->scope.ptr->flags = flagsIn;
 }
 
 
@@ -565,12 +548,12 @@ void VarSys::RegisterHandler(const char *path, VarSysCallBack *func, U32 flagsIn
 //
 // Registers a command handler for the root scope
 //
-void VarSys::RegisterRootHandler(VarSysCallBack *func)
+void VarSys::RegisterRootHandler(VarSysCallBack* func)
 {
-  ASSERT(gScope);
+    ASSERT(gScope);
 
-  // Set the handler
-  gScope->callBack = func;
+    // Set the handler
+    gScope->callBack = func;
 }
 
 
@@ -579,35 +562,35 @@ void VarSys::RegisterRootHandler(VarSysCallBack *func)
 //
 // Create an empty Var
 //
-VarSys::VarItem* VarSys::CreateVar(const char *path, const char *ident, void *context)
+VarSys::VarItem* VarSys::CreateVar(const char* path, const char* ident, void* context)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Build the expanded var name
-  path = BuildVarName(path, context);
+    // Build the expanded var name
+    path = BuildVarName(path, context);
 
-  // Build full path out of path and ident
-  StrCrc<VARSYS_MAXVARPATH> fullPath = path;
-  Utils::Strcat(fullPath.str, VARSYS_SCOPEDELIMSTR);
-  Utils::Strcat(fullPath.str, ident);
-  fullPath.Update();
+    // Build full path out of path and ident
+    StrCrc<VARSYS_MAXVARPATH> fullPath = path;
+    Utils::Strcat(fullPath.str, VARSYS_SCOPEDELIMSTR);
+    Utils::Strcat(fullPath.str, ident);
+    fullPath.Update();
 
-  // Make sure that a var doesn't already occupy that spot
-  if (FindVarItemHelper(fullPath.crc, ident))
-  {
-    ERR_FATAL(("Var %s already exists", fullPath.str))
-  }
+    // Make sure that a var doesn't already occupy that spot
+    if (FindVarItemHelper(fullPath.crc, ident))
+    {
+        ERR_FATAL(("Var %s already exists", fullPath.str))
+    }
 
-  // Find the scope refered to by the parent
-  VarScope *parent = FindVarScope(path);
+    // Find the scope refered to by the parent
+    VarScope* parent = FindVarScope(path);
 
-  if (!parent)
-  {
-    ERR_FATAL(("Parent scope %s not found", path))
-  }
+    if (!parent)
+    {
+        ERR_FATAL(("Parent scope %s not found", path))
+    }
 
-  // Create the var and return it
-  return (parent->CreateNewItem(ident, fullPath.crc));
+    // Create the var and return it
+    return (parent->CreateNewItem(ident, fullPath.crc));
 }
 
 
@@ -616,33 +599,33 @@ VarSys::VarItem* VarSys::CreateVar(const char *path, const char *ident, void *co
 //
 // Create a SCOPE using the given path (ignored if already exists)
 //
-VarSys::VarItem* VarSys::CreateScope(const char *path, U32 flagsIn)
+VarSys::VarItem* VarSys::CreateScope(const char* path, U32 flagsIn)
 {
-  VarItem *var = FindVarItem(path);
+    VarItem* var = FindVarItem(path);
 
-  if (var)
-  {
-    // Make sure it's a scope
-    if (var->type != VI_SCOPE)
+    if (var)
     {
-      ERR_FATAL(("Attempt to create a scope, but a different item type already exists [%s]", path))
+        // Make sure it's a scope
+        if (var->type != VI_SCOPE)
+        {
+            ERR_FATAL(("Attempt to create a scope, but a different item type already exists [%s]", path))
+        }
     }
-  }
-  else
-  {
-    // Create new item
-    var = CreateVarItem(path);
+    else
+    {
+        // Create new item
+        var = CreateVarItem(path);
 
-    // Initialize as a scope
-    var->InitScope();
+        // Initialize as a scope
+        var->InitScope();
 
-    // Set the flags
-    var->flags = flagsIn | var->pScope->flags;
-  }
+        // Set the flags
+        var->flags = flagsIn | var->pScope->flags;
+    }
 
-  ASSERT(var)
+    ASSERT(var);
 
-  return (var);
+    return (var);
 }
 
 
@@ -651,26 +634,27 @@ VarSys::VarItem* VarSys::CreateScope(const char *path, U32 flagsIn)
 //
 // Create a STRING variable
 //
-VarSys::VarItem* VarSys::CreateString(const char *path, const char *value, U32 flagsIn, VarString *varPtr, void *context)
+VarSys::VarItem* VarSys::CreateString(const char* path, const char* value, U32 flagsIn, VarString* varPtr,
+    void* context)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Create new item
-  VarItem *var = CreateVarItem(path, context);
+    // Create new item
+    VarItem* var = CreateVarItem(path, context);
 
-  // Initialize as a string
-  var->InitString(value);
+    // Initialize as a string
+    var->InitString(value);
 
-  // Set property flags inheriting flags from parent scope
-  var->flags = flagsIn | var->pScope->flags;
+    // Set property flags inheriting flags from parent scope
+    var->flags = flagsIn | var->pScope->flags;
 
-  // Point var at item
-  if (varPtr)
-  {
-    varPtr->PointAt(path);
-  }
+    // Point var at item
+    if (varPtr)
+    {
+        varPtr->PointAt(path);
+    }
 
-  return (var);
+    return (var);
 }
 
 
@@ -679,26 +663,26 @@ VarSys::VarItem* VarSys::CreateString(const char *path, const char *value, U32 f
 //
 // Create an S32 variable
 //
-VarSys::VarItem* VarSys::CreateInteger(const char *path, S32 value, U32 flagsIn, VarInteger *varPtr, void *context)
+VarSys::VarItem* VarSys::CreateInteger(const char* path, S32 value, U32 flagsIn, VarInteger* varPtr, void* context)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Create new item
-  VarItem *var = CreateVarItem(path, context);
+    // Create new item
+    VarItem* var = CreateVarItem(path, context);
 
-  // Initialize as an integer
-  var->InitInteger(value);
+    // Initialize as an integer
+    var->InitInteger(value);
 
-  // Set property flags inheriting flags from parent scope
-  var->flags = flagsIn | var->pScope->flags;
+    // Set property flags inheriting flags from parent scope
+    var->flags = flagsIn | var->pScope->flags;
 
-  // Point var at item
-  if (varPtr)
-  {
-    varPtr->PointAt(path);
-  }
+    // Point var at item
+    if (varPtr)
+    {
+        varPtr->PointAt(path);
+    }
 
-  return (var);
+    return (var);
 }
 
 
@@ -707,26 +691,26 @@ VarSys::VarItem* VarSys::CreateInteger(const char *path, S32 value, U32 flagsIn,
 //
 // Create a FPOINT variable
 //
-VarSys::VarItem* VarSys::CreateFloat(const char *path, F32 value, U32 flagsIn, VarFloat *varPtr, void *context)
+VarSys::VarItem* VarSys::CreateFloat(const char* path, F32 value, U32 flagsIn, VarFloat* varPtr, void* context)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Create new item
-  VarItem *var = CreateVarItem(path, context);
+    // Create new item
+    VarItem* var = CreateVarItem(path, context);
 
-  // Initialize as a fpoint
-  var->InitFPoint(value);
+    // Initialize as a fpoint
+    var->InitFPoint(value);
 
-  // Set property flags inheriting flags from parent scope
-  var->flags = flagsIn | var->pScope->flags;
+    // Set property flags inheriting flags from parent scope
+    var->flags = flagsIn | var->pScope->flags;
 
-  // Point var at item
-  if (varPtr)
-  {
-    varPtr->PointAt(path);
-  }
+    // Point var at item
+    if (varPtr)
+    {
+        varPtr->PointAt(path);
+    }
 
-  return (var);
+    return (var);
 }
 
 
@@ -735,26 +719,27 @@ VarSys::VarItem* VarSys::CreateFloat(const char *path, F32 value, U32 flagsIn, V
 //
 // Create a BINARY variable
 //
-VarSys::VarItem* VarSys::CreateBinary(const char *path, U32 size, const U8 *value, U32 flagsIn, VarBinary *varPtr, void *context)
+VarSys::VarItem* VarSys::CreateBinary(const char* path, U32 size, const U8* value, U32 flagsIn, VarBinary* varPtr,
+    void* context)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Create new item
-  VarItem *var = CreateVarItem(path, context);
+    // Create new item
+    VarItem* var = CreateVarItem(path, context);
 
-  // Initialize as a binary
-  var->InitBinary(size, value);
+    // Initialize as a binary
+    var->InitBinary(size, value);
 
-  // Set property flags inheriting flags from parent scope
-  var->flags = flagsIn | var->pScope->flags;
+    // Set property flags inheriting flags from parent scope
+    var->flags = flagsIn | var->pScope->flags;
 
-  // Point var at item
-  if (varPtr)
-  {
-    varPtr->PointAt(path);
-  }
+    // Point var at item
+    if (varPtr)
+    {
+        varPtr->PointAt(path);
+    }
 
-  return (var);
+    return (var);
 }
 
 
@@ -763,18 +748,18 @@ VarSys::VarItem* VarSys::CreateBinary(const char *path, U32 size, const U8 *valu
 //
 // Create a CMD item
 //
-void VarSys::CreateCmd(const char *path, U32 flagsIn, void *context)
-{ 
-  ASSERT(sysInit);
+void VarSys::CreateCmd(const char* path, U32 flagsIn, void* context)
+{
+    ASSERT(sysInit);
 
-  // Create new item
-  VarItem *var = CreateVarItem(path, context);
+    // Create new item
+    VarItem* var = CreateVarItem(path, context);
 
-  // Initialize as a cmd
-  var->InitCmd();
+    // Initialize as a cmd
+    var->InitCmd();
 
-  // Inherit flags from parent scope, always setting notify for cmd's
-  var->flags = flagsIn | var->pScope->flags | NOTIFY;
+    // Inherit flags from parent scope, always setting notify for cmd's
+    var->flags = flagsIn | var->pScope->flags | NOTIFY;
 }
 
 
@@ -783,12 +768,12 @@ void VarSys::CreateCmd(const char *path, U32 flagsIn, void *context)
 //
 // Delete an item
 //
-void VarSys::DeleteItem(VarItem *item)
+void VarSys::DeleteItem(VarItem* item)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Tell it's parent to delete it
-  item->pScope->DeleteItem(item);
+    // Tell it's parent to delete it
+    item->pScope->DeleteItem(item);
 }
 
 
@@ -797,20 +782,20 @@ void VarSys::DeleteItem(VarItem *item)
 //
 // Delete an item, returning FALSE if item was not found
 //
-Bool VarSys::DeleteItem(const char *path, void *context)
+Bool VarSys::DeleteItem(const char* path, void* context)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  VarItem *item = FindVarItem(path, context);
+    VarItem* item = FindVarItem(path, context);
 
-  // Did we find it
-  if (item)
-  {
-    DeleteItem(item);
-    return (TRUE);
-  }
+    // Did we find it
+    if (item)
+    {
+        DeleteItem(item);
+        return (TRUE);
+    }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -819,19 +804,19 @@ Bool VarSys::DeleteItem(const char *path, void *context)
 //
 // Set the range of an integer
 //
-Bool VarSys::SetIntegerRange(const char *path, S32 low, S32 high)
+Bool VarSys::SetIntegerRange(const char* path, S32 low, S32 high)
 {
-  // Locate the item
-  VarItem *item = FindVarItem(path);
+    // Locate the item
+    VarItem* item = FindVarItem(path);
 
-  // Did we find it
-  if (item)
-  {
-    item->SetIntegerRange(low, high);
-    return TRUE;
-  }
+    // Did we find it
+    if (item)
+    {
+        item->SetIntegerRange(low, high);
+        return TRUE;
+    }
 
-  return FALSE;
+    return FALSE;
 }
 
 
@@ -840,18 +825,18 @@ Bool VarSys::SetIntegerRange(const char *path, S32 low, S32 high)
 //
 // Set the range of a float
 //
-Bool VarSys::SetFloatRange(const char *path, F32 low, F32 high)
+Bool VarSys::SetFloatRange(const char* path, F32 low, F32 high)
 {
-  // Locate the item
-  VarItem *item = FindVarItem(path);
+    // Locate the item
+    VarItem* item = FindVarItem(path);
 
-  // Did we find it
-  if (item)
-  {
-    item->SetFloatRange(low, high);
-    return TRUE;
-  }
-  return FALSE;
+    // Did we find it
+    if (item)
+    {
+        item->SetFloatRange(low, high);
+        return TRUE;
+    }
+    return FALSE;
 }
 
 
@@ -861,28 +846,25 @@ Bool VarSys::SetFloatRange(const char *path, F32 low, F32 high)
 // Trigger the command item pointed to by 'path'.  Returns FALSE
 // if the command was not found.
 //
-Bool VarSys::TriggerCmd(const char *path)
+Bool VarSys::TriggerCmd(const char* path)
 {
-  // Locate the item
-  VarItem *item = FindVarItem(path);
+    // Locate the item
+    VarItem* item = FindVarItem(path);
 
-  if (item)
-  {
-    // Make sure it's a command
-    if (item->type == VI_CMD)
+    if (item)
     {
-      // Trigger the callback
-      item->TriggerCmd();
-      return (TRUE);
+        // Make sure it's a command
+        if (item->type == VI_CMD)
+        {
+            // Trigger the callback
+            item->TriggerCmd();
+            return (TRUE);
+        }
+        LOG_ERR(("Attempt to trigger an item that wasn't a command! (%s - %d)", item->itemId.str, item->type))
     }
-    else
-    {
-      LOG_ERR(("Attempt to trigger an item that wasn't a command! (%s - %d)", item->itemId.str, item->type))
-    }
-  }
 
-  // Didn't find it
-  return (FALSE); 
+    // Didn't find it
+    return (FALSE);
 }
 
 
@@ -893,7 +875,7 @@ Bool VarSys::TriggerCmd(const char *path)
 //
 char* VarSys::GetTypeString(VarItemType type)
 {
-  ASSERT(type < VI_MAXIMUM);
+    ASSERT(type < VI_MAXIMUM);
 
-  return(itemTypeStrings[type]);
+    return (itemTypeStrings[type]);
 }
