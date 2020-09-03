@@ -78,7 +78,8 @@ U32 TrackPlayer::Add(const char* path)
                 // Add the path to the playlist
                 count += Add(full.str);
             }
-        } while (Dir::FindNext(find));
+        }
+        while (Dir::FindNext(find));
     }
 
     // Finish find operation
@@ -119,7 +120,8 @@ U32 TrackPlayer::Add(const char* path)
                 // Increment the count
                 count++;
             }
-        } while (Dir::FindNext(find));
+        }
+        while (Dir::FindNext(find));
     }
 
     // Finish find operation
@@ -128,7 +130,6 @@ U32 TrackPlayer::Add(const char* path)
     // Return the count
     return (count);
 }
-
 
 
 //
@@ -391,4 +392,3 @@ Bool TrackPlayer::Poll()
 
     return (FALSE);
 }
-

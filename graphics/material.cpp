@@ -14,11 +14,11 @@
 //----------------------------------------------------------------------------
 
 // static material manager data
-NBinTree<Material>          Material::Manager::tree;
-NBinTree<Material::Wrap>    Material::Manager::wrapTree;
+NBinTree<Material> Material::Manager::tree;
+NBinTree<Material::Wrap> Material::Manager::wrapTree;
 
 const Material* Material::Manager::curMaterial;
-F32                         Material::Manager::diffuseVal = 1.0f;
+F32 Material::Manager::diffuseVal = 1.0f;
 //----------------------------------------------------------------------------
 
 Material::Material(const char* name)
@@ -27,6 +27,7 @@ Material::Material(const char* name)
 
     Manager::Setup(*this, name);
 }
+
 //----------------------------------------------------------------------------
 
 Material::~Material()
@@ -36,6 +37,7 @@ Material::~Material()
         Manager::tree.Unlink(this);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Material::ClearData()
@@ -49,6 +51,7 @@ void Material::ClearData()
     SetSpecular(0, 0, 0, 1, 0);
     SetEmissive(0, 0, 0);
 }
+
 //----------------------------------------------------------------------------
 
 void Material::SetDiffuse(F32 r, F32 g, F32 b, F32 a) // = 1.0f)
@@ -59,6 +62,7 @@ void Material::SetDiffuse(F32 r, F32 g, F32 b, F32 a) // = 1.0f)
     desc.ambient.a = desc.diffuse.a = a;
     status.translucent = a < 1.0f ? TRUE : FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 void Material::SetEmissive(F32 r, F32 g, F32 b, F32 a) // = 1.0f)
@@ -69,6 +73,7 @@ void Material::SetEmissive(F32 r, F32 g, F32 b, F32 a) // = 1.0f)
     desc.emissive.a = a;
     status.translucent = a < 1.0f ? TRUE : FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 void Material::SetAmbient(F32 r, F32 g, F32 b, F32 a) // = 1.0f)
@@ -79,6 +84,7 @@ void Material::SetAmbient(F32 r, F32 g, F32 b, F32 a) // = 1.0f)
     desc.ambient.a = a;
     status.translucent = a < 1.0f ? TRUE : FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 void Material::SetSpecular(F32 r, F32 g, F32 b, F32 a, F32 power) // = 1.0f = 1.0f)
@@ -94,6 +100,7 @@ void Material::SetSpecular(F32 r, F32 g, F32 b, F32 a, F32 power) // = 1.0f = 1.
     // pre-compute specular power integer counter
     powerCount = Utils::FtoL(power + 0.5f);
 }
+
 //----------------------------------------------------------------------------
 
 void Material::Manager::DisposeAll()
@@ -104,12 +111,14 @@ void Material::Manager::DisposeAll()
 
     Vid::defMaterial = NULL;
 }
+
 //----------------------------------------------------------------------------
 
 void Material::Manager::DisposeWraps()
 {
     wrapTree.DisposeAll();
 }
+
 //----------------------------------------------------------------------------
 
 void Material::Manager::Delete(Material& material)
@@ -119,6 +128,7 @@ void Material::Manager::Delete(Material& material)
         tree.Dispose(&material);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Material::Manager::Setup(Material& material, const char* name)
@@ -128,6 +138,7 @@ void Material::Manager::Setup(Material& material, const char* name)
 
     material.SetName(name);
 }
+
 //----------------------------------------------------------------------------
 
 Material* Material::Manager::Create(const char* name)
@@ -139,6 +150,7 @@ Material* Material::Manager::Create(const char* name)
     }
     return mat;
 }
+
 //----------------------------------------------------------------------------
 
 Material* Material::Manager::FindCreate(const char* name)
@@ -150,20 +162,27 @@ Material* Material::Manager::FindCreate(const char* name)
     }
     return mat;
 }
+
 //----------------------------------------------------------------------------
 
-Material* Material::Manager::FindCreate(
+Material* Material::Manager::FindCreate
+(
     ColorF32& diffuse, ColorF32& specular, F32 power,
     ColorF32& emissive, ColorF32& ambient,
-    U32 blend, Bool teamColor, Bool envMap, Bool overlay)
+    U32 blend, Bool teamColor, Bool envMap, Bool overlay
+)
 {
     NameString name;
-    GenerateName(name.str,
+    GenerateName
+    (
+        name.str,
         diffuse, specular, power, emissive, ambient,
-        blend, teamColor, envMap, overlay);
+        blend, teamColor, envMap, overlay
+    );
 
     return FindCreate(name.str);
 }
+
 //----------------------------------------------------------------------------
 
 Material* Material::Manager::FindCreate()
@@ -173,6 +192,7 @@ Material* Material::Manager::FindCreate()
 
     return FindCreate(diffuse, zero, 0, zero, zero);
 }
+
 //----------------------------------------------------------------------------
 
 void Material::Manager::Save(GodFile* god, const Material& material)
@@ -184,6 +204,7 @@ void Material::Manager::Save(GodFile* god, const Material& material)
     God::Save(*god, material.Emissive());
     God::Save(*god, material.Ambient());
 }
+
 //----------------------------------------------------------------------------
 
 Material* Material::Manager::Load(GodFile* god)
@@ -223,6 +244,7 @@ Material* Material::Manager::Load(GodFile* god)
     }
     return material;
 }
+
 //----------------------------------------------------------------------------
 
 void Material::Manager::SetDiffuse(F32 diff)
@@ -235,6 +257,7 @@ void Material::Manager::SetDiffuse(F32 diff)
         mat->SetDiffuse(diff, diff, diff, mat->desc.diffuse.a);
     }
 }
+
 //----------------------------------------------------------------------------
 
 Material::Wrap::~Wrap()
@@ -244,6 +267,7 @@ Material::Wrap::~Wrap()
         Manager::wrapTree.Unlink(this);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Material::Wrap::ClearData()
@@ -255,12 +279,15 @@ void Material::Wrap::ClearData()
     blendFlags = RS_BLEND_DEF;
     crcMat = 0;
 }
+
 //----------------------------------------------------------------------------
 
-Material::Wrap* Material::Manager::FindCreateWrap(
+Material::Wrap* Material::Manager::FindCreateWrap
+(
     ColorF32& diffuse, ColorF32& specular, F32 power,
     ColorF32& emissive, ColorF32& ambient,
-    U32 blend, Bool teamColor, Bool envMap, Bool overlay)
+    U32 blend, Bool teamColor, Bool envMap, Bool overlay
+)
 {
     BuffString name;
 
@@ -274,9 +301,12 @@ Material::Wrap* Material::Manager::FindCreateWrap(
     ambient.b = diffuse.b;
     ambient.a = diffuse.a;
 
-    GenerateName(name.str,
+    GenerateName
+    (
+        name.str,
         diffuse, specular, power, emissive, ambient,
-        blend, teamColor, envMap, overlay);
+        blend, teamColor, envMap, overlay
+    );
 
     Material::Wrap* wrap = wrapTree.Find(Crc::CalcStr(name.str));
     if (!wrap)
@@ -302,12 +332,16 @@ Material::Wrap* Material::Manager::FindCreateWrap(
 
     return wrap;
 }
+
 //----------------------------------------------------------------------------
 
-void Material::Manager::GenerateName(char* matName,
+void Material::Manager::GenerateName
+(
+    char* matName,
     ColorF32& diffuse, ColorF32& specular, F32 power,
     ColorF32& emissive, ColorF32& ambient,
-    U32 blend, Bool teamColor, Bool envMap, Bool overlay)
+    U32 blend, Bool teamColor, Bool envMap, Bool overlay
+)
 {
     ambient;
     emissive;
@@ -338,26 +372,33 @@ void Material::Manager::GenerateName(char* matName,
 
     sprintf(matName, "mat%08x", crc);
 }
+
 //----------------------------------------------------------------------------
 
 U32 Material::Manager::Report(Material& mat)
 {
     U32 mem = mat.GetMem();
 
-    CON_DIAG(("%-36s:                   %3d %3d %3d %3d",
-        mat.name.str,
-        S32(mat.Diffuse().r * 255),
-        S32(mat.Diffuse().g * 255),
-        S32(mat.Diffuse().b * 255),
-        S32(mat.Diffuse().a * 255)
-        ));
-    LOG_DIAG(("%-36s:                   %3d %3d %3d %3d",
-        mat.name.str,
-        S32(mat.Diffuse().r * 255),
-        S32(mat.Diffuse().g * 255),
-        S32(mat.Diffuse().b * 255),
-        S32(mat.Diffuse().a * 255)
-        ));
+    CON_DIAG
+    (
+        ("%-36s:                   %3d %3d %3d %3d",
+            mat.name.str,
+            S32(mat.Diffuse().r * 255),
+            S32(mat.Diffuse().g * 255),
+            S32(mat.Diffuse().b * 255),
+            S32(mat.Diffuse().a * 255)
+        )
+    );
+    LOG_DIAG
+    (
+        ("%-36s:                   %3d %3d %3d %3d",
+            mat.name.str,
+            S32(mat.Diffuse().r * 255),
+            S32(mat.Diffuse().g * 255),
+            S32(mat.Diffuse().b * 255),
+            S32(mat.Diffuse().a * 255)
+        )
+    );
 
     /*
       CON_DIAG(( "%-36s                    %3d %3d %3d %3d %.0f",
@@ -379,6 +420,7 @@ U32 Material::Manager::Report(Material& mat)
     */
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Material::Manager::ReportList(const char* name) // = NULL
@@ -401,6 +443,7 @@ U32 Material::Manager::ReportList(const char* name) // = NULL
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Material::Manager::Report()
@@ -418,5 +461,5 @@ U32 Material::Manager::Report()
 
     return mem;
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

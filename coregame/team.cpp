@@ -775,9 +775,11 @@ void Team::ObjectiveAbandoned(Objective::Object* objective)
 
     if (!objective)
     {
-        ERR_CONFIG(
+        ERR_CONFIG
+        (
             ("Attempt to abandon an objective for team '%s' when the team did not currently have that objective",
-                GetName()))
+                GetName())
+        )
     }
 
 #ifdef DEVELOPMENT
@@ -1399,9 +1401,11 @@ void Team::AddToTeam(UnitObj* obj)
     // Ensure the given unit belongs to this team
     if (obj->GetTeam() != this)
     {
-        ERR_FATAL(
+        ERR_FATAL
+        (
             ("Attempt to add [%s] to [%s] but team is [%s]", obj->TypeName(), GetName(), obj->GetTeam() ? obj->GetTeam()
-                ->GetName() : "None"));
+                ->GetName() : "None")
+        );
     }
 
     // Ensure the given unit is not already actively on a team
@@ -2184,8 +2188,11 @@ void Team::Init()
     MonoBufCreate("Teams", &monoBuffer);
 
     // Write the titles onto the mono
-    MonoBufWrite(monoBuffer, 0, 0, "Id Name                 Relations A N E #Obj   Threat  Defense  Storage    Power",
-                 Mono::BRIGHT);
+    MonoBufWrite
+    (
+        monoBuffer, 0, 0, "Id Name                 Relations A N E #Obj   Threat  Defense  Storage    Power",
+        Mono::BRIGHT
+    );
     //                                0  01234567890123456789 01234567  0 0 0 0000 01234567 01234567 01234567 01234567
 
     // Ensure used Ids are clear

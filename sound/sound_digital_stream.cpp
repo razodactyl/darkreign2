@@ -55,8 +55,11 @@ namespace Sound
                     AIL_init_sample(handle);
 
                     // Set the data file
-                    if (AIL_set_named_sample_file(handle, const_cast<char*>(file->Name()), file->GetMemoryPtr(),
-                                                  file->Size(), 0))
+                    if (AIL_set_named_sample_file
+                        (
+                            handle, const_cast<char*>(file->Name()), file->GetMemoryPtr(),
+                            file->Size(), 0
+                        ))
                     {
                         // Start the stream playing
                         AIL_start_sample(handle);

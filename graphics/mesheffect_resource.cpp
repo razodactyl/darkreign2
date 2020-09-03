@@ -19,8 +19,11 @@
 
 // Constructor
 //
-MeshResource::MeshResource(MeshResourceType* _type, MeshEnt* _ent, F32 _lifeTime,
-                           U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+MeshResource::MeshResource
+(
+    MeshResourceType* _type, MeshEnt* _ent, F32 _lifeTime,
+    U32 _flags
+) // = Effects::flagDESTROY | Effects::flagLOOP
     : MeshGlow(_type, _ent, _lifeTime, _flags)
 {
     _flags |= _type->data.animFlags;

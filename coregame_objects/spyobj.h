@@ -33,72 +33,72 @@ OBJDEC(SpyObj)
 //
 class SpyObjType : public UnitObjType
 {
-  PROMOTE_LINK(SpyObjType, UnitObjType, 0x16897910) // "SpyObjType"
+PROMOTE_LINK(SpyObjType, UnitObjType, 0x16897910) // "SpyObjType"
 
 protected:
 
-  // Resources to steal per cycle
-  U32 resourceRate;
+    // Resources to steal per cycle
+    U32 resourceRate;
 
-  // Power to steal per cycle
-  U32 powerRate;
+    // Power to steal per cycle
+    U32 powerRate;
 
-  // Percentage of facility's power to reduce by
-  F32 powerLevel;
+    // Percentage of facility's power to reduce by
+    F32 powerLevel;
 
-  // Time delay from being compromised to being executed
-  U32 surrenderCycles;
+    // Time delay from being compromised to being executed
+    U32 surrenderCycles;
 
-  // What units can this spy morph into
-  PropertyList<16> properties;
+    // What units can this spy morph into
+    PropertyList<16> properties;
 
 public:
 
-  // Constructor and destructor
-  SpyObjType(const char *typeName, FScope *fScope);
-  ~SpyObjType();
+    // Constructor and destructor
+    SpyObjType(const char* typeName, FScope* fScope);
+    ~SpyObjType();
 
-  // Called after all types are loaded
-  void PostLoad();
+    // Called after all types are loaded
+    void PostLoad();
 
-  // Initialized type specific resources
-  Bool InitializeResources();
+    // Initialized type specific resources
+    Bool InitializeResources();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 
-  // Calculate power to steal for a given unit type
-  U32 CalcPowerLeak(UnitObjType *type);
+    // Calculate power to steal for a given unit type
+    U32 CalcPowerLeak(UnitObjType* type);
 
-  // Resources to steal per cycle
-  U32 GetResourceRate()
-  {
-    return (resourceRate);
-  }
+    // Resources to steal per cycle
+    U32 GetResourceRate()
+    {
+        return (resourceRate);
+    }
 
-  // Time delay from being compromised to being executed
-  U32 GetSurrenderCycles()
-  {
-    return (surrenderCycles);
-  }
+    // Time delay from being compromised to being executed
+    U32 GetSurrenderCycles()
+    {
+        return (surrenderCycles);
+    }
 
-  // GetPowerRate
-  U32 GetPowerRate()
-  {
-    return (powerRate);
-  }
+    // GetPowerRate
+    U32 GetPowerRate()
+    {
+        return (powerRate);
+    }
 
-  // GetPowerLevel
-  F32 GetPowerLevel()
-  {
-    return (powerLevel);
-  }
+    // GetPowerLevel
+    F32 GetPowerLevel()
+    {
+        return (powerLevel);
+    }
 
-  // True if this spy can morph into the given type
-  Bool CanMorph(UnitObjType *type)
-  {
-    return (!properties.GetCount() || properties.Test(type));
-  }
+    // True if this spy can morph into the given type
+    Bool CanMorph(UnitObjType* type)
+    {
+        return (!properties.GetCount() || properties.Test(type));
+    }
 };
 
 
@@ -111,52 +111,51 @@ class SpyObj : public UnitObj
 {
 public:
 
-  // Spy list node
-  NList<SpyObj>::Node spyNode;
+    // Spy list node
+    NList<SpyObj>::Node spyNode;
 
-  // List of all spies
-  static NList<SpyObj> allSpies;
+    // List of all spies
+    static NList<SpyObj> allSpies;
 
 protected:
 
-  // The team this spy is morphed into
-  Team *morphTeam;
+    // The team this spy is morphed into
+    Team* morphTeam;
 
-  // The unit type this spy is morphed into
-  UnitObjTypePtr morphType;
+    // The unit type this spy is morphed into
+    UnitObjTypePtr morphType;
 
 public:
-  
-  // Constructor and destructor
-  SpyObj(SpyObjType *objType, U32 id);
-  ~SpyObj();
 
-  // Called to before deleting the object
-  void PreDelete();
+    // Constructor and destructor
+    SpyObj(SpyObjType* objType, U32 id);
+    ~SpyObj();
 
-  // Load and save state configuration
-  void LoadState(FScope *fScope);
-  virtual void SaveState(FScope *fScope, MeshEnt * theMesh = NULL);
+    // Called to before deleting the object
+    void PreDelete();
 
-  // Send an Event
-  Bool SendEvent(const Task::Event &event, Bool idle);
+    // Load and save state configuration
+    void LoadState(FScope* fScope);
+    virtual void SaveState(FScope* fScope, MeshEnt* theMesh = NULL);
 
-  // Can the spy morph into another unit right now
-  Bool CanMorph(UnitObj *unit);
+    // Send an Event
+    Bool SendEvent(const Task::Event& event, Bool idle);
 
-  // Set or clear the morph target data
-  void SetMorphTarget(UnitObj *unit = NULL);
+    // Can the spy morph into another unit right now
+    Bool CanMorph(UnitObj* unit);
 
-  // Get the morph team of this spy, or NULL if not morphed
-  Team * GetMorphTeam();
+    // Set or clear the morph target data
+    void SetMorphTarget(UnitObj* unit = NULL);
 
-  // Get pointer to type
-  SpyObjType * SpyType()
-  {
-    // This is a safe cast
-    return ((SpyObjType *)type);
-  }
+    // Get the morph team of this spy, or NULL if not morphed
+    Team* GetMorphTeam();
 
+    // Get pointer to type
+    SpyObjType* SpyType()
+    {
+        // This is a safe cast
+        return ((SpyObjType*)type);
+    }
 };
 
 #endif

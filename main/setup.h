@@ -30,7 +30,6 @@
 #define SETUP_ROOTSTREAM    "root"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Namespace Setup - Manages basic engine configuration
@@ -38,17 +37,17 @@
 
 namespace Setup
 {
-  // Check current media type (FALSE if illegal)
-  Bool CheckMediaType();
+    // Check current media type (FALSE if illegal)
+    Bool CheckMediaType();
 
-  // Does startup configuration
-  void StartupConfiguration();
+    // Does startup configuration
+    void StartupConfiguration();
 
-  // Process configuration of mono
-  void ProcessMonoConfiguration(FScope *fScope);
+    // Process configuration of mono
+    void ProcessMonoConfiguration(FScope* fScope);
 
-  // Find the original CD using the Activision SDK
-  Bool FindOriginalCD();
+    // Find the original CD using the Activision SDK
+    Bool FindOriginalCD();
 };
 
 

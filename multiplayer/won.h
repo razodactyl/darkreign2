@@ -21,17 +21,15 @@
 //
 namespace Won
 {
+    // Initialization and shutdown
+    void Init();
+    void Done();
 
-  // Initialization and shutdown
-  void Init();
-  void Done();
+    // Process WON
+    void Process();
 
-  // Process WON
-  void Process();
-
-  // Disconnect from WON
-  void Disconnect();
-
+    // Disconnect from WON
+    void Disconnect();
 }
 
 #endif

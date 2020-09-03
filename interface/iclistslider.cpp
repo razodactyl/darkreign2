@@ -64,8 +64,10 @@ void ICListSlider::GetSliderValue()
     if (watch)
     {
         // Modify the var range
-        sliderVar->GetItem().SetIntegerRange(
-            0, Max(watch->count->GetIntegerValue() - watch->vis->GetIntegerValue(), 0L));
+        sliderVar->GetItem().SetIntegerRange
+        (
+            0, Max(watch->count->GetIntegerValue() - watch->vis->GetIntegerValue(), 0L)
+        );
 
         // Update the first visible item index
         if (sliderVar->GetIntegerValue() != watch->top->GetIntegerValue())

@@ -22,9 +22,13 @@ namespace MINTCLIENT
         bool _loggedIn = false;
 
     public:
-        struct Result : CommandResult {};
+        struct Result : CommandResult
+        {
+        };
 
-        Identity() {};
+        Identity()
+        {
+        };
 
         Identity(const CH* username, const CH* password)
         {

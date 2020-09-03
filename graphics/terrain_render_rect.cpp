@@ -21,8 +21,11 @@ namespace Terrain
 {
     // draw a single cluster
     //
-    void RenderClusterColor(Cluster& clus, S32 x, S32 z, U32 cellOffset, S32 cellStrideX, S32 cellStrideZ, Color color,
-        U32 clipFlags) // = 0
+    void RenderClusterColor
+    (
+        Cluster& clus, S32 x, S32 z, U32 cellOffset, S32 cellStrideX, S32 cellStrideZ, Color color,
+        U32 clipFlags
+    ) // = 0
     {
         clus;
 
@@ -232,8 +235,11 @@ namespace Terrain
 
     // draw a single cell
     //
-    void RenderCell(Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1, Color color,
-        U32 clipFlags)
+    void RenderCell
+    (
+        Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1, Color color,
+        U32 clipFlags
+    )
     {
         UVPair* uvList = &cellUVList[c0.uv];
 
@@ -318,12 +324,18 @@ namespace Terrain
 
     // draw a rectangle of cells; used by the edit brush
     //
-    void RenderCellRect(Area<S32>& rect, Color color, Bool dofill, Bool doFade, Bool doTile, Bitmap* tex,
-        F32 rotation) // = FALSE, = FALSE, = TRUE, = NULL. = 0
+    void RenderCellRect
+    (
+        Area<S32>& rect, Color color, Bool dofill, Bool doFade, Bool doTile, Bitmap* tex,
+        F32 rotation
+    ) // = FALSE, = FALSE, = TRUE, = NULL. = 0
     {
         ASSERT(rect.p0.x < rect.p1.x&& rect.p0.y < rect.p1.y);
-        ASSERT(rect.p0.x >= 0 && rect.p1.x <= (S32)heightField.cellWidth
-            && rect.p0.y >= 0 && rect.p1.y <= (S32)heightField.cellHeight);
+        ASSERT
+        (
+            rect.p0.x >= 0 && rect.p1.x <= (S32)heightField.cellWidth
+            && rect.p0.y >= 0 && rect.p1.y <= (S32)heightField.cellHeight
+        );
 
         if (!tex)
         {
@@ -331,10 +343,12 @@ namespace Terrain
             tex = editTex;
         }
 
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | RS_BLEND_DEF);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | RS_BLEND_DEF
+        );
         SetTranBucketZMax(Vid::sortBRUSH0);
 
         Vid::SetWorldTransform(Matrix::I);
@@ -396,8 +410,8 @@ namespace Terrain
         if (doFade)
         {
             invColor = lum > 128
-                ? Color(static_cast<U32>(0), static_cast<U32>(0), static_cast<U32>(0), color.a)
-                : Color(static_cast<U32>(255), static_cast<U32>(255), static_cast<U32>(255), color.a);
+                           ? Color(static_cast<U32>(0), static_cast<U32>(0), static_cast<U32>(0), color.a)
+                           : Color(static_cast<U32>(255), static_cast<U32>(255), static_cast<U32>(255), color.a);
         }
         Matrix mat(Quaternion(rotation, Matrix::I.up));
 
@@ -617,10 +631,12 @@ namespace Terrain
     //
     void RenderCell(Cell& cell, Color color, Bitmap* tex) // = NULL
     {
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF
+        );
 
         Vid::SetWorldTransform(Matrix::I);
         SetTranBucketZMax(Vid::sortBRUSH0);

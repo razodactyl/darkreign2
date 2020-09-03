@@ -21,7 +21,6 @@
 //
 MeshScaleType::MeshScaleType() : MeshEffectType()
 {
-
 }
 
 
@@ -30,7 +29,7 @@ MeshScaleType::MeshScaleType() : MeshEffectType()
 //
 MeshScaleType::~MeshScaleType()
 {
-  scaleKeys.Release();
+    scaleKeys.Release();
 }
 
 
@@ -39,23 +38,23 @@ MeshScaleType::~MeshScaleType()
 //
 // Construct a new effect
 //
-MeshEffect *MeshScaleType::Build( MeshEnt &_ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+MeshEffect* MeshScaleType::Build(MeshEnt& _ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
 {
-	return new MeshScale(this, &_ent, _lifeTime, _flags);
+    return new MeshScale(this, &_ent, _lifeTime, _flags);
 }
 
 //
 // Handle a scope
 //
 //
-Bool MeshScaleType::Configure(FScope *fScope)
+Bool MeshScaleType::Configure(FScope* fScope)
 {
-  if (!data.Configure( fScope, scaleKeys))
-  {
-    return MeshEffectType::Configure( fScope);
-  }
+    if (!data.Configure(fScope, scaleKeys))
+    {
+        return MeshEffectType::Configure(fScope);
+    }
 
-  return TRUE;
+    return TRUE;
 }
 
 
@@ -66,13 +65,13 @@ Bool MeshScaleType::Configure(FScope *fScope)
 //
 void MeshScaleType::PostLoad()
 {
-  MeshEffectType::PostLoad();
+    MeshEffectType::PostLoad();
 
-  data.PostLoad( scaleKeys);
+    data.PostLoad(scaleKeys);
 }
 
 
 U32 MeshScaleType::GetMem() const
 {
-  return MeshEffectType::GetMem() + scaleKeys.GetMem();
+    return MeshEffectType::GetMem() + scaleKeys.GetMem();
 }

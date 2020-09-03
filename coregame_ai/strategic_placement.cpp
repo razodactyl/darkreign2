@@ -109,12 +109,14 @@ namespace Strategic
                 offset -= resource->GetCentre();
                 offset.Normalize();
 
-                clusterSet = ClusterSet::Create(
+                clusterSet = ClusterSet::Create
+                (
                     resource->GetCentre(),
                     ruleSet,
                     token.GetType(),
                     F32(atan2(offset.z, offset.x)),
-                    *this);
+                    *this
+                );
 
                 typeClusterSet->clusterSets.Add(token.GetType().GetNameCrc(), clusterSet);
             }
@@ -134,12 +136,14 @@ namespace Strategic
                 offset -= water->GetClosest();
                 offset.Normalize();
 
-                clusterSet = ClusterSet::Create(
+                clusterSet = ClusterSet::Create
+                (
                     water->GetClosest(),
                     ruleSet,
                     token.GetType(),
                     F32(atan2(offset.z, offset.x)),
-                    *this);
+                    *this
+                );
 
                 typeClusterSet->clusterSets.Add(token.GetType().GetNameCrc(), clusterSet);
             }
@@ -151,12 +155,14 @@ namespace Strategic
 
             if (!clusterSet)
             {
-                clusterSet = ClusterSet::Create(
+                clusterSet = ClusterSet::Create
+                (
                     token.GetBase().GetLocation(),
                     ruleSet,
                     token.GetType(),
                     token.GetBase().GetOrientation(),
-                    *this);
+                    *this
+                );
 
                 ruleSet.clusterSetsBase.Add(token.GetType().GetNameCrc(), clusterSet);
             }
@@ -277,12 +283,16 @@ namespace Strategic
                 case ClusterSet::FOUND:
                 {
                     // Tell the token that there's somewhere to build
-                    locator->token.SetLocation(
-                        Vector(
+                    locator->token.SetLocation
+                    (
+                        Vector
+                        (
                             WorldCtrl::CellToMetresX(cell.x),
                             0,
-                            WorldCtrl::CellToMetresZ(cell.z)),
-                        dir);
+                            WorldCtrl::CellToMetresZ(cell.z)
+                        ),
+                        dir
+                    );
 
                     // This locator is now idle
                     U32 key = locator->nodePlacementTree.GetKey();

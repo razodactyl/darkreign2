@@ -17,12 +17,13 @@
 #define MINT_MAX_EVENTS 256
 
 
-namespace Win32 {
-    namespace DNS {
+namespace Win32
+{
+    namespace DNS
+    {
         class Host;
     }
 }
-
 
 
 void MINTInitialize();
@@ -58,25 +59,25 @@ namespace MINTCLIENT
         {
             switch (error_id)
             {
-            case MINTCLIENT::Errors::IdentityAuthenticationFailed:
-                return "MINTCLIENT::Error::IdentityAuthenticationFailed";
-            case MINTCLIENT::Errors::IdentityAlreadyExists:
-                return "MINTCLIENT::Error::IdentityAlreadyExists";
-            case MINTCLIENT::Errors::RoutingServerClientAlreadyExists:
-                return "MINTCLIENT::Error::RoutingServerClientAlreadyExists";
-            case MINTCLIENT::Errors::RoutingServerInvalidPassword:
-                return "MINTCLIENT::Error::RoutingServerInvalidPassword";
-            case MINTCLIENT::Errors::RoutingServerFull:
-                return "MINTCLIENT::Error::RoutingServerFull";
+                case MINTCLIENT::Errors::IdentityAuthenticationFailed:
+                    return "MINTCLIENT::Error::IdentityAuthenticationFailed";
+                case MINTCLIENT::Errors::IdentityAlreadyExists:
+                    return "MINTCLIENT::Error::IdentityAlreadyExists";
+                case MINTCLIENT::Errors::RoutingServerClientAlreadyExists:
+                    return "MINTCLIENT::Error::RoutingServerClientAlreadyExists";
+                case MINTCLIENT::Errors::RoutingServerInvalidPassword:
+                    return "MINTCLIENT::Error::RoutingServerInvalidPassword";
+                case MINTCLIENT::Errors::RoutingServerFull:
+                    return "MINTCLIENT::Error::RoutingServerFull";
 
-            default:
-            {
-                char* info = new char[64];
-                char* hh = new char[10];
-                Utils::Sprintf(info, 32, "Unknown Error [%s]", Utils::StrFmtHex(hh, 8, error_id));
-                return info;
-            }
-            break;
+                default:
+                {
+                    char* info = new char[64];
+                    char* hh = new char[10];
+                    Utils::Sprintf(info, 32, "Unknown Error [%s]", Utils::StrFmtHex(hh, 8, error_id));
+                    return info;
+                }
+                break;
             }
         }
     }
@@ -123,30 +124,30 @@ namespace MINTCLIENT
         {
             switch (command_id)
             {
-            case MINTCLIENT::Message::ServerConnect: {          return "MINTCLIENT::Message::ServerConnect";                  }
-            case MINTCLIENT::Message::ServerShutdown: {          return "MINTCLIENT::Message::ServerShutdown";                 }
-            case MINTCLIENT::Message::ServerDisconnect: {          return "MINTCLIENT::Message::ServerDisconnect";               }
-            case MINTCLIENT::Message::IdentityCreate: {          return "MINTCLIENT::Message::IdentityCreate";                 }
-            case MINTCLIENT::Message::IdentityUpdate: {          return "MINTCLIENT::Message::IdentityUpdate";                 }
-            case MINTCLIENT::Message::IdentityAuthenticate: {          return "MINTCLIENT::Message::IdentityAuthenticate";           }
-            case MINTCLIENT::Message::DirectoryListServers: {          return "MINTCLIENT::Message::DirectoryListServers";           }
-            case MINTCLIENT::Message::DirectoryListRooms: {          return "MINTCLIENT::Message::DirectoryListRooms";             }
-            case MINTCLIENT::Message::RoutingServerRoomConnect: {          return "MINTCLIENT::Message::RoutingServerRoomConnect";       }
-            case MINTCLIENT::Message::RoutingServerRoomRegister: {          return "MINTCLIENT::Message::RoutingServerRoomRegister";      }
-            case MINTCLIENT::Message::RoutingServerUserEnter: {          return "MINTCLIENT::Message::RoutingServerUserEnter";         }
-            case MINTCLIENT::Message::RoutingServerUserLeave: {          return "MINTCLIENT::Message::RoutingServerUserLeave";         }
-            case MINTCLIENT::Message::RoutingServerGetNumUsers: {          return "MINTCLIENT::Message::RoutingServerGetNumUsers";       }
-            case MINTCLIENT::Message::RoutingServerGetUserList: {          return "MINTCLIENT::Message::RoutingServerGetUserList";       }
-            case MINTCLIENT::Message::RoutingServerWhisperChat: {          return "MINTCLIENT::Message::RoutingServerWhisperChat";       }
-            case MINTCLIENT::Message::RoutingServerCreateGame: {          return "MINTCLIENT::Message::RoutingServerCreateGame";        }
-            case MINTCLIENT::Message::RoutingServerUpdateGame: {          return "MINTCLIENT::Message::RoutingServerUpdateGame";        }
-            case MINTCLIENT::Message::RoutingServerDeleteGame: {          return "MINTCLIENT::Message::RoutingServerDeleteGame";        }
-            case MINTCLIENT::Message::RoutingServerGetGameList: {          return "MINTCLIENT::Message::RoutingServerGetGameList";       }
-            case MINTCLIENT::Message::RoutingServerGameCreated: {          return "MINTCLIENT::Message::RoutingServerGameCreated";       }
-            case MINTCLIENT::Message::RoutingServerGameUpdated: {          return "MINTCLIENT::Message::RoutingServerGameUpdated";       }
-            case MINTCLIENT::Message::RoutingServerGameReplaced: {          return "MINTCLIENT::Message::RoutingServerGameReplaced";      }
-            case MINTCLIENT::Message::RoutingServerGameDeleted: {          return "MINTCLIENT::Message::RoutingServerGameDeleted";       }
-            case MINTCLIENT::Message::RoutingServerDisconnect: {          return "MINTCLIENT::Message::RoutingServerDisconnect";        }
+                case MINTCLIENT::Message::ServerConnect: { return "MINTCLIENT::Message::ServerConnect"; }
+                case MINTCLIENT::Message::ServerShutdown: { return "MINTCLIENT::Message::ServerShutdown"; }
+                case MINTCLIENT::Message::ServerDisconnect: { return "MINTCLIENT::Message::ServerDisconnect"; }
+                case MINTCLIENT::Message::IdentityCreate: { return "MINTCLIENT::Message::IdentityCreate"; }
+                case MINTCLIENT::Message::IdentityUpdate: { return "MINTCLIENT::Message::IdentityUpdate"; }
+                case MINTCLIENT::Message::IdentityAuthenticate: { return "MINTCLIENT::Message::IdentityAuthenticate"; }
+                case MINTCLIENT::Message::DirectoryListServers: { return "MINTCLIENT::Message::DirectoryListServers"; }
+                case MINTCLIENT::Message::DirectoryListRooms: { return "MINTCLIENT::Message::DirectoryListRooms"; }
+                case MINTCLIENT::Message::RoutingServerRoomConnect: { return "MINTCLIENT::Message::RoutingServerRoomConnect"; }
+                case MINTCLIENT::Message::RoutingServerRoomRegister: { return "MINTCLIENT::Message::RoutingServerRoomRegister"; }
+                case MINTCLIENT::Message::RoutingServerUserEnter: { return "MINTCLIENT::Message::RoutingServerUserEnter"; }
+                case MINTCLIENT::Message::RoutingServerUserLeave: { return "MINTCLIENT::Message::RoutingServerUserLeave"; }
+                case MINTCLIENT::Message::RoutingServerGetNumUsers: { return "MINTCLIENT::Message::RoutingServerGetNumUsers"; }
+                case MINTCLIENT::Message::RoutingServerGetUserList: { return "MINTCLIENT::Message::RoutingServerGetUserList"; }
+                case MINTCLIENT::Message::RoutingServerWhisperChat: { return "MINTCLIENT::Message::RoutingServerWhisperChat"; }
+                case MINTCLIENT::Message::RoutingServerCreateGame: { return "MINTCLIENT::Message::RoutingServerCreateGame"; }
+                case MINTCLIENT::Message::RoutingServerUpdateGame: { return "MINTCLIENT::Message::RoutingServerUpdateGame"; }
+                case MINTCLIENT::Message::RoutingServerDeleteGame: { return "MINTCLIENT::Message::RoutingServerDeleteGame"; }
+                case MINTCLIENT::Message::RoutingServerGetGameList: { return "MINTCLIENT::Message::RoutingServerGetGameList"; }
+                case MINTCLIENT::Message::RoutingServerGameCreated: { return "MINTCLIENT::Message::RoutingServerGameCreated"; }
+                case MINTCLIENT::Message::RoutingServerGameUpdated: { return "MINTCLIENT::Message::RoutingServerGameUpdated"; }
+                case MINTCLIENT::Message::RoutingServerGameReplaced: { return "MINTCLIENT::Message::RoutingServerGameReplaced"; }
+                case MINTCLIENT::Message::RoutingServerGameDeleted: { return "MINTCLIENT::Message::RoutingServerGameDeleted"; }
+                case MINTCLIENT::Message::RoutingServerDisconnect: { return "MINTCLIENT::Message::RoutingServerDisconnect"; }
             }
 
             char* info = new char[64];
@@ -189,8 +190,13 @@ namespace MINTCLIENT
                 this->text = Utils::Strcat(this->text, this->port);
             }
 
-            Address() {};
-            ~Address() {};
+            Address()
+            {
+            };
+
+            ~Address()
+            {
+            };
 
             char* GetText()
             {
@@ -263,16 +269,19 @@ namespace MINTCLIENT
         // Template tricks for dynamically wrapping a callback.
         //
 
-        template <class R> struct MINTWrapper
+        template <class R>
+        struct MINTWrapper
         {
             void (*callback)(const R& result);
         };
 
-        template <class T> struct MINTCallback
+        template <class T>
+        struct MINTCallback
         {
             void* _wrapped;
 
-            template <class R> MINTCallback* operator= (void (*callback)(const R& other))
+            template <class R>
+            MINTCallback* operator=(void (*callback)(const R& other))
             {
                 auto w = new MINTWrapper<R>();
                 w->callback = callback;
@@ -282,7 +291,8 @@ namespace MINTCLIENT
                 return this;
             }
 
-            template <class R> void operator() (const R& other)
+            template <class R>
+            void operator()(const R& other)
             {
                 auto w = (MINTWrapper<R>*)this->_wrapped;
                 w->callback(other);
@@ -393,7 +403,8 @@ namespace MINTCLIENT
             //
             // Given a struct containing information, determine required size and copy over this command's data.
             //
-            template <class DATA> void SetDataFromStruct(const DATA& data)
+            template <class DATA>
+            void SetDataFromStruct(const DATA& data)
             {
                 this->data_size = sizeof(DATA);
                 this->cmd_data = new U8[data_size];
@@ -408,7 +419,8 @@ namespace MINTCLIENT
                 this->data_size = len;
                 this->cmd_data = new U8[data_size];
 
-                if (this->data_size > 0) {
+                if (this->data_size > 0)
+                {
                     Utils::Memcpy(this->cmd_data, data, this->data_size);
                 }
             }
@@ -433,7 +445,8 @@ namespace MINTCLIENT
                 this->cmd_data = extended_data;
             }
 
-            template <class CONTEXT> void SetContext(const CONTEXT& context)
+            template <class CONTEXT>
+            void SetContext(const CONTEXT& context)
             {
                 this->context = context;
             }
@@ -453,44 +466,44 @@ namespace MINTCLIENT
 
                     switch (this->command_id)
                     {
-                    case MINTCLIENT::Message::IdentityAuthenticate:
-                    {
-                        if (err_val == MINTCLIENT::Errors::IdentityUserNotFound) { return MINTCLIENT::Errors::IdentityUserNotFound; }
-                        if (err_val == MINTCLIENT::Errors::IdentityInvalidPassword) { return MINTCLIENT::Errors::IdentityInvalidPassword; }
-                        if (err_val == MINTCLIENT::Errors::IdentityAuthenticationFailed) { return MINTCLIENT::Errors::IdentityAuthenticationFailed; }
-                    }
-                    break;
-
-                    case MINTCLIENT::Message::IdentityCreate:
-                    {
-                        if (err_val == MINTCLIENT::Errors::IdentityAlreadyExists) { return MINTCLIENT::Errors::IdentityAlreadyExists; }
-                    }
-                    break;
-
-                    case MINTCLIENT::Message::IdentityUpdate:
-                    {
-                        if (err_val == MINTCLIENT::Errors::IdentityAuthenticationFailed) { return MINTCLIENT::Errors::IdentityAuthenticationFailed; }
-                        if (err_val == MINTCLIENT::Errors::IdentityInvalidPassword) { return MINTCLIENT::Errors::IdentityInvalidPassword; }
-                    }
-                    break;
-
-                    case MINTCLIENT::Message::RoutingServerRoomConnect:
-                    {
-                        if (err_val == MINTCLIENT::Errors::RoutingServerInvalidPassword) { return MINTCLIENT::Errors::RoutingServerInvalidPassword; }
-                    }
-                    break;
-
-                    case MINTCLIENT::Message::RoutingServerRoomRegister:
-                    {
-                        if (err_val == MINTCLIENT::Errors::RoutingServerClientAlreadyExists) { return MINTCLIENT::Errors::RoutingServerClientAlreadyExists; }
-                        if (err_val == MINTCLIENT::Errors::RoutingServerAuthenticationFailed) { return MINTCLIENT::Errors::RoutingServerAuthenticationFailed; }
-                    }
-                    break;
-
-                    default:
-                        // This doesn't work unless the server consistently sends back an error value in this position.
-                        // return err_val;
+                        case MINTCLIENT::Message::IdentityAuthenticate:
+                        {
+                            if (err_val == MINTCLIENT::Errors::IdentityUserNotFound) { return MINTCLIENT::Errors::IdentityUserNotFound; }
+                            if (err_val == MINTCLIENT::Errors::IdentityInvalidPassword) { return MINTCLIENT::Errors::IdentityInvalidPassword; }
+                            if (err_val == MINTCLIENT::Errors::IdentityAuthenticationFailed) { return MINTCLIENT::Errors::IdentityAuthenticationFailed; }
+                        }
                         break;
+
+                        case MINTCLIENT::Message::IdentityCreate:
+                        {
+                            if (err_val == MINTCLIENT::Errors::IdentityAlreadyExists) { return MINTCLIENT::Errors::IdentityAlreadyExists; }
+                        }
+                        break;
+
+                        case MINTCLIENT::Message::IdentityUpdate:
+                        {
+                            if (err_val == MINTCLIENT::Errors::IdentityAuthenticationFailed) { return MINTCLIENT::Errors::IdentityAuthenticationFailed; }
+                            if (err_val == MINTCLIENT::Errors::IdentityInvalidPassword) { return MINTCLIENT::Errors::IdentityInvalidPassword; }
+                        }
+                        break;
+
+                        case MINTCLIENT::Message::RoutingServerRoomConnect:
+                        {
+                            if (err_val == MINTCLIENT::Errors::RoutingServerInvalidPassword) { return MINTCLIENT::Errors::RoutingServerInvalidPassword; }
+                        }
+                        break;
+
+                        case MINTCLIENT::Message::RoutingServerRoomRegister:
+                        {
+                            if (err_val == MINTCLIENT::Errors::RoutingServerClientAlreadyExists) { return MINTCLIENT::Errors::RoutingServerClientAlreadyExists; }
+                            if (err_val == MINTCLIENT::Errors::RoutingServerAuthenticationFailed) { return MINTCLIENT::Errors::RoutingServerAuthenticationFailed; }
+                        }
+                        break;
+
+                        default:
+                            // This doesn't work unless the server consistently sends back an error value in this position.
+                            // return err_val;
+                            break;
                     }
                 }
 
@@ -515,7 +528,8 @@ namespace MINTCLIENT
 
             Bool AttemptSend()
             {
-                if (!did_send) {
+                if (!did_send)
+                {
                     did_send = true;
 
                     // Commence time tracking.
@@ -523,7 +537,8 @@ namespace MINTCLIENT
                     end_time = Clock::Time::Ms() + MINTCLIENT::DefaultTimeout;
 
                     // Instantiate a `Packet`.
-                    StyxNet::Packet& pkt = StyxNet::Packet::Create(
+                    StyxNet::Packet& pkt = StyxNet::Packet::Create
+                    (
                         command_id,
                         data_size
                     );
@@ -532,7 +547,8 @@ namespace MINTCLIENT
                     U8* pkt_d = pkt.GetData();
 
                     // Copy `cmd_data` to the `data` of the packet.
-                    if (data_size > 0) {
+                    if (data_size > 0)
+                    {
                         Utils::Memcpy(pkt_d, cmd_data, data_size);
                     }
 
@@ -569,7 +585,8 @@ namespace MINTCLIENT
 
             ~MINTCommand()
             {
-                if (this->data_size > 0) {
+                if (this->data_size > 0)
+                {
 #ifdef _DEBUG
                     Utils::MemoryDump(cmd_data, this->data_size);
                     LOG_DEV(("~MINTCommand -> command is going away..."));

@@ -189,8 +189,11 @@ namespace Strategic
                                     Resolver::Type<UnitObjType>(reaper, TRUE);
 
                                     // Add the new preference
-                                    offMapPreferences.Add(reaper->GetNameCrc(),
-                                                          new OffMapPreference(*reaper, StdLoad::TypeF32(iScope)));
+                                    offMapPreferences.Add
+                                    (
+                                        reaper->GetNameCrc(),
+                                        new OffMapPreference(*reaper, StdLoad::TypeF32(iScope))
+                                    );
                                     break;
                                 }
 

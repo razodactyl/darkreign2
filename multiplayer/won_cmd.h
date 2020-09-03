@@ -21,26 +21,22 @@
 //
 namespace Won
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Cmd
+    //
+    namespace Cmd
+    {
+        // Initialization and shutdown
+        void Init();
+        void Done();
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Cmd
-  //
-  namespace Cmd
-  {
+        // Get the current won username
+        const char* GetUsername();
 
-    // Initialization and shutdown
-    void Init();
-    void Done();
-
-    // Get the current won username
-    const char * GetUsername();
-
-    // Is the current key valid?
-    Bool IsKeyValid();
-
-  }
-
+        // Is the current key valid?
+        Bool IsKeyValid();
+    }
 }
 
 #endif

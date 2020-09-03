@@ -31,9 +31,8 @@ class Team;
 //
 namespace Action
 {
-  // Execute
-  void Execute(Team *team, FScope *fScope);
-
+    // Execute
+    void Execute(Team* team, FScope* fScope);
 };
 
 

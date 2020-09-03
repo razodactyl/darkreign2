@@ -740,11 +740,11 @@ namespace Debug
             if (blocks)
             {
                 // Write directly to video memory
-                //MonoBufDef(hndlMono);
-                //MonoGetClientPanel(hndlMono);
+            //MonoBufDef(hndlMono);
+            //MonoGetClientPanel(hndlMono);
 
-                // Activate the panel
-                //MonoPanelChange(hndlMono);
+            // Activate the panel
+            //MonoPanelChange(hndlMono);
 
                 //MonoBufClear(hndlMono);
 
@@ -761,8 +761,8 @@ namespace Debug
                 LOG_DIAG(("%.0f memory leaks", blocks))
 
                 //MonoBufWriteV(hndlMono, (1, 0, Mono::BRIGHT, "There were %.0f unfreed blocks", blocks));
-                //MonoBufWrite(hndlMono, 2, 0, "Writing allocators of unfreed blocks to the Log File", Mono::NORMAL);
-                //MonoBufWrite(hndlMono, 4, 0, "Progress:", Mono::NORMAL);
+            //MonoBufWrite(hndlMono, 2, 0, "Writing allocators of unfreed blocks to the Log File", Mono::NORMAL);
+            //MonoBufWrite(hndlMono, 4, 0, "Progress:", Mono::NORMAL);
                 //MonoBufWrite(hndlMono, 5, 0, "Memory:", Mono::NORMAL);
 
                 if (ValidateAll())
@@ -1256,7 +1256,7 @@ namespace Debug
 
 #endif
 
-                // Adjust the memory overhead statistics
+            // Adjust the memory overhead statistics
 #ifdef DEBUG_MEMORY_STATS
 
                 // Adjust memory overhead statistics

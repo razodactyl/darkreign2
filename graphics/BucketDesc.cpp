@@ -91,7 +91,7 @@ void Bucket::UnlockIndexedPrimitiveMem(U32 _vCount, U32 _iCount, Bool doOffset) 
     offset = vCount;
     if (vCount && doOffset)
     {
-        U16* s = iMemCur, * e = s + _iCount;
+        U16 *s = iMemCur, *e = s + _iCount;
         while (s < e)
         {
             *s = static_cast<U16>(*s + vCount);

@@ -273,9 +273,11 @@ namespace Tasks
                                 }
                                 else
                                 {
-                                    ERR_FATAL(
+                                    ERR_FATAL
+                                    (
                                         ("Resource [%d] at %d, %d is not footprinted!", resourceObj->Id(), resourceObj->
-                                            GetCellX(), resourceObj->GetCellZ()))
+                                            GetCellX(), resourceObj->GetCellZ())
+                                    )
                                 }
                             }
 
@@ -339,9 +341,11 @@ namespace Tasks
                                 }
                                 else
                                 {
-                                    ERR_FATAL(
+                                    ERR_FATAL
+                                    (
                                         ("Resource [%d] at %d, %d is not footprinted!", resourceObj->Id(), resourceObj->
-                                            GetCellX(), resourceObj->GetCellZ()))
+                                            GetCellX(), resourceObj->GetCellZ())
+                                    )
                                 }
                             }
                             else
@@ -536,9 +540,11 @@ namespace Tasks
         }
         else
         {
-            LOG_WARN(
+            LOG_WARN
+            (
                 ("Collector ignoring non-zipped resource object [%d] at [%d,%d]", obj->Id(), obj->GetCellX(), obj->
-                    GetCellZ()));
+                    GetCellZ())
+            );
         }
     }
 
@@ -565,9 +571,11 @@ namespace Tasks
                 // Is the resource alive ?
                 if (resourceObj.Alive())
                 {
-                    LOG_COLLECT(
+                    LOG_COLLECT
+                    (
                         ("Going to Resource [%d] at %d, %d", resourceObj->Id(), resourceObj->GetCellX(), resourceObj->
-                            GetCellZ()))
+                            GetCellZ())
+                    )
 
                     FootPrint::Instance* footInst = resourceObj->GetFootInstance();
                     Vector dst;
@@ -581,9 +589,11 @@ namespace Tasks
                     }
                     else
                     {
-                        ERR_FATAL(
+                        ERR_FATAL
+                        (
                             ("Resource [%d] at %d, %d is not footprinted!", resourceObj->Id(), resourceObj->GetCellX(),
-                                resourceObj->GetCellZ()))
+                                resourceObj->GetCellZ())
+                        )
                     }
 
                     // Move to it
@@ -943,8 +953,11 @@ namespace Tasks
                         // Transfer our resources to the storage facility
                         if (storageObj->GetTeam())
                         {
-                            U32 resource = Min(subject->GetResourceTransport(),
-                                               subject->UnitType()->GetResourceUnload());
+                            U32 resource = Min
+                            (
+                                subject->GetResourceTransport(),
+                                subject->UnitType()->GetResourceUnload()
+                            );
                             storageObj->GetTeam()->AddResourceStore(resource);
                             storageObj->GetTeam()->ReportResource(resource, "resource.collected");
                             subject->RemoveResourceTransport(resource);
@@ -1033,8 +1046,10 @@ namespace Tasks
 
                 if (resource)
                 {
-                    LOG_COLLECT(
-                        ("[%d] found resource [%d] {%d}", subject->Id(), resource->Id(), resource->GetResource()))
+                    LOG_COLLECT
+                    (
+                        ("[%d] found resource [%d] {%d}", subject->Id(), resource->Id(), resource->GetResource())
+                    )
 
                     // Found a resource, go get it
                     SetResourceObject(resource);
@@ -1141,9 +1156,11 @@ namespace Tasks
             // Is this resource unzipped
             if (!obj->GetFootInstance())
             {
-                LOG_WARN(
+                LOG_WARN
+                (
                     ("Collector ignoring non-zipped resource object [%d] at [%d,%d]", obj->Id(), obj->GetCellX(), obj->
-                        GetCellZ()));
+                        GetCellZ())
+                );
 
                 // Ignore it
                 continue;

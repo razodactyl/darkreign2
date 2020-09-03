@@ -724,10 +724,12 @@ Bool GameObj::PrependTask(Task* task, U32 taskFlags)
         if (!thinkInterval)
         {
             LOG_WARN
-            ((
-                "Object %s (%u) was given a task %s, but no has no think interval",
-                TypeName(), Id(), task->GetName()
-            ));
+            (
+                (
+                    "Object %s (%u) was given a task %s, but no has no think interval",
+                    TypeName(), Id(), task->GetName()
+                )
+            );
         }
 
         // Prepend the given task
@@ -766,10 +768,12 @@ Bool GameObj::AppendTask(Task* task, U32 taskFlags)
     if (!thinkInterval)
     {
         LOG_WARN
-        ((
-            "Object %s (%u) was given a task %s, but no has no think interval",
-            TypeName(), Id(), task->GetName()
-        ));
+        (
+            (
+                "Object %s (%u) was given a task %s, but no has no think interval",
+                TypeName(), Id(), task->GetName()
+            )
+        );
     }
 
     // Propagate flags down to task

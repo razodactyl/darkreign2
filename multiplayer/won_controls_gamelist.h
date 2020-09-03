@@ -25,126 +25,120 @@
 //
 namespace Won
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class GameList
+    // NameSpace Controls
     //
-    class GameList : public ICListBox
+    namespace Controls
     {
-      PROMOTE_LINK(GameList, ICListBox, 0xDBF27997) // "Won::GameList"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class GameList
+        //
+        class GameList : public ICListBox
+        {
+        PROMOTE_LINK(GameList, ICListBox, 0xDBF27997) // "Won::GameList"
 
-    public:
-      
-      class Item;
+        public:
 
-    protected:
+            class Item;
 
-      // Offsets
-      U32 offsetName;
-      U32 widthName;
-      U32 offsetHost;
-      U32 widthHost;
-      U32 offsetUsers;
-      U32 offsetLocked;
-      U32 offsetPing;
-      U32 widthPing;
+        protected:
 
-      // Locked icon
-      TextureInfo iconLocked;
+            // Offsets
+            U32 offsetName;
+            U32 widthName;
+            U32 offsetHost;
+            U32 widthHost;
+            U32 offsetUsers;
+            U32 offsetLocked;
+            U32 offsetPing;
+            U32 widthPing;
 
-    public:
+            // Locked icon
+            TextureInfo iconLocked;
 
-      // Constructor
-      GameList(IControl *parent);
+        public:
 
-      // Setup
-      void Setup(FScope *fScope);
+            // Constructor
+            GameList(IControl* parent);
 
-      // Get the selected game
-      Item * GetSelectedGame();
+            // Setup
+            void Setup(FScope* fScope);
 
-      // Ping all games
-      void PingAll();
+            // Get the selected game
+            Item* GetSelectedGame();
 
-      // Poll func
-      void Poll();
+            // Ping all games
+            void PingAll();
 
-    public:
+            // Poll func
+            void Poll();
 
-      friend Item;
+        public:
 
-    };
+            friend Item;
+        };
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class GameList::Item
-    //
-    class GameList::Item : public ICStatic
-    {
-      PROMOTE_LINK(Game, ICStatic, 0x1E5416FD) // "Won::Game"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class GameList::Item
+        //
+        class GameList::Item : public ICStatic
+        {
+        PROMOTE_LINK(Game, ICStatic, 0x1E5416FD) // "Won::Game"
 
-    protected:
+        protected:
 
-      // Offsets are in here
-      GameList &gameList;
+            // Offsets are in here
+            GameList& gameList;
 
-      // Host of the game
-      Ident host;
+            // Host of the game
+            Ident host;
 
-      // The last time we pinged this game
-      U32 ping;
+            // The last time we pinged this game
+            U32 ping;
 
-      // The game
-      StyxNet::Session session;
+            // The game
+            StyxNet::Session session;
 
-      // The pings to the session
-      StyxNet::Std::Data::UserConnection connection;
+            // The pings to the session
+            StyxNet::Std::Data::UserConnection connection;
 
-    public:
+        public:
 
-      // Marked as old
-      Bool old;
+            // Marked as old
+            Bool old;
 
-    public:
+        public:
 
-      // Constructor
-      Item(GameList &gameList, const WonIface::Game &game, IControl *parent);
+            // Constructor
+            Item(GameList& gameList, const WonIface::Game& game, IControl* parent);
 
-      // Redraw self
-      void DrawSelf(PaintInfo &pi);
+            // Redraw self
+            void DrawSelf(PaintInfo& pi);
 
-      // Ping
-      void Ping();
+            // Ping
+            void Ping();
 
-    public:
+        public:
 
-      // Get the session
-      StyxNet::Session & GetSession()
-      {
-        return (session);
-      }
+            // Get the session
+            StyxNet::Session& GetSession()
+            {
+                return (session);
+            }
 
-      // Get the connection information
-      StyxNet::Std::Data::UserConnection & GetConnection()
-      {
-        return (connection);
-      }
+            // Get the connection information
+            StyxNet::Std::Data::UserConnection& GetConnection()
+            {
+                return (connection);
+            }
 
-      friend GameList;
-
-    };
-
-  }
-
+            friend GameList;
+        };
+    }
 }
 
 #endif

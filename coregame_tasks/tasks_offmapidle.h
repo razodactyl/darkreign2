@@ -26,36 +26,34 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class OffMapIdle
+    //
+    class OffMapIdle : public GameTask<OffMapObjType, OffMapObj>
+    {
+        TASK_CLASS(OffMapIdle)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class OffMapIdle
-  //
-  class OffMapIdle : public GameTask<OffMapObjType, OffMapObj>
-  {
-    TASK_CLASS(OffMapIdle)
+    public:
 
-  public:
+        // Constructor
+        OffMapIdle(GameObj* subject);
 
-    // Constructor
-    OffMapIdle(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateIdle();
-  };
-
+        // State machine procedures
+        void StateIdle();
+    };
 }
 
 #endif

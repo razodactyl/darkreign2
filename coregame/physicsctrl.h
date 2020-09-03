@@ -28,33 +28,31 @@
 
 namespace PhysicsCtrl
 {
-
-  // Gravity amount
-  extern F32 gravity;
-
-
-  // Initialise the physics system
-  void Init();
-
-  // Shut down the physics system
-  void Done();
+    // Gravity amount
+    extern F32 gravity;
 
 
-  // Get the gravity value
-  inline F32 GetGravity()
-  {
-    return (gravity);
-  }
+    // Initialise the physics system
+    void Init();
 
-  // Set the gravity value
-  void SetGravity(F32 down);
+    // Shut down the physics system
+    void Done();
 
-  // Load configuration
-  void LoadConfig(FScope *fScope);
 
-  // Save configuration
-  void SaveConfig(FScope *fScope);
+    // Get the gravity value
+    inline F32 GetGravity()
+    {
+        return (gravity);
+    }
 
+    // Set the gravity value
+    void SetGravity(F32 down);
+
+    // Load configuration
+    void LoadConfig(FScope* fScope);
+
+    // Save configuration
+    void SaveConfig(FScope* fScope);
 }
 
 #endif

@@ -497,9 +497,11 @@ namespace Tactical
 
                     for (U8 s = 0; s < modifiers[m]->GetNumSettings(); s++)
                     {
-                        CON_DIAG(
+                        CON_DIAG
+                        (
                             (" - %2u : %s %s", s, (modifiers[m]->GetDefaultSetting() == s) ? "*" : " ", modifiers[m]->
-                                GetSettingName(s)))
+                                GetSettingName(s))
+                        )
                     }
                 }
                 break;

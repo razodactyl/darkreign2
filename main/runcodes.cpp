@@ -47,8 +47,11 @@ RunCodes::RunCodes(const char* name)
 //
 // Run code intialization
 //
-void RunCodes::Register(const char* name, RCPROC fnGame, RCPROC fnInit, RCPROC fnDone, RCPROC fnPost,
-                        NOTIFYPROC fnNotify)
+void RunCodes::Register
+(
+    const char* name, RCPROC fnGame, RCPROC fnInit, RCPROC fnDone, RCPROC fnPost,
+    NOTIFYPROC fnNotify
+)
 {
     RunCode* r = new RunCode;
 

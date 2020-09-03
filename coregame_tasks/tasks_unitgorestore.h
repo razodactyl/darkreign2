@@ -26,52 +26,49 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitGoRestore
+    //
+    class UnitGoRestore : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitGoRestore)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitGoRestore
-  //
-  class UnitGoRestore : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitGoRestore)
+    private:
 
-  private:
+        // The destination facility
+        RestoreObjPtr facility;
 
-    // The destination facility
-    RestoreObjPtr facility;
+        // Movement request handle
+        Movement::Handle moveHandle;
 
-    // Movement request handle
-    Movement::Handle moveHandle;
+    public:
 
-  public:
+        // Constructor
+        UnitGoRestore(GameObj* subject);
 
-    // Constructor
-    UnitGoRestore(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+        // Change the restore facility
+        void ChangeFacility(RestoreObj* restore);
 
-    // Change the restore facility
-    void ChangeFacility(RestoreObj *restore);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateMoving();
-
-  };
-
+        // State machine procedures
+        void StateInit();
+        void StateMoving();
+    };
 }
 
 #endif

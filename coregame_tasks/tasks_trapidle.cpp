@@ -21,7 +21,8 @@
 //
 // Destructor
 //
-template <> GameTask<TrapObjType, TrapObj>::~GameTask()
+template <>
+GameTask<TrapObjType, TrapObj>::~GameTask()
 {
 }
 
@@ -31,7 +32,8 @@ template <> GameTask<TrapObjType, TrapObj>::~GameTask()
 //
 // Type specific processing
 //
-template <> void GameTask<TrapObjType, TrapObj>::GameProcess()
+template <>
+void GameTask<TrapObjType, TrapObj>::GameProcess()
 {
 }
 
@@ -42,354 +44,353 @@ template <> void GameTask<TrapObjType, TrapObj>::GameProcess()
 //
 namespace Tasks
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Internal Data
-  //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Internal Data
+    //
 
-  // State machine
-  StateMachine<TrapIdle> TrapIdle::stateMachine;
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TrapIdle
-  //
+    // State machine
+    StateMachine<TrapIdle> TrapIdle::stateMachine;
 
 
-  //
-  // FXCallback
-  //
-  // Cloaking effect
-  //
-  Bool TrapIdle::FXCallBack(MapObj *mapObj, FX::CallBackData &cbd, void *)
-  {
-    TrapIdle *task = TaskCtrl::Promote<Tasks::TrapIdle>(mapObj);
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TrapIdle
+    //
 
-    // Do we have a cloaked object
-    if (task && task->IsCloaked())
+
+    //
+    // FXCallback
+    //
+    // Cloaking effect
+    //
+    Bool TrapIdle::FXCallBack(MapObj* mapObj, FX::CallBackData& cbd, void*)
     {
-      // Should we display it on this machine
-      if (!Team::TestRelation(task->GetSubject()->GetTeam(), Team::GetDisplayTeam(), Relation::ENEMY))
-      {
-        cbd.meshEffect.percent = task->GetProgress();
-        return (FALSE);
-      }
-    }
+        TrapIdle* task = TaskCtrl::Promote<Tasks::TrapIdle>(mapObj);
 
-    return (TRUE);
-  }
-
-
-  //
-  // Constructor
-  //
-  TrapIdle::TrapIdle(GameObj *subject) :
-    GameTask<TrapObjType, TrapObj>(staticConfig, subject),
-    inst(&stateMachine, "Init"),
-    everCloaked(FALSE),
-    progressTotal(0.0F)
-  {
-    // Get the number of seconds to cloak
-    F32 time = 5.0F;
-
-    // Work out the maximum cloak rate
-    progressRate = (time > 0.0F) ? (1.0F / (time * GameTime::SimTimeInv())) : 1.0F;
-  }
-
-
-  //
-  // Save
-  //
-  void TrapIdle::Save(FScope *fScope)
-  {
-    SaveTaskData(fScope);
-    inst.SaveState(fScope->AddFunction("StateMachine"));
-    StdSave::TypeU32(fScope, "EverCloaked", everCloaked);   
-    StdSave::TypeF32(fScope, "ProgressTotal", progressTotal);
-  }
-
-
-  //
-  // Load
-  //
-  void TrapIdle::Load(FScope *fScope)
-  {
-    FScope *sScope;
-
-    while ((sScope = fScope->NextFunction()) != NULL)
-    {
-      switch (sScope->NameCrc())
-      {
-        case 0x22C4A13F: // "StateMachine"
-          inst.LoadState(sScope);
-          break;
-
-        case 0x69D02CE3: // "EverCloaked"
-          everCloaked = StdLoad::TypeU32(sScope);
-          break;
-
-        case 0x97522DEF: // "ProgressTotal"
-          progressTotal = StdLoad::TypeF32(sScope);
-          break;
-
-        default:
-          LoadTaskData(sScope);
-          break;
-      }
-    }    
-  }
-
-
-  //
-  // Called after all objects are loaded
-  //
-  void TrapIdle::PostLoad()
-  {
-    // We can not check the display team here, since it is not setup yet
-    // Instead we check it in the callback
-
-    // Do we need to create the cloaked effect
-    if (IsCloaked())
-    {
-      subject->StartGenericFX(0xB52BA0ED, FXCallBack); // "Cloaking::Active"
-    }
-  }
-
-
-  //
-  // CheckCloak
-  //
-  // Check if we should turn cloaking on/off
-  //
-  Bool TrapIdle::CheckCloak(Bool on)
-  {
-    // Are we trying to cloak
-    if (on)
-    {
-      // Is cloaking available on our team
-      if (!subject->GetTeam() || subject->GetTeam()->CloakingAvailable())
-      {
-        // If no enemies can see us
-        if (!subject->SeenByRelation(Relation::ENEMY))
+        // Do we have a cloaked object
+        if (task && task->IsCloaked())
         {
-          // Can cloak now
-          return (TRUE);
+            // Should we display it on this machine
+            if (!Team::TestRelation(task->GetSubject()->GetTeam(), Team::GetDisplayTeam(), Relation::ENEMY))
+            {
+                cbd.meshEffect.percent = task->GetProgress();
+                return (FALSE);
+            }
         }
-      }
 
-      // Unable to cloak at this time
-      return (FALSE);
+        return (TRUE);
     }
-    else
+
+
+    //
+    // Constructor
+    //
+    TrapIdle::TrapIdle(GameObj* subject) :
+        GameTask<TrapObjType, TrapObj>(staticConfig, subject),
+        inst(&stateMachine, "Init"),
+        everCloaked(FALSE),
+        progressTotal(0.0F)
     {
-      // Have we been manually de-cloaked
-      if (!subject->GetFlag(UnitObj::FLAG_CLANDESTINE))
-      {
-        return (TRUE);
-      }
+        // Get the number of seconds to cloak
+        F32 time = 5.0F;
 
-      // Is cloaking available on our team
-      if (subject->GetTeam() && !subject->GetTeam()->CloakingAvailable())
-      {
-        return (TRUE);
-      }
+        // Work out the maximum cloak rate
+        progressRate = (time > 0.0F) ? (1.0F / (time * GameTime::SimTimeInv())) : 1.0F;
+    }
 
-      // Can we be seen by any enemy
-      if (subject->SeenByRelation(Relation::ENEMY))
-      {
-        // Is one of those an anti-clandestine unit
-        if (UnitObjType::FindAntiClandestine(subject->GetTeam(), subject->Position()))
+
+    //
+    // Save
+    //
+    void TrapIdle::Save(FScope* fScope)
+    {
+        SaveTaskData(fScope);
+        inst.SaveState(fScope->AddFunction("StateMachine"));
+        StdSave::TypeU32(fScope, "EverCloaked", everCloaked);
+        StdSave::TypeF32(fScope, "ProgressTotal", progressTotal);
+    }
+
+
+    //
+    // Load
+    //
+    void TrapIdle::Load(FScope* fScope)
+    {
+        FScope* sScope;
+
+        while ((sScope = fScope->NextFunction()) != NULL)
         {
-          return (TRUE);
+            switch (sScope->NameCrc())
+            {
+                case 0x22C4A13F: // "StateMachine"
+                    inst.LoadState(sScope);
+                    break;
+
+                case 0x69D02CE3: // "EverCloaked"
+                    everCloaked = StdLoad::TypeU32(sScope);
+                    break;
+
+                case 0x97522DEF: // "ProgressTotal"
+                    progressTotal = StdLoad::TypeF32(sScope);
+                    break;
+
+                default:
+                    LoadTaskData(sScope);
+                    break;
+            }
         }
-      }
-
-      // No need to de-cloak
-      return (FALSE);
     }
-  }
 
 
-  //
-  // RemoveCloak
-  //
-  // Remove cloak if active
-  //
-  void TrapIdle::RemoveCloak()
-  {
-    // Clear flags
-    subject->SetFlag(UnitObj::FLAG_CLANDESTINE, FALSE);
-    subject->SetFlag(UnitObj::FLAG_INVISIBLE, FALSE);
-
-    // Trigger a puff of smoke
-    subject->StartGenericFX(0x3314B14F); // "Cloaking::Finish"
-  }
-
-
-  //
-  // Perform task processing
-  //
-  Bool TrapIdle::Process()
-  {
-    inst.Process(this);  
-
-    return (FALSE);
-  }
-
-
-  //
-  // Task initialization
-  //
-  void TrapIdle::StateInit()
-  {
-    // Blend the animation back to the idle animation
-    subject->SetAnimation(0x8F651465); // "Default"
-
-    // Already cloaked, or never cloaked and allowed
-    if (IsCloaked() || (!everCloaked && CheckCloak(TRUE)))
+    //
+    // Called after all objects are loaded
+    //
+    void TrapIdle::PostLoad()
     {
-      NextState(0xAE500932); // "Cloaked"
-    }
-    else
-    {
-      NextState(0x01C95681); // "Visible"
-    }
-  }
+        // We can not check the display team here, since it is not setup yet
+        // Instead we check it in the callback
 
-
-  //
-  // Unit is visible
-  //
-  void TrapIdle::StateVisible()
-  {
-    // Check for enemies
-    subject->Poll();
-  }
-
-
-  //
-  // Unit is cloaked
-  //
-  void TrapIdle::StateCloaked(StateMachineNotify notify)
-  {
-    switch (notify)
-    {
-      case SMN_ENTRY:
-      {
-        // Ignore if already cloaked
-        if (!IsCloaked())
+        // Do we need to create the cloaked effect
+        if (IsCloaked())
         {
-          // Clear progress
-          progressTotal = 0.0F;
-
-          // Always trigger the starting fx
-          subject->StartGenericFX(0x7F793F24); // "Cloaking::Start"
-
-          // Trigger the cloaking effect for non-enemy teams
-          if (!Team::TestDisplayRelation(subject, Relation::ENEMY))
-          {
             subject->StartGenericFX(0xB52BA0ED, FXCallBack); // "Cloaking::Active"
-          }
-
-          // Set flags
-          subject->SetFlag(UnitObj::FLAG_CLANDESTINE, TRUE);
-          subject->SetFlag(UnitObj::FLAG_INVISIBLE, TRUE);
-
-          // Remember that we have now cloaked
-          everCloaked = TRUE;
         }
+    }
 
-        break;
-      }
 
-      case SMN_PROCESS:
-      {
-        // Are we still processing the effect
-        if (progressTotal < 1.0F)
+    //
+    // CheckCloak
+    //
+    // Check if we should turn cloaking on/off
+    //
+    Bool TrapIdle::CheckCloak(Bool on)
+    {
+        // Are we trying to cloak
+        if (on)
         {
-          // Process each cycle
-          ThinkFast();
+            // Is cloaking available on our team
+            if (!subject->GetTeam() || subject->GetTeam()->CloakingAvailable())
+            {
+                // If no enemies can see us
+                if (!subject->SeenByRelation(Relation::ENEMY))
+                {
+                    // Can cloak now
+                    return (TRUE);
+                }
+            }
 
-          // Increment the counter
-          progressTotal += progressRate;
+            // Unable to cloak at this time
+            return (FALSE);
         }
         else
         {
-          // Check for enemies
-          subject->Poll();
-        }
+            // Have we been manually de-cloaked
+            if (!subject->GetFlag(UnitObj::FLAG_CLANDESTINE))
+            {
+                return (TRUE);
+            }
 
-        // See if we need to decloak
-        if (CheckCloak(FALSE))
-        {
-          RemoveCloak();
-          NextState(0x01C95681); // "Visible"
+            // Is cloaking available on our team
+            if (subject->GetTeam() && !subject->GetTeam()->CloakingAvailable())
+            {
+                return (TRUE);
+            }
+
+            // Can we be seen by any enemy
+            if (subject->SeenByRelation(Relation::ENEMY))
+            {
+                // Is one of those an anti-clandestine unit
+                if (UnitObjType::FindAntiClandestine(subject->GetTeam(), subject->Position()))
+                {
+                    return (TRUE);
+                }
+            }
+
+            // No need to de-cloak
+            return (FALSE);
         }
-        break;
-      }
     }
-  }
 
 
-  //
-  // Notify this task of an event
-  //
-  Bool TrapIdle::ProcessEvent(const Event &event)
-  {
-    switch (event.message)
+    //
+    // RemoveCloak
+    //
+    // Remove cloak if active
+    //
+    void TrapIdle::RemoveCloak()
     {
-      case GameObjNotify::Interrupted:
-        NextState(0xABAA7B48); // "Init"
-        return (TRUE);
+        // Clear flags
+        subject->SetFlag(UnitObj::FLAG_CLANDESTINE, FALSE);
+        subject->SetFlag(UnitObj::FLAG_INVISIBLE, FALSE);
+
+        // Trigger a puff of smoke
+        subject->StartGenericFX(0x3314B14F); // "Cloaking::Finish"
     }
-    return (GameTask<TrapObjType, TrapObj>::ProcessEvent(event));
-  }
 
 
-  //
-  // IsCloaked
-  //
-  // Is the trap currently cloaked
-  //
-  Bool TrapIdle::IsCloaked()
-  {
-    return (subject->GetFlag(UnitObj::FLAG_CLANDESTINE));
-  }
+    //
+    // Perform task processing
+    //
+    Bool TrapIdle::Process()
+    {
+        inst.Process(this);
+
+        return (FALSE);
+    }
 
 
-  //
-  // GetProgress
-  //
-  // Get the current effect progress
-  //
-  F32 TrapIdle::GetProgress()
-  {
-    return (Min<F32>(progressTotal, 1.0F));
-  }
+    //
+    // Task initialization
+    //
+    void TrapIdle::StateInit()
+    {
+        // Blend the animation back to the idle animation
+        subject->SetAnimation(0x8F651465); // "Default"
+
+        // Already cloaked, or never cloaked and allowed
+        if (IsCloaked() || (!everCloaked && CheckCloak(TRUE)))
+        {
+            NextState(0xAE500932); // "Cloaked"
+        }
+        else
+        {
+            NextState(0x01C95681); // "Visible"
+        }
+    }
 
 
-  //
-  // Initialization
-  //
-  void TrapIdle::Init()
-  {
-    // Setup config
-    staticConfig.Setup();
-
-    // Add states to the state machine
-    stateMachine.AddState("Init", &TrapIdle::StateInit);
-    stateMachine.AddState("Visible", &TrapIdle::StateVisible);
-    stateMachine.AddState("Cloaked", &TrapIdle::StateCloaked);
-  }
+    //
+    // Unit is visible
+    //
+    void TrapIdle::StateVisible()
+    {
+        // Check for enemies
+        subject->Poll();
+    }
 
 
-  //
-  // Shutdown
-  //
-  void TrapIdle::Done()
-  {
-    stateMachine.CleanUp();
-  }
+    //
+    // Unit is cloaked
+    //
+    void TrapIdle::StateCloaked(StateMachineNotify notify)
+    {
+        switch (notify)
+        {
+            case SMN_ENTRY:
+            {
+                // Ignore if already cloaked
+                if (!IsCloaked())
+                {
+                    // Clear progress
+                    progressTotal = 0.0F;
 
+                    // Always trigger the starting fx
+                    subject->StartGenericFX(0x7F793F24); // "Cloaking::Start"
+
+                    // Trigger the cloaking effect for non-enemy teams
+                    if (!Team::TestDisplayRelation(subject, Relation::ENEMY))
+                    {
+                        subject->StartGenericFX(0xB52BA0ED, FXCallBack); // "Cloaking::Active"
+                    }
+
+                    // Set flags
+                    subject->SetFlag(UnitObj::FLAG_CLANDESTINE, TRUE);
+                    subject->SetFlag(UnitObj::FLAG_INVISIBLE, TRUE);
+
+                    // Remember that we have now cloaked
+                    everCloaked = TRUE;
+                }
+
+                break;
+            }
+
+            case SMN_PROCESS:
+            {
+                // Are we still processing the effect
+                if (progressTotal < 1.0F)
+                {
+                    // Process each cycle
+                    ThinkFast();
+
+                    // Increment the counter
+                    progressTotal += progressRate;
+                }
+                else
+                {
+                    // Check for enemies
+                    subject->Poll();
+                }
+
+                // See if we need to decloak
+                if (CheckCloak(FALSE))
+                {
+                    RemoveCloak();
+                    NextState(0x01C95681); // "Visible"
+                }
+                break;
+            }
+        }
+    }
+
+
+    //
+    // Notify this task of an event
+    //
+    Bool TrapIdle::ProcessEvent(const Event& event)
+    {
+        switch (event.message)
+        {
+            case GameObjNotify::Interrupted:
+                NextState(0xABAA7B48); // "Init"
+                return (TRUE);
+        }
+        return (GameTask<TrapObjType, TrapObj>::ProcessEvent(event));
+    }
+
+
+    //
+    // IsCloaked
+    //
+    // Is the trap currently cloaked
+    //
+    Bool TrapIdle::IsCloaked()
+    {
+        return (subject->GetFlag(UnitObj::FLAG_CLANDESTINE));
+    }
+
+
+    //
+    // GetProgress
+    //
+    // Get the current effect progress
+    //
+    F32 TrapIdle::GetProgress()
+    {
+        return (Min<F32>(progressTotal, 1.0F));
+    }
+
+
+    //
+    // Initialization
+    //
+    void TrapIdle::Init()
+    {
+        // Setup config
+        staticConfig.Setup();
+
+        // Add states to the state machine
+        stateMachine.AddState("Init", &TrapIdle::StateInit);
+        stateMachine.AddState("Visible", &TrapIdle::StateVisible);
+        stateMachine.AddState("Cloaked", &TrapIdle::StateCloaked);
+    }
+
+
+    //
+    // Shutdown
+    //
+    void TrapIdle::Done()
+    {
+        stateMachine.CleanUp();
+    }
 }

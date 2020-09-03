@@ -35,263 +35,259 @@ class Team;
 //
 namespace Mods
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Types
-  //
-  namespace Types
-  {
-    const U32 Addon       = 0xB557B95D; // "Addon"
-    const U32 Personality = 0x8DB86B0C; // "Personality"
-    const U32 RuleSet     = 0x8BE0A9CA; // "RuleSet"
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Flags
-  //
-  namespace Flags
-  {
-    const U32 AddedResource = 0x01;
-    const U32 LoadedFiles   = 0x02;
-    const U32 ExecedFiles   = 0x04;
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declarations
-  //
-  class Mod;
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Type
-  //
-  class Type
-  {
-  public:
-
-    // Tree node
-    NBinTree<Type>::Node node;
-
-  private:
-
-    // Mods of this type
-    NBinTree<Mod> mods;
-
-    // Type name
-    GameIdent name;
-
-    // Path to this type
-    FilePath path;
-
-  public:
-
-    // Constructor
-    Type(const GameIdent &name, const FilePath &path);
-
-    // Destructor
-    ~Type();
-
-    // Add a mod
-    void AddMod(const GameIdent &name);
-
-    // Exec files
-    void ExecFiles();
-
-    // Clear the flags
-    void ClearFlags();
-
-  public:
-
-    // Get the path to this type
-    const FilePath & GetPath()
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Types
+    //
+    namespace Types
     {
-      return (path);
+        const U32 Addon = 0xB557B95D; // "Addon"
+        const U32 Personality = 0x8DB86B0C; // "Personality"
+        const U32 RuleSet = 0x8BE0A9CA; // "RuleSet"
     }
 
-    // Get mods
-    const NBinTree<Mod> & GetMods()
-    {
-      return (mods);
-    }
-
-  };
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Mod
-  //
-  class Mod
-  {
-  private:
 
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Struct FileSet
+    // NameSpace Flags
     //
-    struct FileSet
+    namespace Flags
     {
-      NBinTree<FileSet>::Node node;
+        const U32 AddedResource = 0x01;
+        const U32 LoadedFiles = 0x02;
+        const U32 ExecedFiles = 0x04;
+    }
 
-      List<FileName> files;
 
-      // Constructor
-      FileSet();
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward Declarations
+    //
+    class Mod;
 
-      // Destructor
-      ~FileSet();
 
-      // Setup
-      void Setup(FScope *fScope);
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Type
+    //
+    class Type
+    {
+    public:
 
+        // Tree node
+        NBinTree<Type>::Node node;
+
+    private:
+
+        // Mods of this type
+        NBinTree<Mod> mods;
+
+        // Type name
+        GameIdent name;
+
+        // Path to this type
+        FilePath path;
+
+    public:
+
+        // Constructor
+        Type(const GameIdent& name, const FilePath& path);
+
+        // Destructor
+        ~Type();
+
+        // Add a mod
+        void AddMod(const GameIdent& name);
+
+        // Exec files
+        void ExecFiles();
+
+        // Clear the flags
+        void ClearFlags();
+
+    public:
+
+        // Get the path to this type
+        const FilePath& GetPath()
+        {
+            return (path);
+        }
+
+        // Get mods
+        const NBinTree<Mod>& GetMods()
+        {
+            return (mods);
+        }
     };
 
-    // Mod type
-    Type &type;
 
-    // The name of the mod
-    GameIdent name;
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Mod
+    //
+    class Mod
+    {
+    private:
 
-    // The mod description
-    MultiIdent description;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Struct FileSet
+        //
+        struct FileSet
+        {
+            NBinTree<FileSet>::Node node;
 
-    // Download location
-    FilePath download;
+            List<FileName> files;
 
-    // Author
-    GameIdent author;
+            // Constructor
+            FileSet();
 
-    // Homepage
-    FilePath homepage;
+            // Destructor
+            ~FileSet();
 
-    // Is the mod private ?
-    Bool priv;
+            // Setup
+            void Setup(FScope* fScope);
+        };
 
-    // Is the mod allowed to be found randomly ?
-    Bool random;
+        // Mod type
+        Type& type;
 
-    // Start action for every team
-    FScope *startActionAll;
+        // The name of the mod
+        GameIdent name;
 
-    // Start action for the client team
-    FScope *startActionClient;
+        // The mod description
+        MultiIdent description;
 
-    // Start action for available teams
-    FScope *startActionAvailable;
+        // Download location
+        FilePath download;
 
-    // Start action for a particular side
-    BinTree<FScope> startActionSides;
+        // Author
+        GameIdent author;
 
-    // Start action for a particular team
-    BinTree<FScope> startActionTeams;
+        // Homepage
+        FilePath homepage;
 
-    // Files to add to the type stream
-    FileSet typeStream;
+        // Is the mod private ?
+        Bool priv;
 
-    // Files to add to the AI stream
-    FileSet aiStream;
+        // Is the mod allowed to be found randomly ?
+        Bool random;
 
-    // Files to execute when the mission starts
-    FileSet execStream;
+        // Start action for every team
+        FScope* startActionAll;
 
-    // Flags
-    U32 flags;
+        // Start action for the client team
+        FScope* startActionClient;
 
-    // Tree node
-    NBinTree<Mod>::Node node;
+        // Start action for available teams
+        FScope* startActionAvailable;
 
-  public:
+        // Start action for a particular side
+        BinTree<FScope> startActionSides;
 
-    // Constructor and destructor
-    Mod(Type &type, const GameIdent &name, FScope *fScope);
-    ~Mod();
+        // Start action for a particular team
+        BinTree<FScope> startActionTeams;
 
-    // Initialize this mod (adds its contents to the gamedata stream)
-    void Initialize();
+        // Files to add to the type stream
+        FileSet typeStream;
 
-    // Load stream config files
-    void Load();
+        // Files to add to the AI stream
+        FileSet aiStream;
 
-    // Setup this mod for the given team
-    void Setup(Team *team);
+        // Files to execute when the mission starts
+        FileSet execStream;
 
-    // Exec files
+        // Flags
+        U32 flags;
+
+        // Tree node
+        NBinTree<Mod>::Node node;
+
+    public:
+
+        // Constructor and destructor
+        Mod(Type& type, const GameIdent& name, FScope* fScope);
+        ~Mod();
+
+        // Initialize this mod (adds its contents to the gamedata stream)
+        void Initialize();
+
+        // Load stream config files
+        void Load();
+
+        // Setup this mod for the given team
+        void Setup(Team* team);
+
+        // Exec files
+        void ExecFiles();
+
+    public:
+
+        // Clear the loaded flag
+        void ClearFlags()
+        {
+            flags = 0;
+        }
+
+        // Get the name of this mod
+        const GameIdent& GetName() const
+        {
+            return (name);
+        }
+
+        // Set the description key
+        void SetDescription(const char* key)
+        {
+            description = key;
+        }
+
+        // Get the description key
+        const MultiIdent& GetDescription() const
+        {
+            return (description);
+        }
+
+        // Is the mod private
+        Bool IsPrivate() const
+        {
+            return (priv);
+        }
+
+        // Is the mod randomly accessable ?
+        Bool IsRandom() const
+        {
+            return (random);
+        }
+
+    public:
+
+        friend Type;
+    };
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // System Functions
+    //
+
+    // Initialize and shutdown system
+    void Init();
+    void Done();
+
+    // Exec files for all mods which have been loaded
     void ExecFiles();
 
-  public:
+    // Free resources
+    void FreeResources();
 
-    // Clear the loaded flag
-    void ClearFlags()
-    {
-      flags = 0;
-    }
+    // Get all of the mods of the given type
+    const NBinTree<Mod>* GetMods(U32 type);
 
-    // Get the name of this mod
-    const GameIdent & GetName() const
-    {
-      return (name);
-    }
+    // Get a random mod of the given type
+    Mod* GetRandomMod(U32 type);
 
-    // Set the description key
-    void SetDescription(const char *key)
-    {
-      description = key;
-    }
-
-    // Get the description key
-    const MultiIdent & GetDescription() const
-    {
-      return (description);
-    }
-
-    // Is the mod private
-    Bool IsPrivate() const
-    {
-      return (priv);
-    }
-
-    // Is the mod randomly accessable ?
-    Bool IsRandom() const
-    {
-      return (random);
-    }
-
-  public:
-
-    friend Type;
-  };
-
-  
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // System Functions
-  //
-
-  // Initialize and shutdown system
-  void Init();
-  void Done();
-
-  // Exec files for all mods which have been loaded
-  void ExecFiles();
-
-  // Free resources
-  void FreeResources();
-
-  // Get all of the mods of the given type
-  const NBinTree<Mod> * GetMods(U32 type);
-
-  // Get a random mod of the given type
-  Mod * GetRandomMod(U32 type);
-
-  // Find a mod using the type and mod
-  Mod * GetMod(U32 type, U32 mod);
-
+    // Find a mod using the type and mod
+    Mod* GetMod(U32 type, U32 mod);
 }
 
 #endif

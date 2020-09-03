@@ -26,25 +26,25 @@
 class MeshPlaneType : public MeshColorType
 {
 public:
-  KeyList<ScaleKey> paramKeys;
-  Plane plane;
+    KeyList<ScaleKey> paramKeys;
+    Plane plane;
 
 public:
 
-  MeshPlaneType();
+    MeshPlaneType();
 
-	virtual ~MeshPlaneType();
+    virtual ~MeshPlaneType();
 
-  // Configure the class
-  virtual Bool Configure(FScope *fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-  // Postload
-  virtual void PostLoad();
+    // Postload
+    virtual void PostLoad();
 
-	// build a new mesh effect
-	virtual MeshEffect *Build( MeshEnt &_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    // build a new mesh effect
+    virtual MeshEffect* Build(MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-  virtual U32 GetMem() const;
+    virtual U32 GetMem() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,25 +54,24 @@ public:
 class MeshPlane : public MeshBaseColor
 {
 public:
-  KeyAnim<ScaleKey> paramAnim;
+    KeyAnim<ScaleKey> paramAnim;
 
-  MeshEnt * planeEnt;
-  Vector  origin;
-  Bounds  bounds;
+    MeshEnt* planeEnt;
+    Vector origin;
+    Bounds bounds;
 
 public:
 
-	MeshPlane( MeshPlaneType *_type, MeshEnt *_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshPlane(MeshPlaneType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-	virtual ~MeshPlane();
+    virtual ~MeshPlane();
 
-	virtual Bool Simulate(F32 dt, MeshFX::CallBackData * cbd = NULL);
+    virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
 
-  MeshPlaneType *GetType()
-  {
-    return (MeshPlaneType *) type;
-  }
-
+    MeshPlaneType* GetType()
+    {
+        return (MeshPlaneType*)type;
+    }
 };
 
 #endif

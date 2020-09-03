@@ -44,8 +44,8 @@ namespace Terrain
     U32 sysInit;
     U32 mapInit;
 
-    S32 fogFactorsS32[8] = { 0, 64, 96, 127, 159, 180, 223, 255 };
-    F32 fogFactorsF32[8] = { 0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.75f, 0.875f, 1.0f };
+    S32 fogFactorsS32[8] = {0, 64, 96, 127, 159, 180, 223, 255};
+    F32 fogFactorsF32[8] = {0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.75f, 0.875f, 1.0f};
 
     HeightField heightField;
     HeightField randomField;
@@ -79,7 +79,7 @@ namespace Terrain
 
     Material* waterMaterial;
     Material* mirrorMaterial;
-    Bitmap* waterTex, * defTex, * editTex;
+    Bitmap *waterTex, *defTex, *editTex;
     Bitmap* texList[TEXTURECOUNT];
     Bitmap** texAnimList[TEXTURECOUNT];
     Bitmap* overlayList[TEXTURECOUNT];
@@ -300,112 +300,114 @@ namespace Terrain
     {
         switch (pathCrc)
         {
-        case 0xB3264AC9: // "terrain.light.quick"
-        case 0x6E1D576F: // "terrain.light.lightmap"
-            SetRenderFunc();
-            break;
-        case 0x9C14C472: // "terrain.shadefactor"
-        {
-            // rebuild the terrain normal list
-            BuildNormals();
-            break;
-        }
-        case 0x34A5BC9B: // "terrain.shadefactorinc"
-        {
+            case 0xB3264AC9: // "terrain.light.quick"
+            case 0x6E1D576F: // "terrain.light.lightmap"
+                SetRenderFunc();
+                break;
+            case 0x9C14C472: // "terrain.shadefactor"
+            {
+                // rebuild the terrain normal list
+                BuildNormals();
+                break;
+            }
+            case 0x34A5BC9B: // "terrain.shadefactorinc"
+            {
 #define SHADEINC      0.01f
 
-            F32 shade = *Vid::Var::Terrain::shadefactor + SHADEINC;
-            if (shade > 1.0f)
-            {
-                shade = 0.0f;
-            }
-            Vid::Var::Terrain::shadefactor = shade;
-            break;
-        }
-        case 0x0CF9BADE: // "terrain.toggle.shroud"
-        {
-            Vid::Var::Terrain::shroud = !*Vid::Var::Terrain::shroud;
-            break;
-        }
-        case 0x662A9CB3: // "terrain.toggle.water"
-        {
-            Vid::Var::Terrain::water = !*Vid::Var::Terrain::water;
-            break;
-        }
-
-        case 0x2ADBAF27: // "terrain.textures.report"
-            Report(TRUE);
-            break;
-        case 0xA2D15B0C: // "terrain.report"
-            Report();
-            break;
-
-        case 0x9F550DBF: // "terrain.textures.purge"
-            PurgeTextures();
-            break;
-
-        case 0x77C0B9B1: // "terrain.water.alphatopfactor"
-        {
-            Color c = *Vid::Var::Terrain::waterColorBottom;
-            c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
-            Vid::Var::Terrain::waterColorTop = c;
-            break;
-        }
-        case 0x5BEE10F2: // "terrain.water.alphabot"
-        {
-            Color c = *Vid::Var::Terrain::waterColorBottom;
-            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);
-            Vid::Var::Terrain::waterColorBottom = c;
-
-            waterMaterial->SetDiffuse(c);
-
-            c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
-            Vid::Var::Terrain::waterColorTop = c;
-            break;
-        }
-        case 0x0CEB006D: // "terrain.water.mirroralpha"
-            waterColorMirror = *Vid::Var::Terrain::waterColorBottom;
-            waterColorMirror.a = U8(*Vid::Var::Terrain::waterAlphaMirror);
-
-            mirrorMaterial->SetDiffuse(waterColorMirror);
-            break;
-
-        case 0x6A2205FC: // "terrain.shroud.fog"
-        case 0xDF6981B8: // "terrain.shroud.invisible"
-        {
-            NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
-            while (MeshEnt* ent = li++)
-            {
-                if (*Vid::Var::Terrain::invisibleShroud)
+                F32 shade = *Vid::Var::Terrain::shadefactor + SHADEINC;
+                if (shade > 1.0f)
                 {
-                    ent->baseColor.Set(U32(255), U32(255), U32(255), ent->baseColor.a);
+                    shade = 0.0f;
                 }
-                else
-                {
-                    ent->extraFog = 0;
-                }
+                Vid::Var::Terrain::shadefactor = shade;
+                break;
             }
-            break;
-        }
-        case 0x48F02BBA: // "terrain.shroud.rate"
-            Vid::Var::Terrain::shroudRate = Min<S32>(
-                255, Vid::Var::Terrain::shroudRate * *Vid::Var::Terrain::shroudUpdate);
-            break;
-
-        case 0xB56030F2: // "terrain.render.render"
-        {
-            static U32 counter = 0;
-            char* s = "terrain.bmp";
-            GameIdent gi;
-            if (!Console::GetArgString(1, (const char*&)s))
+            case 0x0CF9BADE: // "terrain.toggle.shroud"
             {
-                sprintf(gi.str, "terrain%d.bmp", counter);
-                counter++;
-                s = gi.str;
+                Vid::Var::Terrain::shroud = !*Vid::Var::Terrain::shroud;
+                break;
             }
-            RenderTerrainMap(s, 1024, *Vid::Var::Terrain::renderColor, *Vid::Var::Terrain::renderOverlay);
-            break;
-        }
+            case 0x662A9CB3: // "terrain.toggle.water"
+            {
+                Vid::Var::Terrain::water = !*Vid::Var::Terrain::water;
+                break;
+            }
+
+            case 0x2ADBAF27: // "terrain.textures.report"
+                Report(TRUE);
+                break;
+            case 0xA2D15B0C: // "terrain.report"
+                Report();
+                break;
+
+            case 0x9F550DBF: // "terrain.textures.purge"
+                PurgeTextures();
+                break;
+
+            case 0x77C0B9B1: // "terrain.water.alphatopfactor"
+            {
+                Color c = *Vid::Var::Terrain::waterColorBottom;
+                c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
+                Vid::Var::Terrain::waterColorTop = c;
+                break;
+            }
+            case 0x5BEE10F2: // "terrain.water.alphabot"
+            {
+                Color c = *Vid::Var::Terrain::waterColorBottom;
+                c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);
+                Vid::Var::Terrain::waterColorBottom = c;
+
+                waterMaterial->SetDiffuse(c);
+
+                c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
+                Vid::Var::Terrain::waterColorTop = c;
+                break;
+            }
+            case 0x0CEB006D: // "terrain.water.mirroralpha"
+                waterColorMirror = *Vid::Var::Terrain::waterColorBottom;
+                waterColorMirror.a = U8(*Vid::Var::Terrain::waterAlphaMirror);
+
+                mirrorMaterial->SetDiffuse(waterColorMirror);
+                break;
+
+            case 0x6A2205FC: // "terrain.shroud.fog"
+            case 0xDF6981B8: // "terrain.shroud.invisible"
+            {
+                NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
+                while (MeshEnt* ent = li++)
+                {
+                    if (*Vid::Var::Terrain::invisibleShroud)
+                    {
+                        ent->baseColor.Set(U32(255), U32(255), U32(255), ent->baseColor.a);
+                    }
+                    else
+                    {
+                        ent->extraFog = 0;
+                    }
+                }
+                break;
+            }
+            case 0x48F02BBA: // "terrain.shroud.rate"
+                Vid::Var::Terrain::shroudRate = Min<S32>
+                (
+                    255, Vid::Var::Terrain::shroudRate * *Vid::Var::Terrain::shroudUpdate
+                );
+                break;
+
+            case 0xB56030F2: // "terrain.render.render"
+            {
+                static U32 counter = 0;
+                char* s = "terrain.bmp";
+                GameIdent gi;
+                if (!Console::GetArgString(1, (const char*&)s))
+                {
+                    sprintf(gi.str, "terrain%d.bmp", counter);
+                    counter++;
+                    s = gi.str;
+                }
+                RenderTerrainMap(s, 1024, *Vid::Var::Terrain::renderColor, *Vid::Var::Terrain::renderOverlay);
+                break;
+            }
         }
     }
 
@@ -446,16 +448,31 @@ namespace Terrain
         VarSys::CreateInteger("terrain.water.active", 1, VarSys::DEFAULT, &Vid::Var::Terrain::water);
         VarSys::CreateFloat("terrain.water.speed", 0.01f, VarSys::DEFAULT, &Vid::Var::Terrain::waterSpeed)->
             SetFloatRange(0.0f, 0.1f);
-        VarSys::CreateFloat("terrain.water.alphatopfactor", 0.887f, VarSys::NOTIFY,
-            &Vid::Var::Terrain::waterAlphaTopFactor)->SetFloatRange(0.0f, 1.0f);
-        VarSys::CreateInteger("terrain.water.alphabot", waterAlphaHigh, VarSys::NOTIFY,
-            &Vid::Var::Terrain::waterAlphaBottom)->SetIntegerRange(0, 255);
-        VarSys::CreateInteger("terrain.water.colorbot", Color(U32(255), U32(255), U32(255), waterAlphaHigh),
-            VarSys::DEFAULT, &Vid::Var::Terrain::waterColorBottom);
-        VarSys::CreateInteger("terrain.water.colortop",
-            Color(U32(255), U32(255), U32(255),
-                U32(static_cast<F32>(waterAlphaHigh) * *Vid::Var::Terrain::waterAlphaTopFactor)),
-            VarSys::DEFAULT, &Vid::Var::Terrain::waterColorTop);
+        VarSys::CreateFloat
+        (
+            "terrain.water.alphatopfactor", 0.887f, VarSys::NOTIFY,
+            &Vid::Var::Terrain::waterAlphaTopFactor
+        )->SetFloatRange(0.0f, 1.0f);
+        VarSys::CreateInteger
+        (
+            "terrain.water.alphabot", waterAlphaHigh, VarSys::NOTIFY,
+            &Vid::Var::Terrain::waterAlphaBottom
+        )->SetIntegerRange(0, 255);
+        VarSys::CreateInteger
+        (
+            "terrain.water.colorbot", Color(U32(255), U32(255), U32(255), waterAlphaHigh),
+            VarSys::DEFAULT, &Vid::Var::Terrain::waterColorBottom
+        );
+        VarSys::CreateInteger
+        (
+            "terrain.water.colortop",
+            Color
+            (
+                U32(255), U32(255), U32(255),
+                U32(static_cast<F32>(waterAlphaHigh) * *Vid::Var::Terrain::waterAlphaTopFactor)
+            ),
+            VarSys::DEFAULT, &Vid::Var::Terrain::waterColorTop
+        );
         VarSys::CreateInteger("terrain.water.mirroralpha", 88, VarSys::NOTIFY, &Vid::Var::Terrain::waterAlphaMirror)->
             SetIntegerRange(0, 255);
         waterColorMirror = *Vid::Var::Terrain::waterColorBottom;
@@ -762,8 +779,11 @@ namespace Terrain
     // perform a heightfield to terrain paste operation
     // recalc data important to terrain
     //
-    void Paste(Area<S32>& dstRect, HeightField& buf, Area<S32>& bufRect, F32 scale, U32 flags,
-        F32 atHeight) // = EDITHEIGHTS
+    void Paste
+    (
+        Area<S32>& dstRect, HeightField& buf, Area<S32>& bufRect, F32 scale, U32 flags,
+        F32 atHeight
+    ) // = EDITHEIGHTS
     {
         heightField.Paste(dstRect, buf, bufRect, scale, flags, atHeight);
 
@@ -1075,9 +1095,12 @@ namespace Terrain
         // setup performance related parameters
         //
         //    F32 farp = Max<F32>( *Vid::Var::Terrain::minFarPlane, maxFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState.perfs[1]) * *Vid::Var::Terrain::perfAdjust));
-        F32 farp = Max<F32>(*Vid::Var::Terrain::minFarPlane,
+        F32 farp = Max<F32>
+        (
+            *Vid::Var::Terrain::minFarPlane,
             *Vid::Var::Terrain::standardFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState
-                .perfs[1]) * *Vid::Var::Terrain::perfAdjust));
+                .perfs[1]) * *Vid::Var::Terrain::perfAdjust)
+        );
 
         if (*Vid::Var::farOverride != 0)
         {
@@ -1252,7 +1275,7 @@ namespace Terrain
             p->y = clus.waterHeight;
             p++;
 
-            WaterRegion* w, * we = waterList.data + waterCount, * whit = nullptr;
+            WaterRegion *w, *we = waterList.data + waterCount, *whit = nullptr;
             for (w = waterList.data; w < we; w++)
             {
                 if (w->height != clus.waterHeight)
@@ -1381,8 +1404,11 @@ namespace Terrain
             }
         }
 
-        qsort(static_cast<void*>(waterList.data), static_cast<size_t>(static_cast<size_t>(waterCount)),
-            sizeof(WaterRegion), CompareWaterRegions);
+        qsort
+        (
+            static_cast<void*>(waterList.data), static_cast<size_t>(static_cast<size_t>(waterCount)),
+            sizeof(WaterRegion), CompareWaterRegions
+        );
 
 #if 0
         F32 area = 0;
@@ -1507,8 +1533,11 @@ namespace Terrain
                 CalcClusSphere(x, z);
             }
         }
-        qsort(static_cast<void*>(waterList.data), static_cast<size_t>(waterCount), sizeof(WaterRegion),
-            CompareWaterRegions);
+        qsort
+        (
+            static_cast<void*>(waterList.data), static_cast<size_t>(waterCount), sizeof(WaterRegion),
+            CompareWaterRegions
+        );
 
 #if 0
         F32 area = 0;
@@ -1530,8 +1559,11 @@ namespace Terrain
 
     // import a buffer of greyscale values as a heightfield
     //
-    Bool ImportBitmap(char* buffer, U32 bwid, U32 bhgt, F32 scale, Area<S32>& rect, U32 csize,
-        U32 flags) // = CELLSIZE, = 0
+    Bool ImportBitmap
+    (
+        char* buffer, U32 bwid, U32 bhgt, F32 scale, Area<S32>& rect, U32 csize,
+        U32 flags
+    ) // = CELLSIZE, = 0
     {
         U32 wid = rect.Width();
         U32 hgt = rect.Height();
@@ -2045,7 +2077,7 @@ namespace Terrain
         {
             texAnim -= .1f;
 
-            Bitmap*** at, *** et = texAnimList + texAnimCount;
+            Bitmap ***at, ***et = texAnimList + texAnimCount;
             for (at = texAnimList; at < et; at++)
             {
                 (**at) = (**at)->GetNext();
@@ -2125,7 +2157,7 @@ namespace Terrain
         {
             texAnim -= .1f;
 
-            Bitmap*** at, *** et = texAnimList + texAnimCount;
+            Bitmap ***at, ***et = texAnimList + texAnimCount;
             for (at = texAnimList; at < et; at++)
             {
                 (**at) = (**at)->GetNext();
@@ -2761,8 +2793,11 @@ namespace Terrain
     // returns NULL if it reaches the edge of the terrain without an intersection
     // checks and corrects for starting pos off map
     //
-    Bool Intersect(Vector& pos, Vector front, F32 stepScale, const FINDFLOORPROCPTR findFloorProc,
-        F32 range) // = 1.0f, FindFloor, F32_MAX
+    Bool Intersect
+    (
+        Vector& pos, Vector front, F32 stepScale, const FINDFLOORPROCPTR findFloorProc,
+        F32 range
+    ) // = 1.0f, FindFloor, F32_MAX
     {
         range;
 
@@ -2810,9 +2845,11 @@ namespace Terrain
             y = (*findFloorProc)(pos.x, pos.z, nullptr);
         }
 
-        LOG_ERR(
+        LOG_ERR
+        (
             ("Terrain::Intersect: overflow! start: %4.2f %4.2f %4.2f ; end: %4.2f %4.2f %4.2f ; step %4.2f %4.2f %4.2f",
-                startPos.x, startPos.y, startPos.z, pos.x, pos.y, pos.z, front.x, front.y, front.z));
+                startPos.x, startPos.y, startPos.z, pos.x, pos.y, pos.z, front.x, front.y, front.z)
+        );
 
         return FALSE;
     }
@@ -2850,8 +2887,11 @@ namespace Terrain
             return -1;
         }
 
-        overlayList[overlayCount] = Bitmap::Manager::FindCreate(Bitmap::reduceHIGH, name, Vid::Var::terrMipCount,
-            bitmapTEXTURE, 1, FALSE, FALSE);
+        overlayList[overlayCount] = Bitmap::Manager::FindCreate
+        (
+            Bitmap::reduceHIGH, name, Vid::Var::terrMipCount,
+            bitmapTEXTURE, 1, FALSE, FALSE
+        );
 
         if (!overlayList[overlayCount])
         {

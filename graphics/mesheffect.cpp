@@ -18,8 +18,11 @@
 
 // Constructor
 //
-MeshEffect::MeshEffect(MeshEffectType* _type, MeshEnt* _ent, F32 _lifeTime,
-                       U32 _flags) // = 0.0f, = Effects::flagDESTROY | Effects::flagLOOP
+MeshEffect::MeshEffect
+(
+    MeshEffectType* _type, MeshEnt* _ent, F32 _lifeTime,
+    U32 _flags
+) // = 0.0f, = Effects::flagDESTROY | Effects::flagLOOP
     : type(_type), flags(_flags), texture(nullptr), texTime(0)
 {
     _flags |= _type->data.animFlags;

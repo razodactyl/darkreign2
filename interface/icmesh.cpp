@@ -68,10 +68,12 @@ void ICMesh::DrawBack(PaintInfo& pi, F32 zDepth, Color color, Bitmap* tex)
 
     const Area<S32>& rect = Vid::CurCamera().ViewRect();
 
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_NOSORT | RS_BLEND_MODULATE);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_NOSORT | RS_BLEND_MODULATE
+    );
 
     Vid::SetBucketTexture(tex, color.a < 255, 0, RS_BLEND_MODULATE);
 

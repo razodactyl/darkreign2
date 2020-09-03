@@ -273,7 +273,7 @@ namespace Main
                 //
                 // Currently: Prompt for UAC when installing an update.
 
-                SHELLEXECUTEINFO shExInfo = { 0 };
+                SHELLEXECUTEINFO shExInfo = {0};
                 shExInfo.cbSize = sizeof(shExInfo);
                 shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
                 shExInfo.hwnd = 0;
@@ -443,10 +443,13 @@ namespace Main
         GetClientRect(mainHwnd, (RECT*)&cr);
         U32 ew = wr.Width() - cr.Width();
         U32 eh = wr.Height() - cr.Height();
-        SetWindowPos(mainHwnd, HWND_TOP,
-                     (GetSystemMetrics(SM_CXSCREEN) - 640) >> 1,
-                     (GetSystemMetrics(SM_CYSCREEN) - 480) >> 1,
-                     640 + ew, 480 + eh, SWP_NOREDRAW);
+        SetWindowPos
+        (
+            mainHwnd, HWND_TOP,
+            (GetSystemMetrics(SM_CXSCREEN) - 640) >> 1,
+            (GetSystemMetrics(SM_CYSCREEN) - 480) >> 1,
+            640 + ew, 480 + eh, SWP_NOREDRAW
+        );
 
         Vid::Init(instance, mainHwnd);
 
@@ -1291,13 +1294,17 @@ namespace Main
         LOG_DIAG(("Mem: %s", Hardware::Memory::GetDesc()));
 
         // User Details
-        LOG_DIAG(
+        LOG_DIAG
+        (
             ("Executed by %s\\%s on %s", Hardware::OS::GetComputer(), Hardware::OS::GetUser(), Hardware::OS::GetDesc()
-            ));
+            )
+        );
 
         // Compilation details
-        LOG_DIAG(
-            ("Compiled by %s\\%s on %s", Version::GetBuildMachine(), Version::GetBuildUser(), Version::GetBuildOS()));
+        LOG_DIAG
+        (
+            ("Compiled by %s\\%s on %s", Version::GetBuildMachine(), Version::GetBuildUser(), Version::GetBuildOS())
+        );
         LOG_DIAG(("Compiler flags: %s", Version::GetBuildDefs()))
 
         // OS language

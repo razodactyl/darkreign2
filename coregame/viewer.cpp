@@ -466,25 +466,41 @@ namespace Viewer
             gameCfgPitchRatio = StdLoad::TypeF32(configScope, CFG_PITCH, gameCfgPitchRatio);
         }
 
-        VarSys::CreateFloat("camera.defaultheight", gameCfgHeight, VarSys::DEFAULT, &defaultHeight)->SetFloatRange(
-            MIN_HEIGHT, MAX_HEIGHT);
-        VarSys::CreateFloat("camera.pitchheightratio", gameCfgPitchRatio, VarSys::DEFAULT, &pitchRatio)->SetFloatRange(
-            RATIO_MIN, RATIO_MAX);
+        VarSys::CreateFloat("camera.defaultheight", gameCfgHeight, VarSys::DEFAULT, &defaultHeight)->SetFloatRange
+        (
+            MIN_HEIGHT, MAX_HEIGHT
+        );
+        VarSys::CreateFloat("camera.pitchheightratio", gameCfgPitchRatio, VarSys::DEFAULT, &pitchRatio)->SetFloatRange
+        (
+            RATIO_MIN, RATIO_MAX
+        );
 
         // Sensitivity settings
         VarSys::RegisterHandler("camera.rate", CmdHandler);
-        VarSys::CreateFloat("camera.rate.edge", RATE_EDGE_DEFAULT, VarSys::DEFAULT, &edgeRate)->SetFloatRange(
-            RATE_EDGE_MIN, RATE_EDGE_MAX);
-        VarSys::CreateFloat("camera.rate.spin", RATE_SPIN_DEFAULT, VarSys::DEFAULT, &spinRate)->SetFloatRange(
-            RATE_SPIN_MIN, RATE_SPIN_MAX);
-        VarSys::CreateFloat("camera.rate.swoop", RATE_SWOOP_DEFAULT, VarSys::DEFAULT, &swoopRate)->SetFloatRange(
-            RATE_SWOOP_MIN, RATE_SWOOP_MAX);
-        VarSys::CreateFloat("camera.rate.scroll", RATE_SCROLL_DEFAULT, VarSys::DEFAULT, &scrollRate)->SetFloatRange(
-            RATE_SCROLL_MIN, RATE_SCROLL_MAX);
-        VarSys::CreateFloat("camera.rate.wheel", RATE_WHEEL_DEFAULT, VarSys::DEFAULT, &wheelRate)->SetFloatRange(
-            RATE_WHEEL_MIN, RATE_WHEEL_MAX);
-        VarSys::CreateFloat("camera.rate.key", RATE_KEY_DEFAULT, VarSys::DEFAULT, &keyRate)->SetFloatRange(
-            RATE_KEY_MIN, RATE_KEY_MAX);
+        VarSys::CreateFloat("camera.rate.edge", RATE_EDGE_DEFAULT, VarSys::DEFAULT, &edgeRate)->SetFloatRange
+        (
+            RATE_EDGE_MIN, RATE_EDGE_MAX
+        );
+        VarSys::CreateFloat("camera.rate.spin", RATE_SPIN_DEFAULT, VarSys::DEFAULT, &spinRate)->SetFloatRange
+        (
+            RATE_SPIN_MIN, RATE_SPIN_MAX
+        );
+        VarSys::CreateFloat("camera.rate.swoop", RATE_SWOOP_DEFAULT, VarSys::DEFAULT, &swoopRate)->SetFloatRange
+        (
+            RATE_SWOOP_MIN, RATE_SWOOP_MAX
+        );
+        VarSys::CreateFloat("camera.rate.scroll", RATE_SCROLL_DEFAULT, VarSys::DEFAULT, &scrollRate)->SetFloatRange
+        (
+            RATE_SCROLL_MIN, RATE_SCROLL_MAX
+        );
+        VarSys::CreateFloat("camera.rate.wheel", RATE_WHEEL_DEFAULT, VarSys::DEFAULT, &wheelRate)->SetFloatRange
+        (
+            RATE_WHEEL_MIN, RATE_WHEEL_MAX
+        );
+        VarSys::CreateFloat("camera.rate.key", RATE_KEY_DEFAULT, VarSys::DEFAULT, &keyRate)->SetFloatRange
+        (
+            RATE_KEY_MIN, RATE_KEY_MAX
+        );
 
         // Default sensitivity settings
         VarSys::RegisterHandler("camera.default", CmdHandler);

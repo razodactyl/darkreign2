@@ -46,8 +46,7 @@ public:                                                                       \
   NList<obj##TypeListNode>::Node node;                                        \
 };                                                                            \
                                                                               \
-typedef ReaperList<obj##Type, obj##TypeListNode> obj##TypeList;               \
-
+typedef ReaperList<obj##Type, obj##TypeListNode> obj##TypeList;
 
 #define OBJDEC_NAMESPACE                                                      \
                                                                               \
@@ -72,7 +71,6 @@ public:                                                                       \
   NList<TypeListNode>::Node node;                                             \
 };                                                                            \
                                                                               \
-typedef ReaperList<Type, TypeListNode> TypeList;                              \
-
+typedef ReaperList<Type, TypeListNode> TypeList;
 
 #endif

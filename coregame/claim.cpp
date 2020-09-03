@@ -65,7 +65,6 @@ namespace Claim
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Block - A block of claimed grains in a single row
@@ -267,12 +266,14 @@ namespace Claim
             UnitObj* o2 = b->manager.GetOwner();
 
             ERR_FATAL
-            ((
-                "Claim Overlap: Prev [%d->(%d-%d)]:0x%08x (%s:%d and %s:%d)",
-                x, x0, x1, key,
-                o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
-                o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
-                ));
+            (
+                (
+                    "Claim Overlap: Prev [%d->(%d-%d)]:0x%08x (%s:%d and %s:%d)",
+                    x, x0, x1, key,
+                    o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
+                    o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
+                )
+            );
         }
 
         // Get next block
@@ -288,15 +289,16 @@ namespace Claim
             UnitObj* o2 = b->manager.GetOwner();
 
             ERR_FATAL
-            ((
-                "Claim Overlap: Next [(%d-%d)->%d]:0x%08x (%s:%d and %s:%d)",
-                x0, x1, x, key,
-                o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
-                o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
-                ));
+            (
+                (
+                    "Claim Overlap: Next [(%d-%d)->%d]:0x%08x (%s:%d and %s:%d)",
+                    x0, x1, x, key,
+                    o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
+                    o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
+                )
+            );
         }
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -481,7 +483,6 @@ namespace Claim
             (*i)->Validate();
         }
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -671,7 +672,6 @@ namespace Claim
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Manager - The interface to block claiming
@@ -683,8 +683,8 @@ namespace Claim
     //
     Manager::Manager(UnitObj* owner, LayerId id)
         : NList<Block>(&Block::managerNode),
-        layer(Claim::GetLayer(id)),
-        owner(owner)
+          layer(Claim::GetLayer(id)),
+          owner(owner)
     {
     }
 
@@ -743,7 +743,7 @@ namespace Claim
                 Block* block;
 
                 // Unset all of our bits
-                for (Iterator i(&row); (block = i++) != NULL; )
+                for (Iterator i(&row); (block = i++) != NULL;)
                 {
                     S32 ox0 = Max<S32>(x0, block->x0);
                     S32 ox1 = Min<S32>(x1, block->x1);
@@ -766,13 +766,11 @@ namespace Claim
                             info->unowned++;
                         }
                     }
-                    else
-
-                        if (block->x0 > x1)
-                        {
-                            // No need to check rest of row
-                            break;
-                        }
+                    else if (block->x0 > x1)
+                    {
+                        // No need to check rest of row
+                        break;
+                    }
                 }
             }
 
@@ -799,7 +797,7 @@ namespace Claim
 
         // Unset all of our bits
         Iterator i(this);
-        for (; (block = i++) != NULL; )
+        for (; (block = i++) != NULL;)
         {
             if (block->key == key)
             {
@@ -812,7 +810,7 @@ namespace Claim
         rc = Probe(x0, z0, x1, z1, info);
 
         // Restore all of our bits
-        for (!i; (block = i++) != NULL; )
+        for (!i; (block = i++) != NULL;)
         {
             if (block->key == key)
             {
@@ -875,7 +873,7 @@ namespace Claim
         Block* block;
 
         // Step through each block
-        for (Iterator i(this); (block = i++) != NULL; )
+        for (Iterator i(this); (block = i++) != NULL;)
         {
             // Does this one match
             if (block->key == key && (!l || block->layer.GetId() == l->GetId()))
@@ -1153,7 +1151,7 @@ namespace Claim
     {
         Block* block;
 
-        for (NList<Block>::Iterator i(&GetLayer(layer)->GetRow(z)); (block = i++) != NULL; )
+        for (NList<Block>::Iterator i(&GetLayer(layer)->GetRow(z)); (block = i++) != NULL;)
         {
             if (x >= block->x0 && x <= block->x1)
             {

@@ -428,9 +428,11 @@ namespace Game
                             }
                             else
                             {
-                                CON_MSG(
+                                CON_MSG
+                                (
                                     ("Save mission FAILED [%s][%s]", group->GetStringValue(), missionSave->
-                                        GetStringValue()));
+                                        GetStringValue())
+                                );
                             }
 
                             break;

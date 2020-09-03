@@ -600,8 +600,11 @@ Bool ICListBox::Select(IControl* item, Bool toggle, Bool clear, Bool notify)
     {
         if (selectedList.GetCount())
         {
-            SendNotify(this, ICListBoxNotify::ChangeSelection, TRUE, item->NameCrc(),
-                       item->controlState & STATE_SELECTED);
+            SendNotify
+            (
+                this, ICListBoxNotify::ChangeSelection, TRUE, item->NameCrc(),
+                item->controlState & STATE_SELECTED
+            );
         }
         else
         {
@@ -1205,9 +1208,11 @@ Bool ICListBox::Activate()
         // Force reposition on next redraw
         ForceReposition();
 
-        LOG_LIST(
+        LOG_LIST
+        (
             ("[%s] Activated, #selected=%d, index=%d, sel='%s'", Name(), selectedList.GetCount(), indexVar ? indexVar->
-                GetIntegerValue() : -1, selectedVar ? selectedVar->GetStringValue() : ""))
+                GetIntegerValue() : -1, selectedVar ? selectedVar->GetStringValue() : "")
+        )
 
         return (TRUE);
     }
@@ -1789,8 +1794,11 @@ ICListBox* ICListBox::FindListBox(const char* path)
 // fill a list box with files matching 'filter' from the folder 'path'
 // returns the number of files added
 //
-U32 ICListBox::FillFromPath(const char* path, const char* filter, Bool doClear,
-                            Bool doSubDirs) // = "*.*", = TRUE, = FALSE
+U32 ICListBox::FillFromPath
+(
+    const char* path, const char* filter, Bool doClear,
+    Bool doSubDirs
+) // = "*.*", = TRUE, = FALSE
 {
     Dir::Find find;
 

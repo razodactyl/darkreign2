@@ -974,9 +974,11 @@ namespace Missions
         // Tell the mission to point us to its data
         if (!active->SetupStream(STREAM_ACTIVE))
         {
-            ERR_FATAL(
+            ERR_FATAL
+            (
                 ("Unable to setup active mission stream [%s][%s]", active->GetGroup().GetPath().str, active->GetName().
-                    str));
+                    str)
+            );
         }
     }
 

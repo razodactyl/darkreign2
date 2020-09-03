@@ -25,94 +25,88 @@
 //
 namespace Won
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class PlayerList
+    // NameSpace Controls
     //
-    class PlayerList : public ICListBox
+    namespace Controls
     {
-      PROMOTE_LINK(PlayerList, ICListBox, 0x0B53AD48) // "Won::PlayerList"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PlayerList
+        //
+        class PlayerList : public ICListBox
+        {
+        PROMOTE_LINK(PlayerList, ICListBox, 0x0B53AD48) // "Won::PlayerList"
 
-    public:
-      
-      class Item;
+        public:
 
-    protected:
+            class Item;
 
-      // Offsets
-      U32 offsetName;
-      U32 widthName;
-      U32 offsetIcon;
+        protected:
 
-      // Moderator icon
-      TextureInfo iconModerator;
+            // Offsets
+            U32 offsetName;
+            U32 widthName;
+            U32 offsetIcon;
 
-      // Muted icon
-      TextureInfo iconMuted;
+            // Moderator icon
+            TextureInfo iconModerator;
 
-      // Ignored icon
-      TextureInfo iconIgnored;
+            // Muted icon
+            TextureInfo iconMuted;
 
-    public:
+            // Ignored icon
+            TextureInfo iconIgnored;
 
-      // Constructor
-      PlayerList(IControl *parent);
+        public:
 
-      // Setup
-      void Setup(FScope *fScope);
+            // Constructor
+            PlayerList(IControl* parent);
 
-    public:
+            // Setup
+            void Setup(FScope* fScope);
 
-      friend Item;
+        public:
 
-    };
+            friend Item;
+        };
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class PlayerList::Item
-    //
-    class PlayerList::Item : public ICStatic
-    {
-      PROMOTE_LINK(Game, ICStatic, 0x1E5416FD) // "Won::Game"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PlayerList::Item
+        //
+        class PlayerList::Item : public ICStatic
+        {
+        PROMOTE_LINK(Game, ICStatic, 0x1E5416FD) // "Won::Game"
 
-    protected:
+        protected:
 
-      // Offsets are in here
-      PlayerList &playerList;
+            // Offsets are in here
+            PlayerList& playerList;
 
-      // Flags
-      Bool moderator;
-      Bool muted;
-      Bool ignored;
+            // Flags
+            Bool moderator;
+            Bool muted;
+            Bool ignored;
 
-    public:
+        public:
 
-      // Constructor
-      Item(PlayerList &playerList, Bool moderator, Bool muted, Bool ignored);
+            // Constructor
+            Item(PlayerList& playerList, Bool moderator, Bool muted, Bool ignored);
 
-      // Draw Icon
-      void DrawIcon(PaintInfo &pi, TextureInfo &icon);
+            // Draw Icon
+            void DrawIcon(PaintInfo& pi, TextureInfo& icon);
 
-      // Redraw self
-      void DrawSelf(PaintInfo &pi);
+            // Redraw self
+            void DrawSelf(PaintInfo& pi);
 
-    public:
+        public:
 
-      friend PlayerList;
-
-    };
-
-  }
-
+            friend PlayerList;
+        };
+    }
 }
 
 #endif

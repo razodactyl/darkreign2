@@ -126,30 +126,30 @@ typedef std::istream InputStream;
 /////////////////////////////////////////////////////////
 /*-----------------------------------------------------*/
 // PROTOTYPES
-void initIMESH(IMESH *imesh);
+void initIMESH(IMESH* imesh);
 
-unsigned int getSize(IMESH *m);
+unsigned int getSize(IMESH* m);
 
-void allocateGenericMemoryIMESH (IMESH *imesh);
-void allocateMemoryIMESH (IMESH *imesh, BOOL allocateMaterials = FALSE);
+void allocateGenericMemoryIMESH(IMESH* imesh);
+void allocateMemoryIMESH(IMESH* imesh, BOOL allocateMaterials = FALSE);
 
-void freeIMESH(IMESH *imesh, IMATERIAL *iMat = NULL, BOOL inAGroup = FALSE);
-void freeIMESHGROUP(IMESHGROUP *grpMesh);
+void freeIMESH(IMESH* imesh, IMATERIAL* iMat = NULL, BOOL inAGroup = FALSE);
+void freeIMESHGROUP(IMESHGROUP* grpMesh);
 
-int sortIMESHFaces(IMESH *imesh, int numMaterials);
-int sortIMESHTriStrips(IMESH *imesh1, int numMaterials);
+int sortIMESHFaces(IMESH* imesh, int numMaterials);
+int sortIMESHTriStrips(IMESH* imesh1, int numMaterials);
 
-IMESH * copyIMESH (IMESH *imesh1);
+IMESH* copyIMESH(IMESH* imesh1);
 
-BOOL writeIMESHVersion	(OutputStream *outStream);
-BOOL writeIMESH (IMESH *imesh, IMATERIAL *iMat, OutputStream *outStream);
-BOOL writeIMESHGROUP(IMESHGROUP *grpMesh, OutputStream *outStream);
-BOOL writeIMESHGROUP(IMESHGROUP *grpMesh, char *fileName);
+BOOL writeIMESHVersion(OutputStream* outStream);
+BOOL writeIMESH(IMESH* imesh, IMATERIAL* iMat, OutputStream* outStream);
+BOOL writeIMESHGROUP(IMESHGROUP* grpMesh, OutputStream* outStream);
+BOOL writeIMESHGROUP(IMESHGROUP* grpMesh, char* fileName);
 
-BOOL readIMESH  (IMESH *imesh, IMATERIAL *iMat, InputStream *inStream);
-BOOL readIMESHVersion	(InputStream *inStream);
-BOOL readIMESHGROUP	(IMESHGROUP *grpMesh, InputStream *inStream);
-BOOL readIMESHGROUP(IMESHGROUP *grpMesh, char *fileName);
+BOOL readIMESH(IMESH* imesh, IMATERIAL* iMat, InputStream* inStream);
+BOOL readIMESHVersion(InputStream* inStream);
+BOOL readIMESHGROUP(IMESHGROUP* grpMesh, InputStream* inStream);
+BOOL readIMESHGROUP(IMESHGROUP* grpMesh, char* fileName);
 /*-----------------------------------------------------*/
 /////////////////////////////////////////////////////////
 

@@ -462,9 +462,11 @@ namespace ParticleSystem
                 if (!p1)
                 {
                     // Create if within viewing frustrum
-                    Point<S32> cell(
+                    Point<S32> cell
+                    (
                         Utils::FastFtoL(p0.x),
-                        Utils::FastFtoL(p0.z));
+                        Utils::FastFtoL(p0.z)
+                    );
                     Area<S32> rect;
                     Vid::CurCamera().GetVisibleRect(rect);
 
@@ -475,15 +477,19 @@ namespace ParticleSystem
                 return TRUE;
             }
             if (!Team::GetDisplayTeam()
-                || Sight::Visible(
+                || Sight::Visible
+                (
                     WorldCtrl::MetresToCellX(p0.x),
                     WorldCtrl::MetresToCellZ(p0.z),
-                    Team::GetDisplayTeam())
+                    Team::GetDisplayTeam()
+                )
                 || (p1 && WorldCtrl::MetreOnMap(p1->x, p1->z)
-                    && Sight::Visible(
+                    && Sight::Visible
+                    (
                         WorldCtrl::MetresToCellX(p1->x),
                         WorldCtrl::MetresToCellZ(p1->z),
-                        Team::GetDisplayTeam())))
+                        Team::GetDisplayTeam()
+                    )))
             {
                 // Create if display team can see cell
                 return (TRUE);
@@ -496,8 +502,11 @@ namespace ParticleSystem
     //
     // Construct a new particle instance
     //
-    Particle* New(ParticleClass* p, const Matrix& matrix, const Vector& veloc, const Vector& omega,
-                  const Vector& length, F32 timer, void* data) // = NULL)
+    Particle* New
+    (
+        ParticleClass* p, const Matrix& matrix, const Vector& veloc, const Vector& omega,
+        const Vector& length, F32 timer, void* data
+    ) // = NULL)
     {
         ASSERT(p);
 
@@ -771,8 +780,11 @@ namespace ParticleSystem
     //
     // Build a rotation matrix
     //
-    Matrix BuildPositionRotationMatrix(const F32 pitch, const F32 yaw, const F32 roll, const F32 x, const F32 y,
-                                       const F32 z)
+    Matrix BuildPositionRotationMatrix
+    (
+        const F32 pitch, const F32 yaw, const F32 roll, const F32 x, const F32 y,
+        const F32 z
+    )
     {
         // compute sine and cosine of each angle
         F32 rSin, rCos, pSin, pCos, ySin, yCos;

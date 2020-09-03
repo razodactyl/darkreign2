@@ -23,41 +23,38 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Placement::Locator
+    //
+    class Placement::Locator
+    {
+    private:
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Placement::Locator
-  //
-  class Placement::Locator
-  {
-  private:
+        // Placement tree node
+        NBinTree<Locator>::Node nodePlacementTree;
 
-    // Placement tree node
-    NBinTree<Locator>::Node nodePlacementTree;
+        // Placement list node
+        NList<Locator>::Node nodePlacementList;
 
-    // Placement list node
-    NList<Locator>::Node nodePlacementList;
+        // Base token we're locating for
+        Base::Token& token;
 
-    // Base token we're locating for
-    Base::Token &token;
+        // Type clusters for this locator
+        ClusterSet& clusterSet;
 
-    // Type clusters for this locator
-    ClusterSet &clusterSet;
+    public:
 
-  public:
+        // Constructor
+        Locator(Base::Token& token, ClusterSet& clusterSet);
 
-    // Constructor
-    Locator(Base::Token &token, ClusterSet &clusterSet);
+        // Destructor
+        ~Locator();
 
-    // Destructor
-    ~Locator();
+    public:
 
-  public:
-
-    friend Placement;
-
-  };
-
+        friend Placement;
+    };
 }
 
 #endif

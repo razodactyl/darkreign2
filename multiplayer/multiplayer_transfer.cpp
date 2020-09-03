@@ -71,8 +71,10 @@ namespace MultiPlayer
             // Add this to the display list
             if (PrivData::transferListCtrl.Alive())
             {
-                Controls::TransferList* transferList = IFace::Promote<Controls::TransferList>(
-                    PrivData::transferListCtrl);
+                Controls::TransferList* transferList = IFace::Promote<Controls::TransferList>
+                (
+                    PrivData::transferListCtrl
+                );
                 if (transferList)
                 {
                     ctrl = transferList->AddTransfer(this);
@@ -105,8 +107,10 @@ namespace MultiPlayer
         {
             if (PrivData::transferListCtrl.Alive())
             {
-                Controls::TransferList* transferList = IFace::Promote<Controls::TransferList>(
-                    PrivData::transferListCtrl);
+                Controls::TransferList* transferList = IFace::Promote<Controls::TransferList>
+                (
+                    PrivData::transferListCtrl
+                );
 
                 // Remove from the display list
                 if (transferList && ctrl.Alive())
@@ -207,10 +211,16 @@ namespace MultiPlayer
                             TRANSLATE(("#multiplayer.transfer.offer.title")),
                             TRANSLATE(("#multiplayer.transfer.offer.message", 2, path.str, name.str)),
                             0,
-                            new MBEventCallback("Offer::Accept", TRANSLATE(("#standard.buttons.yes")), MsgBoxCallback,
-                                                U32(new Context(transferOffer->id, from))),
-                            new MBEventCallback("Offer::Deny", TRANSLATE(("#standard.buttons.no")), MsgBoxCallback,
-                                                U32(new Context(transferOffer->id, from)))
+                            new MBEventCallback
+                            (
+                                "Offer::Accept", TRANSLATE(("#standard.buttons.yes")), MsgBoxCallback,
+                                U32(new Context(transferOffer->id, from))
+                            ),
+                            new MBEventCallback
+                            (
+                                "Offer::Deny", TRANSLATE(("#standard.buttons.no")), MsgBoxCallback,
+                                U32(new Context(transferOffer->id, from))
+                            )
                         );
 
                         // Add to internal offer database
@@ -300,9 +310,12 @@ namespace MultiPlayer
                     {
                         // Commence Transfer!
                         offersAccepted.Unlink(offer);
-                        if (offer->transfer.Recv(offer->path.str,
-                                                 Win32::Socket::Address(transferInitiate->ip, transferInitiate->port),
-                                                 offer->size))
+                        if (offer->transfer.Recv
+                            (
+                                offer->path.str,
+                                Win32::Socket::Address(transferInitiate->ip, transferInitiate->port),
+                                offer->size
+                            ))
                         {
                             offersReceiving.Add(offer->who, offer);
                         }
@@ -347,8 +360,10 @@ namespace MultiPlayer
 
             LOG_DIAG(("Making an offer to [%08X]", to))
 
-            if (!file.Open(
-                path, Win32::File::MODE_READ | Win32::File::MODE_OPEN_EXISTING | Win32::File::MODE_SHARE_READ))
+            if (!file.Open
+                (
+                    path, Win32::File::MODE_READ | Win32::File::MODE_OPEN_EXISTING | Win32::File::MODE_SHARE_READ
+                ))
             {
                 LOG_WARN(("Cannot offer %s cause we can't open it", path))
                 return;
@@ -416,10 +431,16 @@ namespace MultiPlayer
                         TRANSLATE(("#multiplayer.transfer.existingmission.title")),
                         TRANSLATE(("#multiplayer.transfer.existingmission.message", 1, path.str)),
                         0,
-                        new MBEventCallback("Overwrite::Yes", TRANSLATE(("#standard.buttons.yes")), MsgBoxCallback,
-                                            U32(new Context(offer->id, offer->who))),
-                        new MBEventCallback("Overwrite::No", TRANSLATE(("#standard.buttons.no")), MsgBoxCallback,
-                                            U32(new Context(offer->id, offer->who)))
+                        new MBEventCallback
+                        (
+                            "Overwrite::Yes", TRANSLATE(("#standard.buttons.yes")), MsgBoxCallback,
+                            U32(new Context(offer->id, offer->who))
+                        ),
+                        new MBEventCallback
+                        (
+                            "Overwrite::No", TRANSLATE(("#standard.buttons.no")), MsgBoxCallback,
+                            U32(new Context(offer->id, offer->who))
+                        )
                     );
                 }
                     // Before accepting, check to see if we have that file already
@@ -433,10 +454,16 @@ namespace MultiPlayer
                         TRANSLATE(("#multiplayer.transfer.existingmission.title")),
                         TRANSLATE(("#multiplayer.transfer.existingmission.message", 1, path.str)),
                         0,
-                        new MBEventCallback("Overwrite::Yes", TRANSLATE(("#standard.buttons.yes")), MsgBoxCallback,
-                                            U32(new Context(offer->id, offer->who))),
-                        new MBEventCallback("Overwrite::No", TRANSLATE(("#standard.buttons.no")), MsgBoxCallback,
-                                            U32(new Context(offer->id, offer->who)))
+                        new MBEventCallback
+                        (
+                            "Overwrite::Yes", TRANSLATE(("#standard.buttons.yes")), MsgBoxCallback,
+                            U32(new Context(offer->id, offer->who))
+                        ),
+                        new MBEventCallback
+                        (
+                            "Overwrite::No", TRANSLATE(("#standard.buttons.no")), MsgBoxCallback,
+                            U32(new Context(offer->id, offer->who))
+                        )
                     );
                 }
                 else
@@ -571,16 +598,22 @@ namespace MultiPlayer
                             if (offer->from)
                             {
                                 // "MultiMessage"
-                                CONSOLE(0x7EF342D8,
-                                        (TRANSLATE(("#multiplayer.transfer.completedfrom", 2, Utils::Ansi2Unicode(offer
-                                            ->path.str), playerBuf)) ))
+                                CONSOLE
+                                (
+                                    0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.transfer.completedfrom", 2, Utils::Ansi2Unicode(offer
+                                        ->path.str), playerBuf)) )
+                                )
                             }
                             else
                             {
                                 // "MultiMessage"
-                                CONSOLE(0x7EF342D8,
-                                        (TRANSLATE(("#multiplayer.transfer.completedto", 2, Utils::Ansi2Unicode(offer->
-                                            path.str), playerBuf)) ))
+                                CONSOLE
+                                (
+                                    0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.transfer.completedto", 2, Utils::Ansi2Unicode(offer->
+                                        path.str), playerBuf)) )
+                                )
                             }
 
                             // If this is a mission, regiser it
@@ -602,10 +635,13 @@ namespace MultiPlayer
 #define NICESTR(x) x < 1000 ? L"" : x < 1000000 ? L"k" : L"M"
 
                             // "MultiMessage"
-                            CONSOLE(0x7EF342D8, (TRANSLATE(("#multiplayer.transfer.completedstats", 7,
-                                        NICE(offer->size), NICESTR(offer->size),
-                                        (time / 1000) / 60, (time / 1000) % 60, time % 1000,
-                                        NICE(rate), NICESTR(rate) )) ))
+                            CONSOLE
+                            (
+                                0x7EF342D8, (TRANSLATE(("#multiplayer.transfer.completedstats", 7,
+                                    NICE(offer->size), NICESTR(offer->size),
+                                    (time / 1000) / 60, (time / 1000) % 60, time % 1000,
+                                    NICE(rate), NICESTR(rate) )) )
+                            )
                         }
                         offers.Dispose(offer);
                         break;
@@ -622,16 +658,22 @@ namespace MultiPlayer
                             if (offer->from)
                             {
                                 // "MultiMessage"
-                                CONSOLE(0x7EF342D8,
-                                        (TRANSLATE(("#multiplayer.transfer.failedfrom", 2, Utils::Ansi2Unicode(offer->
-                                            path.str), playerBuf)) ))
+                                CONSOLE
+                                (
+                                    0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.transfer.failedfrom", 2, Utils::Ansi2Unicode(offer->
+                                        path.str), playerBuf)) )
+                                )
                             }
                             else
                             {
                                 // "MultiMessage"
-                                CONSOLE(0x7EF342D8,
-                                        (TRANSLATE(("#multiplayer.transfer.failedto", 2, Utils::Ansi2Unicode(offer->path
-                                            .str), playerBuf)) ))
+                                CONSOLE
+                                (
+                                    0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.transfer.failedto", 2, Utils::Ansi2Unicode(offer->path
+                                        .str), playerBuf)) )
+                                )
                             }
                         }
                         offers.Dispose(offer);
@@ -649,16 +691,22 @@ namespace MultiPlayer
                             if (offer->from)
                             {
                                 // "MultiMessage"
-                                CONSOLE(0x7EF342D8,
-                                        (TRANSLATE(("#multiplayer.transfer.abortedfrom", 2, Utils::Ansi2Unicode(offer->
-                                            path.str), playerBuf)) ))
+                                CONSOLE
+                                (
+                                    0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.transfer.abortedfrom", 2, Utils::Ansi2Unicode(offer->
+                                        path.str), playerBuf)) )
+                                )
                             }
                             else
                             {
                                 // "MultiMessage"
-                                CONSOLE(0x7EF342D8,
-                                        (TRANSLATE(("#multiplayer.transfer.abortedto", 2, Utils::Ansi2Unicode(offer->
-                                            path.str), playerBuf)) ))
+                                CONSOLE
+                                (
+                                    0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.transfer.abortedto", 2, Utils::Ansi2Unicode(offer->
+                                        path.str), playerBuf)) )
+                                )
                             }
                         }
                         offers.Dispose(offer);

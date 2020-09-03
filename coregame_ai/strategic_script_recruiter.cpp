@@ -279,8 +279,11 @@ namespace Strategic
             }
 
             // Submit a request for forces from the tag
-            object.GetAssetManager().SubmitRequest(*new Asset::Request::Tag(&script, handle, tag),
-                                                   script.GetWeighting(), script.GetPriority());
+            object.GetAssetManager().SubmitRequest
+            (
+                *new Asset::Request::Tag(&script, handle, tag),
+                script.GetWeighting(), script.GetPriority()
+            );
         }
 
 
@@ -326,8 +329,11 @@ namespace Strategic
                 if (squad)
                 {
                     // Submit a request for forces from the force matching
-                    object.GetAssetManager().SubmitRequest(*new Asset::Request::Squad(&script, handle, squad),
-                                                           script.GetWeighting(), script.GetPriority());
+                    object.GetAssetManager().SubmitRequest
+                    (
+                        *new Asset::Request::Squad(&script, handle, squad),
+                        script.GetWeighting(), script.GetPriority()
+                    );
                 }
             }
         }
@@ -375,10 +381,15 @@ namespace Strategic
             }
 
             // Submit a request for forces from the force matching
-            object.GetAssetManager().SubmitRequest(
-                *new Asset::Request::Force(&script, handle, config, location->GetPoint(), range,
-                                           acceptInsufficient, &object), script.GetWeighting(),
-                script.GetPriority());
+            object.GetAssetManager().SubmitRequest
+            (
+                *new Asset::Request::Force
+                (
+                    &script, handle, config, location->GetPoint(), range,
+                    acceptInsufficient, &object
+                ), script.GetWeighting(),
+                script.GetPriority()
+            );
         }
 
 
@@ -423,9 +434,14 @@ namespace Strategic
             }
 
             // Submit a request for forces from the force matching
-            object.GetAssetManager().SubmitRequest(
-                *new Asset::Request::ForceMap(&script, handle, config, location->GetPoint(), acceptInsufficient,
-                                              &object), script.GetWeighting(), script.GetPriority());
+            object.GetAssetManager().SubmitRequest
+            (
+                *new Asset::Request::ForceMap
+                (
+                    &script, handle, config, location->GetPoint(), acceptInsufficient,
+                    &object
+                ), script.GetWeighting(), script.GetPriority()
+            );
         }
 
 
@@ -471,9 +487,14 @@ namespace Strategic
             }
 
             // Submit a request for forces from the force matching
-            object.GetAssetManager().SubmitRequest(
-                *new Asset::Request::Type(&script, handle, config, location->GetPoint(), range,
-                                          acceptInsufficient), script.GetWeighting(), script.GetPriority());
+            object.GetAssetManager().SubmitRequest
+            (
+                *new Asset::Request::Type
+                (
+                    &script, handle, config, location->GetPoint(), range,
+                    acceptInsufficient
+                ), script.GetWeighting(), script.GetPriority()
+            );
         }
 
 
@@ -524,9 +545,11 @@ namespace Strategic
             }
 
             // Submit a request for forces from the force matching
-            object.GetAssetManager().SubmitRequest(
+            object.GetAssetManager().SubmitRequest
+            (
                 *new Asset::Request::TypeBase(&script, handle, config, base, acceptInsufficient),
-                script.GetWeighting(), script.GetPriority());
+                script.GetWeighting(), script.GetPriority()
+            );
         }
     }
 }

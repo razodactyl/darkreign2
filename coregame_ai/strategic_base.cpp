@@ -43,8 +43,11 @@ namespace Strategic
     //
     // Base::Base
     //
-    Base::Base(Manager& manager, const Point<F32>& location, F32 orientation, const char* name, const char* configName,
-               FScope* fScope)
+    Base::Base
+    (
+        Manager& manager, const Point<F32>& location, F32 orientation, const char* name, const char* configName,
+        FScope* fScope
+    )
         : name(name),
           configName(configName),
           manager(manager),

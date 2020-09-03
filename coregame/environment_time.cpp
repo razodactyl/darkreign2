@@ -126,9 +126,11 @@ namespace Environment
         //
         const CH* GetDayOfWeekStr()
         {
-            return (TRANSLATE(
-                (MultiLanguage::BuildKey(2, "standard.days", Clock::Date::GetDayStr(Clock::Date::DayOfWeek(year, month,
-                    day))))));
+            return (TRANSLATE
+                (
+                    (MultiLanguage::BuildKey(2, "standard.days", Clock::Date::GetDayStr(Clock::Date::DayOfWeek(year, month,
+                        day))))
+                ));
         }
 
 
@@ -199,13 +201,15 @@ namespace Environment
         //
         void GenerateMessage()
         {
-            Message::TriggerGameMessage(
+            Message::TriggerGameMessage
+            (
                 0xEF97B9E3,
                 4,
                 GetDayOfWeekStr(),
                 GetDayOfMonth(),
                 GetMonthStr(),
-                GetYear()); // "Environment::Time::Date"
+                GetYear()
+            ); // "Environment::Time::Date"
 
             // Time
             // Get the time in seconds from the environment system

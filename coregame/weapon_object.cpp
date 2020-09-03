@@ -797,8 +797,11 @@ namespace Weapon
             // Small cushion above terrain
             F32 terrainError = 0.005F;
 
-            return (!Ray::TerrainTest(GetFiringLocation(), target.GetLocation(), rayTolerance, terrainError, testWater,
-                                      nullptr));
+            return (!Ray::TerrainTest
+                (
+                    GetFiringLocation(), target.GetLocation(), rayTolerance, terrainError, testWater,
+                    nullptr
+                ));
         }
         // Arcing projectiles pass this test always
         return (TRUE);
@@ -1631,8 +1634,10 @@ namespace Weapon
                     }
 
                     // Is the new target healing the old target ?
-                    Tasks::RestoreMobile* restoreMobileTask = TaskCtrl::Promote<Tasks::RestoreMobile>(
-                        newMap->GetCurrentTask());
+                    Tasks::RestoreMobile* restoreMobileTask = TaskCtrl::Promote<Tasks::RestoreMobile>
+                    (
+                        newMap->GetCurrentTask()
+                    );
                     if (restoreMobileTask && currentMap == restoreMobileTask->GetTarget())
                     {
                         return (TRUE);

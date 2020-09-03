@@ -611,16 +611,22 @@ namespace Message
                 case 0x4A354887: // "Message::Console"
                 {
                     // "GameMessage"
-                    CONSOLE(0x8C217C61,
-                            (TRANSLATE((args, params, messages[Random::nonSync.Integer(messages.GetCount())]->str))))
+                    CONSOLE
+                    (
+                        0x8C217C61,
+                        (TRANSLATE((args, params, messages[Random::nonSync.Integer(messages.GetCount())]->str)))
+                    )
                     break;
                 }
 
                 case 0x6C191700: // "Message::Cineractive"
                 {
                     // "CineractiveMessage"
-                    CONSOLE(0x2FFE8D2A,
-                            (TRANSLATE((args, params, messages[Random::nonSync.Integer(messages.GetCount())]->str))))
+                    CONSOLE
+                    (
+                        0x2FFE8D2A,
+                        (TRANSLATE((args, params, messages[Random::nonSync.Integer(messages.GetCount())]->str)))
+                    )
                     break;
                 }
             }
@@ -675,8 +681,11 @@ namespace Message
             // Is the location on the map
             if (WorldCtrl::MetreOnMap(location.x, location.z))
             {
-                if (!Sight::Visible(WorldCtrl::MetresToCellX(location.x), WorldCtrl::MetresToCellZ(location.z),
-                                    Team::GetDisplayTeam()))
+                if (!Sight::Visible
+                    (
+                        WorldCtrl::MetresToCellX(location.x), WorldCtrl::MetresToCellZ(location.z),
+                        Team::GetDisplayTeam()
+                    ))
                 {
                     return (FALSE);
                 }

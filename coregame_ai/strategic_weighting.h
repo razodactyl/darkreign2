@@ -113,8 +113,10 @@ namespace Strategic
 
                 // Constructor
                 Item (
+                
                 typename NBinTree<DATA, F32>::Node
                 typename DATA::
+                
                 *
                 node
                 )
@@ -138,13 +140,16 @@ namespace Strategic
             // The node
             typename NBinTree<DATA, F32>::Node
             typename DATA::
+            
             *
             node;
 
             // Constructor
             Cuts (
+            
             typename NBinTree<DATA, F32>::Node
             typename DATA::
+            
             *
             node
             )

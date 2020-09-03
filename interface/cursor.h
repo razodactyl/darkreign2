@@ -26,47 +26,46 @@
 //
 namespace CursorSys
 {
-  // Standard cursor types
-  enum StdCursor
-  {
-    DEFAULT   = 0,
-    IBEAM     = 1,
-    WAIT      = 2,
-    NO        = 3,
+    // Standard cursor types
+    enum StdCursor
+    {
+        DEFAULT = 0,
+        IBEAM = 1,
+        WAIT = 2,
+        NO = 3,
 
-    MAX_CURSORS,
-  };
+        MAX_CURSORS,
+    };
 
-  // Initialise the cursor system
-  void Init();
+    // Initialise the cursor system
+    void Init();
 
-  // Shutdown the cursor system
-  void Done();
+    // Shutdown the cursor system
+    void Done();
 
-  // Process a StandardCursors scope
-  void ProcessStandardCursors(FScope *fScope);
+    // Process a StandardCursors scope
+    void ProcessStandardCursors(FScope* fScope);
 
-  // Process a CreateCursor scope
-  void ProcessCreateCursor(FScope *fScope);
+    // Process a CreateCursor scope
+    void ProcessCreateCursor(FScope* fScope);
 
-  // Delete all cursors
-  void DeleteAll();
+    // Delete all cursors
+    void DeleteAll();
 
-  // Set the cursor to be the active cursor
-  Bool Set(const char *name);
+    // Set the cursor to be the active cursor
+    Bool Set(const char* name);
 
-  // Set the cursor to be the active cursor
-  Bool Set(U32 id);
+    // Set the cursor to be the active cursor
+    Bool Set(U32 id);
 
-  // Draw the cursor
-  void Display(S32 x, S32 y);
+    // Draw the cursor
+    void Display(S32 x, S32 y);
 
-  // Get default cursor
-  U32 DefaultCursor();
+    // Get default cursor
+    U32 DefaultCursor();
 
-  // Find a standard cursor
-  U32 GetStandardCursor(StdCursor crs);
-
+    // Find a standard cursor
+    U32 GetStandardCursor(StdCursor crs);
 };
 
 #endif

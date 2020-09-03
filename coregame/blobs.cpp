@@ -157,9 +157,11 @@ namespace Blobs
         }
 
         // Find the area of the bounding box
-        F32 rectArea = F32(
+        F32 rectArea = F32
+        (
             (1 + regions[region].maxRow - regions[region].minRow) *
-            (1 + regions[region].maxColumn - regions[region].minColumn));
+            (1 + regions[region].maxColumn - regions[region].minColumn)
+        );
 
         // Find the percentage of the bounding rectangle which is actually full
         ASSERT(rectArea >= 0.0f);

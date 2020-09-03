@@ -84,7 +84,7 @@ struct MapObjType::AnimationFX
     // Constructor
     AnimationFX(F32 animFrame, FScope* fScope)
         : typeCrc(StdLoad::TypeStringCrc(fScope)),
-        animFrame(animFrame)
+          animFrame(animFrame)
     {
     }
 };
@@ -172,16 +172,16 @@ void MapObjType::FatalCollision(MapObj& obj, MapObj*, const Vector*)
 //
 MapObjType::MapObjType(const char* name, FScope* fScope)
     : GameObjType(name, fScope),
-    isProjectile(FALSE),
-    isExplosion(FALSE),
-    resourcesInitialized(FALSE),
-    idleAnimationCount(0),
-    mapPhysicsProc(nullptr),
-    mapCollideProc(nullptr)
+      isProjectile(FALSE),
+      isExplosion(FALSE),
+      resourcesInitialized(FALSE),
+      idleAnimationCount(0),
+      mapPhysicsProc(nullptr),
+      mapCollideProc(nullptr)
 {
     ASSERT(fScope);
 
-    FScope* sScope, * ssScope;
+    FScope *sScope, *ssScope;
 
     // Get specific config scope
     fScope = fScope->GetFunction(SCOPE_CONFIG);
@@ -204,17 +204,17 @@ MapObjType::MapObjType(const char* name, FScope* fScope)
         {
             switch (ssScope->NameCrc())
             {
-            case 0x9F1D54D0: // "Add"
-            {
-                Attachment* attachment = new Attachment;
-                attachment->typeName = ssScope->NextArgString();
-                attachment->pointIdent = ssScope->NextArgString();
-                attachments.Append(attachment);
-                break;
-            }
+                case 0x9F1D54D0: // "Add"
+                {
+                    Attachment* attachment = new Attachment;
+                    attachment->typeName = ssScope->NextArgString();
+                    attachment->pointIdent = ssScope->NextArgString();
+                    attachments.Append(attachment);
+                    break;
+                }
 
-            default:
-                break;
+                default:
+                    break;
             }
         }
     }
@@ -305,17 +305,17 @@ MapObjType::MapObjType(const char* name, FScope* fScope)
         {
             switch (Crc::CalcStr(vNode->GetString()))
             {
-            case 0x83B41B3B: // "Sphere"
-                rayTestFlags |= Ray::SPHERE;
-                break;
+                case 0x83B41B3B: // "Sphere"
+                    rayTestFlags |= Ray::SPHERE;
+                    break;
 
-            case 0x1CCAFDCC: // "Box"
-                rayTestFlags |= Ray::BOX;
-                break;
+                case 0x1CCAFDCC: // "Box"
+                    rayTestFlags |= Ray::BOX;
+                    break;
 
-            case 0xDE119E77: // "Poly"
-                rayTestFlags |= Ray::POLY;
-                break;
+                case 0xDE119E77: // "Poly"
+                    rayTestFlags |= Ray::POLY;
+                    break;
             }
         }
     }
@@ -376,23 +376,23 @@ MapObjType::MapObjType(const char* name, FScope* fScope)
         {
             switch (ssScope->NameCrc())
             {
-            case 0x9F1D54D0: // "Add"
-            {
-                // Name of the animation
-                GameIdent animation = StdLoad::TypeString(ssScope);
-
-                // Find the animation FX list in the tree
-                AnimationFXList* animFXList = animationFX.Find(animation.crc);
-
-                // If not found, create one
-                if (!animFXList)
+                case 0x9F1D54D0: // "Add"
                 {
-                    animationFX.Add(animation.crc, animFXList = new AnimationFXList);
-                }
+                    // Name of the animation
+                    GameIdent animation = StdLoad::TypeString(ssScope);
 
-                F32 frame = StdLoad::TypeF32(ssScope);
-                animFXList->Append(new AnimationFX(frame, ssScope));
-            }
+                    // Find the animation FX list in the tree
+                    AnimationFXList* animFXList = animationFX.Find(animation.crc);
+
+                    // If not found, create one
+                    if (!animFXList)
+                    {
+                        animationFX.Add(animation.crc, animFXList = new AnimationFXList);
+                    }
+
+                    F32 frame = StdLoad::TypeF32(ssScope);
+                    animFXList->Append(new AnimationFX(frame, ssScope));
+                }
             }
         }
     }
@@ -404,14 +404,14 @@ MapObjType::MapObjType(const char* name, FScope* fScope)
         {
             switch (ssScope->NameCrc())
             {
-            case 0x9F1D54D0: // "Add"
-            {
-                // Read the key
-                U32 key = Crc::CalcStr(ssScope->NextArgString());
+                case 0x9F1D54D0: // "Add"
+                {
+                    // Read the key
+                    U32 key = Crc::CalcStr(ssScope->NextArgString());
 
-                // Create the tree entry
-                genericFX.Add(key, new GameIdent(ssScope->NextArgString()));
-            }
+                    // Create the tree entry
+                    genericFX.Add(key, new GameIdent(ssScope->NextArgString()));
+                }
             }
         }
     }
@@ -478,27 +478,27 @@ void MapObjType::PostLoad()
         // Setup the physics simulation function pointer
         switch (movementModel->SimulationModel())
         {
-        case 0x7E1FE4E4: // "RigidBody"
-            mapPhysicsProc = &MapObjType::RigidBodyPhysics;
-            break;
-
-        default:
-            // This isnt life threatening, just means objects will sit around doing nothing
-            LOG_ERR(("Invalid physics simulation type for [%s]", typeId.str))
+            case 0x7E1FE4E4: // "RigidBody"
+                mapPhysicsProc = &MapObjType::RigidBodyPhysics;
                 break;
+
+            default:
+                // This isnt life threatening, just means objects will sit around doing nothing
+            LOG_ERR(("Invalid physics simulation type for [%s]", typeId.str))
+            break;
         }
 
         // Setup collision function pointer
         switch (movementModel->CollisionModel())
         {
-        case 0x7E1FE4E4: // "RigidBody"
-            mapCollideProc = &MapObjType::RigidBodyCollision;
-            break;
+            case 0x7E1FE4E4: // "RigidBody"
+                mapCollideProc = &MapObjType::RigidBodyCollision;
+                break;
 
-        case 0x95BA4B11: // "Fatal"
-        default:
-            mapCollideProc = &MapObjType::FatalCollision;
-            break;
+            case 0x95BA4B11: // "Fatal"
+            default:
+                mapCollideProc = &MapObjType::FatalCollision;
+                break;
         }
     }
 }
@@ -571,7 +571,7 @@ Bool MapObjType::InitializeResources()
         if (!a->pointIdent.Null() && !root.FindIdent(a->pointIdent))
         {
             LOG_ERR(("Can't find attach point '%s' on %s", a->pointIdent.str, typeId.str))
-                attachments.Dispose(a);
+            attachments.Dispose(a);
         }
     }
 
@@ -685,8 +685,11 @@ FX::Type* MapObjType::FindGenericFX(U32 key)
 //
 // Generate a generic effect on the given object
 //
-FX::Object* MapObjType::StartGenericFX(MapObj* obj, U32 key, FX::FXCallBack callBack, Bool process,
-    const Vector* velocity, void* context, F32 lifeTime)
+FX::Object* MapObjType::StartGenericFX
+(
+    MapObj* obj, U32 key, FX::FXCallBack callBack, Bool process,
+    const Vector* velocity, void* context, F32 lifeTime
+)
 {
     ASSERT(obj);
 
@@ -737,31 +740,31 @@ void MapObj::CreateLight(Vid::Light::Desc* desc)
 // Constructor
 //
 MapObj::MapObj(MapObjType* objType, U32 id) : GameObj(objType, id),
-animList(nullptr),
-animationFX(nullptr),
-negativeModifyHitPoints(FALSE),
-dying(FALSE),
-meshEnt(nullptr),
-balanceData(nullptr),
-currentLayer(objType->GetDefaultLayer()),
-footInstance(nullptr),
-hitpoints(0),
-armour(0),
-clustOverlapX(0),
-clustOverlapZ(0),
-attachments(&MapObj::attachedNode),
-currentCluster(nullptr),
-cellX(-1),
-cellZ(-1),
-iterTicker(0)
+                                              animList(nullptr),
+                                              animationFX(nullptr),
+                                              negativeModifyHitPoints(FALSE),
+                                              dying(FALSE),
+                                              meshEnt(nullptr),
+                                              balanceData(nullptr),
+                                              currentLayer(objType->GetDefaultLayer()),
+                                              footInstance(nullptr),
+                                              hitpoints(0),
+                                              armour(0),
+                                              clustOverlapX(0),
+                                              clustOverlapZ(0),
+                                              attachments(&MapObj::attachedNode),
+                                              currentCluster(nullptr),
+                                              cellX(-1),
+                                              cellZ(-1),
+                                              iterTicker(0)
 {
     // NOTE: Cell position initaialised to an INVALID location so that 
     // the first call to UpdateMapPos will update the cell pos.
 
     SYNC_BRUTAL("MapObjConstruct: " << objType->GetName() << " Id: " << id)
 
-        // Save the object's time of birth
-        birthTime = GameTime::SimTotalTime();
+    // Save the object's time of birth
+    birthTime = GameTime::SimTotalTime();
 
     // Ensure that the resources have been loaded for this type
     if (!MapType()->resourcesInitialized)
@@ -901,39 +904,39 @@ void MapObj::ProcessCycle()
 {
     SYNC_BRUTAL("ProcessCycle " << TypeName() << ' ' << Id())
 
-        // Perform type specific physics
-        PERF_S(("MapObj Physics"))
-        if (MapType()->mapPhysicsProc)
-        {
-            Matrix m = WorldMatrix();
-            Vector s;
+    // Perform type specific physics
+    PERF_S(("MapObj Physics"))
+    if (MapType()->mapPhysicsProc)
+    {
+        Matrix m = WorldMatrix();
+        Vector s;
 
-            MapType()->ProcessMapPhysics(*this, m);
-            SetSimTarget(m);
+        MapType()->ProcessMapPhysics(*this, m);
+        SetSimTarget(m);
 
-            // Register movement with the collision system
-            CollisionCtrl::AddObject(this);
-        }
+        // Register movement with the collision system
+        CollisionCtrl::AddObject(this);
+    }
     PERF_E(("MapObj Physics"))
 
-        // Regen armor
-        PERF_S(("Regen Armor"))
-        if (armour > 0 && armour < MapType()->armour)
+    // Regen armor
+    PERF_S(("Regen Armor"))
+    if (armour > 0 && armour < MapType()->armour)
+    {
+        if (armourRegenCycles)
         {
-            if (armourRegenCycles)
+            if (!--armourRegenCycles)
             {
-                if (!--armourRegenCycles)
-                {
-                    ModifyArmour(1);
-                    armourRegenCycles = MapType()->armourRegenInterval;
-                }
+                ModifyArmour(1);
+                armourRegenCycles = MapType()->armourRegenInterval;
             }
         }
+    }
     PERF_E(("Regen Armor"))
 
-        // Process animation
-        PERF_S(("Animation"))
-        ProcessAnimation();
+    // Process animation
+    PERF_S(("Animation"))
+    ProcessAnimation();
     PERF_E(("Animation"))
 }
 
@@ -1059,86 +1062,86 @@ void MapObj::LoadState(FScope* fScope)
     {
         switch (sScope->NameCrc())
         {
-        case 0x59CA1A6D: // "Armour"
-            armour = StdLoad::TypePercentage(sScope, MapType()->GetArmour());
-            break;
+            case 0x59CA1A6D: // "Armour"
+                armour = StdLoad::TypePercentage(sScope, MapType()->GetArmour());
+                break;
 
-        case 0x761A32B0: // "HitPoints"
-            hitpoints = StdLoad::TypePercentage(sScope, MapType()->GetHitPoints());
-            break;
+            case 0x761A32B0: // "HitPoints"
+                hitpoints = StdLoad::TypePercentage(sScope, MapType()->GetHitPoints());
+                break;
 
-        case 0x411AC76D: // "Parent"
-            // Load the parent pointer
-            StdLoad::TypeReaper(sScope, parent);
-            break;
+            case 0x411AC76D: // "Parent"
+                // Load the parent pointer
+                StdLoad::TypeReaper(sScope, parent);
+                break;
 
-        case 0xF7C04E02: // "AttachPoint"
-            // Load the attachment point name
-            attachPointIdent = StdLoad::TypeString(fScope, "AttachPoint");
-            break;
+            case 0xF7C04E02: // "AttachPoint"
+                // Load the attachment point name
+                attachPointIdent = StdLoad::TypeString(fScope, "AttachPoint");
+                break;
 
-        case 0xEE2D2689: // "Orientation"
-        {
-            Matrix m;
-            m.ClearData();
-            StdLoad::TypeMatrix(sScope, m);
-            SetSimCurrent(m);
-            break;
-        }
+            case 0xEE2D2689: // "Orientation"
+            {
+                Matrix m;
+                m.ClearData();
+                StdLoad::TypeMatrix(sScope, m);
+                SetSimCurrent(m);
+                break;
+            }
 
-        case 0x8D878A02: // "Position"
-        {
-            Matrix m;
-            m.ClearData();
-            StdLoad::TypeMatrix(sScope, m);
-            SetSimCurrent(m);
-            break;
-        }
+            case 0x8D878A02: // "Position"
+            {
+                Matrix m;
+                m.ClearData();
+                StdLoad::TypeMatrix(sScope, m);
+                SetSimCurrent(m);
+                break;
+            }
 
-        case 0xBF87218C: // "OffMap"
-            addToMap = FALSE;
-            break;
+            case 0xBF87218C: // "OffMap"
+                addToMap = FALSE;
+                break;
 
-        case 0xCC5B039A: // "Zip"
-            zip = TRUE;
-            break;
+            case 0xCC5B039A: // "Zip"
+                zip = TRUE;
+                break;
 
-        case 0x7010E6E4: // "Velocity"
-            StdLoad::TypeVector(sScope, velocity);
-            speed = velocity.Magnitude();
-            break;
+            case 0x7010E6E4: // "Velocity"
+                StdLoad::TypeVector(sScope, velocity);
+                speed = velocity.Magnitude();
+                break;
 
-        case 0x9D13A00A: // "BirthTime"
-            birthTime = StdLoad::TypeF32(sScope);
-            break;
+            case 0x9D13A00A: // "BirthTime"
+                birthTime = StdLoad::TypeF32(sScope);
+                break;
 
-        case 0xA358E0F0: // "ArmourRegenCycles"
-            armourRegenCycles = U16(StdLoad::TypeU32(sScope));
-            break;
+            case 0xA358E0F0: // "ArmourRegenCycles"
+                armourRegenCycles = U16(StdLoad::TypeU32(sScope));
+                break;
 
-        case 0xFF54E071: // "AnimList"
-        {
-            U32 crc = StdLoad::TypeU32(sScope);
-            animList = GetMeshRoot()->FindAnimCycle(crc);
-            animationFX = MapType()->animationFX.Find(crc);
-            break;
-        }
+            case 0xFF54E071: // "AnimList"
+            {
+                U32 crc = StdLoad::TypeU32(sScope);
+                animList = GetMeshRoot()->FindAnimCycle(crc);
+                animationFX = MapType()->animationFX.Find(crc);
+                break;
+            }
 
-        case 0x6459A3A0: // "RequestPrimitive"
-            requestPrimitive = StdLoad::TypeU32(sScope);
-            break;
+            case 0x6459A3A0: // "RequestPrimitive"
+                requestPrimitive = StdLoad::TypeU32(sScope);
+                break;
 
-        case 0x2C7BA4FA: // "NegativeModifyHitPoints"
-            negativeModifyHitPoints = StdLoad::TypeU32(sScope);
-            break;
+            case 0x2C7BA4FA: // "NegativeModifyHitPoints"
+                negativeModifyHitPoints = StdLoad::TypeU32(sScope);
+                break;
 
-        case 0x8A677538: // "Dying"
-            dying = StdLoad::TypeU32(sScope);
-            break;
+            case 0x8A677538: // "Dying"
+                dying = StdLoad::TypeU32(sScope);
+                break;
 
-        case 0xC1DFB952: // "MeshEnt"
-            meshEnt->LoadState(sScope);
-            break;
+            case 0xC1DFB952: // "MeshEnt"
+                meshEnt->LoadState(sScope);
+                break;
         }
     }
 
@@ -1769,8 +1772,11 @@ void MapObj::ModifyArmour(S32 mod)
 //
 // Starts the given generic FX (returns NULL if not created)
 //
-FX::Object* MapObj::StartGenericFX(U32 key, FX::FXCallBack callBack, Bool process, const Vector* velocity,
-    void* context, F32 lifeTime)
+FX::Object* MapObj::StartGenericFX
+(
+    U32 key, FX::FXCallBack callBack, Bool process, const Vector* velocity,
+    void* context, F32 lifeTime
+)
 {
     // Find the type
     if (FX::Type* type = MapType()->FindGenericFX(key))
@@ -1788,8 +1794,11 @@ FX::Object* MapObj::StartGenericFX(U32 key, FX::FXCallBack callBack, Bool proces
 //
 // Starts the given FX type (returns NULL if not created)
 //
-FX::Object* MapObj::StartFX(U32 typeCrc, FX::FXCallBack callBack, Bool process, const Vector* velocity, void* context,
-    F32 lifeTime)
+FX::Object* MapObj::StartFX
+(
+    U32 typeCrc, FX::FXCallBack callBack, Bool process, const Vector* velocity, void* context,
+    F32 lifeTime
+)
 {
     // Find the type
     if (FX::Type* type = FX::Find(typeCrc))
@@ -2003,7 +2012,7 @@ void MapObj::CaptureMapHooks(Bool capture)
         }
     }
 
-    // ReleaseMapHooks
+        // ReleaseMapHooks
     else
     {
     }
@@ -2048,10 +2057,10 @@ void MapObj::CaptureClusterHooks(Bool capture, Bool calcOverlap)
     ASSERT(currentCluster);
 
     if
-        (
-            MapType()->IsProjectile() ||
-            MapType()->IsExplosion()
-            )
+    (
+        MapType()->IsProjectile() ||
+        MapType()->IsExplosion()
+    )
     {
         return;
     }
@@ -2090,7 +2099,7 @@ void MapObj::CaptureClusterHooks(Bool capture, Bool calcOverlap)
         }
     }
 
-    // ReleaseClusterHooks
+        // ReleaseClusterHooks
     else
     {
         for (U32 i = 0; i < 4; i++)
@@ -2237,8 +2246,11 @@ void MapObj::SetAnimation(const char* name, Bool blend, Bool activate) // = TRUE
 //
 void MapObj::SetFogTarget(U32 fog, U32 alpha, Bool immediate) // = TRUE
 {
-    Mesh().SetFogTarget(Terrain::fogFactorsS32[U32(*Vid::Var::Terrain::shroud ? fog : 7)],
-        Terrain::fogFactorsS32[U32(*Vid::Var::Terrain::shroud ? alpha : 7)], immediate);
+    Mesh().SetFogTarget
+    (
+        Terrain::fogFactorsS32[U32(*Vid::Var::Terrain::shroud ? fog : 7)],
+        Terrain::fogFactorsS32[U32(*Vid::Var::Terrain::shroud ? alpha : 7)], immediate
+    );
 }
 
 //
@@ -2250,18 +2262,18 @@ void MapObj::SetAnimation(U32 crc, Bool blend, Bool activate) // = TRUE, TRUE
 {
     SYNC_BRUTAL("Animation " << crc << ' ' << blend << ' ' << activate << ' ' << TypeName() << ' ' << Id())
 
-        // Is there an animation currently active
-        if (animList && Mesh().AnimIsActive())
-        {
-            // Notify the task that the animation is completed
-            PostEvent(Task::Event(MapObjNotify::AnimationDone, this, animList->name.crc));
+    // Is there an animation currently active
+    if (animList && Mesh().AnimIsActive())
+    {
+        // Notify the task that the animation is completed
+        PostEvent(Task::Event(MapObjNotify::AnimationDone, this, animList->name.crc));
 
-            // Notify the parent if there is one (for animating upgrades)
-            if (parent.Alive())
-            {
-                parent->PostEvent(Task::Event(MapObjNotify::AnimationDoneChild, this, animList->name.crc));
-            }
+        // Notify the parent if there is one (for animating upgrades)
+        if (parent.Alive())
+        {
+            parent->PostEvent(Task::Event(MapObjNotify::AnimationDoneChild, this, animList->name.crc));
         }
+    }
 
     // Will this object have animations processed
     if (OnPrimitiveList())
@@ -2542,9 +2554,9 @@ Bool MapObj::MediumHealthCallBack(MapObj* mapObj, FX::CallBackData&, void*)
     // If out health has fallen below the low mark or above
     // the high mark then stop producing medium health mark FX
     return (mapObj->hitpoints >= mapObj->MapType()->healthHighMark ||
-        mapObj->hitpoints <= mapObj->MapType()->healthLowMark
-        ? TRUE
-        : FALSE);
+            mapObj->hitpoints <= mapObj->MapType()->healthLowMark
+                ? TRUE
+                : FALSE);
 }
 
 

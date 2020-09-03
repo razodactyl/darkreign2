@@ -20,43 +20,39 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
+    ///////////////////////////////////////////////////////////////////////////////
     //
-    // Init
+    // NameSpace Squad
     //
-    void Init()
+    namespace Squad
     {
-      // Register the squad orders
-      Create::Register();
-      Destroy::Register();
-      Delete::Register();
-      AddSelected::Register();
-      RemoveSelected::Register();
-      Empty::Register();
-      Stop::Register();
-      Move::Register();
-      Trail::Register();
-      Board::Register();
-      FollowTag::Register();
-      Formation::Register();
-      Restore::Register();
-      Attack::Register();
-      Guard::Register();
-      Tactical::Register();
-      Notify::Register();
-      Explore::Register();
-      Spawn::Register();
-      TransportSpawn::Register();
-      Defect::Register();
+        //
+        // Init
+        //
+        void Init()
+        {
+            // Register the squad orders
+            Create::Register();
+            Destroy::Register();
+            Delete::Register();
+            AddSelected::Register();
+            RemoveSelected::Register();
+            Empty::Register();
+            Stop::Register();
+            Move::Register();
+            Trail::Register();
+            Board::Register();
+            FollowTag::Register();
+            Formation::Register();
+            Restore::Register();
+            Attack::Register();
+            Guard::Register();
+            Tactical::Register();
+            Notify::Register();
+            Explore::Register();
+            Spawn::Register();
+            TransportSpawn::Register();
+            Defect::Register();
+        }
     }
-
-  }
-
 }

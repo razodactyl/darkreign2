@@ -108,8 +108,11 @@ namespace FX
     //
     // SingleType::Generate
     //
-    Object* SingleType::Generate(MapObj* mapObj, F32 _lifeTime, FXCallBack callBack, Bool process,
-                                 const Vector* velocity, void* context)
+    Object* SingleType::Generate
+    (
+        MapObj* mapObj, F32 _lifeTime, FXCallBack callBack, Bool process,
+        const Vector* velocity, void* context
+    )
     {
         // Should we set the life time to the configured value
         if (!_lifeTime && !callBack)
@@ -197,8 +200,11 @@ namespace FX
     //
     // Type::Generate
     //
-    Object* Type::Generate(MapObj* mapObj, FXCallBack callBack, Bool process, const Vector* velocity, void* context,
-                           F32 _lifeTime)
+    Object* Type::Generate
+    (
+        MapObj* mapObj, FXCallBack callBack, Bool process, const Vector* velocity, void* context,
+        F32 _lifeTime
+    )
     {
         SingleType* singleType = nullptr;
 
@@ -244,8 +250,11 @@ namespace FX
     //
     // Object::Object
     //
-    Object::Object(SingleType* type, MapObj* mapObj, F32 _lifeTime, FXCallBack callBack, Bool process,
-                   const Vector* velocity, void* context) :
+    Object::Object
+    (
+        SingleType* type, MapObj* mapObj, F32 _lifeTime, FXCallBack callBack, Bool process,
+        const Vector* velocity, void* context
+    ) :
         type(type),
         mapObj(mapObj),
         velocity(velocity ? new Vector(*velocity) : nullptr),
@@ -612,8 +621,11 @@ namespace FX
     //
     // Construct a new effect instance
     //
-    Object* New(Type* type, MapObj* mapObj, FXCallBack callBack, Bool process, const Vector* velocity, void* context,
-                F32 _lifeTime) //  0.0f, = NULL, = FALSE, = NULL, = NULL, 
+    Object* New
+    (
+        Type* type, MapObj* mapObj, FXCallBack callBack, Bool process, const Vector* velocity, void* context,
+        F32 _lifeTime
+    ) //  0.0f, = NULL, = FALSE, = NULL, = NULL, 
     {
         ASSERT(type);
 

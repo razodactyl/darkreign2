@@ -21,51 +21,47 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 Scatter::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Move
-    //
-
-
-    //
-    // Generate
-    //
-    void Scatter::Generate(Player &player)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 Scatter::orderId;
 
-      // Setup data structure
-      data.Setup(orderId, player);
 
-      Add(data, sizeof (Data), player.IsRoute());
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Move
+        //
+
+
+        //
+        // Generate
+        //
+        void Scatter::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Scatter::Execute(const U8*, Player& player)
+        {
+            UnitObj::Scatter(player.GetSelectedList());
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Scatter::Execute(const U8 *, Player &player)
-    {
-      UnitObj::Scatter(player.GetSelectedList());
-
-      return (sizeof (Data));
-    }
-  }
 }
-
-

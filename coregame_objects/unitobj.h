@@ -728,8 +728,11 @@ public:
     Bool SendEvent(const Task::Event& event, Bool idle = FALSE) override;
 
     // Tell unit to move to a location/direction
-    void Move(Movement::Handle& handle, const Vector* dst, const Vector* dir, Bool passUnit,
-              Movement::RequestData* req = nullptr);
+    void Move
+    (
+        Movement::Handle& handle, const Vector* dst, const Vector* dir, Bool passUnit,
+        Movement::RequestData* req = nullptr
+    );
 
     // Tell unit to move onto the given trail
     void Move(Movement::Handle& handle, TrailObj* trail, Bool passUnit, Movement::RequestData* req = nullptr);
@@ -783,8 +786,11 @@ public:
     void DangerResponseAlert(UnitObj* sourceUnit = nullptr);
 
     // Modify the number of hitpoints an object has
-    void ModifyHitPoints(S32 mod, UnitObj* sourceUnit = nullptr, Team* sourceTeam = nullptr,
-                         const Vector* direction = nullptr) override;
+    void ModifyHitPoints
+    (
+        S32 mod, UnitObj* sourceUnit = nullptr, Team* sourceTeam = nullptr,
+        const Vector* direction = nullptr
+    ) override;
 
     // Modify the armour an object has
     void ModifyArmour(S32 mod) override;

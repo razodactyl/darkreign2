@@ -21,27 +21,23 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class LocalPings
+    // NameSpace Controls
     //
-
-    //
-    // Redraw self
-    //
-    void LocalPings::DrawSelf(PaintInfo &pi)
+    namespace Controls
     {
-      PingDisplay::Draw(PrivData::maxLocalPings, PrivData::localPings, pi.client, pi.alphaScale);
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class LocalPings
+        //
+
+        //
+        // Redraw self
+        //
+        void LocalPings::DrawSelf(PaintInfo& pi)
+        {
+            PingDisplay::Draw(PrivData::maxLocalPings, PrivData::localPings, pi.client, pi.alphaScale);
+        }
     }
-
-  }
-
 }

@@ -27,11 +27,11 @@
 //
 // Constructor
 //
-MarkerObjType::MarkerObjType(const char *name, FScope *fScope) 
-: MapObjType(name, fScope)
+MarkerObjType::MarkerObjType(const char* name, FScope* fScope)
+    : MapObjType(name, fScope)
 {
-  // Disable saving
-  save = FALSE;
+    // Disable saving
+    save = FALSE;
 }
 
 
@@ -42,8 +42,8 @@ MarkerObjType::MarkerObjType(const char *name, FScope *fScope)
 //
 GameObj* MarkerObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new MarkerObj(this, id));
+    // Allocate new object instance
+    return (new MarkerObj(this, id));
 }
 
 
@@ -58,7 +58,7 @@ GameObj* MarkerObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-MarkerObj::MarkerObj(MarkerObjType *objType, U32 id) : MapObj(objType, id)
+MarkerObj::MarkerObj(MarkerObjType* objType, U32 id) : MapObj(objType, id)
 {
 }
 
@@ -80,6 +80,6 @@ MarkerObj::~MarkerObj()
 //
 void MarkerObj::PreDelete()
 {
-  // Call parent scope last
-  MapObj::PreDelete();
+    // Call parent scope last
+    MapObj::PreDelete();
 }

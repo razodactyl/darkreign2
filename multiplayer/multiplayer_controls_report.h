@@ -25,35 +25,30 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Report
+    // NameSpace Controls
     //
-    class Report : public ICWindow
+    namespace Controls
     {
-    public:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Report
+        //
+        class Report : public ICWindow
+        {
+        public:
 
-      // Constructor
-      Report(IControl *parent);
+            // Constructor
+            Report(IControl* parent);
 
-      // Destructor
-      ~Report();
+            // Destructor
+            ~Report();
 
-      // Redraw self
-      void DrawSelf(PaintInfo &pi);
-
-    };
-
-  }
-
+            // Redraw self
+            void DrawSelf(PaintInfo& pi);
+        };
+    }
 }
 
 

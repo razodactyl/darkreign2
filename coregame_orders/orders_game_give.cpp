@@ -76,22 +76,31 @@ namespace Orders
                         UnitObjPtr first;
 
                         // Give the units
-                        if (U32 amount = player.GetTeam()->GiveUnits(newPlayer->GetTeam(), player.GetSelectedList(),
-                                                                     first))
+                        if (U32 amount = player.GetTeam()->GiveUnits
+                        (
+                            newPlayer->GetTeam(), player.GetSelectedList(),
+                            first
+                        ))
                         {
                             // Trigger confirmation for the giver
                             if (player.GetTeam() == Team::GetDisplayTeam())
                             {
-                                Message::TriggerGameMessage(0x4ED94B91, 2, newPlayer->GetDisplayName(),
-                                                            amount); // "Team::GaveUnits"
+                                Message::TriggerGameMessage
+                                (
+                                    0x4ED94B91, 2, newPlayer->GetDisplayName(),
+                                    amount
+                                ); // "Team::GaveUnits"
                             }
                             else
 
                                 // Trigger object message for the receiver
                                 if (newPlayer->GetTeam() == Team::GetDisplayTeam())
                                 {
-                                    Message::TriggerObjMessage(0x66EC1C1D, first, nullptr, 2, player.GetDisplayName(),
-                                                               amount); // "Team::GivenUnits"
+                                    Message::TriggerObjMessage
+                                    (
+                                        0x66EC1C1D, first, nullptr, 2, player.GetDisplayName(),
+                                        amount
+                                    ); // "Team::GivenUnits"
                                 }
                         }
                     }
@@ -150,13 +159,19 @@ namespace Orders
                     {
                         if (player.GetTeam() == Team::GetDisplayTeam())
                         {
-                            Message::TriggerGameMessage(0xB4223958, 2, newPlayer->GetDisplayName(),
-                                                        amount); // "Team::GaveCredits"
+                            Message::TriggerGameMessage
+                            (
+                                0xB4223958, 2, newPlayer->GetDisplayName(),
+                                amount
+                            ); // "Team::GaveCredits"
                         }
                         else if (newPlayer->GetTeam() == Team::GetDisplayTeam())
                         {
-                            Message::TriggerGameMessage(0x8AB24AD7, 2, player.GetDisplayName(),
-                                                        amount); // "Team::GivenCredits"
+                            Message::TriggerGameMessage
+                            (
+                                0x8AB24AD7, 2, player.GetDisplayName(),
+                                amount
+                            ); // "Team::GivenCredits"
                         }
                     }
                 }

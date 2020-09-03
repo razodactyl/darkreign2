@@ -638,7 +638,8 @@ namespace Common
         camera->SetProjTransformIso(MAPVIEWNEAR, viewfar, fov, twid, thgt);
 
         // set its orientation (pointing strait down)
-        camera->SetWorld(
+        camera->SetWorld
+        (
             Quaternion(-PIBY2, Matrix::I.right),
             Vector(0, MAPVIEWNEAR + Terrain::terrMaxHeight, 0)
         );
@@ -814,7 +815,8 @@ namespace Common
             */
             textureClr.a = U8(Min<U32>(Utils::FtoLDown(IFace::data.alphaScale * F32(textureClr.a)), 255L));
 
-            Point<F32> origin(
+            Point<F32> origin
+            (
                 F32(clientRc.p0.x + (clientRc.Width() >> 1)),
                 F32(clientRc.p0.y + (clientRc.Height() >> 1))
             );
@@ -894,15 +896,20 @@ namespace Common
 
                     for (i = 0; i < S32(unitCount); i++)
                     {
-                        Point<S32> p(
-                            Utils::FastFtoL(
+                        Point<S32> p
+                        (
+                            Utils::FastFtoL
+                            (
                                 origin.x + matrix.right.x * (units[i].pos.x - 0.5f) * wid + matrix.front.x * (units[i]
                                                                                                               .pos.y -
-                                    0.5f) * wid),
-                            Utils::FastFtoL(
+                                    0.5f) * wid
+                            ),
+                            Utils::FastFtoL
+                            (
                                 origin.y + matrix.right.z * (units[i].pos.x - 0.5f) * wid + matrix.front.z * (units[i]
                                                                                                               .pos.y -
-                                    0.5f) * wid)
+                                    0.5f) * wid
+                            )
                         );
 
                         // All triangles point up
@@ -921,8 +928,11 @@ namespace Common
 
                         vCount = 3;
                         iCount = 3;
-                        Vid::Clip::Screen::ToBuffer(tempV, tempI, verts, vCount, Vid::rectIndices, iCount, clipALL,
-                                                    mapVerts);
+                        Vid::Clip::Screen::ToBuffer
+                        (
+                            tempV, tempI, verts, vCount, Vid::rectIndices, iCount, clipALL,
+                            mapVerts
+                        );
 
                         VertexTL* dv = IFace::GetVerts(vCount, nullptr, 0, 0, vertOffset);
                         VertexTL *ev = dv + vCount, *t = tempV;
@@ -992,11 +1002,13 @@ namespace Common
                 iCount = 6;
                 Vid::Clip::Screen::ToBuffer(tempV, tempI, verts, vCount, Vid::rectIndices, iCount, clipALL, mapVerts);
 
-                VertexTL* dv = IFace::GetVerts(
+                VertexTL* dv = IFace::GetVerts
+                (
                     vCount, fovTexture.texture,
                     (fovTexture.filter) ? 1 : 0,
                     (fovTexture.texMode == TextureInfo::TM_CENTRED) ? RS_TEXCLAMP : 0,
-                    vertOffset);
+                    vertOffset
+                );
 
                 VertexTL *ev = dv + vCount, *t = tempV;
                 for (; dv < ev; dv++, t++)
@@ -1066,7 +1078,8 @@ namespace Common
                             S32 size = Max<S32>(6, Utils::FtoL(blip->time * blipTimeInv * blipSize));
 
                             ClipRect rect(-size, -size, size, size);
-                            Point<S32> p(
+                            Point<S32> p
+                            (
                                 Utils::FastFtoL(origin.x + matrix.right.x * widx * wid + matrix.front.x * widy * wid),
                                 Utils::FastFtoL(origin.y + matrix.right.z * widx * wid + matrix.front.z * widy * wid)
                             );
@@ -1328,25 +1341,29 @@ namespace Common
         wid = WorldCtrl::MetreMapX();
 
         t.Set(F32(p0.x - origin.x) * invwid, -F32(p0.y - origin.y) * invwid);
-        t0[0].Set(
+        t0[0].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );
 
         t.Set(F32(p0.x - origin.x) * invwid, -F32(p1.y - origin.y) * invwid);
-        t0[1].Set(
+        t0[1].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );
 
         t.Set(F32(p1.x - origin.x) * invwid, -F32(p1.y - origin.y) * invwid);
-        t0[2].Set(
+        t0[2].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );
 
         t.Set(F32(p1.x - origin.x) * invwid, -F32(p0.y - origin.y) * invwid);
-        t0[3].Set(
+        t0[3].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );

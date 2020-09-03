@@ -17,70 +17,66 @@
 //
 namespace Formation
 {
+    // Formation slot
+    struct Slot
+    {
+        // Locational offset
+        F32 direction;
+        F32 distance;
 
-  // Formation slot
-  struct Slot
-  {
-    // Locational offset
-    F32 direction;
-    F32 distance;
+        // Orientational offset
+        F32 orientation;
 
-    // Orientational offset
-    F32 orientation;
+        // Default constructor
+        Slot();
 
-    // Default constructor
-    Slot();
+        // Initializing constructor
+        Slot(F32 direction, F32 distance, F32 orientation);
 
-    // Initializing constructor
-    Slot(F32 direction, F32 distance, F32 orientation);
+        // Loading constructor
+        Slot(FScope* fScope);
 
-    // Loading constructor
-    Slot(FScope *fScope);
+        // Compare function
+        F32 Compare(Slot* slot);
 
-    // Compare function
-    F32 Compare(Slot *slot);
+        // Save and load state
+        void SaveState(FScope* scope);
+        void LoadState(FScope* scope);
+    };
 
-    // Save and load state
-    void SaveState(FScope *scope);
-    void LoadState(FScope *scope);
+    // List of slots in a formation
+    struct Slots
+    {
+        List<Slot> slots;
 
-  };
+        // Default constructor
+        Slots();
 
-  // List of slots in a formation
-  struct Slots
-  {
-    List<Slot> slots;
-    
-    // Default constructor
-    Slots();
+        // Loading constructor
+        Slots(FScope* fScope);
 
-    // Loading constructor
-    Slots(FScope *fScope);
+        // Destructor
+        ~Slots();
 
-    // Destructor
-    ~Slots();
+        // Add a slot to the slots
+        void Add(Slot* slot);
+    };
 
-    // Add a slot to the slots
-    void Add(Slot *slot);
+    // Initialization and Shutdown
+    void Init();
+    void Done();
 
-  };
+    // Create a formation for a squad
+    void Create(const Vector& location, F32 direction, SquadObj* squad, F32 range);
 
-  // Initialization and Shutdown
-  void Init();
-  void Done();
+    // Find a named formation
+    Slots* Find(U32 crc);
 
-  // Create a formation for a squad
-  void Create(const Vector &location, F32 direction, SquadObj *squad, F32 range);
+    // Apply the named formation to the given units with a direction and orientaiton
+    void Apply(U32 crc, const Vector& location, F32 direction, const UnitObjList& units, U32 flags);
 
-  // Find a named formation
-  Slots * Find(U32 crc);
-
-  // Apply the named formation to the given units with a direction and orientaiton
-  void Apply(U32 crc, const Vector &location, F32 direction, const UnitObjList &units, U32 flags);
-
-  // Process config
-  void ProcessConfig(FScope *fScope);
-
+    // Process config
+    void ProcessConfig(FScope* fScope);
 };
 
 #endif

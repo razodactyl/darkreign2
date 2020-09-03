@@ -18,33 +18,31 @@
 //
 namespace Sight
 {
-
-  //
-  // Constructor
-  //
-  Map::Map() : lastTeam(0), lastX(0), lastZ(0), lastR(0), lastAlt(F32_MAX)
-  {
-    for (U32 i = 0; i < LV_MAX; i++)
+    //
+    // Constructor
+    //
+    Map::Map() : lastTeam(0), lastX(0), lastZ(0), lastR(0), lastAlt(F32_MAX)
     {
-      byteMapInfo[i].map = NULL;
-      ByteMap::Get(byteMapInfo[i].map, byteMapInfo[i].mask);
+        for (U32 i = 0; i < LV_MAX; i++)
+        {
+            byteMapInfo[i].map = NULL;
+            ByteMap::Get(byteMapInfo[i].map, byteMapInfo[i].mask);
+        }
     }
-  }
 
 
-  //
-  // Destructor
-  //
-  Map::~Map()
-  {
-    // Make sure sight has been unswept
-    ASSERT(lastTeam == 0);
-
-    // Release bytemaps
-    for (U32 i = 0; i < LV_MAX; i++)
+    //
+    // Destructor
+    //
+    Map::~Map()
     {
-      ByteMap::Unget(byteMapInfo[i].map, byteMapInfo[i].mask);
-    }
-  }
+        // Make sure sight has been unswept
+        ASSERT(lastTeam == 0);
 
+        // Release bytemaps
+        for (U32 i = 0; i < LV_MAX; i++)
+        {
+            ByteMap::Unget(byteMapInfo[i].map, byteMapInfo[i].mask);
+        }
+    }
 }

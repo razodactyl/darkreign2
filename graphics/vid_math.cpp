@@ -522,8 +522,11 @@ namespace Vid
 
     // return of NULL indicates that bucket memory couldn't be allocated
     //
-    Bucket* ProjectClip(VertexTL* srcV, U32 countV, const U16* srcI, U32 countI, Bool calcFog,
-        U32 clipFlags) // = TRUE, = clipALL
+    Bucket* ProjectClip
+    (
+        VertexTL* srcV, U32 countV, const U16* srcI, U32 countI, Bool calcFog,
+        U32 clipFlags
+    ) // = TRUE, = clipALL
     {
         // set camera verts
         TransformFromModel(srcV, countV);
@@ -535,8 +538,11 @@ namespace Vid
 
     // return of NULL indicates that bucket memory couldn't be allocated
     //
-    Bucket* ProjectClip(const Vector* srcV, const UVPair* srcUV, Color diffuse, Color specular, U32 countV,
-        const U16* srcI, U32 countI, Bool calcFog, U32 clipFlags) // = TRUE, = clipALL
+    Bucket* ProjectClip
+    (
+        const Vector* srcV, const UVPair* srcUV, Color diffuse, Color specular, U32 countV,
+        const U16* srcI, U32 countI, Bool calcFog, U32 clipFlags
+    ) // = TRUE, = clipALL
     {
         ASSERT(countV < renderState.maxVerts&& countI <= Vid::renderState.maxIndices);
 
@@ -545,7 +551,7 @@ namespace Vid
         U32 heapSize = Heap::ReqVertex(&dstV, countV);
         VertexTL* dv = dstV;
         const UVPair* suv = srcUV;
-        const Vector* sv = srcV, * ev = srcV + countV;
+        const Vector *sv = srcV, *ev = srcV + countV;
         for (; sv < ev; sv++, dv++)
         {
             if (suv)
@@ -588,7 +594,7 @@ namespace Vid
         }
 
         VertexTL* dv = vertmem;
-        const VertexTL* sv = srcV, * ev = srcV + countV;
+        const VertexTL *sv = srcV, *ev = srcV + countV;
         for (; sv < ev; sv++, dv++)
         {
             dv->uv = sv->uv;
@@ -636,7 +642,7 @@ namespace Vid
         }
 
         VertexTL* dv = vertmem;
-        const VertexTL* sv = srcV, * ev = srcV + countV;
+        const VertexTL *sv = srcV, *ev = srcV + countV;
         for (; sv < ev; sv++, dv++)
         {
             dv->uv = sv->uv;
@@ -667,12 +673,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcN++, srcC++)
         {
@@ -700,12 +706,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcN++)
         {
@@ -733,12 +739,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcV++, srcN++, srcC++)
         {
@@ -766,12 +772,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcV++, srcN++)
         {
@@ -799,12 +805,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcN++, srcC++)
         {
@@ -834,12 +840,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcN++)
         {
@@ -869,12 +875,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcV++, srcN++, srcC++)
         {
@@ -904,12 +910,12 @@ namespace Vid
 
         // calculate the parts of the diffuse color that are the same for all output vertexes
         ColorF32 diff, spec, diffInit
-        (
-            diffuse.r * renderState.ambientColorF32.r,
-            diffuse.g * renderState.ambientColorF32.g,
-            diffuse.b * renderState.ambientColorF32.b,
-            diffuse.a
-        );
+                 (
+                     diffuse.r * renderState.ambientColorF32.r,
+                     diffuse.g * renderState.ambientColorF32.g,
+                     diffuse.b * renderState.ambientColorF32.b,
+                     diffuse.a
+                 );
 
         for (VertexTL* ev = dstV + countV; dstV < ev; dstV++, srcV++, srcN++)
         {

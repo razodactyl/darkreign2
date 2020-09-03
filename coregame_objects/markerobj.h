@@ -40,15 +40,15 @@ typedef Reaper<MarkerObj> MarkerObjPtr;
 
 class MarkerObjType : public MapObjType
 {
-  PROMOTE_LINK(MarkerObjType, MapObjType, 0x26E352A1); // "MarkerObjType"
+PROMOTE_LINK(MarkerObjType, MapObjType, 0x26E352A1); // "MarkerObjType"
 
 public:
 
-  // Constructor
-  MarkerObjType(const char *name, FScope *fScope);
+    // Constructor
+    MarkerObjType(const char* name, FScope* fScope);
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 };
 
 
@@ -61,13 +61,12 @@ class MarkerObj : public MapObj
 {
 public:
 
-  // Constructor and destructor
-  MarkerObj(MarkerObjType *objType, U32 id);
-  ~MarkerObj();
+    // Constructor and destructor
+    MarkerObj(MarkerObjType* objType, U32 id);
+    ~MarkerObj();
 
-  // Called to before deleting the object
-  void PreDelete();
-
+    // Called to before deleting the object
+    void PreDelete();
 };
 
-#endif  
+#endif

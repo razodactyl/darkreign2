@@ -30,8 +30,11 @@ namespace Strategic
     //
     // Constructor
     //
-    Asset::Request::ForceMap::ForceMap(Script* script, U32 handle, const Config::RecruitForce* config,
-                                       const Point<F32>& location, Bool acceptInsufficient, Object* object)
+    Asset::Request::ForceMap::ForceMap
+    (
+        Script* script, U32 handle, const Config::RecruitForce* config,
+        const Point<F32>& location, Bool acceptInsufficient, Object* object
+    )
         : Request(script, handle),
           config(config),
           location(location),
@@ -228,10 +231,12 @@ namespace Strategic
                 // The effectiveness against an armour class is based on how much of
                 // the defense has the given armour class and what percentage of the
                 // whole teams threat does this unit impose against that kind of defense
-                effectiveness = Max(
+                effectiveness = Max
+                (
                     effectiveness,
                     defense[ac] * defenseTotalInv * unit->UnitType()->GetThreat(ac) *
-                    ArmourClass::GetMaximumThreatInv(ac));
+                    ArmourClass::GetMaximumThreatInv(ac)
+                );
             }
 
             // If the unit is non-effective, then we don't want it

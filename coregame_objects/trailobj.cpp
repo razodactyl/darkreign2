@@ -216,65 +216,65 @@ Bool TrailObj::Follower::Next()
     {
         switch (trail->GetMode())
         {
-        case MODE_ONEWAY:
-        {
-            if (AtTerminal())
+            case MODE_ONEWAY:
             {
-                trail = nullptr;
-                return (FALSE);
-            }
-
-            Step();
-            return (TRUE);
-        }
-
-        case MODE_TWOWAY:
-        {
-            if (AtTerminal())
-            {
-                if (trail->MultiPoint())
-                {
-                    forwards = !forwards;
-                }
-                else
+                if (AtTerminal())
                 {
                     trail = nullptr;
                     return (FALSE);
                 }
+
+                Step();
+                return (TRUE);
             }
 
-            Step();
-            return (TRUE);
-        }
-
-        case MODE_LOOPIN:
-        {
-            if (AtTerminal())
+            case MODE_TWOWAY:
             {
-                if (trail->MultiPoint())
+                if (AtTerminal())
                 {
-                    if (forwards)
+                    if (trail->MultiPoint())
                     {
-                        iterator.GoToHead();
+                        forwards = !forwards;
                     }
                     else
                     {
-                        iterator.GoToTail();
+                        trail = nullptr;
+                        return (FALSE);
+                    }
+                }
+
+                Step();
+                return (TRUE);
+            }
+
+            case MODE_LOOPIN:
+            {
+                if (AtTerminal())
+                {
+                    if (trail->MultiPoint())
+                    {
+                        if (forwards)
+                        {
+                            iterator.GoToHead();
+                        }
+                        else
+                        {
+                            iterator.GoToTail();
+                        }
+                    }
+                    else
+                    {
+                        trail = nullptr;
+                        return (FALSE);
                     }
                 }
                 else
                 {
-                    trail = nullptr;
-                    return (FALSE);
+                    Step();
                 }
-            }
-            else
-            {
-                Step();
-            }
 
-            return (TRUE);
-        }
+                return (TRUE);
+            }
         }
     }
 
@@ -315,17 +315,17 @@ void TrailObj::Follower::LoadState(FScope* scope)
     {
         switch (sScope->NameCrc())
         {
-        case 0x82698073: // "Trail"
-            StdLoad::TypeReaper(sScope, trail);
-            break;
+            case 0x82698073: // "Trail"
+                StdLoad::TypeReaper(sScope, trail);
+                break;
 
-        case 0x557251DB: // "Forwards"
-            forwards = StdLoad::TypeU32(sScope);
-            break;
+            case 0x557251DB: // "Forwards"
+                forwards = StdLoad::TypeU32(sScope);
+                break;
 
-        case 0xCD634517: // "Index"
-            index = StdLoad::TypeU32(sScope);
-            break;
+            case 0xCD634517: // "Index"
+                index = StdLoad::TypeU32(sScope);
+                break;
         }
     }
 }
@@ -533,14 +533,14 @@ TrailObj::Mode TrailObj::StringToMode(const char* str)
 {
     switch (Crc::CalcStr(str))
     {
-    case 0xAC2E91AD: // "OneWay"
-        return (MODE_ONEWAY);
+        case 0xAC2E91AD: // "OneWay"
+            return (MODE_ONEWAY);
 
-    case 0x50BEDEC9: // "Loopin"
-        return (MODE_LOOPIN);
+        case 0x50BEDEC9: // "Loopin"
+            return (MODE_LOOPIN);
 
-    default:
-        return (MODE_TWOWAY);
+        default:
+            return (MODE_TWOWAY);
     }
 }
 
@@ -554,14 +554,14 @@ const char* TrailObj::ModeToString(Mode mode)
 {
     switch (mode)
     {
-    case MODE_ONEWAY:
-        return ("OneWay");
+        case MODE_ONEWAY:
+            return ("OneWay");
 
-    case MODE_LOOPIN:
-        return ("Loopin");
+        case MODE_LOOPIN:
+            return ("Loopin");
 
-    default:
-        return ("TwoWay");
+        default:
+            return ("TwoWay");
     }
 }
 
@@ -672,13 +672,13 @@ void TrailObj::LoadState(FScope* fScope)
     {
         switch (ssScope->NameCrc())
         {
-        case 0x9F1D54D0: // "Add"
-        {
-            U32 x = StdLoad::TypeU32(ssScope);
-            U32 z = StdLoad::TypeU32(ssScope);
-            list.AppendPoint(x, z);
-            break;
-        }
+            case 0x9F1D54D0: // "Add"
+            {
+                U32 x = StdLoad::TypeU32(ssScope);
+                U32 z = StdLoad::TypeU32(ssScope);
+                list.AppendPoint(x, z);
+                break;
+            }
         }
     }
 

@@ -148,9 +148,11 @@ namespace Studio
             GenerateCellList(brushPoint0, brushPoint1, cellList, bitmap);
 
             // Setup the unclipped rectangle
-            brushRect.Set(
+            brushRect.Set
+            (
                 brushPoint0.x, brushPoint0.z,
-                brushPoint1.x + 1, brushPoint1.z + 1);
+                brushPoint1.x + 1, brushPoint1.z + 1
+            );
 
             // The clipped points
             clipPoint0.x = Max<S32>(brushPoint0.x, 0);
@@ -159,9 +161,11 @@ namespace Studio
             clipPoint1.z = Min<S32>(brushPoint1.z, WorldCtrl::CellMapZ() - 1);
 
             // Setup the clipped rectangle
-            clipRect.Set(
+            clipRect.Set
+            (
                 clipPoint0.x, clipPoint0.z,
-                clipPoint1.x + 1, clipPoint1.z + 1);
+                clipPoint1.x + 1, clipPoint1.z + 1
+            );
         }
 
         //
@@ -173,61 +177,61 @@ namespace Studio
         {
             switch (crc)
             {
-            case 0x44D1C3B4: // "System::PostCycleInfoPoll"
-            {
-                // Do not update if key held or not over terrain
-                if (Common::Input::GetModifierKey(1) || !(data.cInfo.gameWindow && data.cInfo.mTerrain.cell))
+                case 0x44D1C3B4: // "System::PostCycleInfoPoll"
                 {
+                    // Do not update if key held or not over terrain
+                    if (Common::Input::GetModifierKey(1) || !(data.cInfo.gameWindow && data.cInfo.mTerrain.cell))
+                    {
+                        break;
+                    }
+
+                    // Is cursor over the terrain
+                    ASSERT(data.cInfo.gameWindow && data.cInfo.mTerrain.cell);
+
+                    // If we don't have capture, or we're applying the brush
+                    if (!HasCapture() || captureApply == CM_ON || captureResize == CM_ON)
+                    {
+                        // Reset data
+                        brushSetup = FALSE;
+                        cellList.DisposeAll();
+
+                        // Where is the starting position (middle of brush)
+                        centre.x = (captureResize == CM_ON) ? resizePoint.x : data.cInfo.mTerrain.cellX;
+                        centre.z = (captureResize == CM_ON) ? resizePoint.z : data.cInfo.mTerrain.cellZ;
+
+                        SetSize(xSize, zSize);
+
+                        ASSERT(xSize > 0 && zSize > 0);
+                        ASSERT(clipRect.p0.x < clipRect.p1.x&& clipRect.p0.y < clipRect.p1.y);
+
+                        // Points are valid
+                        brushSetup = TRUE;
+                    }
+
+                    // Always pass system events down
                     break;
                 }
 
-                // Is cursor over the terrain
-                ASSERT(data.cInfo.gameWindow && data.cInfo.mTerrain.cell);
-
-                // If we don't have capture, or we're applying the brush
-                if (!HasCapture() || captureApply == CM_ON || captureResize == CM_ON)
+                case 0xB112E9BD: // "Brush::ResizeStart"
                 {
-                    // Reset data
-                    brushSetup = FALSE;
-                    cellList.DisposeAll();
+                    // Is the cursor over a terrain cell
+                    if (data.cInfo.gameWindow && data.cInfo.mTerrain.cell)
+                    {
+                        // Save the starting cell position
+                        resizePoint.Set
+                        (
+                            data.cInfo.mTerrain.cellX, data.cInfo.mTerrain.cellZ
+                        );
+                    }
+                    else
+                    {
+                        // Clear the resize capture (set in apply brush)
+                        captureResize = CM_OFF;
+                    }
 
-                    // Where is the starting position (middle of brush)
-                    centre.x = (captureResize == CM_ON) ? resizePoint.x : data.cInfo.mTerrain.cellX;
-                    centre.z = (captureResize == CM_ON) ? resizePoint.z : data.cInfo.mTerrain.cellZ;
-
-                    SetSize(xSize, zSize);
-
-                    ASSERT(xSize > 0 && zSize > 0);
-                    ASSERT(clipRect.p0.x < clipRect.p1.x&& clipRect.p0.y < clipRect.p1.y);
-
-                    // Points are valid
-                    brushSetup = TRUE;
+                    // Block this event
+                    return;
                 }
-
-                // Always pass system events down
-                break;
-            }
-
-            case 0xB112E9BD: // "Brush::ResizeStart"
-            {
-                // Is the cursor over a terrain cell
-                if (data.cInfo.gameWindow && data.cInfo.mTerrain.cell)
-                {
-                    // Save the starting cell position
-                    resizePoint.Set
-                    (
-                        data.cInfo.mTerrain.cellX, data.cInfo.mTerrain.cellZ
-                    );
-                }
-                else
-                {
-                    // Clear the resize capture (set in apply brush)
-                    captureResize = CM_OFF;
-                }
-
-                // Block this event
-                return;
-            }
             }
 
             // Not blocked at this level
@@ -284,33 +288,33 @@ namespace Studio
                         // Add the cell 
                         switch (varMirrorAxes->GetIntegerValue())
                         {
-                        case 0:
-                            list.Append(new Cell(x, z, value));
-                            break;
+                            case 0:
+                                list.Append(new Cell(x, z, value));
+                                break;
 
-                        case 1:
-                            list.Append(new Cell(x, z, value));
-                            list.Append(new Cell(wx - x, z, value));
-                            break;
+                            case 1:
+                                list.Append(new Cell(x, z, value));
+                                list.Append(new Cell(wx - x, z, value));
+                                break;
 
-                        case 2:
-                            list.Append(new Cell(x, z, value));
-                            list.Append(new Cell(wx - x, z, value));
-                            list.Append(new Cell(x, wz - z, value));
-                            list.Append(new Cell(wx - x, wz - z, value));
-                            break;
+                            case 2:
+                                list.Append(new Cell(x, z, value));
+                                list.Append(new Cell(wx - x, z, value));
+                                list.Append(new Cell(x, wz - z, value));
+                                list.Append(new Cell(wx - x, wz - z, value));
+                                break;
 
-                        case 3:
-                            list.Append(new Cell(x, z, value));
-                            list.Append(new Cell(wx - x, z, value));
-                            list.Append(new Cell(x, wz - z, value));
-                            list.Append(new Cell(wx - x, wz - z, value));
+                            case 3:
+                                list.Append(new Cell(x, z, value));
+                                list.Append(new Cell(wx - x, z, value));
+                                list.Append(new Cell(x, wz - z, value));
+                                list.Append(new Cell(wx - x, wz - z, value));
 
-                            list.Append(new Cell(z, x, value));
-                            list.Append(new Cell(z, wx - x, value));
-                            list.Append(new Cell(wz - z, x, value));
-                            list.Append(new Cell(wz - z, wx - x, value));
-                            break;
+                                list.Append(new Cell(z, x, value));
+                                list.Append(new Cell(z, wx - x, value));
+                                list.Append(new Cell(wz - z, x, value));
+                                list.Append(new Cell(wz - z, wx - x, value));
+                                break;
                         }
                     }
                 }

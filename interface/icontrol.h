@@ -427,8 +427,11 @@ protected:
     virtual void DrawChildren(PaintInfo& pi);
 
     // Draws the text of the object
-    virtual void DrawCtrlText(const PaintInfo& pi, const CH* str = nullptr, Color* clr = nullptr,
-                              const Point<S32>& indent = Point<S32>(0, 0));
+    virtual void DrawCtrlText
+    (
+        const PaintInfo& pi, const CH* str = nullptr, Color* clr = nullptr,
+        const Point<S32>& indent = Point<S32>(0, 0)
+    );
 
     // Redraws the control's background image
     virtual void DrawCtrlBackground(const PaintInfo& pi, const TextureInfo* tex = nullptr);
@@ -728,8 +731,11 @@ public:
     Bool SendNotify(IControl* ctrl, U32 event, Bool translate = TRUE, U32 param1 = 0, U32 param2 = 0, U32 param3 = 0);
 
     // Sends a notification to all children
-    Bool NotifyAllChildren(U32 event, Bool translate = TRUE, U32 param1 = 0, U32 param2 = 0, U32 param3 = 0,
-                           Bool propagate = TRUE);
+    Bool NotifyAllChildren
+    (
+        U32 event, Bool translate = TRUE, U32 param1 = 0, U32 param2 = 0, U32 param3 = 0,
+        Bool propagate = TRUE
+    );
 
     // Handle input and interface events
     virtual U32 HandleEvent(Event& e);

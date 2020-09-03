@@ -165,13 +165,13 @@ namespace Game
                     // Update mission outcome stats
                     switch (endGame.result)
                     {
-                    case Team::EndGame::WIN:
-                        record.RecordWin();
-                        break;
+                        case Team::EndGame::WIN:
+                            record.RecordWin();
+                            break;
 
-                    case Team::EndGame::LOSE:
-                        record.RecordLoss();
-                        break;
+                        case Team::EndGame::LOSE:
+                            record.RecordLoss();
+                            break;
                     }
                 }
             }
@@ -482,7 +482,7 @@ namespace Game
             Player::PostLoadAll();
 
             // Multiplayer Post Load proccessing
-      //      MultiPlayer::PostLoad();
+            //      MultiPlayer::PostLoad();
 
             // AI Post Load processing
             AI::ConfigPostLoad();
@@ -556,7 +556,7 @@ namespace Game
         CoreGame::Done();
 
         // Shutdown terrain manager
-    //    Terrain::Done();    // in vid.cpp; only once per app run
+        //    Terrain::Done();    // in vid.cpp; only once per app run
 
         // No mission loaded
         missionLoaded = FALSE;
@@ -598,17 +598,15 @@ namespace Game
                     result = Missions::SetupWriteAccess(path, mission);
                 }
             }
-            else
-
-                if (Missions::GetActive())
-                {
-                    result = Missions::SetupWriteAccess(Missions::GetActive());
-                }
+            else if (Missions::GetActive())
+            {
+                result = Missions::SetupWriteAccess(Missions::GetActive());
+            }
 
             if (!result)
             {
                 CON_ERR(("Unable to setup write access"))
-                    return (FALSE);
+                return (FALSE);
             }
         }
 
@@ -616,7 +614,7 @@ namespace Game
         if (!Config::Save(FILENAME_MISSION_CONFIG))
         {
             CON_ERR(("Unable to write '%s'", FILENAME_MISSION_CONFIG))
-                return (FALSE);
+            return (FALSE);
         }
 
         return (CoreGame::SaveMission());
@@ -681,7 +679,7 @@ namespace Game
         ASSERT(initialized);
 
         PTree tFile(TRUE, MultiPlayer::GetDataCrc());
-        FScope* sScope, * fScope;
+        FScope *sScope, *fScope;
 
         // Parse the file
         tFile.AddFile(typeFile);
@@ -694,66 +692,66 @@ namespace Game
         {
             switch (sScope->NameCrc())
             {
-            default:
-                if (!MeshEffectSystem::ProcessTypeFile(sScope))
-                {
-                    LOG_WARN(("Unknown type creation function '%s'", sScope->NameStr()));
-                    sScope->DumpScope();
-                }
-                break;
+                default:
+                    if (!MeshEffectSystem::ProcessTypeFile(sScope))
+                    {
+                        LOG_WARN(("Unknown type creation function '%s'", sScope->NameStr()));
+                        sScope->DumpScope();
+                    }
+                    break;
 
-            case 0x25C3A645: // "CreateEffectType"
-                FX::ProcessCreate(sScope);
-                break;
+                case 0x25C3A645: // "CreateEffectType"
+                    FX::ProcessCreate(sScope);
+                    break;
 
-            case 0x4C29B238: // "CreateObjectType"
-                GameObjCtrl::ProcessCreateObjectType(sScope);
-                break;
+                case 0x4C29B238: // "CreateObjectType"
+                    GameObjCtrl::ProcessCreateObjectType(sScope);
+                    break;
 
-            case 0x743D0B6C: // "CreateTractionType"
-                MoveTable::ProcessCreateTractionType(sScope);
-                break;
+                case 0x743D0B6C: // "CreateTractionType"
+                    MoveTable::ProcessCreateTractionType(sScope);
+                    break;
 
-            case 0xB0416B86: // "CreateParticleType"
-                ParticleSystem::ProcessCreateParticleType(sScope);
-                break;
+                case 0xB0416B86: // "CreateParticleType"
+                    ParticleSystem::ProcessCreateParticleType(sScope);
+                    break;
 
-            case 0xEE3D4236: // "CreateWeaponType"
-                Weapon::Manager::ProcessCreateWeaponType(sScope);
-                break;
+                case 0xEE3D4236: // "CreateWeaponType"
+                    Weapon::Manager::ProcessCreateWeaponType(sScope);
+                    break;
 
-            case 0xF346B480: // "CreateParticleRenderType"
-                ParticleSystem::ProcessCreateParticleRenderType(sScope);
-                break;
+                case 0xF346B480: // "CreateParticleRenderType"
+                    ParticleSystem::ProcessCreateParticleRenderType(sScope);
+                    break;
 
-            case 0x6E57DD5F: // "CreatePhysicsModel"
-                Movement::ProcessCreateMovementModel(sScope, StdLoad::TypeString(sScope));
-                break;
+                case 0x6E57DD5F: // "CreatePhysicsModel"
+                    Movement::ProcessCreateMovementModel(sScope, StdLoad::TypeString(sScope));
+                    break;
 
-            case 0x8B9A0806: // "CreateQuakeType"
-                Environment::Quake::ProcessCreate(sScope);
-                break;
+                case 0x8B9A0806: // "CreateQuakeType"
+                    Environment::Quake::ProcessCreate(sScope);
+                    break;
 
-            case 0x4FE3EBF8: // "ConfigureRadioEvent"
-                Radio::ProcessConfigureRadioEvent(sScope);
-                break;
+                case 0x4FE3EBF8: // "ConfigureRadioEvent"
+                    Radio::ProcessConfigureRadioEvent(sScope);
+                    break;
 
-            case 0x3E3F2563: // "ConfigureGameMessage"
-                Message::ProcessConfigureGameMessage(sScope);
-                break;
+                case 0x3E3F2563: // "ConfigureGameMessage"
+                    Message::ProcessConfigureGameMessage(sScope);
+                    break;
 
-            case 0xE56A2DBA: // "ConfigureLocationMessage"
-                Message::ProcessConfigureLocationMessage(sScope);
-                break;
+                case 0xE56A2DBA: // "ConfigureLocationMessage"
+                    Message::ProcessConfigureLocationMessage(sScope);
+                    break;
 
-            case 0xB7B228D8: // "ConfigureObjMessage"
-                Message::ProcessConfigureObjMessage(sScope);
-                break;
+                case 0xB7B228D8: // "ConfigureObjMessage"
+                    Message::ProcessConfigureObjMessage(sScope);
+                    break;
             }
         }
 
         LOG_DIAG(("Type Stream Crc: %08X", tFile.GetCrc()))
-            MultiPlayer::SetDataCrc(tFile.GetCrc());
+        MultiPlayer::SetDataCrc(tFile.GetCrc());
 
         if (GameGod::CheckTypes())
         {
@@ -767,8 +765,10 @@ namespace Game
     //
     void ClearLoadErrors()
     {
-        Console::ConvertMessages(
+        Console::ConvertMessages
+        (
             0xA1D5DDD2, // "Mission::LoadError"
-            0x269A3144); // "Mission::OldLoadError"
+            0x269A3144
+        ); // "Mission::OldLoadError"
     }
 }

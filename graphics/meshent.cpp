@@ -527,12 +527,13 @@ void MeshEnt::SetTeamColor(Color _teamColor)
         bucky.diff.g = U8toNormF32 * teamColor.g;
         bucky.diff.b = U8toNormF32 * teamColor.b;
 
-        ColorF32 zero(0, 0, 0), diffuse(
-            bucky.diff.r * Material::Manager::diffuseVal,
-            bucky.diff.g * Material::Manager::diffuseVal,
-            bucky.diff.b * Material::Manager::diffuseVal,
-            bucky.diff.a
-        );
+        ColorF32 zero(0, 0, 0), diffuse
+                 (
+                     bucky.diff.r * Material::Manager::diffuseVal,
+                     bucky.diff.g * Material::Manager::diffuseVal,
+                     bucky.diff.b * Material::Manager::diffuseVal,
+                     bucky.diff.a
+                 );
         GameIdent gi;
         Material::Manager::GenerateName(gi.str, diffuse, zero, 0, zero, diffuse);
         Material* mat = Material::Manager::FindCreate(name.str);
@@ -807,7 +808,7 @@ Bool MeshEnt::UpdateSim(F32 dt)
 
     if (dirtyAll)
     {
-        FamilyState* src0, * es = &states0[statesR.count];
+        FamilyState *src0, *es = &states0[statesR.count];
         AnimKey* src1 = &states1[1];
 
         for (src0 = &states0[1]; src0 < es; src0++, src1++)
@@ -945,7 +946,7 @@ void MeshEnt::SimulateIntRecurse(F32 dt, F32 dtdi)
     {
         // setup render states
         //
-        FamilyState* ss, * es = &statesR[statesR.count], * src0 = &states0[1];
+        FamilyState *ss, *es = &statesR[statesR.count], *src0 = &states0[1];
         AnimKey* src1 = &states1[1];
         for (ss = &statesR[1]; ss < es; ss++, src0++, src1++)
         {
@@ -1003,7 +1004,7 @@ void MeshEnt::SetUVAnimRate(F32 rate)
 
     rate *= -root.treadPerMeter;
 
-    FamilyState* s, * e = root.states.data + root.states.count;
+    FamilyState *s, *e = root.states.data + root.states.count;
     U32 i = 0;
     for (s = root.states.data; s < e; s++, i++)
     {
@@ -2024,60 +2025,60 @@ void MeshEnt::LoadState(FScope* fScope)
     {
         switch (sScope->NameCrc())
         {
-        case 0xBAB1E5A5: // "Animation"
-            ASSERT(hasAnim);
+            case 0xBAB1E5A5: // "Animation"
+                ASSERT(hasAnim);
 
-            SetAnimCycle(StdLoad::TypeU32(sScope, "CycleId", curCycleID));
-            SetFrame(StdLoad::TypeF32(sScope, "CurrFrame", animState0.curFrame));
+                SetAnimCycle(StdLoad::TypeU32(sScope, "CycleId", curCycleID));
+                SetFrame(StdLoad::TypeF32(sScope, "CurrFrame", animState0.curFrame));
 
-            animState0.lastFrame = StdLoad::TypeF32(sScope, "LastFrame", animState0.lastFrame);
-            animState0.dir = StdLoad::TypeF32(sScope, "Direction", animState0.dir);
-            animState0.active = StdLoad::TypeU32(sScope, "Active", static_cast<U32>(animState0.active));
-            fps = StdLoad::TypeF32(sScope, "FPS", fps);
-            break;
+                animState0.lastFrame = StdLoad::TypeF32(sScope, "LastFrame", animState0.lastFrame);
+                animState0.dir = StdLoad::TypeF32(sScope, "Direction", animState0.dir);
+                animState0.active = StdLoad::TypeU32(sScope, "Active", static_cast<U32>(animState0.active));
+                fps = StdLoad::TypeF32(sScope, "FPS", fps);
+                break;
 
-        case 0xA897C4CB: // "TextureAnim"
-            ASSERT(hasTexAnim);
+            case 0xA897C4CB: // "TextureAnim"
+                ASSERT(hasTexAnim);
 
-            texTimer = StdLoad::TypeF32(sScope, "Timer", texTimer);
-            texAnimPoll = StdLoad::TypeU32(sScope, "Poll", texAnimPoll);
-            lastTexPoll = StdLoad::TypeU32(sScope, "LastPoll", lastTexPoll);
-            texAnimAuto = StdLoad::TypeU32(sScope, "Auto", texAnimAuto);
-            break;
+                texTimer = StdLoad::TypeF32(sScope, "Timer", texTimer);
+                texAnimPoll = StdLoad::TypeU32(sScope, "Poll", texAnimPoll);
+                lastTexPoll = StdLoad::TypeU32(sScope, "LastPoll", lastTexPoll);
+                texAnimAuto = StdLoad::TypeU32(sScope, "Auto", texAnimAuto);
+                break;
 
-        case 0xE383575D: // "TreadStates"
-            ASSERT(hasTread);
+            case 0xE383575D: // "TreadStates"
+                ASSERT(hasTread);
 
-            while (FScope* ssScope = sScope->NextFunction())
-            {
-                ASSERT(ssScope->NameCrc() == 0x294B9C85); // "Tread"
+                while (FScope* ssScope = sScope->NextFunction())
+                {
+                    ASSERT(ssScope->NameCrc() == 0x294B9C85); // "Tread"
 
-                NodeIdent ident = ssScope->NextArgString();
-                MeshObj* meshObj = FindIdent(ident);
-                ASSERT(meshObj);
-                meshObj;
+                    NodeIdent ident = ssScope->NextArgString();
+                    MeshObj* meshObj = FindIdent(ident);
+                    ASSERT(meshObj);
+                    meshObj;
 
-                treads[ident.index].offset = StdLoad::TypeF32(ssScope, "Offset", treads[ident.index].offset);
-                treads[ident.index].rate = StdLoad::TypeF32(ssScope, "Rate", treads[ident.index].rate);
-            }
-            break;
+                    treads[ident.index].offset = StdLoad::TypeF32(ssScope, "Offset", treads[ident.index].offset);
+                    treads[ident.index].rate = StdLoad::TypeF32(ssScope, "Rate", treads[ident.index].rate);
+                }
+                break;
 
-        case 0x01008A89: // "ControlStates"
-            ASSERT(hasControl);
+            case 0x01008A89: // "ControlStates"
+                ASSERT(hasControl);
 
-            while (FScope* ssScope = sScope->NextFunction())
-            {
-                ASSERT(ssScope->NameCrc() == 0x838CB20C); // "Control"
+                while (FScope* ssScope = sScope->NextFunction())
+                {
+                    ASSERT(ssScope->NameCrc() == 0x838CB20C); // "Control"
 
-                NodeIdent ident = ssScope->NextArgString();
-                MeshObj* meshObj = FindIdent(ident);
-                ASSERT(meshObj);
-                meshObj;
+                    NodeIdent ident = ssScope->NextArgString();
+                    MeshObj* meshObj = FindIdent(ident);
+                    ASSERT(meshObj);
+                    meshObj;
 
-                states0[ident.index].LoadState(ssScope);
-                states1[ident.index].LoadState(ssScope);
-            }
-            break;
+                    states0[ident.index].LoadState(ssScope);
+                    states1[ident.index].LoadState(ssScope);
+                }
+                break;
         }
     }
 
@@ -2127,14 +2128,20 @@ void MeshEnt::SimulateIntBasic(F32 dt, Bool simFrame)
 
     if (Root().hasTread)
     {
-        TreadState* s, * e = treads.data + treads.count;
+        TreadState *s, *e = treads.data + treads.count;
         for (s = treads.data; s < e; s++)
         {
             s->offset = static_cast<F32>(fmod(s->offset + s->rate * dt, 1.0f));
         }
     }
-    SetOpaque(Color(static_cast<U32>(fogCurrent), static_cast<U32>(fogCurrent), static_cast<U32>(fogCurrent),
-        U32(255)));
+    SetOpaque
+    (
+        Color
+        (
+            static_cast<U32>(fogCurrent), static_cast<U32>(fogCurrent), static_cast<U32>(fogCurrent),
+            U32(255)
+        )
+    );
     SetTranslucent(static_cast<U32>(alphaCurrent));
 }
 

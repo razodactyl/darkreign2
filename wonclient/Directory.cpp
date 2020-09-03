@@ -9,9 +9,10 @@
 namespace MINTCLIENT
 {
     Win32::Thread Directory::downloadThread;
+
     U32 STDCALL Directory::DownloadProcessor(void* context)
     {
-        auto *ctx = (DownloadContext<void*>*)context;
+        auto* ctx = (DownloadContext<void*>*)context;
 
         httplib::Client cli(ctx->hostname, ctx->port);
 
@@ -31,13 +32,15 @@ namespace MINTCLIENT
         // cli.set_follow_location(true);
 
         std::string body;
-        
+
         auto file = File();
         file.Open(ctx->saveAsPath, File::CREATE | File::WRITE);
-        
-        std::shared_ptr<httplib::Response> res = cli.Get(
+
+        std::shared_ptr<httplib::Response> res = cli.Get
+        (
             ctx->getPath, httplib::Headers(),
-            [&](const httplib::Response& response) {
+            [&](const httplib::Response& response)
+            {
                 if (response.status != 200)
                 {
                     file.Close();
@@ -46,7 +49,8 @@ namespace MINTCLIENT
                 }
                 return true; // return 'false' if you want to cancel the request.
             },
-            [&](const char* data, size_t data_length) {
+            [&](const char* data, size_t data_length)
+            {
                 file.Write(data, data_length);
                 body.append(data, data_length);
                 return true; // return 'false' if you want to cancel the request.
@@ -54,13 +58,13 @@ namespace MINTCLIENT
             [&](uint64_t len, uint64_t total)
             {
                 bool result = ctx->progressCallback(len, total, ctx->data);
-        
+
                 if (len >= total)
                 {
                     file.Close();
                     ctx->getCallback(MINTCLIENT::Errors::Success, ctx->data);
                 }
-        
+
                 return result; // return 'false' if you want to cancel the request.
             }
         );
@@ -69,6 +73,7 @@ namespace MINTCLIENT
     }
 
     Win32::Thread directoryThread;
+
     U32 STDCALL Directory::ProcessDirectoryMessage(void* context)
     {
         auto* command_list = static_cast<Client::CommandList*>(context);
@@ -103,7 +108,8 @@ namespace MINTCLIENT
 
                         result.error = cc->GetError();
 
-                        if (result.error == WONAPI::Error_Success) {
+                        if (result.error == WONAPI::Error_Success)
+                        {
                             auto* tlv = new MINTCLIENT::Encoding::TLV(cc->cmd_data, cc->data_size);
 
                             for (U32 i = 0; i < tlv->length; i++)
@@ -133,8 +139,8 @@ namespace MINTCLIENT
                         MINTCLIENT::Directory::Result result;
                         result.error = cc->GetError();
 
-                        if (result.error == WONAPI::Error_Success) {
-
+                        if (result.error == WONAPI::Error_Success)
+                        {
                             auto* tlv = new MINTCLIENT::Encoding::TLV(cc->cmd_data, cc->data_size);
 
                             for (U32 i = 0; i < tlv->length; i++)
@@ -181,7 +187,8 @@ namespace MINTCLIENT
     //  - Returns list of servers.
     //  - Returns list of rooms.
     //
-    WONAPI::Error Directory::GetDirectory(
+    WONAPI::Error Directory::GetDirectory
+    (
         MINTCLIENT::Identity* identity,
         const std::vector<MINTCLIENT::IPSocket::Address>* servers,
         void (*callback)(const MINTCLIENT::Directory::Result& result),
@@ -214,7 +221,8 @@ namespace MINTCLIENT
             command_list->Add(cmd);
         }
 
-        if (!directoryThread.IsAlive()) {
+        if (!directoryThread.IsAlive())
+        {
             directoryThread.Start(ProcessDirectoryMessage, command_list);
         }
 

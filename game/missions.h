@@ -27,251 +27,251 @@
 //
 namespace Missions
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declarations
-  //
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward Declarations
+    //
 
-  class Group;
+    class Group;
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Mission - Data for a single mission
-  //
-  class Mission
-  {
-  public:
-
-    // Node for the tree of all missions
-    NBinTree<Mission>::Node node;
-
-  protected:
-
-    // The group this mission belongs to
-    const Group &group;
-
-    // The name of this mission
-    FileIdent name;
-
-  protected:
-
-    // Add the crc of the given mission file
-    void AddFileCrc(const char *name, U32 &crc) const;
-
-  public:
-
-    // Constructor
-    Mission(const Group &group, const FileIdent &name);
-
-    // Sets up the given stream to contain the mission data
-    Bool SetupStream(const char *stream) const;
-
-    // Returns the pack file this mission is in, or NULL if directory exists
-    const char * GetPackedFileName() const;
-
-    // Get the crc of the mission data
-    U32 GetDataCrc() const;
-
-    // Is this mission in a system folder
-    Bool IsSystem() const;
-
-    // Get the group this mission belongs to
-    const Group & GetGroup() const
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Mission - Data for a single mission
+    //
+    class Mission
     {
-      return (group);
-    }
+    public:
 
-    // Get the name of this mission
-    const FileIdent & GetName() const
+        // Node for the tree of all missions
+        NBinTree<Mission>::Node node;
+
+    protected:
+
+        // The group this mission belongs to
+        const Group& group;
+
+        // The name of this mission
+        FileIdent name;
+
+    protected:
+
+        // Add the crc of the given mission file
+        void AddFileCrc(const char* name, U32& crc) const;
+
+    public:
+
+        // Constructor
+        Mission(const Group& group, const FileIdent& name);
+
+        // Sets up the given stream to contain the mission data
+        Bool SetupStream(const char* stream) const;
+
+        // Returns the pack file this mission is in, or NULL if directory exists
+        const char* GetPackedFileName() const;
+
+        // Get the crc of the mission data
+        U32 GetDataCrc() const;
+
+        // Is this mission in a system folder
+        Bool IsSystem() const;
+
+        // Get the group this mission belongs to
+        const Group& GetGroup() const
+        {
+            return (group);
+        }
+
+        // Get the name of this mission
+        const FileIdent& GetName() const
+        {
+            return (name);
+        }
+    };
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Group - A group of missions
+    //
+    class Group
     {
-      return (name);
-    }
-  };
+    public:
+
+        // Node for the list of all groups
+        NList<Group>::Node node;
+
+    protected:
+
+        // The relative path of the group folder
+        PathIdent path;
+
+        // The campaign description key
+        MultiIdent description;
+
+        // Tree of all missions in this group
+        NBinTree<Mission> missions;
+
+        // Is this a system folder
+        Bool system;
+
+        // Is this group available in instant action
+        Bool instantAction;
+
+    protected:
+
+        // Clear all mission records
+        void Reset();
+
+        // Load the group configuration file
+        void LoadConfig();
+
+    public:
+
+        // Constructor and destructor
+        Group(const char* path);
+        ~Group();
+
+        // Register the given mission
+        const Mission* RegisterMission(const FileIdent& name);
+
+        // Register the given mission pack
+        const Mission* RegisterMissionPack(const FileIdent& name);
+
+        // Generate the tree of missions (returns number of missions registered)
+        U32 Generate();
+
+        // Find the given mission
+        const Mission* FindMission(U32 name) const;
+
+        // Find the given mission
+        const Mission* FindMission(const FileIdent& name) const;
+
+        // Get a random mission
+        const Mission* GetRandomMission() const;
+
+        // Delete the given mission
+        Bool DeleteMission(const FileIdent& name);
+
+        // Get the path of this group
+        const PathIdent& GetPath() const
+        {
+            return (path);
+        }
+
+        // Get the description key
+        const MultiIdent& GetDescription() const
+        {
+            return (description);
+        }
+
+        // Get the tree of missions
+        const NBinTree<Mission>& GetMissions() const
+        {
+            return (missions);
+        }
+
+        // Is this a system group
+        Bool IsSystem() const
+        {
+            return (system);
+        }
+
+        // Is this group available in instant action
+        Bool InstantAction() const
+        {
+            return (instantAction);
+        }
+    };
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Group - A group of missions
-  //
-  class Group
-  {
-  public:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // System Functions
+    //
 
-    // Node for the list of all groups
-    NList<Group>::Node node;
+    // Initialize and shutdown system
+    void Init();
+    void Done();
 
-  protected:
+    // Is the system initialized
+    Bool Initialized();
 
-    // The relative path of the group folder
-    PathIdent path;
+    // Get the list of registered groups
+    const NList<Group>& GetGroups();
 
-    // The campaign description key
-    MultiIdent description;
+    // Find a group (NULL if not found)
+    const Group* FindGroup(U32 crc);
 
-    // Tree of all missions in this group
-    NBinTree<Mission> missions;
+    // Find a group (NULL if not found)
+    const Group* FindGroup(const PathIdent& name);
 
-    // Is this a system folder
-    Bool system;
+    // Find a mission, optionally searching a single group (NULL if not found)
+    const Mission* FindMission(const FileIdent& name, const char* group = NULL);
 
-    // Is this group available in instant action
-    Bool instantAction;
+    // Find a mission using crc values
+    const Mission* FindMission(U32 mission, U32 group);
 
-  protected:
-
-    // Clear all mission records
-    void Reset();
-
-    // Load the group configuration file
-    void LoadConfig();
-
-  public:
-
-    // Constructor and destructor
-    Group(const char *path);
-    ~Group();
-
-    // Register the given mission
-    const Mission * RegisterMission(const FileIdent &name);
-
-    // Register the given mission pack
-    const Mission * RegisterMissionPack(const FileIdent &name);
-
-    // Generate the tree of missions (returns number of missions registered)
-    U32 Generate();
-
-    // Find the given mission
-    const Mission * FindMission(U32 name) const;
-
-    // Find the given mission
-    const Mission * FindMission(const FileIdent &name) const;
+    // Find a mission from a pack file name (always sets up group and mission)
+    const Mission* FindMissionFromPack(const char* path, PathIdent* group = NULL, FileIdent* mission = NULL);
 
     // Get a random mission
-    const Mission * GetRandomMission() const;
+    const Mission* GetRandomMission(U32 group);
+
 
     // Delete the given mission
-    Bool DeleteMission(const FileIdent &name);
+    Bool DeleteMission(const PathIdent& group, const FileIdent& mission);
 
-    // Get the path of this group
-    const PathIdent & GetPath() const
-    {
-      return (path);
-    }
-
-    // Get the description key
-    const MultiIdent & GetDescription() const
-    {
-      return (description);
-    }
-
-    // Get the tree of missions
-    const NBinTree<Mission> & GetMissions() const
-    {
-      return (missions);
-    }
-
-    // Is this a system group
-    Bool IsSystem() const
-    {
-      return (system);
-    }
-
-    // Is this group available in instant action
-    Bool InstantAction() const
-    {
-      return (instantAction);
-    }
-  };
+    // Delete the given mission
+    Bool DeleteMission(const Mission* mission);
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // System Functions
-  //
-
-  // Initialize and shutdown system
-  void Init();
-  void Done();
-
-  // Is the system initialized
-  Bool Initialized();
-
-  // Get the list of registered groups
-  const NList<Group> & GetGroups();
-
-  // Find a group (NULL if not found)
-  const Group * FindGroup(U32 crc);
-
-  // Find a group (NULL if not found)
-  const Group * FindGroup(const PathIdent &name);
-
-  // Find a mission, optionally searching a single group (NULL if not found)
-  const Mission * FindMission(const FileIdent &name, const char *group = NULL);
-
-  // Find a mission using crc values
-  const Mission * FindMission(U32 mission, U32 group);
-
-  // Find a mission from a pack file name (always sets up group and mission)
-  const Mission * FindMissionFromPack(const char *path, PathIdent *group = NULL, FileIdent *mission = NULL);
-
-  // Get a random mission
-  const Mission * GetRandomMission(U32 group);
+    // Returns a new mission, or the existing one
+    const Mission* RegisterMission(const PathIdent& group, const FileIdent& mission);
 
 
-  // Delete the given mission
-  Bool DeleteMission(const PathIdent &group, const FileIdent &mission);
+    // Set and get the selected mission
+    void SetSelected(const Mission* mission = NULL);
+    const Mission* GetSelected();
 
-  // Delete the given mission
-  Bool DeleteMission(const Mission *mission);
-
-
-  // Returns a new mission, or the existing one
-  const Mission * RegisterMission(const PathIdent &group, const FileIdent &mission);
+    // Set and get the active mission
+    void SetActive(const Mission* mission);
+    const Mission* GetActive();
 
 
-  // Set and get the selected mission
-  void SetSelected(const Mission *mission = NULL);
-  const Mission * GetSelected();
-
-  // Set and get the active mission
-  void SetActive(const Mission *mission);
-  const Mission * GetActive();
+    // Open and close the active mission stream
+    void OpenActiveStream();
+    void CloseActiveStream();
 
 
-  // Open and close the active mission stream
-  void OpenActiveStream();
-  void CloseActiveStream();
+    // Set and get the safe load flag
+    void SetSafeLoad(Bool flag);
+    Bool GetSafeLoad();
 
 
-  // Set and get the safe load flag
-  void SetSafeLoad(Bool flag);
-  Bool GetSafeLoad();
+    // Setup write access for the given mission
+    Bool SetupWriteAccess(const Mission* mission);
 
+    // Setup write access for the given group and mission (either of which may not exist)
+    Bool SetupWriteAccess(const PathIdent& group, const FileIdent& mission);
 
-  // Setup write access for the given mission
-  Bool SetupWriteAccess(const Mission *mission);
+    // Get the path in which to write mission data
+    const char* GetWritePath();
 
-  // Setup write access for the given group and mission (either of which may not exist)
-  Bool SetupWriteAccess(const PathIdent &group, const FileIdent &mission);
+    // Is the active mission considered to be the shell
+    Bool ShellActive();
 
-  // Get the path in which to write mission data
-  const char * GetWritePath();
+    // Return to the shell
+    void ReturnToShell();
 
-  // Is the active mission considered to be the shell
-  Bool ShellActive();
+    // Launch the currently set mission
+    void LaunchMission(Bool difficulty);
 
-  // Return to the shell
-  void ReturnToShell();
+    // Replay the current mission
+    void ReplayMission(Bool difficulty);
 
-  // Launch the currently set mission
-  void LaunchMission(Bool difficulty);
-
-  // Replay the current mission
-  void ReplayMission(Bool difficulty);
-
-  // Play the next mission in a campaign
-  void NextMission(Bool difficulty);
+    // Play the next mission in a campaign
+    void NextMission(Bool difficulty);
 }
 
 #endif

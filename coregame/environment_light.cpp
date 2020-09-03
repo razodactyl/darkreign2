@@ -109,14 +109,20 @@ namespace Environment
             VarSys::CreateFloat("environment.light.cycletime", 600.0f, VarSys::DEFAULT, &cycleTime);
 
             // Current time (within a cycle)
-            VarSys::CreateFloat("environment.light.startTime", 0.3f, VarSys::DEFAULT, &startTime)->SetFloatRange(
-                0.0f, 1.0f);
+            VarSys::CreateFloat("environment.light.startTime", 0.3f, VarSys::DEFAULT, &startTime)->SetFloatRange
+            (
+                0.0f, 1.0f
+            );
 
             // Day start/end time
-            VarSys::CreateFloat("environment.light.dayStartTime", 0.25f, VarSys::NOTIFY, &dayStartTime)->SetFloatRange(
-                0.0f, 1.0f);
-            VarSys::CreateFloat("environment.light.dayEndTime", 0.75f, VarSys::NOTIFY, &dayEndTime)->SetFloatRange(
-                0.0f, 1.0f);
+            VarSys::CreateFloat("environment.light.dayStartTime", 0.25f, VarSys::NOTIFY, &dayStartTime)->SetFloatRange
+            (
+                0.0f, 1.0f
+            );
+            VarSys::CreateFloat("environment.light.dayEndTime", 0.75f, VarSys::NOTIFY, &dayEndTime)->SetFloatRange
+            (
+                0.0f, 1.0f
+            );
 
             // Sunrise start/end time
             VarSys::CreateFloat("environment.light.sunriseStartTime", 0.2f, VarSys::NOTIFY, &sunriseStartTime)->
@@ -127,8 +133,10 @@ namespace Environment
             // Sunset start/end time
             VarSys::CreateFloat("environment.light.sunsetStartTime", 0.7f, VarSys::NOTIFY, &sunsetStartTime)->
                 SetFloatRange(0.0f, 1.0f);
-            VarSys::CreateFloat("environment.light.sunsetEndTime", 0.8f, VarSys::NOTIFY, &sunsetEndTime)->SetFloatRange(
-                0.0f, 1.0f);
+            VarSys::CreateFloat("environment.light.sunsetEndTime", 0.8f, VarSys::NOTIFY, &sunsetEndTime)->SetFloatRange
+            (
+                0.0f, 1.0f
+            );
 
             VarSys::CreateString("environment.light.temp.text", "", VarSys::DEFAULT, &tempText);
             VarSys::CreateFloat("environment.light.temp.val", 0, VarSys::DEFAULT, &tempVal);
@@ -721,12 +729,18 @@ namespace Environment
                     MSWRITEV(11, (14, 0, "Portion : %f", portion));
                     MSWRITEV(11, (15, 0, "Fraction: %f", fraction));
 
-                    lightColor.ambient.r = U8(
-                        (F32(color->ambient.r) * (1.0f - fraction)) + F32(next->ambient.r) * fraction);
-                    lightColor.ambient.g = U8(
-                        (F32(color->ambient.g) * (1.0f - fraction)) + F32(next->ambient.g) * fraction);
-                    lightColor.ambient.b = U8(
-                        (F32(color->ambient.b) * (1.0f - fraction)) + F32(next->ambient.b) * fraction);
+                    lightColor.ambient.r = U8
+                    (
+                        (F32(color->ambient.r) * (1.0f - fraction)) + F32(next->ambient.r) * fraction
+                    );
+                    lightColor.ambient.g = U8
+                    (
+                        (F32(color->ambient.g) * (1.0f - fraction)) + F32(next->ambient.g) * fraction
+                    );
+                    lightColor.ambient.b = U8
+                    (
+                        (F32(color->ambient.b) * (1.0f - fraction)) + F32(next->ambient.b) * fraction
+                    );
                     lightColor.ambient.a = 255;
 
                     lightColor.sun.r = U8((F32(color->sun.r) * (1.0f - fraction)) + F32(next->sun.r) * fraction);

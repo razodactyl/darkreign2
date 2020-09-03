@@ -34,121 +34,121 @@ struct Cell;
 //
 namespace Studio
 {
-  // Information setup each event processing cycle
-  struct CycleInfo
-  {
-    // Current mouse position in screen pixels (always updated)
-    Point<S32> mouse;
+    // Information setup each event processing cycle
+    struct CycleInfo
+    {
+        // Current mouse position in screen pixels (always updated)
+        Point<S32> mouse;
 
-    // Game window mouse is over (if NULL, all info below is invalid)
-    Common::GameWindow *gameWindow;
+        // Game window mouse is over (if NULL, all info below is invalid)
+        Common::GameWindow* gameWindow;
 
-    // Info for the object currently under the mouse OR 'mapObj' is NULL
-    struct 
-    { 
-      MapObj *mapObj; 
-      UnitObj *unitObj;
-    } mObject;
+        // Info for the object currently under the mouse OR 'mapObj' is NULL
+        struct
+        {
+            MapObj* mapObj;
+            UnitObj* unitObj;
+        } mObject;
 
-    // Terrain position the mouse is over OR 'cell' is NULL
-    struct MTerrainStruct
-    { 
-      Cell *cell;
-      Vector pos; 
-      TerrainData::Cell *dataCell;
-      U32 cellX, cellZ;
-    } mTerrain;
-  };
+        // Terrain position the mouse is over OR 'cell' is NULL
+        struct MTerrainStruct
+        {
+            Cell* cell;
+            Vector pos;
+            TerrainData::Cell* dataCell;
+            U32 cellX, cellZ;
+        } mTerrain;
+    };
 
-  // Private system-wide data structure
-  struct SystemData
-  {
-    // Event processing cycle counter and last update
-    U32 cycleCount, lastUpdate;
+    // Private system-wide data structure
+    struct SystemData
+    {
+        // Event processing cycle counter and last update
+        U32 cycleCount, lastUpdate;
 
-    // Current brush, or NULL
-    Brush::Base *brush;
+        // Current brush, or NULL
+        Brush::Base* brush;
 
-    // Current capture code (which mouse button has capture)
-    S16 captureCode;
+        // Current capture code (which mouse button has capture)
+        S16 captureCode;
 
-    // Currently selected team
-    Team *team;
+        // Currently selected team
+        Team* team;
 
-    // Current list of selected objects
-    MapObjList sList;
+        // Current list of selected objects
+        MapObjList sList;
 
-    // Studio vars
-    VarInteger mod1;
-    VarInteger mod2;
-    VarInteger mod3;
+        // Studio vars
+        VarInteger mod1;
+        VarInteger mod2;
+        VarInteger mod3;
 
-    // Processing cycle information
-    CycleInfo cInfo;
-  };
+        // Processing cycle information
+        CycleInfo cInfo;
+    };
 
-  // Private system-wide data instance
-  extern SystemData data;
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Cmd - Command Handler
-  //
-  namespace Cmd
-  {
-    // Studio initialization
-    void Init();
-    void Done();
-
-    // Simulation initialization
-    void InitSim();
-    void DoneSim();
-  }
+    // Private system-wide data instance
+    extern SystemData data;
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Event - Studio event handling
-  //
-  namespace Event
-  {
-    // Studio initialization
-    void Init();
-    void Done();
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Cmd - Command Handler
+    //
+    namespace Cmd
+    {
+        // Studio initialization
+        void Init();
+        void Done();
 
-    // Simulation initialization
-    void InitSim();
-    void DoneSim();
-
-    // Single frame of event processing
-    void Process();
-
-    // Set the current brush
-    void UseBrush(const char *name, Bool required = TRUE);
-
-    // Generate info for this processing cycle
-    void SetupCycleInfo();
-  }
+        // Simulation initialization
+        void InitSim();
+        void DoneSim();
+    }
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Display - Studio rendering
-  //
-  namespace Display
-  {
-    // Studio initialization
-    void Init();
-    void Done();
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Event - Studio event handling
+    //
+    namespace Event
+    {
+        // Studio initialization
+        void Init();
+        void Done();
 
-    // Simulation initialization
-    void InitSim();
-    void DoneSim();
+        // Simulation initialization
+        void InitSim();
+        void DoneSim();
 
-    // Single frame of display processing
-    void Process();
-  }
+        // Single frame of event processing
+        void Process();
+
+        // Set the current brush
+        void UseBrush(const char* name, Bool required = TRUE);
+
+        // Generate info for this processing cycle
+        void SetupCycleInfo();
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Display - Studio rendering
+    //
+    namespace Display
+    {
+        // Studio initialization
+        void Init();
+        void Done();
+
+        // Simulation initialization
+        void InitSim();
+        void DoneSim();
+
+        // Single frame of display processing
+        void Process();
+    }
 }
 
 #endif

@@ -627,9 +627,11 @@ namespace Sound
                 }
 
                 LOG_DIAG
-                ((
-                    "SetProviderPreference: Failed (%d/%d)", index, Provider::GetList().GetCount()
-                ));
+                (
+                    (
+                        "SetProviderPreference: Failed (%d/%d)", index, Provider::GetList().GetCount()
+                    )
+                );
 
                 // Clear the preference
                 providerPreference = 0;

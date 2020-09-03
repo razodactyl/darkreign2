@@ -168,8 +168,11 @@ namespace Vid
 
             // Xtra::clip indexed tris to buffer
             //
-            Bool ToBuffer(VertexTL* dstV, U16* dstI, const VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount,
-                U32 clipFlags)
+            Bool ToBuffer
+            (
+                VertexTL* dstV, U16* dstI, const VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount,
+                U32 clipFlags
+            )
             {
                 S32 planeI = 0, planeC = 0;
                 VertexTL* dVS = dstV;
@@ -206,7 +209,7 @@ namespace Vid
                     // set vert clip flags
                     //
                     U8* c = clipFlagA;
-                    for (const VertexTL* sv = srcV, *ev = srcV + vCount; sv < ev; sv++, c++)
+                    for (const VertexTL *sv = srcV, *ev = srcV + vCount; sv < ev; sv++, c++)
                     {
                         *c = U8(planes[planeI].Evalue(sv->vv) < 0 ? 1 : 0);
                     }
@@ -235,7 +238,7 @@ namespace Vid
                             if ((clipFlagA[i0] | clipFlagA[i1] | clipFlagA[i2]) != 0)
                             {
                                 // initialize the vertex pointer pools
-                                VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                                VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                                 SetupPool(vp0, vp1);
 
                                 inPoolCount = 3;
@@ -245,7 +248,7 @@ namespace Vid
 
                                 // start with last vertex in the list
                                 //
-                                VertexTL** start0V = inPool + (inPoolCount - 1), ** startV = start0V;
+                                VertexTL **start0V = inPool + (inPoolCount - 1), **startV = start0V;
                                 F32 startD = planes[planeI].Evalue((*startV)->vv);
 
                                 for (VertexTL** endV = inPool; endV <= start0V; endV++)
@@ -319,8 +322,8 @@ namespace Vid
                                     vCount += outPoolCount;
                                 }
                             }
-                            // if or_cf == 0 then whole triangle is in the frustum --> just copy it to out_vertices
-                            //
+                                // if or_cf == 0 then whole triangle is in the frustum --> just copy it to out_vertices
+                                //
                             else
                             {
                                 if (idx[i0] == 0xffff)
@@ -379,8 +382,11 @@ namespace Vid
 
                 // perform a single line clip (indexed or non-indexed)
                 //
-                Bool Clip(VertexTL** dstV, U32& vCount, U16** dstI, const VertexTL& src0, const VertexTL& src1,
-                    U8 flags0, U8 flags1, Vector* traceOrigin = nullptr, U8 traceClip = 0)
+                Bool Clip
+                (
+                    VertexTL** dstV, U32& vCount, U16** dstI, const VertexTL& src0, const VertexTL& src1,
+                    U8 flags0, U8 flags1, Vector* traceOrigin = nullptr, U8 traceClip = 0
+                )
                 {
                     traceClip;
 
@@ -413,7 +419,7 @@ namespace Vid
                                         (*dstI)++;
                                     }
 
-                                    const VertexTL& i = src1, & o = src0;
+                                    const VertexTL &i = src1, &o = src0;
 
                                     F32 t = start_dist / (start_dist - end_dist);
 
@@ -455,7 +461,7 @@ namespace Vid
                                     }
 
                                     // start is out --> compute intersection with clipping plane
-                                    const VertexTL& i = src0, & o = src1;
+                                    const VertexTL &i = src0, &o = src1;
 
                                     // do interpolation
                                     F32 t = end_dist / (end_dist - start_dist);
@@ -482,8 +488,8 @@ namespace Vid
                                 }
                             }
                         }
-                        // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
-                        //
+                            // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
+                            //
                         else
                         {
                             return FALSE;
@@ -496,8 +502,11 @@ namespace Vid
 
                 // Xtra::clip indexed lines to buffer
                 //
-                Bool ToBuffer(VertexTL* dstV, U16* dstI, const VertexTL* srcV, U32& vCount, const U16* srcI,
-                    U32& iCount, U32 clipFlags, Vector* traceOrigin) // = 0,  = NULL
+                Bool ToBuffer
+                (
+                    VertexTL* dstV, U16* dstI, const VertexTL* srcV, U32& vCount, const U16* srcI,
+                    U32& iCount, U32 clipFlags, Vector* traceOrigin
+                ) // = 0,  = NULL
                 {
                     S32 planeC = 0;
                     VertexTL* dVS = dstV;
@@ -536,7 +545,7 @@ namespace Vid
 
                         // set vert clip flags
                         //
-                        U8* cA, * e = clipFlagA + vCount;
+                        U8 *cA, *e = clipFlagA + vCount;
                         const VertexTL* s = srcV;
                         for (cA = clipFlagA; cA < e; cA++, s++)
                         {
@@ -613,8 +622,11 @@ namespace Vid
 
                 // Xtra::clip non-indexed lines to buffer
                 //
-                Bool ToBuffer(VertexTL* dstV, const VertexTL* srcV, U32& vCount, U32 clipFlags,
-                    Vector* traceOrigin) // = 0,  = NULL
+                Bool ToBuffer
+                (
+                    VertexTL* dstV, const VertexTL* srcV, U32& vCount, U32 clipFlags,
+                    Vector* traceOrigin
+                ) // = 0,  = NULL
                 {
                     S32 planeC = 0;
                     VertexTL* dVS = dstV;
@@ -650,7 +662,7 @@ namespace Vid
 
                         // set vert clip flags
                         //
-                        U8* cA, * e = clipFlagA + vCount;
+                        U8 *cA, *e = clipFlagA + vCount;
                         const VertexTL* s = srcV;
                         for (cA = clipFlagA; cA < e; cA++, s++)
                         {
@@ -664,8 +676,8 @@ namespace Vid
 
                         // clip lines
                         //
-                        const VertexTL* s0, * s1, * es = srcV + vCount;
-                        U8* c0 = clipFlagA, * c1 = clipFlagA + 1;
+                        const VertexTL *s0, *s1, *es = srcV + vCount;
+                        U8 *c0 = clipFlagA, *c1 = clipFlagA + 1;
                         vCount = 0;
                         clipDst = clipPool0;
 

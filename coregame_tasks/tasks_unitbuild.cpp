@@ -717,9 +717,11 @@ namespace Tasks
                     }
                     else
                     {
-                        LOG_LOCAL(
+                        LOG_LOCAL
+                        (
                             ("Rig could not reach location: [%s][%s/%d][%s]", subject->GetTeam() ? subject->GetTeam()->
-                                GetName() : "None", subject->TypeName(), subject->Id(), build->GetName()));
+                                GetName() : "None", subject->TypeName(), subject->Id(), build->GetName())
+                        );
                         Quit();
                     }
                 }

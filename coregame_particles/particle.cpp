@@ -22,12 +22,12 @@
 //
 ParticleClass::ParticleClass()
 {
-  // Default values
-  lifeTime = lifeTimeInv = 1.0f;
-  showUnderFog = FALSE;
-  makeUnderFog = FALSE;
-  defaultRender = TRUE;
-  priority = 1.0f;
+    // Default values
+    lifeTime = lifeTimeInv = 1.0f;
+    showUnderFog = FALSE;
+    makeUnderFog = FALSE;
+    defaultRender = TRUE;
+    priority = 1.0f;
 }
 
 
@@ -36,8 +36,8 @@ ParticleClass::ParticleClass()
 //
 ParticleClass::~ParticleClass()
 {
-  renderIdList.DisposeAll();
-  renderList.UnlinkAll();
+    renderIdList.DisposeAll();
+    renderList.UnlinkAll();
 }
 
 
@@ -46,23 +46,25 @@ ParticleClass::~ParticleClass()
 //
 // Construct new simulator
 //
-Particle *ParticleClass::Build(
-  const Matrix &matrix, 
-  const Vector &veloc, 
-  const Vector &omega, 
-  const Vector &length,
-  F32 timer,
-  void *data) // = NULL
+Particle* ParticleClass::Build
+(
+    const Matrix& matrix,
+    const Vector& veloc,
+    const Vector& omega,
+    const Vector& length,
+    F32 timer,
+    void* data
+) // = NULL
 {
-  data;
+    data;
 
-  Vector p1 = matrix.posit + length;
-  if (ParticleSystem::Buildable( matrix.posit, this, &p1))
-  {
-  	// return the new particle simulator
-	  return new Particle(this, matrix, veloc, omega, length, timer);
-  }
-  return NULL;
+    Vector p1 = matrix.posit + length;
+    if (ParticleSystem::Buildable(matrix.posit, this, &p1))
+    {
+        // return the new particle simulator
+        return new Particle(this, matrix, veloc, omega, length, timer);
+    }
+    return NULL;
 }
 
 
@@ -71,51 +73,51 @@ Particle *ParticleClass::Build(
 //
 // Particle simulator configuration
 //
-void ParticleClass::Setup(FScope *fScope)
+void ParticleClass::Setup(FScope* fScope)
 {
-  FScope *sScope;
-  while ((sScope = fScope->NextFunction()) != NULL)
-  {
-    GameIdent *name;
-    switch (sScope->NameCrc())
+    FScope* sScope;
+    while ((sScope = fScope->NextFunction()) != NULL)
     {
-      case 0xE51D19D4: // "RenderBase"
-      case 0xC6485A06: // "Render"
-        name = new GameIdent;
-        (*name) = sScope->NextArgString();
-        renderIdList.Append( name);
-        break;
+        GameIdent* name;
+        switch (sScope->NameCrc())
+        {
+            case 0xE51D19D4: // "RenderBase"
+            case 0xC6485A06: // "Render"
+                name = new GameIdent;
+                (*name) = sScope->NextArgString();
+                renderIdList.Append(name);
+                break;
 
-      case 0x12CAD0FD: // "LifeTime"
-        lifeTime = sScope->NextArgFPoint();
-        break;
+            case 0x12CAD0FD: // "LifeTime"
+                lifeTime = sScope->NextArgFPoint();
+                break;
 
-      case 0xFFF34C6F: // "Priority"
-        priority = sScope->NextArgFPoint();
-        priority = Min<F32>( 2.0f, Max<F32>( priority, 0.0f));
-        break;
+            case 0xFFF34C6F: // "Priority"
+                priority = sScope->NextArgFPoint();
+                priority = Min<F32>(2.0f, Max<F32>(priority, 0.0f));
+                break;
 
-      case 0x68066A92: // "ShowUnderFog"
-        showUnderFog = TRUE;
-        break;
+            case 0x68066A92: // "ShowUnderFog"
+                showUnderFog = TRUE;
+                break;
 
-      case 0xE1230819: // "MakeUnderFog"
-        makeUnderFog = TRUE;
-        break;
+            case 0xE1230819: // "MakeUnderFog"
+                makeUnderFog = TRUE;
+                break;
 
-      case 0x0312FA29: // "NoDefaultRender"
-        defaultRender = FALSE;
-        break;
+            case 0x0312FA29: // "NoDefaultRender"
+                defaultRender = FALSE;
+                break;
+        }
     }
-  }
-  if (lifeTime <= 0.0f)
-  {
-    lifeTime = 0.0f;
-  }
-  else
-  {
-    lifeTimeInv = 1.0F / lifeTime;
-  }
+    if (lifeTime <= 0.0f)
+    {
+        lifeTime = 0.0f;
+    }
+    else
+    {
+        lifeTimeInv = 1.0F / lifeTime;
+    }
 }
 
 
@@ -126,61 +128,63 @@ void ParticleClass::Setup(FScope *fScope)
 //
 void ParticleClass::PostLoad()
 {
-  List<GameIdent>::Iterator i(&renderIdList);
-  for ( !i; *i; i++)
-  {
-    GameIdent *name = *i;
-
-    // Resolve render names
-    //
-    ParticleRenderClass *render = ParticleSystem::FindRenderType( name->crc);
-
-    if (!render)
+    List<GameIdent>::Iterator i(&renderIdList);
+    for (!i; *i; i++)
     {
-      ERR_CONFIG(("Could not find Render Type [%s]", name->str));
-    }
+        GameIdent* name = *i;
 
-    renderList.Append( render);
-  }
+        // Resolve render names
+        //
+        ParticleRenderClass* render = ParticleSystem::FindRenderType(name->crc);
+
+        if (!render)
+        {
+            ERR_CONFIG(("Could not find Render Type [%s]", name->str));
+        }
+
+        renderList.Append(render);
+    }
 }
 
 //
 // Particle::Particle
 //
-Particle::Particle(
-  ParticleClass *p, 
-  const Matrix &m,
-  const Vector &v,
-  const Vector &o,
-  const Vector &l,
-  F32 t,
-  void *data) // = NULL
-   : proto(p), matrix(m), veloc(v), omega(o), timer(t), length(l)
+Particle::Particle
+(
+    ParticleClass* p,
+    const Matrix& m,
+    const Vector& v,
+    const Vector& o,
+    const Vector& l,
+    F32 t,
+    void* data
+) // = NULL
+    : proto(p), matrix(m), veloc(v), omega(o), timer(t), length(l)
 {
-  List<ParticleRenderClass>::Iterator i(&proto->renderList);
-  for ( !i; *i; i++)
-  {
-    ParticleRenderClass * renderClass = *i;
+    List<ParticleRenderClass>::Iterator i(&proto->renderList);
+    for (!i; *i; i++)
+    {
+        ParticleRenderClass* renderClass = *i;
 
-		// create renderer object
-    ParticleRender * render = renderClass->Build(this, data);
+        // create renderer object
+        ParticleRender* render = renderClass->Build(this, data);
 
-		if (render)
-		{
-      renderList.Append( render);
+        if (render)
+        {
+            renderList.Append(render);
 
-			// pre-simulate renderer
-			render->Simulate(timer);
-		}
-	}
+            // pre-simulate renderer
+            render->Simulate(timer);
+        }
+    }
 
-  stopped = FALSE;
+    stopped = FALSE;
 
-	// Add this to the simulator list
-  ParticleSystem::AddSimulator(this);
+    // Add this to the simulator list
+    ParticleSystem::AddSimulator(this);
 
-  // and death track system
-  TrackSys::RegisterConstruction(dTrack);
+    // and death track system
+    TrackSys::RegisterConstruction(dTrack);
 }
 
 
@@ -189,55 +193,55 @@ Particle::Particle(
 //
 Particle::~Particle()
 {
-  // Detach the renderers
-  for (List<ParticleRender>::Iterator i(&renderList); *i; ++i)
-  {
-		(*i)->Detach(this);
-	}
+    // Detach the renderers
+    for (List<ParticleRender>::Iterator i(&renderList); *i; ++i)
+    {
+        (*i)->Detach(this);
+    }
 
-  renderList.UnlinkAll();
+    renderList.UnlinkAll();
 
-  // Remove from death track system
-  TrackSys::RegisterDestruction(dTrack);
+    // Remove from death track system
+    TrackSys::RegisterDestruction(dTrack);
 
-	// remove this from the simulator list
-  ParticleSystem::DeleteSimulator(this);
+    // remove this from the simulator list
+    ParticleSystem::DeleteSimulator(this);
 }
 
 
 // Simulation function
 //
-Bool Particle::Simulate( F32 dt)
+Bool Particle::Simulate(F32 dt)
 {
-	// advance the particle's life timer
-	timer += dt;
+    // advance the particle's life timer
+    timer += dt;
 
-  Quaternion q(matrix);
-  if (omega.x)
-  {
-    q *= Quaternion( omega.x * dt, Matrix::I.right);
-  }
-  if (omega.y)
-  {
-    q *= Quaternion( omega.y * dt, Matrix::I.up);
-  }
-  if (omega.z)
-  {
-    q *= Quaternion( omega.z * dt, Matrix::I.up);
-  }
-  matrix.Set( q);
+    Quaternion q(matrix);
+    if (omega.x)
+    {
+        q *= Quaternion(omega.x * dt, Matrix::I.right);
+    }
+    if (omega.y)
+    {
+        q *= Quaternion(omega.y * dt, Matrix::I.up);
+    }
+    if (omega.z)
+    {
+        q *= Quaternion(omega.z * dt, Matrix::I.up);
+    }
+    matrix.Set(q);
 
-  matrix.posit += (veloc * dt);
+    matrix.posit += (veloc * dt);
 
-	// if the particle's time has expired...
-	if (proto->lifeTime != 0.0 && timer >= proto->lifeTime)
-	{
-		// delete the particle
-		delete this;
-    return FALSE;
-	}
+    // if the particle's time has expired...
+    if (proto->lifeTime != 0.0 && timer >= proto->lifeTime)
+    {
+        // delete the particle
+        delete this;
+        return FALSE;
+    }
 
-  return TRUE;
+    return TRUE;
 }
 
 
@@ -246,12 +250,11 @@ Bool Particle::Simulate( F32 dt)
 //
 // Update particle position and length, if controlled externally
 //
-void Particle::Update(const Matrix &m, const Vector &len)
+void Particle::Update(const Matrix& m, const Vector& len)
 {
-  matrix = m;
-  length = len;
+    matrix = m;
+    length = len;
 }
-
 
 
 //
@@ -261,10 +264,10 @@ void Particle::Update(const Matrix &m, const Vector &len)
 //
 void Particle::SetupRenderers()
 {
-  for (List<ParticleRender>::Iterator i(&renderList); *i; ++i)
-  {
-		(*i)->Setup();
-	}
+    for (List<ParticleRender>::Iterator i(&renderList); *i; ++i)
+    {
+        (*i)->Setup();
+    }
 }
 
 
@@ -275,9 +278,8 @@ void Particle::SetupRenderers()
 //
 void Particle::Render()
 {
-  for (List<ParticleRender>::Iterator i(&renderList); *i; ++i)
-  {
-		(*i)->Render();
-	}
+    for (List<ParticleRender>::Iterator i(&renderList); *i; ++i)
+    {
+        (*i)->Render();
+    }
 }
-

@@ -42,16 +42,16 @@
 //
 // Constructor
 //
-DeliveryProjectileObjType::DeliveryProjectileObjType(const char *name, FScope *fScope) 
-: ProjectileObjType(name, fScope)
+DeliveryProjectileObjType::DeliveryProjectileObjType(const char* name, FScope* fScope)
+    : ProjectileObjType(name, fScope)
 {
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load configuration
-  StdLoad::TypeReaperObjType(fScope, "DeliveryType", deliveryType);
-  count = StdLoad::TypeU32(fScope, "Count", 1);
-  velocity = StdLoad::TypeF32(fScope, "Velocity", 10.0F);
-  StdLoad::TypeReaperObjType(fScope, "Parasite", parasite);
+    // Load configuration
+    StdLoad::TypeReaperObjType(fScope, "DeliveryType", deliveryType);
+    count = StdLoad::TypeU32(fScope, "Count", 1);
+    velocity = StdLoad::TypeF32(fScope, "Velocity", 10.0F);
+    StdLoad::TypeReaperObjType(fScope, "Parasite", parasite);
 }
 
 
@@ -72,12 +72,12 @@ DeliveryProjectileObjType::~DeliveryProjectileObjType()
 //
 void DeliveryProjectileObjType::PostLoad()
 {
-  // Call Parent First
-  ProjectileObjType::PostLoad();
+    // Call Parent First
+    ProjectileObjType::PostLoad();
 
-  // Resolve reapers
-  Resolver::Type<UnitObjType>(deliveryType, TRUE);
-  Resolver::Type(parasite);
+    // Resolve reapers
+    Resolver::Type<UnitObjType>(deliveryType, TRUE);
+    Resolver::Type(parasite);
 }
 
 
@@ -86,12 +86,12 @@ void DeliveryProjectileObjType::PostLoad()
 //
 Bool DeliveryProjectileObjType::InitializeResources()
 {
-  // Are we allowed to initialize resources ?
-  if (ProjectileObjType::InitializeResources())
-  {
-    return (TRUE);
-  }
-  return (FALSE);
+    // Are we allowed to initialize resources ?
+    if (ProjectileObjType::InitializeResources())
+    {
+        return (TRUE);
+    }
+    return (FALSE);
 }
 
 
@@ -102,10 +102,9 @@ Bool DeliveryProjectileObjType::InitializeResources()
 //
 GameObj* DeliveryProjectileObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new DeliveryProjectileObj(this, id));
+    // Allocate new object instance
+    return (new DeliveryProjectileObj(this, id));
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -118,8 +117,8 @@ GameObj* DeliveryProjectileObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-DeliveryProjectileObj::DeliveryProjectileObj(DeliveryProjectileObjType *objType, U32 id) 
-: ProjectileObj(objType, id)
+DeliveryProjectileObj::DeliveryProjectileObj(DeliveryProjectileObjType* objType, U32 id)
+    : ProjectileObj(objType, id)
 {
 }
 
@@ -141,9 +140,8 @@ DeliveryProjectileObj::~DeliveryProjectileObj()
 //
 void DeliveryProjectileObj::PreDelete()
 {
-
-  // Call parent scope last
-  ProjectileObj::PreDelete();
+    // Call parent scope last
+    ProjectileObj::PreDelete();
 }
 
 
@@ -154,34 +152,34 @@ void DeliveryProjectileObj::PreDelete()
 //
 void DeliveryProjectileObj::Detonate()
 {
-  if (!detonated)
-  {
-    StartGenericFX(0xFFF9084C); // "DeliveryProjectileObj::Detonate"
- 
-    // Get the type to spawn
-    UnitObjType *spawnType = DeliveryProjectileType()->deliveryType;
-
-    // Spawn the number required
-    for (U32 i = 0; i < DeliveryProjectileType()->count; i++)
+    if (!detonated)
     {
-      // Attempt to create near our location
-      if (UnitObj *unit = spawnType->SpawnClosest(Position(), GetSourceTeam()))
-      {
-        // Does this projectile attach a parasite
-        if (ParasiteObjType *parasite = DeliveryProjectileType()->GetParasite())
+        StartGenericFX(0xFFF9084C); // "DeliveryProjectileObj::Detonate"
+
+        // Get the type to spawn
+        UnitObjType* spawnType = DeliveryProjectileType()->deliveryType;
+
+        // Spawn the number required
+        for (U32 i = 0; i < DeliveryProjectileType()->count; i++)
         {
-          parasite->Infect(unit, unit->GetTeam());
+            // Attempt to create near our location
+            if (UnitObj* unit = spawnType->SpawnClosest(Position(), GetSourceTeam()))
+            {
+                // Does this projectile attach a parasite
+                if (ParasiteObjType* parasite = DeliveryProjectileType()->GetParasite())
+                {
+                    parasite->Infect(unit, unit->GetTeam());
+                }
+            }
         }
-      }
+
+        detonated = TRUE;
     }
 
-    detonated = TRUE;
-  }
+    // Stop the projectile
+    SetSpeed(0.0F);
+    SetVelocity(Matrix::I.posit);
 
-  // Stop the projectile
-  SetSpeed(0.0F);
-  SetVelocity(Matrix::I.posit);
-
-  // Delete the projectile
-  MarkForDeletion();
+    // Delete the projectile
+    MarkForDeletion();
 }

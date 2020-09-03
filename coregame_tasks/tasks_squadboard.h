@@ -27,48 +27,47 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class SquadBoard
+    //
+    class SquadBoard : public GameTask<SquadObjType, SquadObj>
+    {
+        TASK_CLASS(SquadBoard)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class SquadBoard
-  //
-  class SquadBoard : public GameTask<SquadObjType, SquadObj>
-  {
-    TASK_CLASS(SquadBoard)
+    private:
 
-  private:
+        // The transports being boarded
+        TransportObjList transports;
 
-    // The transports being boarded
-    TransportObjList transports;
+    public:
 
-  public:
+        // Constructors
+        SquadBoard(GameObj* subject);
+        SquadBoard(GameObj* subject, const TransportObjList& transport);
 
-    // Constructors
-    SquadBoard(GameObj *subject);
-    SquadBoard(GameObj *subject, const TransportObjList &transport);
+        // Destructor
+        ~SquadBoard();
 
-    // Destructor
-    ~SquadBoard();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateBoarding();
-  };
+        // State machine procedures
+        void StateInit();
+        void StateBoarding();
+    };
 }
 
 #endif

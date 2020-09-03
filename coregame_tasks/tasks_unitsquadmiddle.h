@@ -27,47 +27,44 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitSquadMiddle
+    //
+    class UnitSquadMiddle : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitSquadMiddle)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitSquadMiddle
-  //
-  class UnitSquadMiddle : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitSquadMiddle)
+    private:
 
-  private:
+        // Movement request handle
+        Movement::Handle moveHandle;
 
-    // Movement request handle
-    Movement::Handle moveHandle;
+    public:
 
-  public:
+        // Constructor
+        UnitSquadMiddle(GameObj* subject);
 
-    // Constructor
-    UnitSquadMiddle(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateMoving();
-    void StateWaiting();
-
-  };
-
+        // State machine procedures
+        void StateInit();
+        void StateMoving();
+        void StateWaiting();
+    };
 }
 
 #endif

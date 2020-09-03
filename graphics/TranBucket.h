@@ -15,59 +15,63 @@ class TranBucketMan : public BucketMan
 {
 private:
 
-	F32											scaleZ;
-	F32											maxBucketCount;
-	F32											maxZ;
-	F32											minZ;
+    F32 scaleZ;
+    F32 maxBucketCount;
+    F32 maxZ;
+    F32 minZ;
 
-	void							      UpdateScaleZ();
+    void UpdateScaleZ();
 
 public:
-	
-  Bool                    doSort;
 
-	TranBucketMan()
-  {
-    ClearData();
-  }
-  ~TranBucketMan() {};
+    Bool doSort;
 
-  void ClearData();
-  void SetZ( F32 _z);
+    TranBucketMan()
+    {
+        ClearData();
+    }
 
-  inline void SetZNorm( F32 _z)
-  {
-    SetTag( U16( _z * (maxBucketCount - 1) ));
-  }
-  inline void SetZSort( U16 tag1)
-  {
-    SetTag1( tag1);
-  }
+    ~TranBucketMan()
+    {
+    };
 
-	virtual void Flush( Bool doDraw = TRUE);
-  virtual void FlushTex( const Bitmap * texture, Bool doDraw = TRUE);
-	virtual void SetPrimitiveDesc( PrimitiveDesc & primitive);
-	virtual void SetPrimitiveDesc( Bucket & bucket, PrimitiveDesc & primitive);
-	virtual Bool CompareRenderState( const PrimitiveDesc & prim) const;
+    void ClearData();
+    void SetZ(F32 _z);
 
-  void TranBucketMan::SetMaxZ( F32 _maxZ)
-  {
-	  maxZ = _maxZ;
-	  UpdateScaleZ();
-  }
+    inline void SetZNorm(F32 _z)
+    {
+        SetTag(U16(_z * (maxBucketCount - 1)));
+    }
 
-  void TranBucketMan::SetMinZ( F32 _minZ)
-  {
-	  minZ = _minZ;
-	  UpdateScaleZ();
-  }
+    inline void SetZSort(U16 tag1)
+    {
+        SetTag1(tag1);
+    }
 
-  void TranBucketMan::SetMaxBucketCount( U16 _maxBucketCount)
-  {
-	  ASSERT( minZ < maxZ );
-	  maxBucketCount = (F32) _maxBucketCount;
-	  UpdateScaleZ();
-  }
+    virtual void Flush(Bool doDraw = TRUE);
+    virtual void FlushTex(const Bitmap* texture, Bool doDraw = TRUE);
+    virtual void SetPrimitiveDesc(PrimitiveDesc& primitive);
+    virtual void SetPrimitiveDesc(Bucket& bucket, PrimitiveDesc& primitive);
+    virtual Bool CompareRenderState(const PrimitiveDesc& prim) const;
+
+    void TranBucketMan::SetMaxZ(F32 _maxZ)
+    {
+        maxZ = _maxZ;
+        UpdateScaleZ();
+    }
+
+    void TranBucketMan::SetMinZ(F32 _minZ)
+    {
+        minZ = _minZ;
+        UpdateScaleZ();
+    }
+
+    void TranBucketMan::SetMaxBucketCount(U16 _maxBucketCount)
+    {
+        ASSERT(minZ < maxZ);
+        maxBucketCount = (F32)_maxBucketCount;
+        UpdateScaleZ();
+    }
 };
 
 

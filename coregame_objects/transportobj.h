@@ -16,7 +16,7 @@
 // Includes
 //
 #include "unitobj.h"
-#include "propertylist.h"  
+#include "propertylist.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ OBJDEC(TransportObj)
 
 namespace Tasks
 {
-  class TransportPad;
+    class TransportPad;
 }
 
 
@@ -38,69 +38,68 @@ namespace Tasks
 //
 class TransportObjType : public UnitObjType
 {
-  PROMOTE_LINK(TransportObjType, UnitObjType, 0x3F369977); // "TransportObjType"
+PROMOTE_LINK(TransportObjType, UnitObjType, 0x3F369977); // "TransportObjType"
 
-  // Target properties
-  PropertyList<16> propertyList;
+    // Target properties
+    PropertyList<16> propertyList;
 
-  // Number of cargo spaces available
-  U32 spaces;
+    // Number of cargo spaces available
+    U32 spaces;
 
-  // Distance to unit before being sucked in
-  F32 distance;
+    // Distance to unit before being sucked in
+    F32 distance;
 
-  // Recharge time for transport pads
-  F32 chargeTime;
+    // Recharge time for transport pads
+    F32 chargeTime;
 
-  // The portal type
-  Reaper<TransportObjType> portalType;
+    // The portal type
+    Reaper<TransportObjType> portalType;
 
-  // The time a portal is open
-  F32 portalTime;
+    // The time a portal is open
+    F32 portalTime;
 
 public:
 
-  // Constructor and destructor
-  TransportObjType(const char *typeName, FScope *fScope);
-  ~TransportObjType();
+    // Constructor and destructor
+    TransportObjType(const char* typeName, FScope* fScope);
+    ~TransportObjType();
 
-  // Called after all types are loaded
-  void PostLoad();
+    // Called after all types are loaded
+    void PostLoad();
 
-  // Initialized type specific resources
-  Bool InitializeResources();
+    // Initialized type specific resources
+    Bool InitializeResources();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 
-  // Can the given type be transported by this transport
-  Bool CheckTransport(UnitObjType *type);
+    // Can the given type be transported by this transport
+    Bool CheckTransport(UnitObjType* type);
 
-  U32 GetSpaces()
-  {
-    return (spaces);
-  }
+    U32 GetSpaces()
+    {
+        return (spaces);
+    }
 
-  F32 GetDistance()
-  {
-    return (distance);
-  }
+    F32 GetDistance()
+    {
+        return (distance);
+    }
 
-  F32 GetChargeTime()
-  {
-    return (chargeTime);
-  }
+    F32 GetChargeTime()
+    {
+        return (chargeTime);
+    }
 
-  F32 GetPortalTime()
-  {
-    return (portalTime);
-  }
+    F32 GetPortalTime()
+    {
+        return (portalTime);
+    }
 
-  TransportObjType * GetPortalType()
-  {
-    return (portalType.GetPointer());
-  }
-
+    TransportObjType* GetPortalType()
+    {
+        return (portalType.GetPointer());
+    }
 };
 
 
@@ -111,82 +110,82 @@ public:
 
 class TransportObj : public UnitObj
 {
-  // List of units being transported
-  UnitObjList cargo;
+    // List of units being transported
+    UnitObjList cargo;
 
-  // The telepad if this is a portal
-  TransportObjPtr telepadLink;
+    // The telepad if this is a portal
+    TransportObjPtr telepadLink;
 
 public:
-  
-  // Constructor and destructor
-  TransportObj(TransportObjType *objType, U32 id);
-  ~TransportObj();
 
-  // Called to before deleting the object
-  void PreDelete();
+    // Constructor and destructor
+    TransportObj(TransportObjType* objType, U32 id);
+    ~TransportObj();
 
-  // Load and save state configuration
-  void LoadState(FScope *fScope);
-  virtual void SaveState(FScope *fScope, MeshEnt * theMesh = NULL);
+    // Called to before deleting the object
+    void PreDelete();
 
-  // Called after all objects are loaded
-  void PostLoad();
+    // Load and save state configuration
+    void LoadState(FScope* fScope);
+    virtual void SaveState(FScope* fScope, MeshEnt* theMesh = NULL);
 
-  // Get the number of spaces currently used
-  U32 GetUsedSpaces();
+    // Called after all objects are loaded
+    void PostLoad();
 
-  // Get the number of free spaces
-  U32 GetFreeSpaces();
+    // Get the number of spaces currently used
+    U32 GetUsedSpaces();
 
-  // Can the given unit be transported by this type
-  Bool CheckType(UnitObj *unit);
+    // Get the number of free spaces
+    U32 GetFreeSpaces();
 
-  // Can the given unit currently fit inside this transport
-  Bool CheckSpace(UnitObj *unit);
+    // Can the given unit be transported by this type
+    Bool CheckType(UnitObj* unit);
 
-  // Checks both type and space
-  Bool CheckCargo(UnitObj *unit);
+    // Can the given unit currently fit inside this transport
+    Bool CheckSpace(UnitObj* unit);
 
-  // Pickup the given cargo item
-  void PickupCargo(UnitObj *unit);
+    // Checks both type and space
+    Bool CheckCargo(UnitObj* unit);
 
-  // Add the given cargo
-  void AddCargo(UnitObj *unit);
+    // Pickup the given cargo item
+    void PickupCargo(UnitObj* unit);
 
-  // Is this transporter able to unload right now
-  Bool UnloadAvailable();
+    // Add the given cargo
+    void AddCargo(UnitObj* unit);
 
-  // Check if this transport can currently unload at the given location
-  Bool CheckUnload(U32 x, U32 z);
+    // Is this transporter able to unload right now
+    Bool UnloadAvailable();
 
-  // Unload a single unit at the given location
-  Bool Unload(const Vector &destination, UnitObj *unit);
+    // Check if this transport can currently unload at the given location
+    Bool CheckUnload(U32 x, U32 z);
 
-  // Unload cargo at the given location (TRUE if any unloaded)
-  Bool Unload(const Vector &destination, Bool single = FALSE);
+    // Unload a single unit at the given location
+    Bool Unload(const Vector& destination, UnitObj* unit);
 
-  // Get the transport pad task, or NULL
-  Tasks::TransportPad * GetPadTask();
+    // Unload cargo at the given location (TRUE if any unloaded)
+    Bool Unload(const Vector& destination, Bool single = FALSE);
 
-  // Get the pad pointer
-  TransportObj * GetTelepadLink()
-  {
-    return (telepadLink.GetPointer());
-  }
+    // Get the transport pad task, or NULL
+    Tasks::TransportPad* GetPadTask();
 
-  // Set the pad reaper
-  void SetTelepadLink(TransportObj *p)
-  {
-    telepadLink = p;
-  }
+    // Get the pad pointer
+    TransportObj* GetTelepadLink()
+    {
+        return (telepadLink.GetPointer());
+    }
 
-  // Get pointer to type
-  TransportObjType * TransportType()
-  {
-    // This is a safe cast
-    return ((TransportObjType *)type);
-  }
+    // Set the pad reaper
+    void SetTelepadLink(TransportObj* p)
+    {
+        telepadLink = p;
+    }
+
+    // Get pointer to type
+    TransportObjType* TransportType()
+    {
+        // This is a safe cast
+        return ((TransportObjType*)type);
+    }
 };
 
 #endif

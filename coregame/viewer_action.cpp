@@ -241,8 +241,11 @@ namespace Viewer
         public:
 
             // Constructor
-            ChangeCameraPrim(Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit = TRUE,
-                             FScope* scope = nullptr);
+            ChangeCameraPrim
+            (
+                Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit = TRUE,
+                FScope* scope = nullptr
+            );
 
             // Notify
             void Notify(U32 crc) override;
@@ -1420,8 +1423,11 @@ namespace Viewer
         //
         // Constructor
         //
-        ChangeCameraPrim::ChangeCameraPrim(Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit,
-                                           FScope* scope)
+        ChangeCameraPrim::ChangeCameraPrim
+        (
+            Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit,
+            FScope* scope
+        )
             : Prim(cineractive, fScope),
               name(name),
               scope(scope),
@@ -2010,8 +2016,11 @@ namespace Viewer
             }
 
             // Create a new text primitive
-            AddPrim(ptr->cineractive->primitiveList,
-                    ptr->textPrim = new Text(ptr->cineractive, ptr->config, ptr->priority));
+            AddPrim
+            (
+                ptr->cineractive->primitiveList,
+                ptr->textPrim = new Text(ptr->cineractive, ptr->config, ptr->priority)
+            );
             ptr->textPrim->SetText(text);
 
             return (TRUE);

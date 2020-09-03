@@ -108,7 +108,7 @@ namespace GameSound
             }
 
             case 0x9677E1E8: // "sound.digital.cpu"
-                CON_DIAG(("Using %u percent of CPU", Sound::Digital::CPUPercent()));
+            CON_DIAG(("Using %u percent of CPU", Sound::Digital::CPUPercent()));
                 break;
 
             case 0x94F21C36: // "sound.player.load"
@@ -200,7 +200,7 @@ namespace GameSound
                     if (newCrc != crc)
                     {
                         CON_MSG(("[%s]", (*i)->GetPath()))
-                            crc = newCrc;
+                        crc = newCrc;
                     }
 
                     CON_MSG((" - %s", (*i)->GetName()))
@@ -221,7 +221,7 @@ namespace GameSound
                 Console::GetArgInteger(1, track);
 
                 // Start the track
-                if (File::Exists("music")) 
+                if (File::Exists("music"))
                 {
                     if (U32 t = Sound::Vorbis::Play(track))
                     {
@@ -259,7 +259,7 @@ namespace GameSound
 
             case 0x5E794C0E: // "sound.redbook.randomtrack"
             {
-                if (File::Exists("music")) 
+                if (File::Exists("music"))
                 {
                     if (U32 t = Sound::Vorbis::Play(Random::nonSync.Integer(Sound::Vorbis::TrackCount())))
                     {

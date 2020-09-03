@@ -23,19 +23,15 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace PingDisplay
-  {
-
-    // Draw
-    void Draw(U32 numPings, const U16 *pings, const ClipRect &rect, F32 alphaScale);
-
-  }
-
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Controls
+    //
+    namespace PingDisplay
+    {
+        // Draw
+        void Draw(U32 numPings, const U16* pings, const ClipRect& rect, F32 alphaScale);
+    }
 }
 
 

@@ -395,16 +395,20 @@ namespace AI
 
             if (teamMapThreat[t].Total())
             {
-                LOG_WARN(
+                LOG_WARN
+                (
                     ("PLEASE SUBMIT!! TeamMapThreat [%d] [%d]", teamMapThreat[t].Total(), GameObjCtrl::listAll.GetCount(
-                    )));
+                    ))
+                );
             }
 
             if (teamMapDefense[t].Total())
             {
-                LOG_WARN(
+                LOG_WARN
+                (
                     ("PLEASE SUBMIT!! TeamMapDefense [%d] [%d]", teamMapDefense[t].Total(), GameObjCtrl::listAll.
-                        GetCount()));
+                        GetCount())
+                );
             }
 
             //      ASSERT(!teamMapPain[t].Total());

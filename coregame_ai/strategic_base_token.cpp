@@ -52,8 +52,11 @@ namespace Strategic
     //
     // Constructor
     //
-    Base::Token::Token(Base& baseIn, UnitObjType& typeIn, Orderer& orderer, Resource* resource, Water* water,
-                       Script* script)
+    Base::Token::Token
+    (
+        Base& baseIn, UnitObjType& typeIn, Orderer& orderer, Resource* resource, Water* water,
+        Script* script
+    )
         : type(&typeIn),
           base(&baseIn),
           orderer(&orderer),
@@ -581,8 +584,11 @@ namespace Strategic
             base->GetManager().RegisterNotificationHandler(constructor->Id(), *this);
 
             // Give the facility the order to construct the unit
-            Orders::Game::Constructor::Generate(base->GetObject(), constructor->Id(), 0x258B47CE,
-                                                type->GetNameCrc()); // "Order::UnitConstructor::Build"
+            Orders::Game::Constructor::Generate
+            (
+                base->GetObject(), constructor->Id(), 0x258B47CE,
+                type->GetNameCrc()
+            ); // "Order::UnitConstructor::Build"
         }
         else
         {
@@ -911,9 +917,11 @@ namespace Strategic
                 break;
         }
 
-        LOG_AI(
+        LOG_AI
+        (
             ("Token [%08X] '%s' changing from %s to %s", this, type->GetName(), stateNames[state], stateNames[newState]
-            ))
+            )
+        )
 
         state = newState;
 

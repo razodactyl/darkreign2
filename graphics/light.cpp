@@ -203,7 +203,8 @@ namespace Vid
         {
             beam = _beam;
 
-            colorBeam.Set(
+            colorBeam.Set
+            (
                 /*
                         Min<F32>( d3d.dcvDiffuse.r * beam, 1.0f),
                         Min<F32>( d3d.dcvDiffuse.g * beam, 1.0f),
@@ -224,7 +225,8 @@ namespace Vid
             d3d.dcvDiffuse.g = g;
             d3d.dcvDiffuse.b = b;
 
-            colorBeam.Set(
+            colorBeam.Set
+            (
                 /*
                         Min<F32>( d3d.dcvDiffuse.r * beam, 1.0f),
                         Min<F32>( d3d.dcvDiffuse.g * beam, 1.0f),
@@ -337,7 +339,8 @@ namespace Vid
                 if (diffuse_reflect > 0.0f)
                 {
                     // calculate the ambient + diffuse component for the vertex
-                    ls->SetInline(
+                    ls->SetInline
+                    (
                         diffInit.r + diffuse_reflect * diff.r,
                         diffInit.r + diffuse_reflect * diff.g,
                         diffInit.r + diffuse_reflect * diff.b,
@@ -536,8 +539,11 @@ namespace Vid
                 alpha *= (1 - sunTime) / .01f;
             }
 
-            shadowColor.Set(static_cast<U32>(0), static_cast<U32>(0), static_cast<U32>(0),
-                            Min<U32>(static_cast<U32>(Utils::FtoL(alpha)), 255));
+            shadowColor.Set
+            (
+                static_cast<U32>(0), static_cast<U32>(0), static_cast<U32>(0),
+                Min<U32>(static_cast<U32>(Utils::FtoL(alpha)), 255)
+            );
         }
 
         //----------------------------------------------------------------------------
@@ -783,16 +789,22 @@ namespace Vid
         {
             U32 mem = light.GetMem();
 
-            CON_DIAG(("%-36s:             %-8s %3d %3d %3d",
-                light.GetName(),
-                light.GetType() == lightDIRECTION ? "sun" : light.GetType() == lightPOINT ? "point" : "spot",
-                S32(light.R() * 255), S32(light.G() * 255), S32(light.B())
-            ));
-            LOG_DIAG(("%-36s:             %-8s %3d %3d %3d",
-                light.GetName(),
-                light.GetType() == lightDIRECTION ? "sun" : light.GetType() == lightPOINT ? "point" : "spot",
-                S32(light.R() * 255), S32(light.G() * 255), S32(light.B())
-            ));
+            CON_DIAG
+            (
+                ("%-36s:             %-8s %3d %3d %3d",
+                    light.GetName(),
+                    light.GetType() == lightDIRECTION ? "sun" : light.GetType() == lightPOINT ? "point" : "spot",
+                    S32(light.R() * 255), S32(light.G() * 255), S32(light.B())
+                )
+            );
+            LOG_DIAG
+            (
+                ("%-36s:             %-8s %3d %3d %3d",
+                    light.GetName(),
+                    light.GetType() == lightDIRECTION ? "sun" : light.GetType() == lightPOINT ? "point" : "spot",
+                    S32(light.R() * 255), S32(light.G() * 255), S32(light.B())
+                )
+            );
 
             return mem;
         }

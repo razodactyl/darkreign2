@@ -64,169 +64,169 @@ namespace Effects
 
         switch (fScope->NameCrc())
         {
-        default:
-            return FALSE;
+            default:
+                return FALSE;
 
-        case 0x90B3C656: // "Interpolate"
-            interpolate = StdLoad::TypeU32(fScope, interpolate);
-            break;
+            case 0x90B3C656: // "Interpolate"
+                interpolate = StdLoad::TypeU32(fScope, interpolate);
+                break;
 
-        case 0x12CAD0FD: // "LifeTime"
-            lifeTime = StdLoad::TypeF32(fScope, lifeTime);
-            break;
+            case 0x12CAD0FD: // "LifeTime"
+                lifeTime = StdLoad::TypeF32(fScope, lifeTime);
+                break;
 
-        case 0x1655D08E: // "NoRestore"
-            noRestore = StdLoad::TypeU32(fScope, noRestore);
-            break;
+            case 0x1655D08E: // "NoRestore"
+                noRestore = StdLoad::TypeU32(fScope, noRestore);
+                break;
 
-        case 0x156D2BE8: // "NoX"
-            noX = StdLoad::TypeU32(fScope, noX);
-            break;
-        case 0x11AC365F: // "NoY"
-            noY = StdLoad::TypeU32(fScope, noY);
-            break;
-        case 0x1CEF1086: // "NoZ"
-            noZ = StdLoad::TypeU32(fScope, noZ);
-            break;
+            case 0x156D2BE8: // "NoX"
+                noX = StdLoad::TypeU32(fScope, noX);
+                break;
+            case 0x11AC365F: // "NoY"
+                noY = StdLoad::TypeU32(fScope, noY);
+                break;
+            case 0x1CEF1086: // "NoZ"
+                noZ = StdLoad::TypeU32(fScope, noZ);
+                break;
 
-        case 0xDCC321D2: // "Sound"           
-        case 0xC939D9B6: // "GeometryName"
-        case 0x63E93484: // "GodFile"
-            objectId = StdLoad::TypeStringD(fScope, objectId.str);
-            flags |= dataOBJECT;
-            break;
+            case 0xDCC321D2: // "Sound"           
+            case 0xC939D9B6: // "GeometryName"
+            case 0x63E93484: // "GodFile"
+                objectId = StdLoad::TypeStringD(fScope, objectId.str);
+                flags |= dataOBJECT;
+                break;
 
-        case 0xB9702877: // "UVScale"
-            uvScale = StdLoad::TypeF32(fScope, uvScale);
-            break;
-        case 0x9274F424: // "UVAnimRate"
-            uvAnimRate = StdLoad::TypeF32(fScope, uvAnimRate);
-            break;
+            case 0xB9702877: // "UVScale"
+                uvScale = StdLoad::TypeF32(fScope, uvScale);
+                break;
+            case 0x9274F424: // "UVAnimRate"
+                uvAnimRate = StdLoad::TypeF32(fScope, uvAnimRate);
+                break;
 
-        case 0xCB2A656E: // "TextureReduce"
-        case 0x386C31B7: // "TextReduce"
-            textReduce = Min<U32>(StdLoad::TypeU32(fScope, textReduce), 2);
-            //      LOG_DIAG(("TEXREDUCE: %d", textReduce));
-            break;
+            case 0xCB2A656E: // "TextureReduce"
+            case 0x386C31B7: // "TextReduce"
+                textReduce = Min<U32>(StdLoad::TypeU32(fScope, textReduce), 2);
+                //      LOG_DIAG(("TEXREDUCE: %d", textReduce));
+                break;
 
-        case 0x251D4D16: // "TextureName"
-        case 0x7951FC0B: // "Texture"
-            textureId = StdLoad::TypeStringD(fScope, textureId.str);
-            flags |= dataTEXTURE;
-            break;
+            case 0x251D4D16: // "TextureName"
+            case 0x7951FC0B: // "Texture"
+                textureId = StdLoad::TypeStringD(fScope, textureId.str);
+                flags |= dataTEXTURE;
+                break;
 
-        case 0x52F4890F: // "TextureBlend"
-        case 0x6BE1324D: // "Blend"
-        {
-            StrBuf<128> str;
-
-            str = StdLoad::TypeStringD(fScope, "");
-            if (*str.str)
+            case 0x52F4890F: // "TextureBlend"
+            case 0x6BE1324D: // "Blend"
             {
-                blend = Blend::GetValue(str.str, blend);
-            }
-            flags |= dataBLEND;
-            break;
-        }
+                StrBuf<128> str;
 
-        case 0xA7816640: // "NoZBuffer"
-            noZBuffer = StdLoad::TypeU32(fScope, static_cast<U32>(noZBuffer));
-            break;
-
-        case 0x86010476: // "Height"
-            scale = StdLoad::TypeF32(fScope, scale);
-            flags |= dataHEIGHT;
-            break;
-
-        case 0x362FA3AA: // "Size"
-        case 0xE7070C09: // "Scale"
-        case 0xBFA39551: // "Radius"
-            scale = StdLoad::TypeF32(fScope, scale);
-            flags |= dataSCALE;
-            break;
-
-        case 0xF6B933DD: // "AnimateTime"
-        case 0xC6B5F4F8: // "AnimTime"
-        case 0x409FED81: // "AnimRate"
-            animRate = StdLoad::TypeF32(fScope, animRate);
-            flags |= dataANIMRATE;
-            break;
-
-        case 0x7F4E4933: // "ComponentSize"
-        case 0xC4AA3473: // "Vector"
-        case 0x798A5CF0: // "Plane"
-            vector.x = StdLoad::TypeF32(fScope, vector.x);
-            vector.y = StdLoad::TypeF32(fScope, vector.y);
-            vector.z = StdLoad::TypeF32(fScope, vector.z);
-            flags |= dataVECTOR;
-            break;
-
-        case 0xFE3B31A3: // "Offset"
-            offset.x = StdLoad::TypeF32(fScope, offset.x);
-            offset.y = StdLoad::TypeF32(fScope, offset.y);
-            offset.z = StdLoad::TypeF32(fScope, offset.z);
-            break;
-
-        case 0xFC38C807: // "Loop"
-            animFlags |= (StdLoad::TypeU32(fScope, U32(0)) ? flagLOOP : 0);
-            break;
-
-        case 0x6F459C35: // "Sorting"
-            if (fScope->IsNextArgString())
-            {
-                GameIdent sort = fScope->NextArgString();
-                switch (sort.crc)
+                str = StdLoad::TypeStringD(fScope, "");
+                if (*str.str)
                 {
-                case 0x1C329AB7: // "Debug"
-                    sorting = Vid::sortDEBUG0;
-                    break;
-                case 0x978BE78D: // "Flare"
-                    sorting = Vid::sortFLARE0;
-                    break;
-                case 0x920892B8: // "Light"
-                    sorting = Vid::sortLIGHT0;
-                    break;
-                case 0x6FF6291D: // "Fog"
-                    sorting = Vid::sortLIGHT0;
-                    break;
-                case 0x3A5D41B6: // "Flame"
-                    sorting = Vid::sortFLAME0;
-                    break;
-                case 0xE3DB018F: // "Smoke"
-                    sorting = Vid::sortSMOKE0;
-                    break;
-                case 0xEDA4DC57: // "Effect"
-                    sorting = Vid::sortEFFECT0;
-                    break;
-                case 0x5EB76DCD: // "Normal"
-                    sorting = Vid::sortNORMAL0;
-                    break;
-                case 0x6728DE39: // "Surface"
-                    sorting = Vid::sortSURFACE0;
-                    break;
-                case 0x6ADE7843: // "Water"
-                    sorting = Vid::sortWATER0;
-                    break;
-                case 0x80528818: // "Brush"
-                    sorting = Vid::sortBRUSH0;
-                    break;
-                case 0x11BBF9B2: // "Ground"
-                    sorting = Vid::sortGROUND0;
-                    break;
-                case 0xB31C6654: // "Terrain"
-                    sorting = Vid::sortTERRAIN0;
-                    break;
+                    blend = Blend::GetValue(str.str, blend);
                 }
-                U32 index = 0;
-                // add in extra
-                index = Min<S32>(4095, StdLoad::TypeU32(fScope, index));
-                sorting += index;
+                flags |= dataBLEND;
+                break;
             }
-            else
-            {
-                sorting = StdLoad::TypeU32(fScope, sorting);
-            }
-            break;
+
+            case 0xA7816640: // "NoZBuffer"
+                noZBuffer = StdLoad::TypeU32(fScope, static_cast<U32>(noZBuffer));
+                break;
+
+            case 0x86010476: // "Height"
+                scale = StdLoad::TypeF32(fScope, scale);
+                flags |= dataHEIGHT;
+                break;
+
+            case 0x362FA3AA: // "Size"
+            case 0xE7070C09: // "Scale"
+            case 0xBFA39551: // "Radius"
+                scale = StdLoad::TypeF32(fScope, scale);
+                flags |= dataSCALE;
+                break;
+
+            case 0xF6B933DD: // "AnimateTime"
+            case 0xC6B5F4F8: // "AnimTime"
+            case 0x409FED81: // "AnimRate"
+                animRate = StdLoad::TypeF32(fScope, animRate);
+                flags |= dataANIMRATE;
+                break;
+
+            case 0x7F4E4933: // "ComponentSize"
+            case 0xC4AA3473: // "Vector"
+            case 0x798A5CF0: // "Plane"
+                vector.x = StdLoad::TypeF32(fScope, vector.x);
+                vector.y = StdLoad::TypeF32(fScope, vector.y);
+                vector.z = StdLoad::TypeF32(fScope, vector.z);
+                flags |= dataVECTOR;
+                break;
+
+            case 0xFE3B31A3: // "Offset"
+                offset.x = StdLoad::TypeF32(fScope, offset.x);
+                offset.y = StdLoad::TypeF32(fScope, offset.y);
+                offset.z = StdLoad::TypeF32(fScope, offset.z);
+                break;
+
+            case 0xFC38C807: // "Loop"
+                animFlags |= (StdLoad::TypeU32(fScope, U32(0)) ? flagLOOP : 0);
+                break;
+
+            case 0x6F459C35: // "Sorting"
+                if (fScope->IsNextArgString())
+                {
+                    GameIdent sort = fScope->NextArgString();
+                    switch (sort.crc)
+                    {
+                        case 0x1C329AB7: // "Debug"
+                            sorting = Vid::sortDEBUG0;
+                            break;
+                        case 0x978BE78D: // "Flare"
+                            sorting = Vid::sortFLARE0;
+                            break;
+                        case 0x920892B8: // "Light"
+                            sorting = Vid::sortLIGHT0;
+                            break;
+                        case 0x6FF6291D: // "Fog"
+                            sorting = Vid::sortLIGHT0;
+                            break;
+                        case 0x3A5D41B6: // "Flame"
+                            sorting = Vid::sortFLAME0;
+                            break;
+                        case 0xE3DB018F: // "Smoke"
+                            sorting = Vid::sortSMOKE0;
+                            break;
+                        case 0xEDA4DC57: // "Effect"
+                            sorting = Vid::sortEFFECT0;
+                            break;
+                        case 0x5EB76DCD: // "Normal"
+                            sorting = Vid::sortNORMAL0;
+                            break;
+                        case 0x6728DE39: // "Surface"
+                            sorting = Vid::sortSURFACE0;
+                            break;
+                        case 0x6ADE7843: // "Water"
+                            sorting = Vid::sortWATER0;
+                            break;
+                        case 0x80528818: // "Brush"
+                            sorting = Vid::sortBRUSH0;
+                            break;
+                        case 0x11BBF9B2: // "Ground"
+                            sorting = Vid::sortGROUND0;
+                            break;
+                        case 0xB31C6654: // "Terrain"
+                            sorting = Vid::sortTERRAIN0;
+                            break;
+                    }
+                    U32 index = 0;
+                    // add in extra
+                    index = Min<S32>(4095, StdLoad::TypeU32(fScope, index));
+                    sorting += index;
+                }
+                else
+                {
+                    sorting = StdLoad::TypeU32(fScope, sorting);
+                }
+                break;
         }
         return TRUE;
     }
@@ -253,71 +253,71 @@ namespace Effects
     {
         switch (fScope->NameCrc())
         {
-        default:
-            return FALSE;
-
-        case 0xBA4990AD: // "ColorKey2"
-            if (counter != 2)
-            {
+            default:
                 return FALSE;
-            }
-            counter = 1;
-            // fall through
 
-        case 0xEB38EC6B: // "ColorKey"
-            if (counter == 1)
-            {
-                F32 f = StdLoad::TypeF32(fScope);
-                U32 r = StdLoad::TypeU32(fScope);
-                U32 g = StdLoad::TypeU32(fScope);
-                U32 b = StdLoad::TypeU32(fScope);
-                U32 a = StdLoad::TypeU32(fScope, 255);
+            case 0xBA4990AD: // "ColorKey2"
+                if (counter != 2)
+                {
+                    return FALSE;
+                }
+                counter = 1;
+                // fall through
 
-                keys.Append(new ColorKey(f, r, g, b, a));
-            }
-            break;
+            case 0xEB38EC6B: // "ColorKey"
+                if (counter == 1)
+                {
+                    F32 f = StdLoad::TypeF32(fScope);
+                    U32 r = StdLoad::TypeU32(fScope);
+                    U32 g = StdLoad::TypeU32(fScope);
+                    U32 b = StdLoad::TypeU32(fScope);
+                    U32 a = StdLoad::TypeU32(fScope, 255);
 
-        case 0x9A8F5250: // "StartColor2"
-            if (counter != 2)
-            {
-                return FALSE;
-            }
-            counter = 1;
+                    keys.Append(new ColorKey(f, r, g, b, a));
+                }
+                break;
 
-        case 0x2770ACA2: // "StartColor"
-            if (counter == 1)
-            {
-                ASSERT(keys.GetCount() == 0);
+            case 0x9A8F5250: // "StartColor2"
+                if (counter != 2)
+                {
+                    return FALSE;
+                }
+                counter = 1;
 
-                U32 r = StdLoad::TypeU32(fScope);
-                U32 g = StdLoad::TypeU32(fScope);
-                U32 b = StdLoad::TypeU32(fScope);
-                U32 a = StdLoad::TypeU32(fScope, 255);
+            case 0x2770ACA2: // "StartColor"
+                if (counter == 1)
+                {
+                    ASSERT(keys.GetCount() == 0);
 
-                keys.Append(new ColorKey(0.0f, r, g, b, a));
-            }
-            break;
+                    U32 r = StdLoad::TypeU32(fScope);
+                    U32 g = StdLoad::TypeU32(fScope);
+                    U32 b = StdLoad::TypeU32(fScope);
+                    U32 a = StdLoad::TypeU32(fScope, 255);
 
-        case 0x8E997D8B: // "FinishColor2"
-            if (counter != 2)
-            {
-                return FALSE;
-            }
-            counter = 1;
+                    keys.Append(new ColorKey(0.0f, r, g, b, a));
+                }
+                break;
 
-        case 0x730F2950: // "FinishColor"
-            if (counter == 1)
-            {
-                ASSERT(keys.GetCount() == 1);
+            case 0x8E997D8B: // "FinishColor2"
+                if (counter != 2)
+                {
+                    return FALSE;
+                }
+                counter = 1;
 
-                U32 r = StdLoad::TypeU32(fScope);
-                U32 g = StdLoad::TypeU32(fScope);
-                U32 b = StdLoad::TypeU32(fScope);
-                U32 a = StdLoad::TypeU32(fScope, 255);
+            case 0x730F2950: // "FinishColor"
+                if (counter == 1)
+                {
+                    ASSERT(keys.GetCount() == 1);
 
-                keys.Append(new ColorKey(1.0f, r, g, b, a));
-            }
-            break;
+                    U32 r = StdLoad::TypeU32(fScope);
+                    U32 g = StdLoad::TypeU32(fScope);
+                    U32 b = StdLoad::TypeU32(fScope);
+                    U32 a = StdLoad::TypeU32(fScope, 255);
+
+                    keys.Append(new ColorKey(1.0f, r, g, b, a));
+                }
+                break;
         }
         return TRUE;
     }
@@ -344,69 +344,69 @@ namespace Effects
     {
         switch (fScope->NameCrc())
         {
-        default:
-            return FALSE;
-
-        case 0xD7A2677F: // "RadiusKey2"
-        case 0x4C7DA445: // "ScaleKey2"
-            if (counter != 2)
-            {
+            default:
                 return FALSE;
-            }
-            counter = 1;
 
-        case 0x4FB72CBC: // "RadiusKey"
-        case 0x920CA5B2: // "ScaleKey"
-        case 0x44FC1D1A: // "TimeKey"
-        case 0x5E205EB4: // "StateKey"
-            if (counter == 1)
-            {
-                F32 f = StdLoad::TypeF32(fScope);
-                F32 s = StdLoad::TypeF32(fScope);
+            case 0xD7A2677F: // "RadiusKey2"
+            case 0x4C7DA445: // "ScaleKey2"
+                if (counter != 2)
+                {
+                    return FALSE;
+                }
+                counter = 1;
 
-                keys.Append(new ScaleKey(f, s));
-            }
-            break;
+            case 0x4FB72CBC: // "RadiusKey"
+            case 0x920CA5B2: // "ScaleKey"
+            case 0x44FC1D1A: // "TimeKey"
+            case 0x5E205EB4: // "StateKey"
+                if (counter == 1)
+                {
+                    F32 f = StdLoad::TypeF32(fScope);
+                    F32 s = StdLoad::TypeF32(fScope);
 
-        case 0xD445F92F: // "StartRadius2"
-        case 0x315642BA: // "StartScale2"
-            if (counter != 2)
-            {
-                return FALSE;
-            }
-            counter = 1;
+                    keys.Append(new ScaleKey(f, s));
+                }
+                break;
 
-        case 0x3E50BE22: // "StartRadius"
-        case 0x097FD8A4: // "StartScale"
-            if (counter == 1)
-            {
-                ASSERT(keys.GetCount() == 0);
+            case 0xD445F92F: // "StartRadius2"
+            case 0x315642BA: // "StartScale2"
+                if (counter != 2)
+                {
+                    return FALSE;
+                }
+                counter = 1;
 
-                F32 s = StdLoad::TypeF32(fScope);
+            case 0x3E50BE22: // "StartRadius"
+            case 0x097FD8A4: // "StartScale"
+                if (counter == 1)
+                {
+                    ASSERT(keys.GetCount() == 0);
 
-                keys.Append(new ScaleKey(0.0f, s));
-            }
-            break;
+                    F32 s = StdLoad::TypeF32(fScope);
 
-        case 0x9D7F8F83: // "FinishRadius2"
-        case 0x25406D61: // "FinishScale2"
-            if (counter != 2)
-            {
-                return FALSE;
-            }
-            counter = 1;
+                    keys.Append(new ScaleKey(0.0f, s));
+                }
+                break;
 
-        case 0x2A4691F9: // "FinishRadius"
-        case 0x5D005D56: // "FinishScale"
-            if (counter == 1)
-            {
-                ASSERT(keys.GetCount() == 1);
+            case 0x9D7F8F83: // "FinishRadius2"
+            case 0x25406D61: // "FinishScale2"
+                if (counter != 2)
+                {
+                    return FALSE;
+                }
+                counter = 1;
 
-                F32 s = StdLoad::TypeF32(fScope);
+            case 0x2A4691F9: // "FinishRadius"
+            case 0x5D005D56: // "FinishScale"
+                if (counter == 1)
+                {
+                    ASSERT(keys.GetCount() == 1);
 
-                keys.Append(new ScaleKey(1.0f, s));
-            }
-            break;
+                    F32 s = StdLoad::TypeF32(fScope);
+
+                    keys.Append(new ScaleKey(1.0f, s));
+                }
+                break;
         }
         return TRUE;
     }

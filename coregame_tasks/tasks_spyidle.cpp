@@ -529,8 +529,11 @@ namespace Tasks
                             // Stealing from yourself is redundant
                             if (from != to)
                             {
-                                U32 numResource = Min<U32>(cycles * subject->SpyType()->GetResourceRate(),
-                                                           from->GetResourceStore());
+                                U32 numResource = Min<U32>
+                                (
+                                    cycles * subject->SpyType()->GetResourceRate(),
+                                    from->GetResourceStore()
+                                );
 
                                 if (numResource)
                                 {

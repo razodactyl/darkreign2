@@ -22,48 +22,47 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 Debug::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Debug
-    //
-
-    //
-    // Generate
-    //
-    void Debug::Generate(Player &player, U32 type, U32 id, U32 u, F32 f)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.type = type;
-      data.id = id;
-      data.u = u;
-      data.f = f;
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 Debug::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Debug::Execute(const U8 *data, Player &player)
-    {
-      #ifdef DEVELOPMENT
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Debug
+        //
+
+        //
+        // Generate
+        //
+        void Debug::Generate(Player& player, U32 type, U32 id, U32 u, F32 f)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.type = type;
+            data.id = id;
+            data.u = u;
+            data.f = f;
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Debug::Execute(const U8* data, Player& player)
+        {
+#ifdef DEVELOPMENT
 
         const Data *d = (Data *) data;
 
@@ -129,16 +128,14 @@ namespace Orders
           }
         }
 
-      #else
+#else
 
-        data;
-        player;
+            data;
+            player;
 
-      #endif
+#endif
 
-      return (sizeof (Data));
+            return (sizeof(Data));
+        }
     }
-  }
 }
-
-

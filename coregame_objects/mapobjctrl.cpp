@@ -92,7 +92,7 @@ namespace MapObjCtrl
 
         AddToMapItem(MapObj* obj, Bool zip = FALSE)
             : obj(obj),
-            zip(zip)
+              zip(zip)
         {
         }
     };
@@ -368,8 +368,10 @@ namespace MapObjCtrl
                     if (UnitObj* unit = Promote::Object<UnitObjType, UnitObj>(obj))
                     {
                         // Is this unit invisible to the given team
-                        if (unit->GetFlag(UnitObj::FLAG_INVISIBLE) && Team::TestRelation(
-                            team, unit->GetTeam(), Relation::ENEMY))
+                        if (unit->GetFlag(UnitObj::FLAG_INVISIBLE) && Team::TestRelation
+                            (
+                                team, unit->GetTeam(), Relation::ENEMY
+                            ))
                         {
                             fog = alpha = fowSHROUD;
                         }
@@ -695,7 +697,7 @@ namespace MapObjCtrl
 
             // Update instance modifiers
             PERF_S("Process Cycle")
-                m->ProcessCycle();
+            m->ProcessCycle();
             PERF_E("Process Cycle")
         }
     }

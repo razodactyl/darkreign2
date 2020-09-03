@@ -38,7 +38,7 @@ namespace TerrainData
     enum { NUM_CELLPERSEG = 3 };
 
     // UV index table for blend directions
-    U8 UVTable[BD_MAXIMUM] = { 24, 20, 16, 28 };
+    U8 UVTable[BD_MAXIMUM] = {24, 20, 16, 28};
 
     // The maximum value of a blend axis/diag flag
     enum { MAX_BLENDFLAG = 16 };
@@ -370,66 +370,66 @@ namespace TerrainData
         // Work out the blend type
         switch (axisCount)
         {
-            // Must be a corner
-        case 2: blend = TerrainGroup::BLEND_CORNER;
-            break;
+                // Must be a corner
+            case 2: blend = TerrainGroup::BLEND_CORNER;
+                break;
 
-            // Must be a straight
-        case 3: blend = TerrainGroup::BLEND_STRAIGHT;
-            break;
+                // Must be a straight
+            case 3: blend = TerrainGroup::BLEND_STRAIGHT;
+                break;
 
-            // More info required
-        case 4:
-        {
-            switch (diagCount)
+                // More info required
+            case 4:
             {
-                // Must be a full
-            case 4: blend = TerrainGroup::BLEND_FULL;
-                break;
+                switch (diagCount)
+                {
+                        // Must be a full
+                    case 4: blend = TerrainGroup::BLEND_FULL;
+                        break;
 
-                // Must be a bend
-            case 3: blend = TerrainGroup::BLEND_BEND;
+                        // Must be a bend
+                    case 3: blend = TerrainGroup::BLEND_BEND;
+                        break;
+
+                        // Should never happen
+                    default:
+                    ERR_FATAL(("Unexpected blend (%d,%d) (diagCount = %d)", x, z, diagCount));
+                }
                 break;
+            }
 
                 // Should never happen
             default:
-                ERR_FATAL(("Unexpected blend (%d,%d) (diagCount = %d)", x, z, diagCount));
-            }
-            break;
-        }
-
-        // Should never happen
-        default:
             ERR_FATAL(("Unexpected blend (%d,%d) (axisCount = %d)", x, z, axisCount));
         }
 
         // Work out direction
         switch (blend)
         {
-        case TerrainGroup::BLEND_FULL:
-        {
-            // Since it's a full, pick a random direction
-            dir = Random::nonSync.Integer(BD_MAXIMUM);
-            break;
-        }
+            case TerrainGroup::BLEND_FULL:
+            {
+                // Since it's a full, pick a random direction
+                dir = Random::nonSync.Integer(BD_MAXIMUM);
+                break;
+            }
 
-        case TerrainGroup::BLEND_STRAIGHT:
-        case TerrainGroup::BLEND_CORNER:
-        {
-            // Use the axis flag to index the blend table
-            dir = blendTable[blend][axisFlag];
-            break;
-        }
+            case TerrainGroup::BLEND_STRAIGHT:
+            case TerrainGroup::BLEND_CORNER:
+            {
+                // Use the axis flag to index the blend table
+                dir = blendTable[blend][axisFlag];
+                break;
+            }
 
-        case TerrainGroup::BLEND_BEND:
-        {
-            // Use the diag flag to index the blend table
-            dir = blendTable[blend][diagFlag];
-            break;
-        }
+            case TerrainGroup::BLEND_BEND:
+            {
+                // Use the diag flag to index the blend table
+                dir = blendTable[blend][diagFlag];
+                break;
+            }
 
-        // Should never happen
-        default:
+                // Should never happen
+            default:
             ERR_FATAL(("Unexpected blend (%d,%d) (axisCount = %d)", x, z, axisCount));
         }
 
@@ -437,10 +437,12 @@ namespace TerrainData
         if (dir >= BD_MAXIMUM)
         {
             ERR_FATAL
-            ((
-                "Invalid blend direction (%d,%d, %d, %d/%d, %d/%d)",
-                x, z, blend, axisCount, diagCount, axisFlag, diagFlag
-                ));
+            (
+                (
+                    "Invalid blend direction (%d,%d, %d, %d/%d, %d/%d)",
+                    x, z, blend, axisCount, diagCount, axisFlag, diagFlag
+                )
+            );
         }
     }
 
@@ -930,13 +932,13 @@ namespace TerrainData
                         U32 crc = mappingEntries[saveCell.terrain];
 
                         if
-                            (
+                        (
                                 // Index is out of range
-                                (saveCell.terrain >= TerrainGroup::ActiveTypeCount()) ||
+                            (saveCell.terrain >= TerrainGroup::ActiveTypeCount()) ||
 
-                                // Name does not match
-                                (crc != TerrainGroup::GetActiveType(saveCell.terrain).NameCrc())
-                                )
+                            // Name does not match
+                            (crc != TerrainGroup::GetActiveType(saveCell.terrain).NameCrc())
+                        )
                         {
                             // Attempt to find the old type in the active group
                             TerrainGroup::Type* type = activeGroup.FindType(crc);

@@ -24,8 +24,8 @@
 //
 struct MapObjOuchListNode : public Reaper<MapObj>
 {
-  U32 age;
-  NList<MapObjOuchListNode>::Node node;
+    U32 age;
+    NList<MapObjOuchListNode>::Node node;
 };
 
 
@@ -40,18 +40,18 @@ class MapObjOuchList : public ReaperList<MapObj, MapObjOuchListNode>
 {
 public:
 
-  // Append the given data to the list, if its already there then reset its age
-  Bool AppendNoDup(MapObj *data)
-  {
-    MapObjOuchListNode *node = Find(data);
-    
-    if (!node)
+    // Append the given data to the list, if its already there then reset its age
+    Bool AppendNoDup(MapObj* data)
     {
-      node = Append(data);
+        MapObjOuchListNode* node = Find(data);
+
+        if (!node)
+        {
+            node = Append(data);
+        }
+        node->age = 0;
+        return (TRUE);
     }
-    node->age = 0;
-    return (TRUE);
-  }
 };
 
 #endif

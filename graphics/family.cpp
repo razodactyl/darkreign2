@@ -230,8 +230,11 @@ void FamilyNode::SetWorldAll()
 
 //----------------------------------------------------------------------------
 
-void FamilyNode::Render(const Array<FamilyState>& stateArray, Color tColor, U32 clipFlags,
-                        U32 _controlFlags) // = clipALL, = controlDEF
+void FamilyNode::Render
+(
+    const Array<FamilyState>& stateArray, Color tColor, U32 clipFlags,
+    U32 _controlFlags
+) // = clipALL, = controlDEF
 {
     ASSERT(statePtr);
 
@@ -245,8 +248,11 @@ void FamilyNode::Render(const Array<FamilyState>& stateArray, Color tColor, U32 
 
 //----------------------------------------------------------------------------
 
-void FamilyNode::RenderColor(const Array<FamilyState>& stateArray, Color color, U32 clipFlags,
-                             U32 _controlFlags) // = clipALL, = controlDEF
+void FamilyNode::RenderColor
+(
+    const Array<FamilyState>& stateArray, Color color, U32 clipFlags,
+    U32 _controlFlags
+) // = clipALL, = controlDEF
 {
     ASSERT(statePtr);
 
@@ -347,8 +353,11 @@ FamilyNode* FamilyNode::FindOffset(const char* _name, Matrix& matrix, Bool local
 
 //----------------------------------------------------------------------------
 
-U32 FamilyNode::GetHierarchy(BuffString* names, U32& count, Bool local, U32 tabCount,
-                             Matrix* matrix) const // = FALSE, = 0, = NULL
+U32 FamilyNode::GetHierarchy
+(
+    BuffString* names, U32& count, Bool local, U32 tabCount,
+    Matrix* matrix
+) const // = FALSE, = 0, = NULL
 {
     if (count >= MAXMESHPERGROUP)
     {

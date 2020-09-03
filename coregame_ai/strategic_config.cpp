@@ -23,14 +23,12 @@
 //
 namespace Strategic
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Config
     //
     namespace Config
     {
-
         /////////////////////////////////////////////////////////////////////////////
         //
         // Struct ConfigTree
@@ -80,26 +78,26 @@ namespace Strategic
             {
                 switch (ssScope->NameCrc())
                 {
-                case 0x1D9D48EC: // "Type"
-                {
-                    // Append a new node
-                    TweakListNode* node = evaluation.tweakList.Append();
+                    case 0x1D9D48EC: // "Type"
+                    {
+                        // Append a new node
+                        TweakListNode* node = evaluation.tweakList.Append();
 
-                    // Load the type name
-                    StdLoad::TypeReaperObjType(ssScope, *node);
+                        // Load the type name
+                        StdLoad::TypeReaperObjType(ssScope, *node);
 
-                    // Load the tweak value
-                    node->tweak = StdLoad::TypeF32(ssScope, Range<F32>(0.0f, 1.0f));
-                    break;
-                }
+                        // Load the tweak value
+                        node->tweak = StdLoad::TypeF32(ssScope, Range<F32>(0.0f, 1.0f));
+                        break;
+                    }
 
-                case 0x8F651465: // "Default"
-                    evaluation.tweakDefault = StdLoad::TypeF32(ssScope, Range<F32>(0.0f, 1.0f));
-                    break;
+                    case 0x8F651465: // "Default"
+                        evaluation.tweakDefault = StdLoad::TypeF32(ssScope, Range<F32>(0.0f, 1.0f));
+                        break;
 
-                default:
-                    ssScope->ScopeError("Unkown Function '%s' in tweak list", ssScope->NameStr());
-                    break;
+                    default:
+                        ssScope->ScopeError("Unkown Function '%s' in tweak list", ssScope->NameStr());
+                        break;
                 }
             }
 
@@ -116,7 +114,6 @@ namespace Strategic
 
             allocation.defense = StdLoad::TypeF32(sScope, "Defense");
             allocation.threat = StdLoad::TypeF32(sScope, "Threat");
-
         }
 
 
@@ -159,18 +156,18 @@ namespace Strategic
             {
                 switch (sScope->NameCrc())
                 {
-                case 0x1D9D48EC: // "Type"
-                {
-                    // Append a new node
-                    TypeListNode* node = types.Append();
+                    case 0x1D9D48EC: // "Type"
+                    {
+                        // Append a new node
+                        TypeListNode* node = types.Append();
 
-                    // Load the type name
-                    StdLoad::TypeReaperObjType(sScope, *node);
+                        // Load the type name
+                        StdLoad::TypeReaperObjType(sScope, *node);
 
-                    // Load the tweak value
-                    node->amount = StdLoad::TypeU32(sScope);
-                    break;
-                }
+                        // Load the tweak value
+                        node->amount = StdLoad::TypeU32(sScope);
+                        break;
+                    }
                 }
             }
         }
@@ -214,7 +211,6 @@ namespace Strategic
         }
 
 
-
         /////////////////////////////////////////////////////////////////////////////
         //
         // Class Generic
@@ -226,7 +222,7 @@ namespace Strategic
         //
         Generic::Generic(const char* name, FScope* fScope)
             : name(name),
-            fScope(fScope->Dup())
+              fScope(fScope->Dup())
         {
         }
 
@@ -307,60 +303,60 @@ namespace Strategic
             {
                 switch (sScope->NameCrc())
                 {
-                case 0xE1B300CF: // "CreateRecruitment"
-                    break;
+                    case 0xE1B300CF: // "CreateRecruitment"
+                        break;
 
-                case 0x9442FD06: // "CreateRecruitForce"
-                {
-                    RecruitForce* recruitForce = new RecruitForce(sScope);
-                    configRecruitForce.Add(recruitForce->GetName().crc, recruitForce);
-                    recruitForce->PostLoad();
-                    break;
-                }
+                    case 0x9442FD06: // "CreateRecruitForce"
+                    {
+                        RecruitForce* recruitForce = new RecruitForce(sScope);
+                        configRecruitForce.Add(recruitForce->GetName().crc, recruitForce);
+                        recruitForce->PostLoad();
+                        break;
+                    }
 
-                case 0x101290A5: // "CreateRecruitType"
-                {
-                    RecruitType* recruitType = new RecruitType(sScope);
-                    configRecruitType.Add(recruitType->GetName().crc, recruitType);
-                    recruitType->PostLoad();
-                    break;
-                }
+                    case 0x101290A5: // "CreateRecruitType"
+                    {
+                        RecruitType* recruitType = new RecruitType(sScope);
+                        configRecruitType.Add(recruitType->GetName().crc, recruitType);
+                        recruitType->PostLoad();
+                        break;
+                    }
 
-                case 0xE5ADD22D: // "CreateScript"
-                    AddGeneric(0x8810AE3C, sScope); // "Script"
-                    break;
+                    case 0xE5ADD22D: // "CreateScript"
+                        AddGeneric(0x8810AE3C, sScope); // "Script"
+                        break;
 
-                case 0x1EB6AA2F: // "CreateBase"
-                    AddGeneric(0x4BC2F208, sScope); // "Base"
-                    break;
+                    case 0x1EB6AA2F: // "CreateBase"
+                        AddGeneric(0x4BC2F208, sScope); // "Base"
+                        break;
 
-                case 0xB264BB11: // "CreateBase::Orderer"
-                    AddGeneric(0xF2230BDA, sScope); // "Base::Orderer"
-                    break;
+                    case 0xB264BB11: // "CreateBase::Orderer"
+                        AddGeneric(0xF2230BDA, sScope); // "Base::Orderer"
+                        break;
 
-                case 0x3F6A64D7: // "CreateBase::Plan"
-                    AddGeneric(0x695CF83D, sScope); // "Base::Plan"
-                    break;
+                    case 0x3F6A64D7: // "CreateBase::Plan"
+                        AddGeneric(0x695CF83D, sScope); // "Base::Plan"
+                        break;
 
-                case 0xC7F52868: // "CreateBombardier::Preferences"
-                    AddGeneric(0x5D5BF0E0, sScope); // "Bombardier::Preferences"
-                    break;
+                    case 0xC7F52868: // "CreateBombardier::Preferences"
+                        AddGeneric(0x5D5BF0E0, sScope); // "Bombardier::Preferences"
+                        break;
 
-                case 0x8B0C2FF7: // "CreateBombardier::RuleSet"
-                    AddGeneric(0x8B6AB1B1, sScope); // "Bombardier::RuleSet"
-                    break;
+                    case 0x8B0C2FF7: // "CreateBombardier::RuleSet"
+                        AddGeneric(0x8B6AB1B1, sScope); // "Bombardier::RuleSet"
+                        break;
 
-                case 0x94F6C7A7: // "CreateIntel"
-                    AddGeneric(0x8FFC20CB, sScope); // "Intel"
-                    break;
+                    case 0x94F6C7A7: // "CreateIntel"
+                        AddGeneric(0x8FFC20CB, sScope); // "Intel"
+                        break;
 
-                case 0x738EFFF5: // "CreatePlacement"
-                    AddGeneric(0x5D7C647F, sScope); // "Placement"
-                    break;
+                    case 0x738EFFF5: // "CreatePlacement"
+                        AddGeneric(0x5D7C647F, sScope); // "Placement"
+                        break;
 
-                default:
-                    sScope->ScopeError("Unkown strategic directive '%s'", sScope->NameStr());
-                    break;
+                    default:
+                        sScope->ScopeError("Unkown strategic directive '%s'", sScope->NameStr());
+                        break;
                 }
             }
         }
@@ -390,7 +386,6 @@ namespace Strategic
 
             return (configRecruitType.Find(crc));
         }
-
 
 
         //
@@ -441,6 +436,5 @@ namespace Strategic
             }
             typeTree->Add(config.crc, new Generic(config.str, fScope));
         }
-
     }
 }

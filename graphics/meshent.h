@@ -262,8 +262,11 @@ public:
     {
         if ((show || (selData && selData->verts.GetCount())) && clipFlagCache != clipOUTSIDE)
         {
-            RootPriv().RenderSelVerts(show, selData ? &selData->verts : nullptr,
-                                      statesR, color0, color1, clipFlagCache);
+            RootPriv().RenderSelVerts
+            (
+                show, selData ? &selData->verts : nullptr,
+                statesR, color0, color1, clipFlagCache
+            );
         }
     }
 
@@ -271,8 +274,11 @@ public:
     {
         if ((show || (selData && selData->verts.GetCount())) && clipFlagCache != clipOUTSIDE)
         {
-            RootPriv().RenderSelFaces(show, selData ? &selData->faces : nullptr,
-                                      statesR, color0, color1, clipFlagCache);
+            RootPriv().RenderSelFaces
+            (
+                show, selData ? &selData->faces : nullptr,
+                statesR, color0, color1, clipFlagCache
+            );
         }
     }
 
@@ -585,10 +591,16 @@ public:
         return Root().fixedBounds;
     }
 
-    virtual void Render(Array<FamilyState>& stateArray, Color tColor, U32 clipFlags = clipALL,
-                        U32 _controlFlags = controlDEF);
-    virtual void RenderColor(Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL,
-                             U32 _controlFlags = controlDEF);
+    virtual void Render
+    (
+        Array<FamilyState>& stateArray, Color tColor, U32 clipFlags = clipALL,
+        U32 _controlFlags = controlDEF
+    );
+    virtual void RenderColor
+    (
+        Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL,
+        U32 _controlFlags = controlDEF
+    );
 
     void RenderBounds(Color color, Bitmap* texture = nullptr)
     {
@@ -620,8 +632,11 @@ public:
     void RenderQuickLightAnimVtl();
     void RenderQuickLightNoAnimVtl();
     void RenderOverlayVtl();
-    void RenderEnvMapVtl(Color color = 0xffffffff, Bitmap* tex = nullptr, U32 blend = RS_BLEND_DEF,
-                         U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0);
+    void RenderEnvMapVtl
+    (
+        Color color = 0xffffffff, Bitmap* tex = nullptr, U32 blend = RS_BLEND_DEF,
+        U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0
+    );
 
     void RenderAnimV();
     void RenderNoAnimV();
@@ -630,13 +645,19 @@ public:
     void RenderQuickLightAnimV();
     void RenderQuickLightNoAnimV();
     void RenderOverlayV();
-    void RenderEnvMapV(Color color = 0xffffffff, Bitmap* tex = nullptr, U32 blend = RS_BLEND_DEF,
-                       U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0);
+    void RenderEnvMapV
+    (
+        Color color = 0xffffffff, Bitmap* tex = nullptr, U32 blend = RS_BLEND_DEF,
+        U16 sort = Vid::sortEFFECT0, Bool envmap = TRUE, Bool smooth = FALSE, F32 rotate = 0
+    );
 
     // mesh effects generic renders
     //
-    void RenderShadowTexture(const Matrix** lightA = nullptr, U32 lCount = 1, Color color = 0xffffffff,
-                             U32 blend = RS_BLEND_DEF);
+    void RenderShadowTexture
+    (
+        const Matrix** lightA = nullptr, U32 lCount = 1, Color color = 0xffffffff,
+        U32 blend = RS_BLEND_DEF
+    );
 
     // mesh effects specialized renders
     //

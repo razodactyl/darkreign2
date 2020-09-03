@@ -35,14 +35,12 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Host
     //
     namespace Host
     {
-
         // Challenges sent to players
         BinTree<U32> challenges;
 
@@ -122,14 +120,14 @@ namespace MultiPlayer
 
             LOG_DIAG(("Player [%08X] Entered", id))
 
-                // Are we launch ?
-                if (options.launch)
-                {
-                    LOG_DIAG(("We're launched, kicking new player out"))
-                        ASSERT(Network::client);
-                    Network::client->KickUser(id);
-                    return;
-                }
+            // Are we launch ?
+            if (options.launch)
+            {
+                LOG_DIAG(("We're launched, kicking new player out"))
+                ASSERT(Network::client);
+                Network::client->KickUser(id);
+                return;
+            }
 
             // We only create the player information if the integrity check is completed!
 
@@ -158,7 +156,6 @@ namespace MultiPlayer
             Commands::Data::IntegrityChallenge integrityChallenge;
             integrityChallenge.crc = *challenge;
             Data::Send(1, &id, Commands::IntegrityChallenge, integrityChallenge);
-
         }
 
 
@@ -175,8 +172,8 @@ namespace MultiPlayer
 
             LOG_DIAG(("Player [%08X] Exited", id))
 
-                // Get the player info
-                PlayerInfo* pi = players.Find(id);
+            // Get the player info
+            PlayerInfo* pi = players.Find(id);
 
             if (pi)
             {
@@ -221,7 +218,6 @@ namespace MultiPlayer
 
                 // Remove the playerinfo data from the router
                 Data::Clear(PlayerInfo::key, id);
-
             }
             else
             {
@@ -258,535 +254,534 @@ namespace MultiPlayer
 
             switch (key)
             {
-            case Commands::IntegrityResponse:
-            {
-                LOG_DIAG(("Integrity response from [%08X]", from));
-                CAST(const Commands::Data::IntegrityResponse*, response, data);
-
-                U32* challenge = challenges.Find(from);
-
-                if (challenge)
+                case Commands::IntegrityResponse:
                 {
-                    Network::Player* player = Network::GetPlayers().Find(from);
+                    LOG_DIAG(("Integrity response from [%08X]", from));
+                    CAST(const Commands::Data::IntegrityResponse*, response, data);
 
-                    if (response->crc == Debug::Memory::GetCodeIntegrity(*challenge))
+                    U32* challenge = challenges.Find(from);
+
+                    if (challenge)
                     {
-                        LOG_DIAG(("%s has the same build", player ? player->GetName() : "???"))
+                        Network::Player* player = Network::GetPlayers().Find(from);
+
+                        if (response->crc == Debug::Memory::GetCodeIntegrity(*challenge))
+                        {
+                            LOG_DIAG(("%s has the same build", player ? player->GetName() : "???"))
                             // Utils::Sprintf(buf, 200, "has verified the integrity of '%s'", player ? player->GetName() : "???");
 
                             // Set the same version status to TRUE
                             pi->correctVersion = TRUE;
 
-                        // Store the information about the player
-                        Data::Store(*pi, from);
-                    }
-                    else
-                    {
-                        char buf[200];
+                            // Store the information about the player
+                            Data::Store(*pi, from);
+                        }
+                        else
+                        {
+                            char buf[200];
 
-                        LOG_DIAG(("%s has a different build", player ? player->GetName() : "???"))
+                            LOG_DIAG(("%s has a different build", player ? player->GetName() : "???"))
                             Utils::Sprintf(buf, 200, "notes that '%s' had a different version", player ? player->GetName() : "???");
-                        Data::Send(Commands::MessageQuote, Utils::Strlen(buf) + 1, (const U8*)buf, FALSE);
-                    }
-
-                    // Remove the challenge
-                    challenges.Dispose(from);
-                }
-                else
-                {
-                    LOG_DIAG(("Got a response from [%08X] who hasn't been challenged!"))
-                }
-
-                break;
-            }
-
-            case Commands::Launch:
-            {
-                LOG_DIAG(("Launch from [%08X]", from))
-
-                    ASSERT(!size);
-
-                if (from == Network::GetCurrentPlayer().GetId())
-                {
-                    // Check to see if we can launch at the moment
-                    if (CheckLaunch())
-                    {
-                        options.launch = TRUE;
-                        Data::Store(options);
-
-                        if (Network::client)
-                        {
-                            Network::client->LockSession();
+                            Data::Send(Commands::MessageQuote, Utils::Strlen(buf) + 1, (const U8*)buf, FALSE);
                         }
+
+                        // Remove the challenge
+                        challenges.Dispose(from);
                     }
                     else
                     {
-                        // Clear our launch readyness
-                        pi->launchReady = FALSE;
-                        Data::Store(*pi, from);
+                        LOG_DIAG(("Got a response from [%08X] who hasn't been challenged!"))
                     }
-                }
-                break;
-            }
 
-            case Commands::LaunchReady:
-            {
-                LOG_DIAG(("LaunchReady from [%08X]", from))
-
-                    ASSERT(!size);
-
-                // Set the launch readyness status of the player
-                pi->launchReady = TRUE;
-
-                // Store the information about the player
-                Data::Store(*pi, from);
-                break;
-            }
-
-            case Commands::HaveMission:
-            {
-                LOG_DIAG(("HaveMission from [%08X]", from))
-
-                    ASSERT(!size);
-
-                // Set the have mission status of the player
-                pi->haveMission = TRUE;
-
-                // Store the information about the player
-                Data::Store(*pi, from);
-                break;
-            }
-
-            case Commands::JoinTeam:
-            {
-                LOG_DIAG(("JoinTeam from [%08X]", from))
-
-                    ASSERT(size == sizeof(U32));
-
-                InvalidateLaunchReadyness();
-
-                // Get the team id from the command
-                U32 teamId = *(U32*)data;
-                ASSERT(teamId < Game::MAX_TEAMS);
-
-                Team* newTeam = teams.Find(teamId);
-                ASSERT(newTeam);
-
-                // Can't join an AI team
-                if (newTeam->ai)
-                {
-                    LOG_DIAG(("Can't join AI teams!"))
-                        break;
-                }
-
-                // Is this player the owner of their current team ?
-                Team* team = teams.Find(pi->teamId);
-                ASSERT(team);
-
-                if (team->ownerId == from)
-                {
-                    // If this player is the owner of the team they are currently on, find another owner
-                    for (BinTree<PlayerInfo>::Iterator p(&players); *p; p++)
-                    {
-                        if ((p.GetKey() != from) && ((*p)->teamId == pi->teamId))
-                        {
-                            team->ownerId = p.GetKey();
-
-                            // Store the new team info
-                            Data::Store(*team, pi->teamId);
-                            break;
-                        }
-                    }
-                }
-
-                // Set the team for this player
-                pi->teamId = teamId;
-
-                // Store the information about the player
-                Data::Store(*pi, from);
-
-                // Check to see if there's any other players on this team
-                const U32* teamCounts = GetTeamCounts();
-
-                if (teamCounts[teamId] == 1)
-                {
-                    // This player is now the owner of this team, update
-                    Team* team = teams.Find(teamId);
-                    ASSERT(team);
-
-                    team->ownerId = from;
-
-                    // Store the new team info
-                    Data::Store(*team, teamId);
-                }
-                break;
-            }
-
-            case Commands::LeaveTeam:
-            {
-                LOG_DIAG(("LeaveTeam from [%08X]", from))
-
-                    ASSERT(size == 0);
-
-                InvalidateLaunchReadyness();
-
-                // Is this player the owner of their current team ?
-                Team* team = teams.Find(pi->teamId);
-                ASSERT(team);
-
-                // Can't leave an AI team
-                if (team->ai)
-                {
                     break;
                 }
 
-                if (team->ownerId == from)
+                case Commands::Launch:
                 {
-                    // This is the team owner, make all the other players on this team find another team
-                    for (BinTree<PlayerInfo>::Iterator p(&players); *p; p++)
-                    {
-                        if ((p.GetKey() != from) && ((*p)->teamId == pi->teamId))
-                        {
-                            // Assign them a new team
-                            (*p)->teamId = FindEmptyTeam(p.GetKey());
+                    LOG_DIAG(("Launch from [%08X]", from))
 
-                            // Store the information about the player
-                            Data::Store(**p, p.GetKey());
-                            break;
+                    ASSERT(!size);
+
+                    if (from == Network::GetCurrentPlayer().GetId())
+                    {
+                        // Check to see if we can launch at the moment
+                        if (CheckLaunch())
+                        {
+                            options.launch = TRUE;
+                            Data::Store(options);
+
+                            if (Network::client)
+                            {
+                                Network::client->LockSession();
+                            }
+                        }
+                        else
+                        {
+                            // Clear our launch readyness
+                            pi->launchReady = FALSE;
+                            Data::Store(*pi, from);
                         }
                     }
+                    break;
                 }
-                else
+
+                case Commands::LaunchReady:
                 {
-                    // Find an empty team
-                    pi->teamId = FindEmptyTeam(from);
+                    LOG_DIAG(("LaunchReady from [%08X]", from))
+
+                    ASSERT(!size);
+
+                    // Set the launch readyness status of the player
+                    pi->launchReady = TRUE;
 
                     // Store the information about the player
                     Data::Store(*pi, from);
+                    break;
                 }
-                break;
-            }
 
-            case Commands::SetTeamColor:
-            {
-                LOG_DIAG(("SetTeamColor from [%08X]", from))
-
-                    ASSERT(size == sizeof(Commands::Data::SetTeamColor));
-
-                Commands::Data::SetTeamColor* cmdData = (Commands::Data::SetTeamColor*)data;
-                ASSERT(cmdData->color <= Game::MAX_TEAMS);
-
-                InvalidateLaunchReadyness();
-
-                // What team is this player on ?
-                const Team* fromTeam = teams.Find(cmdData->teamId);
-                ASSERT(fromTeam);
-
-                // Is this player the owner of that team ?
-                if (fromTeam->ownerId == from)
+                case Commands::HaveMission:
                 {
-                    Team* team = teams.Find(cmdData->teamId);
-                    if (team)
+                    LOG_DIAG(("HaveMission from [%08X]", from))
+
+                    ASSERT(!size);
+
+                    // Set the have mission status of the player
+                    pi->haveMission = TRUE;
+
+                    // Store the information about the player
+                    Data::Store(*pi, from);
+                    break;
+                }
+
+                case Commands::JoinTeam:
+                {
+                    LOG_DIAG(("JoinTeam from [%08X]", from))
+
+                    ASSERT(size == sizeof(U32));
+
+                    InvalidateLaunchReadyness();
+
+                    // Get the team id from the command
+                    U32 teamId = *(U32*)data;
+                    ASSERT(teamId < Game::MAX_TEAMS);
+
+                    Team* newTeam = teams.Find(teamId);
+                    ASSERT(newTeam);
+
+                    // Can't join an AI team
+                    if (newTeam->ai)
                     {
-                        const Bool* colors = GetColorUsage();
-
-                        // Is that color free ?
-                        if (!colors[cmdData->color])
-                        {
-                            // Its free, set the team color
-                            team->color = cmdData->color;
-
-                            // Store the new team info
-                            Data::Store(*team, cmdData->teamId);
-                        }
-                        else
-                        {
-                            if (team->color != cmdData->color)
-                            {
-                                LOG_DIAG(("Sorry, that color is already taken"))
-                            }
-                        }
+                        LOG_DIAG(("Can't join AI teams!"))
+                        break;
                     }
-                }
-                else
-                {
-                    LOG_DIAG(("NON-OWNER [%08X] attempted to change color for team %d", from, cmdData->teamId))
-                }
-                break;
-            }
 
-            case Commands::SetTeamSide:
-            {
-                LOG_DIAG(("SetTeamSide from [%08X]", from))
+                    // Is this player the owner of their current team ?
+                    Team* team = teams.Find(pi->teamId);
+                    ASSERT(team);
 
-                    ASSERT(size == sizeof(Commands::Data::SetTeamSide));
-
-                Commands::Data::SetTeamSide* cmdData = (Commands::Data::SetTeamSide*)data;
-
-                InvalidateLaunchReadyness();
-
-                // What team is this player on ?
-                const Team* fromTeam = teams.Find(cmdData->teamId);
-                ASSERT(fromTeam);
-
-                // Is this player the owner of that team ?
-                if (fromTeam->ownerId == from)
-                {
-                    Team* team = teams.Find(cmdData->teamId);
-                    if (team)
+                    if (team->ownerId == from)
                     {
-                        // Set the side ident
-                        team->side = cmdData->side;
-
-                        // Store the new team info
-                        Data::Store(*team, cmdData->teamId);
-                    }
-                }
-                else
-                {
-                    LOG_DIAG(("NON-OWNER [%08X] attempted to change side group %d", from, cmdData->teamId))
-                }
-                break;
-            }
-
-            case Commands::SetStartLocation:
-            {
-                LOG_DIAG(("SetStartLocation from [%08X]", from))
-
-                    ASSERT(size == sizeof(Commands::Data::SetStartLocation));
-                Commands::Data::SetStartLocation* cmdData = (Commands::Data::SetStartLocation*)data;
-
-                InvalidateLaunchReadyness();
-
-                // What team is this player on ?
-                const Team* fromTeam = teams.Find(cmdData->teamId);
-                ASSERT(fromTeam);
-
-                // Is this player the owner of that team ?
-                if (fromTeam->ownerId == from)
-                {
-                    Team* team = teams.Find(cmdData->teamId);
-                    if (team)
-                    {
-                        // Go through the teams to see if another team has already claimed this spot
-                        Bool found = FALSE;
-
-                        // Clear the team start locations
-                        for (BinTree<Team>::Iterator t(&teams); *t; t++)
+                        // If this player is the owner of the team they are currently on, find another owner
+                        for (BinTree<PlayerInfo>::Iterator p(&players); *p; p++)
                         {
-                            if ((*t)->startLocation == cmdData->startLocation)
+                            if ((p.GetKey() != from) && ((*p)->teamId == pi->teamId))
                             {
-                                LOG_DIAG(("Location is taken"))
-                                    found = TRUE;
+                                team->ownerId = p.GetKey();
+
+                                // Store the new team info
+                                Data::Store(*team, pi->teamId);
                                 break;
                             }
                         }
-
-                        if (!found)
-                        {
-                            // Its free, set the team start location
-                            team->startLocation = cmdData->startLocation;
-
-                            // Store the new team info
-                            Data::Store(*team, cmdData->teamId);
-                        }
                     }
-                }
-                else
-                {
-                    LOG_DIAG(("NON-OWNER attempted to change start location"))
-                }
-                break;
-            }
 
-            case Commands::SetDifficulty:
-            {
-                LOG_DIAG(("SetDifficulty from [%08X]", from))
+                    // Set the team for this player
+                    pi->teamId = teamId;
 
-                    ASSERT(size == sizeof(Commands::Data::SetDifficulty));
-                Commands::Data::SetDifficulty* cmdData = (Commands::Data::SetDifficulty*) data;
+                    // Store the information about the player
+                    Data::Store(*pi, from);
 
-                InvalidateLaunchReadyness();
+                    // Check to see if there's any other players on this team
+                    const U32* teamCounts = GetTeamCounts();
 
-                // What team is this player on ?
-                const Team* fromTeam = teams.Find(cmdData->teamId);
-                ASSERT(fromTeam);
-
-                // Is this player the owner of that team ?
-                if (fromTeam->ownerId == from)
-                {
-                    Team* team = teams.Find(cmdData->teamId);
-                    if (team)
+                    if (teamCounts[teamId] == 1)
                     {
-                        // Its free, set the team start location
-                        team->difficulty = cmdData->difficulty;
+                        // This player is now the owner of this team, update
+                        Team* team = teams.Find(teamId);
+                        ASSERT(team);
+
+                        team->ownerId = from;
 
                         // Store the new team info
-                        Data::Store(*team, cmdData->teamId);
+                        Data::Store(*team, teamId);
                     }
+                    break;
                 }
-                else
+
+                case Commands::LeaveTeam:
                 {
-                    LOG_DIAG(("NON-OWNER attempted to change difficulty"))
-                }
-                break;
-            }
-
-            case Commands::SetPersonality:
-            {
-                LOG_DIAG(("SetPersonality from [%08X]", from))
-
-                    ASSERT(size == sizeof(Commands::Data::SetPersonality));
-                Commands::Data::SetPersonality* cmdData = (Commands::Data::SetPersonality*) data;
-
-                InvalidateLaunchReadyness();
-
-                // What team is this player on ?
-                const Team* fromTeam = teams.Find(cmdData->teamId);
-                ASSERT(fromTeam);
-
-                // Is this player the owner of that team ?
-                if (fromTeam->ownerId == from)
-                {
-                    Team* team = teams.Find(cmdData->teamId);
-                    if (team)
-                    {
-                        // Is this an AI team
-                        if (team->ai)
-                        {
-                            // Its free, set the team start location
-                            team->personality = cmdData->personality;
-
-                            // Store the new team info
-                            Data::Store(*team, cmdData->teamId);
-                        }
-                        else
-                        {
-                            LOG_DIAG(("Can't change the personality of a NON-AI team"))
-                        }
-                    }
-                }
-                else
-                {
-                    LOG_DIAG(("NON-OWNER attempted to change personality"))
-                }
-                break;
-            }
-
-            case Commands::JoinGroup:
-            {
-                LOG_DIAG(("JoinGroup from [%08X]", from))
-
-                    ASSERT(size == sizeof(Commands::Data::JoinGroup));
-
-                InvalidateLaunchReadyness();
-
-                // Get the group id
-                U32 group = *(U32*)data;
-
-                ASSERT(group < Game::MAX_TEAMS);
-
-                // Find this players team
-                Team* team = teams.Find(pi->teamId);
-                ASSERT(team);
-
-                // Is this player the owner of the team
-                if (team->ownerId == from)
-                {
-                    // Set this teams group
-                    team->groupId = group;
-
-                    // Store the new team info
-                    Data::Store(*team, pi->teamId);
-                }
-
-                break;
-            }
-
-            case Commands::JoinGroupAI:
-            {
-                LOG_DIAG(("JoinGroupAI from [%08X]", from))
-
-                    ASSERT(size == sizeof(Commands::Data::JoinGroupAI));
-
-                InvalidateLaunchReadyness();
-
-                // Get the team id
-                U32 teamId = *(U32*)data;
-
-                // Get the group id
-                U32 group = *(((U32*)data) + 1);
-
-                ASSERT(group < Game::MAX_TEAMS);
-
-                // Find this players team
-                Team* team = teams.Find(teamId);
-                ASSERT(team);
-
-                // Is this player the owner of the team
-                if (team->ownerId == from)
-                {
-                    // Set this teams group
-                    team->groupId = group;
-
-                    // Store the new team info
-                    Data::Store(*team, teamId);
-                }
-
-                break;
-            }
-
-            case Commands::LeaveGroup:
-            {
-                LOG_DIAG(("LeaveGroup from [%08X]", from))
+                    LOG_DIAG(("LeaveTeam from [%08X]", from))
 
                     ASSERT(size == 0);
 
-                InvalidateLaunchReadyness();
+                    InvalidateLaunchReadyness();
 
-                // Find this players team
-                Team* team = teams.Find(pi->teamId);
-                ASSERT(team);
+                    // Is this player the owner of their current team ?
+                    Team* team = teams.Find(pi->teamId);
+                    ASSERT(team);
 
-                // Is this player the owner of the team
-                if (team->ownerId == from)
-                {
-                    // Set this teams group
-                    team->groupId = FindEmptyGroup();
+                    // Can't leave an AI team
+                    if (team->ai)
+                    {
+                        break;
+                    }
 
-                    // Store the new team info
-                    Data::Store(*team, pi->teamId);
+                    if (team->ownerId == from)
+                    {
+                        // This is the team owner, make all the other players on this team find another team
+                        for (BinTree<PlayerInfo>::Iterator p(&players); *p; p++)
+                        {
+                            if ((p.GetKey() != from) && ((*p)->teamId == pi->teamId))
+                            {
+                                // Assign them a new team
+                                (*p)->teamId = FindEmptyTeam(p.GetKey());
+
+                                // Store the information about the player
+                                Data::Store(**p, p.GetKey());
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Find an empty team
+                        pi->teamId = FindEmptyTeam(from);
+
+                        // Store the information about the player
+                        Data::Store(*pi, from);
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case Commands::LeaveGroupAI:
-            {
-                LOG_DIAG(("LeaveGroupAI from [%08X]", from))
+                case Commands::SetTeamColor:
+                {
+                    LOG_DIAG(("SetTeamColor from [%08X]", from))
+
+                    ASSERT(size == sizeof(Commands::Data::SetTeamColor));
+
+                    Commands::Data::SetTeamColor* cmdData = (Commands::Data::SetTeamColor*)data;
+                    ASSERT(cmdData->color <= Game::MAX_TEAMS);
+
+                    InvalidateLaunchReadyness();
+
+                    // What team is this player on ?
+                    const Team* fromTeam = teams.Find(cmdData->teamId);
+                    ASSERT(fromTeam);
+
+                    // Is this player the owner of that team ?
+                    if (fromTeam->ownerId == from)
+                    {
+                        Team* team = teams.Find(cmdData->teamId);
+                        if (team)
+                        {
+                            const Bool* colors = GetColorUsage();
+
+                            // Is that color free ?
+                            if (!colors[cmdData->color])
+                            {
+                                // Its free, set the team color
+                                team->color = cmdData->color;
+
+                                // Store the new team info
+                                Data::Store(*team, cmdData->teamId);
+                            }
+                            else
+                            {
+                                if (team->color != cmdData->color)
+                                {
+                                    LOG_DIAG(("Sorry, that color is already taken"))
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LOG_DIAG(("NON-OWNER [%08X] attempted to change color for team %d", from, cmdData->teamId))
+                    }
+                    break;
+                }
+
+                case Commands::SetTeamSide:
+                {
+                    LOG_DIAG(("SetTeamSide from [%08X]", from))
+
+                    ASSERT(size == sizeof(Commands::Data::SetTeamSide));
+
+                    Commands::Data::SetTeamSide* cmdData = (Commands::Data::SetTeamSide*)data;
+
+                    InvalidateLaunchReadyness();
+
+                    // What team is this player on ?
+                    const Team* fromTeam = teams.Find(cmdData->teamId);
+                    ASSERT(fromTeam);
+
+                    // Is this player the owner of that team ?
+                    if (fromTeam->ownerId == from)
+                    {
+                        Team* team = teams.Find(cmdData->teamId);
+                        if (team)
+                        {
+                            // Set the side ident
+                            team->side = cmdData->side;
+
+                            // Store the new team info
+                            Data::Store(*team, cmdData->teamId);
+                        }
+                    }
+                    else
+                    {
+                        LOG_DIAG(("NON-OWNER [%08X] attempted to change side group %d", from, cmdData->teamId))
+                    }
+                    break;
+                }
+
+                case Commands::SetStartLocation:
+                {
+                    LOG_DIAG(("SetStartLocation from [%08X]", from))
+
+                    ASSERT(size == sizeof(Commands::Data::SetStartLocation));
+                    Commands::Data::SetStartLocation* cmdData = (Commands::Data::SetStartLocation*)data;
+
+                    InvalidateLaunchReadyness();
+
+                    // What team is this player on ?
+                    const Team* fromTeam = teams.Find(cmdData->teamId);
+                    ASSERT(fromTeam);
+
+                    // Is this player the owner of that team ?
+                    if (fromTeam->ownerId == from)
+                    {
+                        Team* team = teams.Find(cmdData->teamId);
+                        if (team)
+                        {
+                            // Go through the teams to see if another team has already claimed this spot
+                            Bool found = FALSE;
+
+                            // Clear the team start locations
+                            for (BinTree<Team>::Iterator t(&teams); *t; t++)
+                            {
+                                if ((*t)->startLocation == cmdData->startLocation)
+                                {
+                                    LOG_DIAG(("Location is taken"))
+                                    found = TRUE;
+                                    break;
+                                }
+                            }
+
+                            if (!found)
+                            {
+                                // Its free, set the team start location
+                                team->startLocation = cmdData->startLocation;
+
+                                // Store the new team info
+                                Data::Store(*team, cmdData->teamId);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LOG_DIAG(("NON-OWNER attempted to change start location"))
+                    }
+                    break;
+                }
+
+                case Commands::SetDifficulty:
+                {
+                    LOG_DIAG(("SetDifficulty from [%08X]", from))
+
+                    ASSERT(size == sizeof(Commands::Data::SetDifficulty));
+                    Commands::Data::SetDifficulty* cmdData = (Commands::Data::SetDifficulty*)data;
+
+                    InvalidateLaunchReadyness();
+
+                    // What team is this player on ?
+                    const Team* fromTeam = teams.Find(cmdData->teamId);
+                    ASSERT(fromTeam);
+
+                    // Is this player the owner of that team ?
+                    if (fromTeam->ownerId == from)
+                    {
+                        Team* team = teams.Find(cmdData->teamId);
+                        if (team)
+                        {
+                            // Its free, set the team start location
+                            team->difficulty = cmdData->difficulty;
+
+                            // Store the new team info
+                            Data::Store(*team, cmdData->teamId);
+                        }
+                    }
+                    else
+                    {
+                        LOG_DIAG(("NON-OWNER attempted to change difficulty"))
+                    }
+                    break;
+                }
+
+                case Commands::SetPersonality:
+                {
+                    LOG_DIAG(("SetPersonality from [%08X]", from))
+
+                    ASSERT(size == sizeof(Commands::Data::SetPersonality));
+                    Commands::Data::SetPersonality* cmdData = (Commands::Data::SetPersonality*)data;
+
+                    InvalidateLaunchReadyness();
+
+                    // What team is this player on ?
+                    const Team* fromTeam = teams.Find(cmdData->teamId);
+                    ASSERT(fromTeam);
+
+                    // Is this player the owner of that team ?
+                    if (fromTeam->ownerId == from)
+                    {
+                        Team* team = teams.Find(cmdData->teamId);
+                        if (team)
+                        {
+                            // Is this an AI team
+                            if (team->ai)
+                            {
+                                // Its free, set the team start location
+                                team->personality = cmdData->personality;
+
+                                // Store the new team info
+                                Data::Store(*team, cmdData->teamId);
+                            }
+                            else
+                            {
+                                LOG_DIAG(("Can't change the personality of a NON-AI team"))
+                            }
+                        }
+                    }
+                    else
+                    {
+                        LOG_DIAG(("NON-OWNER attempted to change personality"))
+                    }
+                    break;
+                }
+
+                case Commands::JoinGroup:
+                {
+                    LOG_DIAG(("JoinGroup from [%08X]", from))
+
+                    ASSERT(size == sizeof(Commands::Data::JoinGroup));
+
+                    InvalidateLaunchReadyness();
+
+                    // Get the group id
+                    U32 group = *(U32*)data;
+
+                    ASSERT(group < Game::MAX_TEAMS);
+
+                    // Find this players team
+                    Team* team = teams.Find(pi->teamId);
+                    ASSERT(team);
+
+                    // Is this player the owner of the team
+                    if (team->ownerId == from)
+                    {
+                        // Set this teams group
+                        team->groupId = group;
+
+                        // Store the new team info
+                        Data::Store(*team, pi->teamId);
+                    }
+
+                    break;
+                }
+
+                case Commands::JoinGroupAI:
+                {
+                    LOG_DIAG(("JoinGroupAI from [%08X]", from))
+
+                    ASSERT(size == sizeof(Commands::Data::JoinGroupAI));
+
+                    InvalidateLaunchReadyness();
+
+                    // Get the team id
+                    U32 teamId = *(U32*)data;
+
+                    // Get the group id
+                    U32 group = *(((U32*)data) + 1);
+
+                    ASSERT(group < Game::MAX_TEAMS);
+
+                    // Find this players team
+                    Team* team = teams.Find(teamId);
+                    ASSERT(team);
+
+                    // Is this player the owner of the team
+                    if (team->ownerId == from)
+                    {
+                        // Set this teams group
+                        team->groupId = group;
+
+                        // Store the new team info
+                        Data::Store(*team, teamId);
+                    }
+
+                    break;
+                }
+
+                case Commands::LeaveGroup:
+                {
+                    LOG_DIAG(("LeaveGroup from [%08X]", from))
+
+                    ASSERT(size == 0);
+
+                    InvalidateLaunchReadyness();
+
+                    // Find this players team
+                    Team* team = teams.Find(pi->teamId);
+                    ASSERT(team);
+
+                    // Is this player the owner of the team
+                    if (team->ownerId == from)
+                    {
+                        // Set this teams group
+                        team->groupId = FindEmptyGroup();
+
+                        // Store the new team info
+                        Data::Store(*team, pi->teamId);
+                    }
+                    break;
+                }
+
+                case Commands::LeaveGroupAI:
+                {
+                    LOG_DIAG(("LeaveGroupAI from [%08X]", from))
 
                     ASSERT(size == sizeof(Commands::Data::LeaveGroupAI));
 
-                InvalidateLaunchReadyness();
+                    InvalidateLaunchReadyness();
 
-                // Get the team id
-                U32 teamId = *(U32*)data;
+                    // Get the team id
+                    U32 teamId = *(U32*)data;
 
-                // Find this players team
-                Team* team = teams.Find(teamId);
-                ASSERT(team);
+                    // Find this players team
+                    Team* team = teams.Find(teamId);
+                    ASSERT(team);
 
-                // Is this player the owner of the team
-                if (team->ownerId == from)
-                {
-                    // Set this teams group
-                    team->groupId = FindEmptyGroup();
+                    // Is this player the owner of the team
+                    if (team->ownerId == from)
+                    {
+                        // Set this teams group
+                        team->groupId = FindEmptyGroup();
 
-                    // Store the new team info
-                    Data::Store(*team, teamId);
+                        // Store the new team info
+                        Data::Store(*team, teamId);
+                    }
+                    break;
                 }
-                break;
-            }
-
             }
         }
 
@@ -816,7 +811,7 @@ namespace MultiPlayer
             {
                 LOG_DIAG(("Formed new team %d with owner [%08X]", teamId, playerId))
 
-                    ResetTeam(teamId);
+                ResetTeam(teamId);
                 Team* team = teams.Find(teamId);
                 team->ownerId = playerId;
 
@@ -826,7 +821,7 @@ namespace MultiPlayer
 
             LOG_DIAG(("Found unused team %d for player [%08X]", teamId, playerId))
 
-                return (teamId);
+            return (teamId);
         }
 
 
@@ -852,7 +847,7 @@ namespace MultiPlayer
 
             LOG_DIAG(("Found unused group %d", groupId))
 
-                return (groupId);
+            return (groupId);
         }
 
 
@@ -870,7 +865,7 @@ namespace MultiPlayer
                 if (!colors[t])
                 {
                     LOG_DIAG(("Found unused color %d", t))
-                        return (t);
+                    return (t);
                 }
             }
 
@@ -887,7 +882,7 @@ namespace MultiPlayer
         {
             LOG_DIAG(("Reseting team %d", teamId))
 
-                Team* team = teams.Find(teamId);
+            Team* team = teams.Find(teamId);
             Bool newTeam = FALSE;
 
             if (!team)
@@ -1052,13 +1047,13 @@ namespace MultiPlayer
             {
                 // Has anything changed
                 if
-                    (
-                        (Host::mission.missionFolder != mission->GetGroup().GetPath().crc)
-                        ||
-                        (Host::mission.mission != mission->GetName().crc)
-                        ||
-                        (Host::mission.crc != mission->GetDataCrc())
-                        )
+                (
+                    (Host::mission.missionFolder != mission->GetGroup().GetPath().crc)
+                    ||
+                    (Host::mission.mission != mission->GetName().crc)
+                    ||
+                    (Host::mission.crc != mission->GetDataCrc())
+                )
                 {
                     // Clear the have mission flags
                     for (BinTree<PlayerInfo>::Iterator p(&players); *p; p++)
@@ -1123,14 +1118,14 @@ namespace MultiPlayer
         {
             LOG_DIAG(("Checking Launch Status ..."))
 
-                // Do we have a map ?
-                if (!PrivData::haveMission && Game::MissionPreLoaded())
-                {
-                    // "MultiError"
-                    CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.nomission"))))
-                        LOG_DIAG(("There was no mission selected"))
-                        return (FALSE);
-                }
+            // Do we have a map ?
+            if (!PrivData::haveMission && Game::MissionPreLoaded())
+            {
+                // "MultiError"
+                CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.nomission"))))
+                LOG_DIAG(("There was no mission selected"))
+                return (FALSE);
+            }
 
 #ifndef DEVELOPMENT
 
@@ -1139,8 +1134,8 @@ namespace MultiPlayer
             {
                 // "MultiError"
                 CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.moreplayers"))))
-                    LOG_DIAG(("There weren't enough players"))
-                    return (FALSE);
+                LOG_DIAG(("There weren't enough players"))
+                return (FALSE);
             }
 
 #endif
@@ -1155,23 +1150,23 @@ namespace MultiPlayer
             {
                 LOG_DIAG(("Checking player [%08X]", p.GetKey()))
 
-                    // Player doesn't have the current map
-                    Network::Player* np = Network::GetPlayers().Find(p.GetKey());
+                // Player doesn't have the current map
+                Network::Player* np = Network::GetPlayers().Find(p.GetKey());
 
                 if (!np)
                 {
                     // "MultiError"
                     CONSOLE(0xB2178C6E, ("Player [%08X] not found", p.GetKey()))
-                        LOG_DIAG(("Player [%08X] was not found", p.GetKey()))
-                        return (FALSE);
+                    LOG_DIAG(("Player [%08X] was not found", p.GetKey()))
+                    return (FALSE);
                 }
 
                 if (!(*p)->correctVersion)
                 {
                     // "MultiError"
                     CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.wrongversion", 1, Utils::Ansi2Unicode(np->GetName())))))
-                        LOG_DIAG(("%s has the a different version", np->GetName()))
-                        return (FALSE);
+                    LOG_DIAG(("%s has the a different version", np->GetName()))
+                    return (FALSE);
                 }
 
                 if (!(*p)->launchReady)
@@ -1179,19 +1174,19 @@ namespace MultiPlayer
                     // "MultiError"
                     CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.notready", 1, Utils::Ansi2Unicode(np->GetName())))))
 
-                        const char* msg = Utils::Unicode2Ansi(TRANSLATE(("#multiplayer.setup.error.launch")));
+                    const char* msg = Utils::Unicode2Ansi(TRANSLATE(("#multiplayer.setup.error.launch")));
                     Data::Send(Commands::MessageQuote, Utils::Strlen(msg) + 1, (const U8*)msg, FALSE);
 
                     LOG_DIAG(("%s isn't ready to launch", np->GetName()))
-                        return (FALSE);
+                    return (FALSE);
                 }
 
                 if (!(*p)->haveMission)
                 {
                     // "MultiError"
                     CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.havemission", 1, Utils::Ansi2Unicode(np->GetName())))))
-                        LOG_DIAG(("%s doesn't have the current mission", np->GetName()))
-                        return (FALSE);
+                    LOG_DIAG(("%s doesn't have the current mission", np->GetName()))
+                    return (FALSE);
                 }
             }
 
@@ -1210,8 +1205,8 @@ namespace MultiPlayer
             {
                 // "MultiError"
                 CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.toomanyteams"))))
-                    LOG_DIAG(("Too many teams for the current mission."))
-                    return (FALSE);
+                LOG_DIAG(("Too many teams for the current mission."))
+                return (FALSE);
             }
 
             // If we're in fixed placement mode, make sure all 
@@ -1252,7 +1247,7 @@ namespace MultiPlayer
                                 }
                             }
                             LOG_DIAG(("Team hasn't selected a start location."))
-                                groups.DisposeAll();
+                            groups.DisposeAll();
                             return (FALSE);
                         }
                     }
@@ -1396,7 +1391,5 @@ namespace MultiPlayer
 
             return (colors);
         }
-
     }
-
 }

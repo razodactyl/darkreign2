@@ -35,64 +35,62 @@ class ParticleClass;
 //
 namespace ParticleFX
 {
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Struct CallBackData
-  //
-  struct CallBackData
-  {
-    Bool valid;
-    Matrix matrix;
-    Vector length;
-    F32 delay;
-
-    CallBackData();
-  };
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declarations
-  //
-  class Object;
-  namespace Particle
-  {
-    class Type;
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Type
-  //
-  class Type
-  {
-  private:
-
-    // Particles this type contains
-    NList<Particle::Type> particles;
-
-  public:
-
-    // Constructor and Destructor
-    Type(FScope *fScope)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Struct CallBackData
+    //
+    struct CallBackData
     {
-      Setup( fScope);
+        Bool valid;
+        Matrix matrix;
+        Vector length;
+        F32 delay;
+
+        CallBackData();
+    };
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward Declarations
+    //
+    class Object;
+
+    namespace Particle
+    {
+        class Type;
     }
-    ~Type();
 
-    void Setup(FScope *fScope);
 
-    // Post Load
-    void PostLoad(MapObjType *mapObjType);
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Type
+    //
+    class Type
+    {
+    private:
 
-    // Friends
-    friend class Object;
+        // Particles this type contains
+        NList<Particle::Type> particles;
 
-  };
+    public:
 
+        // Constructor and Destructor
+        Type(FScope* fScope)
+        {
+            Setup(fScope);
+        }
+
+        ~Type();
+
+        void Setup(FScope* fScope);
+
+        // Post Load
+        void PostLoad(MapObjType* mapObjType);
+
+        // Friends
+        friend class Object;
+    };
 }
 
 

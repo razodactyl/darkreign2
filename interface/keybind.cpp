@@ -82,8 +82,8 @@ namespace KeyBind
         // Constructor
         Binding()
             : consoleCmd(nullptr),
-            displayKey(nullptr),
-            displayCmd(nullptr)
+              displayKey(nullptr),
+              displayCmd(nullptr)
         {
         }
 
@@ -92,33 +92,33 @@ namespace KeyBind
         {
             switch (type)
             {
-            case CONSOLECMD:
-            {
-                ASSERT(consoleCmd);
-                delete[] consoleCmd;
-                break;
-            }
+                case CONSOLECMD:
+                {
+                    ASSERT(consoleCmd);
+                    delete[] consoleCmd;
+                    break;
+                }
 
-            case VARCMD:
-            {
-                ASSERT(varCmd);
-                delete varCmd;
-                break;
-            }
+                case VARCMD:
+                {
+                    ASSERT(varCmd);
+                    delete varCmd;
+                    break;
+                }
 
-            case VARINTEGER:
-            {
-                ASSERT(varInteger);
-                delete varInteger;
-                break;
-            }
+                case VARINTEGER:
+                {
+                    ASSERT(varInteger);
+                    delete varInteger;
+                    break;
+                }
 
-            case VARFLOAT:
-            {
-                ASSERT(varFloat);
-                delete varFloat;
-                break;
-            }
+                case VARFLOAT:
+                {
+                    ASSERT(varFloat);
+                    delete varFloat;
+                    break;
+                }
             }
 
             if (displayKey)
@@ -397,8 +397,8 @@ namespace KeyBind
         // Display error message
         CON_ERR(("(col %d) %s", x, errStr))
 
-            // Throw an exception
-            throw (0);
+        // Throw an exception
+        throw (0);
     }
 
 
@@ -440,21 +440,21 @@ namespace KeyBind
                 // Peek at the next token
                 switch (tBuf.PeekToken())
                 {
-                case TR_OK:
-                {
-                    tBuf.AcceptIdent();
+                    case TR_OK:
+                    {
+                        tBuf.AcceptIdent();
 
-                    // Add this keyname to the list
-                    keyNames.Append(new GameIdent(tBuf.lastToken));
+                        // Add this keyname to the list
+                        keyNames.Append(new GameIdent(tBuf.lastToken));
 
-                    break;
-                }
+                        break;
+                    }
 
-                // Reached the end of the file
-                case TR_EOF:
-                    goto ParseDone;
+                        // Reached the end of the file
+                    case TR_EOF:
+                        goto ParseDone;
 
-                default:
+                    default:
                     ERR_FATAL(("Missing case"));
                 }
             }
@@ -587,30 +587,30 @@ namespace KeyBind
         {
             switch (sScope->NameCrc())
             {
-            case 0x3DACF599: // "Key"
-            {
-                U32 scanCode = U32(sScope->NextArgInteger());
-                if (scanCode > 256)
+                case 0x3DACF599: // "Key"
                 {
-                    ERR_FATAL(("Scancode out of range [%d]", scanCode));
-                }
-                if (keysByScan[scanCode])
-                {
-                    ERR_FATAL(("Scancode [%s] already defined", scanCode))
-                }
+                    U32 scanCode = U32(sScope->NextArgInteger());
+                    if (scanCode > 256)
+                    {
+                        ERR_FATAL(("Scancode out of range [%d]", scanCode));
+                    }
+                    if (keysByScan[scanCode])
+                    {
+                        ERR_FATAL(("Scancode [%s] already defined", scanCode))
+                    }
 
-                // Add key name to array
-                keysByScan[scanCode] = new KeyItem(scanCode, sScope->NextArgString());
+                    // Add key name to array
+                    keysByScan[scanCode] = new KeyItem(scanCode, sScope->NextArgString());
 
-                // Add a mapping from the CRC back to this scancode
-                keysByNameCrc.Add(keysByScan[scanCode]->name.crc, keysByScan[scanCode]);
+                    // Add a mapping from the CRC back to this scancode
+                    keysByNameCrc.Add(keysByScan[scanCode]->name.crc, keysByScan[scanCode]);
 
-                break;
-            }
-
-            default:
-                LOG_ERR(("ScanCodes: Not Expecting [%s]", sScope->NameStr()))
                     break;
+                }
+
+                default:
+                LOG_ERR(("ScanCodes: Not Expecting [%s]", sScope->NameStr()))
+                break;
             }
         }
     }
@@ -633,53 +633,53 @@ namespace KeyBind
 
             switch (sScope->NameCrc())
             {
-            case 0x123559CF: // "shift"
-                key = (Input::LSHIFTDOWN | Input::RSHIFTDOWN | Input::SHIFTDOWN);
-                break;
+                case 0x123559CF: // "shift"
+                    key = (Input::LSHIFTDOWN | Input::RSHIFTDOWN | Input::SHIFTDOWN);
+                    break;
 
-            case 0x8CA01EEC: // "leftshift"
-                key = (Input::LSHIFTDOWN);
-                break;
+                case 0x8CA01EEC: // "leftshift"
+                    key = (Input::LSHIFTDOWN);
+                    break;
 
-            case 0x0B7B9BC9: // "rightshift"
-                key = (Input::RSHIFTDOWN);
-                break;
+                case 0x0B7B9BC9: // "rightshift"
+                    key = (Input::RSHIFTDOWN);
+                    break;
 
-            case 0x5944CCF2: // "alt"
-                key = (Input::LALTDOWN | Input::RALTDOWN | Input::ALTDOWN);
-                break;
+                case 0x5944CCF2: // "alt"
+                    key = (Input::LALTDOWN | Input::RALTDOWN | Input::ALTDOWN);
+                    break;
 
-            case 0xB138EEFE: // "leftalt"
-                key = (Input::LALTDOWN);
-                break;
+                case 0xB138EEFE: // "leftalt"
+                    key = (Input::LALTDOWN);
+                    break;
 
-            case 0x11AFF050: // "rightalt"
-                key = (Input::RALTDOWN);
-                break;
+                case 0x11AFF050: // "rightalt"
+                    key = (Input::RALTDOWN);
+                    break;
 
-            case 0x7C4F8F87: // "ctrl"
-                key = (Input::LCTRLDOWN | Input::RCTRLDOWN | Input::CTRLDOWN);
-                break;
+                case 0x7C4F8F87: // "ctrl"
+                    key = (Input::LCTRLDOWN | Input::RCTRLDOWN | Input::CTRLDOWN);
+                    break;
 
-            case 0x85FDB048: // "rightctrl"
-                key = (Input::RCTRLDOWN);
-                break;
+                case 0x85FDB048: // "rightctrl"
+                    key = (Input::RCTRLDOWN);
+                    break;
 
-            case 0xE3CC4846: // "leftctrl"
-                key = (Input::LCTRLDOWN);
-                break;
+                case 0xE3CC4846: // "leftctrl"
+                    key = (Input::LCTRLDOWN);
+                    break;
 
-            case 0xB4BB0243: // "win"
-                key = (Input::WINDOWN | Input::RWINDOWN | Input::LWINDOWN);
-                break;
+                case 0xB4BB0243: // "win"
+                    key = (Input::WINDOWN | Input::RWINDOWN | Input::LWINDOWN);
+                    break;
 
-            case 0x5CC7204F: // "leftwin"
-                key = (Input::LWINDOWN);
-                break;
+                case 0x5CC7204F: // "leftwin"
+                    key = (Input::LWINDOWN);
+                    break;
 
-            case 0xFC503EE1: // "rightwin"
-                key = (Input::RWINDOWN);
-                break;
+                case 0xFC503EE1: // "rightwin"
+                    key = (Input::RWINDOWN);
+                    break;
             }
 
             if (key)
@@ -715,15 +715,15 @@ namespace KeyBind
 
         switch (type)
         {
-        case Binding::TYPE_HOLD:
-            bind = CreateHold(scanCode, command, flags);
-            break;
+            case Binding::TYPE_HOLD:
+                bind = CreateHold(scanCode, command, flags);
+                break;
 
-        case Binding::TYPE_PRESS:
-            bind = CreatePress(scanCode, keyState, command, flags);
-            break;
+            case Binding::TYPE_PRESS:
+                bind = CreatePress(scanCode, keyState, command, flags);
+                break;
 
-        default:
+            default:
             ERR_FATAL(("Unknown key binding type [%d]", type));
         }
 
@@ -762,13 +762,13 @@ namespace KeyBind
 
         switch (type)
         {
-        case Binding::TYPE_HOLD:
-            return RemoveHold(scanCode, found);
+            case Binding::TYPE_HOLD:
+                return RemoveHold(scanCode, found);
 
-        case Binding::TYPE_PRESS:
-            return RemovePress(scanCode, keyState, found);
+            case Binding::TYPE_PRESS:
+                return RemovePress(scanCode, keyState, found);
 
-        default:
+            default:
             ERR_FATAL(("Unknown key binding type [%d]", type));
         }
     }
@@ -841,71 +841,71 @@ namespace KeyBind
         {
             switch (e.subType)
             {
-            case Input::KEYDOWN:
-            {
-                Binding* b;
-
-                ASSERT(e.input.code > 0 && e.input.code < 256);
-
-                // Process press bindings first
-                if (pressBindings[e.input.code])
+                case Input::KEYDOWN:
                 {
-                    // Filter out mouse button state
-                    U32 state = e.input.state & Input::KEYMASK;
+                    Binding* b;
 
-                    b = pressBindings[e.input.code]->Find(state);
+                    ASSERT(e.input.code > 0 && e.input.code < 256);
 
-                    if (b)
+                    // Process press bindings first
+                    if (pressBindings[e.input.code])
+                    {
+                        // Filter out mouse button state
+                        U32 state = e.input.state & Input::KEYMASK;
+
+                        b = pressBindings[e.input.code]->Find(state);
+
+                        if (b)
+                        {
+                            switch (b->type)
+                            {
+                                case CONSOLECMD:
+                                {
+                                    Console::ProcessCmd(b->consoleCmd);
+                                    retVal = TRUE;
+                                    break;
+                                }
+
+                                case VARCMD:
+                                {
+                                    b->varCmd->Trigger();
+                                    retVal = TRUE;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // Process hold bindings
+                    if ((b = holdBindings.Find(e.input.code)) != nullptr)
                     {
                         switch (b->type)
                         {
-                        case CONSOLECMD:
-                        {
-                            Console::ProcessCmd(b->consoleCmd);
-                            retVal = TRUE;
-                            break;
-                        }
+                            case VARINTEGER:
+                            {
+                                ASSERT(b->varInteger);
 
-                        case VARCMD:
-                        {
-                            b->varCmd->Trigger();
-                            retVal = TRUE;
-                            break;
-                        }
+                                if (*(b->varInteger) != 1)
+                                {
+                                    *(b->varInteger) = 1;
+                                }
+                                break;
+                            }
+
+                            case VARFLOAT:
+                            {
+                                ASSERT(b->varFloat);
+
+                                if (*(b->varFloat) != 1.0F)
+                                {
+                                    *(b->varFloat) = 1.0F;
+                                }
+                                break;
+                            }
                         }
                     }
+                    break;
                 }
-
-                // Process hold bindings
-                if ((b = holdBindings.Find(e.input.code)) != nullptr)
-                {
-                    switch (b->type)
-                    {
-                    case VARINTEGER:
-                    {
-                        ASSERT(b->varInteger);
-
-                        if (*(b->varInteger) != 1)
-                        {
-                            *(b->varInteger) = 1;
-                        }
-                        break;
-                    }
-
-                    case VARFLOAT:
-                    {
-                        ASSERT(b->varFloat);
-
-                        if (*(b->varFloat) != 1.0F)
-                        {
-                            *(b->varFloat) = 1.0F;
-                        }
-                        break;
-                    }
-                    }
-                }
-                break;
-            }
             }
         }
 
@@ -938,65 +938,65 @@ namespace KeyBind
 
             switch (binding->type)
             {
-            case CONSOLECMD:
-            {
-                if (keyDown)
+                case CONSOLECMD:
                 {
-                    Console::ProcessCmd(binding->consoleCmd);
-                }
-                break;
-            }
-
-            case VARCMD:
-            {
-                if (keyDown)
-                {
-                    binding->varCmd->Trigger();
-                }
-                break;
-            }
-
-            case VARINTEGER:
-            {
-                ASSERT(binding->varInteger);
-
-                if (keyDown)
-                {
-                    if (*(binding->varInteger) != 1)
+                    if (keyDown)
                     {
-                        *(binding->varInteger) = 1;
+                        Console::ProcessCmd(binding->consoleCmd);
                     }
+                    break;
                 }
-                else
-                {
-                    if (*(binding->varInteger) != 0)
-                    {
-                        *(binding->varInteger) = 0;
-                    }
-                }
-                break;
-            }
 
-            case VARFLOAT:
-            {
-                ASSERT(binding->varFloat);
+                case VARCMD:
+                {
+                    if (keyDown)
+                    {
+                        binding->varCmd->Trigger();
+                    }
+                    break;
+                }
 
-                if (keyDown)
+                case VARINTEGER:
                 {
-                    if (*(binding->varFloat) != 1.0F)
+                    ASSERT(binding->varInteger);
+
+                    if (keyDown)
                     {
-                        *(binding->varFloat) = 1.0F;
+                        if (*(binding->varInteger) != 1)
+                        {
+                            *(binding->varInteger) = 1;
+                        }
                     }
+                    else
+                    {
+                        if (*(binding->varInteger) != 0)
+                        {
+                            *(binding->varInteger) = 0;
+                        }
+                    }
+                    break;
                 }
-                else
+
+                case VARFLOAT:
                 {
-                    if (*(binding->varFloat) != 0)
+                    ASSERT(binding->varFloat);
+
+                    if (keyDown)
                     {
-                        *(binding->varFloat) = 0;
+                        if (*(binding->varFloat) != 1.0F)
+                        {
+                            *(binding->varFloat) = 1.0F;
+                        }
                     }
+                    else
+                    {
+                        if (*(binding->varFloat) != 0)
+                        {
+                            *(binding->varFloat) = 0;
+                        }
+                    }
+                    break;
                 }
-                break;
-            }
             }
         }
     }
@@ -1018,21 +1018,21 @@ namespace KeyBind
 
             switch (binding->type)
             {
-            case VARINTEGER:
-            {
-                ASSERT(binding->varInteger);
+                case VARINTEGER:
+                {
+                    ASSERT(binding->varInteger);
 
-                *(binding->varInteger) = 0;
-                break;
-            }
+                    *(binding->varInteger) = 0;
+                    break;
+                }
 
-            case VARFLOAT:
-            {
-                ASSERT(binding->varFloat);
+                case VARFLOAT:
+                {
+                    ASSERT(binding->varFloat);
 
-                *(binding->varFloat) = 0.0F;
-                break;
-            }
+                    *(binding->varFloat) = 0.0F;
+                    break;
+                }
             }
         }
     }
@@ -1163,34 +1163,34 @@ namespace KeyBind
     {
         switch (pathCrc)
         {
-        case 0xF362E31C: // "iface.keybind.dump"
-        {
-            Dump(DUMP_ALL);
-            break;
-        }
+            case 0xF362E31C: // "iface.keybind.dump"
+            {
+                Dump(DUMP_ALL);
+                break;
+            }
 
-        case 0x65666E79: // "iface.keybind.names"
-        {
-            Dump(DUMP_KEYS);
-            break;
-        }
+            case 0x65666E79: // "iface.keybind.names"
+            {
+                Dump(DUMP_KEYS);
+                break;
+            }
 
-        case 0xEB8FAE25: // "iface.keybind.hold"
-        {
-            Dump(DUMP_HOLD);
-            break;
-        }
+            case 0xEB8FAE25: // "iface.keybind.hold"
+            {
+                Dump(DUMP_HOLD);
+                break;
+            }
 
-        case 0x7992F4AA: // "iface.keybind.press"
-        {
-            Dump(DUMP_PRESS);
-            break;
-        }
+            case 0x7992F4AA: // "iface.keybind.press"
+            {
+                Dump(DUMP_PRESS);
+                break;
+            }
 
-        case 0x37D662C1: // "iface.keybind.modifiers"
-        {
-            break;
-        }
+            case 0x37D662C1: // "iface.keybind.modifiers"
+            {
+                break;
+            }
         }
     }
 

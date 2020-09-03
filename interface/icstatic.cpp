@@ -234,8 +234,11 @@ void ICStatic::DrawSelf(PaintInfo& pi)
             if ((staticStyle & STYLE_SHOWMINSEC) && (displayVar->Type() == VarSys::VI_FPOINT))
             {
                 F32 v = displayVar->GetFloatValue();
-                Utils::Sprintf(buf, 128, (const CH*)L"%02u:%02u", static_cast<U32>(v / 60.0F),
-                               static_cast<U32>(fmod(v, 60.0F)));
+                Utils::Sprintf
+                (
+                    buf, 128, (const CH*)L"%02u:%02u", static_cast<U32>(v / 60.0F),
+                    static_cast<U32>(fmod(v, 60.0F))
+                );
             }
             else
             {

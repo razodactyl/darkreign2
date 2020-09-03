@@ -363,8 +363,10 @@ Bool RegionObj::CheckTeam(Team* team, Team* canBeSeenBy, U32 amount, RelationalO
         {
             UnitObj* unit = *o;
 
-            if ((unit->GetActiveTeam() == team) && CheckPoint(
-                Point<F32>(unit->WorldMatrix().posit.x, unit->WorldMatrix().posit.z)))
+            if ((unit->GetActiveTeam() == team) && CheckPoint
+                (
+                    Point<F32>(unit->WorldMatrix().posit.x, unit->WorldMatrix().posit.z)
+                ))
             {
                 if (!canBeSeenBy || unit->TestCanSee(canBeSeenBy->GetId()))
                 {
@@ -471,8 +473,11 @@ Bool RegionObj::CheckTeam(Team* team, Team* canBeSeenBy, U32 amount, RelationalO
 //
 // Are objects from the team inside an area of this region
 //
-Bool RegionObj::CheckTeams(const List<Team>& teams, Bool combine, Team* canBeSeenBy, U32 amount,
-                           RelationalOperator<U32>& oper)
+Bool RegionObj::CheckTeams
+(
+    const List<Team>& teams, Bool combine, Team* canBeSeenBy, U32 amount,
+    RelationalOperator<U32>& oper
+)
 {
     if (combine)
     {
@@ -529,8 +534,11 @@ Bool RegionObj::CheckTeams(const List<Team>& teams, Bool combine, Team* canBeSee
 //
 // Are objects from the team inside an area of this region
 //
-Bool RegionObj::CheckTeams(const List<Team>& teams, Bool combine, Team* canBeSeenBy, U32 amount,
-                           RelationalOperator<U32>& oper, MapObjType* type)
+Bool RegionObj::CheckTeams
+(
+    const List<Team>& teams, Bool combine, Team* canBeSeenBy, U32 amount,
+    RelationalOperator<U32>& oper, MapObjType* type
+)
 {
     if (combine)
     {
@@ -590,8 +598,11 @@ Bool RegionObj::CheckTeams(const List<Team>& teams, Bool combine, Team* canBeSee
 //
 // Are objects from the team inside an area of this region
 //
-Bool RegionObj::CheckTeams(const List<Team>& teams, Bool combine, Team* canBeSeenBy, U32 amount,
-                           RelationalOperator<U32>& oper, U32 property)
+Bool RegionObj::CheckTeams
+(
+    const List<Team>& teams, Bool combine, Team* canBeSeenBy, U32 amount,
+    RelationalOperator<U32>& oper, U32 property
+)
 {
     if (combine)
     {

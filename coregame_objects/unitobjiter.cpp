@@ -69,19 +69,27 @@ namespace UnitObjIter
         filterData(filterData), filter(filter)
     {
         // Using proximity and location figure out which clusters to look at
-        startX = Clamp<S32>(
+        startX = Clamp<S32>
+        (
             0, static_cast<S32>((filterData.location.x - filterData.proximity) * WorldCtrl::ClusterSizeInv()),
-            WorldCtrl::ClusterMapX() - 1);
-        endX = Clamp<S32>(
+            WorldCtrl::ClusterMapX() - 1
+        );
+        endX = Clamp<S32>
+        (
             0, static_cast<S32>((filterData.location.x + filterData.proximity) * WorldCtrl::ClusterSizeInv()),
-            WorldCtrl::ClusterMapX() - 1);
+            WorldCtrl::ClusterMapX() - 1
+        );
 
-        startZ = Clamp<S32>(
+        startZ = Clamp<S32>
+        (
             0, static_cast<S32>((filterData.location.z - filterData.proximity) * WorldCtrl::ClusterSizeInv()),
-            WorldCtrl::ClusterMapZ() - 1);
-        endZ = Clamp<S32>(
+            WorldCtrl::ClusterMapZ() - 1
+        );
+        endZ = Clamp<S32>
+        (
             0, static_cast<S32>((filterData.location.z + filterData.proximity) * WorldCtrl::ClusterSizeInv()),
-            WorldCtrl::ClusterMapZ() - 1);
+            WorldCtrl::ClusterMapZ() - 1
+        );
 
         currentX = startX;
         currentZ = startZ;

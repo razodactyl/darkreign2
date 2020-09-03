@@ -36,8 +36,11 @@ namespace Strategic
     //
     // Constructor
     //
-    Placement::ClusterSet::ClusterSet(const Point<F32>& origin, RuleSet& ruleSet, UnitObjType& type, F32 orientation,
-                                      Placement& placement)
+    Placement::ClusterSet::ClusterSet
+    (
+        const Point<F32>& origin, RuleSet& ruleSet, UnitObjType& type, F32 orientation,
+        Placement& placement
+    )
         : object(placement.GetManager().GetObject()),
           managerClusterSet
           (
@@ -108,9 +111,11 @@ namespace Strategic
                     currentCell < (WorldCtrl::ClusterSizeInCells() * WorldCtrl::ClusterSizeInCells())
                 )
                 {
-                    LOG_AI(
+                    LOG_AI
+                    (
                         ("Checking cluster %d, %d cell %d for '%s'", mapCluster->xIndex, mapCluster->zIndex, currentCell
-                            , type.GetName()))
+                            , type.GetName())
+                    )
 
                     if (current->info.TestCell(currentCell))
                     {
@@ -160,9 +165,11 @@ namespace Strategic
 
                     if (current)
                     {
-                        LOG_AI(
+                        LOG_AI
+                        (
                             ("Cluster %d next [%f] to be evaluated for '%s'", current->nodePosition.GetKey(), current->
-                                nodeScore.GetKey(), type.GetName()))
+                                nodeScore.GetKey(), type.GetName())
+                        )
 
                         currentIndex = current->nodePosition.GetKey();
                         currentCell = 0;
@@ -197,10 +204,12 @@ namespace Strategic
         {
             FootPrint::Placement placement(footprint);
 
-            Vector v(
+            Vector v
+            (
                 WorldCtrl::CellToMetresX(cell.x),
                 0,
-                WorldCtrl::CellToMetresZ(cell.z));
+                WorldCtrl::CellToMetresZ(cell.z)
+            );
 
             // Try to place the footprint the four ways
             for (int i = 0; i < 4; i++)
@@ -261,9 +270,11 @@ namespace Strategic
                             }
                         }
 
-                        LOG_AI(
+                        LOG_AI
+                        (
                             ("Constructing '%s' at %f,%f [%d,%d] dir %d", type.GetName(), v.x, v.z, cell.x, cell.z, dir
-                            ))
+                            )
+                        )
 
                         return (TRUE);
                     }
@@ -399,9 +410,11 @@ namespace Strategic
         {
             if (ruleSet.Evaluate(RuleSet::Info(object, origin, mapCluster, *cluster, orientation), score))
             {
-                LOG_AI(
+                LOG_AI
+                (
                     ("Cluster %d (%d, %d) added at score %f for '%s'", index, mapCluster.xIndex, mapCluster.zIndex,
-                        score, type.GetName()))
+                        score, type.GetName())
+                )
 
                 nextByPosition.Add(index, cluster);
                 nextByScore.Add(score, cluster);
@@ -421,8 +434,11 @@ namespace Strategic
     //
     // Why not just use the constructor with new, cause the compiler is a broken piece of turd!
     //
-    Placement::ClusterSet* Placement::ClusterSet::Create(const Point<F32>& origin, RuleSet& ruleSet, UnitObjType& type,
-                                                         F32 orientation, Placement& placement)
+    Placement::ClusterSet* Placement::ClusterSet::Create
+    (
+        const Point<F32>& origin, RuleSet& ruleSet, UnitObjType& type,
+        F32 orientation, Placement& placement
+    )
     {
         return (new ClusterSet(origin, ruleSet, type, orientation, placement));
     }

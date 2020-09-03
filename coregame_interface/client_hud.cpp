@@ -534,8 +534,11 @@ namespace Client
                     ofs[0].Set(hudRect.p0.x, hudRect.p0.y);
                     ofs[1].Set(hudRect.p1.x - reticle->corner[1].pixels.Width(), hudRect.p0.y);
                     ofs[2].Set(hudRect.p0.x, hudRect.p1.y - reticle->corner[2].pixels.Height());
-                    ofs[3].Set(hudRect.p1.x - reticle->corner[3].pixels.Width(),
-                               hudRect.p1.y - reticle->corner[3].pixels.Height());
+                    ofs[3].Set
+                    (
+                        hudRect.p1.x - reticle->corner[3].pixels.Width(),
+                        hudRect.p1.y - reticle->corner[3].pixels.Height()
+                    );
 
                     for (i = 0; i < 4; i++)
                     {
@@ -543,8 +546,11 @@ namespace Client
 
                         if (ti.texture)
                         {
-                            IFace::RenderRectangle(ClipRect(ofs[i], ofs[i] + ti.pixels.p1 - ti.pixels.p0),
-                                                   reticle->color, &ti, alphaScale);
+                            IFace::RenderRectangle
+                            (
+                                ClipRect(ofs[i], ofs[i] + ti.pixels.p1 - ti.pixels.p0),
+                                reticle->color, &ti, alphaScale
+                            );
                         }
                     }
                 }
@@ -556,8 +562,11 @@ namespace Client
                     ofs[0].Set(hudRect.p0.x, hudRect.p0.y);
                     ofs[1].Set(hudRect.p1.x - damage->corner[1].pixels.Width(), hudRect.p0.y);
                     ofs[2].Set(hudRect.p0.x, hudRect.p1.y - damage->corner[2].pixels.Height());
-                    ofs[3].Set(hudRect.p1.x - damage->corner[3].pixels.Width(),
-                               hudRect.p1.y - damage->corner[3].pixels.Height());
+                    ofs[3].Set
+                    (
+                        hudRect.p1.x - damage->corner[3].pixels.Width(),
+                        hudRect.p1.y - damage->corner[3].pixels.Height()
+                    );
 
                     // Render damage indicators
                     for (i = 0; i < 4; i++)
@@ -605,10 +614,14 @@ namespace Client
                                 {
                                     if (UnitObjType* upgrade = unitObj->GetNextUpgrade())
                                     {
-                                        profile->info->Render(
-                                            TRANSLATE(
-                                                ("#game.client.hud.upgrade", 1, upgrade->GetResourceCost())),
-                                            hudRect, alphaScale);
+                                        profile->info->Render
+                                        (
+                                            TRANSLATE
+                                            (
+                                                ("#game.client.hud.upgrade", 1, upgrade->GetResourceCost())
+                                            ),
+                                            hudRect, alphaScale
+                                        );
                                     }
                                 }
                                 else
@@ -616,8 +629,10 @@ namespace Client
                                     // Is there an efficiency issue
                                     if (unitObj->GetEfficiency() < 0.98F)
                                     {
-                                        profile->info->Render(
-                                            TRANSLATE(("#game.client.hud.efficiency")), hudRect, alphaScale);
+                                        profile->info->Render
+                                        (
+                                            TRANSLATE(("#game.client.hud.efficiency")), hudRect, alphaScale
+                                        );
                                     }
                                     else
                                     {
@@ -645,9 +660,11 @@ namespace Client
                         // Is this a resource object
                         if (ResourceObj* resource = Promote::Object<ResourceObjType, ResourceObj>(mapObj))
                         {
-                            profile->info->Render(
+                            profile->info->Render
+                            (
                                 TRANSLATE(("#game.client.hud.resource", 1, resource->GetResource())), hudRect,
-                                alphaScale);
+                                alphaScale
+                            );
                         }
                 }
 
@@ -705,8 +722,11 @@ namespace Client
                                     if (delay > 10.0F)
                                     {
                                         // "Unit::Ammunition"
-                                        RenderBar(reticle, bar, unitObj->GetWeapon()->GetDelayPercent(),
-                                                  GetColorEntry(0x96E5AD55), alphaScale);
+                                        RenderBar
+                                        (
+                                            reticle, bar, unitObj->GetWeapon()->GetDelayPercent(),
+                                            GetColorEntry(0x96E5AD55), alphaScale
+                                        );
                                     }
                                 }
                             }
@@ -788,16 +808,22 @@ namespace Client
                     if (profile->id && profile->id->font)
                     {
                         CH buf[32];
-                        Utils::Sprintf(buf, 32, (const CH*)L"o%d s%d", mapObj->Id(),
-                                       unitObj ? (unitObj->GetSquad() ? unitObj->GetSquad()->Id() : 0) : 0);
+                        Utils::Sprintf
+                        (
+                            buf, 32, (const CH*)L"o%d s%d", mapObj->Id(),
+                            unitObj ? (unitObj->GetSquad() ? unitObj->GetSquad()->Id() : 0) : 0
+                        );
                         profile->id->Render(buf, hudRect, alphaScale);
                     }
 
                     // Team Name
                     if (profile->teamName && profile->teamName->font)
                     {
-                        profile->teamName->Render(Utils::Ansi2Unicode(team ? team->GetName() : "[None]"), hudRect,
-                                                  alphaScale);
+                        profile->teamName->Render
+                        (
+                            Utils::Ansi2Unicode(team ? team->GetName() : "[None]"), hudRect,
+                            alphaScale
+                        );
                     }
 
                     // Task
@@ -806,8 +832,11 @@ namespace Client
                     if (task && profile->task && profile->task->font)
                     {
                         char buf[64];
-                        Utils::Sprintf(buf, 64, "%s %s %.0f", task->GetName(), task->Info(),
-                                       GameTime::TimeSinceCycle(task->GetInvoked()));
+                        Utils::Sprintf
+                        (
+                            buf, 64, "%s %s %.0f", task->GetName(), task->Info(),
+                            GameTime::TimeSinceCycle(task->GetInvoked())
+                        );
                         profile->task->Render(Utils::Ansi2Unicode(buf), hudRect, alphaScale);
                     }
                 }

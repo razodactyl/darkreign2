@@ -756,8 +756,11 @@ void ICEdit::DrawSelf(PaintInfo& pi)
     if (HasKeyFocus() && IFace::CaretState() && !HasMouseCapture())
     {
         // Draw the caret
-        S32 caretX = pi.client.p0.x + textPos.x + pi.font->Width(Utils::Ansi2Unicode(displayBuf + dispPos),
-                                                                 caretPos - dispPos);
+        S32 caretX = pi.client.p0.x + textPos.x + pi.font->Width
+        (
+            Utils::Ansi2Unicode(displayBuf + dispPos),
+            caretPos - dispPos
+        );
         ClipRect r
         (
             caretX,

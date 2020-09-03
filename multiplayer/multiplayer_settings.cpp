@@ -25,14 +25,12 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Settings
     //
     namespace Settings
     {
-
         // Config key
         static GameIdent settings("MultiPlayer::Settings");
 
@@ -120,6 +118,7 @@ namespace MultiPlayer
         {
             return (firewallStatus);
         }
+
         U32 GetFirewallStatus()
         {
             // If we're in WON
@@ -152,26 +151,32 @@ namespace MultiPlayer
                 return (FirewallStatus::NotBehindFirewall);
             }
         }
+
         U32 GetLocalAddress()
         {
             return (localAddress);
         }
+
         U32 GetConfigPort()
         {
             return (port);
         }
+
         U16 GetPort()
         {
             return (U16(port ? port : StyxNet::defaultPort));
         }
+
         F32 GetLatitude()
         {
             return (latitude);
         }
+
         F32 GetLongitude()
         {
             return (longitude);
         }
+
         const char* GetProxy()
         {
             return (proxy.str);
@@ -182,10 +187,12 @@ namespace MultiPlayer
         {
             firewallStatus = status;
         }
+
         void SetLocalAddress(U32 address)
         {
             localAddress = address;
         }
+
         void SetPort(U32 p)
         {
             if (p)
@@ -197,19 +204,20 @@ namespace MultiPlayer
                 port = 0;
             }
         }
+
         void SetLatitude(F32 l)
         {
             latitude = l;
         }
+
         void SetLongitude(F32 l)
         {
             longitude = l;
         }
+
         void SetProxy(const char* p)
         {
             proxy = p;
         }
-
     }
-
 }

@@ -33,8 +33,11 @@ namespace Strategic
     //
     // Constructor
     //
-    Asset::Request::TypeBase::TypeBase(Script* script, U32 handle, const Config::RecruitType* config, Base* base,
-                                       Bool acceptInsufficient)
+    Asset::Request::TypeBase::TypeBase
+    (
+        Script* script, U32 handle, const Config::RecruitType* config, Base* base,
+        Bool acceptInsufficient
+    )
         : Request(script, handle),
           config(config),
           base(base),

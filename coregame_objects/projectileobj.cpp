@@ -665,8 +665,11 @@ void ProjectileObj::PostLoad()
 //
 // Setup a created projectile
 //
-void ProjectileObj::Setup(UnitObj* sourceIn, Team* teamIn, Weapon::Type* weaponTypeIn, const Target& targetIn,
-                          S32 damageIn, F32 speedIn)
+void ProjectileObj::Setup
+(
+    UnitObj* sourceIn, Team* teamIn, Weapon::Type* weaponTypeIn, const Target& targetIn,
+    S32 damageIn, F32 speedIn
+)
 {
     startPosit = WorldMatrix().posit;
     source = sourceIn;

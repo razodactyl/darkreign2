@@ -9,6 +9,7 @@
 
 #include "vid_private.h"
 #include "vid_cmd.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -17,30 +18,32 @@ namespace Vid
     {
         namespace Dialog
         {
-            Bool           inDialog;
-            ButtGroup      texButts;
+            Bool inDialog;
+            ButtGroup texButts;
 
-            VarFloat       perfs[6];
+            VarFloat perfs[6];
 
-            VarInteger     winMode;
-            VarInteger     winWid;
-            VarInteger     winHgt;
+            VarInteger winMode;
+            VarInteger winWid;
+            VarInteger winHgt;
 
-            U32            texReduce;
-            VarInteger     tripleBuf;
-            VarInteger     tex32;
-            VarInteger     antiAlias;
-            VarInteger     mipmap;
-            VarInteger     mipfilter;
-            VarInteger     movie;
-            VarInteger     mirror;
-            VarInteger     multiTex;
-            VarInteger     hardTL;
-            VarInteger     weather;
-            VarFloat       gamma;
+            U32 texReduce;
+            VarInteger tripleBuf;
+            VarInteger tex32;
+            VarInteger antiAlias;
+            VarInteger mipmap;
+            VarInteger mipfilter;
+            VarInteger movie;
+            VarInteger mirror;
+            VarInteger multiTex;
+            VarInteger hardTL;
+            VarInteger weather;
+            VarFloat gamma;
         };
+
         //----------------------------------------------------------------------------
     };
+
     //----------------------------------------------------------------------------
 
 
@@ -64,17 +67,21 @@ namespace Vid
             VarSys::RegisterHandler("vid.dialog.perf", Handler);
 
             Var::Dialog::inDialog = FALSE;
-            Var::Dialog::texButts.Setup(
+            Var::Dialog::texButts.Setup
+            (
                 "vid.dialog.texture.high", Vid::renderState.textureReduction == 0,
                 "vid.dialog.texture.med", Vid::renderState.textureReduction == 1,
                 "vid.dialog.texture.low", Vid::renderState.textureReduction == 2,
-                "vid.dialog.texture.noswap", 0);
+                "vid.dialog.texture.noswap", 0
+            );
 
-            Var::detail.Setup(
+            Var::detail.Setup
+            (
                 "vid.dialog.detail.high", 1,
                 "vid.dialog.detail.med", 0,
                 "vid.dialog.detail.low", 0,
-                "vid.dialog.detail.custom", 0);
+                "vid.dialog.detail.custom", 0
+            );
 
             VarSys::CreateFloat("vid.dialog.perf.object", 1, VarSys::NOTIFY, &Var::Dialog::perfs[0])->SetFloatRange(0.01F, 1.0F);
             VarSys::CreateFloat("vid.dialog.perf.terrain", 1, VarSys::NOTIFY, &Var::Dialog::perfs[1])->SetFloatRange(0.01F, 1.0F);
@@ -101,8 +108,8 @@ namespace Vid
 #else
             VarSys::CreateInteger("vid.dialog.hardTL", 1, VarSys::NOTIFY, &Var::Dialog::hardTL);
 #endif
-
         }
+
         //-----------------------------------------------------------------------------
 
         void DoneDialog()
@@ -112,10 +119,11 @@ namespace Vid
             VarSys::DeleteItem("vid.dialog.detail");
             VarSys::DeleteItem("vid.dialog");
         }
+
         //-----------------------------------------------------------------------------
 
         static Bool noCustomCheck = FALSE;
-        static F32  presets[4] = { 1, .5, .25, 1 };
+        static F32 presets[4] = {1, .5, .25, 1};
         //-----------------------------------------------------------------------------
 
         Bool CheckCustom()
@@ -168,6 +176,7 @@ namespace Vid
 
             return isCustom;
         }
+
         //-----------------------------------------------------------------------------
 
         static void Handler(U32 pathCrc)
@@ -179,96 +188,98 @@ namespace Vid
 
             switch (pathCrc)
             {
-            case 0x0B409995: // "vid.dialog.detail.reset"
-                Command::Reset();
-                break;
+                case 0x0B409995: // "vid.dialog.detail.reset"
+                    Command::Reset();
+                    break;
 
-            case 0xF8341469: // "vid.dialog.detail.high"
-            case 0x9A122DCD: // "vid.dialog.detail.med"
-            case 0xF022A1BE: // "vid.dialog.detail.low"
-            {
-                U32 lastlock = Var::lockout;
-                Var::lockout = TRUE;
-                U32 curr = Var::detail.SetRadio3();
-                Var::detail.SetRadio4();
-                Var::lockout = lastlock;
-
-                noCustomCheck = TRUE;
-                for (U32 i = 0; i < 4; i++)
+                case 0xF8341469: // "vid.dialog.detail.high"
+                case 0x9A122DCD: // "vid.dialog.detail.med"
+                case 0xF022A1BE: // "vid.dialog.detail.low"
                 {
-                    Var::Dialog::perfs[i] = presets[curr];
-                }
-                noCustomCheck = FALSE;
-                break;
-            }
-            /*
-                  case 0x9D567448: // "vid.dialog.detail.custom"
-                  {
                     U32 lastlock = Var::lockout;
                     Var::lockout = TRUE;
-                    CheckCustom();
+                    U32 curr = Var::detail.SetRadio3();
+                    Var::detail.SetRadio4();
                     Var::lockout = lastlock;
-                    break;
-                  }
-            */
-            case 0x36DB2E40: // "vid.dialog.texture.high"
-            case 0x0BFD1ED1: // "vid.dialog.texture.med"
-            case 0x61CD92A2: // "vid.dialog.texture.low"
-            case 0x180F663A: // "vid.dialog.texture.noswap"
-            {
-                U32 lastlock = Var::lockout;
-                Var::lockout = TRUE;
-                U32 curr = Var::Dialog::texButts.SetRadio3();
-                Var::lockout = lastlock;
-                Var::Dialog::texReduce = curr;
-                CheckCustom();
-                break;
-            }
-            case 0xADA1D094: // "vid.dialog.perf.object"
-            case 0x62BCCF82: // "vid.dialog.perf.terrain"
-            case 0xA6273688: // "vid.dialog.perf.particle"
-            case 0xEF68DA6E: // "vid.dialog.perf.lighting"
-            {
-                CheckCustom();
-                SetPerfs();
-                break;
-            }
 
-            case 0xEA895909: // "vid.dialog.multitex"
-                Vid::renderState.status.texMulti = *Var::Dialog::multiTex ? Vid::caps.texMulti : FALSE;
-                break;
-            case 0xC698DC24: // "vid.dialog.tripleBuf"
-      //        Var::varTripleBuf = *Var::Dialog::tripleBuf;
-                break;
-            case 0x62BD7956: // "vid.dialog.antialias"
-                Var::varAntiAlias = *Var::Dialog::antiAlias;
-                break;
-            case 0xC5D4A905: // "vid.dialog.mipmap"
-                Options::OnModeChange();
-                Var::varMipmap = *Var::Dialog::mipmap;
-                break;
-            case 0x1BE78373: // "vid.dialog.mipfilter"
-                Var::varMipfilter = *Var::Dialog::mipfilter;
-                break;
-            case 0x0996AD9B: // "vid.dialog.mirror"
-                Var::varMirror = *Var::Dialog::mirror;
-                break;
-            case 0x81C91DB2: // "vid.dialog.movie"
-                Var::varMovie = *Var::Dialog::movie;
-                break;
-            case 0x2C3927CC: // "vid.dialog.gamma"
-                Var::varGamma = (S32)*Var::Dialog::gamma;
-                break;
-            case 0xBEC34D8F: // "vid.dialog.hardTL"
-                Var::varHardTL = *Var::Dialog::hardTL;
-                break;
-            case 0xE81F6F5E: // "vid.dialog.weather"
-                Var::varWeather = *Var::Dialog::weather;
-                break;
+                    noCustomCheck = TRUE;
+                    for (U32 i = 0; i < 4; i++)
+                    {
+                        Var::Dialog::perfs[i] = presets[curr];
+                    }
+                    noCustomCheck = FALSE;
+                    break;
+                }
+                    /*
+                          case 0x9D567448: // "vid.dialog.detail.custom"
+                          {
+                            U32 lastlock = Var::lockout;
+                            Var::lockout = TRUE;
+                            CheckCustom();
+                            Var::lockout = lastlock;
+                            break;
+                          }
+                    */
+                case 0x36DB2E40: // "vid.dialog.texture.high"
+                case 0x0BFD1ED1: // "vid.dialog.texture.med"
+                case 0x61CD92A2: // "vid.dialog.texture.low"
+                case 0x180F663A: // "vid.dialog.texture.noswap"
+                {
+                    U32 lastlock = Var::lockout;
+                    Var::lockout = TRUE;
+                    U32 curr = Var::Dialog::texButts.SetRadio3();
+                    Var::lockout = lastlock;
+                    Var::Dialog::texReduce = curr;
+                    CheckCustom();
+                    break;
+                }
+                case 0xADA1D094: // "vid.dialog.perf.object"
+                case 0x62BCCF82: // "vid.dialog.perf.terrain"
+                case 0xA6273688: // "vid.dialog.perf.particle"
+                case 0xEF68DA6E: // "vid.dialog.perf.lighting"
+                {
+                    CheckCustom();
+                    SetPerfs();
+                    break;
+                }
+
+                case 0xEA895909: // "vid.dialog.multitex"
+                    Vid::renderState.status.texMulti = *Var::Dialog::multiTex ? Vid::caps.texMulti : FALSE;
+                    break;
+                case 0xC698DC24: // "vid.dialog.tripleBuf"
+                    //        Var::varTripleBuf = *Var::Dialog::tripleBuf;
+                    break;
+                case 0x62BD7956: // "vid.dialog.antialias"
+                    Var::varAntiAlias = *Var::Dialog::antiAlias;
+                    break;
+                case 0xC5D4A905: // "vid.dialog.mipmap"
+                    Options::OnModeChange();
+                    Var::varMipmap = *Var::Dialog::mipmap;
+                    break;
+                case 0x1BE78373: // "vid.dialog.mipfilter"
+                    Var::varMipfilter = *Var::Dialog::mipfilter;
+                    break;
+                case 0x0996AD9B: // "vid.dialog.mirror"
+                    Var::varMirror = *Var::Dialog::mirror;
+                    break;
+                case 0x81C91DB2: // "vid.dialog.movie"
+                    Var::varMovie = *Var::Dialog::movie;
+                    break;
+                case 0x2C3927CC: // "vid.dialog.gamma"
+                    Var::varGamma = (S32)*Var::Dialog::gamma;
+                    break;
+                case 0xBEC34D8F: // "vid.dialog.hardTL"
+                    Var::varHardTL = *Var::Dialog::hardTL;
+                    break;
+                case 0xE81F6F5E: // "vid.dialog.weather"
+                    Var::varWeather = *Var::Dialog::weather;
+                    break;
             }
         }
+
         //-----------------------------------------------------------------------------
     }
+
     //-----------------------------------------------------------------------------
 
     Bool SetPerspectiveStateI(Bool on)
@@ -283,6 +294,7 @@ namespace Vid
         }
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetColorKeyStateI(Bool on)
@@ -297,6 +309,7 @@ namespace Vid
         }
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetAntiAliasStateI(Bool on)
@@ -311,6 +324,7 @@ namespace Vid
         }
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetEdgeAntiAliasStateI(Bool on)
@@ -325,12 +339,14 @@ namespace Vid
         }
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     void SetNearPlane(F32 _nearPlane)
     {
         _nearPlane;
     }
+
     //----------------------------------------------------------------------------
 
     void SetFarPlane(F32 _farPlane)
@@ -352,6 +368,7 @@ namespace Vid
 
         VarSys::SetFloatRange("vid.fogdepth", 0.0F, Var::farPlane);
     }
+
     //----------------------------------------------------------------------------
 
     void SetFogDepth(F32 depth)
@@ -372,6 +389,7 @@ namespace Vid
 
         SetFogRange(fogMin, fogMax, 1.0f);
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetFogState(Bool fogOn)
@@ -383,6 +401,7 @@ namespace Vid
 
         return SetFogStateI(fogOn);
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetFogStateI(Bool fogOn)
@@ -406,6 +425,7 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     U32 SetShadeState(U32 flags)
@@ -418,6 +438,7 @@ namespace Vid
 
         return SetShadeStateI(flags);
     }
+
     //-----------------------------------------------------------------------------
 
     U32 SetShadeStateI(U32 flags)
@@ -436,6 +457,7 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     U32 SetFilterState(U32 flags, S32 stage) // = 0
@@ -451,6 +473,7 @@ namespace Vid
 
         return SetFilterStateI(flags, stage);
     }
+
     //-----------------------------------------------------------------------------
 
     U32 SetFilterStateI(U32 flags, S32 stage) // = 0
@@ -512,6 +535,7 @@ namespace Vid
 
         return retFlags;
     }
+
     //-----------------------------------------------------------------------------
 
     Bool SetSpecularState(Bool doSpecular)
@@ -523,6 +547,7 @@ namespace Vid
 
         return SetSpecularStateI(doSpecular);
     }
+
     //-----------------------------------------------------------------------------
 
     Bool SetSpecularStateI(Bool doSpecular)
@@ -541,6 +566,7 @@ namespace Vid
         }
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetDitherState(Bool doDither)
@@ -552,6 +578,7 @@ namespace Vid
 
         return SetDitherStateI(doDither);
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetDitherStateI(Bool doDither)
@@ -568,6 +595,7 @@ namespace Vid
         }
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetTextureState(Bool doTexture)
@@ -579,6 +607,7 @@ namespace Vid
 
         return SetTextureStateI(doTexture);
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetTextureStateI(Bool doTexture)
@@ -601,5 +630,6 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 };

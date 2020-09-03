@@ -205,10 +205,10 @@ namespace PathSearch
     Bool CanMoveToCell(U8 tractionType, U32 x, U32 z)
     {
         return
-            (
-                WorldCtrl::CellOnMap(x, z) &&
-                CanMoveToCell(tractionType, TerrainData::GetCell(x, z))
-                );
+        (
+            WorldCtrl::CellOnMap(x, z) &&
+            CanMoveToCell(tractionType, TerrainData::GetCell(x, z))
+        );
     }
 
 
@@ -219,8 +219,10 @@ namespace PathSearch
     //
     static S32 GetClosestDistance(U32 x, U32 z)
     {
-        return (abs(static_cast<long>(x) - static_cast<long>(data.request.dx)) + abs(
-            static_cast<long>(z) - static_cast<long>(data.request.dz)));
+        return (abs(static_cast<long>(x) - static_cast<long>(data.request.dx)) + abs
+            (
+                static_cast<long>(z) - static_cast<long>(data.request.dz)
+            ));
     }
 
 
@@ -375,24 +377,24 @@ namespace PathSearch
         // Now do actions based on the state
         switch (state)
         {
-            // More processing required
-        case FS_ACTIVE:
-            return (FALSE);
+                // More processing required
+            case FS_ACTIVE:
+                return (FALSE);
 
-            // Set the last successful path
-        case FS_FOUND:
-        case FS_CLOSEST:
-        case FS_DIRECT:
-            data.lastPath = data.path;
-            data.path = nullptr;
-            break;
+                // Set the last successful path
+            case FS_FOUND:
+            case FS_CLOSEST:
+            case FS_DIRECT:
+                data.lastPath = data.path;
+                data.path = nullptr;
+                break;
 
-            // Clear the current path
-        case FS_NOPATH:
-            data.path = nullptr;
-            break;
+                // Clear the current path
+            case FS_NOPATH:
+                data.path = nullptr;
+                break;
 
-        default:
+            default:
             ERR_FATAL(("Unhandled path result %d", state));
         }
 
@@ -518,11 +520,11 @@ namespace PathSearch
 
                             // All four cells must be on the same layer
                             if
-                                (
-                                    CheckLayer(flag, b->x, b->z) &&
-                                    CheckLayer(flag, c->x, c->z) &&
-                                    CheckLayer(flag, d.x, d.z)
-                                    )
+                            (
+                                CheckLayer(flag, b->x, b->z) &&
+                                CheckLayer(flag, c->x, c->z) &&
+                                CheckLayer(flag, d.x, d.z)
+                            )
                             {
                                 // Remove the second point and skip to the third
                                 data.path->points.Dispose(b);
@@ -657,17 +659,17 @@ namespace PathSearch
         U32 dz = abs(static_cast<long>(pos.z) - static_cast<long>(data.trace.oPos.z));
 
         return
-            (
-                // Inside the obstacle->destination bounding box
-                pos.x >= data.trace.minBound.x && pos.x <= data.trace.maxBound.x &&
-                pos.z >= data.trace.minBound.z && pos.z <= data.trace.maxBound.z &&
+        (
+            // Inside the obstacle->destination bounding box
+            pos.x >= data.trace.minBound.x && pos.x <= data.trace.maxBound.x &&
+            pos.z >= data.trace.minBound.z && pos.z <= data.trace.maxBound.z &&
 
-                // Not on first step (stop false trigger, but avoid the diagonal situation)
-                ((dx > 1 || dz > 1) || (dx == 1 && dz == 1)) &&
+            // Not on first step (stop false trigger, but avoid the diagonal situation)
+            ((dx > 1 || dz > 1) || (dx == 1 && dz == 1)) &&
 
-                // Just crossed the obstacle->destination line
-                SideOfTraceLine(curPos) != SideOfTraceLine(pos)
-                );
+            // Just crossed the obstacle->destination line
+            SideOfTraceLine(curPos) != SideOfTraceLine(pos)
+        );
     }
 
 
@@ -848,7 +850,8 @@ namespace PathSearch
             {
                 break;
             }
-        } while (dx || dz);
+        }
+        while (dx || dz);
 
         ASSERT(endDir >= 0 && endDir < NUM_SUCCESSORS);
 
@@ -1349,7 +1352,7 @@ namespace PathSearch
                     }
                 }
 
-                // Current search HAS visited bCell (either in open or closed)
+                    // Current search HAS visited bCell (either in open or closed)
                 else
                 {
                     // Ignore paths that are very close to each other
@@ -1428,8 +1431,11 @@ namespace PathSearch
         data.request = path->request;
 
         // If only a short distance, try a direct path
-        if (Max<U32>(abs(static_cast<long>(data.request.sx) - static_cast<long>(data.request.dx)),
-            abs(static_cast<long>(data.request.sz) - static_cast<long>(data.request.dz))) < 20)
+        if (Max<U32>
+        (
+            abs(static_cast<long>(data.request.sx) - static_cast<long>(data.request.dx)),
+            abs(static_cast<long>(data.request.sz) - static_cast<long>(data.request.dz))
+        ) < 20)
         {
             // Data only used in trace searches
             S32 endDir;
@@ -1703,62 +1709,62 @@ namespace PathSearch
             // State dependent operations
             switch (path->state)
             {
-            case FS_IDLE:
-            {
-                // Clear last path
-                if (data.lastPath == path)
+                case FS_IDLE:
                 {
-                    data.lastPath = nullptr;
+                    // Clear last path
+                    if (data.lastPath == path)
+                    {
+                        data.lastPath = nullptr;
+                    }
+
+                    // Path is no longer being used
+                    pathList.Dispose(path);
+                    break;
                 }
 
-                // Path is no longer being used
-                pathList.Dispose(path);
-                break;
-            }
-
-            case FS_QUEUED:
-            {
-                // Start a new search for a queued path
-                switch (path->request.type)
+                case FS_QUEUED:
                 {
-                case ST_ASTAR:
-                {
-                    if (!StartAStar(path))
+                    // Start a new search for a queued path
+                    switch (path->request.type)
                     {
-                        // Requires more processing
-                        return;
+                        case ST_ASTAR:
+                        {
+                            if (!StartAStar(path))
+                            {
+                                // Requires more processing
+                                return;
+                            }
+                            break;
+                        }
+
+                        case ST_TRACE:
+                        {
+                            if (!StartTrace(path))
+                            {
+                                // Requires more processing
+                                return;
+                            }
+                            break;
+                        }
+
+                        case ST_CROW:
+                        {
+                            if (!StartCrow(path))
+                            {
+                                // Requires more processing
+                                return;
+                            }
+                            break;
+                        }
                     }
                     break;
                 }
 
-                case ST_TRACE:
-                {
-                    if (!StartTrace(path))
-                    {
-                        // Requires more processing
-                        return;
-                    }
+                    // Ignore, since finders are still pointing at these paths
+                case FS_FOUND:
+                case FS_NOPATH:
+                case FS_DIRECT:
                     break;
-                }
-
-                case ST_CROW:
-                {
-                    if (!StartCrow(path))
-                    {
-                        // Requires more processing
-                        return;
-                    }
-                    break;
-                }
-                }
-                break;
-            }
-
-            // Ignore, since finders are still pointing at these paths
-            case FS_FOUND:
-            case FS_NOPATH:
-            case FS_DIRECT:
-                break;
             }
         }
     }
@@ -1818,8 +1824,11 @@ namespace PathSearch
     //
     // Returns the first connected cell which satisfied the heuristic
     //
-    Bool FindConnectedCell(U32 xStart, U32 zStart, U32& xPos, U32& zPos, UnitObj& unit, void* context,
-        Bool(UnitObj::* heuristic)(U32& val, U32 x, U32 z, void* context))
+    Bool FindConnectedCell
+    (
+        U32 xStart, U32 zStart, U32& xPos, U32& zPos, UnitObj& unit, void* context,
+        Bool (UnitObj::* heuristic)(U32& val, U32 x, U32 z, void* context)
+    )
     {
         ASSERT(WorldCtrl::CellOnMap(xStart, zStart));
         ASSERT(initialized);
@@ -1950,8 +1959,10 @@ namespace PathSearch
             }
 
             // Is this cell within the area
-            if (abs(static_cast<long>(p.x) - static_cast<long>(x)) < area && abs(
-                static_cast<long>(p.z) - static_cast<long>(z)) < area)
+            if (abs(static_cast<long>(p.x) - static_cast<long>(x)) < area && abs
+                (
+                    static_cast<long>(p.z) - static_cast<long>(z)
+                ) < area)
             {
                 // Add successor cells
                 for (U32 s = 0; s < NUM_SUCCESSORS; s++)

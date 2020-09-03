@@ -374,8 +374,11 @@ namespace Environment
             }
 
             Quaternion q0(matrix);
-            Quaternion q1(quakeAnim.Current().intensity * 0.2f,
-                          Vector(filterX.Current(), filterY.Current(), filterZ.Current()));
+            Quaternion q1
+            (
+                quakeAnim.Current().intensity * 0.2f,
+                Vector(filterX.Current(), filterY.Current(), filterZ.Current())
+            );
             Matrix mat(q0 * q1);
             mat.posit.x = matrix.posit.x + filterX.Current();
             mat.posit.y = matrix.posit.y + filterY.Current();

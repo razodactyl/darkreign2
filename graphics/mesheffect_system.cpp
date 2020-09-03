@@ -239,8 +239,11 @@ namespace MeshEffectSystem
     // Construct a new meshEffect instance
     //
     MeshEffect*
-    New(MeshEffectType* p, MeshEnt& _ent, F32 _lifeTime,
-        U32 _flags) //  = 0.0f, = Effects::flagDESTROY | Effects::flagLOOP
+    New
+    (
+        MeshEffectType* p, MeshEnt& _ent, F32 _lifeTime,
+        U32 _flags
+    ) //  = 0.0f, = Effects::flagDESTROY | Effects::flagLOOP
     {
         ASSERT(p);
 

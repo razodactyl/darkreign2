@@ -26,118 +26,116 @@
 //
 namespace Environment
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Light
-  //
-  namespace Light
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Struct LightColor
+    // NameSpace Light
     //
-    struct LightColor
+    namespace Light
     {
-      // Fraction
-      F32 fraction;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Struct LightColor
+        //
+        struct LightColor
+        {
+            // Fraction
+            F32 fraction;
 
-      // Ambient lighting
-      Color ambient;
+            // Ambient lighting
+            Color ambient;
 
-      // Sun lighting
-      Color sun;
+            // Sun lighting
+            Color sun;
 
-      // Fog
-      Color fog;
+            // Fog
+            Color fog;
 
-      // Next in the list
-      LightColor *next;
+            // Next in the list
+            LightColor* next;
 
-      // Prev in the list
-      LightColor *prev;
+            // Prev in the list
+            LightColor* prev;
 
-      // Default Constructor
-      LightColor() { }
+            // Default Constructor
+            LightColor()
+            {
+            }
 
-      // Initializing Constructor
-      LightColor(F32 fraction, const Color &ambient, const Color &sun, const Color &fog);
+            // Initializing Constructor
+            LightColor(F32 fraction, const Color& ambient, const Color& sun, const Color& fog);
 
-      // Loading Constructor
-      LightColor(FScope *fScope);
+            // Loading Constructor
+            LightColor(FScope* fScope);
 
-      // Save
-      void Save(FScope *fScope);
+            // Save
+            void Save(FScope* fScope);
+        };
 
-    };
-    
 
-    // Initialization and Shutdown
-    void Init();
-    void Done();
+        // Initialization and Shutdown
+        void Init();
+        void Done();
 
-    // Process LightTime
-    void Process();
+        // Process LightTime
+        void Process();
 
-    // Is it currently day time
-    Bool IsDay();
+        // Is it currently day time
+        Bool IsDay();
 
-    // Is it currently night time
-    Bool IsNight();
+        // Is it currently night time
+        Bool IsNight();
 
-    // What percentage day is it
-    F32 GetPercentageDay();
+        // What percentage day is it
+        F32 GetPercentageDay();
 
-    // Calculate the percentage day given the percentage day
-    F32 CalcPercentageDay(F32 fraction);
+        // Calculate the percentage day given the percentage day
+        F32 CalcPercentageDay(F32 fraction);
 
-    // Get the minimum and maximum percentage day for the supplied period
-    void GetPercentageDay(F32 start, F32 end, F32 &min, F32 &max);
+        // Get the minimum and maximum percentage day for the supplied period
+        void GetPercentageDay(F32 start, F32 end, F32& min, F32& max);
 
-    // Is the sun up; Should we be drawing shadows ?
-    Bool IsSunUp();
+        // Is the sun up; Should we be drawing shadows ?
+        Bool IsSunUp();
 
-    // Get the azimuth of the sun
-    F32 Azimuth();
+        // Get the azimuth of the sun
+        F32 Azimuth();
 
-    // Get the time of the day (in seconds since midnight)
-    U32 GetTime();
+        // Get the time of the day (in seconds since midnight)
+        U32 GetTime();
 
-    // Get the time of the day (as a fraction of the day)
-    F32 GetCycleFraction();
+        // Get the time of the day (as a fraction of the day)
+        F32 GetCycleFraction();
 
-    // Load information
-    void LoadInfo(FScope *fScope);
+        // Load information
+        void LoadInfo(FScope* fScope);
 
-    // Save information
-    void SaveInfo(FScope *fScope);
-    
-    // PostLoad
-    void PostLoad();
+        // Save information
+        void SaveInfo(FScope* fScope);
 
-    // Get the colors
-    LightColor * GetColors();
+        // PostLoad
+        void PostLoad();
 
-    // Given a day fraction, fill in the color
-    void FillInColor(LightColor &lightColor);
+        // Get the colors
+        LightColor* GetColors();
 
-    // Add a new color to the colors
-    void AddColor(LightColor *color);
+        // Given a day fraction, fill in the color
+        void FillInColor(LightColor& lightColor);
 
-    // Remove a color from the colors
-    void RemoveColor(LightColor *color);
+        // Add a new color to the colors
+        void AddColor(LightColor* color);
 
-    // Clear all of the colors
-    void ClearColors();
+        // Remove a color from the colors
+        void RemoveColor(LightColor* color);
 
-    // Get a default light color
-    LightColor DefaultColor();
+        // Clear all of the colors
+        void ClearColors();
 
-    // Get the var pointer to 
-    VarFloat & GetStartTimeVar();
+        // Get a default light color
+        LightColor DefaultColor();
 
-  }
-
+        // Get the var pointer to 
+        VarFloat& GetStartTimeVar();
+    }
 }
 
 

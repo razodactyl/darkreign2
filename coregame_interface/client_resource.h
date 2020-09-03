@@ -23,36 +23,33 @@
 //
 namespace Client
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Resource
-  //
-  class Resource : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Resource
+    //
+    class Resource : public IControl
+    {
     PROMOTE_LINK(Resource, IControl, 0x85A65124); // "Client::Resource"
 
-  private:
+    private:
 
-    IFaceVar *resource;
+        IFaceVar* resource;
 
-  public:
+    public:
 
-    // Constructor and destructor
-    Resource(IControl *parent);
-    ~Resource();
+        // Constructor and destructor
+        Resource(IControl* parent);
+        ~Resource();
 
-    // Activate
-    Bool Activate();
+        // Activate
+        Bool Activate();
 
-    // Deactivate
-    Bool Deactivate();
+        // Deactivate
+        Bool Deactivate();
 
-    // Draw this control
-    void DrawSelf(PaintInfo &pi);
-
-  };
-
+        // Draw this control
+        void DrawSelf(PaintInfo& pi);
+    };
 }
 
 #endif

@@ -346,10 +346,12 @@ namespace Common
         //
         void MarkCell(U32 cx, U32 cz, Color color)
         {
-            MarkPosition(
+            MarkPosition
+            (
                 WorldCtrl::MetreMapXMin() + (static_cast<F32>(cx) + 0.5f) * WorldCtrl::CellSize(),
                 WorldCtrl::MetreMapZMin() + (static_cast<F32>(cz) + 0.5f) * WorldCtrl::CellSize(),
-                color);
+                color
+            );
         }
 
 
@@ -480,10 +482,13 @@ namespace Common
             Vector camPos;
             Vid::TransformFromWorld(camPos, Vector(point.x, height, point.y));
 
-            RenderBeam(TRUE,
-                       points, maxPoints, 1, camPos.z,
-                       texture, color, RS_BLEND_ADD, Vid::sortEFFECT0,
-                       0, .02f, FALSE);
+            RenderBeam
+            (
+                TRUE,
+                points, maxPoints, 1, camPos.z,
+                texture, color, RS_BLEND_ADD, Vid::sortEFFECT0,
+                0, .02f, FALSE
+            );
 
             Vid::Heap::Restore(heapSize);
 #else
@@ -694,8 +699,11 @@ namespace Common
         //
         // Display a footprint placement grid with terrain deformation
         //
-        void FootPrintPlacementDeform(FootPrint::Placement& placement, PlacementDeform& deform, Bool mesh,
-                                      Matrix* matrix, F32 alpha)
+        void FootPrintPlacementDeform
+        (
+            FootPrint::Placement& placement, PlacementDeform& deform, Bool mesh,
+            Matrix* matrix, F32 alpha
+        )
         {
             ASSERT(!deform.count);
 
@@ -763,8 +771,11 @@ namespace Common
                         Color clrOk = Color(128L, 128L, 255L);
                         Color clrBad = Color(128L, 0L, 64L);
 
-                        Vid::ProjectClip(v, nullptr, ok ? clrOk : clrBad, RGBA_MAKE(0x7F, 0x7F, 0x7F, 0xFF), 4,
-                                         Vid::rectIndices, 6, FALSE);
+                        Vid::ProjectClip
+                        (
+                            v, nullptr, ok ? clrOk : clrBad, RGBA_MAKE(0x7F, 0x7F, 0x7F, 0xFF), 4,
+                            Vid::rectIndices, 6, FALSE
+                        );
                     }
                 }
             }
@@ -1050,8 +1061,10 @@ namespace Common
             ASSERT(!initializedSim);
 
             // Load bitmap resources
-            textures.Add(
-                0x1483BCF7, Bitmap::Manager::FindCreate(Bitmap::reduceNONE, "engine_healthbar.tga")); // "HealthBar"
+            textures.Add
+            (
+                0x1483BCF7, Bitmap::Manager::FindCreate(Bitmap::reduceNONE, "engine_healthbar.tga")
+            ); // "HealthBar"
 
             // Load mesh resources
             MeshRoot* root;

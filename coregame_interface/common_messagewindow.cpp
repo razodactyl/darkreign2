@@ -190,8 +190,11 @@ namespace Common
             }
 
             // Display the message
-            pi.font->Draw(x + 1, y + 1, message->message, message->length, Color(0L, 0L, 0L, message->color.a),
-                          &pi.client);
+            pi.font->Draw
+            (
+                x + 1, y + 1, message->message, message->length, Color(0L, 0L, 0L, message->color.a),
+                &pi.client
+            );
             pi.font->Draw(x, y, message->message, message->length, message->color, &pi.client);
 
             // Move Down
@@ -205,8 +208,11 @@ namespace Common
             if (typingLength >= typing->length)
             {
                 // Display the message
-                pi.font->Draw(x + 1, y + 1, typing->message, typing->length, Color(0L, 0L, 0L, typing->color.a),
-                              &pi.client);
+                pi.font->Draw
+                (
+                    x + 1, y + 1, typing->message, typing->length, Color(0L, 0L, 0L, typing->color.a),
+                    &pi.client
+                );
                 pi.font->Draw(x, y, typing->message, typing->length, typing->color, &pi.client);
 
                 // Mark the time of the message and add it to the rest of the messages
@@ -347,8 +353,11 @@ namespace Common
             ASSERT(window->paintInfo.client.Width() > 3);
 
             U32 length;
-            const CH* next = IFace::BreakText(ptr, window->GetPaintInfo().font, window->paintInfo.client.Width() - 3,
-                                              length);
+            const CH* next = IFace::BreakText
+            (
+                ptr, window->GetPaintInfo().font, window->paintInfo.client.Width() - 3,
+                length
+            );
 
             window->incomingCharacters += length;
             window->incoming.Append(new Message(ptr, length, IFace::GetConsoleColor(type)));

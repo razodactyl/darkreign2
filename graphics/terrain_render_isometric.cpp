@@ -17,8 +17,11 @@
 
 namespace Terrain
 {
-    void RenderCellIsometric(Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1,
-                             U32 clipFlags, Bool doColor, Bool doOverlay) // = clipALL, FALSE
+    void RenderCellIsometric
+    (
+        Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1,
+        U32 clipFlags, Bool doColor, Bool doOverlay
+    ) // = clipALL, FALSE
     {
         clipFlags;
 
@@ -63,28 +66,40 @@ namespace Terrain
         if (doColor)
         {
             Color c = normLights[c0.normal];
-            vertmem0[0].diffuse.Modulate(c0.color,
-                                         F32(c.r) * U8toNormF32,
-                                         F32(c.g) * U8toNormF32,
-                                         F32(c.b) * U8toNormF32);
+            vertmem0[0].diffuse.Modulate
+            (
+                c0.color,
+                F32(c.r) * U8toNormF32,
+                F32(c.g) * U8toNormF32,
+                F32(c.b) * U8toNormF32
+            );
 
             c = normLights[c1.normal];
-            vertmem0[1].diffuse.Modulate(c1.color,
-                                         static_cast<F32>(c.r) * U8toNormF32,
-                                         static_cast<F32>(c.g) * U8toNormF32,
-                                         static_cast<F32>(c.b) * U8toNormF32);
+            vertmem0[1].diffuse.Modulate
+            (
+                c1.color,
+                static_cast<F32>(c.r) * U8toNormF32,
+                static_cast<F32>(c.g) * U8toNormF32,
+                static_cast<F32>(c.b) * U8toNormF32
+            );
 
             c = normLights[c2.normal];
-            vertmem0[2].diffuse.Modulate(c2.color,
-                                         static_cast<F32>(c.r) * U8toNormF32,
-                                         static_cast<F32>(c.g) * U8toNormF32,
-                                         static_cast<F32>(c.b) * U8toNormF32);
+            vertmem0[2].diffuse.Modulate
+            (
+                c2.color,
+                static_cast<F32>(c.r) * U8toNormF32,
+                static_cast<F32>(c.g) * U8toNormF32,
+                static_cast<F32>(c.b) * U8toNormF32
+            );
 
             c = normLights[c3.normal];
-            vertmem0[3].diffuse.Modulate(c3.color,
-                                         static_cast<F32>(c.r) * U8toNormF32,
-                                         static_cast<F32>(c.g) * U8toNormF32,
-                                         static_cast<F32>(c.b) * U8toNormF32);
+            vertmem0[3].diffuse.Modulate
+            (
+                c3.color,
+                static_cast<F32>(c.r) * U8toNormF32,
+                static_cast<F32>(c.g) * U8toNormF32,
+                static_cast<F32>(c.b) * U8toNormF32
+            );
         }
         else
         {
@@ -146,8 +161,11 @@ namespace Terrain
 
     //----------------------------------------------------------------------------
 
-    void RenderCellIsometric(Cluster& clus, S32 x0, S32 z0, S32 x1, S32 z1, F32 y, UVPair* uvList,
-                             U32 clipFlags) // = clipALL
+    void RenderCellIsometric
+    (
+        Cluster& clus, S32 x0, S32 z0, S32 x1, S32 z1, F32 y, UVPair* uvList,
+        U32 clipFlags
+    ) // = clipALL
     {
         clipFlags;
 
@@ -206,8 +224,11 @@ namespace Terrain
 
     // draw a single cluster
     //
-    void RenderClusterIsometric(Cluster& clus, S32 x, S32 z, U32 cellOffset, U32 cellStride, U32 clipFlags,
-                                Bool doColor, Bool doOverlay) // = 1, = clipALL
+    void RenderClusterIsometric
+    (
+        Cluster& clus, S32 x, S32 z, U32 cellOffset, U32 cellStride, U32 clipFlags,
+        Bool doColor, Bool doOverlay
+    ) // = 1, = clipALL
     {
         clipFlags;
         Vid::Light::SetActiveList(clus.bounds.Offset(), clus.bounds);
@@ -256,10 +277,12 @@ namespace Terrain
 
     void RenderIsometric(Bool doColor, Bool doOverlay) // = FALSE
     {
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_DEF);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_DEF
+        );
 
         Vid::SetWorldTransform(Matrix::I);
         Vid::SetBucketMaterial(Vid::defMaterial);
@@ -375,7 +398,8 @@ namespace Terrain
         camera->SetProjTransformIso(MAPVIEWNEAR, viewfar, fov, twid, thgt);
 
         // set its orientation (pointing strait down)
-        camera->SetWorld(
+        camera->SetWorld
+        (
             Quaternion(-PIBY2, Matrix::I.right),
             Vector(0, MAPVIEWNEAR + terrMaxHeight, 0)
         );

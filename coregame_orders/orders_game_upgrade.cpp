@@ -23,50 +23,48 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Upgrade
+    // NameSpace Game
     //
-    U32 Upgrade::orderId;
-
-
-    //
-    // Generate
-    //
-    void Upgrade::Generate(Player &player)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Upgrade
+        //
+        U32 Upgrade::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Upgrade::Execute(const U8 *, Player &player)
-    {
-      // Upgrade each selected unit
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      { 
-        if ((**i)->CanUpgradeNow())
+        //
+        // Generate
+        //
+        void Upgrade::Generate(Player& player)
         {
-          (**i)->UpgradeNow();
-        }
-      }
+            Data data;
 
-      return (sizeof (Data));
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Upgrade::Execute(const U8*, Player& player)
+        {
+            // Upgrade each selected unit
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                if ((**i)->CanUpgradeNow())
+                {
+                    (**i)->UpgradeNow();
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

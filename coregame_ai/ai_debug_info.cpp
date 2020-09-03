@@ -29,14 +29,12 @@
 //
 namespace AI
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Debug
     //
     namespace Debug
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class Info
@@ -47,7 +45,7 @@ namespace AI
         //
         Info::Info(IControl* parent)
             : ICWindow(parent),
-            object(NULL)
+              object(NULL)
         {
             powerCurrentConsumed = new IFaceVar(this, CreateInteger("powerCurrentConsumed", 0));
             powerCurrentProduced = new IFaceVar(this, CreateInteger("powerCurrentProduced", 0));
@@ -313,9 +311,12 @@ namespace AI
                         if ((*b)->GetUnit())
                         {
                             Color color(0.5f, 0.8f, 1.0f);
-                            Utils::Sprintf(buff, buffSize, "[%08d] '%s'",
+                            Utils::Sprintf
+                            (
+                                buff, buffSize, "[%08d] '%s'",
                                 (*b)->GetUnit()->Id(),
-                                (*b)->GetUnit()->TypeName());
+                                (*b)->GetUnit()->TypeName()
+                            );
                             bombardierList->AddTextItem(buff, NULL, &color, Point<S32>(10, 0));
 
                             color = Color(0.5f, 1.0f, 0.8f);
@@ -467,7 +468,6 @@ namespace AI
                     for (NBinTree<Strategic::Asset>::Iterator a(&manager.GetAssets()); *a; ++a)
                     {
                         // Add the information about the asset
-
                     }
 
                     assetList->PostRebuild(&rebuild);
@@ -613,7 +613,6 @@ namespace AI
             {
                 AddToken(**c, 25);
             }
-
         }
 
 
@@ -631,10 +630,13 @@ namespace AI
             F32 current = totalUsage ? F32(usage) * 100.0f / F32(totalUsage) : 0.0f;
             F32 avail = totalWeight ? F32(weight) * 100.0f / F32(totalWeight) : 0.0f;
 
-            Utils::Sprintf(buff, 128, "Ratio: %f U: %d of %d [%f%%] W %d of %d [%f%%]",
+            Utils::Sprintf
+            (
+                buff, 128, "Ratio: %f U: %d of %d [%f%%] W %d of %d [%f%%]",
                 avail ? current / avail : 1E6f,
                 usage, totalUsage, current,
-                weight, totalWeight, avail);
+                weight, totalWeight, avail
+            );
             baseList->AddTextItem(buff, NULL, &color, Point<S32>(35, 0));
 
             const UnitObjList& units = orderer.GetUnitsOnField();
@@ -711,11 +713,7 @@ namespace AI
 
                 Utils::Sprintf(buff, 64, "Script Config: %s", request.GetScript()->GetConfigName());
                 assetList->AddTextItem(buff, NULL, &color, Point<S32>(10, 0));
-
             }
-
         }
-
     }
-
 }

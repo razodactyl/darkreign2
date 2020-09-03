@@ -189,8 +189,8 @@ namespace Studio
 
                 // Promote to a unit
                 i.mObject.unitObj = i.mObject.mapObj
-                    ? Promote::Object<UnitObjType, UnitObj>(i.mObject.mapObj)
-                    : nullptr;
+                                        ? Promote::Object<UnitObjType, UnitObj>(i.mObject.mapObj)
+                                        : nullptr;
 
                 // Set the Mesh::Manager hook
                 if (i.mObject.mapObj)
@@ -240,91 +240,91 @@ namespace Studio
             {
                 switch (e.subType)
                 {
-                    // A mouse button has been pressed
-                case Input::MOUSEBUTTONDOWN:
-                case Input::MOUSEBUTTONDBLCLK:
-                {
-                    // If we do not already have mouse capture
-                    if (gameWindow != IFace::GetCapture())
+                        // A mouse button has been pressed
+                    case Input::MOUSEBUTTONDOWN:
+                    case Input::MOUSEBUTTONDBLCLK:
                     {
-                        // Get mouse capture
-                        gameWindow->GetMouseCapture();
-
-                        // Save mouse code
-                        data.captureCode = e.input.code;
-
-                        // Left mouse button down
-                        if (data.captureCode == Input::LeftButtonCode())
+                        // If we do not already have mouse capture
+                        if (gameWindow != IFace::GetCapture())
                         {
-                            data.brush->Notify("Input::LeftMouseDown", &e);
-                        }
-                        else
+                            // Get mouse capture
+                            gameWindow->GetMouseCapture();
 
-                            // Middle mouse button down
-                            if (data.captureCode == Input::MidButtonCode())
+                            // Save mouse code
+                            data.captureCode = e.input.code;
+
+                            // Left mouse button down
+                            if (data.captureCode == Input::LeftButtonCode())
                             {
-                                data.brush->Notify("Input::MiddleMouseDown", &e);
+                                data.brush->Notify("Input::LeftMouseDown", &e);
                             }
                             else
 
-                                // Right mouse button down
-                                if (data.captureCode == Input::RightButtonCode())
+                                // Middle mouse button down
+                                if (data.captureCode == Input::MidButtonCode())
                                 {
-                                    data.brush->Notify("Input::RightMouseDown", &e);
+                                    data.brush->Notify("Input::MiddleMouseDown", &e);
                                 }
+                                else
+
+                                    // Right mouse button down
+                                    if (data.captureCode == Input::RightButtonCode())
+                                    {
+                                        data.brush->Notify("Input::RightMouseDown", &e);
+                                    }
+                        }
+
+                        return TRUE;
                     }
 
-                    return TRUE;
-                }
-
-                // The mouse has moved
-                case Input::MOUSEMOVE:
-                {
-                    // Notify the current brush
-                    data.brush->Notify("Input::MouseMove", &e);
-                    return (TRUE);
-                }
-
-                // A mouse button has been released
-                case Input::MOUSEBUTTONUP:
-                case Input::MOUSEBUTTONDBLCLKUP:
-                {
-                    // We have capture and it's the button that got the capture
-                    if (gameWindow == IFace::GetCapture() && (e.input.code == data.captureCode))
+                        // The mouse has moved
+                    case Input::MOUSEMOVE:
                     {
-                        // Left mouse button up
-                        if (data.captureCode == Input::LeftButtonCode())
-                        {
-                            data.brush->Notify("Input::LeftMouseUp", &e);
-                        }
-                        else
+                        // Notify the current brush
+                        data.brush->Notify("Input::MouseMove", &e);
+                        return (TRUE);
+                    }
 
-                            // Middle mouse button up
-                            if (data.captureCode == Input::MidButtonCode())
+                        // A mouse button has been released
+                    case Input::MOUSEBUTTONUP:
+                    case Input::MOUSEBUTTONDBLCLKUP:
+                    {
+                        // We have capture and it's the button that got the capture
+                        if (gameWindow == IFace::GetCapture() && (e.input.code == data.captureCode))
+                        {
+                            // Left mouse button up
+                            if (data.captureCode == Input::LeftButtonCode())
                             {
-                                data.brush->Notify("Input::MiddleMouseUp", &e);
+                                data.brush->Notify("Input::LeftMouseUp", &e);
                             }
                             else
 
-                                // Right mouse button up
-                                if (data.captureCode == Input::RightButtonCode())
+                                // Middle mouse button up
+                                if (data.captureCode == Input::MidButtonCode())
                                 {
-                                    data.brush->Notify("Input::RightMouseUp", &e);
+                                    data.brush->Notify("Input::MiddleMouseUp", &e);
                                 }
+                                else
 
-                        gameWindow->ReleaseMouseCapture();
+                                    // Right mouse button up
+                                    if (data.captureCode == Input::RightButtonCode())
+                                    {
+                                        data.brush->Notify("Input::RightMouseUp", &e);
+                                    }
+
+                            gameWindow->ReleaseMouseCapture();
+                        }
+
+                        return (TRUE);
                     }
 
-                    return (TRUE);
-                }
-
-                // Mouse-wheel axis has changed
-                case Input::MOUSEAXIS:
-                {
-                    // Notify the current brush
-                    data.brush->Notify("Input::MouseAxis", &e);
-                    return (TRUE);
-                }
+                        // Mouse-wheel axis has changed
+                    case Input::MOUSEAXIS:
+                    {
+                        // Notify the current brush
+                        data.brush->Notify("Input::MouseAxis", &e);
+                        return (TRUE);
+                    }
                 }
             }
             else
@@ -334,15 +334,15 @@ namespace Studio
                 {
                     switch (e.subType)
                     {
-                    case IFace::LOSTCAPTURE:
-                    {
-                        // Are we losing brush capture
-                        if (data.brush->HasCapture())
+                        case IFace::LOSTCAPTURE:
                         {
-                            data.brush->Notify("System::LostCapture");
+                            // Are we losing brush capture
+                            if (data.brush->HasCapture())
+                            {
+                                data.brush->Notify("System::LostCapture");
+                            }
+                            return (TRUE);
                         }
-                        return (TRUE);
-                    }
                     }
                 }
 

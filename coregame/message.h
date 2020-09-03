@@ -24,24 +24,23 @@
 //
 namespace Message
 {
+    // Initialization and Shutdown
+    void Init();
+    void Done();
 
-  // Initialization and Shutdown
-  void Init();
-  void Done();
+    // Process configruation
+    void ProcessConfigureGameMessage(FScope* fScope);
+    void ProcessConfigureLocationMessage(FScope* fScope);
+    void ProcessConfigureObjMessage(FScope* fScope);
 
-  // Process configruation
-  void ProcessConfigureGameMessage(FScope *fScope);
-  void ProcessConfigureLocationMessage(FScope *fScope);
-  void ProcessConfigureObjMessage(FScope *fScope);
+    // Trigger a Game Message
+    void CDECL TriggerGameMessage(U32 message, U32 params = 0, ...);
 
-  // Trigger a Game Message
-  void CDECL TriggerGameMessage(U32 message, U32 params = 0, ...);
+    // Trigger a Location Message
+    void CDECL TriggerLocationMessage(U32 message, const Vector& location, U32 params = 0, ...);
 
-  // Trigger a Location Message
-  void CDECL TriggerLocationMessage(U32 message, const Vector &location, U32 params = 0, ...);
-
-  // Trigger a Obj Message
-  void CDECL TriggerObjMessage(U32 message, GameObj *gameobj, const Vector *position, U32 params = 0, ...);
+    // Trigger a Obj Message
+    void CDECL TriggerObjMessage(U32 message, GameObj* gameobj, const Vector* position, U32 params = 0, ...);
 };
 
 #endif

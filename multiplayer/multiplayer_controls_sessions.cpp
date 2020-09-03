@@ -31,21 +31,19 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class Sessions::Item
         //
         class Sessions::Item : public ICStatic
         {
-            PROMOTE_LINK(Sessions::Item, IControl, 0x76A1B810); // "Sessions::Item"
+        PROMOTE_LINK(Sessions::Item, IControl, 0x76A1B810); // "Sessions::Item"
 
         public:
 
@@ -58,8 +56,8 @@ namespace MultiPlayer
             // Constructor
             Item(Sessions& sessionList, StyxNet::Explorer::Session& session, IControl* parent)
                 : ICStatic(parent),
-                sessionList(sessionList),
-                session(session)
+                  sessionList(sessionList),
+                  session(session)
             {
                 SetColorGroup(IFace::data.cgListItem);
             }
@@ -82,11 +80,13 @@ namespace MultiPlayer
                         // Add launch ready icon
                         IFace::RenderRectangle
                         (
-                            ClipRect(
+                            ClipRect
+                            (
                                 pi.client.p0.x + sessionList.offsetLocked,
                                 midY - (icon->pixels.Height() >> 1),
                                 pi.client.p0.x + sessionList.offsetLocked + icon->pixels.Width(),
-                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()),
+                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()
+                            ),
                             Color(1.0f, 1.0f, 1.0f),
                             icon,
                             pi.alphaScale
@@ -156,9 +156,7 @@ namespace MultiPlayer
                     pi.colors->fg[ColorIndex()],
                     &pi.client
                 );
-
             }
-
         };
 
 
@@ -250,37 +248,37 @@ namespace MultiPlayer
         {
             switch (fScope->NameCrc())
             {
-            case 0x82ACDEED: // "IconLocked"
-                IFace::FScopeToTextureInfo(fScope, iconLocked);
-                break;
+                case 0x82ACDEED: // "IconLocked"
+                    IFace::FScopeToTextureInfo(fScope, iconLocked);
+                    break;
 
-            case 0xC5183834: // "OffsetAddress"
-                offsetName = StdLoad::TypeU32(fScope);
-                break;
+                case 0xC5183834: // "OffsetAddress"
+                    offsetName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x16E37A45: // "WidthAddress"
-                widthName = StdLoad::TypeU32(fScope);
-                break;
+                case 0x16E37A45: // "WidthAddress"
+                    widthName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0xD6ABAE33: // "OffsetName"
-                offsetName = StdLoad::TypeU32(fScope);
-                break;
+                case 0xD6ABAE33: // "OffsetName"
+                    offsetName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x4F76FDA5: // "WidthName"
-                widthName = StdLoad::TypeU32(fScope);
-                break;
+                case 0x4F76FDA5: // "WidthName"
+                    widthName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x0491C000: // "OffsetNumber"
-                offsetNumber = StdLoad::TypeU32(fScope);
-                break;
+                case 0x0491C000: // "OffsetNumber"
+                    offsetNumber = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x026FBE4B: // "OffsetLocked"
-                offsetLocked = StdLoad::TypeU32(fScope);
-                break;
+                case 0x026FBE4B: // "OffsetLocked"
+                    offsetLocked = StdLoad::TypeU32(fScope);
+                    break;
 
-            default:
-                ICListBox::Setup(fScope);
-                break;
+                default:
+                    ICListBox::Setup(fScope);
+                    break;
             }
         }
 
@@ -356,7 +354,5 @@ namespace MultiPlayer
             }
             return (NULL);
         }
-
     }
-
 }

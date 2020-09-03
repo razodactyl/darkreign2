@@ -36,7 +36,6 @@
 // 
 namespace AI
 {
-
     //////////////////////////////////////////////////////////////////////////////
     //
     // Internal Data
@@ -124,7 +123,6 @@ namespace AI
 
         // Load information from the AI type file
         ProcessConfigFile(AI_CONFIGFILE);
-
     }
 
 
@@ -164,9 +162,9 @@ namespace AI
         {
             switch (sScope->NameCrc())
             {
-            case 0x622EF512: // "Strategic"
-                Strategic::Load(sScope);
-                break;
+                case 0x622EF512: // "Strategic"
+                    Strategic::Load(sScope);
+                    break;
             }
         }
     }
@@ -201,7 +199,6 @@ namespace AI
 
         // Process Strategic AI
         Strategic::Process();
-
     }
 
 
@@ -216,7 +213,6 @@ namespace AI
     }
 
 
-
     //
     // ProcessConfigFile
     //
@@ -228,7 +224,7 @@ namespace AI
         ASSERT(name);
 
         PTree tFile(TRUE, MultiPlayer::GetDataCrc());
-        FScope* sScope, * fScope;
+        FScope *sScope, *fScope;
 
         // Parse the file
         if (!tFile.AddFile(name))
@@ -244,21 +240,21 @@ namespace AI
         {
             switch (sScope->NameCrc())
             {
-            case 0x622EF512: // "Strategic"
-                Strategic::Config::ProcessConfig(sScope);
-                break;
+                case 0x622EF512: // "Strategic"
+                    Strategic::Config::ProcessConfig(sScope);
+                    break;
 
-            case 0xEB474C2E: // "Tactical"
-                Tactical::ProcessConfig(sScope);
-                break;
+                case 0xEB474C2E: // "Tactical"
+                    Tactical::ProcessConfig(sScope);
+                    break;
 
-            case 0x7223612A: // "Formation"
-                Formation::ProcessConfig(sScope);
-                break;
+                case 0x7223612A: // "Formation"
+                    Formation::ProcessConfig(sScope);
+                    break;
 
-            default:
-                sScope->ScopeError("Unkown function '%s' in '%s'", sScope->NameStr(), name);
-                break;
+                default:
+                    sScope->ScopeError("Unkown function '%s' in '%s'", sScope->NameStr(), name);
+                    break;
             }
         }
 

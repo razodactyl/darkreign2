@@ -328,9 +328,11 @@ namespace Weapon
                     if (animList->type != anim1WAY)
                     {
                         animList->type = anim1WAY;
-                        LOG_WARN(
+                        LOG_WARN
+                        (
                             ("Instant/Projectile Weapon '%s' on unit '%s' has Fire animation but its not 1way", ident.
-                                str, type.GetName()))
+                                str, type.GetName())
+                        )
                     }
                     break;
 
@@ -338,9 +340,11 @@ namespace Weapon
                     if (animList->type != animLOOP)
                     {
                         animList->type = animLOOP;
-                        LOG_WARN(
+                        LOG_WARN
+                        (
                             ("Constant Weapon '%s' on unit '%s' has Fire animation but its not Loop", ident.str, type.
-                                GetName()))
+                                GetName())
+                        )
                     }
                     break;
             }

@@ -58,11 +58,15 @@ namespace Strategic
         U32 mask = 0x1;
 
         // Test each of the cells in the cluster to see if
-        for (U32 cz = WorldCtrl::ClusterToTopCell(mapCluster->zIndex); cz <= WorldCtrl::ClusterToBottomCell(
-                 mapCluster->zIndex); cz++)
+        for (U32 cz = WorldCtrl::ClusterToTopCell(mapCluster->zIndex); cz <= WorldCtrl::ClusterToBottomCell
+             (
+                 mapCluster->zIndex
+             ); cz++)
         {
-            for (U32 cx = WorldCtrl::ClusterToLeftCell(mapCluster->xIndex); cx <= WorldCtrl::ClusterToRightCell(
-                     mapCluster->xIndex); cx++)
+            for (U32 cx = WorldCtrl::ClusterToLeftCell(mapCluster->xIndex); cx <= WorldCtrl::ClusterToRightCell
+                 (
+                     mapCluster->xIndex
+                 ); cx++)
             {
                 // The traction type can be on that cell
                 // The constructor traction type can be on that cell

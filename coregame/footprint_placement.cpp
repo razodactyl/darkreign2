@@ -38,22 +38,22 @@ namespace FootPrint
     {
         switch (r)
         {
-        case PR_NONE:
-        case PR_OFFMAP:
-        case PR_FOOTON:
-        case PR_CLAIM:
-            return (FALSE);
+            case PR_NONE:
+            case PR_OFFMAP:
+            case PR_FOOTON:
+            case PR_CLAIM:
+                return (FALSE);
 
-        case PR_OK:
-        case PR_SHROUDED:
-        case PR_CANMOVETO:
-        case PR_FOOTOFF:
-        case PR_THUMPING:
-            return (TRUE);
+            case PR_OK:
+            case PR_SHROUDED:
+            case PR_CANMOVETO:
+            case PR_FOOTOFF:
+            case PR_THUMPING:
+                return (TRUE);
 
-        default:
+            default:
             LOG_WARN(("Unknown placement result (%d)", r));
-            return (FALSE);
+                return (FALSE);
         }
     }
 
@@ -220,18 +220,18 @@ namespace FootPrint
         // Which vert is bottom left in terrain space
         switch (d)
         {
-        case WorldCtrl::EAST:
-            x = type->Size().x;
-            break;
+            case WorldCtrl::EAST:
+                x = type->Size().x;
+                break;
 
-        case WorldCtrl::SOUTH:
-            x = type->Size().x;
-            z = type->Size().z;
-            break;
+            case WorldCtrl::SOUTH:
+                x = type->Size().x;
+                z = type->Size().z;
+                break;
 
-        case WorldCtrl::WEST:
-            z = type->Size().z;
-            break;
+            case WorldCtrl::WEST:
+                z = type->Size().z;
+                break;
         }
 
         // Get the world position of the first shadow vertex
@@ -439,23 +439,29 @@ namespace FootPrint
                                 else
 
                                     // Can this object build on this location
-                                    if (!PathSearch::CanMoveToCell(
-                                        type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
-                                        origCell))
+                                    if (!PathSearch::CanMoveToCell
+                                        (
+                                            type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
+                                            origCell
+                                        ))
                                     {
                                         r = PR_CANMOVETO;
                                     }
-                                    else if (thumpCell && !PathSearch::CanMoveToCell(
-                                        type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
-                                        *thumpCell))
+                                    else if (thumpCell && !PathSearch::CanMoveToCell
+                                        (
+                                            type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
+                                            *thumpCell
+                                        ))
                                     {
                                         r = PR_CANMOVETO;
                                     }
                                     else
 
                                         // Is this cell shrouded
-                                        if (!(flags & CHECK_IGNORESHROUD) && team && !Sight::Seen(
-                                            cell.map.x, cell.map.z, team))
+                                        if (!(flags & CHECK_IGNORESHROUD) && team && !Sight::Seen
+                                            (
+                                                cell.map.x, cell.map.z, team
+                                            ))
                                         {
                                             r = PR_SHROUDED;
                                         }
@@ -467,15 +473,19 @@ namespace FootPrint
                                 if (unitObjType->CanBoard())
                                 {
                                     // The pathability check is extended to the fringe cells for objects that can have a board manager
-                                    if (!PathSearch::CanMoveToCell(
-                                        type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
-                                        origCell))
+                                    if (!PathSearch::CanMoveToCell
+                                        (
+                                            type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
+                                            origCell
+                                        ))
                                     {
                                         r = PR_CANMOVETO;
                                     }
-                                    else if (thumpCell && !PathSearch::CanMoveToCell(
-                                        type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
-                                        *thumpCell))
+                                    else if (thumpCell && !PathSearch::CanMoveToCell
+                                        (
+                                            type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
+                                            *thumpCell
+                                        ))
                                     {
                                         r = PR_CANMOVETO;
                                     }
@@ -483,13 +493,17 @@ namespace FootPrint
                                 else
                                 {
                                     // Not allowed to change the pathability state from passabable to impassable
-                                    if (PathSearch::CanMoveToCell(
-                                        type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
-                                        origCell))
-                                    {
-                                        if (thumpCell && !PathSearch::CanMoveToCell(
+                                    if (PathSearch::CanMoveToCell
+                                        (
                                             type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
-                                            *thumpCell))
+                                            origCell
+                                        ))
+                                    {
+                                        if (thumpCell && !PathSearch::CanMoveToCell
+                                            (
+                                                type->GetMapType().GetTractionIndex(type->GetMapType().GetDefaultLayer()),
+                                                *thumpCell
+                                            ))
                                         {
                                             r = PR_CANMOVETO;
                                         }
@@ -806,8 +820,8 @@ namespace FootPrint
     //
     Placement::Thumped::Thumped()
         : heights(nullptr),
-        cells(nullptr),
-        placement(nullptr)
+          cells(nullptr),
+          placement(nullptr)
     {
     }
 

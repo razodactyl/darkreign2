@@ -397,9 +397,11 @@ void Player::CmdHandler(U32 pathCrc)
             CON_DIAG(("Current Players", (*i)->GetName()))
             for (!i; *i; ++i)
             {
-                CON_DIAG(
+                CON_DIAG
+                (
                     (" %3d - %s [%s]", (*i)->GetId(), (*i)->GetName(), (*i)->GetTeam() ? (*i)->GetTeam()->GetName() :
-                        "----"))
+                        "----")
+                )
             }
             break;
         }

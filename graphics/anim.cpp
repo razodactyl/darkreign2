@@ -58,8 +58,11 @@ Bool OptimizeKeys(AnimKey* src, U32& srcCount, AnimKeyEnum type)
                 {
                     if (i < S32(srcCount - 2))
                     {
-                        Utils::Memcpy(static_cast<void*>(&k2), static_cast<void*>(&k3),
-                            (srcCount - i - 1) * sizeof(AnimKey));
+                        Utils::Memcpy
+                        (
+                            static_cast<void*>(&k2), static_cast<void*>(&k3),
+                            (srcCount - i - 1) * sizeof(AnimKey)
+                        );
                         i--;
                     }
                     srcCount--;
@@ -108,8 +111,11 @@ Bool OptimizeKeys(AnimKey* src, U32& srcCount, AnimKeyEnum type)
                 {
                     if (i < S32(srcCount - 2))
                     {
-                        Utils::Memcpy(static_cast<void*>(&k2), static_cast<void*>(&k3),
-                            (srcCount - i - 1) * sizeof(AnimKey));
+                        Utils::Memcpy
+                        (
+                            static_cast<void*>(&k2), static_cast<void*>(&k3),
+                            (srcCount - i - 1) * sizeof(AnimKey)
+                        );
                         i--;
                     }
                     srcCount--;
@@ -215,10 +221,13 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
 
     if (lastKey->type & animSCALE)
     {
-        ASSERT(!(lastKey->quaternion.s == 0.0f
-            && lastKey->quaternion.v.x == 0.0f
-            && lastKey->quaternion.v.y == 0.0f
-            && lastKey->quaternion.v.y == 0.0f));
+        ASSERT
+        (
+            !(lastKey->quaternion.s == 0.0f
+                && lastKey->quaternion.v.x == 0.0f
+                && lastKey->quaternion.v.y == 0.0f
+                && lastKey->quaternion.v.y == 0.0f)
+        );
     }
 
     AnimKey* rot0 = lastKey;
@@ -355,10 +364,13 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
                 rot0 = thisKey;
             }
 
-            ASSERT(!(thisKey->quaternion.s == 0.0f
-                && thisKey->quaternion.v.x == 0.0f
-                && thisKey->quaternion.v.y == 0.0f
-                && thisKey->quaternion.v.y == 0.0f));
+            ASSERT
+            (
+                !(thisKey->quaternion.s == 0.0f
+                    && thisKey->quaternion.v.x == 0.0f
+                    && thisKey->quaternion.v.y == 0.0f
+                    && thisKey->quaternion.v.y == 0.0f)
+            );
         }
 
         lastKey = thisKey;
@@ -675,14 +687,20 @@ void Animation::Set(F32 frame, const AnimKey& lastKey, const AnimKey& thisKey, A
         if (q.Dot(q) <= 0)
         {
             LOG_WARN(("Quat::Set q.Dot(q) <= 0: %f %f %f %f", q.s, q.v.x, q.v.y, q.v.z));
-            LOG_WARN(
+            LOG_WARN
+            (
                 ("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v.y,
-                    lastKey.quaternion.v.z));
-            LOG_WARN(
+                    lastKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
                 ("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v.y,
-                    thisKey.quaternion.v.z));
-            LOG_WARN(
-                ("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame));
+                    thisKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
+                ("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame)
+            );
 
             statQuatError = TRUE;
 
@@ -708,14 +726,20 @@ void Animation::Set(F32 frame, const AnimKey& lastKey, const AnimKey& thisKey, A
         if (q.Dot(q) <= 0)
         {
             LOG_WARN(("Quat::Set q.Dot(q) <= 0: %f %f %f %f", q.s, q.v.x, q.v.y, q.v.z));
-            LOG_WARN(
+            LOG_WARN
+            (
                 ("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v.y,
-                    lastKey.quaternion.v.z));
-            LOG_WARN(
+                    lastKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
                 ("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v.y,
-                    thisKey.quaternion.v.z));
-            LOG_WARN(
-                ("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame));
+                    thisKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
+                ("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame)
+            );
 
             statQuatError = TRUE;
 
@@ -801,15 +825,21 @@ void Animation::SetFrameOverlay(F32 frame, AnimKey& state, F32 controlFrame) con
                 if (q.Dot(q) <= 0)
                 {
                     LOG_WARN(("Quat::Set q.Dot(q) <= 0: %f %f %f %f", q.s, q.v.x, q.v.y, q.v.z));
-                    LOG_WARN(
+                    LOG_WARN
+                    (
                         ("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v
-                            .y, lastKey.quaternion.v.z));
-                    LOG_WARN(
+                            .y, lastKey.quaternion.v.z)
+                    );
+                    LOG_WARN
+                    (
                         ("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v
-                            .y, thisKey.quaternion.v.z));
-                    LOG_WARN(
+                            .y, thisKey.quaternion.v.z)
+                    );
+                    LOG_WARN
+                    (
                         ("dfdk: %f; lastKey.frame %f; thisKey.frame; frame", dfdk, lastKey.frame, thisKey.frame, frame
-                            ));
+                        )
+                    );
 
                     statQuatError = TRUE;
                 }

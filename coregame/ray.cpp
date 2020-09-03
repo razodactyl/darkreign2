@@ -173,8 +173,11 @@ namespace Ray
     //
     // Test collision of ray with one cell
     //
-    static Bool CellTest(Point<S32> cell, const Vector& pos, const Vector& dir, F32& dist, Vector& hitPos, F32 margin,
-                         Bool testWater)
+    static Bool CellTest
+    (
+        Point<S32> cell, const Vector& pos, const Vector& dir, F32& dist, Vector& hitPos, F32 margin,
+        Bool testWater
+    )
     {
         Vector n;
         F32 dirN;

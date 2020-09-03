@@ -128,8 +128,11 @@ namespace Strategic
     public:
 
         // Add a base
-        Base& AddBase(const GameIdent& base, const GameIdent& configName, U32 weighting, U32 priority,
-                      const Point<F32>& location, F32 orientation);
+        Base& AddBase
+        (
+            const GameIdent& base, const GameIdent& configName, U32 weighting, U32 priority,
+            const Point<F32>& location, F32 orientation
+        );
 
         // Remove a base
         void RemoveBase(const GameIdent& base);

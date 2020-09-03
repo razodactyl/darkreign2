@@ -297,12 +297,16 @@ namespace CoreGame
                 if (WorldCtrl::WorldInitialized())
                 {
                     CON_DIAG(("World Information"))
-                    CON_DIAG(
+                    CON_DIAG
+                    (
                         ("Mission name       : %s", Missions::GetActive() ? Missions::GetActive()->GetName().str :
-                            "No current mission"))
+                            "No current mission")
+                    )
                     CON_DIAG(("Cell size          : %.0f x %.0f metres", WorldCtrl::CellSize(), WorldCtrl::CellSize()))
-                    CON_DIAG(
-                        ("Game cluster size  : %.0f x %.0f metres", WorldCtrl::ClusterSize(), WorldCtrl::ClusterSize()))
+                    CON_DIAG
+                    (
+                        ("Game cluster size  : %.0f x %.0f metres", WorldCtrl::ClusterSize(), WorldCtrl::ClusterSize())
+                    )
                     CON_DIAG((""))
                     CON_DIAG(("Map sizes :"))
                     CON_DIAG(("Cells              : %d x %d", WorldCtrl::CellMapX(), WorldCtrl::CellMapZ()))
@@ -400,15 +404,17 @@ namespace CoreGame
                     UnitObj* u = Promote::Object<UnitObjType, UnitObj>(*i);
 
                     CON_DIAG
-                    ((
-                        "%-20s : %7.3f, %7.3f, %7.3f [%u] (%s)",
-                        (*i)->TypeName(),
-                        (*i)->Position().x,
-                        (*i)->Position().y,
-                        (*i)->Position().z,
-                        (*i)->Id(),
-                        u ? (u->GetTeam() ? u->GetTeam()->GetName() : "No Team") : "Not a unit"
-                    ))
+                    (
+                        (
+                            "%-20s : %7.3f, %7.3f, %7.3f [%u] (%s)",
+                            (*i)->TypeName(),
+                            (*i)->Position().x,
+                            (*i)->Position().y,
+                            (*i)->Position().z,
+                            (*i)->Id(),
+                            u ? (u->GetTeam() ? u->GetTeam()->GetName() : "No Team") : "Not a unit"
+                        )
+                    )
                 }
 
                 CON_DIAG(("Total: %d", MapObjCtrl::GetOnMapList().GetCount()))
@@ -424,12 +430,14 @@ namespace CoreGame
                     UnitObj* u = Promote::Object<UnitObjType, UnitObj>(*i);
 
                     CON_DIAG
-                    ((
-                        "%-20s [%u] (%s)",
-                        (*i)->TypeName(),
-                        (*i)->Id(),
-                        u ? (u->GetTeam() ? u->GetTeam()->GetName() : "No Team") : "Not a unit"
-                    ))
+                    (
+                        (
+                            "%-20s [%u] (%s)",
+                            (*i)->TypeName(),
+                            (*i)->Id(),
+                            u ? (u->GetTeam() ? u->GetTeam()->GetName() : "No Team") : "Not a unit"
+                        )
+                    )
                 }
                 CON_DIAG(("Total: %d", MapObjCtrl::GetOffMapList().GetCount()))
                 break;
@@ -517,9 +525,11 @@ namespace CoreGame
                     CON_DIAG(("[%3d] %s", ac, ArmourClass::Id2ArmourClassName(ac)))
                     for (U32 id = 0; id < ArmourClass::NumDamages(); id++)
                     {
-                        CON_DIAG(
+                        CON_DIAG
+                        (
                             (" - %5.2f [%3d] %s", F32(ArmourClass::Lookup(id, ac)) / 65536.0f, id, ArmourClass::
-                                Id2DamageName(id)))
+                                Id2DamageName(id))
+                        )
                     }
                 }
 
@@ -538,10 +548,12 @@ namespace CoreGame
                     {
                         MoveTable::BalanceData& data = MoveTable::GetBalance((*s)->index, (*t)->index);
                         CON_DIAG
-                        ((
-                            "%-20s %u - %3.2f, %2u, %3.2f",
-                            (*s)->ident.str, (*s)->index, data.speed, data.slope, data.health
-                        ))
+                        (
+                            (
+                                "%-20s %u - %3.2f, %2u, %3.2f",
+                                (*s)->ident.str, (*s)->index, data.speed, data.slope, data.health
+                            )
+                        )
                     }
                 }
                 break;
@@ -726,11 +738,14 @@ namespace CoreGame
                 CON_DIAG(("Regions:"))
                 for (NList<RegionObj>::Iterator i(&RegionObj::allRegions); *i; ++i)
                 {
-                    CON_DIAG(("%s : (%g,%g)-(%g,%g) (%g,%g)",
-                        (*i)->RegionName(),
-                        (*i)->GetArea().p0.x, (*i)->GetArea().p0.y,
-                        (*i)->GetArea().p1.x, (*i)->GetArea().p1.y,
-                        (*i)->GetMidPoint().x, (*i)->GetMidPoint().y))
+                    CON_DIAG
+                    (
+                        ("%s : (%g,%g)-(%g,%g) (%g,%g)",
+                            (*i)->RegionName(),
+                            (*i)->GetArea().p0.x, (*i)->GetArea().p0.y,
+                            (*i)->GetArea().p1.x, (*i)->GetArea().p1.y,
+                            (*i)->GetMidPoint().x, (*i)->GetMidPoint().y)
+                    )
                 }
                 break;
             }
@@ -780,15 +795,17 @@ namespace CoreGame
                 for (NBinTree<BookmarkObj>::Iterator i(&BookmarkObj::allBookmarks); *i; ++i)
                 {
                     CON_DIAG
-                    ((
-                        " - '%s' [x%g y%g z%g yaw %g pitch %g]",
-                        (*i)->GetName(),
-                        (*i)->GetPosition().x,
-                        (*i)->GetPosition().y,
-                        (*i)->GetPosition().z,
-                        (*i)->GetYaw(),
-                        (*i)->GetPitch()
-                    ))
+                    (
+                        (
+                            " - '%s' [x%g y%g z%g yaw %g pitch %g]",
+                            (*i)->GetName(),
+                            (*i)->GetPosition().x,
+                            (*i)->GetPosition().y,
+                            (*i)->GetPosition().z,
+                            (*i)->GetYaw(),
+                            (*i)->GetPitch()
+                        )
+                    )
                 }
                 break;
             }

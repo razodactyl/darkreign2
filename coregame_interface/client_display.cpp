@@ -234,13 +234,19 @@ namespace Client
                 {
                     if (deform)
                     {
-                        FootPrintPlacementDeform(data.placeFoot, placeDeform, TRUE, &data.placeLocation,
-                                                 data.clientAlpha.GetValue());
+                        FootPrintPlacementDeform
+                        (
+                            data.placeFoot, placeDeform, TRUE, &data.placeLocation,
+                            data.clientAlpha.GetValue()
+                        );
                     }
                     else
                     {
-                        Common::Display::FootPrintPlacement(data.placeFoot, TRUE, &data.placeLocation,
-                                                            data.clientAlpha.GetValue());
+                        Common::Display::FootPrintPlacement
+                        (
+                            data.placeFoot, TRUE, &data.placeLocation,
+                            data.clientAlpha.GetValue()
+                        );
                     }
                 }
 

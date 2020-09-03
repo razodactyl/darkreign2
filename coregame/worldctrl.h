@@ -670,8 +670,11 @@ public:
     {
         return
         (
-            GetCluster(static_cast<U32>(Utils::FtoL(x * ClusterSizeInv())),
-                       static_cast<U32>(Utils::FtoL(z * ClusterSizeInv())))
+            GetCluster
+            (
+                static_cast<U32>(Utils::FtoL(x * ClusterSizeInv())),
+                static_cast<U32>(Utils::FtoL(z * ClusterSizeInv()))
+            )
         );
     }
 
@@ -680,8 +683,11 @@ public:
     {
         return
         (
-            GetClusterIndex(static_cast<U32>(Utils::FtoL(x * ClusterSizeInv())),
-                            static_cast<U32>(Utils::FtoL(z * ClusterSizeInv())))
+            GetClusterIndex
+            (
+                static_cast<U32>(Utils::FtoL(x * ClusterSizeInv())),
+                static_cast<U32>(Utils::FtoL(z * ClusterSizeInv()))
+            )
         );
     }
 

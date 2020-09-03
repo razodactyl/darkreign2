@@ -118,8 +118,8 @@ namespace Sound
                 (
                     sample, Clamp<S32>
                     (
-                    MIN_VOLUME, static_cast<S32>((volume * static_cast<F32>(MAX_VOLUME)) + 0.5F),
-                    MAX_VOLUME
+                        MIN_VOLUME, static_cast<S32>((volume * static_cast<F32>(MAX_VOLUME)) + 0.5F),
+                        MAX_VOLUME
                     )
                 );
             }
@@ -133,7 +133,7 @@ namespace Sound
         U32 STDCALL PlayTrack(void* context)
         {
             StreamItem* si = (StreamItem*)context;
-        
+
             int num_samples = stb_vorbis_decode_memory
             (
                 static_cast<U8*>(si->file->GetMemoryPtr()),
@@ -142,24 +142,24 @@ namespace Sound
                 &si->sample_rate,
                 &si->decoded
             );
-        
+
             int tracklen = num_samples * si->channels * sizeof(short);
-        
+
             AIL_set_sample_playback_rate(si->sample, si->sample_rate);
             AIL_set_sample_type(si->sample, DIG_F_STEREO_16, 0);
-        
+
             AIL_set_sample_address(si->sample, si->decoded, tracklen);
-        
+
             char* last_error = AIL_last_error();
             // LOG_ERR((last_error));
-        
+
             // Reset the volume.
             si->SetVolume(vorbisVolume);
-        
+
             AIL_start_sample(si->sample);
-        
+
             si->started = true;
-        
+
             return 0;
         }
 

@@ -497,8 +497,11 @@ namespace Strategic
     //
     // Add a base
     //
-    Base& Base::Manager::AddBase(const GameIdent& baseName, const GameIdent& configName, U32 weighting, U32 priority,
-                                 const Point<F32>& location, F32 orientation)
+    Base& Base::Manager::AddBase
+    (
+        const GameIdent& baseName, const GameIdent& configName, U32 weighting, U32 priority,
+        const Point<F32>& location, F32 orientation
+    )
     {
         // Ask config if there's a base
         Config::Generic* config = Config::FindConfig(0x4BC2F208, configName); // "Base" 

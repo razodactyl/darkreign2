@@ -570,9 +570,11 @@ namespace Action
             {
                 if (t->GetEndGame().result != Team::EndGame::NR)
                 {
-                    LOG_DIAG(
+                    LOG_DIAG
+                    (
                         (" [%s] already has result [%s]", t->GetName(), Team::EndGame::resultName[t->GetEndGame().result
-                        ]));
+                        ])
+                    );
                     return (FALSE);
                 }
             }

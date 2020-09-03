@@ -37,7 +37,6 @@
 //
 namespace Won
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Struct DirectoryServer
@@ -52,7 +51,7 @@ namespace Won
 
         DirectoryServer(FScope* fScope)
             : host(NULL),
-            aborted(FALSE)
+              aborted(FALSE)
         {
             name = StdLoad::TypeString(fScope);
             port = StdLoad::TypeU32(fScope);

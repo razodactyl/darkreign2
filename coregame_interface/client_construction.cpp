@@ -365,8 +365,11 @@ namespace Client
                         // Display off map object available
                         if (flags & FLAG_OFFMAP)
                         {
-                            IFace::RenderRectangle(areaProgress + pi.client.p0,
-                                                   Color(1.0F, 0.0F, 0.0F, 0.7F * IFace::data.alphaScale));
+                            IFace::RenderRectangle
+                            (
+                                areaProgress + pi.client.p0,
+                                Color(1.0F, 0.0F, 0.0F, 0.7F * IFace::data.alphaScale)
+                            );
                         }
 
                         break;

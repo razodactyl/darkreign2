@@ -150,9 +150,11 @@ namespace Strategic
                                     script = object->GetScriptManager().FindScript(name);
                                     if (!script)
                                     {
-                                        LOG_DIAG(
+                                        LOG_DIAG
+                                        (
                                             ("Expanding '%s': Could not find script '%s' in team '%s'", name, ptr,
-                                                teamName))
+                                                teamName)
+                                        )
                                     }
                                 }
                                 else
@@ -203,8 +205,11 @@ namespace Strategic
     //
     // Script::Script
     //
-    Script::Script(Manager& manager, const char* name, const char* configName, FScope* fScope, U32 weighting,
-                   U32 priority)
+    Script::Script
+    (
+        Manager& manager, const char* name, const char* configName, FScope* fScope, U32 weighting,
+        U32 priority
+    )
         : name(name),
           configName(configName),
           manager(manager),
@@ -767,9 +772,11 @@ namespace Strategic
         }
         else
         {
-            LOG_WARN(
+            LOG_WARN
+            (
                 ("Adding a unit [%d] '%s' to a script '%s' which has no squad!", unit->TypeName(), unit->Id(), GetName()
-                ))
+                )
+            )
         }
     }
 
@@ -917,8 +924,11 @@ namespace Strategic
                 // Submit a request to keep what we got ... (only if we've got units)
                 if (GetSquad() && GetSquad()->GetList().GetCount())
                 {
-                    object.GetAssetManager().SubmitRequest(*new Asset::Request::Squad(this, 0, GetSquad()), weighting,
-                                                           priority);
+                    object.GetAssetManager().SubmitRequest
+                    (
+                        *new Asset::Request::Squad(this, 0, GetSquad()), weighting,
+                        priority
+                    );
                 }
             }
         }

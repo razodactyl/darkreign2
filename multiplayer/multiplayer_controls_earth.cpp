@@ -476,7 +476,8 @@ namespace MultiPlayer
                             // Draw the name of the player
                             const CH* ch = Utils::Ansi2Unicode((*f)->network->GetName());
                             U32 len = Utils::Strlen(ch);
-                            pi.font->Draw(
+                            pi.font->Draw
+                            (
                                 s.x - (pi.font->Width(ch, len) / 2),
                                 s.y - (pi.font->Height() / 2),
                                 ch,

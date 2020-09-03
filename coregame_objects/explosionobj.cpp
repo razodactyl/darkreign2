@@ -391,11 +391,17 @@ void ExplosionObj::RenderDebug()
 {
     if (ExplosionType()->areaInner != ExplosionType()->areaOuter)
     {
-        Common::Display::MarkCircleMetre(Point<F32>(Position().x, Position().z), ExplosionType()->areaInner,
-                                         Color(1.0f, 0.5f, 0.5f));
+        Common::Display::MarkCircleMetre
+        (
+            Point<F32>(Position().x, Position().z), ExplosionType()->areaInner,
+            Color(1.0f, 0.5f, 0.5f)
+        );
     }
-    Common::Display::MarkCircleMetre(Point<F32>(Position().x, Position().z), ExplosionType()->areaOuter,
-                                     Color(0.75f, 0.0f, 0.0f));
+    Common::Display::MarkCircleMetre
+    (
+        Point<F32>(Position().x, Position().z), ExplosionType()->areaOuter,
+        Color(0.75f, 0.0f, 0.0f)
+    );
 }
 
 

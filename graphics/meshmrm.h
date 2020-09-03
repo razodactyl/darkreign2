@@ -13,53 +13,62 @@
 
 struct MRM
 {
-  struct Face
-  {
-    enum Token
-    { 
-	    BadToken,
-	    VertexA, VertexB, VertexC, 
-	    NormalA, NormalB, NormalC, 
-	    TexCoord1A, TexCoord1B, TexCoord1C,
-//	    TexCoord2A, TexCoord2B, TexCoord2C,
-      SizeToken = 0xffff
+    struct Face
+    {
+        enum Token
+        {
+            BadToken,
+            VertexA,
+            VertexB,
+            VertexC,
+            NormalA,
+            NormalB,
+            NormalC,
+            TexCoord1A,
+            TexCoord1B,
+            TexCoord1C,
+            //	    TexCoord2A, TexCoord2B, TexCoord2C,
+            SizeToken = 0xffff
+        };
+
+        U16 index[2];
+        U16 face, xface, xbucky;
+
+        Token token;
     };
 
-    U16 index[2];
-	  U16 face, xface, xbucky;
+    struct Vertex
+    {
+        U16 newFaceCount;
+        U16 newNormCount;
+        U16 newTextCount;
+        U16 faceCount;
 
-    Token token;
-  };
-  struct Vertex
-  {
-	  U16 newFaceCount;
-	  U16 newNormCount;
-	  U16 newTextCount;
-	  U16 faceCount;
+        Face* face;
+    };
 
-    Face * face;
-  };
+    U16 faceCount;
+    U16 vertCount;
+    U16 maxVertCount;
+    U16 minVertCount;
+    U16 minMinVertCount;    // mininum min verts
 
-  U16 faceCount;
-  U16 vertCount;
-  U16 maxVertCount;
-  U16 minVertCount;
-  U16 minMinVertCount;    // mininum min verts
+    Vertex* vertex;
 
-  Vertex * vertex;
+    MRM()
+    {
+        vertex = NULL;
+    }
 
-  MRM()
-  {
-    vertex = NULL;
-  }
-  ~MRM()
-  {
-    Free();
-  }
+    ~MRM()
+    {
+        Free();
+    }
 
-  void Alloc( U16 totalFaceCount, U16 vertCount);
-  void Free();
+    void Alloc(U16 totalFaceCount, U16 vertCount);
+    void Free();
 };
+
 //----------------------------------------------------------------------------
 
 #endif

@@ -24,38 +24,35 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Placement::Cluster
+    //
+    class Placement::Cluster
+    {
+    private:
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Placement::Cluster
-  //
-  class Placement::Cluster
-  {
-  private:
+        // Cluster information
+        const Manager::ClusterInfo& info;
 
-    // Cluster information
-    const Manager::ClusterInfo &info;
+        // Position node
+        NBinTree<Cluster, U32>::Node nodePosition;
 
-    // Position node
-    NBinTree<Cluster, U32>::Node nodePosition;
+        // Score node
+        NBinTree<Cluster, F32>::Node nodeScore;
 
-    // Score node
-    NBinTree<Cluster, F32>::Node nodeScore;
+    public:
 
-  public:
+        // Constructor
+        Cluster(const Manager::ClusterInfo& info);
 
-    // Constructor
-    Cluster(const Manager::ClusterInfo &info);
+        // Destructor
+        ~Cluster();
 
-    // Destructor
-    ~Cluster();
+    public:
 
-  public:
-
-    friend Placement::ClusterSet;
-
-  };
-
+        friend Placement::ClusterSet;
+    };
 }
 
 #endif

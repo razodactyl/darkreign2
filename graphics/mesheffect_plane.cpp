@@ -73,8 +73,11 @@ void MeshPlaneType::PostLoad()
 
 // Constructor
 //
-MeshPlane::MeshPlane(MeshPlaneType* _type, MeshEnt* _ent, F32 _lifeTime,
-                     U32 _flags) // = 0.0f, = Effects::flagDESTROY | Effects::flagLOOP
+MeshPlane::MeshPlane
+(
+    MeshPlaneType* _type, MeshEnt* _ent, F32 _lifeTime,
+    U32 _flags
+) // = 0.0f, = Effects::flagDESTROY | Effects::flagLOOP
     : MeshBaseColor(_type, _ent, _lifeTime, _flags)
 {
     ASSERT(_type->paramKeys.GetCount() >= 2);

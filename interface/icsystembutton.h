@@ -21,78 +21,78 @@
 //
 class ICSystemButton : public ICButton
 {
-  PROMOTE_LINK(ICSystemButton, ICButton, 0xC48224FB); // "ICSystemButton"
+PROMOTE_LINK(ICSystemButton, ICButton, 0xC48224FB); // "ICSystemButton"
 
 public:
 
-  // Styles
-  enum
-  {
-    // Allow code to draw button face
-    STYLE_CODEDRAWN   = (1 << 0)
-  };
+    // Styles
+    enum
+    {
+        // Allow code to draw button face
+        STYLE_CODEDRAWN = (1 << 0)
+    };
 
-  // System button functions
-  enum Function
-  {
-    CLOSE,
-    HELP,
-    SLIDER_LEFT,
-    SLIDER_RIGHT,
-    SLIDER_UP,
-    SLIDER_DOWN,
-    MINIMIZE,
-    MAXIMIZE,
-    DROPLIST
-  };
-
-protected:
-
-  // Style
-  U32 sysButtonStyle;
-
-  // Functions
-  Function function;
-
-  // Delay before polling begins
-  S32 pollDelay;
-
-  // Font
-  Font *font;
+    // System button functions
+    enum Function
+    {
+        CLOSE,
+        HELP,
+        SLIDER_LEFT,
+        SLIDER_RIGHT,
+        SLIDER_UP,
+        SLIDER_DOWN,
+        MINIMIZE,
+        MAXIMIZE,
+        DROPLIST
+    };
 
 protected:
 
-  // Event handling
-  U32 HandleEvent(Event &e);
+    // Style
+    U32 sysButtonStyle;
 
-  // Polling callback
-  void Poll();
+    // Functions
+    Function function;
 
-  // Draw this control into the bitmap
-  void DrawSelf(PaintInfo &pi);
+    // Delay before polling begins
+    S32 pollDelay;
 
-  // Draw close icon
-  void DrawCloseIcon(const ClipRect &r, Color c);
+    // Font
+    Font* font;
 
-  // Draw slider icons
-  void DrawLeftIcon(const ClipRect &r, Color c);
-  void DrawRightIcon(const ClipRect &r, Color c);
-  void DrawUpIcon(const ClipRect &r, Color c);
-  void DrawDownIcon(const ClipRect &r, Color c);
+protected:
 
-  // Draw character icon
-  void DrawCharacterIcon(const ClipRect &r, Color c, CH ch);
+    // Event handling
+    U32 HandleEvent(Event& e);
+
+    // Polling callback
+    void Poll();
+
+    // Draw this control into the bitmap
+    void DrawSelf(PaintInfo& pi);
+
+    // Draw close icon
+    void DrawCloseIcon(const ClipRect& r, Color c);
+
+    // Draw slider icons
+    void DrawLeftIcon(const ClipRect& r, Color c);
+    void DrawRightIcon(const ClipRect& r, Color c);
+    void DrawUpIcon(const ClipRect& r, Color c);
+    void DrawDownIcon(const ClipRect& r, Color c);
+
+    // Draw character icon
+    void DrawCharacterIcon(const ClipRect& r, Color c, CH ch);
 
 public:
 
-  // Constructor
-  ICSystemButton(Function func, IControl *parent);
+    // Constructor
+    ICSystemButton(Function func, IControl* parent);
 
-  // Activate
-  Bool Activate();
+    // Activate
+    Bool Activate();
 
-  // Configure a style item
-  Bool SetStyleItem(const char *s, Bool toggle);
+    // Configure a style item
+    Bool SetStyleItem(const char* s, Bool toggle);
 };
 
 

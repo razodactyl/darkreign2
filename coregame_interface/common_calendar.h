@@ -25,58 +25,55 @@
 //
 namespace Common
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Calendar
-  //
-  class Calendar : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Calendar
+    //
+    class Calendar : public IControl
+    {
     PROMOTE_LINK(Calender, IControl, 0xBE4E2320) // "Calender"
 
-  protected:
+    protected:
 
-    // Year
-    IFaceVar *year;
+        // Year
+        IFaceVar* year;
 
-    // Month
-    IFaceVar *month;
+        // Month
+        IFaceVar* month;
 
-    // Day
-    IFaceVar *day;
+        // Day
+        IFaceVar* day;
 
-    // Item Width
-    U32 itemWidth;
-    
-    // Item Height
-    U32 itemHeight;
+        // Item Width
+        U32 itemWidth;
 
-  public:
+        // Item Height
+        U32 itemHeight;
 
-    // Constructor and Destructor
-    Calendar(IControl *parent);
-    ~Calendar();
+    public:
 
-    // Setup this control from one scope function
-    void Setup(FScope *fScope);
+        // Constructor and Destructor
+        Calendar(IControl* parent);
+        ~Calendar();
 
-    // Handle notifications
-    void Notify(IFaceVar *var);
+        // Setup this control from one scope function
+        void Setup(FScope* fScope);
 
-    // Handle events
-    U32 HandleEvent(Event &e);
+        // Handle notifications
+        void Notify(IFaceVar* var);
 
-    // Control draws itself
-    void DrawSelf(PaintInfo &pi);
+        // Handle events
+        U32 HandleEvent(Event& e);
 
-    // Activation
-    Bool Activate();
+        // Control draws itself
+        void DrawSelf(PaintInfo& pi);
 
-    // Deactivate
-    Bool Deactivate();
+        // Activation
+        Bool Activate();
 
-  };
-
+        // Deactivate
+        Bool Deactivate();
+    };
 }
 
 #endif

@@ -558,9 +558,15 @@ F32 HeightField::FindFloor(F32* heights, F32 dx, F32 dz, Vector* surfNormal) // 
 
         if (surfNormal)
         {
-            *surfNormal = Cross(Vector(static_cast<F32>(meterPerCell), heights[2] - heights[0],
-                                       static_cast<F32>(meterPerCell)),
-                                Vector(static_cast<F32>(meterPerCell), heights[3] - heights[0], 0.0f));
+            *surfNormal = Cross
+            (
+                Vector
+                (
+                    static_cast<F32>(meterPerCell), heights[2] - heights[0],
+                    static_cast<F32>(meterPerCell)
+                ),
+                Vector(static_cast<F32>(meterPerCell), heights[3] - heights[0], 0.0f)
+            );
 
             surfNormal->Normalize();
         }
@@ -579,9 +585,15 @@ F32 HeightField::FindFloor(F32* heights, F32 dx, F32 dz, Vector* surfNormal) // 
 
         if (surfNormal)
         {
-            *surfNormal = Cross(Vector(0.0f, heights[1] - heights[0], static_cast<F32>(meterPerCell)),
-                                Vector(static_cast<F32>(meterPerCell), heights[2] - heights[0],
-                                       static_cast<F32>(meterPerCell)));
+            *surfNormal = Cross
+            (
+                Vector(0.0f, heights[1] - heights[0], static_cast<F32>(meterPerCell)),
+                Vector
+                (
+                    static_cast<F32>(meterPerCell), heights[2] - heights[0],
+                    static_cast<F32>(meterPerCell)
+                )
+            );
 
             surfNormal->Normalize();
         }

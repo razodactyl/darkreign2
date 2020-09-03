@@ -847,8 +847,11 @@ Bool IsInTri(Vector& pos, Vector* v, Plane& plane)
 // returns the appropriate live node from stateArray
 // t is filled with the ratio of (vCollision - vStart) / (vEnd - vStart)
 //
-const FamilyNode* MeshRoot::CollidePoly(const Array<FamilyState>& stateArray, const Vector& vStart, const Vector& vEnd,
-                                        F32& t) const
+const FamilyNode* MeshRoot::CollidePoly
+(
+    const Array<FamilyState>& stateArray, const Vector& vStart, const Vector& vEnd,
+    F32& t
+) const
 {
     FamilyNode* retNode = nullptr;
 
@@ -1883,32 +1886,47 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
     if (buckys.count > maxBuckys)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many materials in: %s ; %d ; max %d",
-            fileName.str, buckys.count, maxBuckys));
+        WARN_CON_DIAG
+        (
+            ("Too many materials in: %s ; %d ; max %d",
+                fileName.str, buckys.count, maxBuckys)
+        );
     }
     if (vertices.count > maxVerts)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many verts in: %s ; %d ; max %d",
-            fileName.str, vertices.count, maxVerts));
+        WARN_CON_DIAG
+        (
+            ("Too many verts in: %s ; %d ; max %d",
+                fileName.str, vertices.count, maxVerts)
+        );
     }
     if (normals.count > maxVerts)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many normals in: %s ; %d ; max %d",
-            fileName.str, normals.count, maxVerts));
+        WARN_CON_DIAG
+        (
+            ("Too many normals in: %s ; %d ; max %d",
+                fileName.str, normals.count, maxVerts)
+        );
     }
     if (uvs.count > maxVerts)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many texture coords in: %s ; %d ; max %d",
-            fileName.str, uvs.count, maxVerts));
+        WARN_CON_DIAG
+        (
+            ("Too many texture coords in: %s ; %d ; max %d",
+                fileName.str, uvs.count, maxVerts)
+        );
     }
     if (faces.count > maxTris)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many tris in: %s ; %d ; max %d",
-            fileName.str, faces.count, maxTris));
+        WARN_CON_DIAG
+        (
+            ("Too many tris in: %s ; %d ; max %d",
+                fileName.str, faces.count, maxTris)
+        );
     }
     if (!valid)
     {
@@ -1983,8 +2001,11 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
 
     if (vCount > maxVerts || iCount > maxIndices)
     {
-        WARN_CON_DIAG(("%s: too many verts/faces: vCount %d max %d ; iCount %d max %d",
-            fileName.str, vCount, maxVerts, iCount / 3, maxTris));
+        WARN_CON_DIAG
+        (
+            ("%s: too many verts/faces: vCount %d max %d ; iCount %d max %d",
+                fileName.str, vCount, maxVerts, iCount / 3, maxTris)
+        );
         return FALSE;
     }
 
@@ -2207,8 +2228,10 @@ void MeshRoot::Rebuild()
             for (f = bucky.faces.data; f < fe; f++)
             {
                 FaceObj& face = *f;
-                ASSERT(
-                    face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+                ASSERT
+                (
+                    face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count
+                );
 
                 for (U32 j = 0; j < 3; j++, vv++, iCount++)
                 {
@@ -2349,14 +2372,18 @@ void MeshRoot::Rebuild()
                 {
                     if (v->vv.x == vert.vv.x && v->vv.y == vert.vv.y && v->vv.z == vert.vv.z)
                     {
-                        Vector ntt(
+                        Vector ntt
+                        (
                             fabsf(v->nv.x - vert.nv.x),
                             fabsf(v->nv.y - vert.nv.y),
-                            fabsf(v->nv.z - vert.nv.z));    // delta normal
+                            fabsf(v->nv.z - vert.nv.z)
+                        );    // delta normal
 
-                        UVPair uvtt(
+                        UVPair uvtt
+                        (
                             fabsf(v->uv.u - vert.uv.u),
-                            fabsf(v->uv.v - vert.uv.v));    // delta uv
+                            fabsf(v->uv.v - vert.uv.v)
+                        );    // delta uv
 
                         if (it == -1 || (uvtt.u <= uvt.u && uvtt.v <= uvt.v
                             && ntt.x <= nt.x && ntt.y <= nt.y && ntt.z <= nt.z))
@@ -2558,8 +2585,11 @@ void MeshRoot::CalcEnvMapTexCoords()    // FIXME: sphere coords
 
 //----------------------------------------------------------------------------
 
-void MeshRoot::SetColorGradient(Color color0, Color color1, F32 offset, F32 height, Bool alphaOnly,
-                                Array<Color, 4>* colorA) // = FALSE, = NULL
+void MeshRoot::SetColorGradient
+(
+    Color color0, Color color1, F32 offset, F32 height, Bool alphaOnly,
+    Array<Color, 4>* colorA
+) // = FALSE, = NULL
 {
     if (!colorA)
     {
@@ -2604,11 +2634,13 @@ void MeshRoot::SetColorGradient(Color color0, Color color1, F32 offset, F32 heig
         }
         else
         {
-            c->SetNoExpand(
+            c->SetNoExpand
+            (
                 F32(color0.r) + dr * doff,
                 F32(color0.g) + dg * doff,
                 F32(color0.b) + db * doff,
-                F32(color0.a) + da * doff);
+                F32(color0.a) + da * doff
+            );
         }
     }
 }

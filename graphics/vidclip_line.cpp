@@ -102,8 +102,8 @@ namespace Vid
                 VertexTL* vertmem;
                 U16* indexmem = nullptr;
                 Bucket* bucket = iCount
-                    ? LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id)
-                    : LockPrimitiveMem((void**)&vertmem, vCount, id);
+                                     ? LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id)
+                                     : LockPrimitiveMem((void**)&vertmem, vCount, id);
 
                 if (!bucket)
                 {
@@ -168,8 +168,11 @@ namespace Vid
 
             // clip indexed lines to bucket
             //
-            Bucket* ToBucket(VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog,
-                U32 clipFlags) // = (void *)0xcdcdcdcd, = TRUE, = clipALL, 0
+            Bucket* ToBucket
+            (
+                VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog,
+                U32 clipFlags
+            ) // = (void *)0xcdcdcdcd, = TRUE, = clipALL, 0
             {
                 ASSERT(srcV && srcI);
                 ASSERT(vCount <= renderState.maxVerts && iCount <= renderState.maxIndices);
@@ -218,7 +221,7 @@ namespace Vid
                         //
                         if ((clipFlagA[i0] | clipFlagA[i1]) != 0)
                         {
-                            VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                            VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                             SetupPool(vp0, vp1);
 
                             inPoolCount = 2;
@@ -228,7 +231,7 @@ namespace Vid
                             // clip to all planes
                             //
                             for (U32 sign = 0x80000000, index = 0; index < 3 && inPoolCount == 2;
-                                sign = 0x80000000 & (~sign), index += sign >> 31)
+                                 sign = 0x80000000 & (~sign), index += sign >> 31)
                             {
                                 if (ClipToPlane(sign | index))
                                 {
@@ -253,8 +256,8 @@ namespace Vid
                                 iCount += 2;
                             }
                         }
-                        // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
-                        //
+                            // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
+                            //
                         else
                         {
                             if (idx[i0] == 0xffff)
@@ -283,8 +286,11 @@ namespace Vid
 
             // clip non-indexed lines to bucket
             //
-            Bucket* ToBucket(VertexTL* srcV, U32 vCount, const void* id, U32 calcFog,
-                U32 clipFlags) // = (void *)0xcdcdcdcd, = TRUE, = clipALL
+            Bucket* ToBucket
+            (
+                VertexTL* srcV, U32 vCount, const void* id, U32 calcFog,
+                U32 clipFlags
+            ) // = (void *)0xcdcdcdcd, = TRUE, = clipALL
             {
                 ASSERT(srcV);
                 ASSERT(vCount <= renderState.maxVerts);
@@ -331,7 +337,7 @@ namespace Vid
                         //
                         if ((clipFlagA[i0] | clipFlagA[i1]) != 0)
                         {
-                            VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                            VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                             SetupPool(vp0, vp1);
 
                             inPoolCount = 2;
@@ -341,7 +347,7 @@ namespace Vid
                             // clip to all planes
                             //
                             for (U32 sign = 0x80000000, index = 0; index < 3 && inPoolCount == 2;
-                                sign = 0x80000000 & (~sign), index += sign >> 31)
+                                 sign = 0x80000000 & (~sign), index += sign >> 31)
                             {
                                 if (ClipToPlane(sign | index))
                                 {
@@ -359,8 +365,8 @@ namespace Vid
                                 vCount++;
                             }
                         }
-                        // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
-                        //
+                            // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
+                            //
                         else
                         {
                             tmpVertPtrs[vCount] = &srcV[i0];

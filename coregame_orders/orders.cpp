@@ -368,8 +368,11 @@ namespace Orders
                     // Discard the order but at least log a warning
                     Order* order = orders.Find(data.orderId);
                     const char* name = order ? order->GetName() : "Unknown!";
-                    LOG_WARN(("Insuficient space to add order \"%s\" [%08x]",
-                        name, data.orderId, size, dispatchCurrent->remaining))
+                    LOG_WARN
+                    (
+                        ("Insuficient space to add order \"%s\" [%08x]",
+                            name, data.orderId, size, dispatchCurrent->remaining)
+                    )
                     return;
                 }
 
@@ -851,9 +854,11 @@ namespace Orders
 
                         if (used != saveCurrent->size)
                         {
-                            ERR_FATAL(
+                            ERR_FATAL
+                            (
                                 ("Size mismatch whilst replaying order [%08x], expected %d got %d", saveCurrent->size,
-                                    used))
+                                    used)
+                            )
                         }
                     }
                     else

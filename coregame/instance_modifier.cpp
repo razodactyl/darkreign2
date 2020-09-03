@@ -55,8 +55,11 @@ InstanceModifierType::InstanceModifierType(Type type)
 //
 // Configure the type
 //
-void InstanceModifierType::LoadFPoint(FScope* fScope, F32 defVal, const Range<F32>& range, F32 scale, F32 defMin,
-                                      F32 defMax)
+void InstanceModifierType::LoadFPoint
+(
+    FScope* fScope, F32 defVal, const Range<F32>& range, F32 scale, F32 defMin,
+    F32 defMax
+)
 {
     ASSERT(type == FPOINT);
 
@@ -102,8 +105,11 @@ void InstanceModifierType::LoadInteger(FScope* fScope, S32 defVal, const Range<S
 //
 // Configure the type
 //
-F32 InstanceModifierType::LoadIntegerScaled(FScope* fScope, F32 defVal, const Range<S32>& range, F32 scale, F32 defMin,
-                                            F32 defMax)
+F32 InstanceModifierType::LoadIntegerScaled
+(
+    FScope* fScope, F32 defVal, const Range<S32>& range, F32 scale, F32 defMin,
+    F32 defMax
+)
 {
     ASSERT(type == INTEGER);
 
@@ -444,8 +450,11 @@ void ApplyDamageModifier::Apply(MapObj* obj)
         Weapon::Object* weapon = unit->GetWeapon();
         if (weapon)
         {
-            ApplyModifier::Apply(weapon->GetDamage().GetInstanceModifier(),
-                                 weapon->GetType().GetDamage().GetInstanceModifierType());
+            ApplyModifier::Apply
+            (
+                weapon->GetDamage().GetInstanceModifier(),
+                weapon->GetType().GetDamage().GetInstanceModifierType()
+            );
         }
     }
 }

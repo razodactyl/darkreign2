@@ -25,97 +25,97 @@
 //
 namespace Client
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class FacilityIcon - A single facility icon
-  //
-  class FacilityIcon : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class FacilityIcon - A single facility icon
+    //
+    class FacilityIcon : public IControl
+    {
     PROMOTE_LINK(Icon, IControl, 0x0A89CE92); // "Client::FacilityIcon"
 
-  protected:
+    protected:
 
-    // Current progress value
-    F32 progress;
+        // Current progress value
+        F32 progress;
 
-    // Current progress type
-    U32 progressType;
+        // Current progress type
+        U32 progressType;
 
-    // Generic count
-    U32 count;
+        // Generic count
+        U32 count;
 
-    // The facility this icon is representing
-    UnitObjPtr facility;
+        // The facility this icon is representing
+        UnitObjPtr facility;
 
-    // The overlay texture
-    TextureInfo *textureOverlay;
+        // The overlay texture
+        TextureInfo* textureOverlay;
 
-    // The position of the count
-    Point<S32> pointCount;
+        // The position of the count
+        Point<S32> pointCount;
 
-    // The progress bar area
-    Area<S32> areaProgress;
+        // The progress bar area
+        Area<S32> areaProgress;
 
-    // The health bar area
-    Area<S32> areaHealth;
+        // The health bar area
+        Area<S32> areaHealth;
 
-    // The alpha values to use for a bar
-    Point<F32> alphas;
+        // The alpha values to use for a bar
+        Point<F32> alphas;
 
-    // Cycle based processing
-    void Poll();
+        // Cycle based processing
+        void Poll();
 
-    // Draw control
-    void DrawSelf(PaintInfo &pi);
+        // Draw control
+        void DrawSelf(PaintInfo& pi);
 
-    // Process the given operation
-    void ProcessOperation(U32 event);
-  
-  public:
+        // Process the given operation
+        void ProcessOperation(U32 event);
 
-    // Constructor and destructor
-    FacilityIcon(IControl *parent, UnitObj *facility);
-    ~FacilityIcon();
+    public:
 
-    // Configure control from an FScope
-    void Setup(FScope *fScope);
+        // Constructor and destructor
+        FacilityIcon(IControl* parent, UnitObj* facility);
+        ~FacilityIcon();
 
-    // Control methods
-    U32 HandleEvent(Event &e);
+        // Configure control from an FScope
+        void Setup(FScope* fScope);
 
-    // Activate this control
-    Bool Activate();
+        // Control methods
+        U32 HandleEvent(Event& e);
 
-    // Returns the facilty for this icon, or NULL if none
-    UnitObj * GetFacility();
-  };
+        // Activate this control
+        Bool Activate();
+
+        // Returns the facilty for this icon, or NULL if none
+        UnitObj* GetFacility();
+    };
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Facility - Facility shortcut control
-  //
-  class Facility : public IconWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Facility - Facility shortcut control
+    //
+    class Facility : public IconWindow
+    {
     PROMOTE_LINK(Construction, IconWindow, 0xE23D708F); // "Client::Facility"
 
-  protected:
+    protected:
 
-    // Cycle based processing
-    void Poll();
- 
-  public:
+        // Cycle based processing
+        void Poll();
 
-    // Constructor and destructor
-    Facility(IControl *parent);
-    ~Facility();
+    public:
 
-    // Get the icon for a particular object
-    FacilityIcon * GetIcon(UnitObj *facility);
+        // Constructor and destructor
+        Facility(IControl* parent);
+        ~Facility();
 
-    // Add a facility to the bar
-    void Add(UnitObj *facility);
-  };
+        // Get the icon for a particular object
+        FacilityIcon* GetIcon(UnitObj* facility);
+
+        // Add a facility to the bar
+        void Add(UnitObj* facility);
+    };
 }
 
 #endif

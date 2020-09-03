@@ -121,13 +121,18 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
 
     // Get Seeing range, day time and night time modifiers
     Range<S32> SightRange(0, Sight::MaxRangeCells() - 1);
-    seeingRange.LoadIntegerScaled(fScope->GetFunction("SeeingRange", FALSE), 100.0F, SightRange, WC_CELLSIZEF32INV,
-                                  0.0F, 1.1F);
+    seeingRange.LoadIntegerScaled
+    (
+        fScope->GetFunction("SeeingRange", FALSE), 100.0F, SightRange, WC_CELLSIZEF32INV,
+        0.0F, 1.1F
+    );
 
     // Load day and night modifiers
     seeingRangeDay = Utils::FtoLNearest(F32(seeingRange.GetInteger()) * StdLoad::TypeF32(fScope, "DayModifier", 1.0f));
-    seeingRangeNight = Utils::FtoLNearest(
-        F32(seeingRange.GetInteger()) * StdLoad::TypeF32(fScope, "NightModifier", 1.0f));
+    seeingRangeNight = Utils::FtoLNearest
+    (
+        F32(seeingRange.GetInteger()) * StdLoad::TypeF32(fScope, "NightModifier", 1.0f)
+    );
 
     if (!SightRange.Inc(seeingRangeDay) || !SightRange.Inc(seeingRangeNight))
     {
@@ -159,8 +164,11 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
     disruptionRange2 = disruptionRange * disruptionRange;
 
     // Get the top speed, convert from km/h to m/s
-    maxSpeed.LoadFPoint(fScope->GetFunction("TopSpeed", FALSE), 10.0F, Range<F32>::positive, PhysicsConst::KMH2MPS,
-                        0.0F, 1.5F);
+    maxSpeed.LoadFPoint
+    (
+        fScope->GetFunction("TopSpeed", FALSE), 10.0F, Range<F32>::positive, PhysicsConst::KMH2MPS,
+        0.0F, 1.5F
+    );
     maxSpeedInv = (fabs(maxSpeed.GetFPoint()) > 1e-4F) ? 1.0F / maxSpeed.GetFPoint() : 0.0F;
 
     // Compute linear acceleration so top speed is reached in 1/2 game cell
@@ -217,8 +225,10 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
     constructionTime = StdLoad::TypeF32(fScope, "ConstructionTime", 4.0f, Range<F32>::positive);
 
     // Initial hitpoints when being constructed
-    constructionHitPoints = S32(
-        GetHitPoints() * StdLoad::TypeF32(fScope, "ConstructionHitPoints", 0.1f, Range<F32>::percentage));
+    constructionHitPoints = S32
+    (
+        GetHitPoints() * StdLoad::TypeF32(fScope, "ConstructionHitPoints", 0.1f, Range<F32>::percentage)
+    );
 
     // Load the companion of this type
     StdLoad::TypeReaperObjType(fScope, "Companion", companionType);
@@ -338,8 +348,11 @@ void UnitObjType::PostLoad()
 
     if (selfDestructExplosion.Alive())
     {
-        selfDestructBleedMap = AI::Map::CreateBleedMap(selfDestructExplosion->GetAreaOuter(),
-                                                       movementModel->canEverMove ? TRUE : FALSE);
+        selfDestructBleedMap = AI::Map::CreateBleedMap
+        (
+            selfDestructExplosion->GetAreaOuter(),
+            movementModel->canEverMove ? TRUE : FALSE
+        );
     }
 
     // Clean up the canEverFire flag
@@ -388,10 +401,12 @@ void UnitObjType::PostLoad()
             if (info->type->upgradeFor.Alive())
             {
                 ERR_CONFIG
-                ((
-                    "Duplicate upgrade : [%s] is an upgrade for [%s] and [%s]",
-                    info->type->GetName(), info->type->upgradeFor->GetName(), GetName()
-                ));
+                (
+                    (
+                        "Duplicate upgrade : [%s] is an upgrade for [%s] and [%s]",
+                        info->type->GetName(), info->type->upgradeFor->GetName(), GetName()
+                    )
+                );
             }
 
             // Set the reverse pointer 'upgradeFor'
@@ -419,10 +434,12 @@ void UnitObjType::PostLoad()
         if (altitude[Claim::LAYER_LOWER] > altitude[Claim::LAYER_UPPER])
         {
             ERR_FATAL
-            ((
-                "Lower Altitude (%f) > Upper Altitude (%f) for [%s]",
-                altitude[Claim::LAYER_LOWER], altitude[Claim::LAYER_UPPER], GetName()
-            ))
+            (
+                (
+                    "Lower Altitude (%f) > Upper Altitude (%f) for [%s]",
+                    altitude[Claim::LAYER_LOWER], altitude[Claim::LAYER_UPPER], GetName()
+                )
+            )
         }
     }
 
@@ -1522,8 +1539,11 @@ void UnitObj::ProcessCycle()
 //
 // Tell unit to move to a location/direction
 //
-void UnitObj::Move(Movement::Handle& handle, const Vector* dst, const Vector* dir, Bool passUnit,
-                   Movement::RequestData* req)
+void UnitObj::Move
+(
+    Movement::Handle& handle, const Vector* dst, const Vector* dir, Bool passUnit,
+    Movement::RequestData* req
+)
 {
     U32 notify = 0;
 
@@ -1801,8 +1821,11 @@ void UnitObj::CaptureMapHooks(Bool capture)
             if (team && GetHitPoints() > 0)
             {
                 // The number of hitpoints this object has get removed from the defense
-                currentCluster->ai.RemoveDefense(team->GetId(), MapType()->GetArmourClass(),
-                                                 GetHitPoints() + GetArmour());
+                currentCluster->ai.RemoveDefense
+                (
+                    team->GetId(), MapType()->GetArmourClass(),
+                    GetHitPoints() + GetArmour()
+                );
             }
         }
     }
@@ -1824,9 +1847,11 @@ void UnitObj::CaptureMapHooks(Bool capture)
                 {
                     ASSERT(UnitType()->weaponBleedMap);
 
-                    UnitType()->weaponBleedMap->ApplyThreat(
+                    UnitType()->weaponBleedMap->ApplyThreat
+                    (
                         Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
-                        team->GetId(), ac, threat, capture);
+                        team->GetId(), ac, threat, capture
+                    );
                 }
             }
         }
@@ -1841,9 +1866,11 @@ void UnitObj::CaptureMapHooks(Bool capture)
                 {
                     ASSERT(UnitType()->selfDestructBleedMap);
 
-                    UnitType()->selfDestructBleedMap->ApplyThreat(
+                    UnitType()->selfDestructBleedMap->ApplyThreat
+                    (
                         Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
-                        team->GetId(), ac, threat, capture);
+                        team->GetId(), ac, threat, capture
+                    );
                 }
             }
         }
@@ -1852,9 +1879,11 @@ void UnitObj::CaptureMapHooks(Bool capture)
         {
             ASSERT(UnitType()->disruptionBleedMap);
 
-            UnitType()->disruptionBleedMap->ApplyDisruption(
+            UnitType()->disruptionBleedMap->ApplyDisruption
+            (
                 Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
-                team->GetId(), capture);
+                team->GetId(), capture
+            );
         }
     }
 }
@@ -2197,8 +2226,11 @@ void UnitObj::ModifyHitPoints(S32 mod, UnitObj* sourceUnit, Team* sourceTeam, co
                 else
                 {
                     // If hit points were added then add defense
-                    currentCluster->ai.AddDefense(team->GetId(), MapType()->GetArmourClass(),
-                                                  (GetHitPoints() + GetArmour()) - before);
+                    currentCluster->ai.AddDefense
+                    (
+                        team->GetId(), MapType()->GetArmourClass(),
+                        (GetHitPoints() + GetArmour()) - before
+                    );
                 }
             }
         }
@@ -3578,14 +3610,18 @@ Bool UnitObj::DefenseAndEnemyCantSee(U32& val, U32 x, U32 z, void* context)
         if (source)
         {
             // The further we are from the source the better
-            val += abs(static_cast<long>(x) - static_cast<long>(source->cellX)) + abs(
-                static_cast<long>(z) - static_cast<long>(source->cellZ));
+            val += abs(static_cast<long>(x) - static_cast<long>(source->cellX)) + abs
+            (
+                static_cast<long>(z) - static_cast<long>(source->cellZ)
+            );
         }
         else
         {
             // The further we are from the here the better
-            val += abs(static_cast<long>(x) - static_cast<long>(cellX)) + abs(
-                static_cast<long>(z) - static_cast<long>(cellZ));
+            val += abs(static_cast<long>(x) - static_cast<long>(cellX)) + abs
+            (
+                static_cast<long>(z) - static_cast<long>(cellZ)
+            );
         }
     }
 
@@ -3678,14 +3714,18 @@ void UnitObj::Scatter(const UnitObjList& list)
                 data.angle = F32(atan2(v.z, v.x));
 
                 // Find the best cell to move to
-                if (PathSearch::FindConnectedCell(unit->GetCellX(), unit->GetCellZ(), cell.x, cell.z, *unit, &data,
-                                                  &UnitObj::AwayFromPosition))
+                if (PathSearch::FindConnectedCell
+                    (
+                        unit->GetCellX(), unit->GetCellZ(), cell.x, cell.z, *unit, &data,
+                        &UnitObj::AwayFromPosition
+                    ))
                 {
                     if (unit->FlushTasks(Tasks::UnitMove::GetConfigBlockingPriority()))
                     {
                         unit->AppendTask
                         (
-                            new Tasks::UnitMove(
+                            new Tasks::UnitMove
+                            (
                                 unit, Vector(WorldCtrl::CellToMetresX(cell.x), 0.0f, WorldCtrl::CellToMetresZ(cell.z))
                             ),
                             Task::TF_FROM_ORDER

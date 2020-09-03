@@ -75,8 +75,11 @@ namespace Common
         U32 teamId;
 
         // Constructor
-        Button(TeamType teamType, InformationType informationType, U32 teamId, const CH* text, const Area<S32>& area,
-               IControl* handler, IControl* parent, FScope* config)
+        Button
+        (
+            TeamType teamType, InformationType informationType, U32 teamId, const CH* text, const Area<S32>& area,
+            IControl* handler, IControl* parent, FScope* config
+        )
             : ICButton(parent),
               teamType(teamType),
               informationType(informationType),
@@ -152,11 +155,13 @@ namespace Common
             // Draw seperator line
             IFace::RenderRectangle
             (
-                ClipRect(
+                ClipRect
+                (
                     pi.client.p0.x,
                     pi.client.p0.y,
                     pi.client.p1.x,
-                    pi.client.p0.y + 1),
+                    pi.client.p0.y + 1
+                ),
                 pi.colors->fg[ColorIndex()],
                 nullptr,
                 pi.alphaScale
@@ -233,11 +238,13 @@ namespace Common
                 // Draw background color
                 IFace::RenderRectangle
                 (
-                    ClipRect(
+                    ClipRect
+                    (
                         pi.client.p0.x + offset + 1,
                         pi.client.p0.y + 1,
                         pi.client.p0.x + offset + width,
-                        pi.client.p1.y),
+                        pi.client.p1.y
+                    ),
                     columns[c].color,
                     nullptr,
                     pi.alphaScale
@@ -558,7 +565,8 @@ namespace Common
             // Add the information headers
             for (i = INFO_ALL; i < INFO_MAX; i++)
             {
-                (new Button(
+                (new Button
+                    (
                         TEAM_ALL,
                         static_cast<InformationType>(i),
                         0,
@@ -585,7 +593,8 @@ namespace Common
                 if (team && team->HasStats())
                 {
                     // Add the team title
-                    (new Button(
+                    (new Button
+                        (
                             TEAM_ID,
                             INFO_ALL,
                             teamId,
@@ -606,7 +615,8 @@ namespace Common
                     // Add all of the stats
                     for (i = INFO_RESULT; i < INFO_MAX; i++)
                     {
-                        (new Button(
+                        (new Button
+                            (
                                 TEAM_ID,
                                 static_cast<InformationType>(i),
                                 teamId,
@@ -632,7 +642,8 @@ namespace Common
             y += totalGap;
 
             // Add total title
-            (new Button(
+            (new Button
+                (
                     TEAM_TOTAL,
                     INFO_ALL,
                     0,
@@ -651,7 +662,8 @@ namespace Common
             // Add all of the stats
             for (i = INFO_RESOURCE; i < INFO_MAX; i++)
             {
-                (new Button(
+                (new Button
+                    (
                         TEAM_TOTAL,
                         static_cast<InformationType>(i),
                         0,
@@ -770,18 +782,27 @@ namespace Common
                     break;
 
                 case INFO_RESOURCE:
-                    QueryStatsCategory(FindCreateGroup(queryGroups, infoHeadings[informationType])->querySets,
-                                       team->GetEndGame().resources, teamId);
+                    QueryStatsCategory
+                    (
+                        FindCreateGroup(queryGroups, infoHeadings[informationType])->querySets,
+                        team->GetEndGame().resources, teamId
+                    );
                     break;
 
                 case INFO_CONSTRUCTED:
-                    QueryStatsCategory(FindCreateGroup(queryGroups, infoHeadings[informationType])->querySets,
-                                       team->GetEndGame().constructed, teamId);
+                    QueryStatsCategory
+                    (
+                        FindCreateGroup(queryGroups, infoHeadings[informationType])->querySets,
+                        team->GetEndGame().constructed, teamId
+                    );
                     break;
 
                 case INFO_LOST:
-                    QueryStatsCategory(FindCreateGroup(queryGroups, infoHeadings[informationType])->querySets,
-                                       team->GetEndGame().losses, teamId);
+                    QueryStatsCategory
+                    (
+                        FindCreateGroup(queryGroups, infoHeadings[informationType])->querySets,
+                        team->GetEndGame().losses, teamId
+                    );
                     break;
 
                 case INFO_DESTROYED:
@@ -789,19 +810,31 @@ namespace Common
                     char buff[128];
                     for (U32 r = 0; r < Relation::MAX; r++)
                     {
-                        Utils::Sprintf(buff, 128, "%s%s", infoHeadings[informationType],
-                                       Relation(Relation::Type(r)).GetName());
-                        QueryStatsCategory(FindCreateGroup(queryGroups, buff)->querySets, *team->GetEndGame().kills[r],
-                                           teamId);
+                        Utils::Sprintf
+                        (
+                            buff, 128, "%s%s", infoHeadings[informationType],
+                            Relation(Relation::Type(r)).GetName()
+                        );
+                        QueryStatsCategory
+                        (
+                            FindCreateGroup(queryGroups, buff)->querySets, *team->GetEndGame().kills[r],
+                            teamId
+                        );
                     }
 
                     Utils::Sprintf(buff, 128, "%sSelf", infoHeadings[informationType]);
-                    QueryStatsCategory(FindCreateGroup(queryGroups, buff)->querySets, team->GetEndGame().killsSelf,
-                                       teamId);
+                    QueryStatsCategory
+                    (
+                        FindCreateGroup(queryGroups, buff)->querySets, team->GetEndGame().killsSelf,
+                        teamId
+                    );
 
                     Utils::Sprintf(buff, 128, "%sMisc", infoHeadings[informationType]);
-                    QueryStatsCategory(FindCreateGroup(queryGroups, buff)->querySets, team->GetEndGame().killsMisc,
-                                       teamId);
+                    QueryStatsCategory
+                    (
+                        FindCreateGroup(queryGroups, buff)->querySets, team->GetEndGame().killsMisc,
+                        teamId
+                    );
                     break;
                 }
 

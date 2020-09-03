@@ -28,132 +28,131 @@
 //
 namespace Common
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class MapWindow
-  //
-  class MapWindow : public GameWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class MapWindow
+    //
+    class MapWindow : public GameWindow
+    {
     PROMOTE_LINK(MapWindow, GameWindow, 0xB57D2BB8); // "MapWindow"
 
-  public:
+    public:
 
-    // The rotation of the map
-    F32 rotation;
+        // The rotation of the map
+        F32 rotation;
 
-    // Viewing distance of minimap
-    F32 viewDist;
+        // Viewing distance of minimap
+        F32 viewDist;
 
-    // Texture scale
-    VarFloat scaleFactor;
+        // Texture scale
+        VarFloat scaleFactor;
 
-    // Transformation matrix for world->normalised client coords
-    F32 m[6];
+        // Transformation matrix for world->normalised client coords
+        F32 m[6];
 
-    // Rotating minimap is centred at the current camera pos
-    U32 rotating    : 1,  
-        fixed       : 1,
-        angleHack   : 1,
-                      
-    // Scale minimap using view dist
-        scaleToDist : 1;  
+        // Rotating minimap is centred at the current camera pos
+        U32 rotating : 1,
+            fixed : 1,
+            angleHack : 1,
 
-    // FOV color
-    Color fovColor0;
-    Color fovColor1;
+            // Scale minimap using view dist
+            scaleToDist : 1;
 
-    // Custom map orientation
-    Vector mapFront;
-    Vector mapRight;
+        // FOV color
+        Color fovColor0;
+        Color fovColor1;
 
-    // FOV texture
-    TextureInfo fovTexture;
+        // Custom map orientation
+        Vector mapFront;
+        Vector mapRight;
 
-    // FOV size
-    F32 fovSize;
+        // FOV texture
+        TextureInfo fovTexture;
 
-    // Blip texture
-    TextureInfo blipTexture;
+        // FOV size
+        F32 fovSize;
 
-    // Blip size
-    F32 blipSize;
+        // Blip texture
+        TextureInfo blipTexture;
 
-  protected:
+        // Blip size
+        F32 blipSize;
 
-    // Draw self
-    void DrawSelf(PaintInfo &pi);
+    protected:
 
-    // Fill unit array for the given team (TRUE if array is full)
-    static Bool ProcessUnitsOnTeam(Team *team);
+        // Draw self
+        void DrawSelf(PaintInfo& pi);
 
-    // Draw units onto terrain texture
-    static void UpdateTexture();
+        // Fill unit array for the given team (TRUE if array is full)
+        static Bool ProcessUnitsOnTeam(Team* team);
 
-    // Default lifetime of a blip
-    static F32 blipTime;
-    static F32 blipTimeInv;
+        // Draw units onto terrain texture
+        static void UpdateTexture();
 
-    // Map availability at last draw
-    static S32 wasAvailable;
+        // Default lifetime of a blip
+        static F32 blipTime;
+        static F32 blipTimeInv;
 
-  public:
+        // Map availability at last draw
+        static S32 wasAvailable;
 
-    // Initialise/shutdown map window
-    static void Init(IFace::PulsingValue *alpha = NULL);
-    static void Done();
+    public:
 
-    // Render the terrain into the offscreen buffer
-    static void RenderTerrain();
+        // Initialise/shutdown map window
+        static void Init(IFace::PulsingValue* alpha = NULL);
+        static void Done();
 
-    // Trigger a blip on the map
-    static void Blip(const Vector &location, Color color, F32 persistTime);
+        // Render the terrain into the offscreen buffer
+        static void RenderTerrain();
 
-    // Line of sight display mode has changed
-    static void LOSDisplayChanged();
+        // Trigger a blip on the map
+        static void Blip(const Vector& location, Color color, F32 persistTime);
 
-    // Is radar available
-    static Bool Available();
+        // Line of sight display mode has changed
+        static void LOSDisplayChanged();
 
-  public:
+        // Is radar available
+        static Bool Available();
 
-    // Constructor and destructor
-    MapWindow(IControl *parent);
-    ~MapWindow();
+    public:
 
-    // Control activation
-    Bool Activate();
-    Bool Deactivate();
+        // Constructor and destructor
+        MapWindow(IControl* parent);
+        ~MapWindow();
 
-    // Configure this control with an FScope
-    void Setup(FScope *fScope);
+        // Control activation
+        Bool Activate();
+        Bool Deactivate();
 
-    // Event handler
-    U32 HandleEvent(Event &e);
+        // Configure this control with an FScope
+        void Setup(FScope* fScope);
 
-    // Find an object at the screen pixel position x,y
-    MapObj * PickObject(S32 x, S32 y, SelectFilter *filter = NULL);
+        // Event handler
+        U32 HandleEvent(Event& e);
 
-    // Do a group object selection using the given screen rectangle
-    Bool SelectGroup(const Area<S32> &rect, MapObjList &list, SelectFilter *filter = NULL);
+        // Find an object at the screen pixel position x,y
+        MapObj* PickObject(S32 x, S32 y, SelectFilter* filter = NULL);
 
-    // Do a group object selection using the given screen rectangle
-    Bool SelectGroup(const Area<S32> &rect, UnitObjList &list, Team *team = NULL);
+        // Do a group object selection using the given screen rectangle
+        Bool SelectGroup(const Area<S32>& rect, MapObjList& list, SelectFilter* filter = NULL);
 
-    // Returns the closest object to the centre of, and within, 'rect'
-    MapObj * FindClosest(const Area<S32> &rect);
+        // Do a group object selection using the given screen rectangle
+        Bool SelectGroup(const Area<S32>& rect, UnitObjList& list, Team* team = NULL);
 
-    // Returns the terrain cell and metre position at screen x,y (or NULL)
-    Bool TerrainPosition(S32 x, S32 y, Vector &pos);
+        // Returns the closest object to the centre of, and within, 'rect'
+        MapObj* FindClosest(const Area<S32>& rect);
 
-    // Returns TRUE if this game window has the specified property
-    Bool HasProperty(U32 propertyCrc);
+        // Returns the terrain cell and metre position at screen x,y (or NULL)
+        Bool TerrainPosition(S32 x, S32 y, Vector& pos);
 
-  public:  
+        // Returns TRUE if this game window has the specified property
+        Bool HasProperty(U32 propertyCrc);
 
-    // Save the current map to the mission folder
-    static void Save(const char *path);
+    public:
 
-  };
+        // Save the current map to the mission folder
+        static void Save(const char* path);
+    };
 }
 
 #endif

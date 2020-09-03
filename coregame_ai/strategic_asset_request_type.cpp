@@ -30,8 +30,11 @@ namespace Strategic
     //
     // Constructor
     //
-    Asset::Request::Type::Type(Script* script, U32 handle, const Config::RecruitType* config,
-                               const Point<F32>& location, F32 range, Bool acceptInsufficient)
+    Asset::Request::Type::Type
+    (
+        Script* script, U32 handle, const Config::RecruitType* config,
+        const Point<F32>& location, F32 range, Bool acceptInsufficient
+    )
         : Request(script, handle),
           config(config),
           location(location),

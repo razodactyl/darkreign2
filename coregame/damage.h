@@ -23,114 +23,111 @@
 //
 namespace Damage
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Type
-  //
-  class Type
-  {
-  private:
-
-    // Damage Id
-    U32 damageId;
-
-    // Amount of damage this weapon does (hp)
-    InstanceModifierType amount;
-
-    // Apply modifiers modifiers
-    ApplyModifierList modifiers;
-
-  public:
-
-    // Constructor
-    Type();
-  
-    // Setup
-    void Setup(const GameIdent &ident, FScope *fScope);
-
-    // Get the amount of damage to a given armour class
-    S32 GetAmount(U32 armourClass) const;
-
-  public:
-
-    // Get the damage Id
-    U32 GetDamageId() const
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Type
+    //
+    class Type
     {
-      return (damageId);
-    }
+    private:
 
-    // Get the instance modifier type
-    InstanceModifierType & GetInstanceModifierType()
+        // Damage Id
+        U32 damageId;
+
+        // Amount of damage this weapon does (hp)
+        InstanceModifierType amount;
+
+        // Apply modifiers modifiers
+        ApplyModifierList modifiers;
+
+    public:
+
+        // Constructor
+        Type();
+
+        // Setup
+        void Setup(const GameIdent& ident, FScope* fScope);
+
+        // Get the amount of damage to a given armour class
+        S32 GetAmount(U32 armourClass) const;
+
+    public:
+
+        // Get the damage Id
+        U32 GetDamageId() const
+        {
+            return (damageId);
+        }
+
+        // Get the instance modifier type
+        InstanceModifierType& GetInstanceModifierType()
+        {
+            return (amount);
+        }
+
+        // Get the modifiers
+        ApplyModifierList& GetModifiers()
+        {
+            return (modifiers);
+        }
+
+    public:
+
+        friend class Object;
+    };
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Object
+    //
+    class Object
     {
-      return (amount);
-    }
+    private:
 
-    // Get the modifiers
-    ApplyModifierList & GetModifiers()
-    {
-      return (modifiers);
-    }
+        // Damage type
+        Type& type;
 
-  public:
+        // Amount of damage this weapon does (hp)
+        InstanceModifier amount;
 
-    friend class Object;
+    public:
 
-  };
+        // Constructor
+        Object(Type& type);
 
+        // Get the amount of damage to a given armour class
+        S32 GetAmount(U32 armourClass) const;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Object
-  //
-  class Object
-  {
-  private:
+    public:
 
-    // Damage type
-    Type &type;
+        // GetType
+        const Type& GetType() const
+        {
+            return (type);
+        }
 
-    // Amount of damage this weapon does (hp)
-    InstanceModifier amount;
+        // GetInstanceModifier
+        InstanceModifier& GetInstanceModifier()
+        {
+            return (amount);
+        }
 
-  public:
+        // Save state
+        void SaveState(FScope* scope)
+        {
+            amount.SaveState(scope->AddFunction("Amount"));
+        }
 
-    // Constructor
-    Object(Type &type);
-
-    // Get the amount of damage to a given armour class
-    S32 GetAmount(U32 armourClass) const;
-
-  public:
-
-    // GetType
-    const Type & GetType() const
-    {
-      return (type);
-    }
-    
-    // GetInstanceModifier
-    InstanceModifier & GetInstanceModifier()
-    {
-      return (amount);
-    }
-
-    // Save state
-    void SaveState(FScope *scope)
-    {
-      amount.SaveState(scope->AddFunction("Amount"));
-    }
-
-    // Load state
-    void LoadState(FScope *scope)
-    {
-      if (FScope *sScope = scope->GetFunction("Amount"))
-      {
-        amount.LoadState(sScope);
-      }
-    }
-  };
-
+        // Load state
+        void LoadState(FScope* scope)
+        {
+            if (FScope* sScope = scope->GetFunction("Amount"))
+            {
+                amount.LoadState(sScope);
+            }
+        }
+    };
 }
 
 #endif

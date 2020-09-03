@@ -32,26 +32,23 @@ class Team;
 //
 namespace Studio
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class AttachList
-  //
-  class AttachList : public ICListBox
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class AttachList
+    //
+    class AttachList : public ICListBox
+    {
     PROMOTE_LINK(AttachList, ICListBox, 0x68371F13); // "AttachList"
 
-  public:
+    public:
 
-    // Constructor
-    AttachList(IControl *parent);
-    ~AttachList();
+        // Constructor
+        AttachList(IControl* parent);
+        ~AttachList();
 
-    // Build the list of attachments using the given type
-    void BuildList(MapObj *obj);
-
-  };
-
+        // Build the list of attachments using the given type
+        void BuildList(MapObj* obj);
+    };
 }
 
 #endif

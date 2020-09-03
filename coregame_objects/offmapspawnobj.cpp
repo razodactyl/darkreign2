@@ -36,13 +36,13 @@
 //
 // Constructor
 //
-OffMapSpawnObjType::OffMapSpawnObjType(const char *name, FScope *fScope) : OffMapObjType(name, fScope)
+OffMapSpawnObjType::OffMapSpawnObjType(const char* name, FScope* fScope) : OffMapObjType(name, fScope)
 {
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
-  
-  StdLoad::TypeReaperObjType(fScope, "SpawnType", spawnType); 
-  StdLoad::TypeReaperObjType(fScope, "ParasiteType", parasiteType); 
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
+
+    StdLoad::TypeReaperObjType(fScope, "SpawnType", spawnType);
+    StdLoad::TypeReaperObjType(fScope, "ParasiteType", parasiteType);
 }
 
 
@@ -61,12 +61,12 @@ OffMapSpawnObjType::~OffMapSpawnObjType()
 //
 void OffMapSpawnObjType::PostLoad()
 {
-  // Call parent scope first
-  OffMapObjType::PostLoad();
+    // Call parent scope first
+    OffMapObjType::PostLoad();
 
-  // Resolve the reapers
-  Resolver::Type(spawnType);
-  Resolver::Type(parasiteType);
+    // Resolve the reapers
+    Resolver::Type(spawnType);
+    Resolver::Type(parasiteType);
 }
 
 
@@ -75,23 +75,23 @@ void OffMapSpawnObjType::PostLoad()
 //
 Bool OffMapSpawnObjType::InitializeResources()
 {
-  // Are we allowed to initialize resources ?
-  if (OffMapObjType::InitializeResources())
-  {
-    if (spawnType.Alive())
+    // Are we allowed to initialize resources ?
+    if (OffMapObjType::InitializeResources())
     {
-      spawnType->InitializeResources();
+        if (spawnType.Alive())
+        {
+            spawnType->InitializeResources();
+        }
+
+        if (parasiteType.Alive())
+        {
+            parasiteType->InitializeResources();
+        }
+
+        return (TRUE);
     }
 
-    if (parasiteType.Alive())
-    {
-      parasiteType->InitializeResources();
-    }
-
-    return (TRUE);
-  }
-
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -102,10 +102,9 @@ Bool OffMapSpawnObjType::InitializeResources()
 //
 GameObj* OffMapSpawnObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new OffMapSpawnObj(this, id));
+    // Allocate new object instance
+    return (new OffMapSpawnObj(this, id));
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,7 +115,7 @@ GameObj* OffMapSpawnObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-OffMapSpawnObj::OffMapSpawnObj(OffMapSpawnObjType *objType, U32 id) : OffMapObj(objType, id)
+OffMapSpawnObj::OffMapSpawnObj(OffMapSpawnObjType* objType, U32 id) : OffMapObj(objType, id)
 {
 }
 
@@ -134,25 +133,25 @@ OffMapSpawnObj::~OffMapSpawnObj()
 //
 // Check execution position
 //
-Bool OffMapSpawnObj::Check(const Vector &pos)
+Bool OffMapSpawnObj::Check(const Vector& pos)
 {
-  // Call base function first
-  if (OffMapObj::Check(pos))
-  {
-    // Have a type to spawn
-    if (OffMapSpawnType()->GetSpawnType())
+    // Call base function first
+    if (OffMapObj::Check(pos))
     {
-      Vector closest;
+        // Have a type to spawn
+        if (OffMapSpawnType()->GetSpawnType())
+        {
+            Vector closest;
 
-      // Get the closest linked location
-      if (OffMapSpawnType()->GetSpawnType()->FindLinkedPos(pos, closest))
-      {
-        return (TRUE);
-      }
+            // Get the closest linked location
+            if (OffMapSpawnType()->GetSpawnType()->FindLinkedPos(pos, closest))
+            {
+                return (TRUE);
+            }
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -161,40 +160,40 @@ Bool OffMapSpawnObj::Check(const Vector &pos)
 //
 // Execute an operation (TRUE if accepted)
 //
-Bool OffMapSpawnObj::Execute(U32 operation, const Vector &pos)
+Bool OffMapSpawnObj::Execute(U32 operation, const Vector& pos)
 {
-  switch (operation)
-  {
-    case 0x63417A92: // "Trigger::Positional"
+    switch (operation)
     {
-      // Get the type to be spawned
-      UnitObjType *s = OffMapSpawnType()->GetSpawnType();
-
-      // On a team, and have a type to spawn
-      if (GetTeam() && s)
-      {
-        Vector closest;
-
-        // Get the closest linked location
-        if (s->FindLinkedPos(pos, closest))
+        case 0x63417A92: // "Trigger::Positional"
         {
-          // Create the object
-          UnitObj *obj = &s->Spawn(closest, GetTeam());
+            // Get the type to be spawned
+            UnitObjType* s = OffMapSpawnType()->GetSpawnType();
 
-          // Is there a parasite to attach
-          if (OffMapSpawnType()->GetParasiteType())
-          {
-            OffMapSpawnType()->GetParasiteType()->Infect(obj, GetTeam());
-          }
-      
-          // "OffMapSpawn::Executed"
-          GetTeam()->GetRadio().Trigger(0x774C5EDE, Radio::Event(this, closest)); 
+            // On a team, and have a type to spawn
+            if (GetTeam() && s)
+            {
+                Vector closest;
 
-          return (Done());
+                // Get the closest linked location
+                if (s->FindLinkedPos(pos, closest))
+                {
+                    // Create the object
+                    UnitObj* obj = &s->Spawn(closest, GetTeam());
+
+                    // Is there a parasite to attach
+                    if (OffMapSpawnType()->GetParasiteType())
+                    {
+                        OffMapSpawnType()->GetParasiteType()->Infect(obj, GetTeam());
+                    }
+
+                    // "OffMapSpawn::Executed"
+                    GetTeam()->GetRadio().Trigger(0x774C5EDE, Radio::Event(this, closest));
+
+                    return (Done());
+                }
+            }
         }
-      }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }

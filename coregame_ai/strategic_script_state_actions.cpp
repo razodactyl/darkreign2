@@ -892,16 +892,22 @@ namespace Strategic
             if (s)
             {
                 // Select our squad
-                Orders::Game::AddSelected::Generate(script.GetObject(),
-                                                    reinterpret_cast<const UnitObjList&>(script.GetSquad()->GetList()));
+                Orders::Game::AddSelected::Generate
+                (
+                    script.GetObject(),
+                    reinterpret_cast<const UnitObjList&>(script.GetSquad()->GetList())
+                );
 
                 // Add to the other squad
                 Orders::Squad::AddSelected::Generate(script.GetObject(), s->GetSquad()->Id());
             }
 
             // Notify that the transfer is completed
-            Orders::Squad::Notify::Generate(script.GetObject(), script.GetSquad()->Id(),
-                                            0x47C1486C); // "Transfer::TransferComplete"
+            Orders::Squad::Notify::Generate
+            (
+                script.GetObject(), script.GetSquad()->Id(),
+                0x47C1486C
+            ); // "Transfer::TransferComplete"
         }
 
 
@@ -1002,8 +1008,11 @@ namespace Strategic
                             offset.y = TerrainData::FindFloor(offset.x, offset.z);
 
                             // Order the creation of the unit
-                            Orders::Squad::Spawn::Generate(object, script.GetSquad()->Id(), type->GetNameCrc(), offset,
-                                                           orient);
+                            Orders::Squad::Spawn::Generate
+                            (
+                                object, script.GetSquad()->Id(), type->GetNameCrc(), offset,
+                                orient
+                            );
 
                             // Increment the slot
                             ++slot;
@@ -1011,8 +1020,10 @@ namespace Strategic
                         else
                         {
                             // Ran out of slots
-                            LOG_WARN(
-                                ("Ran out of slots in formation '%s' whilst spawning in units", formationName.GetStr()))
+                            LOG_WARN
+                            (
+                                ("Ran out of slots in formation '%s' whilst spawning in units", formationName.GetStr())
+                            )
                         }
                     }
                 }
@@ -1351,8 +1362,11 @@ namespace Strategic
                     }
                 }
 
-                Orders::Squad::Trail::Generate(object, script.GetSquad()->Id(), trail->Id(), ind, attack,
-                                               Orders::FLUSH);
+                Orders::Squad::Trail::Generate
+                (
+                    object, script.GetSquad()->Id(), trail->Id(), ind, attack,
+                    Orders::FLUSH
+                );
             }
         }
 
@@ -1409,8 +1423,11 @@ namespace Strategic
             if (script.GetSquad()->GetLocation(location))
             {
                 Object& object = script.GetObject();
-                Orders::Squad::Formation::Generate(object, script.GetSquad()->Id(), formationName.crc, location,
-                                                   direction, Orders::FLUSH);
+                Orders::Squad::Formation::Generate
+                (
+                    object, script.GetSquad()->Id(), formationName.crc, location,
+                    direction, Orders::FLUSH
+                );
             }
         }
 
@@ -1621,12 +1638,14 @@ namespace Strategic
                     if (mapObj)
                     {
                         // Attack their ass
-                        Orders::Squad::Attack::Generate(
+                        Orders::Squad::Attack::Generate
+                        (
                             object,
                             script.GetSquad()->Id(),
                             mapObj->Id(),
                             TRUE,
-                            Orders::FLUSH);
+                            Orders::FLUSH
+                        );
 
                         // We found something to attack
                         return (TRUE);
@@ -1857,8 +1876,11 @@ namespace Strategic
             Resolver::Type<TransportObjType>(transport, transportName.GetIdent(), TRUE);
 
             // Spawn in the transport at the location
-            Orders::Squad::Spawn::Generate(script.GetObject(), script.GetSquad()->Id(), transport->GetNameCrc(),
-                                           location->GetVector(), 0);
+            Orders::Squad::Spawn::Generate
+            (
+                script.GetObject(), script.GetSquad()->Id(), transport->GetNameCrc(),
+                location->GetVector(), 0
+            );
         }
 
 
@@ -1900,15 +1922,20 @@ namespace Strategic
                                     for (U32 i = 0; i < (*t)->amount; i++)
                                     {
                                         // Spawn in the units requested into the transport
-                                        Orders::Squad::TransportSpawn::Generate(
-                                            object, script.GetSquad()->Id(), type->GetNameCrc(), id);
+                                        Orders::Squad::TransportSpawn::Generate
+                                        (
+                                            object, script.GetSquad()->Id(), type->GetNameCrc(), id
+                                        );
                                     }
                                 }
                             }
 
                             // Notify that the spawn is completed
-                            Orders::Squad::Notify::Generate(object, script.GetSquad()->Id(),
-                                                            0x667A9F3F); // "Squad::SpawnComplete"
+                            Orders::Squad::Notify::Generate
+                            (
+                                object, script.GetSquad()->Id(),
+                                0x667A9F3F
+                            ); // "Squad::SpawnComplete"
                         }
                     }
                     return (Status::Ignored);
@@ -1987,8 +2014,11 @@ namespace Strategic
             script.ReleaseTransports();
 
             // Fire off a notification
-            Orders::Squad::Notify::Generate(script.GetObject(), script.GetSquad()->Id(),
-                                            0xB0B846EE); // "Squad::TransportReleaseCompleted"
+            Orders::Squad::Notify::Generate
+            (
+                script.GetObject(), script.GetSquad()->Id(),
+                0xB0B846EE
+            ); // "Squad::TransportReleaseCompleted"
         }
 
 
@@ -2114,8 +2144,11 @@ namespace Strategic
             }
 
             // Order them to unload
-            Orders::Game::Unload::Generate(script.GetObject(), location->GetVector(&script.GetObject(), &script),
-                                           Orders::FLUSH);
+            Orders::Game::Unload::Generate
+            (
+                script.GetObject(), location->GetVector(&script.GetObject(), &script),
+                Orders::FLUSH
+            );
         }
 
 
@@ -2251,8 +2284,11 @@ namespace Strategic
             Orders::Game::Delete::Generate(object);
 
             // Fire off a notification
-            Orders::Squad::Notify::Generate(object, script.GetSquad()->Id(),
-                                            0xCC6049F4); // "Squad::TransporDeleteCompleted"
+            Orders::Squad::Notify::Generate
+            (
+                object, script.GetSquad()->Id(),
+                0xCC6049F4
+            ); // "Squad::TransporDeleteCompleted"
         }
 
 

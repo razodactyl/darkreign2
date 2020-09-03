@@ -28,8 +28,11 @@ U32 Bitmap::Manager::textureCount;
 Bool Bitmap::Manager::moviesStarted;
 //----------------------------------------------------------------------------
 
-void Bitmap::Manager::Setup(U32 reduce, Bitmap& bitmap, const char* name, U32 mips, U32 type, U32 stage,
-                            Bool transparent)  // = 0, bitmapTEXTURE);
+void Bitmap::Manager::Setup
+(
+    U32 reduce, Bitmap& bitmap, const char* name, U32 mips, U32 type, U32 stage,
+    Bool transparent
+)  // = 0, bitmapTEXTURE);
 {
     ASSERT(name);
 
@@ -65,8 +68,11 @@ void Bitmap::Manager::Setup(U32 reduce, Bitmap& bitmap, const char* name, U32 mi
 
 //----------------------------------------------------------------------------
 
-Bitmap* Bitmap::Manager::Create(U32 reduce, const char* name, U32 mips, U32 type, U32 stage,
-                                Bool transparent) // = 0,  = bitmapTEXTURE)
+Bitmap* Bitmap::Manager::Create
+(
+    U32 reduce, const char* name, U32 mips, U32 type, U32 stage,
+    Bool transparent
+) // = 0,  = bitmapTEXTURE)
 {
     ASSERT(name);
 
@@ -101,8 +107,11 @@ Bitmap* Bitmap::Manager::Find(const char* name)
 
 //----------------------------------------------------------------------------
 
-Bitmap* Bitmap::Manager::FindCreate(U32 reduce, const char* name, U32 mips, U32 type, U32 stage, Bool transparent,
-                                    Bool log) //  = 0, = bitmapTEXTURE, = 0, = TRUE
+Bitmap* Bitmap::Manager::FindCreate
+(
+    U32 reduce, const char* name, U32 mips, U32 type, U32 stage, Bool transparent,
+    Bool log
+) //  = 0, = bitmapTEXTURE, = 0, = TRUE
 {
     BuffString texname = name;
 
@@ -408,26 +417,35 @@ U32 Bitmap::Manager::Report(Bitmap& bmap)
 
     char* memtype = bmap.status.video ? "VID" : "SYS";
 
-    CON_DIAG(( "%-36s: %9ld   %3dx%3dx%2d  mips%1d   %3s",
-        bmap.name.str, mmm,
-        bmap.Width(), bmap.Height(), bmap.Depth(),
-        bmap.mipMapCount,
-        memtype
-    ));
-    LOG_DIAG(( "%-36s: %9ld   %3dx%3dx%2d  mips%1d   %3s",
-        bmap.name.str, mmm,
-        bmap.Width(), bmap.Height(), bmap.Depth(),
-        bmap.mipMapCount,
-        memtype
-    ));
+    CON_DIAG
+    (
+        ( "%-36s: %9ld   %3dx%3dx%2d  mips%1d   %3s",
+            bmap.name.str, mmm,
+            bmap.Width(), bmap.Height(), bmap.Depth(),
+            bmap.mipMapCount,
+            memtype
+        )
+    );
+    LOG_DIAG
+    (
+        ( "%-36s: %9ld   %3dx%3dx%2d  mips%1d   %3s",
+            bmap.name.str, mmm,
+            bmap.Width(), bmap.Height(), bmap.Depth(),
+            bmap.mipMapCount,
+            memtype
+        )
+    );
 
     return mmm;
 }
 
 //----------------------------------------------------------------------------
 
-U32 Bitmap::Manager::ReportList(const char* name, Bool frame, U32 typeMask,
-                                Bool binkOnly) // = NULL, = FALSE, = bitmapTEXTURE, FALSE
+U32 Bitmap::Manager::ReportList
+(
+    const char* name, Bool frame, U32 typeMask,
+    Bool binkOnly
+) // = NULL, = FALSE, = bitmapTEXTURE, FALSE
 {
     U32 mem = 0, count = 0;
     U32 sys = 0, syscount = 0;

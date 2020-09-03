@@ -44,7 +44,8 @@ namespace MINTCLIENT
 
         // // //
 
-        template <typename T> struct DownloadContext
+        template <typename T>
+        struct DownloadContext
         {
             bool (*progressCallback)(unsigned long, unsigned long, void*);
             void (*getCallback)(unsigned int, T);
@@ -63,14 +64,16 @@ namespace MINTCLIENT
         // HTTPGet: 45.76.120.39:8000 dr2.mintsoft.dev 8000 /motd/darkreign2/downloads/motd.cfg downloads/motd.cfg 0
         // https://github.com/yhirose/cpp-httplib
 
-        template <typename T> static int HTTPGet(
-            const char* proxy, 
-            const char* hostname, 
-            const unsigned short port, 
+        template <typename T>
+        static int HTTPGet
+        (
+            const char* proxy,
+            const char* hostname,
+            const unsigned short port,
             const char* getPath,
             const char* saveAsPath,
 
-            bool progressCallback(unsigned long progress, unsigned long size, void* ctx), 
+            bool progressCallback(unsigned long progress, unsigned long size, void* ctx),
             void getCallback(unsigned int error, T ctx),
             void* context
         )

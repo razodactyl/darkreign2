@@ -132,8 +132,8 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Panel
+//
+// Class Panel
     //
     class Panel
     {
@@ -265,8 +265,8 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Console
+//
+// Class Console
     //
     class Console : public Panel
     {
@@ -298,8 +298,8 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Buffer
+//
+// Class Buffer
     //
     class Buffer : public Panel
     {
@@ -349,8 +349,8 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Spinner
+//
+// Class Spinner
     //
     class Spinner
     {
@@ -373,8 +373,8 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Scratch
+//
+// Class Scratch
     //
     class Scratch
     {
@@ -407,7 +407,7 @@ namespace Mono
 
 
     //
-    // Exported Data
+// Exported Data
     //
     extern Panel* current;
     extern NBinTree<Panel> panels;

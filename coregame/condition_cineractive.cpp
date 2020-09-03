@@ -22,28 +22,26 @@
 //
 namespace Conditions
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class SoundEffect
+    //
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class SoundEffect
-  //
-
-  //
-  // SoundEffect::SoundEffect
-  //
-  SoundEffect::SoundEffect(FScope *fScope) 
-  : Condition(fScope)
-  {
-    name = StdLoad::TypeString(fScope, "Name");
-  }
+    //
+    // SoundEffect::SoundEffect
+    //
+    SoundEffect::SoundEffect(FScope* fScope)
+        : Condition(fScope)
+    {
+        name = StdLoad::TypeString(fScope, "Name");
+    }
 
 
-  //
-  // SoundEffect::Test
-  //
-  Bool SoundEffect::Test(Team *)
-  {
-    return (TRUE);
-  }
-
+    //
+    // SoundEffect::Test
+    //
+    Bool SoundEffect::Test(Team*)
+    {
+        return (TRUE);
+    }
 }

@@ -173,8 +173,10 @@ namespace Client
                                 SetState(TRUE);
 
                                 // Select the squad
-                                Events::SelectSquad(
-                                    squad, (e.iface.p1 == 0x3DA14CCE) ? TRUE : FALSE); // "SquadControl::JumpTo"
+                                Events::SelectSquad
+                                (
+                                    squad, (e.iface.p1 == 0x3DA14CCE) ? TRUE : FALSE
+                                ); // "SquadControl::JumpTo"
                                 Events::UpdatePreviousSelected(FALSE);
                                 return (TRUE);
                         }
@@ -370,8 +372,11 @@ namespace Client
                 }
                 else
                 {
-                    IFace::RenderRectangle(h + pi.client.p0,
-                                           Color(static_cast<U32>(255) - pct, pct, static_cast<U32>(0)));
+                    IFace::RenderRectangle
+                    (
+                        h + pi.client.p0,
+                        Color(static_cast<U32>(255) - pct, pct, static_cast<U32>(0))
+                    );
                 }
 
                 h += Point<S32>(0, 3);

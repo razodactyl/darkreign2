@@ -16,7 +16,6 @@
 #include "smokesimulate.h"
 
 
-
 //
 // Constructor
 //
@@ -28,35 +27,39 @@ SmokeSimulateClass::SmokeSimulateClass() : ParticleClass()
 //
 // Build a new smoke simulator
 //
-Particle *SmokeSimulateClass::Build(
-  const Matrix &matrix, 
-  const Vector &veloc, 
-  const Vector &omega, 
-  const Vector &length,
-  F32 timer,
-  void *data) // = NULL
+Particle* SmokeSimulateClass::Build
+(
+    const Matrix& matrix,
+    const Vector& veloc,
+    const Vector& omega,
+    const Vector& length,
+    F32 timer,
+    void* data
+) // = NULL
 {
-  data;
+    data;
 
-  if (ParticleSystem::Visible( matrix.posit, this))
-  {
-  	// return the new smoke simulator
-	  return new SmokeSimulate(this, matrix, veloc, omega, length, timer);
-  }
-  return NULL;
+    if (ParticleSystem::Visible(matrix.posit, this))
+    {
+        // return the new smoke simulator
+        return new SmokeSimulate(this, matrix, veloc, omega, length, timer);
+    }
+    return NULL;
 }
 
 //
 // SmokeSimulate::SmokeSimulate 
 //
-SmokeSimulate::SmokeSimulate(
-  SmokeSimulateClass *p,
-	const Matrix &m,
-  const Vector &v,
-  const Vector &o,
-  const Vector &l,
-  F32 t,
-  void *data) // = NULL
+SmokeSimulate::SmokeSimulate
+(
+    SmokeSimulateClass* p,
+    const Matrix& m,
+    const Vector& v,
+    const Vector& o,
+    const Vector& l,
+    F32 t,
+    void* data
+) // = NULL
     : Particle(p, m, v, o, l, t, data)
 {
 }
@@ -65,7 +68,7 @@ SmokeSimulate::SmokeSimulate(
 //
 // Simulation
 //
-Bool SmokeSimulate::Simulate( F32 dt)
+Bool SmokeSimulate::Simulate(F32 dt)
 {
 #if 0
 	// call parent simulator
@@ -75,5 +78,5 @@ Bool SmokeSimulate::Simulate( F32 dt)
     veloc.z += dz * dt * 4;
   }
 #endif
-	return Particle::Simulate(dt);
+    return Particle::Simulate(dt);
 }

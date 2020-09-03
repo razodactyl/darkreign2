@@ -484,8 +484,11 @@ namespace Demo
     //
     // Play demo
     //
-    static Bool CommonPlay(const char* file, const char* camera, NotifyProc* proc = nullptr,
-                           const char* extn = DemoExtn)
+    static Bool CommonPlay
+    (
+        const char* file, const char* camera, NotifyProc* proc = nullptr,
+        const char* extn = DemoExtn
+    )
     {
         // Read from user directory
         FilePath path;

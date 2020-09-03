@@ -114,7 +114,7 @@ namespace Vid
     // first 6 for a 2 tri rectangle
     //  all 12 for a 4 tri rectangle
     //
-    U16 rectIndices[12] = { 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1 };
+    U16 rectIndices[12] = {0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1};
 
 
     Bool shutdown = FALSE;
@@ -233,10 +233,12 @@ namespace Vid
         U32 ew = wr.Width() - cr.Width();
         U32 eh = wr.Height() - cr.Height();
         viewRect.Set(STARTWIDTH, STARTHEIGHT);
-        winRect.SetSize(
+        winRect.SetSize
+        (
             (GetSystemMetrics(SM_CXSCREEN) - viewRect.Width()) >> 1,
             (GetSystemMetrics(SM_CYSCREEN) - viewRect.Height()) >> 1,
-            viewRect.Width() + ew, viewRect.Height() + eh);
+            viewRect.Width() + ew, viewRect.Height() + eh
+        );
         // save the window's style
         theStyle = GetWindowLong(hWnd, GWL_STYLE);
 
@@ -245,15 +247,21 @@ namespace Vid
         {
             if (isStatus.gotDD)
             {
-                ERR_MESSAGE(("%s\n\n%s %s\n\n%s",
-                    dxwarning,
-                    CurDD().device.str, CurDD().driver.str,
-                    dxmessage
-                    ));
+                ERR_MESSAGE
+                (
+                    ("%s\n\n%s %s\n\n%s",
+                        dxwarning,
+                        CurDD().device.str, CurDD().driver.str,
+                        dxmessage
+                    )
+                );
             }
-            ERR_MESSAGE(("%s\n\n%s",
-                dxwarning, dxmessage
-                ));
+            ERR_MESSAGE
+            (
+                ("%s\n\n%s",
+                    dxwarning, dxmessage
+                )
+            );
             TerminateProcess(GetCurrentProcess(), 0);
         }
         InitBuckets();
@@ -488,14 +496,18 @@ namespace Vid
             curMode = mode;
 
             ASSERT(ddx);
-            dxError = ddx->SetDisplayMode(
+            dxError = ddx->SetDisplayMode
+            (
                 CurMode().rect.Width(), CurMode().rect.Height(),
-                CurMode().bpp, 0, 0);
+                CurMode().bpp, 0, 0
+            );
             if (dxError)
             {
-                LOG_DXERR(
+                LOG_DXERR
+                (
                     ("SetMode(): ddx->SetDisplayMode %dx%d %d", CurMode().rect.Width(), CurMode().rect.Height(), CurMode
-                    ().bpp));
+                        ().bpp)
+                );
 
                 if (!firstRun)
                 {
@@ -506,11 +518,14 @@ namespace Vid
             isStatus.inWindow = FALSE;
 
             // setup window
-            SetWindowPos(hWnd, HWND_TOPMOST,
+            SetWindowPos
+            (
+                hWnd, HWND_TOPMOST,
                 0, 0,
                 CurMode().rect.Width(), CurMode().rect.Height(),
                 //			NULL);
-                SWP_NOREDRAW);
+                SWP_NOREDRAW
+            );
             //		DoCursor();
             SetCursorPos(CurMode().rect.HalfWidth(), CurMode().rect.HalfHeight());
 
@@ -561,16 +576,20 @@ namespace Vid
             //      Settings::viewRect = viewRect;
 
             // direct draw blt rectangle; on screen view rectangle
-            bltRect.SetSize(
+            bltRect.SetSize
+            (
                 clientRect.p0.x + viewRect.p0.x + wpoint.x,
                 clientRect.p0.y + viewRect.p0.y + wpoint.y,
-                viewRect.Width(), viewRect.Height());
+                viewRect.Width(), viewRect.Height()
+            );
 
             // clientRect relative to the screen
-            frontRect.SetSize(
+            frontRect.SetSize
+            (
                 wpoint.x + clientRect.p0.x,
                 wpoint.y + clientRect.p0.y,
-                clientRect.Width(), clientRect.Height());
+                clientRect.Width(), clientRect.Height()
+            );
         }
         else
         {
@@ -586,9 +605,11 @@ namespace Vid
             // direct draw blt rectangle; on screen view rectangle
             bltRect = viewRect;
 
-            frontRect.SetSize(
+            frontRect.SetSize
+            (
                 0, 0,
-                winRect.Width(), winRect.Height());
+                winRect.Width(), winRect.Height()
+            );
         }
 
         //	if (!(Status & sysMAXIMIZED)) SaveGW.WinRect = WinRect;
@@ -632,11 +653,14 @@ namespace Vid
             }
             else
             {
-                SetWindowPos(hWnd, HWND_TOP,
+                SetWindowPos
+                (
+                    hWnd, HWND_TOP,
                     left, top,
                     width + winRect.Width() - clientRect.Width(),
                     height + winRect.Height() - clientRect.Height(),
-                    SWP_SHOWWINDOW);
+                    SWP_SHOWWINDOW
+                );
             }
             /*
                     if (!GetMenu( hWnd))
@@ -715,13 +739,17 @@ namespace Vid
 
             if (zFmt->dwStencilBitDepth)
             {
-                sprintf(pixF->name.str, "%2d bit %2d bit stencil",
+                sprintf
+                (
+                    pixF->name.str, "%2d bit %2d bit stencil",
                     zFmt->dwZBufferBitDepth - zFmt->dwStencilBitDepth, zFmt->dwStencilBitDepth
                 );
             }
             else
             {
-                sprintf(pixF->name.str, "%2d bit",
+                sprintf
+                (
+                    pixF->name.str, "%2d bit",
                     zFmt->dwZBufferBitDepth
                 );
             }
@@ -1054,11 +1082,11 @@ namespace Vid
 
                 if (!(pix.pixFmt.dwFlags & DDPF_RGB)
                     || (CurMode().desc.ddpfPixelFormat.dwRGBBitCount == 32 && renderState.status.tex32 && pix
-                        .pixFmt.
-                        dwRGBBitCount
+                                                                                                          .pixFmt.
+                                                                                                          dwRGBBitCount
                         != 32)
                     || (!renderState.status.tex32 && pix.pixFmt.dwRGBBitCount != 16)
-                    )
+                )
                 {
                     // only 16 & 32 bit rgba
                     continue;
@@ -1070,8 +1098,8 @@ namespace Vid
                 {
                     if (normalFormat == pixFormatList.GetCount()
                         || ((pix.rScale > PixNormal().rScale
-                            || pix.gScale > PixNormal().gScale
-                            || pix.bScale > PixNormal().bScale)
+                                || pix.gScale > PixNormal().gScale
+                                || pix.bScale > PixNormal().bScale)
                             && pix.rScale != 0 && pix.gScale != 0 && pix.bScale != 0))
                     {
                         normalFormat = i;
@@ -1237,7 +1265,7 @@ namespace Vid
         {
             // flip chain
             //
-            DDSCAPS2 ddscaps = { DDSCAPS_BACKBUFFER, 0, 0, 0 };
+            DDSCAPS2 ddscaps = {DDSCAPS_BACKBUFFER, 0, 0, 0};
             dxError = front->GetAttachedSurface(&ddscaps, &back);
             if (dxError)
             {
@@ -1371,13 +1399,16 @@ namespace Vid
         // Set the back buffer pixel format
         backFormat.SetPixFmt(backDesc.ddpfPixelFormat);
 
-        backBmp.Set(back,
+        backBmp.Set
+        (
+            back,
             backDesc.dwWidth,
             backDesc.dwHeight,
             backDesc.lPitch,
             backDesc.ddpfPixelFormat.dwRGBBitCount,
             backDesc.ddpfPixelFormat.dwRGBBitCount >> 3,
-            &backFormat);
+            &backFormat
+        );
 
         backBmp.InitPrimitives();
         backBmp.SetName("backbuffer");
@@ -1405,13 +1436,17 @@ namespace Vid
     {
         if (isStatus.fullScreen)
         {
-            dxError = ddx->SetCooperativeLevel(
-                hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE);
+            dxError = ddx->SetCooperativeLevel
+            (
+                hWnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE
+            );
             if (dxError)
             {
-                LOG_DXERR(
+                LOG_DXERR
+                (
                     ("SetCoopLevel: ddx->SetCooperativeLevel( EXCLUSIVE | FULLSCREEN | DDSCL_ALLOWREBOOT | DDSCL_FPUPRESERVE )"
-                        ));
+                    )
+                );
 
                 if (!firstRun)
                 {
@@ -1526,7 +1561,7 @@ namespace Vid
             if (front)
             {
                 // re-get the back buffer
-                DDSCAPS2 ddscaps = { DDSCAPS_BACKBUFFER, 0, 0, 0 };
+                DDSCAPS2 ddscaps = {DDSCAPS_BACKBUFFER, 0, 0, 0};
                 dxError = front->GetAttachedSurface(&ddscaps, &back);
                 LOG_DXERR(("RestoresSurfaces: front->GetAttachedSurface()"));
             }
@@ -2194,16 +2229,25 @@ namespace Vid
 
             FreeVidMem(1);
 
-            LOG_DIAG(("perf:   %d reduce; %d  32bit; %d  multi; %d mirror; %d  movie;",
-                *Var::varTexReduce, *Var::varTex32, *Var::varMultiTex, *Var::varMirror, *Var::varMovie
-                ));
-            LOG_DIAG(("perf:   %d triplebuf; %d  mipmap; %d  mipfilter; %d antialias; %d  weather; %d gamma",
-                *Var::varTripleBuf, *Var::varMipmap, *Var::varMipfilter, *Var::varAntiAlias, *Var::varWeather, *Var::
-                varGamma
-                ));
-            LOG_DIAG(("perf:   %.2f obj; %.2f ter; %.2f par; %.2f lig;",
-                *Var::perfs[0], *Var::perfs[1], *Var::perfs[2], *Var::perfs[3]
-                ));
+            LOG_DIAG
+            (
+                ("perf:   %d reduce; %d  32bit; %d  multi; %d mirror; %d  movie;",
+                    *Var::varTexReduce, *Var::varTex32, *Var::varMultiTex, *Var::varMirror, *Var::varMovie
+                )
+            );
+            LOG_DIAG
+            (
+                ("perf:   %d triplebuf; %d  mipmap; %d  mipfilter; %d antialias; %d  weather; %d gamma",
+                    *Var::varTripleBuf, *Var::varMipmap, *Var::varMipfilter, *Var::varAntiAlias, *Var::varWeather, *Var::
+                    varGamma
+                )
+            );
+            LOG_DIAG
+            (
+                ("perf:   %.2f obj; %.2f ter; %.2f par; %.2f lig;",
+                    *Var::perfs[0], *Var::perfs[1], *Var::perfs[2], *Var::perfs[3]
+                )
+            );
 
             LOG_DIAG((""));
         }
@@ -2229,12 +2273,18 @@ namespace Vid
 
             FreeVidMem(2);
 
-            CON_DIAG(("perf:   %d reduce; %d  32bit; %d  multi; %d mirror; %d  movie;",
-                *Var::varTexReduce, *Var::varTex32, *Var::varMultiTex, *Var::varMirror, *Var::varMovie
-                ));
-            CON_DIAG(("perf:   %.2f obj; %.2f ter; %.2f par; %.2f lig;",
-                *Var::perfs[0], *Var::perfs[1], *Var::perfs[2], *Var::perfs[3]
-                ));
+            CON_DIAG
+            (
+                ("perf:   %d reduce; %d  32bit; %d  multi; %d mirror; %d  movie;",
+                    *Var::varTexReduce, *Var::varTex32, *Var::varMultiTex, *Var::varMirror, *Var::varMovie
+                )
+            );
+            CON_DIAG
+            (
+                ("perf:   %.2f obj; %.2f ter; %.2f par; %.2f lig;",
+                    *Var::perfs[0], *Var::perfs[1], *Var::perfs[2], *Var::perfs[3]
+                )
+            );
             CON_DIAG((""));
         }
     }

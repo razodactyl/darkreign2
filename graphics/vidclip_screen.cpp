@@ -46,8 +46,11 @@ namespace Vid
 
             // clip indexed tris to buffer
             //
-            void ToBuffer(VertexTL* dstV, U16* dstI, VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount,
-                          U32 clipFlags, VertexTL* rect) // = clipALL, NULL
+            void ToBuffer
+            (
+                VertexTL* dstV, U16* dstI, VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount,
+                U32 clipFlags, VertexTL* rect
+            ) // = clipALL, NULL
             {
                 clipFlags;
 
@@ -152,15 +155,19 @@ namespace Vid
 
                                 if (!startV)
                                 {
-                                    ERR_FATAL(
+                                    ERR_FATAL
+                                    (
                                         ("!startV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes,
-                                            k, iCountIn, iCount, vCount, inPool));
+                                            k, iCountIn, iCount, vCount, inPool)
+                                    );
                                 }
                                 if (!*startV)
                                 {
-                                    ERR_FATAL(
+                                    ERR_FATAL
+                                    (
                                         ("!*startV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes,
-                                            k, iCountIn, iCount, vCount, inPool));
+                                            k, iCountIn, iCount, vCount, inPool)
+                                    );
                                 }
 
                                 F32 startD = p->Evalue((*startV)->vv);
@@ -169,15 +176,19 @@ namespace Vid
                                 {
                                     if (!endV)
                                     {
-                                        ERR_FATAL(
+                                        ERR_FATAL
+                                        (
                                             ("!endV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes
-                                                , k, iCountIn, iCount, vCount, inPool));
+                                                , k, iCountIn, iCount, vCount, inPool)
+                                        );
                                     }
                                     if (!*endV)
                                     {
-                                        ERR_FATAL(
+                                        ERR_FATAL
+                                        (
                                             ("!*endV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p -
-                                                planes, k, iCountIn, iCount, vCount, inPool));
+                                                planes, k, iCountIn, iCount, vCount, inPool)
+                                        );
                                     }
 
                                     F32 endD = p->Evalue((*endV)->vv);

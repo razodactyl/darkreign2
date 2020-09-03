@@ -26,49 +26,46 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class ResourceRegen
+    //
+    class ResourceRegen : public GameTask<ResourceObjType, ResourceObj>
+    {
+        TASK_CLASS(ResourceRegen)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class ResourceRegen
-  //
-  class ResourceRegen : public GameTask<ResourceObjType, ResourceObj>
-  {
-    TASK_CLASS(ResourceRegen)
+    private:
 
-  private:
+        // The construction effect
+        FX::Object* effect;
 
-    // The construction effect
-    FX::Object * effect;
+    public:
 
-  public:
+        // Constructor
+        ResourceRegen(GameObj* subject);
 
-    // Constructor
-    ResourceRegen(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
+        // State machine procedures
+        void StateInit();
+        void StateRegen();
 
-    // State machine procedures
-    void StateInit();
-    void StateRegen();
-
-    // FX Callback
-    static Bool FXCallBack(MapObj *mapObj, FX::CallBackData &cbd, void *context);
-
-  };
-
+        // FX Callback
+        static Bool FXCallBack(MapObj* mapObj, FX::CallBackData& cbd, void* context);
+    };
 }
 
 #endif

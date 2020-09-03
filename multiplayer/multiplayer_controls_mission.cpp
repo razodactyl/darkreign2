@@ -116,13 +116,18 @@ namespace MultiPlayer
 
                                         if (team)
                                         {
-                                            Point<S32> point(S32(team->GetStartPoint().x * 128.0f),
-                                                             S32(team->GetStartPoint().y * 128.0f));
+                                            Point<S32> point
+                                            (
+                                                S32(team->GetStartPoint().x * 128.0f),
+                                                S32(team->GetStartPoint().y * 128.0f)
+                                            );
                                             if (Area<S32>(point - Point<S32>(4, 4), point + Point<S32>(4, 4)).In(mouse))
                                             {
                                                 // They clicked on this team, is this team available ?
-                                                if (!teams.Find(team->GetName().crc) || (team->GetName().crc == U32(
-                                                    startLocationCurrent->GetIntegerValue())))
+                                                if (!teams.Find(team->GetName().crc) || (team->GetName().crc == U32
+                                                    (
+                                                        startLocationCurrent->GetIntegerValue()
+                                                    )))
                                                 {
                                                     // This team is available, set it to our team
                                                     startLocationSelected->SetIntegerValue(team->GetName().crc);
@@ -267,14 +272,19 @@ namespace MultiPlayer
 
                             if (team)
                             {
-                                Point<S32> point(S32(team->GetStartPoint().x * 128.0f),
-                                                 S32(team->GetStartPoint().y * 128.0f));
+                                Point<S32> point
+                                (
+                                    S32(team->GetStartPoint().x * 128.0f),
+                                    S32(team->GetStartPoint().y * 128.0f)
+                                );
 
-                                ClipRect c(
+                                ClipRect c
+                                (
                                     pi.client.p0.x + point.x - 4,
                                     pi.client.p0.y + point.y - 4,
                                     pi.client.p0.x + point.x + 4,
-                                    pi.client.p0.y + point.y + 4);
+                                    pi.client.p0.y + point.y + 4
+                                );
 
                                 IFace::RenderGradient(c, fade, 150);
                             }
@@ -305,14 +315,19 @@ namespace MultiPlayer
                                     color = fade;
                                 }
 
-                                Point<S32> point(S32(team->GetStartPoint().x * 128.0f),
-                                                 S32(team->GetStartPoint().y * 128.0f));
+                                Point<S32> point
+                                (
+                                    S32(team->GetStartPoint().x * 128.0f),
+                                    S32(team->GetStartPoint().y * 128.0f)
+                                );
 
-                                ClipRect c(
+                                ClipRect c
+                                (
                                     pi.client.p0.x + point.x - 4,
                                     pi.client.p0.y + point.y - 4,
                                     pi.client.p0.x + point.x + 4,
-                                    pi.client.p0.y + point.y + 4);
+                                    pi.client.p0.y + point.y + 4
+                                );
 
                                 IFace::RenderGradient(c, color, 150);
 
@@ -321,18 +336,22 @@ namespace MultiPlayer
                                     // Is this the selected start location ?
                                     if (U32(startLocationSelected->GetIntegerValue()) == team->GetName().crc)
                                     {
-                                        IFace::RenderGradient(
+                                        IFace::RenderGradient
+                                        (
                                             ClipRect(c.p0.x - 2, c.p0.y - 2, c.p1.x + 2, c.p1.y + 2),
                                             Color(1.0f, 1.0f, 1.0f, 0.4f),
-                                            Color(0.5f, 0.5f, 0.5f, 0.4f));
+                                            Color(0.5f, 0.5f, 0.5f, 0.4f)
+                                        );
                                     }
                                         // Is this the current start location ?
                                     else if (U32(startLocationCurrent->GetIntegerValue()) == team->GetName().crc)
                                     {
-                                        IFace::RenderGradient(
+                                        IFace::RenderGradient
+                                        (
                                             ClipRect(c.p0.x - 2, c.p0.y - 2, c.p1.x + 2, c.p1.y + 2),
                                             Color(1.0f, 1.0f, 1.0f, 0.15f),
-                                            Color(0.5f, 0.5f, 0.5f, 0.15f));
+                                            Color(0.5f, 0.5f, 0.5f, 0.15f)
+                                        );
                                     }
                                 }
                             }

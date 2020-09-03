@@ -25,8 +25,8 @@
 //
 namespace IconWindowMsg
 {
-  const U32 DecPos = 0x35DE714C; // "IconWindow::Message::DecPos"
-  const U32 IncPos = 0x01E88D85; // "IconWindow::Message::IncPos"
+    const U32 DecPos = 0x35DE714C; // "IconWindow::Message::DecPos"
+    const U32 IncPos = 0x01E88D85; // "IconWindow::Message::IncPos"
 }
 
 
@@ -36,87 +36,87 @@ namespace IconWindowMsg
 //
 class IconWindow : public IControl
 {
-  PROMOTE_LINK(IconWindow, IControl, 0x4B6F69EA); // "IconWindow"
+PROMOTE_LINK(IconWindow, IControl, 0x4B6F69EA); // "IconWindow"
 
 protected:
 
-  // Control styles
-  enum
-  {
-    STYLE_HORIZONTAL = 0x00000001,
-  };
+    // Control styles
+    enum
+    {
+        STYLE_HORIZONTAL = 0x00000001,
+    };
 
-  // Style flags
-  U32 iconWindowStyle;
+    // Style flags
+    U32 iconWindowStyle;
 
-  // Configuration scope for the icons
-  FScope *iconConfig;
+    // Configuration scope for the icons
+    FScope* iconConfig;
 
-  // The blank slot texture
-  TextureInfo *textureBlank;
+    // The blank slot texture
+    TextureInfo* textureBlank;
 
-  // Starting pixel position of grid
-  Point<S32> gridStart;
+    // Starting pixel position of grid
+    Point<S32> gridStart;
 
-  // Size of icon grid
-  Point<S32> gridSize;
+    // Size of icon grid
+    Point<S32> gridSize;
 
-  // Size of a single item
-  Point<S32> iconSize;
+    // Size of a single item
+    Point<S32> iconSize;
 
-  // Spacing between icons
-  Point<S32> iconSpacing;
+    // Spacing between icons
+    Point<S32> iconSpacing;
 
-  // List of icons
-  List<IControl> icons;
+    // List of icons
+    List<IControl> icons;
 
-  // The current starting icon
-  S32 start;
+    // The current starting icon
+    S32 start;
 
-  // Setup the icon config scope
-  void SetIconConfig(FScope *fScope);
+    // Setup the icon config scope
+    void SetIconConfig(FScope* fScope);
 
-  // Sets the pixel position of the given slot
-  void GetSlotPosition(S32 index, S32 &x, S32 &y);
+    // Sets the pixel position of the given slot
+    void GetSlotPosition(S32 index, S32& x, S32& y);
 
 public:
 
-  // Constructor and destructor
-  IconWindow(IControl *parent);
-  ~IconWindow();
+    // Constructor and destructor
+    IconWindow(IControl* parent);
+    ~IconWindow();
 
-  // Style configuration
-  Bool SetStyleItem(const char *s, Bool toggle);
+    // Style configuration
+    Bool SetStyleItem(const char* s, Bool toggle);
 
-  // Configure control from an FScope
-  void Setup(FScope *fScope);
+    // Configure control from an FScope
+    void Setup(FScope* fScope);
 
-  // Setup icon positions
-  void ArrangeIcons();
+    // Setup icon positions
+    void ArrangeIcons();
 
-  // Activate the control
-  Bool Activate();
+    // Activate the control
+    Bool Activate();
 
-  // Handle events
-  U32 HandleEvent(Event &e);
+    // Handle events
+    U32 HandleEvent(Event& e);
 
-  // Draw control
-  void DrawSelf(PaintInfo &pi);
+    // Draw control
+    void DrawSelf(PaintInfo& pi);
 
-  // Move the current starting position
-  void MoveStart(S32 index);
+    // Move the current starting position
+    void MoveStart(S32 index);
 
-  // Add an icon to the list
-  void AddIcon(IControl *icon);
+    // Add an icon to the list
+    void AddIcon(IControl* icon);
 
-  // Delete all icons, or a specific one
-  void DeleteIcon(IControl *icon = NULL);
+    // Delete all icons, or a specific one
+    void DeleteIcon(IControl* icon = NULL);
 
-  // Get the list of icons
-  const List<IControl> & GetIcons()
-  {
-    return (icons);
-  }
+    // Get the list of icons
+    const List<IControl>& GetIcons()
+    {
+        return (icons);
+    }
 };
 
 #endif

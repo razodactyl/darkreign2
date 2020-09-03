@@ -26,53 +26,51 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitUpgrade
+    //
+    class UnitUpgrade : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitUpgrade)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitUpgrade
-  //
-  class UnitUpgrade : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitUpgrade)
+        // The upgrade object
+        UnitObjPtr upgrade;
 
-    // The upgrade object
-    UnitObjPtr upgrade;
+    public:
 
-  public:
+        // Constructor
+        UnitUpgrade(GameObj* subject);
+        UnitUpgrade(GameObj* subject, UnitObj* upgrade);
 
-    // Constructor
-    UnitUpgrade(GameObj *subject);
-    UnitUpgrade(GameObj *subject, UnitObj *upgrade);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Returns the percent complete
+        F32 GetProgress();
 
-    // Returns the percent complete
-    F32 GetProgress();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+        // Retrieve data from the task, return TRUE if filled
+        Bool Retrieve(U32 id, RetrievedData& data);
 
-    // Retrieve data from the task, return TRUE if filled
-    Bool Retrieve(U32 id, RetrievedData &data);
-  
-  private:
+    private:
 
-    // Get the construct task of the upgrade, or NULL if finished
-    Tasks::UnitConstruct * GetConstructTask();
+        // Get the construct task of the upgrade, or NULL if finished
+        Tasks::UnitConstruct* GetConstructTask();
 
-    // State machine procedures
-    void StateUpgrade();
-    void StatePaused(StateMachineNotify notify);
-  };
-
+        // State machine procedures
+        void StateUpgrade();
+        void StatePaused(StateMachineNotify notify);
+    };
 }
 
 #endif

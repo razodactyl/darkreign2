@@ -55,8 +55,10 @@ namespace UnitObjFinder
         if (heuristicData.maxThreatMinDefense.subject != obj)
         {
             // Does the subject's threat to this object exceed the current maximum ?
-            U32 threat = heuristicData.maxThreatMinDefense.subject->UnitType()->GetThreat(
-                obj->UnitType()->GetArmourClass());
+            U32 threat = heuristicData.maxThreatMinDefense.subject->UnitType()->GetThreat
+            (
+                obj->UnitType()->GetArmourClass()
+            );
 
             if
             (
@@ -239,8 +241,11 @@ namespace UnitObjFinder
     // Find an object using the given heuristic, 
     // heuristic data, filter, filter data
     //
-    UnitObj* Find(Heuristic heuristic, HeuristicData& heuristicData, UnitObjIter::Filter filter,
-                  const UnitObjIter::FilterData& filterData)
+    UnitObj* Find
+    (
+        Heuristic heuristic, HeuristicData& heuristicData, UnitObjIter::Filter filter,
+        const UnitObjIter::FilterData& filterData
+    )
     {
         ASSERT(heuristic);
 

@@ -290,8 +290,11 @@ namespace Claim
     Bool ProbeCell(S32 x, S32 z, LayerId layer = LAYER_LOWER, UnitObj* filter = nullptr);
 
     // Find the first available grain in the given cell
-    Bool FindGrainInCell(S32 x, S32 z, S32& gx, S32& gz, U32 grains, LayerId layer = LAYER_LOWER,
-                         UnitObj* filter = nullptr);
+    Bool FindGrainInCell
+    (
+        S32 x, S32 z, S32& gx, S32& gz, U32 grains, LayerId layer = LAYER_LOWER,
+        UnitObj* filter = nullptr
+    );
 
     // Return the owner of a given grain
     UnitObj* GetOwner(S32 x, S32 z, LayerId layer);

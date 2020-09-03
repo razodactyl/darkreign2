@@ -18,7 +18,7 @@
 #include "offmapobj.h"
 #include "gametime.h"
 #include "parasiteobj.h"
-  
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -38,38 +38,38 @@ typedef Reaper<OffMapSpawnObj> OffMapSpawnObjPtr;
 //
 class OffMapSpawnObjType : public OffMapObjType
 {
-  PROMOTE_LINK(OffMapSpawnObjType, OffMapObjType, 0xA6908E6E); // "OffMapSpawnObjType"
+PROMOTE_LINK(OffMapSpawnObjType, OffMapObjType, 0xA6908E6E); // "OffMapSpawnObjType"
 
-  // The object type to spawn
-  UnitObjTypePtr spawnType;
+    // The object type to spawn
+    UnitObjTypePtr spawnType;
 
-  // The optional parasite to attach
-  Reaper<ParasiteObjType> parasiteType;
+    // The optional parasite to attach
+    Reaper<ParasiteObjType> parasiteType;
 
 public:
 
-  // Constructor and destructor
-  OffMapSpawnObjType(const char *typeName, FScope *fScope);
-  ~OffMapSpawnObjType();
+    // Constructor and destructor
+    OffMapSpawnObjType(const char* typeName, FScope* fScope);
+    ~OffMapSpawnObjType();
 
-  // Called after all types are loaded
-  void PostLoad();
+    // Called after all types are loaded
+    void PostLoad();
 
-  // Initialized type specific resources
-  Bool InitializeResources();
+    // Initialized type specific resources
+    Bool InitializeResources();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 
-  UnitObjType * GetSpawnType()
-  {
-    return (spawnType.GetPointer());
-  }
+    UnitObjType* GetSpawnType()
+    {
+        return (spawnType.GetPointer());
+    }
 
-  ParasiteObjType * GetParasiteType()
-  {
-    return (parasiteType.GetPointer());
-  }
+    ParasiteObjType* GetParasiteType()
+    {
+        return (parasiteType.GetPointer());
+    }
 };
 
 
@@ -82,25 +82,25 @@ class OffMapSpawnObj : public OffMapObj
 {
 public:
 
-  // Constructor and destructor
-  OffMapSpawnObj(OffMapSpawnObjType *objType, U32 id);
-  ~OffMapSpawnObj();
+    // Constructor and destructor
+    OffMapSpawnObj(OffMapSpawnObjType* objType, U32 id);
+    ~OffMapSpawnObj();
 
-  // Initialized type specific resources
-  Bool InitializeResources();
+    // Initialized type specific resources
+    Bool InitializeResources();
 
-  // Check execution position
-  Bool Check(const Vector &pos);
+    // Check execution position
+    Bool Check(const Vector& pos);
 
-  // Execute an operation (TRUE if accepted)
-  Bool Execute(U32 operation, const Vector &pos);
+    // Execute an operation (TRUE if accepted)
+    Bool Execute(U32 operation, const Vector& pos);
 
-  // Get pointer to type
-  OffMapSpawnObjType * OffMapSpawnType()
-  {
-    // This is a safe cast
-    return ((OffMapSpawnObjType *)type);
-  }
+    // Get pointer to type
+    OffMapSpawnObjType* OffMapSpawnType()
+    {
+        // This is a safe cast
+        return ((OffMapSpawnObjType*)type);
+    }
 };
 
 #endif

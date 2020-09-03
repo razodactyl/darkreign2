@@ -185,8 +185,10 @@ namespace Client
         else
         {
             value = AI::Map::GetDefense(defense->team, defense->damageId)
-                        ? cluster->ai.GetDefense(defense->team, defense->damageId) * 768 / AI::Map::GetDefense(
-                            defense->team, defense->damageId)
+                        ? cluster->ai.GetDefense(defense->team, defense->damageId) * 768 / AI::Map::GetDefense
+                        (
+                            defense->team, defense->damageId
+                        )
                         : 0;
         }
 
@@ -331,7 +333,8 @@ namespace Client
                             U32 scale = Min(CLUSTERMAP_MAXSIZE / width, CLUSTERMAP_MAXSIZE / height);
 
                             // Create the grid control
-                            ICGridWindow* grid = new ICGridWindow(
+                            ICGridWindow* grid = new ICGridWindow
+                            (
                                 "Resources", WorldCtrl::ClusterMapX(), WorldCtrl::ClusterMapZ(), scale, scale
                             );
 
@@ -379,7 +382,8 @@ namespace Client
                             U32 scale = Min(CLUSTERMAP_MAXSIZE / width, CLUSTERMAP_MAXSIZE / height);
 
                             // Create the grid control
-                            ICGridWindow* grid = new ICGridWindow(
+                            ICGridWindow* grid = new ICGridWindow
+                            (
                                 name, WorldCtrl::ClusterMapX(), WorldCtrl::ClusterMapZ(), scale, scale
                             );
 
@@ -408,7 +412,8 @@ namespace Client
                             U32 scale = Min(CLUSTERMAP_MAXSIZE / width, CLUSTERMAP_MAXSIZE / height);
 
                             // Create the grid control
-                            ICGridWindow* grid = new ICGridWindow(
+                            ICGridWindow* grid = new ICGridWindow
+                            (
                                 name, WorldCtrl::ClusterMapX(), WorldCtrl::ClusterMapZ(), scale, scale
                             );
 
@@ -430,8 +435,10 @@ namespace Client
                             char* armourClassName;
 
                             // Test params
-                            if (!Console::GetArgString(2, (const char*&)teamName) || !Console::GetArgString(
-                                3, (const char*&)armourClassName))
+                            if (!Console::GetArgString(2, (const char*&)teamName) || !Console::GetArgString
+                                (
+                                    3, (const char*&)armourClassName
+                                ))
                             {
                                 CON_ERR(("client.clustermap.create 'threat' team *|armourclass"))
                                 break;
@@ -476,7 +483,8 @@ namespace Client
                             void* context = new Threat(team->GetId(), armourClass);
 
                             // Create the grid control
-                            ICGridWindow* grid = new ICGridWindow(
+                            ICGridWindow* grid = new ICGridWindow
+                            (
                                 name, WorldCtrl::ClusterMapX(), WorldCtrl::ClusterMapZ(), scale, scale
                             );
 
@@ -498,8 +506,10 @@ namespace Client
                             char* damageName;
 
                             // Test params
-                            if (!Console::GetArgString(2, (const char*&)teamName) || !Console::GetArgString(
-                                3, (const char*&)damageName))
+                            if (!Console::GetArgString(2, (const char*&)teamName) || !Console::GetArgString
+                                (
+                                    3, (const char*&)damageName
+                                ))
                             {
                                 CON_ERR(("client.clustermap.create 'defense' team *|damage"))
                                 break;
@@ -543,7 +553,8 @@ namespace Client
                             void* context = new Defense(team->GetId(), damageId);
 
                             // Create the grid control
-                            ICGridWindow* grid = new ICGridWindow(
+                            ICGridWindow* grid = new ICGridWindow
+                            (
                                 name, WorldCtrl::ClusterMapX(), WorldCtrl::ClusterMapZ(), scale, scale
                             );
 
@@ -565,8 +576,10 @@ namespace Client
                             char* armourClassName;
 
                             // Test params
-                            if (!Console::GetArgString(2, (const char*&)teamName) || !Console::GetArgString(
-                                3, (const char*&)armourClassName))
+                            if (!Console::GetArgString(2, (const char*&)teamName) || !Console::GetArgString
+                                (
+                                    3, (const char*&)armourClassName
+                                ))
                             {
                                 CON_ERR(("client.clustermap.create 'pain' team *|armourclass"))
                                 break;
@@ -611,7 +624,8 @@ namespace Client
                             void* context = new Pain(team->GetId(), armourClass);
 
                             // Create the grid control
-                            ICGridWindow* grid = new ICGridWindow(
+                            ICGridWindow* grid = new ICGridWindow
+                            (
                                 name, WorldCtrl::ClusterMapX(), WorldCtrl::ClusterMapZ(), scale, scale
                             );
 
@@ -659,7 +673,8 @@ namespace Client
                             void* context = new Region(region);
 
                             // Create the grid control
-                            ICGridWindow* grid = new ICGridWindow(
+                            ICGridWindow* grid = new ICGridWindow
+                            (
                                 name, WorldCtrl::ClusterMapX(), WorldCtrl::ClusterMapZ(), scale, scale
                             );
 

@@ -25,81 +25,79 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class OrdersGame::Collect
+    // NameSpace Game
     //
-    U32 Collect::orderId;
-
-
-    //
-    // Generate
-    //
-    void Collect::Generate(Player &player, U32 object, Bool search, Modifier mod)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.search = search;
-      data.object = object;
-      data.mod = mod;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class OrdersGame::Collect
+        //
+        U32 Collect::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Collect::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Create an iterator
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; ++i)
-      {
-        UnitObj *unit = **i;
-
-        if (d->search)
+        //
+        // Generate
+        //
+        void Collect::Generate(Player& player, U32 object, Bool search, Modifier mod)
         {
-          // Is this a collector ?
-          if (Tasks::UnitCollect *task = TaskCtrl::PromoteIdle<Tasks::UnitCollect>(unit))
-          {
-            // Get some resource
-            task->Resource();
-          }
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.search = search;
+            data.object = object;
+            data.mod = mod;
+
+            Add(data, sizeof(Data), player.IsRoute());
         }
-        else
+
+
+        //
+        // Execute
+        //
+        U32 Collect::Execute(const U8* data, Player& player)
         {
-          // Convert ID into a pointer
-          if (ResourceObj *resourceObj = Resolver::Object<ResourceObj, ResourceObjType>(d->object))
-          {
-            // Is this a collector ?
-            if (Tasks::UnitCollect *task = TaskCtrl::PromoteIdle<Tasks::UnitCollect>(unit))
+            const Data* d = (Data*)data;
+
+            // Create an iterator
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; ++i)
             {
-              // Tell this task about the resource object
-              task->SetResourceObject(resourceObj);
+                UnitObj* unit = **i;
 
-              // For human controlled units, reset the storage object
-              if (!unit->IsAI())
-              {
-                task->ClearStorageObject();
-              }
+                if (d->search)
+                {
+                    // Is this a collector ?
+                    if (Tasks::UnitCollect* task = TaskCtrl::PromoteIdle<Tasks::UnitCollect>(unit))
+                    {
+                        // Get some resource
+                        task->Resource();
+                    }
+                }
+                else
+                {
+                    // Convert ID into a pointer
+                    if (ResourceObj* resourceObj = Resolver::Object<ResourceObj, ResourceObjType>(d->object))
+                    {
+                        // Is this a collector ?
+                        if (Tasks::UnitCollect* task = TaskCtrl::PromoteIdle<Tasks::UnitCollect>(unit))
+                        {
+                            // Tell this task about the resource object
+                            task->SetResourceObject(resourceObj);
+
+                            // For human controlled units, reset the storage object
+                            if (!unit->IsAI())
+                            {
+                                task->ClearStorageObject();
+                            }
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
 
-      return (sizeof (Data));
+            return (sizeof(Data));
+        }
     }
-  }
 }

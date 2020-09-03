@@ -544,10 +544,16 @@ public:
     {
     }
 
-    virtual void Render(const Array<FamilyState>& stateArray, Color teamColor, U32 clipFlags = clipALL,
-        U32 _controlFlags = controlDEF);
-    virtual void RenderColor(const Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL,
-        U32 _controlFlags = controlDEF);
+    virtual void Render
+    (
+        const Array<FamilyState>& stateArray, Color teamColor, U32 clipFlags = clipALL,
+        U32 _controlFlags = controlDEF
+    );
+    virtual void RenderColor
+    (
+        const Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL,
+        U32 _controlFlags = controlDEF
+    );
 
     virtual void RenderSingle(Color teamColor = 0xffffffff, U32 _controlFlags = controlDEF)
     {
@@ -647,8 +653,11 @@ public:
     //
     // MAXMESHPERGROUP is maxsize of 'names'
     //
-    U32 GetHierarchy(BuffString* names, U32& count, Bool local = FALSE, U32 tabCount = 0,
-        Matrix* matrix = nullptr) const;
+    U32 GetHierarchy
+    (
+        BuffString* names, U32& count, Bool local = FALSE, U32 tabCount = 0,
+        Matrix* matrix = nullptr
+    ) const;
 
     U32 GetHierarchy(BuffString* names, Bool local = FALSE) const
     {

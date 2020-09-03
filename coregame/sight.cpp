@@ -799,15 +799,15 @@ namespace Sight
                     if (other)
                     {
                         if
-                            (
+                        (
                                 // Other team is an ally
-                                Team::TestUnitRelation(u, other, Relation::ALLY)
+                            Team::TestUnitRelation(u, other, Relation::ALLY)
 
-                                ||
+                            ||
 
-                                // Other team is giving us line of sight
-                                myTeam->GivingSightTo(other->GetId())
-                                )
+                            // Other team is giving us line of sight
+                            myTeam->GivingSightTo(other->GetId())
+                        )
                         {
                             ASSERT(teamRemap[team] < teamCount);
                             Game::TeamSet(teamBits, teamRemap[team]);
@@ -942,7 +942,7 @@ namespace Sight
         {
             //delete straight away
             Unsweep(*map);
-            delete* map;
+            delete*map;
         }
         else
         {
@@ -1066,7 +1066,7 @@ namespace Sight
         {
             for (U32 team = 0; team < teamCount; ++team)
             {
-                seeMap[level][team] = new U16 * [WorldCtrl::CellMapZ()];
+                seeMap[level][team] = new U16*[WorldCtrl::CellMapZ()];
                 seeMap[level][team][0] = new U16[WorldCtrl::CellMapX() * WorldCtrl::CellMapZ()];
 
                 for (U32 i = 1; i < WorldCtrl::CellMapZ(); ++i)
@@ -1399,8 +1399,8 @@ namespace Sight
                                 Cell* pCell = Terrain::GetCell(cellX, cellZ);
 
                                 S32 newLevel = seeElem > SEENMASK
-                                    ? Terrain::fogFactorsS32[7]
-                                    : Terrain::fogFactorsS32[shroudFog];
+                                                   ? Terrain::fogFactorsS32[7]
+                                                   : Terrain::fogFactorsS32[shroudFog];
                                 S32 oldLevel = pCell->GetFog();
 
                                 if (first || (newLevel == oldLevel))
@@ -1787,7 +1787,7 @@ namespace Sight
 
 
     //
-      // Render debugging info for a unit
+    // Render debugging info for a unit
     //
     void RenderDebug(UnitObj* u)
     {

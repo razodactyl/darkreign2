@@ -20,39 +20,39 @@
 //
 class ICRoot : public IControl
 {
-  PROMOTE_LINK(ICRoot, IControl, 0x78445812); // "ICRoot"
+PROMOTE_LINK(ICRoot, IControl, 0x78445812); // "ICRoot"
 
 protected:
 
-  // Override event handling for root window
-  EventSys::HANDLERPROC gameHandler;
+    // Override event handling for root window
+    EventSys::HANDLERPROC gameHandler;
 
-  // Setup paint info
-  void SetupPaintInfo();
+    // Setup paint info
+    void SetupPaintInfo();
 
 public:
-  ICRoot();
+    ICRoot();
 
-  // Activate
-  Bool Activate();
+    // Activate
+    Bool Activate();
 
-  // Draw all top level 2d controls
-  void Draw(PaintInfo &pi);
+    // Draw all top level 2d controls
+    void Draw(PaintInfo& pi);
 
-  // Install an overriding event handler
-  EventSys::HANDLERPROC SetGameHandler(EventSys::HANDLERPROC proc);
+    // Install an overriding event handler
+    EventSys::HANDLERPROC SetGameHandler(EventSys::HANDLERPROC proc);
 
-  // Deactivate/reactivate top level windows
-  void RefreshControls();
+    // Deactivate/reactivate top level windows
+    void RefreshControls();
 
-  // Delete all non system controls
-  void PurgeNonSystem();
+    // Delete all non system controls
+    void PurgeNonSystem();
 
-  // Find a root level control by name
-  IControl *FindByName(const char *name, IControl *base);
+    // Find a root level control by name
+    IControl* FindByName(const char* name, IControl* base);
 
-  // Event handler
-  U32 HandleEvent(Event &e);
+    // Event handler
+    U32 HandleEvent(Event& e);
 };
 
 

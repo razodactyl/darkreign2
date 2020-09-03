@@ -26,18 +26,18 @@
 //
 namespace GameBabel
 {
-  // Babel callback type
-  typedef GameObjType* (BabelCallBack)(GameIdent &, const char *, FScope *);
+    // Babel callback type
+    typedef GameObjType* (BabelCallBack)(GameIdent&, const char*, FScope*);
 
-  // Register a babel callback
-  void RegisterBabel(BabelCallBack *callBack);
+    // Register a babel callback
+    void RegisterBabel(BabelCallBack* callBack);
 
-  // Returns a new object type instance, or NULL if the class id is not recognized
-  GameObjType* NewGameObjType(GameIdent &classId, const char *name, FScope *fScope);
+    // Returns a new object type instance, or NULL if the class id is not recognized
+    GameObjType* NewGameObjType(GameIdent& classId, const char* name, FScope* fScope);
 
-  // Initialize and shutdown the system
-  void Init();
-  void Done();
+    // Initialize and shutdown the system
+    void Init();
+    void Done();
 };
 
 #endif

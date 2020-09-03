@@ -188,8 +188,11 @@ namespace Studio
         //
         // Add a node into the curve
         //
-        void Curve::InsertNode(SegmentList& listIn, MarkerObj* node, MarkerObj* after, F32 strength, F32 time,
-                               Bool align)
+        void Curve::InsertNode
+        (
+            SegmentList& listIn, MarkerObj* node, MarkerObj* after, F32 strength, F32 time,
+            Bool align
+        )
         {
             MarkerObj* alignTo = nullptr;
 
@@ -381,8 +384,10 @@ namespace Studio
             {
                 for (NList<BookmarkObj::CurveSrcSegment>::Iterator i(&src.segmentList); *i; ++i)
                 {
-                    MarkerObj* newNode = Promote::Object<MarkerObjType, MarkerObj>(
-                        MapObjCtrl::ObjectNewOnMap(objectType, (*i)->m, 0, FALSE));
+                    MarkerObj* newNode = Promote::Object<MarkerObjType, MarkerObj>
+                    (
+                        MapObjCtrl::ObjectNewOnMap(objectType, (*i)->m, 0, FALSE)
+                    );
                     if (newNode)
                     {
                         InsertNode(list, newNode, nullptr, (*i)->strength, (*i)->time, FALSE);

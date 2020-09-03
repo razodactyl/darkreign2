@@ -25,29 +25,28 @@
 //
 class ICMonoView : public IControl
 {
-  PROMOTE_LINK(ICMonoView, IControl, 0x59874A2E) // "ICMonoView"
+PROMOTE_LINK(ICMonoView, IControl, 0x59874A2E) // "ICMonoView"
 
 protected:
 
-  // Cell size
-  Point<S32> cell;
+    // Cell size
+    Point<S32> cell;
 
-  // Colors
-  Color colorFg;
-  Color colorBg;
-  Color colorBright;
+    // Colors
+    Color colorFg;
+    Color colorBg;
+    Color colorBright;
 
 public:
 
-  // Constructor
-  ICMonoView(IControl *parent);
+    // Constructor
+    ICMonoView(IControl* parent);
 
-  // DrawSelf
-  void DrawSelf(PaintInfo &pi);
+    // DrawSelf
+    void DrawSelf(PaintInfo& pi);
 
-  // Setup
-  void Setup(FScope *fScope);
-
+    // Setup
+    void Setup(FScope* fScope);
 };
 
 #endif

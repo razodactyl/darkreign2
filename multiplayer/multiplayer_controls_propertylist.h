@@ -25,55 +25,50 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // NameSpace PropertyListMsg
+    // NameSpace Controls
     //
-    namespace PropertyListMsg
+    namespace Controls
     {
-      const U32 Download = 0xACC3B29C; // "MultiPlayer::PropertyList::Message::Download"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // NameSpace PropertyListMsg
+        //
+        namespace PropertyListMsg
+        {
+            const U32 Download = 0xACC3B29C; // "MultiPlayer::PropertyList::Message::Download"
+        }
+
+
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PropertyList
+        //
+        class PropertyList : public ICListBox
+        {
+        PROMOTE_LINK(PropertyList, ICListBox, 0x3F91BDB2); // "PropertyList"
+
+        public:
+
+            // Constructor
+            PropertyList(IControl* parent);
+
+            // Activate
+            Bool Activate();
+
+            // HandleEvent
+            U32 HandleEvent(Event& e);
+
+        private:
+
+            // Set selected properties
+            static void SetPropertiesCallback(const char* key, const CH*, void* context);
+
+            // Get selected properties
+            static void GetPropertiesCallback(const char* key, const CH*, void* context);
+        };
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class PropertyList
-    //
-    class PropertyList : public ICListBox
-    {
-      PROMOTE_LINK(PropertyList, ICListBox, 0x3F91BDB2); // "PropertyList"
-
-    public:
-
-      // Constructor
-      PropertyList(IControl *parent);
-
-      // Activate
-      Bool Activate();
-
-      // HandleEvent
-      U32 HandleEvent(Event &e);
-
-    private:
-
-      // Set selected properties
-      static void SetPropertiesCallback(const char *key, const CH *, void *context);
-
-      // Get selected properties
-      static void GetPropertiesCallback(const char *key, const CH *, void *context);
-
-    };
-
-  }
-
 }
 
 

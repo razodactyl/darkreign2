@@ -27,180 +27,179 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Curve - Brush for curve creation
+    // Namespace Brush - Contains all available brushes
     //
-    class Curve : public Objects
+    namespace Brush
     {
-    protected:
-
-      ///////////////////////////////////////////////////////////////////////////////
-      //
-      // List of objects in the current curve segment
-      //
-      class SegmentListNode : public Reaper<MarkerObj>
-      {
-      public:
-
-        // Curve segment from this object to the next
-        CubicSpline segment;
-
-        // Strength at this node
-        F32 strength;
-
-        // Time across this segment
-        F32 time;
-
-        // Starting time
-        F32 startTime;
-
-        // Index
-        U32 index;
-
-        // List node
-        NList<SegmentListNode>::Node node;
-      };
-
-      struct SegmentList : public ReaperList<MarkerObj, SegmentListNode>
-      {
-      public:
-
-        // Total list length
-        F32 totalTime;
-
-        // Update list length
-        void UpdateTime(Bool looping)
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Curve - Brush for curve creation
+        //
+        class Curve : public Objects
         {
-          U32 index = 1;
-          totalTime = 0;
+        protected:
 
-          for (SegmentList::Iterator i(this); *i; i++)
-          {
-            SegmentListNode *curr = *i;
-
-            if ((i.IsTail() && looping) || !i.IsTail())
+            ///////////////////////////////////////////////////////////////////////////////
+            //
+            // List of objects in the current curve segment
+            //
+            class SegmentListNode : public Reaper<MarkerObj>
             {
-              curr->index = index;
-              curr->startTime = totalTime;
-              totalTime += curr->time;
-            }
-            else
+            public:
+
+                // Curve segment from this object to the next
+                CubicSpline segment;
+
+                // Strength at this node
+                F32 strength;
+
+                // Time across this segment
+                F32 time;
+
+                // Starting time
+                F32 startTime;
+
+                // Index
+                U32 index;
+
+                // List node
+                NList<SegmentListNode>::Node node;
+            };
+
+            struct SegmentList : public ReaperList<MarkerObj, SegmentListNode>
             {
-              // Last (or only) item in a non looping list
-              curr->index = index;
-              curr->startTime = totalTime;
-            }
+            public:
 
-            index++;
-          }
-        }
+                // Total list length
+                F32 totalTime;
 
-        // Delete all objects
-        void Clear()
-        {
-          for (Iterator i(this); *i; i++)
-          {
-            if ((*i)->Alive())
-            {
-              (**i)->MarkForDeletion();
-            }
-          }
-          ReaperList<MarkerObj, SegmentListNode>::Clear();
-        }
-      };
+                // Update list length
+                void UpdateTime(Bool looping)
+                {
+                    U32 index = 1;
+                    totalTime = 0;
 
-      // Curve segment objects
-      SegmentList curveList;
-      SegmentList focusList;
+                    for (SegmentList::Iterator i(this); *i; i++)
+                    {
+                        SegmentListNode* curr = *i;
 
-      // Bookmark pointer
-      BookmarkObjPtr bookmarkPtr;
+                        if ((i.IsTail() && looping) || !i.IsTail())
+                        {
+                            curr->index = index;
+                            curr->startTime = totalTime;
+                            totalTime += curr->time;
+                        }
+                        else
+                        {
+                            // Last (or only) item in a non looping list
+                            curr->index = index;
+                            curr->startTime = totalTime;
+                        }
 
-      // Type reaper of object to create
-      MarkerObjTypePtr cameraObjType;
-      MarkerObjTypePtr interestObjType;
+                        index++;
+                    }
+                }
 
-      // List of selected objects
-      MapObjList prevSlist;
+                // Delete all objects
+                void Clear()
+                {
+                    for (Iterator i(this); *i; i++)
+                    {
+                        if ((*i)->Alive())
+                        {
+                            (**i)->MarkForDeletion();
+                        }
+                    }
+                    ReaperList<MarkerObj, SegmentListNode>::Clear();
+                }
+            };
 
-      // Vars
-      IFaceVar *varName;
-      IFaceVar *varNameEdit;
-      IFaceVar *varLoop;
-      IFaceVar *varTime;
-      IFaceVar *varStrength;
-      IFaceVar *varStartTime;
-      IFaceVar *varIndex;
-      IFaceVar *varFocus;
-      IFaceVar *varUseCamera;
-      IFaceVar *varDrawLines;
-      IFaceVar *varDrawNormals;
-      IFaceVar *varCurrTime;
-      IFaceVar *varPlayMode;
-      IFaceVar *varFastMode;
+            // Curve segment objects
+            SegmentList curveList;
+            SegmentList focusList;
 
-      // Length last time control was drawn
-      F32 prevLen;
+            // Bookmark pointer
+            BookmarkObjPtr bookmarkPtr;
 
-    protected:
+            // Type reaper of object to create
+            MarkerObjTypePtr cameraObjType;
+            MarkerObjTypePtr interestObjType;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // List of selected objects
+            MapObjList prevSlist;
 
-      // Create a curve
-      void Create(const char *name);
+            // Vars
+            IFaceVar* varName;
+            IFaceVar* varNameEdit;
+            IFaceVar* varLoop;
+            IFaceVar* varTime;
+            IFaceVar* varStrength;
+            IFaceVar* varStartTime;
+            IFaceVar* varIndex;
+            IFaceVar* varFocus;
+            IFaceVar* varUseCamera;
+            IFaceVar* varDrawLines;
+            IFaceVar* varDrawNormals;
+            IFaceVar* varCurrTime;
+            IFaceVar* varPlayMode;
+            IFaceVar* varFastMode;
 
-      // Delete a curve
-      void Delete();
+            // Length last time control was drawn
+            F32 prevLen;
 
-      // Find an object's node in the list
-      SegmentListNode* FindNode(MarkerObj *obj, SegmentList **foundList = NULL);
+        protected:
 
-      // Get first SegmentListNode from a MapObjList
-      SegmentListNode* GetFirstNode(MapObjList &list, SegmentList **foundList = NULL);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-      // Add a new curve node
-      void InsertNode(SegmentList &list, MarkerObj *node, MarkerObj *after, F32 strength = 100.0F, F32 timeStep = 10.0F, Bool align = FALSE);
+            // Create a curve
+            void Create(const char* name);
 
-      // Render a segment list
-      void RenderSegmentList(SegmentList &list, Color c);
+            // Delete a curve
+            void Delete();
 
-      // Upload the curve to the bookmark object
-      void Upload(BookmarkObj &bookmark);
+            // Find an object's node in the list
+            SegmentListNode* FindNode(MarkerObj* obj, SegmentList** foundList = NULL);
 
-      // Download the curve from a bookmark object
-      void Download(BookmarkObj &bookmark);
+            // Get first SegmentListNode from a MapObjList
+            SegmentListNode* GetFirstNode(MapObjList& list, SegmentList** foundList = NULL);
 
-      // Download helper
-      void Download(BookmarkObj::CurveSrc &src, SegmentList &list);
+            // Add a new curve node
+            void InsertNode(SegmentList& list, MarkerObj* node, MarkerObj* after, F32 strength = 100.0F, F32 timeStep = 10.0F, Bool align = FALSE);
 
-      // Step along a curve
-      Bool Step(F32 &time, Matrix &matrix);
+            // Render a segment list
+            void RenderSegmentList(SegmentList& list, Color c);
 
-      // Camera simulation callback
-      static Bool CameraSimulate(FamilyNode *node, F32 time, void *context);
+            // Upload the curve to the bookmark object
+            void Upload(BookmarkObj& bookmark);
 
-    public:
+            // Download the curve from a bookmark object
+            void Download(BookmarkObj& bookmark);
 
-      // Constructor and destructor
-      Curve(const char *name);
-      ~Curve();
+            // Download helper
+            void Download(BookmarkObj::CurveSrc& src, SegmentList& list);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
+            // Step along a curve
+            Bool Step(F32& time, Matrix& matrix);
 
-      // Returns the object selection filter for this brush
-      Common::GameWindow::SelectFilter * GetSelectionFilter();
-    };
-  }
+            // Camera simulation callback
+            static Bool CameraSimulate(FamilyNode* node, F32 time, void* context);
+
+        public:
+
+            // Constructor and destructor
+            Curve(const char* name);
+            ~Curve();
+
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+
+            // Returns the object selection filter for this brush
+            Common::GameWindow::SelectFilter* GetSelectionFilter();
+        };
+    }
 }
 
 #endif

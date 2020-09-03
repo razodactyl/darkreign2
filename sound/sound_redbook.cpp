@@ -430,8 +430,11 @@ namespace Sound
             {
                 AIL_redbook_set_volume
                 (
-                    driver, Clamp<S32>(MIN_VOLUME, static_cast<S32>((volume * static_cast<F32>(MAX_VOLUME)) + 0.5F),
-                                       MAX_VOLUME)
+                    driver, Clamp<S32>
+                    (
+                        MIN_VOLUME, static_cast<S32>((volume * static_cast<F32>(MAX_VOLUME)) + 0.5F),
+                        MAX_VOLUME
+                    )
                 );
             }
         }

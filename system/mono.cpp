@@ -56,8 +56,8 @@ namespace Mono
 
 
     //
-    // Prototypes
-    //
+// Prototypes
+//
 
     // Initialise the mono hardware
     static Bool InitHardware();
@@ -87,7 +87,7 @@ namespace Mono
     };
 
     //
-    // Map mono memory under WinNT
+// Map mono memory under WinNT
     //
     static Bool MapMemNT()
     {
@@ -154,7 +154,7 @@ namespace Mono
 
 
     //
-    // Unmap mono memory
+// Unmap mono memory
     //
     void UnmapMemNT()
     {
@@ -183,7 +183,7 @@ namespace Mono
 
 
     //
-    // Create shared memory block
+// Create shared memory block
     //
     Bool CreateSharedMem()
     {
@@ -193,7 +193,7 @@ namespace Mono
 
 
     //
-    // Delete shared memory block
+// Delete shared memory block
     //
     void DestroySharedMem()
     {
@@ -202,9 +202,9 @@ namespace Mono
 
 
     //
-    // InitHardware
-    //
-    // Initialise the mono hardware
+// InitHardware
+//
+// Initialise the mono hardware
     //
     Bool InitHardware()
     {
@@ -237,9 +237,9 @@ namespace Mono
 
 
     //
-    // Init
-    //
-    // Initialise the Mono display system
+// Init
+//
+// Initialise the Mono display system
     //
     void Init()
     {
@@ -287,9 +287,9 @@ namespace Mono
 
 
     //
-    // Done
-    //
-    // Shut down the Mono display system
+// Done
+//
+// Shut down the Mono display system
     // 
     void Done()
     {
@@ -320,9 +320,9 @@ namespace Mono
 
 
     //
-    // CreateConsole
-    //
-    // Allocate a new console object and return a pointer to it
+// CreateConsole
+//
+// Allocate a new console object and return a pointer to it
     //
     void CreateConsole(const char* title, Console** console)
     {
@@ -346,9 +346,9 @@ namespace Mono
 
 
     //
-    // DestroyConsole
-    //
-    // Destroy the console, remove it from the list and invalidate the handle
+// DestroyConsole
+//
+// Destroy the console, remove it from the list and invalidate the handle
     //
     void DestroyConsole(Console** handle)
     {
@@ -361,9 +361,9 @@ namespace Mono
 
 
     //
-    // FindConsole
-    //
-    // Find a console by name
+// FindConsole
+//
+// Find a console by name
     //
     Console* FindConsole(const char* title)
     {
@@ -381,9 +381,9 @@ namespace Mono
 
 
     //
-    // CreateBuffer
-    //
-    // Allocate a new mono buffer object and return a pointer to it
+// CreateBuffer
+//
+// Allocate a new mono buffer object and return a pointer to it
     //
     void CreateBuffer(const char* title, Buffer** buffer)
     {
@@ -407,9 +407,9 @@ namespace Mono
 
 
     //
-    // DestroyBuffer
-    //
-    // Destroy the buffer, remove it from the list and invalidate the handle
+// DestroyBuffer
+//
+// Destroy the buffer, remove it from the list and invalidate the handle
     //
     void DestroyBuffer(Buffer** handle)
     {
@@ -422,9 +422,9 @@ namespace Mono
 
 
     //
-    // FindBuffer
-    //
-    // Find a buffer by name
+// FindBuffer
+//
+// Find a buffer by name
     //
     Buffer* FindBuffer(const char* title)
     {
@@ -442,9 +442,9 @@ namespace Mono
 
 
     //
-    // ActivatePanel
-    //
-    // Activate the panel with id of "n"
+// ActivatePanel
+//
+// Activate the panel with id of "n"
     //
     void ActivatePanel(U32 n)
     {
@@ -462,9 +462,9 @@ namespace Mono
 
 
     //
-    // PanelChange
-    //
-    // Change the panel to 'p' and repaint the screen
+// PanelChange
+//
+// Change the panel to 'p' and repaint the screen
     //
     void PanelChange(Panel* p)
     {
@@ -485,9 +485,9 @@ namespace Mono
 
 
     //
-    // UpdateScreen
-    //
-    // Repaint the active panel and status bar
+// UpdateScreen
+//
+// Repaint the active panel and status bar
     //
     void UpdateScreen()
     {
@@ -499,9 +499,9 @@ namespace Mono
 
 
     //
-    // UpdateTitle
-    //
-    // Repaint the title bar
+// UpdateTitle
+//
+// Repaint the title bar
     //
     void UpdateTitle(const char* title, S32 len)
     {
@@ -515,9 +515,9 @@ namespace Mono
 
 
     //
-    // Update
-    //
-    // Update the mono display with a new framerate and mouse position value.
+// Update
+//
+// Update the mono display with a new framerate and mouse position value.
     //
     void Update(S32 fps, F32 elapFrame, S32 mousex, S32 mousey, U32 triCount)
     {
@@ -548,9 +548,9 @@ namespace Mono
 
 
     //
-    // ScreenPtr
-    //
-    // Return a pointer to the start of video memory
+// ScreenPtr
+//
+// Return a pointer to the start of video memory
     //
     U8* ScreenPtr()
     {
@@ -559,9 +559,9 @@ namespace Mono
 
 
     //
-    // ClientPanel
-    //
-    // Return a pointer to the screen client area
+// ClientPanel
+//
+// Return a pointer to the screen client area
     //
     Buffer* ClientPanel()
     {
@@ -570,9 +570,9 @@ namespace Mono
 
 
     //
-    // ProcessEvents
-    //
-    // Process keyboard events
+// ProcessEvents
+//
+// Process keyboard events
     //
     Bool ProcessEvents(U32 msg, U32 wParam, U32 lParam)
     {
@@ -688,13 +688,13 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Panel implementation
-    //
+//
+// Panel implementation
+//
 
 
-    //
-    // Panel::Panel
+//
+// Panel::Panel
     //
     Panel::Panel()
     {
@@ -708,7 +708,7 @@ namespace Mono
 
 
     //
-    // Panel::Panel
+// Panel::Panel
     //
     Panel::Panel(S32 w, S32 h)
     {
@@ -735,7 +735,7 @@ namespace Mono
 
 
     //
-    // Panel::~Panel
+// Panel::~Panel
     //
     Panel::~Panel()
     {
@@ -753,9 +753,9 @@ namespace Mono
 
 
     //
-    // Panel::Create
-    //
-    // Create a panel to point at an existing block of memory
+// Panel::Create
+//
+// Create a panel to point at an existing block of memory
     //
     void Panel::Create(S32 w, S32 h, U8* screenMem)
     {
@@ -777,9 +777,9 @@ namespace Mono
 
 
     //
-    // Panel::Clear
-    //
-    // Clear the panel with normal attribute and blank character
+// Panel::Clear
+//
+// Clear the panel with normal attribute and blank character
     //
     void Panel::Clear()
     {
@@ -795,9 +795,9 @@ namespace Mono
 
 
     //
-    // Panel::SetTitle
-    //
-    // Set the display title of the panel
+// Panel::SetTitle
+//
+// Set the display title of the panel
     //
     void Panel::SetTitle(const char* s)
     {
@@ -814,9 +814,9 @@ namespace Mono
 
 
     //
-    // Panel::SetEventProc
-    //
-    // Register an event handling function for the active panel
+// Panel::SetEventProc
+//
+// Register an event handling function for the active panel
     //
     void Panel::SetEventProc(EVENTPROC* proc)
     {
@@ -825,9 +825,9 @@ namespace Mono
 
 
     //
-    // Panel::Invalidate
-    //
-    // Dirty a region of the panel
+// Panel::Invalidate
+//
+// Dirty a region of the panel
     //
     void Panel::Invalidate(S32 left, S32 top, S32 right, S32 bottom)
     {
@@ -849,9 +849,9 @@ namespace Mono
 
 
     //
-    // Panel::Repaint
-    //
-    // Blit the dirty region of the panel to the screen buffer
+// Panel::Repaint
+//
+// Blit the dirty region of the panel to the screen buffer
     //
     void Panel::Repaint()
     {
@@ -904,9 +904,9 @@ namespace Mono
 
 
     //
-    // Panel::SetParent
-    //
-    // Set the parent panel
+// Panel::SetParent
+//
+// Set the parent panel
     //
     void Panel::SetParent(Panel* p)
     {
@@ -919,9 +919,9 @@ namespace Mono
 
 
     //
-    // Panel::SetOffset
-    //
-    // Set the offset from the top left of the viewport
+// Panel::SetOffset
+//
+// Set the offset from the top left of the viewport
     //
     void Panel::SetOffset(S32 r, S32 c)
     {
@@ -931,13 +931,13 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Console implementation
-    //
+//
+// Console implementation
+//
 
 
-    //
-    // Console::Console
+//
+// Console::Console
     //
     Console::Console() : Panel()
     {
@@ -951,7 +951,7 @@ namespace Mono
 
 
     //
-    // Console::Console
+// Console::Console
     //
     Console::Console(S32 w, S32 h) : Panel(w, h)
     {
@@ -963,7 +963,7 @@ namespace Mono
 
 
     //
-    // Console::Create
+// Console::Create
     //
     void Console::Create(S32 w, S32 h, U8* screenMem)
     {
@@ -974,7 +974,7 @@ namespace Mono
 
 
     //
-    // Console::Init
+// Console::Init
     //
     void Console::Init()
     {
@@ -994,9 +994,9 @@ namespace Mono
 
 
     //
-    // Console::Write
-    //
-    // Write a string to the console
+// Console::Write
+//
+// Write a string to the console
     //
     void Console::Write(const char* str, EAttrib attrib)
     {
@@ -1058,9 +1058,9 @@ namespace Mono
 
 
     //
-    // Console::WriteV
-    //
-    // Write a vsprintf string to the console
+// Console::WriteV
+//
+// Write a vsprintf string to the console
     //
     void CDECL Console::WriteV(const char* format, ...)
     {
@@ -1080,13 +1080,13 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Buffer implementation
-    //
+//
+// Buffer implementation
+//
 
 
-    //
-    // Buffer constructor
+//
+// Buffer constructor
     //
     Buffer::Buffer() : Panel()
     {
@@ -1095,9 +1095,9 @@ namespace Mono
 
 
     //
-    // Buffer constructor
-    //
-    // Create a buffer of the specified size
+// Buffer constructor
+//
+// Create a buffer of the specified size
     //
     Buffer::Buffer(S32 w, S32 h) : Panel(w, h)
     {
@@ -1106,9 +1106,9 @@ namespace Mono
 
 
     //
-    // Buffer::Write
-    //
-    // Write a string to the mono buffer
+// Buffer::Write
+//
+// Write a string to the mono buffer
     //
     void Buffer::Write(S32 row, S32 col, const char* str, EAttrib attrib)
     {
@@ -1132,9 +1132,9 @@ namespace Mono
 
 
     //
-    // Buffer::WriteV
-    //
-    // Write vsprintf string to the buffer with NORMAL attribute
+// Buffer::WriteV
+//
+// Write vsprintf string to the buffer with NORMAL attribute
     //
     void CDECL Buffer::WriteV(S32 row, S32 col, const char* format, ...)
     {
@@ -1157,9 +1157,9 @@ namespace Mono
 
 
     //
-    // BufferWriteV
-    //
-    // Write vsprintf string to the buffer with custom attribute
+// BufferWriteV
+//
+// Write vsprintf string to the buffer with custom attribute
     //
     void CDECL Buffer::WriteV(S32 row, S32 col, EAttrib attrib, const char* format, ...)
     {
@@ -1183,9 +1183,9 @@ namespace Mono
 
 
     //
-    // Buffer::FillRect
-    //
-    // Fill the rectangle with a character and attribute
+// Buffer::FillRect
+//
+// Fill the rectangle with a character and attribute
     //
     void Buffer::FillRect(S32 left, S32 top, S32 right, S32 bottom, S32 ch, EAttrib attrib)
     {
@@ -1208,9 +1208,9 @@ namespace Mono
 
 
     //
-    // Buffer::FillRow
-    //
-    // Fill the entire row with a character and attribute
+// Buffer::FillRow
+//
+// Fill the entire row with a character and attribute
     //
     void Buffer::FillRow(S32 row, S32 ch, EAttrib attrib)
     {
@@ -1234,9 +1234,9 @@ namespace Mono
 
 
     //
-    // Buffer::PutChar
-    //
-    // Write a character to the screen with NORMAL attribute
+// Buffer::PutChar
+//
+// Write a character to the screen with NORMAL attribute
     //
     void Buffer::PutChar(S32 row, S32 col, S32 ch)
     {
@@ -1252,9 +1252,9 @@ namespace Mono
 
 
     //
-    // Buffer::PutChar
-    //
-    // Write a character to the screen with a custom attribute
+// Buffer::PutChar
+//
+// Write a character to the screen with a custom attribute
     //
     void Buffer::PutChar(S32 row, S32 col, EAttrib attrib, S32 ch)
     {
@@ -1271,9 +1271,9 @@ namespace Mono
 
 
     //
-    // Buffer::PutAttr
-    //
-    // Set the attribute of a screen location
+// Buffer::PutAttr
+//
+// Set the attribute of a screen location
     //
     void Buffer::PutAttr(S32 row, S32 col, U32 n, EAttrib attrib)
     {
@@ -1293,9 +1293,9 @@ namespace Mono
     }
 
     //
-    // Buffer::AttachConsole
-    //
-    // Add a console to this panel
+// Buffer::AttachConsole
+//
+// Add a console to this panel
     //
     Bool Buffer::AttachConsole(S32 r, S32 c, S32 w, S32 h, Console** handle)
     {
@@ -1321,9 +1321,9 @@ namespace Mono
 
 
     //
-    // Buffer::DetachConsole
-    //
-    // Detach a console
+// Buffer::DetachConsole
+//
+// Detach a console
     //
     Bool Buffer::DetachConsole(Console** handle)
     {
@@ -1356,13 +1356,13 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Spinner implementation
-    //
+//
+// Spinner implementation
+//
 
 
-    //
-    // Static members
+//
+// Static members
     //
     S32 Spinner::row = 0;
     S32 Spinner::col = 0;
@@ -1370,9 +1370,9 @@ namespace Mono
 
 
     //
-    // Spinner::SetPos
-    //
-    // Set the screen position of the spinner
+// Spinner::SetPos
+//
+// Set the screen position of the spinner
     //
     void Spinner::SetPos(S32 r, S32 c)
     {
@@ -1382,10 +1382,10 @@ namespace Mono
 
 
     //
-    // Spinner::PutChar
-    //
-    // Draw a character where the spinner would appear, will be overwritten 
-    // by the next call to Spinner::Advance
+// Spinner::PutChar
+//
+// Draw a character where the spinner would appear, will be overwritten 
+// by the next call to Spinner::Advance
     //
     void Spinner::PutChar(S32 ch, EAttrib attrib)
     {
@@ -1396,9 +1396,9 @@ namespace Mono
 
 
     //
-    // Spinner::Advance
-    //
-    // Spin it baby
+// Spinner::Advance
+//
+// Spin it baby
     //
     void Spinner::Advance()
     {
@@ -1410,15 +1410,15 @@ namespace Mono
 
 
     ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Scratch implementation
-    //
+//
+// Scratch implementation
+//
 
 
-    //
-    // Scratch::Panel::Panel
-    //
-    // Create a scratch panel of the specified width and height
+//
+// Scratch::Panel::Panel
+//
+// Create a scratch panel of the specified width and height
     //
     Scratch::Panel::Panel(S32 w, S32 h, const char* owner) : Buffer(w, h)
     {
@@ -1427,9 +1427,9 @@ namespace Mono
 
 
     //
-    // Scratch::Create
-    //
-    // Create a scratch panel, and set its owner and title
+// Scratch::Create
+//
+// Create a scratch panel, and set its owner and title
     //
     void Scratch::Create(U32 id, const char* owner, const char* name)
     {
@@ -1448,9 +1448,9 @@ namespace Mono
 
 
     //
-    // Scratch::Done
-    //
-    // Destroy all scratch panels
+// Scratch::Done
+//
+// Destroy all scratch panels
     //
     void Scratch::Done()
     {
@@ -1459,9 +1459,9 @@ namespace Mono
 
 
     //
-    // Scratch::Find
-    //
-    // Find a scratch panel from its id
+// Scratch::Find
+//
+// Find a scratch panel from its id
     //
     Buffer* Scratch::Find(U32 id)
     {
@@ -1476,9 +1476,9 @@ namespace Mono
 
 
     //
-    // Scratch::ActivatePanel
-    //
-    // Activate the scratch panel with the specified id
+// Scratch::ActivatePanel
+//
+// Activate the scratch panel with the specified id
     //
     void Scratch::ActivatePanel(U32 id)
     {

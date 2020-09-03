@@ -215,7 +215,7 @@ namespace Tactical
 
         TablePointer(U32 crc, Table*& table)
             : crc(crc),
-            table(table)
+              table(table)
         {
         }
     };

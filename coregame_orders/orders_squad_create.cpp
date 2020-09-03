@@ -22,51 +22,49 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Create
+    // NameSpace Squad
     //
-
-    U32 Create::orderId;
-
-    //
-    // Generate
-    //
-    void Create::Generate(Player &player, U32 id)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Create
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 Create::orderId;
 
-      // Pack the id
-      data.id = id;
+        //
+        // Generate
+        //
+        void Create::Generate(Player& player, U32 id)
+        {
+            Data data;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Pack the id
+            data.id = id;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Create::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Create the squad
+            SquadObj* squadObj = SquadObjCtrl::Create(player.GetTeam());
+            squadObj->NotifyPlayer(0x8AA808B7, d->id); // "Squad::Created"
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Create::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Create the squad
-      SquadObj *squadObj = SquadObjCtrl::Create(player.GetTeam());
-      squadObj->NotifyPlayer(0x8AA808B7, d->id); // "Squad::Created"
-
-      return (sizeof (Data));
-    }
-  }
 }

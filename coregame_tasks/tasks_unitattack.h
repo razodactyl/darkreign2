@@ -26,55 +26,52 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitAttack
+    //
+    class UnitAttack : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitAttack)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitAttack
-  //
-  class UnitAttack : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitAttack)
+    private:
 
-  private:
+        // The target
+        Target target;
 
-    // The target
-    Target target;
+    public:
 
-  public:
+        // Constructor
+        UnitAttack(GameObj* subject);
+        UnitAttack(GameObj* subject, const Target& target);
 
-    // Constructor
-    UnitAttack(GameObj *subject);
-    UnitAttack(GameObj *subject, const Target &target);
+        ~UnitAttack();
 
-    ~UnitAttack();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+        // Get the blocking priority of this task
+        U32 GetBlockingPriority();
 
-    // Get the blocking priority of this task
-    U32 GetBlockingPriority();
+        // Set a new target
+        void SetTarget(const Target& target);
 
-    // Set a new target
-    void SetTarget(const Target &target);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateAttacking();
-
-  };
-
+        // State machine procedures
+        void StateInit();
+        void StateAttacking();
+    };
 }
 
 

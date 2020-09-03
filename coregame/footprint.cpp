@@ -54,16 +54,16 @@ namespace FootPrint
         // Maximums are swapped for EAST and WEST directions
         switch (dir)
         {
-        case WorldCtrl::NORTH:
-        case WorldCtrl::SOUTH:
-            xMax = xSize;
-            zMax = zSize;
-            break;
+            case WorldCtrl::NORTH:
+            case WorldCtrl::SOUTH:
+                xMax = xSize;
+                zMax = zSize;
+                break;
 
-        default:
-            xMax = zSize;
-            zMax = xSize;
-            break;
+            default:
+                xMax = zSize;
+                zMax = xSize;
+                break;
         }
     }
 
@@ -84,29 +84,29 @@ namespace FootPrint
     {
         switch (dir)
         {
-        case WorldCtrl::NORTH:
-            xZip = xFoot = x;
-            zZip = zFoot = z;
-            break;
+            case WorldCtrl::NORTH:
+                xZip = xFoot = x;
+                zZip = zFoot = z;
+                break;
 
-        case WorldCtrl::EAST:
-            xZip = xFoot = xArray - z;
-            zZip = zFoot = x;
-            xFoot--;
-            break;
+            case WorldCtrl::EAST:
+                xZip = xFoot = xArray - z;
+                zZip = zFoot = x;
+                xFoot--;
+                break;
 
-        case WorldCtrl::SOUTH:
-            xZip = xFoot = xArray - x;
-            zZip = zFoot = zArray - z;
-            xFoot--;
-            zFoot--;
-            break;
+            case WorldCtrl::SOUTH:
+                xZip = xFoot = xArray - x;
+                zZip = zFoot = zArray - z;
+                xFoot--;
+                zFoot--;
+                break;
 
-        case WorldCtrl::WEST:
-            xZip = xFoot = z;
-            zZip = zFoot = zArray - x;
-            zFoot--;
-            break;
+            case WorldCtrl::WEST:
+                xZip = xFoot = z;
+                zZip = zFoot = zArray - x;
+                zFoot--;
+                break;
         }
     }
 
@@ -353,13 +353,13 @@ namespace FootPrint
         Point<S32> fMax(max + 1);
 
         return
-            (
-                (((pos.x == fMin.x) || (pos.x == fMax.x)) && ((pos.z >= fMin.z && pos.z <= fMax.z)))
+        (
+            (((pos.x == fMin.x) || (pos.x == fMax.x)) && ((pos.z >= fMin.z && pos.z <= fMax.z)))
 
-                ||
+            ||
 
-                (((pos.z == fMin.z) || (pos.z == fMax.z)) && ((pos.x >= fMin.x && pos.x <= fMax.x)))
-                );
+            (((pos.z == fMin.z) || (pos.z == fMax.z)) && ((pos.x >= fMin.x && pos.x <= fMax.x)))
+        );
     }
 
 
@@ -488,7 +488,7 @@ namespace FootPrint
         ASSERT(!initialized);
 
         // Allocate an array of instance pointers
-        instances = new Instance * [MAX_INSTANCES];
+        instances = new Instance*[MAX_INSTANCES];
         instanceCount = 0;
         nextIndex = INSTANCE_MIN;
 

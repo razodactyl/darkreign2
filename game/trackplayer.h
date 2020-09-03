@@ -20,8 +20,10 @@
 #include "utiltypes.h"
 
 
-namespace Sound {
-    namespace Vorbis {
+namespace Sound
+{
+    namespace Vorbis
+    {
         class VorbisPath;
     }
 }

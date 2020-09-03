@@ -24,62 +24,60 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Restore
+    // NameSpace Game
     //
-    U32 RestoreMobile::orderId;
-
-
-    //
-    // Generate
-    //
-    void RestoreMobile::Generate(Player &player, U32 target, Modifier mod)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.target = target;
-      data.mod = mod;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Restore
+        //
+        U32 RestoreMobile::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 RestoreMobile::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
+        //
+        // Generate
+        //
+        void RestoreMobile::Generate(Player& player, U32 target, Modifier mod)
+        {
+            Data data;
 
-      // Convert ID into a pointer
-      if (UnitObj *target = Resolver::Object<UnitObj, UnitObjType>(d->target))
-      {
-        // Check each selected object
-        for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-        { 
-          // Promote to a restore object
-          RestoreObj *subject = Promote::Object<RestoreObjType, RestoreObj>(**i);
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.target = target;
+            data.mod = mod;
 
-          // Can the subject restore the target
-          if (subject && subject->RestoreRequired(target))
-          {
-            IssueTask(d->mod, subject, new Tasks::RestoreMobile(subject, target), player);
-          }
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
 
-      return (sizeof (Data));
+
+        //
+        // Execute
+        //
+        U32 RestoreMobile::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Convert ID into a pointer
+            if (UnitObj* target = Resolver::Object<UnitObj, UnitObjType>(d->target))
+            {
+                // Check each selected object
+                for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+                {
+                    // Promote to a restore object
+                    RestoreObj* subject = Promote::Object<RestoreObjType, RestoreObj>(**i);
+
+                    // Can the subject restore the target
+                    if (subject && subject->RestoreRequired(target))
+                    {
+                        IssueTask(d->mod, subject, new Tasks::RestoreMobile(subject, target), player);
+                    }
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

@@ -28,161 +28,157 @@ class Team;
 //
 namespace DisplayObjective
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Item
-  //
-  class Item
-  {
-  public:
-
-    // State of the item
-    enum State
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Item
+    //
+    class Item
     {
-      ACTIVE,
-      ABANDONED,
-      COMPLETED
+    public:
+
+        // State of the item
+        enum State
+        {
+            ACTIVE,
+            ABANDONED,
+            COMPLETED
+        };
+
+    private:
+
+        // Name
+        GameIdent name;
+
+        // FScope
+        FScope* fScope;
+
+        // State
+        State state;
+
+        // Tree node
+        NBinTree<Item>::Node node;
+
+    public:
+
+        // Constructor
+        Item(FScope* fScope);
+        Item(const char* name, FScope* fScope);
+
+        // Destructor
+        ~Item();
+
+        // GetText
+        const CH* GetText(State& state, Team* team);
+
+        // Dump
+        void Dump(Team* team);
+
+        // Save and load state
+        void SaveState(FScope* scope);
+        void LoadState(FScope* scope);
+
+    public:
+
+        // Get the item name ident
+        const GameIdent& GetName()
+        {
+            return (name);
+        }
+
+        // Abandon
+        void Abandon()
+        {
+            state = ABANDONED;
+        }
+
+        // Complete
+        void Complete()
+        {
+            state = COMPLETED;
+        }
+
+        // Incomplete
+        void Incomplete()
+        {
+            state = ACTIVE;
+        }
+
+    public:
+
+        friend class Set;
     };
 
-  private:
 
-    // Name
-    GameIdent name;
-
-    // FScope
-    FScope *fScope;
-
-    // State
-    State state;
-
-    // Tree node
-    NBinTree<Item>::Node node;
-
-  public:
-
-    // Constructor
-    Item(FScope *fScope);
-    Item(const char *name, FScope *fScope);
-
-    // Destructor
-    ~Item();
-
-    // GetText
-    const CH * GetText(State &state, Team *team);
-
-    // Dump
-    void Dump(Team *team);
-
-    // Save and load state
-    void SaveState(FScope *scope);
-    void LoadState(FScope *scope);
-
-  public:
-
-    // Get the item name ident
-    const GameIdent & GetName()
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Set
+    //
+    class Set
     {
-      return (name);
-    }
+    private:
 
-    // Abandon
-    void Abandon()
-    {
-      state = ABANDONED;
-    }
+        // List of active items
+        NBinTree<Item> items;
 
-    // Complete
-    void Complete()
-    {
-      state = COMPLETED;
-    }
+        // Team
+        Team* team;
 
-    // Incomplete
-    void Incomplete()
-    {
-      state = ACTIVE;
-    }
+    public:
 
-  public:
+        typedef NBinTree<Item>::Iterator Iterator;
 
-    friend class Set;
+    public:
 
-  };
+        // Constructor
+        Set();
 
+        // Destructor
+        ~Set();
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Set
-  //
-  class Set
-  {
-  private:
+        // Add an item to the set
+        void AddItem(const GameIdent& item, FScope* fScope);
 
-    // List of active items
-    NBinTree<Item> items;
+        // Remove an item from the set
+        void RemoveItem(const GameIdent& item);
 
-    // Team
-    Team *team;
+        // Complete an item in the set
+        void CompleteItem(const GameIdent& item);
 
-  public:
+        // Complete an item in the set
+        void IncompleteItem(const GameIdent& item);
 
-    typedef NBinTree<Item>::Iterator Iterator;
+        // Abandon an item in the set
+        void AbandonItem(const GameIdent& item);
 
-  public:
-
-    // Constructor
-    Set();
-
-    // Destructor
-    ~Set();
-
-    // Add an item to the set
-    void AddItem(const GameIdent &item, FScope *fScope);
-
-    // Remove an item from the set
-    void RemoveItem(const GameIdent &item);
-
-    // Complete an item in the set
-    void CompleteItem(const GameIdent &item);
-
-    // Complete an item in the set
-    void IncompleteItem(const GameIdent &item);
-
-    // Abandon an item in the set
-    void AbandonItem(const GameIdent &item);
-
-    // Dump the item to the console
-    void DumpItem(const GameIdent &item);
+        // Dump the item to the console
+        void DumpItem(const GameIdent& item);
 
 
-    // Reset Iterator
-    void ResetIterator(Iterator &iterator);
+        // Reset Iterator
+        void ResetIterator(Iterator& iterator);
 
-    // Iterate: iterate through the items
-    Bool Iterate(Iterator &iterator, GameIdent &ident, const CH *&text, Item::State &state);
+        // Iterate: iterate through the items
+        Bool Iterate(Iterator& iterator, GameIdent& ident, const CH*& text, Item::State& state);
 
 
-    // Save and load state
-    void SaveState(FScope *scope);
-    void LoadState(FScope *scope);
+        // Save and load state
+        void SaveState(FScope* scope);
+        void LoadState(FScope* scope);
 
-  public:
+    public:
 
-    // SetTeam
-    void SetTeam(Team *t)
-    {
-      team = t;
-    }
+        // SetTeam
+        void SetTeam(Team* t)
+        {
+            team = t;
+        }
 
-    // Get the list of active items
-    const NBinTree<Item> & GetItems()
-    {
-      return (items);
-    }
-
-  };
-
+        // Get the list of active items
+        const NBinTree<Item>& GetItems()
+        {
+            return (items);
+        }
+    };
 }
 
 #endif

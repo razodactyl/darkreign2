@@ -323,12 +323,14 @@ namespace Tasks
                 // Move to a location and/or direction
                 if (hasDest || hasDir)
                 {
-                    subject->Move(
+                    subject->Move
+                    (
                         moveHandle,
                         (hasDest) ? &destination : nullptr,
                         (hasDir) ? &direction : nullptr,
                         GetFlags() & TF_AI ? TRUE : FALSE,
-                        GetRequest());
+                        GetRequest()
+                    );
                 }
                 else
                 {

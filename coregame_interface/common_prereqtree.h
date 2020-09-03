@@ -26,46 +26,45 @@
 //
 namespace Common
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class PrereqTree
-  //
-  class PrereqTree : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class PrereqTree
+    //
+    class PrereqTree : public IControl
+    {
     PROMOTE_LINK(PrereqTree, IControl, 0x509FE9F5) // "PrereqTree"
 
-  protected:
+    protected:
 
-    // Point
-    Point<S32> point;
+        // Point
+        Point<S32> point;
 
-    // The team
-    Team *team;
+        // The team
+        Team* team;
 
-    // The type prereqs are being displayed for
-    UnitObjType *type;
+        // The type prereqs are being displayed for
+        UnitObjType* type;
 
-    // Reaper to the facility
-    UnitObjPtr constructor;
+        // Reaper to the facility
+        UnitObjPtr constructor;
 
-  public:
+    public:
 
-    // Constructor
-    PrereqTree(IControl *parent);
-    ~PrereqTree();
+        // Constructor
+        PrereqTree(IControl* parent);
+        ~PrereqTree();
 
-    // Setup
-    void Setup(const Point<S32> &point, Team *team, UnitObjType *type, UnitObj *constructor);
+        // Setup
+        void Setup(const Point<S32>& point, Team* team, UnitObjType* type, UnitObj* constructor);
 
-  protected:
+    protected:
 
-    // Draw control
-    void DrawSelf(PaintInfo &pi);
+        // Draw control
+        void DrawSelf(PaintInfo& pi);
 
-    // Draw 
-    void Draw(Bool first, PaintInfo &pi, S32 x, S32 &y, S32 &bottom, UnitObjType *type);
-
-  };
+        // Draw 
+        void Draw(Bool first, PaintInfo& pi, S32 x, S32& y, S32& bottom, UnitObjType* type);
+    };
 }
 
 #endif

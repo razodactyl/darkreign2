@@ -31,26 +31,27 @@ class MBEvent
 {
 public:
 
-  // Identifier of this event
-  GameIdent ident;
+    // Identifier of this event
+    GameIdent ident;
 
-  // Caption of this message box button
-  CH *caption;
+    // Caption of this message box button
+    CH* caption;
 
-  // NList node
-  NBinTree<MBEvent>::Node listNode;
+    // NList node
+    NBinTree<MBEvent>::Node listNode;
 
 public:
 
-  // Constructor
-  MBEvent(const char *ident, const CH *caption);
+    // Constructor
+    MBEvent(const char* ident, const CH* caption);
 
-  // Destructor
-  virtual ~MBEvent();
+    // Destructor
+    virtual ~MBEvent();
 
-  // Process the callback when the messagebox item is pressed
-  virtual void Process() { };
-
+    // Process the callback when the messagebox item is pressed
+    virtual void Process()
+    {
+    };
 };
 
 
@@ -63,19 +64,18 @@ class MBEventNotify : public MBEvent
 {
 protected:
 
-  // Control to send the event to
-  Reaper<IControl> ctrl;
+    // Control to send the event to
+    Reaper<IControl> ctrl;
 
-  // Id of the notification event
-  U32 notifyId;
+    // Id of the notification event
+    U32 notifyId;
 
 public:
 
-  MBEventNotify(const char *ident, const CH *caption, IControl *control, U32 notifyId);
+    MBEventNotify(const char* ident, const CH* caption, IControl* control, U32 notifyId);
 
-  // Process the callback when the messagebox item is pressed
-  void Process();
-
+    // Process the callback when the messagebox item is pressed
+    void Process();
 };
 
 
@@ -88,21 +88,20 @@ class MBEventCallback : public MBEvent
 {
 public:
 
-  typedef void (Proc)(U32 event, U32 context);
-  U32 context;
+    typedef void (Proc)(U32 event, U32 context);
+    U32 context;
 
 protected:
 
-  // Function to call
-  Proc *proc;
+    // Function to call
+    Proc* proc;
 
 public:
 
-  MBEventCallback(const char *ident, const CH *caption, Proc *proc, U32 context = 0);
+    MBEventCallback(const char* ident, const CH* caption, Proc* proc, U32 context = 0);
 
-  // Process the callback when the messagebox item is pressed
-  void Process();
-
+    // Process the callback when the messagebox item is pressed
+    void Process();
 };
 
 #endif

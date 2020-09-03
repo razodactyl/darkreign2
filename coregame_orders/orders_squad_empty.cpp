@@ -22,57 +22,55 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Empty
+    // NameSpace Squad
     //
-
-    U32 Empty::orderId;
-
-    //
-    // Generate
-    //
-    void Empty::Generate(Player &player, U32 squad)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Empty
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 Empty::orderId;
 
-      // Pack the squad
-      data.squad = squad;
+        //
+        // Generate
+        //
+        void Empty::Generate(Player& player, U32 squad)
+        {
+            Data data;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Pack the squad
+            data.squad = squad;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Empty::Execute(const U8* data, Player&)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                // Notify the player that the squad has been emptied
+                squadObj->NotifyPlayer(0x2B8A9E2C); // "Squad::Empty"
+
+                // Empty the squad
+                squadObj->Empty();
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Empty::Execute(const U8 *data, Player &)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        // Notify the player that the squad has been emptied
-        squadObj->NotifyPlayer(0x2B8A9E2C); // "Squad::Empty"
-
-        // Empty the squad
-        squadObj->Empty();
-      }
-
-      return (sizeof (Data));
-    }
-  }
 }

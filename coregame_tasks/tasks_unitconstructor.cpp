@@ -343,8 +343,11 @@ namespace Tasks
                         else
                         {
                             // Setup a destination vector
-                            Vector v(WorldCtrl::CellToMetresX(rallyPoint.x), 0.0F,
-                                     WorldCtrl::CellToMetresZ(rallyPoint.z));
+                            Vector v
+                            (
+                                WorldCtrl::CellToMetresX(rallyPoint.x), 0.0F,
+                                WorldCtrl::CellToMetresZ(rallyPoint.z)
+                            );
 
                             // Tell the unit to move there
                             unit->PrependTask(new UnitMove(unit, v));
@@ -618,9 +621,11 @@ namespace Tasks
                     }
                     else
                     {
-                        data.s2 = TRANSLATE(
+                        data.s2 = TRANSLATE
+                        (
                             ("#game.client.hud.tasks.constructor.process", 2, construct->GetDesc(), GetProgress() *
-                                100.0F));
+                                100.0F)
+                        );
                     }
 
                     return (TRUE);

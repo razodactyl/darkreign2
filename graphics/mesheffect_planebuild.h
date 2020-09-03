@@ -29,12 +29,12 @@ public:
 
 public:
 
-  MeshPlaneBuildType();
+    MeshPlaneBuildType();
 
-	virtual ~MeshPlaneBuildType();
+    virtual ~MeshPlaneBuildType();
 
-	// build a new mesh effect
-	virtual MeshEffect * Build( MeshEnt & _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    // build a new mesh effect
+    virtual MeshEffect* Build(MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,12 +47,11 @@ public:
 
 public:
 
-	MeshPlaneBuild( MeshPlaneBuildType * _type, MeshEnt * _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshPlaneBuild(MeshPlaneBuildType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-	virtual ~MeshPlaneBuild();
+    virtual ~MeshPlaneBuild();
 
-	virtual Bool Simulate( F32 dt, MeshFX::CallBackData * cbd = NULL);
-
+    virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
 };
 
 #endif

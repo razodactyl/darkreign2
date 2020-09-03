@@ -60,11 +60,11 @@ namespace MultiPlayer
     LOGDEFLOCAL("MultiPlayer")
 
 
-        ///////////////////////////////////////////////////////////////////////////////
-        //
-        // Prototypes
-        //
-        static void Handler(CRC from, U32 key, U32 size, const U8* data);
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Prototypes
+    //
+    static void Handler(CRC from, U32 key, U32 size, const U8* data);
     static void CmdLineHookProc(const Main::CmdLineArg& arg, const Main::CmdLineVal& val);
 
 
@@ -689,28 +689,28 @@ namespace MultiPlayer
 
                         switch (options->placement)
                         {
-                        case Settings::Options::Fixed:
-                            team = ::Team::NameCrc2Team((*tti)->team->startLocation);
-                            if (!team)
-                            {
-                                ERR_FATAL(("Could not find team"));
-                            }
-                            break;
+                            case Settings::Options::Fixed:
+                                team = ::Team::NameCrc2Team((*tti)->team->startLocation);
+                                if (!team)
+                                {
+                                    ERR_FATAL(("Could not find team"));
+                                }
+                                break;
 
-                        case Settings::Options::Random:
+                            case Settings::Options::Random:
 
-                            if (!teams.GetCount())
-                            {
-                                ERR_FATAL(("More players than teams"));
-                            }
+                                if (!teams.GetCount())
+                                {
+                                    ERR_FATAL(("More players than teams"));
+                                }
 
-                            U32 index = Random::sync.Integer(teams.GetCount());
+                                U32 index = Random::sync.Integer(teams.GetCount());
 
-                            LOG_DIAG(("Randomly picked team index %d", index));
+                                LOG_DIAG(("Randomly picked team index %d", index));
 
-                            team = teams[index];
-                            teams.Unlink(team);
-                            break;
+                                team = teams[index];
+                                teams.Unlink(team);
+                                break;
                         }
 
                         const TeamMap* mapping;
@@ -819,9 +819,11 @@ namespace MultiPlayer
 
                             player = object;
 
-                            LOG_DIAG(
+                            LOG_DIAG
+                            (
                                 ("Creating AI [%08X] for Team '%s' [%d]", (*tti)->team->personality, team->GetName(),
-                                    team->GetId()));
+                                    team->GetId())
+                            );
                         }
 
                         // Stuff this team into the teamTree data (slight hack)
@@ -837,9 +839,11 @@ namespace MultiPlayer
                             // Create an actual player in the game
                             ::Player* player = new ::Player(networkPlayer->GetName());
 
-                            LOG_DIAG(
+                            LOG_DIAG
+                            (
                                 ("Creating Player '%s' for Team '%s' [%d]", networkPlayer->GetName(), team->GetName(),
-                                    team->GetId()));
+                                    team->GetId())
+                            );
 
                             // If this is the local player then set the current player
                             if (networkPlayer->GetId() == Network::GetCurrentPlayer().GetId())
@@ -873,9 +877,11 @@ namespace MultiPlayer
                                     ::Team* teamWith = ((::Team*)(*tsi)->team);
                                     Relation relation = (*gi == *gsi) ? Relation::ALLY : Relation::ENEMY;
 
-                                    LOG_DIAG(
+                                    LOG_DIAG
+                                    (
                                         ("Setting relation between %d and %d to %s", teamWho->GetId(), teamWith->GetId()
-                                            , relation.GetName()));
+                                            , relation.GetName())
+                                    );
 
                                     teamWho->SetRelation(teamWith->GetId(), relation);
 
@@ -1081,11 +1087,11 @@ namespace MultiPlayer
 
             // Does this network player have Player and PlayerInfo and a Team ?
             if
-                (
-                    Data::Get(&player, playerId) &&
-                    Data::Get(&playerInfo, playerId) &&
-                    Data::Get(&team, playerInfo->teamId)
-                    )
+            (
+                Data::Get(&player, playerId) &&
+                Data::Get(&playerInfo, playerId) &&
+                Data::Get(&team, playerInfo->teamId)
+            )
             {
                 // Do we have an entry for this teams group ?
                 GroupTree* groupTree;
@@ -1192,9 +1198,12 @@ namespace MultiPlayer
                     Data::Send(0, nullptr, Commands::HaveMission, 0, nullptr);
 
                     // Rebuild the vars
-                    Cmd::UploadMapInfo(info->GetGroup().GetPath().str, info->GetName().str,
+                    Cmd::UploadMapInfo
+                    (
+                        info->GetGroup().GetPath().str, info->GetName().str,
                         U32(PrivData::preview->GetSize() * WorldCtrl::CellSize()),
-                        PrivData::preview->GetTeams());
+                        PrivData::preview->GetTeams()
+                    );
                 }
                 else
                 {
@@ -1273,91 +1282,91 @@ namespace MultiPlayer
 
         switch (key)
         {
-        case Commands::IntegrityChallenge:
-        {
-            CAST(const Commands::Data::IntegrityChallenge*, challenge, data);
-            Commands::Data::IntegrityResponse response;
-
-            // Calculate our code crc from using the given initial key
-            response.crc = Debug::Memory::GetCodeIntegrity(challenge->crc);
-
-            // Send our response to the challenge
-            Data::Send(0, nullptr, Commands::IntegrityResponse, response);
-            break;
-        }
-
-        case Commands::Message:
-        case Commands::MessageQuote:
-        case Commands::MessagePrivate:
-        case Commands::MessageTeam:
-        case Commands::MessageGroup:
-        {
-            Network::Player* player = Network::GetPlayers().Find(from);
-
-            if (player)
+            case Commands::IntegrityChallenge:
             {
-                switch (key)
+                CAST(const Commands::Data::IntegrityChallenge*, challenge, data);
+                Commands::Data::IntegrityResponse response;
+
+                // Calculate our code crc from using the given initial key
+                response.crc = Debug::Memory::GetCodeIntegrity(challenge->crc);
+
+                // Send our response to the challenge
+                Data::Send(0, nullptr, Commands::IntegrityResponse, response);
+                break;
+            }
+
+            case Commands::Message:
+            case Commands::MessageQuote:
+            case Commands::MessagePrivate:
+            case Commands::MessageTeam:
+            case Commands::MessageGroup:
+            {
+                Network::Player* player = Network::GetPlayers().Find(from);
+
+                if (player)
                 {
-                case Commands::Message:
-                    CONSOLE(0x4DBB67F6, ("[%s] %s", player->GetName(), data)); // "ChatMessage"
-                    break;
+                    switch (key)
+                    {
+                        case Commands::Message:
+                        CONSOLE(0x4DBB67F6, ("[%s] %s", player->GetName(), data)); // "ChatMessage"
+                            break;
 
-                case Commands::MessageQuote:
-                    CONSOLE(0x18B19FE6, ("%s %s", player->GetName(), data)); // "ChatQuote"
-                    break;
+                        case Commands::MessageQuote:
+                        CONSOLE(0x18B19FE6, ("%s %s", player->GetName(), data)); // "ChatQuote"
+                            break;
 
-                case Commands::MessagePrivate:
-                case Commands::MessageTeam:
-                case Commands::MessageGroup:
-                    CONSOLE(0xCBA10203, ("[%s] %s", player->GetName(), data)); // "ChatPrivate" 
+                        case Commands::MessagePrivate:
+                        case Commands::MessageTeam:
+                        case Commands::MessageGroup:
+                        CONSOLE(0xCBA10203, ("[%s] %s", player->GetName(), data)); // "ChatPrivate" 
+                    }
                 }
+                break;
             }
-            break;
-        }
 
-        case Player::key:
-        case PlayerInfo::key:
-        case Team::key:
-            Controls::PlayerList::Dirty();
-            break;
+            case Player::key:
+            case PlayerInfo::key:
+            case Team::key:
+                Controls::PlayerList::Dirty();
+                break;
 
-        case PropertyFilter::key:
-        {
-            const PropertyFilter* propertyList;
-            if (Data::Get(&propertyList))
+            case PropertyFilter::key:
             {
-                Cmd::UploadFiltering(propertyList->numFilters > 0 ? TRUE : FALSE);
-            }
-            break;
-        }
-
-        case Options::key:
-        {
-            const Options* options;
-
-            if (Data::Get(&options))
-            {
-                // For clients, update the interface vars
-                Cmd::UploadOptions(options);
-
-                if (options->launch)
+                const PropertyFilter* propertyList;
+                if (Data::Get(&propertyList))
                 {
-                    // Ensure that we're disconnected from WON
-                    Won::Disconnect();
-
-                    // We're launching, transfer all of the settings to the game
-                    Missions::LaunchMission(FALSE);
+                    Cmd::UploadFiltering(propertyList->numFilters > 0 ? TRUE : FALSE);
                 }
+                break;
             }
-            break;
-        }
 
-        case Mission::key:
-        {
-            UpdateMission();
+            case Options::key:
+            {
+                const Options* options;
 
-            break;
-        }
+                if (Data::Get(&options))
+                {
+                    // For clients, update the interface vars
+                    Cmd::UploadOptions(options);
+
+                    if (options->launch)
+                    {
+                        // Ensure that we're disconnected from WON
+                        Won::Disconnect();
+
+                        // We're launching, transfer all of the settings to the game
+                        Missions::LaunchMission(FALSE);
+                    }
+                }
+                break;
+            }
+
+            case Mission::key:
+            {
+                UpdateMission();
+
+                break;
+            }
         }
     }
 
@@ -1369,37 +1378,37 @@ namespace MultiPlayer
     {
         switch (arg.crc)
         {
-        case 0x4CF40B36: // "host"
-            CmdLine::host = TRUE;
-            break;
+            case 0x4CF40B36: // "host"
+                CmdLine::host = TRUE;
+                break;
 
-        case 0xA99E6807: // "join"
-            CmdLine::join = TRUE;
-            break;
+            case 0xA99E6807: // "join"
+                CmdLine::join = TRUE;
+                break;
 
-        case 0x26485E81: // "ip"
-            CmdLine::ip = val.str;
-            break;
+            case 0x26485E81: // "ip"
+                CmdLine::ip = val.str;
+                break;
 
-        case 0x90137F43: // "port"
-            CmdLine::port = val.str;
-            break;
+            case 0x90137F43: // "port"
+                CmdLine::port = val.str;
+                break;
 
-        case 0x19BE1F7E: // "user"
-            CmdLine::user = val.str;
-            break;
+            case 0x19BE1F7E: // "user"
+                CmdLine::user = val.str;
+                break;
 
-        case 0x250A4530: // "session"
-            CmdLine::session = val.str;
-            break;
+            case 0x250A4530: // "session"
+                CmdLine::session = val.str;
+                break;
 
-        case 0x4FA7EDBB: // "password"
-            CmdLine::password = val.str;
-            break;
+            case 0x4FA7EDBB: // "password"
+                CmdLine::password = val.str;
+                break;
 
-        case 0x4E94574C: // "maxplayers"
-            CmdLine::maxPlayers = Utils::AtoI(val.str);
-            break;
+            case 0x4E94574C: // "maxplayers"
+                CmdLine::maxPlayers = Utils::AtoI(val.str);
+                break;
         }
     }
 }

@@ -25,32 +25,29 @@
 //
 namespace Common
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TypePreview
-  //
-  class TypePreview : public ICMesh
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TypePreview
+    //
+    class TypePreview : public ICMesh
+    {
     PROMOTE_LINK(TypePreview, ICMesh, 0x534ED59A) // "Common::TypePreview"
 
-  protected:
+    protected:
 
-    MapObjType *type;
+        MapObjType* type;
 
-  public:
+    public:
 
-    TypePreview(IControl *parent);
-    TypePreview(IControl *parent, MapObjType *type, const char *anim);
-    ~TypePreview();
+        TypePreview(IControl* parent);
+        TypePreview(IControl* parent, MapObjType* type, const char* anim);
+        ~TypePreview();
 
-    // Draw this control into the bitmap
-    void DrawSelf(PaintInfo &pi);
+        // Draw this control into the bitmap
+        void DrawSelf(PaintInfo& pi);
+    };
 
-  };
-
-  typedef Reaper<TypePreview> TypePreviewPtr;
-
+    typedef Reaper<TypePreview> TypePreviewPtr;
 }
 
 #endif

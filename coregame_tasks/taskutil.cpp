@@ -109,8 +109,11 @@ namespace TaskUtil
             WorldCtrl::MetresToCellPoint(p, spot.cell);
 
             // Only consider points more than 2 cells away after clamping
-            S32 dist = Max<S32>(abs(static_cast<long>(spot.cell.x) - static_cast<long>(cell.x)),
-                                abs(static_cast<long>(spot.cell.z) - static_cast<long>(cell.z)));
+            S32 dist = Max<S32>
+            (
+                abs(static_cast<long>(spot.cell.x) - static_cast<long>(cell.x)),
+                abs(static_cast<long>(spot.cell.z) - static_cast<long>(cell.z))
+            );
 
             if (dist > 2)
             {

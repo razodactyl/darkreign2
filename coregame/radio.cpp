@@ -428,8 +428,10 @@ namespace Radio
 
                                 Player* p = t->GetTeamLeader();
                                 *ptr = reinterpret_cast<U32>(p
-                                                                 ? static_cast<const CH*>(Utils::Ansi2Unicode(
-                                                                     static_cast<const char*>(p->GetName())))
+                                                                 ? static_cast<const CH*>(Utils::Ansi2Unicode
+                                                                     (
+                                                                         static_cast<const char*>(p->GetName())
+                                                                     ))
                                                                  : (const CH*)"Someone");
                                 break;
                             }
@@ -447,9 +449,11 @@ namespace Radio
                                 }
                                 else
                                 {
-                                    LOG_WARN(
+                                    LOG_WARN
+                                    (
                                         ("Unknown parameter type %08Xh in Message '%s' in Event '%s'", *p, message->type
-                                            .str, config->name.str))
+                                            .str, config->name.str)
+                                    )
                                 }
                             }
                         }

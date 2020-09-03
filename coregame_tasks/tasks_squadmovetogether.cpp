@@ -596,8 +596,11 @@ namespace Tasks
             x = WorldCtrl::MetresToCellX(offset.x);
             z = WorldCtrl::MetresToCellZ(offset.z);
 
-            if (PathSearch::FindClosestCell(unit->MapType()->GetTractionIndex(unit->MapType()->GetDefaultLayer()), x, z,
-                                            x, z, meetingRange))
+            if (PathSearch::FindClosestCell
+                (
+                    unit->MapType()->GetTractionIndex(unit->MapType()->GetDefaultLayer()), x, z,
+                    x, z, meetingRange
+                ))
             {
                 node->completed = FALSE;
                 unit->PrependTask(new UnitMove(unit, offset));

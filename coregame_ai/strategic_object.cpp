@@ -242,7 +242,8 @@ namespace Strategic
                                 // Add the notification
                                 notifications.Append
                                 (
-                                    new Notification(
+                                    new Notification
+                                    (
                                         from.GetPointer(),
                                         StdLoad::TypeU32(ssScope, "Message"),
                                         StdLoad::TypeU32(ssScope, "Param1"),

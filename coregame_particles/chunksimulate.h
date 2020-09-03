@@ -26,30 +26,32 @@
 class ChunkSimulateClass : public ParticleClass
 {
 public:
-  // velocity variance
-	Vector veloc;	
+    // velocity variance
+    Vector veloc;
 
-  // omega variance
-	Vector omega;	
+    // omega variance
+    Vector omega;
 
 public:
-	// Constructor
-	ChunkSimulateClass();
+    // Constructor
+    ChunkSimulateClass();
 
-  // Configure the class
-  void Setup(FScope *fScope);
+    // Configure the class
+    void Setup(FScope* fScope);
 
-  // Postload
-  void PostLoad();
+    // Postload
+    void PostLoad();
 
-	// build a new chunk simulator
-	virtual Particle *Build(
-    const Matrix &matrix, 
-    const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length, 
-    F32 timer,
-    void *data = NULL);
+    // build a new chunk simulator
+    virtual Particle* Build
+    (
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 };
 
 
@@ -60,18 +62,20 @@ public:
 class ChunkSimulate : public Particle
 {
 public:
-	// chunk simulator constructor
-	ChunkSimulate(
-    ChunkSimulateClass *proto, 
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
+    // chunk simulator constructor
+    ChunkSimulate
+    (
+        ChunkSimulateClass* proto,
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 
-	// apply chunk simulator
-	virtual Bool Simulate( F32 dt);
+    // apply chunk simulator
+    virtual Bool Simulate(F32 dt);
 };
 
 #endif

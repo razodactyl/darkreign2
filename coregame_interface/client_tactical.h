@@ -26,40 +26,44 @@
 //
 namespace Client
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TacticalButton - A single tactical modifier button
-  //
-  class TacticalButton : public ICButton
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TacticalButton - A single tactical modifier button
+    //
+    class TacticalButton : public ICButton
+    {
     PROMOTE_LINK(Icon, IControl, 0xCEA5E93F); // "Client::TacticalButton"
 
-  protected:
+    protected:
 
-    // Has the button been setup
-    Bool setup;
+        // Has the button been setup
+        Bool setup;
 
-    // The tactical setting
-    struct { U8 m; U8 s; } pair;
-    
-    // The color group used for multiple settings
-    ColorGroup *multipleColorGroup;
+        // The tactical setting
+        struct
+        {
+            U8 m;
+            U8 s;
+        } pair;
 
-    // Draw control
-    void DrawSelf(PaintInfo &pi);
+        // The color group used for multiple settings
+        ColorGroup* multipleColorGroup;
 
-  public:
+        // Draw control
+        void DrawSelf(PaintInfo& pi);
 
-    // Constructor and destructor
-    TacticalButton(IControl *parent);
-    ~TacticalButton();
+    public:
 
-    // Configure control from an FScope
-    void Setup(FScope *fScope);
+        // Constructor and destructor
+        TacticalButton(IControl* parent);
+        ~TacticalButton();
 
-    // Control methods
-    U32 HandleEvent(Event &e);
-  };
+        // Configure control from an FScope
+        void Setup(FScope* fScope);
+
+        // Control methods
+        U32 HandleEvent(Event& e);
+    };
 }
 
 #endif

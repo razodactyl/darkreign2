@@ -179,8 +179,8 @@ namespace WonIface
                 // Constructor
                 HTTPProgressUpdate(U32 handle, U32 progress, U32 size)
                     : handle(handle),
-                    progress(progress),
-                    size(size)
+                      progress(progress),
+                      size(size)
                 {
                 }
             };
@@ -201,7 +201,7 @@ namespace WonIface
                 // Constructor
                 HTTPCompleted(U32 handle, Bool isNew)
                     : handle(handle),
-                    isNew(isNew)
+                      isNew(isNew)
                 {
                 }
             };
@@ -352,10 +352,10 @@ namespace WonIface
         // Initializing Constructor
         Player(const CH* name, U32 id, Bool moderator, Bool muted, Bool ignored)
             : id(id),
-            name(name),
-            moderator(moderator),
-            muted(muted),
-            ignored(ignored)
+              name(name),
+              moderator(moderator),
+              muted(muted),
+              ignored(ignored)
         {
         }
     };
@@ -385,9 +385,9 @@ namespace WonIface
         // Constructor
         Room(const CH* name, U32 numPlayers, Bool password, Bool lobby)
             : name(name),
-            numPlayers(numPlayers),
-            password(password),
-            lobby(lobby)
+              numPlayers(numPlayers),
+              password(password),
+              lobby(lobby)
         {
         }
     };
@@ -417,8 +417,8 @@ namespace WonIface
         // Constructor
         Game(const GameName& name, const PlayerName& host, U32 size, const U8* dataIn)
             : name(name),
-            hostUsername(host),
-            size(size)
+              hostUsername(host),
+              size(size)
         {
             data = reinterpret_cast<U8*>(Alloc(size));
             Utils::Memcpy(data, dataIn, size);

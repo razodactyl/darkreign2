@@ -713,8 +713,11 @@ namespace Conditions
                 case TAG:
 
                     // Check to see if enough of the tagged object is in the region
-                    if (tag->tag.Alive() && region->region->CheckTag(canSee ? canBeSeenBy : nullptr, tag->tag,
-                                                                     tag->GetAmount(), tag->oper))
+                    if (tag->tag.Alive() && region->region->CheckTag
+                        (
+                            canSee ? canBeSeenBy : nullptr, tag->tag,
+                            tag->GetAmount(), tag->oper
+                        ))
                     {
                         return (TRUE);
                     }
@@ -732,8 +735,11 @@ namespace Conditions
                     }
                     else
                     {
-                        if (region->region->CheckTeam(team, canSee ? canBeSeenBy : nullptr, type->amount, type->oper,
-                                                      type->type))
+                        if (region->region->CheckTeam
+                            (
+                                team, canSee ? canBeSeenBy : nullptr, type->amount, type->oper,
+                                type->type
+                            ))
                         {
                             return (TRUE);
                         }
@@ -743,8 +749,11 @@ namespace Conditions
                 case PROPERTY:
 
                     // Check to see if this team has the required amount in the region
-                    if (region->region->CheckTeam(team, canSee ? canBeSeenBy : nullptr, property->amount,
-                                                  property->oper, property->property.crc))
+                    if (region->region->CheckTeam
+                        (
+                            team, canSee ? canBeSeenBy : nullptr, property->amount,
+                            property->oper, property->property.crc
+                        ))
                     {
                         return (TRUE);
                     }
@@ -768,8 +777,11 @@ namespace Conditions
             {
                 case TAG:
                     // Check to see if enough of the tagged object is in the region
-                    if (tag->tag.Alive() && region->region->CheckTag(canSee ? canBeSeenBy : nullptr, tag->tag,
-                                                                     tag->GetAmount(), tag->oper))
+                    if (tag->tag.Alive() && region->region->CheckTag
+                        (
+                            canSee ? canBeSeenBy : nullptr, tag->tag,
+                            tag->GetAmount(), tag->oper
+                        ))
                     {
                         return (TRUE);
                     }
@@ -779,16 +791,22 @@ namespace Conditions
                     // Check to see if this team has the required amount in the region
                     if (type->all)
                     {
-                        if (region->region->CheckTeams(teams, combine, canSee ? canBeSeenBy : nullptr, type->amount,
-                                                       type->oper))
+                        if (region->region->CheckTeams
+                            (
+                                teams, combine, canSee ? canBeSeenBy : nullptr, type->amount,
+                                type->oper
+                            ))
                         {
                             return (TRUE);
                         }
                     }
                     else
                     {
-                        if (region->region->CheckTeams(teams, combine, canSee ? canBeSeenBy : nullptr, type->amount,
-                                                       type->oper, type->type))
+                        if (region->region->CheckTeams
+                            (
+                                teams, combine, canSee ? canBeSeenBy : nullptr, type->amount,
+                                type->oper, type->type
+                            ))
                         {
                             return (TRUE);
                         }
@@ -797,8 +815,11 @@ namespace Conditions
 
                 case PROPERTY:
                     // Check to see if enough of the tagged object is in the region
-                    if (region->region->CheckTeams(teams, combine, canSee ? canBeSeenBy : nullptr, property->amount,
-                                                   property->oper, property->property.crc))
+                    if (region->region->CheckTeams
+                        (
+                            teams, combine, canSee ? canBeSeenBy : nullptr, property->amount,
+                            property->oper, property->property.crc
+                        ))
                     {
                         return (TRUE);
                     }
@@ -937,12 +958,17 @@ namespace Conditions
         {
             if (armourName.Null())
             {
-                return (region->region.Alive() && region->region->CheckTotalThreats(
-                    team->RelatedTeams(relation->relation), combine, amount,
-                    oper));
+                return (region->region.Alive() && region->region->CheckTotalThreats
+                    (
+                        team->RelatedTeams(relation->relation), combine, amount,
+                        oper
+                    ));
             }
-            return (region->region.Alive() && region->region->CheckThreats(team->RelatedTeams(relation->relation),
-                                                                           combine, armourClass, amount, oper));
+            return (region->region.Alive() && region->region->CheckThreats
+                (
+                    team->RelatedTeams(relation->relation),
+                    combine, armourClass, amount, oper
+                ));
         }
         if (armourName.Null())
         {
@@ -1265,8 +1291,11 @@ namespace Conditions
                 break;
 
                 case PROPERTY:
-                    return (sourceTag->CheckTeamProximity(range, team, property->amount, property->oper,
-                                                          property->property.crc));
+                    return (sourceTag->CheckTeamProximity
+                        (
+                            range, team, property->amount, property->oper,
+                            property->property.crc
+                        ));
                     break;
 
                 default:
@@ -2187,8 +2216,11 @@ namespace Conditions
     Bool VarVar<U32>::Test(Team* team)
     {
         ASSERT(team);
-        return (oper(VarSys::FindVarItem(name.str, team, TRUE)->Integer(),
-                     VarSys::FindVarItem(var.str, team, TRUE)->Integer()));
+        return (oper
+            (
+                VarSys::FindVarItem(name.str, team, TRUE)->Integer(),
+                VarSys::FindVarItem(var.str, team, TRUE)->Integer()
+            ));
     }
 
 
@@ -2199,7 +2231,10 @@ namespace Conditions
     Bool VarVar<F32>::Test(Team* team)
     {
         ASSERT(team);
-        return (oper(VarSys::FindVarItem(name.str, team, TRUE)->Float(),
-                     VarSys::FindVarItem(var.str, team, TRUE)->Float()));
+        return (oper
+            (
+                VarSys::FindVarItem(name.str, team, TRUE)->Float(),
+                VarSys::FindVarItem(var.str, team, TRUE)->Float()
+            ));
     }
 }

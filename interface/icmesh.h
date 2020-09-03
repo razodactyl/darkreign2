@@ -25,51 +25,50 @@
 //
 class ICMesh : public IControl
 {
-  PROMOTE_LINK(ICMesh, IControl, 0xC16C971A); // "ICMesh"
+PROMOTE_LINK(ICMesh, IControl, 0xC16C971A); // "ICMesh"
 
 protected:
 
-  MeshRoot * root;
-  MeshEnt  * ent;
-  Vector offset;
-  Vector pivot;
-  Vector sunVector;
-  ColorF32 sunColor;
+    MeshRoot* root;
+    MeshEnt* ent;
+    Vector offset;
+    Vector pivot;
+    Vector sunVector;
+    ColorF32 sunColor;
 
-  BuffString anim;
+    BuffString anim;
 
-  F32 rotateRate;
-  
-  U32 offsetAuto  : 1;
-  U32 pivotSet    : 1;
-  U32 pivotRoot   : 1;
+    F32 rotateRate;
+
+    U32 offsetAuto : 1;
+    U32 pivotSet : 1;
+    U32 pivotRoot : 1;
 
 protected:
 
-  // Draw this control into the bitmap
-  void DrawSelf( PaintInfo & pi);
-  void DrawBack( PaintInfo & pi, F32 zDepth, Color color, Bitmap * tex);
+    // Draw this control into the bitmap
+    void DrawSelf(PaintInfo& pi);
+    void DrawBack(PaintInfo& pi, F32 zDepth, Color color, Bitmap* tex);
 
 public:
 
-  ICMesh(IControl *parent);
-  ~ICMesh();
+    ICMesh(IControl* parent);
+    ~ICMesh();
 
-  // Configure this control with an FScope
-  virtual void Setup(FScope *fScope);
+    // Configure this control with an FScope
+    virtual void Setup(FScope* fScope);
 
-  // Called after Configure() is completed
-  virtual void PostConfigure();
+    // Called after Configure() is completed
+    virtual void PostConfigure();
 
-  // Adjust geometry of control
-  virtual void AdjustGeometry();
+    // Adjust geometry of control
+    virtual void AdjustGeometry();
 
-  // Event handling
-  U32 HandleEvent(Event &e);
+    // Event handling
+    U32 HandleEvent(Event& e);
 
-  // Set mesh
-  void SetMesh(MeshRoot *root, const char *anim = NULL);
-
+    // Set mesh
+    void SetMesh(MeshRoot* root, const char* anim = NULL);
 };
 
 

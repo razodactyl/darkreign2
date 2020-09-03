@@ -233,8 +233,11 @@ namespace Tasks
                 subject->GetWeapon()->HaltFire();
 
                 // Move to the location of the guard point
-                subject->Move(moveHandle, &guardTarget.GetLocation(), nullptr, FALSE,
-                              GetFlags() & TF_FROM_ORDER ? &Movement::RequestData::orders : nullptr);
+                subject->Move
+                (
+                    moveHandle, &guardTarget.GetLocation(), nullptr, FALSE,
+                    GetFlags() & TF_FROM_ORDER ? &Movement::RequestData::orders : nullptr
+                );
                 NextState(0x9E947215); // "Moving"
             }
         }
@@ -244,8 +247,11 @@ namespace Tasks
             if ((guardTarget.GetLocation() - subject->RootOrigin()).Magnitude2() > (25.0f * 25.0f))
             {
                 // Move to the location of the guard point
-                subject->Move(moveHandle, &guardTarget.GetLocation(), nullptr, FALSE,
-                              GetFlags() & TF_FROM_ORDER ? &Movement::RequestData::orders : nullptr);
+                subject->Move
+                (
+                    moveHandle, &guardTarget.GetLocation(), nullptr, FALSE,
+                    GetFlags() & TF_FROM_ORDER ? &Movement::RequestData::orders : nullptr
+                );
                 NextState(0x9E947215); // "Moving"
             }
         }

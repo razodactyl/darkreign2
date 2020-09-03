@@ -1306,9 +1306,11 @@ void IControl::AutoSize()
                 // Use longest line
                 for (U32 i = 0; i < multiLine->count; i++)
                 {
-                    longest = Max<U32>(
+                    longest = Max<U32>
+                    (
                         paintInfo.font->Width(multiLine->items[i].text, multiLine->items[i].length) + TextWidthPad,
-                        longest);
+                        longest
+                    );
                 }
                 newX += longest;
             }

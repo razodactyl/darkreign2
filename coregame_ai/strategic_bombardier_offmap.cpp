@@ -167,8 +167,11 @@ namespace Strategic
                 {
                     // Select the type and commence construction
                     offMapType = types.Random(*manager.GetObject().GetRandomGenerator());
-                    Orders::Game::Constructor::Generate(manager.GetObject(), unit->Id(), 0x258B47CE,
-                                                        offMapType->GetNameCrc()); // "Order::UnitConstructor::Build"
+                    Orders::Game::Constructor::Generate
+                    (
+                        manager.GetObject(), unit->Id(), 0x258B47CE,
+                        offMapType->GetNameCrc()
+                    ); // "Order::UnitConstructor::Build"
 
                     LOG_AI(("Commencing construction of '%s'", offMapType->GetName()))
                     state = WAITING;
@@ -198,8 +201,11 @@ namespace Strategic
                         {
                             LOG_AI(("Releasing Immediate '%s'", offMapType->GetName()))
 
-                            Orders::Game::OffMap::Generate(manager.GetObject(), offMap->Id(),
-                                                           0x9B29F069); // "Trigger::Immediate"
+                            Orders::Game::OffMap::Generate
+                            (
+                                manager.GetObject(), offMap->Id(),
+                                0x9B29F069
+                            ); // "Trigger::Immediate"
 
                             // Return to idle state
                             state = IDLE;
@@ -252,15 +258,20 @@ namespace Strategic
                             location.y = Terrain::FindFloor(location.x, location.z);
 
                             LOG_AI
-                            ((
-                                "Releasing Location '%s' %f, %f [%d, %d]",
-                                offMapType->GetName(),
-                                location.x, location.z,
-                                winningCluster.x, winningCluster.z
-                            ))
+                            (
+                                (
+                                    "Releasing Location '%s' %f, %f [%d, %d]",
+                                    offMapType->GetName(),
+                                    location.x, location.z,
+                                    winningCluster.x, winningCluster.z
+                                )
+                            )
 
-                            Orders::Game::OffMap::Generate(manager.GetObject(), offMap->Id(), 0x63417A92,
-                                                           &location); // "Trigger::Positional"
+                            Orders::Game::OffMap::Generate
+                            (
+                                manager.GetObject(), offMap->Id(), 0x63417A92,
+                                &location
+                            ); // "Trigger::Positional"
                         }
                         else
                         {
@@ -309,13 +320,15 @@ namespace Strategic
             if (ruleSet.Evaluate(score, *cluster, *manager.GetObject().GetTeam()))
             {
                 LOG_AI
-                ((
-                    "[%d] %s : Cluster %d, %d scored %f",
-                    unit->Id(),
-                    offMapType->GetName(),
-                    evaluating.x, evaluating.z,
-                    score
-                ))
+                (
+                    (
+                        "[%d] %s : Cluster %d, %d scored %f",
+                        unit->Id(),
+                        offMapType->GetName(),
+                        evaluating.x, evaluating.z,
+                        score
+                    )
+                )
 
                 if (!cluster->ai.GetDisruption())
                 {
@@ -345,13 +358,15 @@ namespace Strategic
                 if (winningScore != -1.0f)
                 {
                     LOG_AI
-                    ((
-                        "[%d] %s : Winning Cluster %d, %d scored %f",
-                        unit->Id(),
-                        offMapType->GetName(),
-                        winningCluster.x, winningCluster.z,
-                        winningScore
-                    ))
+                    (
+                        (
+                            "[%d] %s : Winning Cluster %d, %d scored %f",
+                            unit->Id(),
+                            offMapType->GetName(),
+                            winningCluster.x, winningCluster.z,
+                            winningScore
+                        )
+                    )
 
                     searching = FALSE;
                 }
@@ -368,8 +383,11 @@ namespace Strategic
     const char* Bombardier::OffMap::GetInfo()
     {
         static char buff[128];
-        Utils::Sprintf(buff, 128, "Search: %d, State: %d Cluster: %d, %d", searching, state, evaluating.x,
-                       evaluating.z);
+        Utils::Sprintf
+        (
+            buff, 128, "Search: %d, State: %d Cluster: %d, %d", searching, state, evaluating.x,
+            evaluating.z
+        );
         return (buff);
     }
 }

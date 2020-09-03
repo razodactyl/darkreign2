@@ -194,14 +194,14 @@ void ResourceObj::LoadState(FScope* fScope)
         {
             switch (sScope->NameCrc())
             {
-            case 0x5457F5AB: // "TeamHaveSeen"
-                teamsHaveSeen = Game::TeamBitfield(StdLoad::TypeU32(sScope));
-                break;
+                case 0x5457F5AB: // "TeamHaveSeen"
+                    teamsHaveSeen = Game::TeamBitfield(StdLoad::TypeU32(sScope));
+                    break;
 
-            case 0x7C8A86BB: // "ResourcePercent"
-                resource = StdLoad::TypePercentage(sScope, ResourceType()->GetResourceMax());
-                AdjustResource();
-                break;
+                case 0x7C8A86BB: // "ResourcePercent"
+                    resource = StdLoad::TypePercentage(sScope, ResourceType()->GetResourceMax());
+                    AdjustResource();
+                    break;
             }
         }
     }
@@ -392,7 +392,9 @@ void ResourceObj::AdjustResource()
 {
     if (Mesh().curCycle)
     {
-        Mesh().SetFrame(
-            (Mesh().curCycle->maxFrame - 1) * (1.0f - (F32(resource) * ResourceType()->GetResourceMaxInv())));
+        Mesh().SetFrame
+        (
+            (Mesh().curCycle->maxFrame - 1) * (1.0f - (F32(resource) * ResourceType()->GetResourceMaxInv()))
+        );
     }
 }

@@ -25,24 +25,24 @@
 class MeshResourceType : public MeshGlowType
 {
 public:
-  KeyList<ScaleKey> scaleKeys;
+    KeyList<ScaleKey> scaleKeys;
 
 public:
 
-  MeshResourceType();
+    MeshResourceType();
 
-	virtual ~MeshResourceType();
+    virtual ~MeshResourceType();
 
-  // Configure the class
-  virtual Bool Configure(FScope *fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-  // Postload
-  virtual void PostLoad();
+    // Postload
+    virtual void PostLoad();
 
-	// build a new mesh effect
-	virtual MeshEffect *Build( MeshEnt &_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    // build a new mesh effect
+    virtual MeshEffect* Build(MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-  virtual U32 GetMem() const;
+    virtual U32 GetMem() const;
 };
 
 #endif

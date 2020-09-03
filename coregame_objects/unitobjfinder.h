@@ -153,8 +153,11 @@ namespace UnitObjFinder
     void Restore(UnitObj* obj, F32 distance2, HeuristicData& heuristicData);
 
     // Find an object using the given heuristic, heuristic data, filter, filter data
-    UnitObj* Find(Heuristic heuristic, HeuristicData& heuristicData, UnitObjIter::Filter filter,
-                  const UnitObjIter::FilterData& filterData);
+    UnitObj* Find
+    (
+        Heuristic heuristic, HeuristicData& heuristicData, UnitObjIter::Filter filter,
+        const UnitObjIter::FilterData& filterData
+    );
 }
 
 #endif

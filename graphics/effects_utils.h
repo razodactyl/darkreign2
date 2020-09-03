@@ -219,8 +219,11 @@ public:
 
     // 'dt' in Simulate calls will be scaled so maxFrame is reached at 'lifeTime'
     //
-    void Setup(F32 _lifeTime, const KeyList<DATA>* _list = nullptr, const Effects::Data* data = nullptr,
-               U32 _flags = Effects::flagDESTROY, F32 frame = 0.0f)
+    void Setup
+    (
+        F32 _lifeTime, const KeyList<DATA>* _list = nullptr, const Effects::Data* data = nullptr,
+        U32 _flags = Effects::flagDESTROY, F32 frame = 0.0f
+    )
     {
         //    ASSERT( _list.GetCount();>= 2);
 

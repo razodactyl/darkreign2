@@ -377,8 +377,11 @@ namespace MultiPlayer
         //
         void SessionPrivateData(StyxNet::EventMessage::Data::SessionPrivateData* sessionPrivateData)
         {
-            ProcessData(sessionPrivateData->from, sessionPrivateData->key, sessionPrivateData->length,
-                        sessionPrivateData->data);
+            ProcessData
+            (
+                sessionPrivateData->from, sessionPrivateData->key, sessionPrivateData->length,
+                sessionPrivateData->data
+            );
             delete sessionPrivateData;
         }
 

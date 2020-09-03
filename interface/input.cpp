@@ -255,9 +255,11 @@ namespace Input
         if (acquire)
         {
             diMouse->Unacquire();
-            DITRYMSG(
+            DITRYMSG
+            (
                 diMouse->SetCooperativeLevel(hWnd, (Vid::isStatus.fullScreen ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) |
-                    DISCL_FOREGROUND));
+                    DISCL_FOREGROUND)
+            );
             diMouse->Acquire();
         }
         else

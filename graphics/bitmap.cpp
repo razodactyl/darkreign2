@@ -717,8 +717,11 @@ void Bitmap::ReleaseDD()
 
 //----------------------------------------------------------------------------
 
-void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 width, S32 height, Color* srcKey,
-                      Color fill, Color alpha) // = NULL, 0x00000000, 255
+void Bitmap::CopyBits
+(
+    Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 width, S32 height, Color* srcKey,
+    Color fill, Color alpha
+) // = NULL, 0x00000000, 255
 {
     ASSERT(&dst && dst.pixForm && pixForm);
 
@@ -801,9 +804,11 @@ void Bitmap::CopyBits(Bitmap& dst, S32 srcx, S32 srcy, S32 dstx, S32 dsty, S32 w
                 flags |= DDBLTFAST_SRCCOLORKEY;
             }
             dxError = dst.surface->BltFast(dstx, dsty, surface, &srcRect, flags);
-            LOG_DXERR(
+            LOG_DXERR
+            (
                 ("BitMap::CopyBits: BltFast dstx=%d dsty=%d surface=0x%.8x srcrect=(%d,%d,%d,%d)", dstx, dsty, surface,
-                    srcRect.left, srcRect.top, srcRect.right, srcRect.bottom));
+                    srcRect.left, srcRect.top, srcRect.right, srcRect.bottom)
+            );
         }
         else
         {
@@ -1314,8 +1319,11 @@ Bool Bitmap::ReadBMP(const char* filename, Pix* pixelFormat)
     else
     {
         // Create a new bitmap, if a pixel format was passed in use that
-        if (!Create(infoHeader.biWidth, abs(infoHeader.biHeight),
-                    infoHeader.biBitCount == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount))
+        if (!Create
+            (
+                infoHeader.biWidth, abs(infoHeader.biHeight),
+                infoHeader.biBitCount == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount
+            ))
         {
             goto Error;
         }
@@ -1629,9 +1637,12 @@ void Bitmap::CopyLine(U8* src, U8* dst, int width, int srcDepth, RGBQUAD* pal)
 
                 for (int i = 0; i < width; i++)
                 {
-                    *bits++ = static_cast<U16>(MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2,
-                                                        (*data & 0x001F) << 3,
-                                                        (*data & 0x8000) >> 8));
+                    *bits++ = static_cast<U16>(MakeRGBA
+                        (
+                            (*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2,
+                            (*data & 0x001F) << 3,
+                            (*data & 0x8000) >> 8
+                        ));
                     data++;
                 }
             }
@@ -1642,8 +1653,11 @@ void Bitmap::CopyLine(U8* src, U8* dst, int width, int srcDepth, RGBQUAD* pal)
 
                 for (int i = 0; i < width; i++)
                 {
-                    U32 color = MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2, (*data & 0x001F) << 3,
-                                         (*data & 0x8000) >> 8);
+                    U32 color = MakeRGBA
+                    (
+                        (*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2, (*data & 0x001F) << 3,
+                        (*data & 0x8000) >> 8
+                    );
                     *bits++ = *((Bit24Color*)&color);
                     data++;
                 }
@@ -1655,9 +1669,12 @@ void Bitmap::CopyLine(U8* src, U8* dst, int width, int srcDepth, RGBQUAD* pal)
 
                 for (int i = 0; i < width; i++)
                 {
-                    *bits++ = static_cast<U32>(MakeRGBA((*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2,
-                                                        (*data & 0x001F) << 3,
-                                                        (*data & 0x8000) >> 8));
+                    *bits++ = static_cast<U32>(MakeRGBA
+                        (
+                            (*data & 0x7C00) >> 7, (*data & 0x03E0) >> 2,
+                            (*data & 0x001F) << 3,
+                            (*data & 0x8000) >> 8
+                        ));
                     data++;
                 }
             }
@@ -1809,9 +1826,12 @@ Bool Bitmap::ReadTGA(const char* filename, Pix* pixelFormat)
             {
                 if (!bmpData)
                 {
-                    if (!Create(fileHdr.imageWidth, fileHdr.imageHeight,
-                                fileHdr.imageDepth == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount,
-                                (type & bitmapTYPEMASK) == bitmapNORMAL ? fileHdr.imageDepth : 0))
+                    if (!Create
+                        (
+                            fileHdr.imageWidth, fileHdr.imageHeight,
+                            fileHdr.imageDepth == 32 ? (status.transparent ? 2 : 1) : 0, mipMapCount,
+                            (type & bitmapTYPEMASK) == bitmapNORMAL ? fileHdr.imageDepth : 0
+                        ))
                     {
                         ERR_FATAL(("Unable to create bitmap data for '%s'", filename));
                     }
@@ -3453,14 +3473,19 @@ Bool Bitmap::LoadBink(const char* _name, Bool exclusive, Bool stretch) // = FALS
                 {
                     if (S32(bink->Width) > Vid::backBmp.Width() || S32(bink->Height) > Vid::backBmp.Height())
                     {
-                        LOG_WARN(
+                        LOG_WARN
+                        (
                             ("Bink file %s is bigger than the back buffer: %d, %d", texname, bink->Width, bink->Height
-                            ));
+                            )
+                        );
                         //            ReleaseBink();
                         //            return FALSE;
                     }
-                    if (!Create(bink->Width, bink->Height, FALSE, 0,
-                                pixForm && pixForm->pixFmt.dwRGBBitCount == 32 ? 32 : 16))
+                    if (!Create
+                        (
+                            bink->Width, bink->Height, FALSE, 0,
+                            pixForm && pixForm->pixFmt.dwRGBBitCount == 32 ? 32 : 16
+                        ))
                     {
                         LOG_WARN(("Bitmap::LoadBink: Can't create surface"));
                         ReleaseBink();
@@ -3469,8 +3494,11 @@ Bool Bitmap::LoadBink(const char* _name, Bool exclusive, Bool stretch) // = FALS
                 }
                 else if (bink->Width > static_cast<U32>(Width()))
                 {
-                    WARN_CON_DIAG(("Bink file %s width %d doesn't match surface %s width %d",
-                        texname, bink->Width, name.str, Width()));
+                    WARN_CON_DIAG
+                    (
+                        ("Bink file %s width %d doesn't match surface %s width %d",
+                            texname, bink->Width, name.str, Width())
+                    );
 
                     BinkClose(bink);
                     bink = nullptr;
@@ -3577,8 +3605,11 @@ void Bitmap::BinkDoFrame()
     ASSERT(x >= 0 && y >= 0);
 
     // copy the data onto the screen
-    BinkCopyToBuffer(bink, desc.lpSurface,
-                     desc.lPitch, desc.dwHeight, x, y, binkFlags);
+    BinkCopyToBuffer
+    (
+        bink, desc.lpSurface,
+        desc.lPitch, desc.dwHeight, x, y, binkFlags
+    );
 
     UnLock();
 

@@ -20,7 +20,8 @@
 //
 // Destructor
 //
-template <> GameTask<RestoreObjType, RestoreObj>::~GameTask()
+template <>
+GameTask<RestoreObjType, RestoreObj>::~GameTask()
 {
 }
 
@@ -30,6 +31,7 @@ template <> GameTask<RestoreObjType, RestoreObj>::~GameTask()
 //
 // Type specific processing
 //
-template <> void GameTask<RestoreObjType, RestoreObj>::GameProcess()
+template <>
+void GameTask<RestoreObjType, RestoreObj>::GameProcess()
 {
 }

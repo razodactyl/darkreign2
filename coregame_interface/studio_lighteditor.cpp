@@ -148,8 +148,10 @@ namespace Studio
                             LightColor* currentColor = IFace::Promote<LightColor>(ctrl, TRUE);
 
                             // Create a new light color
-                            Environment::Light::LightColor* color = new Environment::Light::LightColor(
-                                *(currentColor->lightColor));
+                            Environment::Light::LightColor* color = new Environment::Light::LightColor
+                            (
+                                *(currentColor->lightColor)
+                            );
 
                             // Add it to the environment light system
                             AddColor(color);
@@ -173,8 +175,10 @@ namespace Studio
                         case LightEditorMsg::Add:
                         {
                             // Create a new light color
-                            Environment::Light::LightColor* color = new Environment::Light::LightColor(
-                                Environment::Light::DefaultColor());
+                            Environment::Light::LightColor* color = new Environment::Light::LightColor
+                            (
+                                Environment::Light::DefaultColor()
+                            );
 
                             // Add it to the environment light system
                             AddColor(color);
@@ -390,12 +394,21 @@ namespace Studio
         ClipRect fog(preview.x + 75, preview.y, preview.x + 105, preview.y + previewHeight);
 
         // Render the drop shadows
-        IFace::RenderShadow(ambient + pi.client.p0, ambient + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
-                            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(sun + pi.client.p0, sun + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
-                            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(fog + pi.client.p0, fog + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
-                            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
+        IFace::RenderShadow
+        (
+            ambient + pi.client.p0, ambient + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            sun + pi.client.p0, sun + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            fog + pi.client.p0, fog + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
 
         // Get the colors from the environment light stuff
         Environment::Light::LightColor* colors = Environment::Light::GetColors();
@@ -425,28 +438,40 @@ namespace Studio
                 color2 = *colors;
 
                 // Render ambient
-                IFace::RenderGradient(
-                    ClipRect(
+                IFace::RenderGradient
+                (
+                    ClipRect
+                    (
                         pi.client.p0 + ambient.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                        pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))),
+                        pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))
+                    ),
                     color1.ambient,
-                    color2.ambient);
+                    color2.ambient
+                );
 
                 // Render sun
-                IFace::RenderGradient(
-                    ClipRect(
+                IFace::RenderGradient
+                (
+                    ClipRect
+                    (
                         pi.client.p0 + sun.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                        pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))),
+                        pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))
+                    ),
                     color1.sun,
-                    color2.sun);
+                    color2.sun
+                );
 
                 // Render fog
-                IFace::RenderGradient(
-                    ClipRect(
+                IFace::RenderGradient
+                (
+                    ClipRect
+                    (
                         pi.client.p0 + fog.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                        pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))),
+                        pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))
+                    ),
                     color1.fog,
-                    color2.fog);
+                    color2.fog
+                );
 
                 // Shuffle color2 to color1
                 color1 = color2;
@@ -461,28 +486,40 @@ namespace Studio
             FillInColor(color2);
 
             // Render ambient
-            IFace::RenderGradient(
-                ClipRect(
+            IFace::RenderGradient
+            (
+                ClipRect
+                (
                     pi.client.p0 + ambient.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                    pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))),
+                    pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))
+                ),
                 color1.ambient,
-                color2.ambient);
+                color2.ambient
+            );
 
             // Render sun
-            IFace::RenderGradient(
-                ClipRect(
+            IFace::RenderGradient
+            (
+                ClipRect
+                (
                     pi.client.p0 + sun.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                    pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))),
+                    pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))
+                ),
                 color1.sun,
-                color2.sun);
+                color2.sun
+            );
 
             // Render fog
-            IFace::RenderGradient(
-                ClipRect(
+            IFace::RenderGradient
+            (
+                ClipRect
+                (
                     pi.client.p0 + fog.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                    pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))),
+                    pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))
+                ),
                 color1.fog,
-                color2.fog);
+                color2.fog
+            );
         }
         else
         {
@@ -494,13 +531,17 @@ namespace Studio
         }
 
         // Draw the current position
-        IFace::RenderRectangle(
-            ClipRect(
+        IFace::RenderRectangle
+        (
+            ClipRect
+            (
                 pi.client.p0.x + preview.x,
                 pi.client.p0.y + preview.y + S32(previewHeight * Environment::Light::GetStartTimeVar()),
                 pi.client.p0.x + preview.x + 110,
-                pi.client.p0.y + preview.y + S32(previewHeight * Environment::Light::GetStartTimeVar()) + 1),
-            Color(1.0f, 1.0f, 1.0f));
+                pi.client.p0.y + preview.y + S32(previewHeight * Environment::Light::GetStartTimeVar()) + 1
+            ),
+            Color(1.0f, 1.0f, 1.0f)
+        );
 
         // Draw the current colors
         ambient = ClipRect(current.x + 5, current.y, current.x + 35, current.y + currentHeight);
@@ -508,12 +549,21 @@ namespace Studio
         fog = ClipRect(current.x + 75, current.y, current.x + 105, current.y + currentHeight);
 
         // Render the drop shadows
-        IFace::RenderShadow(ambient + pi.client.p0, ambient + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
-                            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(sun + pi.client.p0, sun + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
-                            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(fog + pi.client.p0, fog + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
-                            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
+        IFace::RenderShadow
+        (
+            ambient + pi.client.p0, ambient + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            sun + pi.client.p0, sun + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            fog + pi.client.p0, fog + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
 
         Environment::Light::LightColor color;
         color.fraction = Environment::Light::GetStartTimeVar();
@@ -688,7 +738,8 @@ namespace Studio
             CH buf[30];
             Utils::Sprintf(buf, 30, (const CH*)L"%.3f", lightColor->fraction);
 
-            pi.font->Draw(
+            pi.font->Draw
+            (
                 pi.client.p0.x + 2,
                 pi.client.p0.y + yoffs,
                 buf,
@@ -699,9 +750,11 @@ namespace Studio
         }
 
         // Draw the ambient color
-        ClipRect c(
+        ClipRect c
+        (
             pi.client.p0.x + 40, pi.client.p0.y + 3,
-            pi.client.p0.x + 70, pi.client.p1.y - 3);
+            pi.client.p0.x + 70, pi.client.p1.y - 3
+        );
         IFace::RenderShadow(c, c + GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
         IFace::RenderRectangle(c, lightColor->ambient);
 

@@ -33,50 +33,47 @@ class Team;
 //
 namespace Studio
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class BookmarkList
-  //
-  class BookmarkList : public ICWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class BookmarkList
+    //
+    class BookmarkList : public ICWindow
+    {
     PROMOTE_LINK(BookmarkList, ICWindow, 0x0013DE4B) // "BookmarkList"
 
-  protected:
+    protected:
 
-    // Bookmark list
-    ICListBoxPtr bookmarkList;
+        // Bookmark list
+        ICListBoxPtr bookmarkList;
 
-    // Current bookmark
-    IFaceVar *currentBookmark;
+        // Current bookmark
+        IFaceVar* currentBookmark;
 
-    // Create bookmark
-    IFaceVar *createBookmark;
+        // Create bookmark
+        IFaceVar* createBookmark;
 
-    // Var to use when picking bookmarks
-    IFaceVar *pickBookmark;
+        // Var to use when picking bookmarks
+        IFaceVar* pickBookmark;
 
-  public:
+    public:
 
-    // Constructor
-    BookmarkList(IControl *parent);
-    ~BookmarkList();
+        // Constructor
+        BookmarkList(IControl* parent);
+        ~BookmarkList();
 
-    // Event handling
-    U32 HandleEvent(Event &e);
+        // Event handling
+        U32 HandleEvent(Event& e);
 
-    // Activate and deactivate this control
-    Bool Activate();
-    Bool Deactivate();
+        // Activate and deactivate this control
+        Bool Activate();
+        Bool Deactivate();
 
-    // Build the list of bookmarks
-    void BuildList();
+        // Build the list of bookmarks
+        void BuildList();
 
-    // Set the pick bookmark
-    void SetPickBookmark(IFaceVar *pick);
-
-  };
-
+        // Set the pick bookmark
+        void SetPickBookmark(IFaceVar* pick);
+    };
 }
 
 #endif

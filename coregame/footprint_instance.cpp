@@ -41,7 +41,7 @@ namespace FootPrint
     // Constructor
     // 
     Instance::Instance(MapObj* obj, U32 index, Placement& place) : obj(obj), index(index), claimInfo(nullptr),
-        losBlockHeight(F32_MAX)
+                                                                   losBlockHeight(F32_MAX)
     {
         ASSERT(obj);
         ASSERT(!obj->GetFootInstance());
@@ -176,13 +176,13 @@ namespace FootPrint
                 ASSERT(WorldCtrl::CellOnMap(map.x, map.z));
 
                 // Get the terrain cell at this location
-                ::Cell * terrainCell = Terrain::GetCell(map.x, map.z);
+                ::Cell* terrainCell = Terrain::GetCell(map.x, map.z);
 
                 // Get the instance cell
-                Cell & cell = GetCell(x, z);
+                Cell& cell = GetCell(x, z);
 
                 // Get the type cell
-                Type::Cell & typeCell = type->GetCell(cell.foot.x, cell.foot.z);
+                Type::Cell& typeCell = type->GetCell(cell.foot.x, cell.foot.z);
 
                 // Toggle cell display
                 if (typeCell.GetFlag(Type::HIDE) || !toggle)
@@ -315,43 +315,47 @@ namespace FootPrint
             clustMax.z = WorldCtrl::CellsToClusterZ(scanMax.z);
 
             LOG_FOOTPRINT
-            ((
-                "RescanLOS cell:%d,%d->%d,%d range:[%d,%d]->[%d,%d] clust:[%d,%d]->[%d,%d]",
-                GetMin().x, GetMin().z, GetMax().x, GetMax().z,
-                scanMin.x, scanMin.z, scanMax.x, scanMax.z,
-                clustMin.x, clustMin.z, clustMax.x, clustMax.z
-                ))
+            (
+                (
+                    "RescanLOS cell:%d,%d->%d,%d range:[%d,%d]->[%d,%d] clust:[%d,%d]->[%d,%d]",
+                    GetMin().x, GetMin().z, GetMax().x, GetMax().z,
+                    scanMin.x, scanMin.z, scanMax.x, scanMax.z,
+                    clustMin.x, clustMin.z, clustMax.x, clustMax.z
+                )
+            )
 
-                for (U32 z = clustMin.z; z <= clustMax.z; z++)
+            for (U32 z = clustMin.z; z <= clustMax.z; z++)
+            {
+                MapCluster* cluster = WorldCtrl::GetCluster(clustMin.x, z);
+
+                for (U32 x = clustMin.x; x <= clustMax.x; x++)
                 {
-                    MapCluster* cluster = WorldCtrl::GetCluster(clustMin.x, z);
-
-                    for (U32 x = clustMin.x; x <= clustMax.x; x++)
+                    for (NList<UnitObj>::Iterator i(&cluster->unitList); *i; ++i)
                     {
-                        for (NList<UnitObj>::Iterator i(&cluster->unitList); *i; ++i)
-                        {
-                            UnitObj* u = *i;
+                        UnitObj* u = *i;
 
-                            S32 distX = Max<S32>(abs(u->cellX - GetMin().x), abs(u->cellX - GetMax().x));
-                            S32 distZ = Max<S32>(abs(u->cellZ - GetMin().z), abs(u->cellZ - GetMax().z));
-                            S32 dist = Max<S32>(distX, distZ);
+                        S32 distX = Max<S32>(abs(u->cellX - GetMin().x), abs(u->cellX - GetMax().x));
+                        S32 distZ = Max<S32>(abs(u->cellZ - GetMin().z), abs(u->cellZ - GetMax().z));
+                        S32 dist = Max<S32>(distX, distZ);
 
-                            LOG_FOOTPRINT
-                            ((
+                        LOG_FOOTPRINT
+                        (
+                            (
                                 "Unit: %5d cell:%d,%d dist:%2d,%2d see:%2d clust:%d,%d [%s]",
                                 u->Id(), u->cellX, u->cellZ, distX, distZ, u->UnitType()->GetSeeingRange(),
                                 u->currentCluster->xIndex, u->currentCluster->zIndex, u->TypeName()
-                                ))
+                            )
+                        )
 
-                                if (U32(dist) < u->UnitType()->GetSeeingRange())
-                                {
-                                    u->SetFlag(UnitObj::FLAG_UPDATELOS, TRUE);
-                                    LOG_FOOTPRINT(("... in range"))
-                                }
+                        if (U32(dist) < u->UnitType()->GetSeeingRange())
+                        {
+                            u->SetFlag(UnitObj::FLAG_UPDATELOS, TRUE);
+                            LOG_FOOTPRINT(("... in range"))
                         }
-                        cluster = cluster->GetNextX();
                     }
+                    cluster = cluster->GetNextX();
                 }
+            }
         }
 
         // Clear the lists

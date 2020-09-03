@@ -24,14 +24,12 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Download
     //
     namespace Download
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Type definitions
@@ -78,7 +76,7 @@ namespace MultiPlayer
             // Constructor
             Context()
                 : type(0),
-                handle(0)
+                  handle(0)
             {
                 Reset();
             }
@@ -90,7 +88,6 @@ namespace MultiPlayer
                 transferred = 0;
                 aborted = FALSE;
             }
-
         };
 
 
@@ -143,7 +140,6 @@ namespace MultiPlayer
 
         // Message
         void Message(U32 message, void* data);
-
     }
 }
 

@@ -353,8 +353,11 @@ namespace IFace
     //
     // Draw a filled rectangle
     //
-    void RenderRectangle(const ClipRect& rect, Color color, const TextureInfo* tex, F32 alphaScale,
-                         VertexTL* clip) // = NULL)
+    void RenderRectangle
+    (
+        const ClipRect& rect, Color color, const TextureInfo* tex, F32 alphaScale,
+        VertexTL* clip
+    ) // = NULL)
     {
 #ifdef DEVELOPMENT
       if (tex)
@@ -471,11 +474,13 @@ namespace IFace
 
             if (vCount)
             {
-                VertexTL* dv = GetVerts(
+                VertexTL* dv = GetVerts
+                (
                     vCount, tex ? tex->texture : nullptr,
                     (tex && tex->filter) ? 1 : 0,
                     (tex && tex->texMode == TextureInfo::TM_CENTRED) ? RS_TEXCLAMP : 0,
-                    vertOffset);
+                    vertOffset
+                );
 
                 VertexTL *ev = dv + vCount, *t = tempV;
                 for (; dv < ev; dv++, t++)

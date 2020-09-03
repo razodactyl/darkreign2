@@ -164,8 +164,11 @@ namespace Strategic
         if (script.Alive())
         {
             // Notify that the recruit is completed
-            Orders::Squad::Notify::Generate(object, script->GetSquad()->Id(), 0xE6DC8EF5,
-                                            handle); // "Squad::RecruitComplete"
+            Orders::Squad::Notify::Generate
+            (
+                object, script->GetSquad()->Id(), 0xE6DC8EF5,
+                handle
+            ); // "Squad::RecruitComplete"
         }
 
         // Delete the assigned assets

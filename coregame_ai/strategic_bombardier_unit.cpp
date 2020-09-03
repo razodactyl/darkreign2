@@ -95,13 +95,15 @@ namespace Strategic
         if (ruleSet.Evaluate(score, *cluster, *manager.GetObject().GetTeam()))
         {
             LOG_AI
-            ((
-                "[%d] %s : Cluster %d, %d scored %f",
-                unit->Id(),
-                unit->TypeName(),
-                evaluating.x, evaluating.z,
-                score
-            ))
+            (
+                (
+                    "[%d] %s : Cluster %d, %d scored %f",
+                    unit->Id(),
+                    unit->TypeName(),
+                    evaluating.x, evaluating.z,
+                    score
+                )
+            )
 
             if (score > winningScore)
             {
@@ -128,13 +130,15 @@ namespace Strategic
             if (winningScore != -1.0f)
             {
                 LOG_AI
-                ((
-                    "[%d] %s : Winning Cluster %d, %d scored %f",
-                    unit->Id(),
-                    unit->TypeName(),
-                    winningCluster.x, winningCluster.z,
-                    winningScore
-                ))
+                (
+                    (
+                        "[%d] %s : Winning Cluster %d, %d scored %f",
+                        unit->Id(),
+                        unit->TypeName(),
+                        winningCluster.x, winningCluster.z,
+                        winningScore
+                    )
+                )
 
                 // Firing !
 

@@ -24,28 +24,24 @@
 //
 namespace MultiPlayer
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Data
+    //
+    namespace Data
+    {
+        // Session data has arrived
+        void SessionData(StyxNet::EventMessage::Data::SessionData* sessionData);
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Data
-  //
-  namespace Data
-  {
+        // Session private data has arrived
+        void SessionPrivateData(StyxNet::EventMessage::Data::SessionPrivateData* sessionPrivateData);
 
-    // Session data has arrived
-    void SessionData(StyxNet::EventMessage::Data::SessionData *sessionData);
+        // Session sync data has arrived
+        void SessionSyncData(StyxNet::EventMessage::Data::SessionSyncData* sessionSyncData);
 
-    // Session private data has arrived
-    void SessionPrivateData(StyxNet::EventMessage::Data::SessionPrivateData *sessionPrivateData);
-
-    // Session sync data has arrived
-    void SessionSyncData(StyxNet::EventMessage::Data::SessionSyncData *sessionSyncData);
-
-    // Reset
-    void Reset();
-
-  };
-
+        // Reset
+        void Reset();
+    };
 }
 
 #endif

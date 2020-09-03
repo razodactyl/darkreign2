@@ -28,7 +28,7 @@ typedef int ENetSocket;
 
 typedef struct
 {
-    void * data;
+    void* data;
     size_t dataLength;
 } ENetBuffer;
 
@@ -42,6 +42,5 @@ typedef fd_set ENetSocketSet;
 #define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET (socket, & (sockset))
 #define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR (socket, & (sockset))
 #define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET (socket, & (sockset))
-    
-#endif /* __ENET_UNIX_H__ */
 
+#endif /* __ENET_UNIX_H__ */

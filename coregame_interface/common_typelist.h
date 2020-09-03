@@ -27,44 +27,44 @@
 //
 namespace Common
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TypeList
-  //
-  class TypeList : public ICListBox
-  {
-  protected:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TypeList
+    //
+    class TypeList : public ICListBox
+    {
+    protected:
 
-    // Dynamic property
-    IFaceVar *property;
+        // Dynamic property
+        IFaceVar* property;
 
-    // Use type name as key
-    IFaceVar *useKey;
+        // Use type name as key
+        IFaceVar* useKey;
 
-    // The class id filter lists for both inclusion and exclusion
-  	List<GameIdent> include, exclude;
+        // The class id filter lists for both inclusion and exclusion
+        List<GameIdent> include, exclude;
 
-    // Exclude properties
-    PropertyList<16> excludeProperties;
+        // Exclude properties
+        PropertyList<16> excludeProperties;
 
-  public:
+    public:
 
-    // Constructor
-    TypeList(IControl *parent);
-    ~TypeList();
+        // Constructor
+        TypeList(IControl* parent);
+        ~TypeList();
 
-    // Rebuild the list using the current filter
-    void Rebuild();
+        // Rebuild the list using the current filter
+        void Rebuild();
 
-    // Event handling function
-    U32 HandleEvent(Event &e);
+        // Event handling function
+        U32 HandleEvent(Event& e);
 
-    // Function called when a var being watched changes value
-    void Notify(IFaceVar *var);
+        // Function called when a var being watched changes value
+        void Notify(IFaceVar* var);
 
-    // Setup this control from one scope function
-    void Setup(FScope *fScope);
-  };
+        // Setup this control from one scope function
+        void Setup(FScope* fScope);
+    };
 }
 
 #endif

@@ -23,33 +23,30 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Base::Orderer::Type
+    //
+    struct Base::Orderer::Type
+    {
+        // Type
+        UnitObjType* type;
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Base::Orderer::Type
-  //
-  struct Base::Orderer::Type
-  {
+        // Amount
+        U32 amount;
 
-    // Type
-    UnitObjType *type;
+        // Tree Node
+        NBinTree<Type>::Node nodeTree;
 
-    // Amount
-    U32 amount;
+        // Loading Constructor
+        Type(FScope* fScope, Team* team = NULL);
 
-    // Tree Node
-    NBinTree<Type>::Node nodeTree;
+        // Initializing Constructor
+        Type(UnitObjType& type);
 
-    // Loading Constructor
-    Type(FScope *fScope, Team *team = NULL);
-
-    // Initializing Constructor
-    Type(UnitObjType &type);
-
-    // Save state
-    void SaveState(FScope *scope);
-  };
-
+        // Save state
+        void SaveState(FScope* scope);
+    };
 }
 
 #endif

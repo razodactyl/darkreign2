@@ -23,9 +23,9 @@
 //
 // ICRoot::ICRoot
 //
-ICRoot::ICRoot() 
-: IControl(NULL),
-  gameHandler(NULL)
+ICRoot::ICRoot()
+    : IControl(NULL),
+      gameHandler(NULL)
 {
 }
 
@@ -35,28 +35,28 @@ ICRoot::ICRoot()
 //
 Bool ICRoot::Activate()
 {
-  if (IControl::Activate())
-  {
-    size.x = IFace::ScreenWidth();
-    size.y = IFace::ScreenHeight();
+    if (IControl::Activate())
+    {
+        size.x = IFace::ScreenWidth();
+        size.y = IFace::ScreenHeight();
 
-    SetupPaintInfo();
-    return (TRUE);
-  }
-  else
-  {
-    return (FALSE);
-  }
+        SetupPaintInfo();
+        return (TRUE);
+    }
+    else
+    {
+        return (FALSE);
+    }
 }
 
 
 //
 // ICRoot::Draw
 //
-void ICRoot::Draw(PaintInfo &pi)
+void ICRoot::Draw(PaintInfo& pi)
 {
-  // Draw children controls
-  DrawChildren(pi);
+    // Draw children controls
+    DrawChildren(pi);
 }
 
 
@@ -65,12 +65,12 @@ void ICRoot::Draw(PaintInfo &pi)
 //
 // Install an overriding event handler
 //
-EventSys::HANDLERPROC  ICRoot::SetGameHandler(EventSys::HANDLERPROC proc)
+EventSys::HANDLERPROC ICRoot::SetGameHandler(EventSys::HANDLERPROC proc)
 {
-  EventSys::HANDLERPROC old = gameHandler;
+    EventSys::HANDLERPROC old = gameHandler;
 
-  gameHandler = proc;
-  return (old);
+    gameHandler = proc;
+    return (old);
 }
 
 
@@ -81,16 +81,16 @@ EventSys::HANDLERPROC  ICRoot::SetGameHandler(EventSys::HANDLERPROC proc)
 //
 void ICRoot::RefreshControls()
 {
-  for (NList<IControl>::Iterator i(&children); *i; i++)
-  {
-    IControl *ctrl = *i;
-
-    if (ctrl->controlState & IControl::STATE_ACTIVE)
+    for (NList<IControl>::Iterator i(&children); *i; i++)
     {
-      ctrl->Deactivate();
-      ctrl->Activate();
+        IControl* ctrl = *i;
+
+        if (ctrl->controlState & IControl::STATE_ACTIVE)
+        {
+            ctrl->Deactivate();
+            ctrl->Activate();
+        }
     }
-  }
 }
 
 
@@ -101,15 +101,15 @@ void ICRoot::RefreshControls()
 //
 void ICRoot::PurgeNonSystem()
 {
-  for (NList<IControl>::Iterator i(&children); *i; i++)
-  {
-    IControl *ctrl = *i;
-
-    if (!(ctrl->controlStyle & IControl::STYLE_SYSTEMWIDE))
+    for (NList<IControl>::Iterator i(&children); *i; i++)
     {
-      ctrl->MarkForDeletion();
+        IControl* ctrl = *i;
+
+        if (!(ctrl->controlStyle & IControl::STYLE_SYSTEMWIDE))
+        {
+            ctrl->MarkForDeletion();
+        }
     }
-  }
 }
 
 
@@ -140,93 +140,93 @@ void ICRoot::PurgeNonSystem()
 //   '<<<child2.a'  refers to the window 'root\child2\a'
 //   '|child2.a'    also refers to 'root\child2\a'
 // 
-IControl *ICRoot::FindByName(const char *name, IControl *base)
+IControl* ICRoot::FindByName(const char* name, IControl* base)
 {
-  char path[256];
-  char *token, *p = path;
-  IControl *ctrl = base ? base : this;
+    char path[256];
+    char *token, *p = path;
+    IControl* ctrl = base ? base : this;
 
-  Utils::Strmcpy(path, name, sizeof(path));
+    Utils::Strmcpy(path, name, sizeof(path));
 
-  // if we find '^' then 
-  if (*p == '^' && previous.Alive())
-  {
-    ctrl = previous;
-    p++;
-  }
-  else
-  {
-    // if we find '|' then base search from root
-    while (*p == '|')
+    // if we find '^' then 
+    if (*p == '^' && previous.Alive())
     {
-      ctrl = this;
-      p++;
+        ctrl = previous;
+        p++;
     }
-  }
-
-  // for each '<' move base up one level
-  while (*p == '<') 
-  {
-    if (ctrl == NULL)
+    else
     {
-      ERR_FATAL(("Too many '<' in control name [%s]", name));
+        // if we find '|' then base search from root
+        while (*p == '|')
+        {
+            ctrl = this;
+            p++;
+        }
     }
-    ctrl = ctrl->parent;
-    p++;
-  }
 
-  // descend into the tree searching for '.' seperated names
-  if (ctrl)
-  {
-    token = strtok(p, ".");
-
-    while (token && ctrl)
+    // for each '<' move base up one level
+    while (*p == '<')
     {
-      ctrl = ctrl->Find(Crc::CalcStr(token));
-      token = strtok(NULL, ".");
+        if (ctrl == NULL)
+        {
+            ERR_FATAL(("Too many '<' in control name [%s]", name));
+        }
+        ctrl = ctrl->parent;
+        p++;
     }
-  }
 
-  return ctrl;
+    // descend into the tree searching for '.' seperated names
+    if (ctrl)
+    {
+        token = strtok(p, ".");
+
+        while (token && ctrl)
+        {
+            ctrl = ctrl->Find(Crc::CalcStr(token));
+            token = strtok(NULL, ".");
+        }
+    }
+
+    return ctrl;
 }
 
 
 //
 // ICRoot::HandleEvent
 //
-U32 ICRoot::HandleEvent(Event &e)
+U32 ICRoot::HandleEvent(Event& e)
 {
-  if (e.type == IFace::EventID())
-  {
-    // Handle interface events
-    switch (e.subType)
+    if (e.type == IFace::EventID())
     {
-      case IFace::DISPLAYMODECHANGED:
-      {
-        // Modify window size
-        size.x = e.iface.p1;
-        size.y = e.iface.p2;
-        SetupPaintInfo();
+        // Handle interface events
+        switch (e.subType)
+        {
+            case IFace::DISPLAYMODECHANGED:
+            {
+                // Modify window size
+                size.x = e.iface.p1;
+                size.y = e.iface.p2;
+                SetupPaintInfo();
 
-        // Refresh all active controls (twice, since the alignment function 
-        // changed to not Deactivate/Activate controls that are already active
-        RefreshControls();
-        RefreshControls();
+                // Refresh all active controls (twice, since the alignment function 
+                // changed to not Deactivate/Activate controls that are already active
+                RefreshControls();
+                RefreshControls();
 
-        // Notify all children
-        return (IControl::HandleEvent(e));
-      }
+                // Notify all children
+                return (IControl::HandleEvent(e));
+            }
+        }
     }
-  }
 
-  // If a custom event handler is installed chain to it
-  if (gameHandler)
-  {
-    return gameHandler(e);
-  }
+    // If a custom event handler is installed chain to it
+    if (gameHandler)
+    {
+        return gameHandler(e);
+    }
 
-  // Unhandled
-  return (FALSE);
+    // Unhandled
+    return (FALSE);
 }
 
 
@@ -235,9 +235,9 @@ U32 ICRoot::HandleEvent(Event &e)
 //
 void ICRoot::SetupPaintInfo()
 {
-  // Setup paint info
-  paintInfo.client.Set(0, 0, size.x, size.y);
-  paintInfo.window.Set(0, 0, size.x, size.y);
+    // Setup paint info
+    paintInfo.client.Set(0, 0, size.x, size.y);
+    paintInfo.window.Set(0, 0, size.x, size.y);
 
-  //LOG_DIAG(("%s [%dx%d]", Name(), size.x, size.y))
+    //LOG_DIAG(("%s [%dx%d]", Name(), size.x, size.y))
 }

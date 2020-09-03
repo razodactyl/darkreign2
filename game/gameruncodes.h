@@ -18,80 +18,78 @@
 //
 namespace GameRunCodes
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace KeyCheck - Check the CD key
-  //
-  namespace KeyCheck
-  {
-    void Init();
-    void Process();
-    void Done();
-    U32 Notify(U32);
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Intro - Displays intro movies etc
-  //
-  namespace Intro
-  {
-    void Init();
-    void Process();
-    void Done();
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace KeyCheck - Check the CD key
+    //
+    namespace KeyCheck
+    {
+        void Init();
+        void Process();
+        void Done();
+        U32 Notify(U32);
+    }
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Login - Provides user profile selection and login
-  //
-  namespace Login
-  {
-    void Init();
-    void Process();
-    void Done();
-    U32 Notify(U32);
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Intro - Displays intro movies etc
+    //
+    namespace Intro
+    {
+        void Init();
+        void Process();
+        void Done();
+    }
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Shell - Shell mission selection
-  //
-  namespace Shell
-  {
-    void Init();
-    void Process();
-    void Done();
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Login - Provides user profile selection and login
+    //
+    namespace Login
+    {
+        void Init();
+        void Process();
+        void Done();
+        U32 Notify(U32);
+    }
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Mission - Mission processing
-  //
-  namespace Mission
-  {
-    void Init();
-    void Process();
-    void Done();
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Shell - Shell mission selection
+    //
+    namespace Shell
+    {
+        void Init();
+        void Process();
+        void Done();
+    }
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Outro - Displays outro movies etc
-  //
-  namespace Outro
-  {
-    void Init();
-    void Process();
-    void Done();
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Mission - Mission processing
+    //
+    namespace Mission
+    {
+        void Init();
+        void Process();
+        void Done();
+    }
 
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Outro - Displays outro movies etc
+    //
+    namespace Outro
+    {
+        void Init();
+        void Process();
+        void Done();
+    }
 }
 
 #endif

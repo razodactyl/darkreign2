@@ -80,12 +80,21 @@ public:
     }
 
     // Configure the type
-    void LoadFPoint(FScope* fScope, F32 defVal, const Range<F32>& range = Range<F32>::full, F32 scale = 1.0F,
-                    F32 defMin = 1.0F, F32 defMax = 1.0F);
-    void LoadInteger(FScope* fScope, S32 defVal, const Range<S32>& range = Range<S32>::full, F32 defMin = 1.0F,
-                     F32 defMax = 1.0F);
-    F32 LoadIntegerScaled(FScope* fScope, F32 defVal, const Range<S32>& range = Range<S32>::full, F32 scale = 1.0F,
-                          F32 defMin = 1.0F, F32 defMax = 1.0F);
+    void LoadFPoint
+    (
+        FScope* fScope, F32 defVal, const Range<F32>& range = Range<F32>::full, F32 scale = 1.0F,
+        F32 defMin = 1.0F, F32 defMax = 1.0F
+    );
+    void LoadInteger
+    (
+        FScope* fScope, S32 defVal, const Range<S32>& range = Range<S32>::full, F32 defMin = 1.0F,
+        F32 defMax = 1.0F
+    );
+    F32 LoadIntegerScaled
+    (
+        FScope* fScope, F32 defVal, const Range<S32>& range = Range<S32>::full, F32 scale = 1.0F,
+        F32 defMin = 1.0F, F32 defMax = 1.0F
+    );
 };
 
 

@@ -910,10 +910,14 @@ namespace Strategic
                         if ((*t)->type->GetPrereqs().Have(team))
                         {
                             const ::Power::Unit& power = (*t)->type->GetPower();
-                            U32 powerMinDay = U32(
-                                F32(power.GetProducedDay()) * min + F32(power.GetProducedNight()) * (1.0f - min));
-                            U32 powerMaxDay = U32(
-                                F32(power.GetProducedDay()) * max + F32(power.GetProducedNight()) * (1.0f - max));
+                            U32 powerMinDay = U32
+                            (
+                                F32(power.GetProducedDay()) * min + F32(power.GetProducedNight()) * (1.0f - min)
+                            );
+                            U32 powerMaxDay = U32
+                            (
+                                F32(power.GetProducedDay()) * max + F32(power.GetProducedNight()) * (1.0f - max)
+                            );
                             U32 powerAvailable = Min(powerMinDay, powerMaxDay);
 
                             // Does it supply more than the current shortfall ?
@@ -990,8 +994,10 @@ namespace Strategic
             U32 onOrder = 0;
 
             // Examine each of the resources in order of proximity from our primary base
-            for (NBinTree<Strategic::Resource, F32>::Iterator r(
-                     &orderer.GetObject().GetResourceManager().GetResources()); *r && limit; ++r, --limit)
+            for (NBinTree<Strategic::Resource, F32>::Iterator r
+                 (
+                     &orderer.GetObject().GetResourceManager().GetResources()
+                 ); *r && limit; ++r, --limit)
             {
                 // How many of the type set should we have
                 U32 amount = (*r)->GetResource() / resourceStatic + (*r)->GetRegen() / resourceRegen + 1;
@@ -1015,8 +1021,14 @@ namespace Strategic
                         if
                         (
                             dangerRatio * type->type->GetHitPoints() <
-                            F32((*c)->ai.EvaluateThreat(orderer.GetObject().GetTeam(), Relation::ENEMY,
-                                                        type->type->GetArmourClass()))
+                            F32
+                            (
+                                (*c)->ai.EvaluateThreat
+                                (
+                                    orderer.GetObject().GetTeam(), Relation::ENEMY,
+                                    type->type->GetArmourClass()
+                                )
+                            )
                         )
                         {
                             danger = TRUE;

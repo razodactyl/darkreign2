@@ -134,38 +134,52 @@ namespace Client
             // We now have the number of pixels per notch, which also gives the ratio of pixels/units
 
             // Draw background
-            IFace::RenderRectangle(
+            IFace::RenderRectangle
+            (
                 pi.client,
                 Color(0.0f, 0.0f, 0.0f),
                 nullptr,
-                pi.alphaScale);
+                pi.alphaScale
+            );
 
             // Display the available power
-            IFace::RenderRectangle(
-                ClipRect(
+            IFace::RenderRectangle
+            (
+                ClipRect
+                (
                     pi.client.p0.x, pi.client.p1.y - notchPixels * available / notchValue,
-                    pi.client.p1.x, pi.client.p1.y),
+                    pi.client.p1.x, pi.client.p1.y
+                ),
                 power.GetColor(),
                 nullptr,
-                pi.alphaScale);
+                pi.alphaScale
+            );
 
             // Display the day night difference
-            IFace::RenderRectangle(
-                ClipRect(
+            IFace::RenderRectangle
+            (
+                ClipRect
+                (
                     pi.client.p0.x, pi.client.p1.y - notchPixels * availableDay / notchValue,
-                    pi.client.p1.x, pi.client.p1.y - notchPixels * availableNight / notchValue),
+                    pi.client.p1.x, pi.client.p1.y - notchPixels * availableNight / notchValue
+                ),
                 Color(1.0f, 1.0f, 1.0f, 0.4f),
                 nullptr,
-                pi.alphaScale);
+                pi.alphaScale
+            );
 
             // Display the current power
-            IFace::RenderRectangle(
-                ClipRect(
+            IFace::RenderRectangle
+            (
+                ClipRect
+                (
                     pi.client.p0.x, pi.client.p1.y - notchPixels * consumed / notchValue,
-                    pi.client.p1.x, pi.client.p1.y - notchPixels * consumed / notchValue + 1),
+                    pi.client.p1.x, pi.client.p1.y - notchPixels * consumed / notchValue + 1
+                ),
                 Color(1.0f, 1.0f, 1.0f),
                 nullptr,
-                pi.alphaScale);
+                pi.alphaScale
+            );
 
 
             if (notchPixels > notchPixelMin)
@@ -174,21 +188,29 @@ namespace Client
                 S32 y = pi.client.p1.y;
                 while (y >= pi.client.p0.y)
                 {
-                    IFace::RenderRectangle(
-                        ClipRect(
+                    IFace::RenderRectangle
+                    (
+                        ClipRect
+                        (
                             pi.client.p0.x, y,
-                            pi.client.p0.x + notchWidth, y + 1),
+                            pi.client.p0.x + notchWidth, y + 1
+                        ),
                         Color(1.0f, 1.0f, 1.0f),
                         nullptr,
-                        pi.alphaScale);
+                        pi.alphaScale
+                    );
 
-                    IFace::RenderRectangle(
-                        ClipRect(
+                    IFace::RenderRectangle
+                    (
+                        ClipRect
+                        (
                             pi.client.p1.x - notchWidth, y,
-                            pi.client.p1.x, y + 1),
+                            pi.client.p1.x, y + 1
+                        ),
                         Color(1.0f, 1.0f, 1.0f),
                         nullptr,
-                        pi.alphaScale);
+                        pi.alphaScale
+                    );
 
                     y -= notchPixels;
                 }

@@ -50,8 +50,8 @@ namespace Movement
     //
     RequestData::RequestData(Bool fromOrder)
         : giveUpGrains(4),
-        giveUpCycles(MAX_GIVEUP),
-        fromOrder(fromOrder)
+          giveUpCycles(MAX_GIVEUP),
+          fromOrder(fromOrder)
     {
     }
 
@@ -78,17 +78,17 @@ namespace Movement
         {
             switch (sScope->NameCrc())
             {
-            case 0xC7183E92: // "GiveUpGrains"
-                giveUpGrains = StdLoad::TypeU32(sScope);
-                break;
+                case 0xC7183E92: // "GiveUpGrains"
+                    giveUpGrains = StdLoad::TypeU32(sScope);
+                    break;
 
-            case 0x73458E20: // "GiveUpCycles"
-                giveUpCycles = StdLoad::TypeU32(sScope);
-                break;
+                case 0x73458E20: // "GiveUpCycles"
+                    giveUpCycles = StdLoad::TypeU32(sScope);
+                    break;
 
-            case 0xB12038EB: // "FromOrder"
-                fromOrder = StdLoad::TypeU32(sScope);
-                break;
+                case 0xB12038EB: // "FromOrder"
+                    fromOrder = StdLoad::TypeU32(sScope);
+                    break;
             }
         }
     }
@@ -122,9 +122,15 @@ namespace Movement
 
             if (surfNormal)
             {
-                *surfNormal = Cross(Vector(static_cast<F32>(WC_CELLSIZEF32), heights[2] - heights[0],
-                    static_cast<F32>(WC_CELLSIZEF32)),
-                    Vector(static_cast<F32>(WC_CELLSIZEF32), heights[3] - heights[0], 0.0f));
+                *surfNormal = Cross
+                (
+                    Vector
+                    (
+                        static_cast<F32>(WC_CELLSIZEF32), heights[2] - heights[0],
+                        static_cast<F32>(WC_CELLSIZEF32)
+                    ),
+                    Vector(static_cast<F32>(WC_CELLSIZEF32), heights[3] - heights[0], 0.0f)
+                );
                 surfNormal->Normalize();
             }
         }
@@ -142,8 +148,11 @@ namespace Movement
 
             if (surfNormal)
             {
-                *surfNormal = Cross(Vector(0.0f, heights[1] - heights[0], WC_CELLSIZEF32),
-                    Vector(WC_CELLSIZEF32, heights[2] - heights[0], WC_CELLSIZEF32));
+                *surfNormal = Cross
+                (
+                    Vector(0.0f, heights[1] - heights[0], WC_CELLSIZEF32),
+                    Vector(WC_CELLSIZEF32, heights[2] - heights[0], WC_CELLSIZEF32)
+                );
                 surfNormal->Normalize();
             }
         }
@@ -193,7 +202,7 @@ namespace Movement
         if (smoothTerrain == nullptr)
         {
             smoothTerrain = new F32[dimX * dimZ];
-            smoothTerrainTbl = new F32 * [dimZ];
+            smoothTerrainTbl = new F32*[dimZ];
 
             // Setup pointers
             for (S32 i = 0; i < dimZ; i++)
@@ -258,8 +267,10 @@ namespace Movement
                     // Filtered value
                     F32& f = smoothTerrainTbl[z][x];
 
-                    if (WorldCtrl::CellOnMap(x - FLT_SIZE, z - FLT_SIZE) && WorldCtrl::CellOnMap(
-                        x + FLT_SIZE, z + FLT_SIZE))
+                    if (WorldCtrl::CellOnMap(x - FLT_SIZE, z - FLT_SIZE) && WorldCtrl::CellOnMap
+                        (
+                            x + FLT_SIZE, z + FLT_SIZE
+                        ))
                     {
                         F32 height = 0.0F;
                         F32* filter = &smoothFilter[0][0];
@@ -352,18 +363,18 @@ namespace Movement
         // Path searching method
         switch (StdLoad::TypeStringCrc(fScope, "PathSearch", 0x55C81E05)) // "AStar"
         {
-        case 0x8A1AAD21: // "Trace"
-            layer.pathingMethod = PathSearch::ST_TRACE;
-            break;
+            case 0x8A1AAD21: // "Trace"
+                layer.pathingMethod = PathSearch::ST_TRACE;
+                break;
 
-        case 0x12E24CB0: // "Crow"
-            layer.pathingMethod = PathSearch::ST_CROW;
-            break;
+            case 0x12E24CB0: // "Crow"
+                layer.pathingMethod = PathSearch::ST_CROW;
+                break;
 
-        case 0x55C81E05: // "AStar"
-        default:
-            layer.pathingMethod = PathSearch::ST_ASTAR;
-            break;
+            case 0x55C81E05: // "AStar"
+            default:
+                layer.pathingMethod = PathSearch::ST_ASTAR;
+                break;
         }
     }
 
@@ -391,44 +402,44 @@ namespace Movement
         // Can change layers
         switch (StdLoad::TypeStringCrc(fScope, "LayerChange", 0xF6D25377)) // "Unable"
         {
-        case 0x26E74CA2: // "VTOL"
-            newModel->layerChange = Model::LC_VTOL;
-            break;
+            case 0x26E74CA2: // "VTOL"
+                newModel->layerChange = Model::LC_VTOL;
+                break;
 
-        case 0xF6D25377: // "Unable"
-        default:
-            newModel->layerChange = Model::LC_UNABLE;
-            break;
+            case 0xF6D25377: // "Unable"
+            default:
+                newModel->layerChange = Model::LC_UNABLE;
+                break;
         }
 
         // Select layer
         switch (StdLoad::TypeStringCrc(fScope, "DefaultLayer", 0x489ED081)) // "Lower"
         {
-        case 0xD4DFB251: // "Upper"
-            newModel->defaultLayer = Claim::LAYER_UPPER;
-            break;
+            case 0xD4DFB251: // "Upper"
+                newModel->defaultLayer = Claim::LAYER_UPPER;
+                break;
 
-        case 0x489ED081: // "Lower"
-        default:
-            newModel->defaultLayer = Claim::LAYER_LOWER;
-            break;
+            case 0x489ED081: // "Lower"
+            default:
+                newModel->defaultLayer = Claim::LAYER_LOWER;
+                break;
         }
 
         // Find floor function
         switch (StdLoad::TypeStringCrc(fScope, "FindFloor", 0x494AD4FB)) // "FindFloor"
         {
-        case 0xC2F44400: // "FindSmoothFloor"
-            newModel->findFloor = SmoothedFindFloor;
-            break;
+            case 0xC2F44400: // "FindSmoothFloor"
+                newModel->findFloor = SmoothedFindFloor;
+                break;
 
-        case 0x4C818976: // "FindFloorWithWater"
-            newModel->findFloor = TerrainData::FindFloorWithWater;
-            break;
+            case 0x4C818976: // "FindFloorWithWater"
+                newModel->findFloor = TerrainData::FindFloorWithWater;
+                break;
 
-        case 0x494AD4FB: // "FindFloor"
-        default:
-            newModel->findFloor = TerrainData::FindFloor;
-            break;
+            case 0x494AD4FB: // "FindFloor"
+            default:
+                newModel->findFloor = TerrainData::FindFloor;
+                break;
         }
 
         // Requires a driver
@@ -436,9 +447,9 @@ namespace Movement
 
         // Setup can ever move flag
         newModel->canEverMove = (newModel->layers[Claim::LAYER_LOWER].canMove || newModel->layers[Claim::LAYER_UPPER].
-            canMove)
-            ? TRUE
-            : FALSE;
+                                    canMove)
+                                    ? TRUE
+                                    : FALSE;
 
         // Setup physics
         FScope* sScope;
@@ -520,9 +531,9 @@ namespace Movement
         {
             switch (sScope->NameCrc())
             {
-            case 0x7663BB27: // "NextId"
-                Driver::NextId() = StdLoad::TypeU32(sScope);
-                break;
+                case 0x7663BB27: // "NextId"
+                    Driver::NextId() = StdLoad::TypeU32(sScope);
+                    break;
             }
         }
     }

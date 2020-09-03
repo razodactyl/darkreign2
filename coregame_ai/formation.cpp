@@ -338,7 +338,8 @@ namespace Formation
 
                 minUnit->PrependTask
                 (
-                    new Tasks::UnitMove(
+                    new Tasks::UnitMove
+                    (
                         minUnit,
                         offset,
                         Vector
