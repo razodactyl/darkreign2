@@ -20,47 +20,44 @@
 //
 namespace Win32
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class CritSec
-  //
-
-
-  //
-  // Constructor
-  //
-  CritSec::CritSec()
-  {
-    InitializeCriticalSection(&critSect);
-  }
-
-  
-  //
-  // Destructor
-  //
-  CritSec::~CritSec()
-  {
-    DeleteCriticalSection(&critSect);
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class CritSec
+    //
 
 
-  //
-  // Enter
-  //
-  void CritSec::Enter()
-  {
-    EnterCriticalSection(&critSect);
-  }
+    //
+    // Constructor
+    //
+    CritSec::CritSec()
+    {
+        InitializeCriticalSection(&critSect);
+    }
 
-  
-  //
-  // Exit
-  //
-  void CritSec::Exit()
-  {
-    LeaveCriticalSection(&critSect);
-  }
 
+    //
+    // Destructor
+    //
+    CritSec::~CritSec()
+    {
+        DeleteCriticalSection(&critSect);
+    }
+
+
+    //
+    // Enter
+    //
+    void CritSec::Enter()
+    {
+        EnterCriticalSection(&critSect);
+    }
+
+
+    //
+    // Exit
+    //
+    void CritSec::Exit()
+    {
+        LeaveCriticalSection(&critSect);
+    }
 }
-

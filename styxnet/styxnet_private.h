@@ -40,7 +40,6 @@
 //
 namespace StyxNet
 {
-
     // Buffer size
     const U32 serverBufferSize = 8192;
 
@@ -51,7 +50,7 @@ namespace StyxNet
     const U32 maxSyncDataSize = 1024;
 
     // Default update interval
-    const U32 defaultUpdateInterval = 500;
+    const U32 defaultUpdateInterval = 650;
 
     // Event queue size
     const U32 eventQueueSize = 256;
@@ -68,7 +67,6 @@ namespace StyxNet
 
     // Remove server
     void RemoveServer();
-
 }
 
 

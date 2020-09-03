@@ -245,8 +245,11 @@ namespace StyxNet
 
                         U32 maxSize;
                         U32 maxSizeSize = sizeof(U32);
-                        transfer->socket.GetSockOpt(SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char*>(&maxSize),
-                                                    maxSizeSize);
+                        transfer->socket.GetSockOpt
+                        (
+                            SOL_SOCKET, SO_MAX_MSG_SIZE, reinterpret_cast<char*>(&maxSize),
+                            maxSizeSize
+                        );
                         LDIAG("Maximum transfer size is " << maxSize);
 
                         transfer->startTime = Clock::Time::Ms();

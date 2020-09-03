@@ -17,164 +17,171 @@
 //
 // Class LoPassFilter - Low pass filter
 //
-template <class TYPE> class LoPassFilter
+template <class TYPE>
+class LoPassFilter
 {
 protected:
-  Bool firstDone;
-  F32 a1, b0;
-  TYPE current, target;
+    Bool firstDone;
+    F32 a1, b0;
+    TYPE current, target;
 
 public:
 
-  //
-  // Constructor
-  //
-  LoPassFilter()
-  {
-    Utils::Memset( this, 0, sizeof(this));
-    SetSpeed( .5f);
-  }
-  LoPassFilter( F32 f, const TYPE & mem1)
-  {
-    SetSpeed( f);
-    Set( mem1);
-  }
-
-
-  //
-  // SetSpeed
-  //
-  void SetSpeed(F32 b0in, F32 a1in)
-  {
-    a1 = a1in;
-    b0 = b0in;
-  }
-  void SetSpeed( F32 _b0) 
-  {
-    SetSpeed( _b0, _b0 - 1.0f);
-  }
-
-  //
-  // Set
-  //
-  void Set( const TYPE & t)
-  {
-    target = t;
-  }
-  void SetDone( const TYPE & t)
-  {
-    target = t;
-
-    if (!firstDone)
+    //
+    // Constructor
+    //
+    LoPassFilter()
     {
-      current = target;
-      firstDone = TRUE;
+        Utils::Memset(this, 0, sizeof(this));
+        SetSpeed(.5f);
     }
-  }
 
-  //
-  // SetMemory
-  //
-  void SetMemory( const TYPE & y1)
-  {
-    current = y1;
-  }
-  void SetMemory()
-  {
-    SetMemory( target);
-  }
+    LoPassFilter(F32 f, const TYPE& mem1)
+    {
+        SetSpeed(f);
+        Set(mem1);
+    }
 
-  //
-  // Update
-  //
-  const TYPE & Update()
-  {
-    return current = (target * b0) - (current * a1);
-  }
-  const TYPE & Update( const TYPE & t)
-  {
-    target = t;
-    return Update();
-  }
 
-  //
-  // Thresh
-  //
-  TYPE Thresh()
-  {
-    return target - current;
-  }
+    //
+    // SetSpeed
+    //
+    void SetSpeed(F32 b0in, F32 a1in)
+    {
+        a1 = a1in;
+        b0 = b0in;
+    }
 
-  //
-  // Current value
-  //
-  const TYPE & Current() const
-  {
-    return (current);
-  }
+    void SetSpeed(F32 _b0)
+    {
+        SetSpeed(_b0, _b0 - 1.0f);
+    }
 
-  //
-  // Target value
-  //
-  const TYPE & Target() const
-  {
-    return (target);
-  }
+    //
+    // Set
+    //
+    void Set(const TYPE& t)
+    {
+        target = t;
+    }
 
+    void SetDone(const TYPE& t)
+    {
+        target = t;
+
+        if (!firstDone)
+        {
+            current = target;
+            firstDone = TRUE;
+        }
+    }
+
+    //
+    // SetMemory
+    //
+    void SetMemory(const TYPE& y1)
+    {
+        current = y1;
+    }
+
+    void SetMemory()
+    {
+        SetMemory(target);
+    }
+
+    //
+    // Update
+    //
+    const TYPE& Update()
+    {
+        return current = (target * b0) - (current * a1);
+    }
+
+    const TYPE& Update(const TYPE& t)
+    {
+        target = t;
+        return Update();
+    }
+
+    //
+    // Thresh
+    //
+    TYPE Thresh()
+    {
+        return target - current;
+    }
+
+    //
+    // Current value
+    //
+    const TYPE& Current() const
+    {
+        return (current);
+    }
+
+    //
+    // Target value
+    //
+    const TYPE& Target() const
+    {
+        return (target);
+    }
 };
 
 class LoPassFilterF32 : public LoPassFilter<F32>
 {
 public:
 
-  LoPassFilterF32()
-  {
-    current = target = 0;
-    SetSpeed( .5f);
-  }
-  LoPassFilterF32( F32 f, F32 mem1)
-  {
-    SetSpeed( f);
-    Set( mem1);
-  }
+    LoPassFilterF32()
+    {
+        current = target = 0;
+        SetSpeed(.5f);
+    }
 
-  inline Bool CheckThresh()
-  {
-    return (F32) fabs( target - current) < .08f ;
-  }
+    LoPassFilterF32(F32 f, F32 mem1)
+    {
+        SetSpeed(f);
+        Set(mem1);
+    }
 
-  void SaveState( FScope * fScope)
-  {
-    ASSERT( fScope);
+    Bool CheckThresh()
+    {
+        return static_cast<F32>(fabs(target - current)) < .08f;
+    }
 
-    StdSave::TypeU32( fScope, "First",   firstDone);
+    void SaveState(FScope* fScope)
+    {
+        ASSERT(fScope);
 
-    StdSave::TypeF32( fScope, "Current", current);
-    StdSave::TypeF32( fScope, "Target",  target);
-    StdSave::TypeF32( fScope, "A1",      a1);
-    StdSave::TypeF32( fScope, "B0",      b0);
-  }
-  void LoadState( FScope * fScope)
-  {
-    ASSERT( fScope);
+        StdSave::TypeU32(fScope, "First", firstDone);
 
-    firstDone = StdLoad::TypeU32( fScope, "First", firstDone);
+        StdSave::TypeF32(fScope, "Current", current);
+        StdSave::TypeF32(fScope, "Target", target);
+        StdSave::TypeF32(fScope, "A1", a1);
+        StdSave::TypeF32(fScope, "B0", b0);
+    }
 
-    current   = StdLoad::TypeF32( fScope, "Current", current);
-    target    = StdLoad::TypeF32( fScope, "Target",  target);
-    a1        = StdLoad::TypeF32( fScope, "A1",      a1);
-    b0        = StdLoad::TypeF32( fScope, "B0",      b0);
-  }
+    void LoadState(FScope* fScope)
+    {
+        ASSERT(fScope);
 
-  void SaveState( FScope * fScope, const char * name)
-  {
-    SaveState( fScope->AddFunction( name));
-  }
-  void LoadState( FScope * fScope, const char * name, Bool required = TRUE)
-  {
-    LoadState( fScope->GetFunction( name, required));
-  }
+        firstDone = StdLoad::TypeU32(fScope, "First", firstDone);
 
+        current = StdLoad::TypeF32(fScope, "Current", current);
+        target = StdLoad::TypeF32(fScope, "Target", target);
+        a1 = StdLoad::TypeF32(fScope, "A1", a1);
+        b0 = StdLoad::TypeF32(fScope, "B0", b0);
+    }
+
+    void SaveState(FScope* fScope, const char* name)
+    {
+        SaveState(fScope->AddFunction(name));
+    }
+
+    void LoadState(FScope* fScope, const char* name, Bool required = TRUE)
+    {
+        LoadState(fScope->GetFunction(name, required));
+    }
 };
 
 #endif

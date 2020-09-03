@@ -63,8 +63,8 @@ Bool VarSys::SplitDelimited(String& one, String& two, String source, Bool matchL
 
     // Get a pointer to the delimiter
     const char* twoStart = (matchLeft)
-        ? String::MatchLeft(source, VARSYS_SCOPEDELIM)
-        : String::MatchRight(source, VARSYS_SCOPEDELIM);
+                               ? String::MatchLeft(source, VARSYS_SCOPEDELIM)
+                               : String::MatchRight(source, VARSYS_SCOPEDELIM);
 
     // Copy both sections
     if (twoStart)
@@ -357,7 +357,8 @@ VarSys::VarItem* VarSys::FindVarItemHelper(U32 pathCrc, const char* itemName)
             {
                 return (*i);
             }
-        } while (i.FindNext(key));
+        }
+        while (i.FindNext(key));
     }
     return (nullptr);
 }
@@ -381,17 +382,17 @@ Bool VarSys::FindVariable(const char* path)
         // Check that it's a variable
         switch (item->type)
         {
-        case VI_STRING:
-        case VI_INTEGER:
-        case VI_FPOINT:
-        case VI_BINARY:
-            return (TRUE);
+            case VI_STRING:
+            case VI_INTEGER:
+            case VI_FPOINT:
+            case VI_BINARY:
+                return (TRUE);
 
-        case VI_NONE:
-        case VI_SCOPE:
-            break;
+            case VI_NONE:
+            case VI_SCOPE:
+                break;
 
-        default:
+            default:
             ERR_FATAL(("Unknown var item type"))
         }
     }
@@ -459,44 +460,44 @@ VarSys::VarItem* VarSys::CopyVarItem(const char* dst, VarItem* src)
 
     switch (src->type)
     {
-    case VI_STRING:
-        newItem = CreateString(dst, src->Str());
-        break;
+        case VI_STRING:
+            newItem = CreateString(dst, src->Str());
+            break;
 
-    case VI_INTEGER:
-        newItem = CreateInteger(dst, src->Integer());
-        break;
+        case VI_INTEGER:
+            newItem = CreateInteger(dst, src->Integer());
+            break;
 
-    case VI_FPOINT:
-        newItem = CreateFloat(dst, src->Float());
-        break;
+        case VI_FPOINT:
+            newItem = CreateFloat(dst, src->Float());
+            break;
 
-    case VI_BINARY:
-        newItem = CreateBinary(dst, src->BinarySize(), src->Binary());
-        break;
+        case VI_BINARY:
+            newItem = CreateBinary(dst, src->BinarySize(), src->Binary());
+            break;
 
-    case VI_SCOPE:
-    {
-        newItem = CreateVarItem(dst);
-        newItem->InitScope();
-
-        // For each item in the scope, copy them over to the new scope
-        BinTree<VarItem>::Iterator i(&src->scope.ptr->items);
-        for (!i; *i; ++i)
+        case VI_SCOPE:
         {
-            // Compose the new name
-            StrBuf<VARSYS_MAXVARPATH> newName;
-            newName = dst;
-            Utils::Strcat(newName.str, VARSYS_SCOPEDELIMSTR);
-            Utils::Strcat(newName.str, (*i)->itemId.str);
+            newItem = CreateVarItem(dst);
+            newItem->InitScope();
 
-            // Copy it over
-            CopyVarItem(newName.str, (*i));
+            // For each item in the scope, copy them over to the new scope
+            BinTree<VarItem>::Iterator i(&src->scope.ptr->items);
+            for (!i; *i; ++i)
+            {
+                // Compose the new name
+                StrBuf<VARSYS_MAXVARPATH> newName;
+                newName = dst;
+                Utils::Strcat(newName.str, VARSYS_SCOPEDELIMSTR);
+                Utils::Strcat(newName.str, (*i)->itemId.str);
+
+                // Copy it over
+                CopyVarItem(newName.str, (*i));
+            }
+            break;
         }
-        break;
-    }
 
-    default:
+        default:
         ERR_FATAL(("Unable to copy var item type %d", src->type))
     }
 
@@ -634,8 +635,11 @@ VarSys::VarItem* VarSys::CreateScope(const char* path, U32 flagsIn)
 //
 // Create a STRING variable
 //
-VarSys::VarItem* VarSys::CreateString(const char* path, const char* value, U32 flagsIn, VarString* varPtr,
-    void* context)
+VarSys::VarItem* VarSys::CreateString
+(
+    const char* path, const char* value, U32 flagsIn, VarString* varPtr,
+    void* context
+)
 {
     ASSERT(sysInit);
 
@@ -719,8 +723,11 @@ VarSys::VarItem* VarSys::CreateFloat(const char* path, F32 value, U32 flagsIn, V
 //
 // Create a BINARY variable
 //
-VarSys::VarItem* VarSys::CreateBinary(const char* path, U32 size, const U8* value, U32 flagsIn, VarBinary* varPtr,
-    void* context)
+VarSys::VarItem* VarSys::CreateBinary
+(
+    const char* path, U32 size, const U8* value, U32 flagsIn, VarBinary* varPtr,
+    void* context
+)
 {
     ASSERT(sysInit);
 

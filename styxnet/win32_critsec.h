@@ -24,7 +24,6 @@
 //
 namespace Win32
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class CritSec
@@ -49,9 +48,7 @@ namespace Win32
 
         // Exit the critical section
         void Exit();
-
     };
-
 }
 
 #endif

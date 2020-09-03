@@ -234,45 +234,43 @@ namespace GameRunCodes
 
 #ifndef DEVELOPMENT
 
-      // Process the next movie
-      if (moviePlayer.Active())
-      {
-        Vid::RenderFlush();
-      }
-      else
-      {
-        FileString name;
-
-        // Generate the name of the next movie
-        Utils::Sprintf(name.str, name.GetSize(), "intro-movie-%d.bik", movieCount++);
-
-        // Does the file exist
-        if (FileSys::Exists(name.str))
-        {
-          // Start the movie
-          moviePlayer.Start(name.str, FALSE);
-        }
-        else
-        {
-
-#endif
-
-            // Is there already a user loaded
-            if (User::LoggedIn())
+            // Process the next movie
+            if (moviePlayer.Active())
             {
-                // Proceed to the shell
-                Main::runCodes.Set(0x5B31647E); // "Shell"
+                Vid::RenderFlush();
             }
             else
             {
-                // Proceed to user login
-                Main::runCodes.Set(0xE3653A1E); // "Login"
-            }
+                FileString name;
+
+                // Generate the name of the next movie
+                Utils::Sprintf(name.str, name.GetSize(), "intro-movie-%d.bik", movieCount++);
+
+                // Does the file exist
+                if (FileSys::Exists(name.str))
+                {
+                    // Start the movie
+                    moviePlayer.Start(name.str, FALSE);
+                }
+                else
+                {
+#endif
+
+                    // Is there already a user loaded
+                    if (User::LoggedIn())
+                    {
+                        // Proceed to the shell
+                        Main::runCodes.Set(0x5B31647E); // "Shell"
+                    }
+                    else
+                    {
+                        // Proceed to user login
+                        Main::runCodes.Set(0xE3653A1E); // "Login"
+                    }
 
 #ifndef DEVELOPMENT
-
-        }
-      }
+                }
+            }
 
 #endif
         }

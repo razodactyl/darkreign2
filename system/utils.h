@@ -287,8 +287,8 @@ namespace Utils
     // MakePath: Path Builder
     void MakePath(char* dst, U32 dstSize, const char* dir, const char* file, const char* ext);
 
-    // ChopPath: return a pointer to the file name in a file path
-    char* ChopPath(const char* path);
+    // FindName: return a pointer to the file name in a file path
+    char* FindName(const char* path);
 
     // FindExt: return a pointer to the path's extension
     char* FindExt(const char* path);

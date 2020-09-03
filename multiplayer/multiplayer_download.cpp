@@ -302,7 +302,7 @@ namespace MultiPlayer
                     ASSERT(data);
                     CAST(WonIface::Message::Data::HTTPProgressUpdate*, progress, data);
 
-                    // LOG_DIAG(("Progress Update [%d] : %d of %d", progress->handle, progress->progress, progress->size))  
+                    // LOG_DIAG(("Progress Update [%d] : %d of %d", progress->handle, progress->progress, progress->size))
 
                     if (progress->handle == downloadContext.handle)
                     {
@@ -382,18 +382,23 @@ namespace MultiPlayer
 
                                         if (patch)
                                         {
-                                            LOG_DIAG(
+                                            LOG_DIAG
+                                            (
                                                 ("Patching: current %d.%d patch for %d.%d patch to %d.%d", versionCode,
                                                     versionData, updateVersionCode, updateVersionData, patch->
-                                                    versionCode, patch->versionData));
+                                                    versionCode, patch->versionData)
+                                            );
 
                                             GetPatch(*patch);
 
                                             if (PrivData::updateCtrl.Alive())
                                             {
                                                 // Tell 'em we're getting the patch
-                                                SendEvent(PrivData::updateCtrl, nullptr, IFace::NOTIFY,
-                                                          0x96B48B0D); // "Update::PatchAvailable"
+                                                SendEvent
+                                                (
+                                                    PrivData::updateCtrl, nullptr, IFace::NOTIFY,
+                                                    0x96B48B0D
+                                                ); // "Update::PatchAvailable"
                                             }
                                         }
                                         else
@@ -401,8 +406,11 @@ namespace MultiPlayer
                                             if (PrivData::updateCtrl.Alive())
                                             {
                                                 // We are unpatchable
-                                                SendEvent(PrivData::updateCtrl, nullptr, IFace::NOTIFY,
-                                                          0xF9068335); // "Update::Unpatchable"
+                                                SendEvent
+                                                (
+                                                    PrivData::updateCtrl, nullptr, IFace::NOTIFY,
+                                                    0xF9068335
+                                                ); // "Update::Unpatchable"
                                             }
                                         }
                                     }
@@ -411,8 +419,11 @@ namespace MultiPlayer
                                         if (PrivData::updateCtrl.Alive())
                                         {
                                             // There is no patch required
-                                            SendEvent(PrivData::updateCtrl, nullptr, IFace::NOTIFY,
-                                                      0xCA4DB1B4); // "Update::NoPatch"
+                                            SendEvent
+                                            (
+                                                PrivData::updateCtrl, nullptr, IFace::NOTIFY,
+                                                0xCA4DB1B4
+                                            ); // "Update::NoPatch"
                                         }
                                     }
                                 }
@@ -428,15 +439,21 @@ namespace MultiPlayer
                                 Main::RegisterNextProcess(patch->file.str);
 
                                 // Patch completed
-                                SendEvent(PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
-                                          0x37976FA8); // "Download::PatchCompleted"
+                                SendEvent
+                                (
+                                    PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
+                                    0x37976FA8
+                                ); // "Download::PatchCompleted"
                                 break;
                             }
 
                             default:
                                 // Download completed
-                                SendEvent(PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
-                                          0x7091B101); // "Download::Completed"
+                                SendEvent
+                                (
+                                    PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
+                                    0x7091B101
+                                ); // "Download::Completed"
                                 break;
                         }
                     }
@@ -482,22 +499,31 @@ namespace MultiPlayer
                                 case 0x325DC801: // "Updates"
                                     // Update failed
                                 LOG_DIAG(("Update failed"));
-                                    SendEvent(PrivData::updateCtrl, nullptr, IFace::NOTIFY,
-                                              0x7CA15267); // "Update::CheckFailed"
+                                    SendEvent
+                                    (
+                                        PrivData::updateCtrl, nullptr, IFace::NOTIFY,
+                                        0x7CA15267
+                                    ); // "Update::CheckFailed"
                                     break;
 
                                 case 0x1770E157: // "Patch"
                                     // Patch failed
                                 LOG_DIAG(("Patch failed"));
-                                    SendEvent(PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
-                                              0xB2623264); // "Download::PatchFailed"
+                                    SendEvent
+                                    (
+                                        PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
+                                        0xB2623264
+                                    ); // "Download::PatchFailed"
                                     break;
 
                                 default:
                                     // Download failed
                                 LOG_DIAG(("Download failed"));
-                                    SendEvent(PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
-                                              0x161F1710); // "Download::Failed"
+                                    SendEvent
+                                    (
+                                        PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
+                                        0x161F1710
+                                    ); // "Download::Failed"
                                     break;
                             }
                         }
@@ -581,16 +607,22 @@ namespace MultiPlayer
 
                 if (*Settings::GetProxy())
                 {
-                    context.handle = WonIface::HTTPGet(Settings::GetProxy(), context.name.str, context.port, path.str,
-                                                       context.file.str, FALSE);
+                    context.handle = WonIface::HTTPGet
+                    (
+                        Settings::GetProxy(), context.name.str, context.port, path.str,
+                        context.file.str, FALSE
+                    );
                 }
                 else
                 {
                     HostName name;
                     Utils::Sprintf(name.str, name.GetSize(), "%s:%d", context.host.str, context.port);
 
-                    context.handle = WonIface::HTTPGet(name.str, context.name.str, context.port, path.str,
-                                                       context.file.str, FALSE);
+                    context.handle = WonIface::HTTPGet
+                    (
+                        name.str, context.name.str, context.port, path.str,
+                        context.file.str, FALSE
+                    );
                 }
             }
             else
@@ -672,20 +704,29 @@ namespace MultiPlayer
                             {
                                 case 0x325DC801: // "Updates"
                                     // Update failed
-                                    SendEvent(PrivData::updateCtrl, nullptr, IFace::NOTIFY,
-                                              0x7CA15267); // "Update::CheckFailed"
+                                    SendEvent
+                                    (
+                                        PrivData::updateCtrl, nullptr, IFace::NOTIFY,
+                                        0x7CA15267
+                                    ); // "Update::CheckFailed"
                                     break;
 
                                 case 0x1770E157: // "Patch"
                                     // Patch failed
-                                    SendEvent(PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
-                                              0xB2623264); // "Download::PatchFailed"
+                                    SendEvent
+                                    (
+                                        PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
+                                        0xB2623264
+                                    ); // "Download::PatchFailed"
                                     break;
 
                                 default:
                                     // Download failed
-                                    SendEvent(PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
-                                              0x161F1710); // "Download::Failed"
+                                    SendEvent
+                                    (
+                                        PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
+                                        0x161F1710
+                                    ); // "Download::Failed"
                                     break;
                             }
                         }

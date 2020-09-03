@@ -21,18 +21,16 @@
 //
 namespace StyxNet
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Client::User
+    //
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Client::User
-  //
-
-  //
-  // Constructor
-  //
-  Client::User::User(const UserName &name)
-  : name(name)
-  {
-  }
-
+    //
+    // Constructor
+    //
+    Client::User::User(const UserName& name)
+        : name(name)
+    {
+    }
 }

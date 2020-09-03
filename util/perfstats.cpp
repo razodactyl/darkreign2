@@ -183,8 +183,8 @@ namespace PerfStats
     void DisplayToLog(const char* s, PerfObj* p);
 
 #ifndef MONO_DISABLED
-  // Event proc for mono
-  static Bool MonoEventProc(Mono::Panel *panel, U32 msg, U32 wParam, S32 lParam);
+    // Event proc for mono
+    static Bool MonoEventProc(Mono::Panel* panel, U32 msg, U32 wParam, S32 lParam);
 #endif
 
     //
@@ -198,13 +198,13 @@ namespace PerfStats
         hwSupport = HasFeature(Hardware::CPU::TSC);
 
 #ifndef MONO_DISABLED
-    // Create mono panel
-    if (hwSupport)
-    {
-      MonoBufCreate("Performance statistics", &monoBuffer);
-      MonoSetEvtProc(monoBuffer, MonoEventProc);
-      MonoBufFillRow(monoBuffer, 0, ' ', Mono::REVERSE);
-    }
+        // Create mono panel
+        if (hwSupport)
+        {
+            MonoBufCreate("Performance statistics", &monoBuffer);
+            MonoSetEvtProc(monoBuffer, MonoEventProc);
+            MonoBufFillRow(monoBuffer, 0, ' ', Mono::REVERSE);
+        }
 #endif
 
         // Create commands and vars
@@ -357,20 +357,20 @@ namespace PerfStats
         s;
         p;
 #else
-      if (S32(monoRow) < monoBuffer->Height())
-      {
-        MonoBufWrite(monoBuffer, monoRow, 0, s, p->parent ? Mono::NORMAL : Mono::BRIGHT);
-
-        // Percentage bar as attribute
-        if (percentBar)
+        if (S32(monoRow) < monoBuffer->Height())
         {
-          U32 width = Utils::FtoLNearest( p->pct * F32(percentBar->Integer() / 100.0F));
+            MonoBufWrite(monoBuffer, monoRow, 0, s, p->parent ? Mono::NORMAL : Mono::BRIGHT);
 
-          MonoBufAttr(monoBuffer, monoRow, 0, width, Mono::REVERSE);
+            // Percentage bar as attribute
+            if (percentBar)
+            {
+                U32 width = Utils::FtoLNearest(p->pct * F32(percentBar->Integer() / 100.0F));
+
+                MonoBufAttr(monoBuffer, monoRow, 0, width, Mono::REVERSE);
+            }
+
+            monoRow++;
         }
-
-        monoRow++;
-      }
 #endif
     }
 
@@ -454,11 +454,11 @@ namespace PerfStats
 
         // Fill to bottom with blanks
 #ifndef MONO_DISABLED
-      while (S32(monoRow) < monoBuffer->Height())
-      {
-          MonoBufFillRow(monoBuffer, monoRow, ' ', Mono::NORMAL);
-        monoRow++;
-      }
+        while (S32(monoRow) < monoBuffer->Height())
+        {
+            MonoBufFillRow(monoBuffer, monoRow, ' ', Mono::NORMAL);
+            monoRow++;
+        }
 #endif
     }
 
@@ -810,34 +810,34 @@ namespace PerfStats
 #ifndef MONO_DISABLED
     //
     // Event proc for mono
-  //
-  static Bool MonoEventProc(Mono::Panel *, U32 msg, U32 wParam, S32)
-  {
-    switch (msg)
+    //
+    static Bool MonoEventProc(Mono::Panel*, U32 msg, U32 wParam, S32)
     {
-      case WM_KEYDOWN:
-      {
-        S32 vk = (S32)wParam;
-
-        switch (vk)
+        switch (msg)
         {
-          case VK_UP:
-          {
-            firstItem = firstItem - 1;
-            return (TRUE);
-          }
+            case WM_KEYDOWN:
+            {
+                S32 vk = static_cast<S32>(wParam);
 
-          case VK_DOWN:
-          {
-            firstItem = firstItem + 1;
-            return (TRUE);
-          }
+                switch (vk)
+                {
+                    case VK_UP:
+                    {
+                        firstItem = firstItem - 1;
+                        return (TRUE);
+                    }
+
+                    case VK_DOWN:
+                    {
+                        firstItem = firstItem + 1;
+                        return (TRUE);
+                    }
+                }
+            }
         }
-      }
-    }
 
-    return (FALSE);
-  }
+        return (FALSE);
+    }
 #endif
 
     //

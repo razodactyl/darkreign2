@@ -137,7 +137,7 @@ namespace StyxNet
         // Does the amount used cover a packet header ?
         S32 diffHeader = sizeof(Header) - used;
 
-        // LPACKET("Packet accept: used " << used << " remaining " << remaining << " diffheader " << diffHeader);
+        LPACKET("Packet accept: used " << used << " remaining " << remaining << " diffheader " << diffHeader);
 
         // Continue until we exhaust the data waiting in the socket or the buffer becomes full
         for (;;)
@@ -147,7 +147,7 @@ namespace StyxNet
                 // What's the length of the data
                 U32 length = reinterpret_cast<Header*>(buffer.header.packet)->length;
 
-                // LPACKET("Header: length " << length << " command " << HEX(reinterpret_cast<Packet::Header*>(buffer.header.packet)->command, 8));
+                LPACKET("Header: length " << length << " command " << HEX(reinterpret_cast<Packet::Header*>(buffer.header.packet)->command, 8));
 
                 // Is there any length to the data ?
                 if (length)
@@ -246,7 +246,7 @@ namespace StyxNet
             // We're expecting diffHeader from the socket
             S32 received = socket.Recv(buffer.header.offset, diffHeader);
 
-            // LPACKET("Getting from socket: received " << received << " diffHeader " << diffHeader);
+            LPACKET("Getting from socket: received " << received << " diffHeader " << diffHeader);
 
             buffer.header.offset += received;
             remaining -= received;

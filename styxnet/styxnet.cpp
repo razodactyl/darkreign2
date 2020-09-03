@@ -25,7 +25,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Internal Data
@@ -166,6 +165,4 @@ namespace StyxNet
         numServers--;
         serverMutex.Signal();
     }
-
 }
-

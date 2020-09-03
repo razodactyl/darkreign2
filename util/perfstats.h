@@ -12,8 +12,6 @@
 #define __PERFSTATS_H
 
 
-
-
 //#if 0
 #ifdef DEVELOPMENT
 
@@ -23,30 +21,29 @@
 //
 namespace PerfStats
 {
+    // Initialise PerfStats
+    void Init();
 
-  // Initialise PerfStats
-  void Init();
+    // Shutdown PerfStats
+    void Done();
 
-  // Shutdown PerfStats
-  void Done();
+    // Start a timer, create it if it doesnt exist
+    void Start(const char* s, Bool atRoot = FALSE);
 
-  // Start a timer, create it if it doesnt exist
-  void Start(const char *s, Bool atRoot = FALSE);
+    // Stop a timer
+    void Stop(const char* s);
 
-  // Stop a timer
-  void Stop(const char *s);
+    // Display the performance stats on the mono
+    void Display();
 
-  // Display the performance stats on the mono
-  void Display();
+    // Reset all statistics
+    void Reset();
 
-  // Reset all statistics
-  void Reset();
+    // Turn performance stats on or off
+    void EnableDisplay(Bool b = TRUE);
 
-  // Turn performance stats on or off
-  void EnableDisplay(Bool b = TRUE);
-
-  // Set display refresh rate
-  void SetUpdateRate(U32 n);
+    // Set display refresh rate
+    void SetUpdateRate(U32 n);
 };
 
 

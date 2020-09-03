@@ -1130,7 +1130,7 @@ Bool Dir::FindPath(char* dst, U32 dstlen, const char* path)
 
     U32 pathlen = 1;
     // get pointer to just the filename part of 'path'
-    char* filename = Utils::ChopPath(buffer);
+    char* filename = Utils::FindName(buffer);
     U32 filelen = Utils::Strlen(filename);
 
     if (filename != buffer)

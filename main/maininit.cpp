@@ -12,6 +12,8 @@
 //
 // Includes
 //
+#include <shellapi.h>
+
 #include "main.h"
 #include "version.h"
 #include "hardware.h"
@@ -261,20 +263,31 @@ namespace Main
             {
                 LOG_DIAG(("Executing downloaded program %s", nextProcess.str));
 
-                PROCESS_INFORMATION pi;
-                CreateProcess
-                (
-                    nextProcess.str,  // name of executable module
-                    nextProcess.str,  // command line string
-                    nullptr,          // SD
-                    nullptr,          // SD
-                    FALSE,            // handle inheritance option
-                    0,                // creation flags
-                    nullptr,          // new environment block
-                    nullptr,          // current directory name
-                    &si,              // startup information
-                    &pi               // process information
-                );
+                char* file = Utils::FindName(nextProcess.str);
+
+                FilePath actualPath;
+                Utils::MakePath(actualPath.str, actualPath.GetSize(), "downloads", file, "");
+
+                // TODO: .457 - Need to store variable files in "C:\ProgramData\"
+                // https://support.microsoft.com/en-au/help/310294/how-to-write-a-windows-xp-application-that-stores-user-and-application
+                //
+                // Currently: Prompt for UAC when installing an update.
+
+                SHELLEXECUTEINFO shExInfo = { 0 };
+                shExInfo.cbSize = sizeof(shExInfo);
+                shExInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+                shExInfo.hwnd = 0;
+                shExInfo.lpVerb = "runas";              // "runas" prompt for UAC
+                shExInfo.lpFile = actualPath.str;       // name of executable module.
+                shExInfo.lpParameters = "";             // additional parameters
+                shExInfo.lpDirectory = 0;
+                shExInfo.nShow = SW_SHOW;
+                shExInfo.hInstApp = 0;
+
+                if (!ShellExecuteEx(&shExInfo))
+                {
+                    LOG_ERR(("Failed to run update `%s`, code was `%d`", nextProcess.str, GetLastError()));
+                }
             }
         }
     }

@@ -247,7 +247,6 @@
     <ClCompile Include="sound_digital_reserved.cpp" />
     <ClCompile Include="sound_digital_stream.cpp" />
     <ClCompile Include="sound_redbook.cpp" />
-    <ClCompile Include="sound_redbook_proxy.cpp" />
     <ClCompile Include="sound_vorbis.cpp" />
   </ItemGroup>
   <ItemGroup>

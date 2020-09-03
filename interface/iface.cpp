@@ -3016,7 +3016,8 @@ namespace IFace
                 state & IControl::STATE_SELECTED ? 'S' : '.',
                 state & IControl::STATE_HILITE ? 'H' : '.',
                 state & IControl::STATE_DISABLED ? 'D' : '.',
-                state & IControl::STATE_ACTIVE ? 'A' : '.');
+                state & IControl::STATE_ACTIVE ? 'A' : '.'
+            );
 
             s += strlen(s);
         }
@@ -3285,8 +3286,10 @@ namespace IFace
                 Point<S32> size;
 
                 // Check for one string argument
-                if (!(Console::GetArgString(1, name) && Console::GetArgInteger(2, size.x) && Console::GetArgInteger(
-                    3, size.y)))
+                if (!(Console::GetArgString(1, name) && Console::GetArgInteger(2, size.x) && Console::GetArgInteger
+                    (
+                        3, size.y
+                    )))
                 {
                     CON_ERR((Console::ARGS))
                 }
@@ -3379,8 +3382,11 @@ namespace IFace
                     if (ctrl)
                     {
                         // Send the event to the control
-                        SendEvent(ctrl, nullptr, NOTIFY, Crc::CalcStr(event), Crc::CalcStr(arg1), Crc::CalcStr(arg2),
-                                  Crc::CalcStr(arg3));
+                        SendEvent
+                        (
+                            ctrl, nullptr, NOTIFY, Crc::CalcStr(event), Crc::CalcStr(arg1), Crc::CalcStr(arg2),
+                            Crc::CalcStr(arg3)
+                        );
                     }
                     else
                     {

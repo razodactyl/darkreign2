@@ -163,39 +163,39 @@ namespace Console
         // What type of item is this
         switch (item->type)
         {
-            // A command
-        case VarSys::VI_CMD:
-        {
-            // Parse any arguments
-            ParseArguments(context, item->flags & VarSys::RAWVAR, item->flags & VarSys::RAWDATA);
-
-            // Trigger the command
-            item->TriggerCmd();
-
-            // Delete console arguments
-            DeleteArguments();
-
-            break;
-        }
-
-        // A scope
-        case VarSys::VI_SCOPE:
-            DisplayVarItem(item, 0);
-            break;
-
-            // A variable
-        default:
-        {
-            // Do any assignment
-            ParseAssignment(context, item);
-
-            // Only display if no custom console output
-            if (cState == consoleItemCount)
+                // A command
+            case VarSys::VI_CMD:
             {
-                DisplayVarItem(item, 0);
+                // Parse any arguments
+                ParseArguments(context, item->flags & VarSys::RAWVAR, item->flags & VarSys::RAWDATA);
+
+                // Trigger the command
+                item->TriggerCmd();
+
+                // Delete console arguments
+                DeleteArguments();
+
+                break;
             }
-            break;
-        }
+
+                // A scope
+            case VarSys::VI_SCOPE:
+                DisplayVarItem(item, 0);
+                break;
+
+                // A variable
+            default:
+            {
+                // Do any assignment
+                ParseAssignment(context, item);
+
+                // Only display if no custom console output
+                if (cState == consoleItemCount)
+                {
+                    DisplayVarItem(item, 0);
+                }
+                break;
+            }
         }
 
         // Command has been handled
@@ -215,29 +215,29 @@ namespace Console
         // Peek at the next token
         switch (tBuf.PeekToken())
         {
-        case TR_OK:
-            break;
-
-        case TR_PUN:
-        {
-            switch (*tBuf.peekToken)
-            {
-            case '=':
-                tBuf.AcceptPunct();
+            case TR_OK:
                 break;
 
-            case ';':
-                return (FALSE);
+            case TR_PUN:
+            {
+                switch (*tBuf.peekToken)
+                {
+                    case '=':
+                        tBuf.AcceptPunct();
+                        break;
+
+                    case ';':
+                        return (FALSE);
+                        break;
+                }
                 break;
             }
-            break;
-        }
 
-        case TR_EOF:
-            return (FALSE);
-            break;
+            case TR_EOF:
+                return (FALSE);
+                break;
 
-        default:
+            default:
             ERR_FATAL(("Missing case"));
         }
 
@@ -287,55 +287,55 @@ namespace Console
         // Assign the new value
         switch (item->type)
         {
-            // Changing an integer item
-        case VarSys::VI_INTEGER:
-            switch (node->aType)
-            {
-            case VNode::AT_INTEGER:
-                item->SetInteger(node->GetInteger());
+                // Changing an integer item
+            case VarSys::VI_INTEGER:
+                switch (node->aType)
+                {
+                    case VNode::AT_INTEGER:
+                        item->SetInteger(node->GetInteger());
+                        break;
+                    case VNode::AT_FPOINT:
+                        item->SetInteger(static_cast<S32>(node->GetFPoint()));
+                        break;
+                    default:
+                        delete node;
+                        tBuf.TokenError("Expected %s value", VarSys::GetTypeString(item->type));
+                }
                 break;
-            case VNode::AT_FPOINT:
-                item->SetInteger(static_cast<S32>(node->GetFPoint()));
+
+                // Changing a floating point item
+            case VarSys::VI_FPOINT:
+                switch (node->aType)
+                {
+                    case VNode::AT_INTEGER:
+                        item->SetFloat(static_cast<F32>(node->GetInteger()));
+                        break;
+                    case VNode::AT_FPOINT:
+                        item->SetFloat(node->GetFPoint());
+                        break;
+                    default:
+                        delete node;
+                        tBuf.TokenError("Expected %s value", VarSys::GetTypeString(item->type));
+                }
                 break;
+
+                // Changing a string item
+            case VarSys::VI_STRING:
+                switch (node->aType)
+                {
+                    case VNode::AT_STRING:
+                        item->SetStr(node->GetString());
+                        break;
+                    default:
+                        delete node;
+                        tBuf.TokenError("Expected %s value", VarSys::GetTypeString(item->type));
+                }
+                break;
+
+                // Unable to change this type of item
             default:
                 delete node;
-                tBuf.TokenError("Expected %s value", VarSys::GetTypeString(item->type));
-            }
-            break;
-
-            // Changing a floating point item
-        case VarSys::VI_FPOINT:
-            switch (node->aType)
-            {
-            case VNode::AT_INTEGER:
-                item->SetFloat(static_cast<F32>(node->GetInteger()));
-                break;
-            case VNode::AT_FPOINT:
-                item->SetFloat(node->GetFPoint());
-                break;
-            default:
-                delete node;
-                tBuf.TokenError("Expected %s value", VarSys::GetTypeString(item->type));
-            }
-            break;
-
-            // Changing a string item
-        case VarSys::VI_STRING:
-            switch (node->aType)
-            {
-            case VNode::AT_STRING:
-                item->SetStr(node->GetString());
-                break;
-            default:
-                delete node;
-                tBuf.TokenError("Expected %s value", VarSys::GetTypeString(item->type));
-            }
-            break;
-
-            // Unable to change this type of item
-        default:
-            delete node;
-            tBuf.TokenError("Unable to modify items of this type");
+                tBuf.TokenError("Unable to modify items of this type");
         }
 
         // Delete the temporary VNode
@@ -376,51 +376,51 @@ namespace Console
         // Assign the new value
         switch (item->type)
         {
-            // Changing an integer item
-        case VarSys::VI_INTEGER:
-            switch (rVal->type)
-            {
+                // Changing an integer item
             case VarSys::VI_INTEGER:
-                item->SetInteger(rVal->Integer());
+                switch (rVal->type)
+                {
+                    case VarSys::VI_INTEGER:
+                        item->SetInteger(rVal->Integer());
+                        break;
+                    case VarSys::VI_FPOINT:
+                        item->SetInteger(static_cast<S32>(rVal->Float()));
+                        break;
+                    default:
+                        tBuf.TokenError("Expected integer value");
+                }
                 break;
-            case VarSys::VI_FPOINT:
-                item->SetInteger(static_cast<S32>(rVal->Float()));
-                break;
-            default:
-                tBuf.TokenError("Expected integer value");
-            }
-            break;
 
-            // Changing a floating point item
-        case VarSys::VI_FPOINT:
-            switch (rVal->type)
-            {
-            case VarSys::VI_INTEGER:
-                item->SetFloat(static_cast<F32>(rVal->Integer()));
-                break;
+                // Changing a floating point item
             case VarSys::VI_FPOINT:
-                item->SetFloat(rVal->Float());
+                switch (rVal->type)
+                {
+                    case VarSys::VI_INTEGER:
+                        item->SetFloat(static_cast<F32>(rVal->Integer()));
+                        break;
+                    case VarSys::VI_FPOINT:
+                        item->SetFloat(rVal->Float());
+                        break;
+                    default:
+                        tBuf.TokenError("Expected floating point value");
+                }
                 break;
-            default:
-                tBuf.TokenError("Expected floating point value");
-            }
-            break;
 
-            // Changing a string item
-        case VarSys::VI_STRING:
-            switch (rVal->type)
-            {
+                // Changing a string item
             case VarSys::VI_STRING:
-                item->SetStr(rVal->Str());
+                switch (rVal->type)
+                {
+                    case VarSys::VI_STRING:
+                        item->SetStr(rVal->Str());
+                        break;
+                    default:
+                        tBuf.TokenError("Expected string value");
+                }
                 break;
-            default:
-                tBuf.TokenError("Expected string value");
-            }
-            break;
 
-            // Unable to change this type of item
-        default:
-            tBuf.TokenError("Unable to modify items of this type");
+                // Unable to change this type of item
+            default:
+                tBuf.TokenError("Unable to modify items of this type");
         }
 
         // Modified successfully
@@ -491,19 +491,19 @@ namespace Console
 
                     switch (node->aType)
                     {
-                    case VNode::AT_INTEGER:
-                        VarSys::CreateInteger(argPath.str, node->GetInteger());
-                        break;
+                        case VNode::AT_INTEGER:
+                            VarSys::CreateInteger(argPath.str, node->GetInteger());
+                            break;
 
-                    case VNode::AT_FPOINT:
-                        VarSys::CreateFloat(argPath.str, node->GetFPoint());
-                        break;
+                        case VNode::AT_FPOINT:
+                            VarSys::CreateFloat(argPath.str, node->GetFPoint());
+                            break;
 
-                    case VNode::AT_STRING:
-                        VarSys::CreateString(argPath.str, node->GetString());
-                        break;
+                        case VNode::AT_STRING:
+                            VarSys::CreateString(argPath.str, node->GetString());
+                            break;
 
-                    default:
+                        default:
                         ERR_FATAL(("Invalid node type!"));
                     }
 
@@ -518,79 +518,79 @@ namespace Console
                     // Examine what we've got
                     switch (tBuf.PeekToken())
                     {
-                    case TR_OK:
-                    {
-                        VarSys::VarItem* varItem;
-
-                        // Create the offset var
-                        VarSys::CreateInteger(argOffsetPath.str, argPos);
-
-                        // Accept the identifier
-                        tBuf.AcceptIdent();
-
-                        // Are we in raw var mode or is this argument a var item
-                        if (!rawVar && (varItem = VarSys::FindVarItem(tBuf.lastToken, context)) != nullptr)
+                        case TR_OK:
                         {
-                            switch (varItem->type)
-                            {
-                                // Able to copy these types
-                            case VarSys::VI_STRING:
-                            case VarSys::VI_INTEGER:
-                            case VarSys::VI_FPOINT:
-                                VarSys::CopyVarItem(argPath.str, varItem);
-                                break;
+                            VarSys::VarItem* varItem;
 
-                                // Invalid item type
-                            default:
+                            // Create the offset var
+                            VarSys::CreateInteger(argOffsetPath.str, argPos);
+
+                            // Accept the identifier
+                            tBuf.AcceptIdent();
+
+                            // Are we in raw var mode or is this argument a var item
+                            if (!rawVar && (varItem = VarSys::FindVarItem(tBuf.lastToken, context)) != nullptr)
+                            {
+                                switch (varItem->type)
+                                {
+                                        // Able to copy these types
+                                    case VarSys::VI_STRING:
+                                    case VarSys::VI_INTEGER:
+                                    case VarSys::VI_FPOINT:
+                                        VarSys::CopyVarItem(argPath.str, varItem);
+                                        break;
+
+                                        // Invalid item type
+                                    default:
+                                    {
+                                        // Convert single token into a string argument
+                                        VarSys::CreateString(argPath.str, tBuf.lastToken);
+                                    }
+                                }
+                            }
+                            else
                             {
                                 // Convert single token into a string argument
                                 VarSys::CreateString(argPath.str, tBuf.lastToken);
                             }
+
+                            // Successfully made an arg
+                            argCount++;
+
+                            break;
+                        }
+
+                        case TR_PUN:
+                            switch (*tBuf.peekToken)
+                            {
+                                    // Continue to next argument
+                                case ',':
+                                    tBuf.AcceptPunct();
+                                    continue;
+
+                                    // We're finished
+                                case ';':
+                                    done = TRUE;
+                                    break;
+
+                                    // Ignore brackets
+                                case '(':
+                                case ')':
+                                    tBuf.AcceptPunct();
+                                    continue;
+
+                                default:
+                                    tBuf.TokenError("Unexpected punctuation '%c'", *tBuf.peekToken);
+                                    break;
                             }
-                        }
-                        else
-                        {
-                            // Convert single token into a string argument
-                            VarSys::CreateString(argPath.str, tBuf.lastToken);
-                        }
 
-                        // Successfully made an arg
-                        argCount++;
-
-                        break;
-                    }
-
-                    case TR_PUN:
-                        switch (*tBuf.peekToken)
-                        {
-                            // Continue to next argument
-                        case ',':
-                            tBuf.AcceptPunct();
-                            continue;
-
-                            // We're finished
-                        case ';':
+                        case TR_EOF:
                             done = TRUE;
                             break;
 
-                            // Ignore brackets
-                        case '(':
-                        case ')':
-                            tBuf.AcceptPunct();
-                            continue;
-
                         default:
-                            tBuf.TokenError("Unexpected punctuation '%c'", *tBuf.peekToken);
-                            break;
-                        }
-
-                    case TR_EOF:
-                        done = TRUE;
-                        break;
-
-                    default:
                         ERR_FATAL(("Missing case"));
-                        break;
+                            break;
                     }
                 }
             }
@@ -627,8 +627,8 @@ namespace Console
         // Display error message
         CON_ERR(("(col %d) %s", x, errStr))
 
-            // Throw an exception
-            throw (0);
+        // Throw an exception
+        throw (0);
     }
 
 
@@ -706,32 +706,32 @@ namespace Console
         // Type specific display
         switch (item->type)
         {
-        case VarSys::VI_NONE:
+            case VarSys::VI_NONE:
             CON_ERR(("%s** Uninitialized item **", *iStr))
-                break;
+            break;
 
-        case VarSys::VI_INTEGER:
-            // "VarInteger"
+            case VarSys::VI_INTEGER:
+                // "VarInteger"
             CONSOLE(0xC42A1C61, ("%s%s = %d", *iStr, item->itemId.str, item->Integer()))
-                break;
+            break;
 
-        case VarSys::VI_FPOINT:
-            // "VarFloat"
+            case VarSys::VI_FPOINT:
+                // "VarFloat"
             CONSOLE(0x2383C5BD, ("%s%s = %.2f", *iStr, item->itemId.str, item->Float()))
-                break;
+            break;
 
-        case VarSys::VI_STRING:
-            // "VarString"
+            case VarSys::VI_STRING:
+                // "VarString"
             CONSOLE(0x8C0A4128, ("%s%s = \"%s\"", *iStr, item->itemId.str, *(item->Str())))
-                break;
+            break;
 
-        case VarSys::VI_CMD:
-            // "VarCommand"
+            case VarSys::VI_CMD:
+                // "VarCommand"
             CONSOLE(0xEAAE2D01, ("%sCmd %s", *iStr, item->itemId.str))
-                break;
+            break;
 
-        case VarSys::VI_SCOPE:
-            // "VarScope"
+            case VarSys::VI_SCOPE:
+                // "VarScope"
             CONSOLE(0xA658D5D6, ("%s[%s]", *iStr, item->itemId.str))
 
                 // Should we display the contents of this scope
@@ -739,27 +739,27 @@ namespace Console
                 {
                     DisplayVarScope(item->ScopePtr(), indent + CONSOLE_SCOPEINDENT, flags);
                 }
-            break;
+                break;
 
-        case VarSys::VI_BINARY:
-        {
-            char buf[5], str[256] = "= ";
-            U32 size = item->BinarySize();
-            U32 disp = Min(U32(12), U32(item->BinarySize()));
-            const U8* data = item->Binary();
-
-            for (U32 c = 0; c < disp; c++)
+            case VarSys::VI_BINARY:
             {
-                sprintf(buf, "%02X ", data[c]);
-                Utils::Strcat(str, buf);
+                char buf[5], str[256] = "= ";
+                U32 size = item->BinarySize();
+                U32 disp = Min(U32(12), U32(item->BinarySize()));
+                const U8* data = item->Binary();
+
+                for (U32 c = 0; c < disp; c++)
+                {
+                    sprintf(buf, "%02X ", data[c]);
+                    Utils::Strcat(str, buf);
+                }
+
+                // "VarBinary"
+                CONSOLE(0x59CD7465, ("%sBinary (%d) %s", *iStr, size, str))
+                break;
             }
 
-            // "VarBinary"
-            CONSOLE(0x59CD7465, ("%sBinary (%d) %s", *iStr, size, str))
-                break;
-        }
-
-        default:
+            default:
             CON_ERR(("%s** Unrecognized type **", *iStr))
         }
     }
@@ -823,9 +823,9 @@ namespace Console
     {
         switch (pathCrc)
         {
-        case 0x8556416C: // "console.log"
+            case 0x8556416C: // "console.log"
             CON_DIAG(("Console file logging is now %s", logOutput ? "ON" : "OFF"))
-                break;
+            break;
         }
     }
 
@@ -956,17 +956,17 @@ namespace Console
         // Display type specific message
         switch (err)
         {
-        case ARGS:
+            case ARGS:
             CON_ERR(("Invalid command arguments"))
-                break;
+            break;
 
-        case UNAVAILABLE:
+            case UNAVAILABLE:
             CON_ERR(("Command unavailable at this time"))
-                break;
+            break;
 
-        default:
+            default:
             CON_ERR(("Unknown command execution error"))
-                break;
+            break;
         }
     }
 
@@ -1098,14 +1098,14 @@ namespace Console
         {
             switch (arg->type)
             {
-                // Store result
-            case VarSys::VI_INTEGER:
-                val = arg->Integer();
-                return (TRUE);
+                    // Store result
+                case VarSys::VI_INTEGER:
+                    val = arg->Integer();
+                    return (TRUE);
 
-            case VarSys::VI_FPOINT:
-                val = static_cast<U32>(arg->Float());
-                return (TRUE);
+                case VarSys::VI_FPOINT:
+                    val = static_cast<U32>(arg->Float());
+                    return (TRUE);
             }
         }
 
@@ -1154,14 +1154,14 @@ namespace Console
         {
             switch (arg->type)
             {
-                // Store result
-            case VarSys::VI_FPOINT:
-                val = arg->Float();
-                return (TRUE);
+                    // Store result
+                case VarSys::VI_FPOINT:
+                    val = arg->Float();
+                    return (TRUE);
 
-            case VarSys::VI_INTEGER:
-                val = static_cast<F32>(arg->Integer());
-                return (TRUE);
+                case VarSys::VI_INTEGER:
+                    val = static_cast<F32>(arg->Integer());
+                    return (TRUE);
             }
         }
 
@@ -1222,8 +1222,8 @@ namespace Console
         {
             switch (arg->type)
             {
-            case VarSys::VI_INTEGER:
-                return (currentCmd + arg->Integer());
+                case VarSys::VI_INTEGER:
+                    return (currentCmd + arg->Integer());
             }
         }
 

@@ -26,7 +26,8 @@ namespace MINTCLIENT
     {
         Client* client = static_cast<Client*>(context);
 
-        if (host) {
+        if (host)
+        {
             client->config.address = *host->GetAddress();
             client->config.address.SetPort(client->config._address.GetPortI());
 
@@ -41,9 +42,9 @@ namespace MINTCLIENT
     // Constructor
     Client::Client(const Config& config)
         : config(config)
-        , flags(0)
-        , socket(Win32::Socket::TCP, TRUE)
-        , packetBuffer(StyxNet::Packet::Buffer::Create(StyxNet::clientBufferSize))
+          , flags(0)
+          , socket(Win32::Socket::TCP, TRUE)
+          , packetBuffer(StyxNet::Packet::Buffer::Create(StyxNet::clientBufferSize))
     {
         StyxNet::AddClient();
 
@@ -297,210 +298,210 @@ namespace MINTCLIENT
 
         switch (packet.GetCommand())
         {
-        case MINTCLIENT::Message::ServerConnect: // 0x433AB32B
-        {
-            LDIAG(">>> Connection established with server!");
-            flags |= StyxNet::ClientFlags::Connected;
-        }
-        break;
-
-        // For a known packet, if it's the response to a command, pull up command context and deal with it.
-        case MINTCLIENT::Message::DirectoryListServers: // 0x77712BCE
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
+            case MINTCLIENT::Message::ServerConnect: // 0x433AB32B
             {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
+                LDIAG(">>> Connection established with server!");
+                flags |= StyxNet::ClientFlags::Connected;
             }
-            else
+            break;
+
+                // For a known packet, if it's the response to a command, pull up command context and deal with it.
+            case MINTCLIENT::Message::DirectoryListServers: // 0x77712BCE
             {
-                _DebugShowMissingContext(packet, this);
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
-        }
-        break;
+            break;
 
-        case MINTCLIENT::Message::DirectoryListRooms: // 0x910DB9D4
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
+            case MINTCLIENT::Message::DirectoryListRooms: // 0x910DB9D4
             {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-        }
-        break;
+            break;
 
-        case MINTCLIENT::Message::IdentityCreate: // 0x14096404
-        case MINTCLIENT::Message::IdentityUpdate: // 0xB6CFD48E
-        case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
-        {
-            // For this to work, the struct needs to be consistently sent back from the server, which it's not.
-            const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
-
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
+            case MINTCLIENT::Message::IdentityCreate: // 0x14096404
+            case MINTCLIENT::Message::IdentityUpdate: // 0xB6CFD48E
+            case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
             {
                 // For this to work, the struct needs to be consistently sent back from the server, which it's not.
-                // cmd->SetDataFromStruct(r);
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
+                const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
+
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    // For this to work, the struct needs to be consistently sent back from the server, which it's not.
+                    // cmd->SetDataFromStruct(r);
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
-            else
+                break;
+
+            case MINTCLIENT::Message::RoutingServerRoomConnect: // 0xEE37226B
+            case MINTCLIENT::Message::RoutingServerRoomRegister: // 0x59938A8D
             {
-                _DebugShowMissingContext(packet, this);
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
-        }
-        break;
+                break;
 
-        case MINTCLIENT::Message::RoutingServerRoomConnect: // 0xEE37226B
-        case MINTCLIENT::Message::RoutingServerRoomRegister: // 0x59938A8D
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
+            case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
+            case MINTCLIENT::Message::RoutingServerGetNumUsers: // 0xACCD008F
             {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
-            else
+                break;
+
+            case MINTCLIENT::Message::RoutingServerBroadcastChat: // 0xC79C5EB4
             {
-                _DebugShowMissingContext(packet, this);
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
             }
-        }
-        break;
-
-        case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
-        case MINTCLIENT::Message::RoutingServerGetNumUsers: // 0xACCD008F
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
-            {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
-            }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-        }
-        break;
-
-        case MINTCLIENT::Message::RoutingServerBroadcastChat: // 0xC79C5EB4
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
-            {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
-            }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-        }
-        break;
-
-        case MINTCLIENT::Message::RoutingServerUserEnter: // 0x75BBABEE
-        case MINTCLIENT::Message::RoutingServerUserLeave: // 0xCF1E785F
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
-            {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
-            }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-        }
-        break;
-
-        case MINTCLIENT::Message::RoutingServerUpdateGame: // 0xB04C290F
-        case MINTCLIENT::Message::RoutingServerCreateGame: // 0x2A0FB0FD
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
-            {
-                cmd->Done();
-            }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-        }
-        break;
-
-        case MINTCLIENT::Message::RoutingServerGetGameList: // 0x41D50E29
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
-            {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
-            }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-        }
-        break;
-
-        case MINTCLIENT::Message::RoutingServerGameCreated:
-        case MINTCLIENT::Message::RoutingServerGameUpdated:
-        case MINTCLIENT::Message::RoutingServerGameReplaced:
-        case MINTCLIENT::Message::RoutingServerGameDeleted:
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
-            {
-                cmd->SetDataBytes(packet.GetData(), packet.GetLength());
-                cmd->Done();
-            }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-        }
-        break;
-
-        case MINTCLIENT::Message::RoutingServerDisconnect: // 0xF9CE798B
-        case MINTCLIENT::Message::ServerShutdown: // 0xD26E9A5C
-        case MINTCLIENT::Message::ServerDisconnect: // 0x8542A47A
-        {
-            auto* cmd = this->GetCommandById(packet.GetCommand());
-
-            if (cmd)
-            {
-                cmd->Done();
-            }
-            else
-            {
-                _DebugShowMissingContext(packet, this);
-            }
-
-            eventQuit.Signal();
-        }
-        break;
-
-        default:
-            // Unknown packet command
-            LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
             break;
+
+            case MINTCLIENT::Message::RoutingServerUserEnter: // 0x75BBABEE
+            case MINTCLIENT::Message::RoutingServerUserLeave: // 0xCF1E785F
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+                break;
+
+            case MINTCLIENT::Message::RoutingServerUpdateGame: // 0xB04C290F
+            case MINTCLIENT::Message::RoutingServerCreateGame: // 0x2A0FB0FD
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+                break;
+
+            case MINTCLIENT::Message::RoutingServerGetGameList: // 0x41D50E29
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+            break;
+
+            case MINTCLIENT::Message::RoutingServerGameCreated:
+            case MINTCLIENT::Message::RoutingServerGameUpdated:
+            case MINTCLIENT::Message::RoutingServerGameReplaced:
+            case MINTCLIENT::Message::RoutingServerGameDeleted:
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+                break;
+
+            case MINTCLIENT::Message::RoutingServerDisconnect: // 0xF9CE798B
+            case MINTCLIENT::Message::ServerShutdown: // 0xD26E9A5C
+            case MINTCLIENT::Message::ServerDisconnect: // 0x8542A47A
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+
+                eventQuit.Signal();
+            }
+                break;
+
+            default:
+                // Unknown packet command
+            LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
+                break;
         }
     }
 }

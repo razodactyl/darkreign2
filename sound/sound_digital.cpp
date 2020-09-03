@@ -207,7 +207,7 @@ namespace Sound
             }
         };
 
-        // List of providers    
+        // List of providers
         List<Provider> Provider::list;
         List<Provider>::Iterator Provider::listIterator;
 

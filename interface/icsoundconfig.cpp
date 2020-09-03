@@ -102,80 +102,76 @@ void ICSoundConfig::Notify(IFaceVar* var)
     {
         Sound::Digital::SetVolume(digitalVolume->GetFloatValue());
     }
+    else if (var == reservedVolume)
+    {
+        Sound::Digital::Reserved::SetVolume(reservedVolume->GetFloatValue());
+    }
+    else if (var == redbookVolume)
+    {
+        Sound::Vorbis::SetVolume(redbookVolume->GetFloatValue());
+        Sound::Redbook::SetVolume(redbookVolume->GetFloatValue());
+    }
     else
-
-        if (var == reservedVolume)
+    {
+        if (var == redbookEnabled)
         {
-            Sound::Digital::Reserved::SetVolume(reservedVolume->GetFloatValue());
-        }
-        else
+            // Are we turning audio on
+            if (redbookEnabled->GetIntegerValue())
+            {
+                // Set the enabled status
+                Sound::Redbook::SetEnabled(TRUE);
+                Sound::Vorbis::SetEnabled(TRUE);
 
-            if (var == redbookVolume)
-            {
-                Sound::Vorbis::SetVolume(redbookVolume->GetFloatValue());
-                Sound::Redbook::SetVolume(redbookVolume->GetFloatValue());
-            }
-            else
-            {
-                if (var == redbookEnabled)
+                if (File::Exists("music"))
                 {
-                    // Are we turning audio on
-                    if (redbookEnabled->GetIntegerValue())
+                    if (!Sound::Vorbis::Claimed())
                     {
-                        // Set the enabled status
-                        Sound::Redbook::SetEnabled(TRUE);
-                        Sound::Vorbis::SetEnabled(TRUE);
-
-                        if (File::Exists("music"))
+                        // Attempt to claim
+                        if (Sound::Vorbis::Claim())
                         {
-                            if (!Sound::Vorbis::Claimed())
-                            {
-                                // Attempt to claim
-                                if (Sound::Vorbis::Claim())
-                                {
-                                    F32 current_music_volume = redbookVolume->GetFloatValue();
-                                    Sound::Vorbis::SetVolume(current_music_volume);
-                                    Sound::Vorbis::Play(Random::nonSync.Integer(Sound::Vorbis::TrackCount()));
-                                }
-                                else
-                                {
-                                    // Automatically pop the button back up because we couldn't claim.
-                                    redbookEnabled->SetIntegerValue(FALSE);
-                                }
-                            }
+                            F32 current_music_volume = redbookVolume->GetFloatValue();
+                            Sound::Vorbis::SetVolume(current_music_volume);
+                            Sound::Vorbis::Play(Random::nonSync.Integer(Sound::Vorbis::TrackCount()));
                         }
                         else
                         {
-                            // Ignore if already claimed
-                            if (!Sound::Redbook::Claimed())
-                            {
-                                // Attempt to claim
-                                if (Sound::Redbook::Claim())
-                                {
-                                    // Grab the volume from the driver
-                                    redbookVolume->SetFloatValue(Sound::Redbook::Volume());
-
-                                    // Start a random track
-                                    Sound::Redbook::Play(Random::nonSync.Integer(Sound::Redbook::TrackCount()));
-                                }
-                                else
-                                {
-                                    // Automatically pop the button up
-                                    redbookEnabled->SetIntegerValue(FALSE);
-                                }
-                            }
+                            // Automatically pop the button back up because we couldn't claim.
+                            redbookEnabled->SetIntegerValue(FALSE);
                         }
                     }
-                    else
+                }
+                else
+                {
+                    // Ignore if already claimed
+                    if (!Sound::Redbook::Claimed())
                     {
-                        Sound::Redbook::SetEnabled(FALSE);
-                        Sound::Redbook::Release();
+                        // Attempt to claim
+                        if (Sound::Redbook::Claim())
+                        {
+                            // Grab the volume from the driver
+                            redbookVolume->SetFloatValue(Sound::Redbook::Volume());
 
-                        Sound::Vorbis::SetEnabled(FALSE);
-                        Sound::Vorbis::Release();
+                            // Start a random track
+                            Sound::Redbook::Play(Random::nonSync.Integer(Sound::Redbook::TrackCount()));
+                        }
+                        else
+                        {
+                            // Automatically pop the button up
+                            redbookEnabled->SetIntegerValue(FALSE);
+                        }
                     }
                 }
             }
+            else
+            {
+                Sound::Redbook::SetEnabled(FALSE);
+                Sound::Redbook::Release();
+
+                Sound::Vorbis::SetEnabled(FALSE);
+                Sound::Vorbis::Release();
+            }
+        }
+    }
 }
 
 
@@ -259,7 +255,7 @@ Bool ICSoundConfig::Activate()
         // Get the current volumes
         digitalVolume->SetFloatValue(Sound::Digital::Volume());
         reservedVolume->SetFloatValue(Sound::Digital::Reserved::Volume());
-        redbookVolume->SetFloatValue(Sound::Redbook::Volume());
+        redbookVolume->SetFloatValue(Sound::Vorbis::Volume());
         redbookEnabled->SetIntegerValue(Sound::Redbook::GetEnabled());
 
         providerIndex->Activate();

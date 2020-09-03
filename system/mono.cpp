@@ -785,7 +785,7 @@ namespace Mono
     {
         if (!buffer) return;
 
-        U16* p = static_cast<U16*>(buffer);
+        U16* p = (U16*)(buffer);
 
         for (S32 i = 0; i < width * height; i++)
         {
@@ -880,7 +880,7 @@ namespace Mono
 
         // OK to repaint
         U16* dst = (U16*)ScreenPtr() + ((viewPort.top + rPos + dirtyRectTop) * 80 + (viewPort.left + cPos + dirtyRectLeft));
-        U16* src = static_cast<U16*>(buffer) + (dirtyRectTop * 80 + dirtyRectLeft);
+        U16* src = (U16*)(buffer) + (dirtyRectTop * 80 + dirtyRectLeft);
 
         S32 paintW;
         S32 paintH;
@@ -1191,8 +1191,8 @@ namespace Mono
     {
         if (!buffer) return;
 
-        U16* dst = static_cast<U16*>(buffer) + (top * width + left);
-        U16 data = static_cast<U16>(((attrib & 0xFF) << 8) + (ch & 0xFF));
+        U16* dst = (U16*)(buffer) + (top * width + left);
+        U16 data = (U16)(((attrib & 0xFF) << 8) + (ch & 0xFF));
         S32 nRow = min(bottom - top + 1, height);
         S32 nCol = min(right - left + 1, width);
 

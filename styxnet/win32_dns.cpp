@@ -48,7 +48,7 @@ namespace Win32
 
             CallbackWithContext(Callback callback, void* context)
                 : callback(callback),
-                context(context)
+                  context(context)
             {
             }
         };
@@ -229,46 +229,49 @@ namespace Win32
 
                     switch (WSAGETASYNCERROR(lParam))
                     {
-                    case 0:
-                    {
-                        // OSR2 fails by not touching the structure (ugh)
-                        if (lookup->hostent.h_name)
+                        case 0:
                         {
-                            // Success create the new host record
-                            host = new Host(*lookup);
-                            hostsByName.Add(Crc::CalcStr(host->GetName()), host);
-                            hostsByAddress.Add(host->GetAddress()->GetIP(), host);
+                            // OSR2 fails by not touching the structure (ugh)
+                            if (lookup->hostent.h_name)
+                            {
+                                // Success create the new host record
+                                host = new Host(*lookup);
+                                hostsByName.Add(Crc::CalcStr(host->GetName()), host);
+                                hostsByAddress.Add(host->GetAddress()->GetIP(), host);
+                            }
+                            break;
                         }
-                        break;
-                    }
 
-                    case WSAENETDOWN:
+                        case WSAENETDOWN:
                         LDIAG("WSAAsyncGetHostByName: The network subsystem has failed.");
-                        break;
-
-                    case WSAENOBUFS:
-                        LERR("WSAAsyncGetHostByName: Insufficient buffer space is available.")
                             break;
 
-                    case WSAHOST_NOT_FOUND:
-                    case WSANO_DATA:
+                        case WSAENOBUFS:
+                        LERR("WSAAsyncGetHostByName: Insufficient buffer space is available.")
                         break;
 
-                    case WSATRY_AGAIN:
+                        case WSAHOST_NOT_FOUND:
+                        case WSANO_DATA:
+                            break;
+
+                        case WSATRY_AGAIN:
                         LDIAG("WSAAsyncGetHostByName: Non-Authoritative Host not found, or SERVERFAIL.");
-                        break;
+                            break;
 
-                    case WSANO_RECOVERY:
+                        case WSANO_RECOVERY:
                         LDIAG("WSAAsyncGetHostByName: Nonrecoverable errors, FORMERR, REFUSED, NOTIMP.");
-                        break;
+                            break;
 
-                    case WSAEFAULT:
+                        case WSAEFAULT:
                         LDIAG("WSAAsyncGetHostByName: Invalid name or address.");
-                        break;
+                            break;
 
-                    default:
-                        LERR("WSAASyncGetHostByName: Unknown Error " << dec << WSAGETASYNCERROR(lParam) << " [" <<
-                            HEX(8, WSAGETASYNCERROR(lParam)) << "]")
+                        default:
+                        LERR
+                            (
+                                "WSAASyncGetHostByName: Unknown Error " << dec << WSAGETASYNCERROR(lParam) << " [" <<
+                                HEX(8, WSAGETASYNCERROR(lParam)) << "]"
+                            )
                     }
 
                     if (!host)
@@ -358,26 +361,32 @@ namespace Win32
                     {
                         switch (WSAGetLastError())
                         {
-                        case WSANOTINITIALISED:
-                            LERR(
-                                "WSAAsyncGetHostByName: A successful WSAStartup must occur before using this function.")
-                                break;
+                            case WSANOTINITIALISED:
+                            LERR
+                                (
+                                    "WSAAsyncGetHostByName: A successful WSAStartup must occur before using this function."
+                                )
+                            break;
 
-                        case WSAENETDOWN:
+                            case WSAENETDOWN:
                             LERR("WSAAsyncGetHostByName: The network subsystem has failed.")
-                                break;
+                            break;
 
-                        case WSAEINPROGRESS:
-                            LERR(
-                                "WSAAsyncGetHostByName: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
-                                break;
+                            case WSAEINPROGRESS:
+                            LERR
+                                (
+                                    "WSAAsyncGetHostByName: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function."
+                                )
+                            break;
 
-                        case WSAEWOULDBLOCK:
-                            LERR(
-                                "WSAAsyncGetHostByName: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation.")
-                                break;
+                            case WSAEWOULDBLOCK:
+                            LERR
+                                (
+                                    "WSAAsyncGetHostByName: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation."
+                                )
+                            break;
 
-                        default:
+                            default:
                             LERR("WSAAsyncGetHostByName: Unknown error!");
                         }
                     }
@@ -436,31 +445,40 @@ namespace Win32
                 if (!lookup)
                 {
                     lookup = new Lookup;
-                    HANDLE handle = WSAAsyncGetHostByAddr(hwnd, message, (const char*)&address, sizeof(Socket::Address),
-                        PF_INET, lookup->buf, MAXGETHOSTSTRUCT);
+                    HANDLE handle = WSAAsyncGetHostByAddr
+                    (
+                        hwnd, message, (const char*)&address, sizeof(Socket::Address),
+                        PF_INET, lookup->buf, MAXGETHOSTSTRUCT
+                    );
 
                     if (!handle)
                     {
                         switch (WSAGetLastError())
                         {
-                        case WSANOTINITIALISED:
-                            LERR(
-                                "WSAAsyncGetHostByAddr: A successful WSAStartup must occur before using this function.")
-                                break;
+                            case WSANOTINITIALISED:
+                            LERR
+                                (
+                                    "WSAAsyncGetHostByAddr: A successful WSAStartup must occur before using this function."
+                                )
+                            break;
 
-                        case WSAENETDOWN:
+                            case WSAENETDOWN:
                             LERR("WSAAsyncGetHostByAddr: The network subsystem has failed.")
-                                break;
+                            break;
 
-                        case WSAEINPROGRESS:
-                            LERR(
-                                "WSAAsyncGetHostByAddr: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function.")
-                                break;
+                            case WSAEINPROGRESS:
+                            LERR
+                                (
+                                    "WSAAsyncGetHostByAddr: A blocking Windows Sockets 1.1 call is in progress, or the service provider is still processing a callback function."
+                                )
+                            break;
 
-                        case WSAEWOULDBLOCK:
-                            LERR(
-                                "WSAAsyncGetHostByAddr: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation.")
-                                break;
+                            case WSAEWOULDBLOCK:
+                            LERR
+                                (
+                                    "WSAAsyncGetHostByAddr: The asynchronous operation cannot be scheduled at this time due to resource or other constraints within the Windows Sockets implementation."
+                                )
+                            break;
                         }
                     }
 

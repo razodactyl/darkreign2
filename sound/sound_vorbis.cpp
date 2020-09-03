@@ -15,6 +15,8 @@
 #include "sound_private.h"
 #include "trackplayer.h"
 #include "../3rdparty/stb_vorbis.c"
+#include "../styxnet/win32_mutex.h"
+#include "../styxnet/win32_thread.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,13 +37,10 @@ namespace Sound
         // Handle to the driver
         static HDIGDRIVER driver;
 
-        HSAMPLE sample;
-        short* decoded;
-
         // Current track
         static U32 track;
 
-        List<PathIdent> tracks;
+        static F32 vorbisVolume;
 
         // Next poll time
         static U32 pollTime;
@@ -51,6 +50,121 @@ namespace Sound
 
         // Maximum volume
         enum { MIN_VOLUME = 0, MAX_VOLUME = 127 };
+
+        Win32::Thread playerThread;
+        U32 STDCALL PlayTrack(void* context);
+        static Win32::Mutex playerMutex;
+
+        struct StreamItem
+        {
+            NBinTree<StreamItem>::Node node;
+
+            HSAMPLE sample = nullptr;
+            FileSys::DataFile* file;
+
+            short* decoded = nullptr;
+
+            int channels;
+            int sample_rate;
+
+            bool started = false;
+
+            StreamItem(const char* path, HDIGDRIVER driver)
+            {
+                file = FileSys::Open(path);
+
+                if (file)
+                {
+                    if (HSAMPLE handle = AIL_allocate_sample_handle(driver))
+                    {
+                        AIL_init_sample(handle);
+
+                        if (handle)
+                        {
+                            sample = handle;
+
+                            if (sample && (AIL_sample_buffer_ready(sample) != -1))
+                            {
+                                playerThread.Start(PlayTrack, this);
+                            }
+                        }
+                    }
+                }
+            }
+
+            ~StreamItem()
+            {
+                AIL_release_sample_handle(sample);
+
+                playerThread.Stop();
+
+                if (decoded)
+                {
+                    free(decoded);
+                    decoded = nullptr;
+                }
+
+                Close(file);
+            }
+
+            Bool IsPlaying()
+            {
+                return ((AIL_sample_status(sample) != SMP_DONE));
+            }
+
+            void SetVolume(F32 volume)
+            {
+                AIL_set_sample_volume
+                (
+                    sample, Clamp<S32>
+                    (
+                    MIN_VOLUME, static_cast<S32>((volume * static_cast<F32>(MAX_VOLUME)) + 0.5F),
+                    MAX_VOLUME
+                    )
+                );
+            }
+
+            F32 Volume()
+            {
+                return (static_cast<F32>(AIL_sample_volume(sample)) / static_cast<F32>(MAX_VOLUME));
+            }
+        };
+
+        U32 STDCALL PlayTrack(void* context)
+        {
+            StreamItem* si = (StreamItem*)context;
+        
+            int num_samples = stb_vorbis_decode_memory
+            (
+                static_cast<U8*>(si->file->GetMemoryPtr()),
+                si->file->Size(),
+                &si->channels,
+                &si->sample_rate,
+                &si->decoded
+            );
+        
+            int tracklen = num_samples * si->channels * sizeof(short);
+        
+            AIL_set_sample_playback_rate(si->sample, si->sample_rate);
+            AIL_set_sample_type(si->sample, DIG_F_STEREO_16, 0);
+        
+            AIL_set_sample_address(si->sample, si->decoded, tracklen);
+        
+            char* last_error = AIL_last_error();
+            // LOG_ERR((last_error));
+        
+            // Reset the volume.
+            si->SetVolume(vorbisVolume);
+        
+            AIL_start_sample(si->sample);
+        
+            si->started = true;
+        
+            return 0;
+        }
+
+        List<PathIdent> tracks;
+        static NBinTree<StreamItem> streams(&StreamItem::node);
 
 
         //
@@ -63,7 +177,6 @@ namespace Sound
             ASSERT(!initialized);
 
             driver = nullptr;
-            sample = nullptr;
             track = 0;
             enabled = TRUE;
 
@@ -160,7 +273,6 @@ namespace Sound
                 Release();
 
                 driver = Digital::GetDriver();
-                sample = AIL_allocate_sample_handle(driver);
 
                 if (driver)
                 {
@@ -180,6 +292,9 @@ namespace Sound
         //
         Bool Release()
         {
+            tracks.DisposeAll();
+            streams.DisposeAll();
+
             if (initialized)
             {
                 if (driver)
@@ -187,13 +302,8 @@ namespace Sound
                     // Stop playing anything
                     Stop();
 
-                    tracks.DisposeAll();
-
                     // Clear driver pointer
                     driver = nullptr;
-
-                    AIL_release_sample_handle(sample);
-                    sample = nullptr;
 
                     return (TRUE);
                 }
@@ -223,11 +333,11 @@ namespace Sound
         {
             if (initialized && driver)
             {
-                // Reset our track counter
+                // Reset our track counter.
                 track = 0;
 
-                // Stop the device
-                AIL_stop_sample(sample);
+                // Shutdown current music.
+                streams.DisposeAll();
             }
         }
 
@@ -254,56 +364,17 @@ namespace Sound
 
                 if (newTrack >= 1 && newTrack <= count)
                 {
-                    // Update our track count
+                    // Update current track.
                     track = newTrack;
-
-                    FileSys::DataFile* dataFile;
 
                     std::string path = std::string("music\\") + tracks[track - 2]->str;
 
-                    if (FileSys::DataFile* dataFile = FileSys::Open(path.c_str()))
-                    {
-                        int channels;
-                        int sample_rate;
+                    // auto current_redbook_volume = Redbook::Volume();
+                    // auto current_vorbis_volume = vorbisVolume;
 
-                        free(decoded);
-
-                        unsigned long file_size = dataFile->Size();
-
-                        int num_samples = stb_vorbis_decode_memory((U8*)dataFile->GetMemoryPtr(), file_size, &channels,
-                                                                   &sample_rate, &decoded);
-
-                        FileSys::Close(dataFile);
-
-                        if (sample)
-                        {
-                            // Initialize the voice.
-                            AIL_init_sample(sample);
-
-                            S32 buff_id = AIL_sample_buffer_ready(sample);
-
-                            if (-1 != buff_id)
-                            {
-                                // Load the data.
-                                AIL_set_sample_playback_rate(sample, sample_rate);
-                                AIL_set_sample_type(sample, DIG_F_STEREO_16, 0);
-
-                                AIL_set_sample_address(sample, decoded, (num_samples * channels * sizeof(short)));
-
-                                char* last_error = AIL_last_error();
-
-                                // Reset the volume.
-                                SetVolume(Sound::Redbook::Volume());
-
-                                // Start the stream playing.
-                                AIL_start_sample(sample);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Stop();
+                    // Allocate stream item
+                    StreamItem* item = new StreamItem(path.c_str(), driver);
+                    streams.Add(0, item);
                 }
             }
 
@@ -317,43 +388,12 @@ namespace Sound
         //
         void Poll()
         {
-            switch (AIL_sample_status(sample))
+            if (streams.GetCount() > 0)
             {
-                    // Finished playing track, play next.
-                case SMP_DONE:
+                if (!streams.GetFirst()->IsPlaying() && streams.GetFirst()->started)
                 {
                     Play(track + 1);
                 }
-                break;
-
-                    // case SMP_FREE:
-                    // {
-                    // }
-                    // break;
-
-                    // Still playing track.
-                case SMP_PLAYING:
-                {
-                    unsigned long ms = AIL_ms_count();
-                    LOG_DEV(("MS = %d", ms));
-
-                    sample->len;
-                }
-                break;
-
-                    // case SMP_PLAYINGBUTRELEASED:
-                    // {
-                    // }
-                    // break;
-
-                    // case SMP_STOPPED:
-                    // {
-                    // }
-                    // break;
-
-                    // default:
-                    //     Stop();
-                    //     break;
             }
         }
 
@@ -365,12 +405,11 @@ namespace Sound
         //
         U32 TrackCount()
         {
+            tracks.DisposeAll();
+
             int numFiles = 0;
 
-            FilePath path = "music";
-
             Dir::Find find;
-
             if (Dir::FindFirst(find, "music", "*.ogg"))
             {
                 do
@@ -411,11 +450,14 @@ namespace Sound
         //
         void SetVolume(F32 volume)
         {
+            vorbisVolume = volume;
+
             if (initialized && driver)
             {
-                AIL_set_sample_volume(sample, Clamp<S32>(
-                                          MIN_VOLUME, static_cast<S32>((volume * static_cast<F32>(MAX_VOLUME)) + 0.5F),
-                                          MAX_VOLUME));
+                if (streams.GetCount() > 0)
+                {
+                    streams.GetFirst()->SetVolume(volume);
+                }
             }
         }
 
@@ -427,12 +469,17 @@ namespace Sound
         //
         F32 Volume()
         {
-            if (initialized && driver)
-            {
-                return (static_cast<F32>(AIL_sample_volume(sample)) / static_cast<F32>(MAX_VOLUME));
-            }
+            return vorbisVolume;
 
-            return 0.0f;
+            // if (initialized && driver)
+            // {
+            //     if (streams.GetCount() > 0)
+            //     {
+            //         return streams.GetFirst()->Volume();
+            //     }
+            // }
+            //
+            // return 0.0f;
         }
     }
 }

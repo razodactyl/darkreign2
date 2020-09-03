@@ -25,174 +25,165 @@
 //
 namespace Param
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Base
-  //
-  class Base
-  {
-  protected:
-
-    enum 
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Base
+    //
+    class Base
     {
-      TYPE_VAR,
-      TYPE_CONST
-    } type;
+    protected:
 
-  public:
+        enum
+        {
+            TYPE_VAR,
+            TYPE_CONST
+        } type;
 
-
-  };
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class String
-  //
-  class String : public Base
-  {
-  private:
-
-    ::String value;
-    VarString var;
-
-  public:
-
-    // Constructors
-    String(FScope *fScope, void *context = NULL);
-    String(FScope *fScope, const char *dVal, void *context = NULL);
-    String(const char *name, FScope *fScope, void *context = NULL);
-    String(const char *name, FScope *fScope, const char *dVal, void *context = NULL);
-
-  protected:
-
-    // Setup the string
-    void Set(const char *param, void *context);
-
-  public:
-
-    // Operator
-    operator const char *();
-
-  };
+    public:
+    };
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Ident
-  //
-  class Ident : public Base
-  {
-  private:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class String
+    //
+    class String : public Base
+    {
+    private:
 
-    GameIdent value;
-    VarString var;
+        ::String value;
+        VarString var;
 
-  public:
+    public:
 
-    // Constructors
-    Ident(FScope *fScope, void *context = NULL);
-    Ident(FScope *fScope, const char *dVal, void *context = NULL);
-    Ident(const char *name, FScope *fScope, void *context = NULL);
-    Ident(const char *name, FScope *fScope, const char *dVal, void *context = NULL);
+        // Constructors
+        String(FScope* fScope, void* context = nullptr);
+        String(FScope* fScope, const char* dVal, void* context = nullptr);
+        String(const char* name, FScope* fScope, void* context = nullptr);
+        String(const char* name, FScope* fScope, const char* dVal, void* context = nullptr);
 
-  protected:
+    protected:
 
-    // Setup the string
-    void Set(const char *param, void *context);
+        // Setup the string
+        void Set(const char* param, void* context);
 
-  public:
+    public:
 
-    // Operators
-    operator const char *();
-    operator const GameIdent &();
-    operator U32 ();
-
-    // Explicit
-    const char * GetStr();
-    const GameIdent & GetIdent();
-    U32 GetCrc();
-
-  };
+        // Operator
+        operator const char*();
+    };
 
 
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Ident
+    //
+    class Ident : public Base
+    {
+    private:
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Integer
-  //
-  class Integer : public Base
-  {
-  private:
+        GameIdent value;
+        VarString var;
 
-    S32 value;
-    VarInteger var;
+    public:
 
-  public:
+        // Constructors
+        Ident(FScope* fScope, void* context = nullptr);
+        Ident(FScope* fScope, const char* dVal, void* context = nullptr);
+        Ident(const char* name, FScope* fScope, void* context = nullptr);
+        Ident(const char* name, FScope* fScope, const char* dVal, void* context = nullptr);
 
-    // Constructors
-    Integer(FScope *fScope, void *context = NULL);
-    Integer(FScope *fScope, S32 dVal, void *context = NULL);
-    Integer(const char *name, FScope *fScope, void *context = NULL);
-    Integer(const char *name, FScope *fScope, S32 dVal, void *context = NULL);
+    protected:
 
-  protected:
+        // Setup the string
+        void Set(const char* param, void* context);
 
-    // Setup the var
-    void Set(const char *param, void *context);
+    public:
 
-    // Setup the const
-    void Set(S32 param);
+        // Operators
+        operator const char*();
+        operator const GameIdent&();
+        operator U32();
 
-  public:
-
-    // Operator
-    operator S32();
-
-    // Explicit
-    S32 GetS32();
-
-  };
+        // Explicit
+        const char* GetStr();
+        const GameIdent& GetIdent();
+        U32 GetCrc();
+    };
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Float
-  //
-  class Float : public Base
-  {
-  private:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Integer
+    //
+    class Integer : public Base
+    {
+    private:
 
-    F32 value;
-    VarFloat var;
+        S32 value;
+        VarInteger var;
 
-  public:
+    public:
 
-    // Constructors
-    Float(FScope *fScope, void *context = NULL);
-    Float(FScope *fScope, F32 dVal, void *context = NULL);
-    Float(const char *name, FScope *fScope, void *context = NULL);
-    Float(const char *name, FScope *fScope, F32 dVal, void *context = NULL);
+        // Constructors
+        Integer(FScope* fScope, void* context = nullptr);
+        Integer(FScope* fScope, S32 dVal, void* context = nullptr);
+        Integer(const char* name, FScope* fScope, void* context = nullptr);
+        Integer(const char* name, FScope* fScope, S32 dVal, void* context = nullptr);
 
-  protected:
+    protected:
 
-    // Setup the var
-    void Set(const char *param, void *context);
+        // Setup the var
+        void Set(const char* param, void* context);
 
-    // Setup the const
-    void Set(F32 param);
+        // Setup the const
+        void Set(S32 param);
 
-  public:
+    public:
 
-    // Operator
-    operator F32();
+        // Operator
+        operator S32();
 
-    // Explicit
-    F32 GetF32();
+        // Explicit
+        S32 GetS32();
+    };
 
-  };
-  
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Float
+    //
+    class Float : public Base
+    {
+    private:
+
+        F32 value;
+        VarFloat var;
+
+    public:
+
+        // Constructors
+        Float(FScope* fScope, void* context = nullptr);
+        Float(FScope* fScope, F32 dVal, void* context = nullptr);
+        Float(const char* name, FScope* fScope, void* context = nullptr);
+        Float(const char* name, FScope* fScope, F32 dVal, void* context = nullptr);
+
+    protected:
+
+        // Setup the var
+        void Set(const char* param, void* context);
+
+        // Setup the const
+        void Set(F32 param);
+
+    public:
+
+        // Operator
+        operator F32();
+
+        // Explicit
+        F32 GetF32();
+    };
 }
 
 #endif

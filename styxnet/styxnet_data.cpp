@@ -24,7 +24,6 @@
 //
 namespace StyxNet
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Struct Data::Item
@@ -46,7 +45,7 @@ namespace StyxNet
         // Constructor
         Item(Bool host, U32 length, const U8* data)
             : host(host),
-            data(NULL)
+              data(nullptr)
         {
             Set(length, data);
         }
@@ -71,7 +70,6 @@ namespace StyxNet
             data = new U8[length];
             Utils::Memcpy(data, _data, length);
         }
-
     };
 
 
@@ -98,7 +96,6 @@ namespace StyxNet
         {
             items.DisposeAll();
         }
-
     };
 
 
@@ -159,38 +156,38 @@ namespace StyxNet
     {
         FScope* sScope;
 
-        while ((sScope = scope->NextFunction()) != NULL)
+        while ((sScope = scope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0x1AE0C78A: // "Item"
-            {
-                // Load the key
-                CRC key = CRC(StdLoad::TypeU32(sScope));
+                case 0x1AE0C78A: // "Item"
+                {
+                    // Load the key
+                    CRC key = CRC(StdLoad::TypeU32(sScope));
 
-                // Load the index
-                CRC index = CRC(StdLoad::TypeU32(sScope));
+                    // Load the index
+                    CRC index = CRC(StdLoad::TypeU32(sScope));
 
-                // Load the length
-                U32 length = StdLoad::TypeU32(sScope);
+                    // Load the length
+                    U32 length = StdLoad::TypeU32(sScope);
 
-                // Load the host flag
-                U32 host = StdLoad::TypeU32(sScope);
+                    // Load the host flag
+                    U32 host = StdLoad::TypeU32(sScope);
 
-                // Allocate a buffer for the data
-                U8* data = new U8[length];
+                    // Allocate a buffer for the data
+                    U8* data = new U8[length];
 
-                // Load the data
-                StdLoad::TypeBinary(sScope, length, data);
+                    // Load the data
+                    StdLoad::TypeBinary(sScope, length, data);
 
-                // Store the item
-                Store(key, index, length, data, host);
+                    // Store the item
+                    Store(key, index, length, data, host);
 
-                // Delete the buffer
-                delete data;
+                    // Delete the buffer
+                    delete data;
 
-                break;
-            }
+                    break;
+                }
             }
         }
     }
@@ -338,6 +335,4 @@ namespace StyxNet
         // Send this packet to all members of the 
         pkt.Send(socket);
     }
-
 }
-

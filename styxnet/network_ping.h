@@ -29,29 +29,25 @@
 //
 namespace Network
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Ping
+    //
+    namespace Ping
+    {
+        // Callback
+        typedef void (*Callback)(const Win32::Socket::Address& address, U32 rtt, U32 hopCount, void* context);
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Ping
-  //
-  namespace Ping
-  {
+        // Initialization and Shutdown
+        void Init();
+        void Done();
 
-    // Callback
-    typedef void (*Callback)(const Win32::Socket::Address &address, U32 rtt, U32 hopCount, void *context);
+        // Send a ping
+        void Send(const Win32::Socket::Address& address, Callback callback, void* context);
 
-    // Initialization and Shutdown
-    void Init();
-    void Done();
-
-    // Send a ping
-    void Send(const Win32::Socket::Address &address, Callback callback, void *context);
-
-    // Process any pings (done so that callbacks don't need to be thread safe)
-    void Process();
-
-  }
+        // Process any pings (done so that callbacks don't need to be thread safe)
+        void Process();
+    }
 }
 
 #endif
-

@@ -24,31 +24,28 @@
 //
 namespace StyxNet
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class EventQueue
+    //
+    class EventQueue
+    {
+    private:
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class EventQueue
-  //
-  class EventQueue
-  {
-  private:
+        // Queue for slapping events into
+        SafeQueue<Event, eventQueueSize> events;
 
-    // Queue for slapping events into
-    SafeQueue<Event, eventQueueSize> events;
+    public:
 
-  public:
+        // Destructor
+        virtual ~EventQueue();
 
-    // Destructor
-    virtual ~EventQueue();
+        // Get events
+        Bool GetEvent(CRC& event, Event::Data*& data);
 
-    // Get events
-    Bool GetEvent(CRC &event, Event::Data *&data);
-
-    // Send an update event
-    void SendEvent(CRC message, Event::Data *data = NULL);
-
-  };
-
+        // Send an update event
+        void SendEvent(CRC message, Event::Data* data = nullptr);
+    };
 }
 
 #endif

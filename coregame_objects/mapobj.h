@@ -248,8 +248,11 @@ public:
     FX::Type* FindGenericFX(U32 key);
 
     // Generate a generic effect on the given object
-    FX::Object* StartGenericFX(MapObj* obj, U32 key, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
-                               const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f);
+    FX::Object* StartGenericFX
+    (
+        MapObj* obj, U32 key, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
+        const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f
+    );
 
     // Are instances of this type on the movement list by default
     virtual Bool DefaultPrimitiveProcessing()
@@ -679,19 +682,28 @@ public:
     FootPrint::Instance* RecurseFootInstance();
 
     // Modify the number of hitpoints an object has
-    virtual void ModifyHitPoints(S32 mod, UnitObj* sourceUnit = nullptr, Team* sourceTeam = nullptr,
-                                 const Vector* direction = nullptr);
+    virtual void ModifyHitPoints
+    (
+        S32 mod, UnitObj* sourceUnit = nullptr, Team* sourceTeam = nullptr,
+        const Vector* direction = nullptr
+    );
 
     // Modify the armour an object has
     virtual void ModifyArmour(S32 mod);
 
     // Starts the given generic FX (returns NULL if not created)
-    FX::Object* StartGenericFX(U32 key, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
-                               const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f);
+    FX::Object* StartGenericFX
+    (
+        U32 key, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
+        const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f
+    );
 
     // Starts the given FX type (returns NULL if not created)
-    FX::Object* StartFX(U32 typeCrc, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
-                        const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f);
+    FX::Object* StartFX
+    (
+        U32 typeCrc, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
+        const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f
+    );
 
     // Get the color and percentage for the health of the unit
     void GetHealthInfo(Color& color, F32& pct);

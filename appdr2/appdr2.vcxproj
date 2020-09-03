@@ -62,13 +62,15 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>dr2_$(Configuration)</TargetName>
     <IntDir>$(Configuration)\</IntDir>
+    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <OutDir>F:\Games\Dark Reign 2</OutDir>
+    <OutDir>F:\Games\Dark Reign 2\</OutDir>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>dr2_$(Configuration)</TargetName>
     <IntDir>$(Configuration)\</IntDir>
     <PreLinkEventUseInBuild>true</PreLinkEventUseInBuild>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>F:\Games\Dark Reign 2\</OutDir>
@@ -76,6 +78,7 @@
     <TargetName>dr2_$(Configuration)</TargetName>
     <IntDir>$(Configuration)\</IntDir>
     <PreLinkEventUseInBuild>true</PreLinkEventUseInBuild>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -96,7 +99,7 @@
       <DisableSpecificWarnings>4996;</DisableSpecificWarnings>
     </ClCompile>
     <PreLinkEvent>
-      <Command>..\tools\version appdr2.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,455
+      <Command>..\tools\version appdr2.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,453
 rc appdr2.rc</Command>
     </PreLinkEvent>
     <PostBuildEvent>
@@ -124,7 +127,6 @@ rc appdr2.rc</Command>
       <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonclient.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
-      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -173,7 +175,6 @@ rc version.rc</Command>
       <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonclient.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
-      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
@@ -193,9 +194,10 @@ rc version.rc</Command>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <CallingConvention>FastCall</CallingConvention>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <PreLinkEvent>
-      <Command>..\tools\version appdr2.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,456
+      <Command>..\tools\version appdr2.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,453
 rc appdr2.rc</Command>
     </PreLinkEvent>
     <PostBuildEvent>
@@ -223,7 +225,6 @@ rc appdr2.rc</Command>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
-      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

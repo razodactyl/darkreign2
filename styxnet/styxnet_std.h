@@ -16,104 +16,99 @@
 // 
 namespace StyxNet
 {
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Std
-  //
-  // Standard Data Keys
-  //
-  namespace Std
-  {
-    const CRC UserConnection = 0x7E675085; // "StyxNet::DataKey::UserConnection"
-    const CRC UserPing       = 0x9FF6AA50; // "StyxNet::DataKey::Ping"
-
-
     ////////////////////////////////////////////////////////////////////////////////
     //
-    // NameSpace Data
+    // NameSpace Std
     //
-    namespace Data
+    // Standard Data Keys
+    //
+    namespace Std
     {
-      // How many pings to save
-      const U32 maxPings = 75;
-
-      #pragma pack(push, 1)
+        const CRC UserConnection = 0x7E675085; // "StyxNet::DataKey::UserConnection"
+        const CRC UserPing = 0x9FF6AA50; // "StyxNet::DataKey::Ping"
 
 
-      ////////////////////////////////////////////////////////////////////////////////
-      //
-      // Struct UserPing
-      //
-      struct UserPing
-      {
-        // Ping in milliseconds
-        U16 ping;
+        ////////////////////////////////////////////////////////////////////////////////
+        //
+        // NameSpace Data
+        //
+        namespace Data
+        {
+            // How many pings to save
+            const U32 maxPings = 75;
 
-        // Hops
-        U8 hops;
-
-      };
+#pragma pack(push, 1)
 
 
-      ////////////////////////////////////////////////////////////////////////////////
-      //
-      // Struct UserConnection
-      //
-      struct UserConnection
-      {
-        // Number of pings & hops samples
-        U32 num;
+            ////////////////////////////////////////////////////////////////////////////////
+            //
+            // Struct UserPing
+            //
+            struct UserPing
+            {
+                // Ping in milliseconds
+                U16 ping;
 
-        // Number of pings lost
-        U32 lost;
+                // Hops
+                U8 hops;
+            };
 
-        // Smooth ping
-        U16 pingSmooth;
 
-        // Smooth ping deviation
-        U16 pingSmoothDev;
+            ////////////////////////////////////////////////////////////////////////////////
+            //
+            // Struct UserConnection
+            //
+            struct UserConnection
+            {
+                // Number of pings & hops samples
+                U32 num;
 
-        // Max ping
-        U16 pingMax;
+                // Number of pings lost
+                U32 lost;
 
-        // Min ping
-        U16 pingMin;
+                // Smooth ping
+                U16 pingSmooth;
 
-        // Sum ping
-        U32 pingSum;
+                // Smooth ping deviation
+                U16 pingSmoothDev;
 
-        // Recent pings
-        U16 pings[maxPings];
+                // Max ping
+                U16 pingMax;
 
-        // Smooth hos
-        U8 hopsSmooth;
+                // Min ping
+                U16 pingMin;
 
-        // Max hops
-        U8 hopsMax;
+                // Sum ping
+                U32 pingSum;
 
-        // Min hops
-        U8 hopsMin;
+                // Recent pings
+                U16 pings[maxPings];
 
-        // Sum hops
-        U32 hopsSum;
+                // Smooth hos
+                U8 hopsSmooth;
 
-        // Constructor
-        UserConnection();
+                // Max hops
+                U8 hopsMax;
 
-        // Process a ping
-        void ProcessPing(U16 ping, U8 hops);
+                // Min hops
+                U8 hopsMin;
 
-        // Add a ping to a ping array
-        void AddToArray(U16 ping, U16 *pings, U32 numPings);
+                // Sum hops
+                U32 hopsSum;
 
-      };
+                // Constructor
+                UserConnection();
 
-      #pragma pack(pop)
+                // Process a ping
+                void ProcessPing(U16 ping, U8 hops);
+
+                // Add a ping to a ping array
+                void AddToArray(U16 ping, U16* pings, U32 numPings);
+            };
+
+#pragma pack(pop)
+        }
     }
-
-  }
-
 }
 
 

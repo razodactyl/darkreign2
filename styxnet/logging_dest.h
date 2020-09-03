@@ -24,29 +24,31 @@
 //
 namespace Logging
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Struct Destination
+    //
+    struct Destination
+    {
+        // List Node
+        NList<Destination>::Node node;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Struct Destination
-  //
-  struct Destination
-  {
-    // List Node
-    NList<Destination>::Node node;
+        // Destructor
+        virtual ~Destination()
+        {
+        };
 
-    // Destructor
-    virtual ~Destination() { };
-
-    // Write to the destination
-    virtual void Write(
-      Level level, 
-      const char *labelName, 
-      const char *sourceModule, 
-      U32 sourceLine,
-      U32 elapsed,
-      const char *message) = 0;
-  };
-
+        // Write to the destination
+        virtual void Write
+        (
+            Level level,
+            const char* labelName,
+            const char* sourceModule,
+            U32 sourceLine,
+            U32 elapsed,
+            const char* message
+        ) = 0;
+    };
 }
 
 #endif

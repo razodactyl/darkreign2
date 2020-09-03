@@ -21,7 +21,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Explorer
@@ -34,8 +33,8 @@ namespace StyxNet
     // Constructor
     //
     Explorer::Explorer()
-        : sessions(&Session::nodeExplorer),
-        socket(Win32::Socket::UDP)
+        : socket(Win32::Socket::UDP),
+          sessions(&Session::nodeExplorer)
     {
         // Associate events with this socket
         socket.EventSelect(event, FD_READ);
@@ -159,7 +158,7 @@ namespace StyxNet
         Bool quit = FALSE;
         Win32::EventIndex::List<2> events;
         events.AddEvent(explorer->eventQuit, explorer);
-        events.AddEvent(explorer->event, NULL);
+        events.AddEvent(explorer->event, nullptr);
 
         // Enter processing loop
         while (!quit)
@@ -207,10 +206,10 @@ namespace StyxNet
                                 for (NList<Session>::Iterator s(&explorer->sessions); *s; ++s)
                                 {
                                     if
-                                        (
-                                            (*s)->address == address &&
-                                            (*s)->name.crc == data.name.crc
-                                            )
+                                    (
+                                        (*s)->address == address &&
+                                        (*s)->name.crc == data.name.crc
+                                    )
                                     {
                                         // Update the existing session
                                         (*s)->lastUpdateTime = Clock::Time::Ms();
@@ -270,7 +269,7 @@ namespace StyxNet
     //
     Explorer::Session::Session(const SessionName& name, U16 flags, U16 version, U32 numUsers, U32 maxUsers, const Win32::Socket::Address& address, U32 lastUpdateTime)
         : StyxNet::Session(name, flags, version, numUsers, maxUsers, address),
-        lastUpdateTime(lastUpdateTime)
+          lastUpdateTime(lastUpdateTime)
     {
     }
 
@@ -282,8 +281,7 @@ namespace StyxNet
     //
     Explorer::Session::Session(const Session& session)
         : StyxNet::Session(session),
-        lastUpdateTime(session.lastUpdateTime)
+          lastUpdateTime(session.lastUpdateTime)
     {
     }
-
 }

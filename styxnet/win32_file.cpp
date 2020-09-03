@@ -90,27 +90,27 @@ namespace Win32
 
         switch (mode & MODE_CREATE_MASK)
         {
-        case MODE_CREATE_NEW:
-            create = CREATE_NEW;
-            break;
+            case MODE_CREATE_NEW:
+                create = CREATE_NEW;
+                break;
 
-        case MODE_CREATE_ALWAYS:
-            create = CREATE_ALWAYS;
-            break;
+            case MODE_CREATE_ALWAYS:
+                create = CREATE_ALWAYS;
+                break;
 
-        case MODE_OPEN_EXISTING:
-            create = OPEN_EXISTING;
-            break;
+            case MODE_OPEN_EXISTING:
+                create = OPEN_EXISTING;
+                break;
 
-        case MODE_OPEN_ALWAYS:
-            create = OPEN_ALWAYS;
-            break;
+            case MODE_OPEN_ALWAYS:
+                create = OPEN_ALWAYS;
+                break;
 
-        case MODE_TRUNCATE_EXISTING:
-            create = TRUNCATE_EXISTING;
-            break;
+            case MODE_TRUNCATE_EXISTING:
+                create = TRUNCATE_EXISTING;
+                break;
 
-        default:
+            default:
             LERR("Unknown create/open mode")
         }
 
@@ -232,22 +232,22 @@ namespace Win32
 
         switch (pos)
         {
-        case SET:
-            method = FILE_BEGIN;
-            break;
+            case SET:
+                method = FILE_BEGIN;
+                break;
 
-        case CUR:
-            method = FILE_CURRENT;
-            break;
+            case CUR:
+                method = FILE_CURRENT;
+                break;
 
-        case END:
-            method = FILE_END;
-            break;
+            case END:
+                method = FILE_END;
+                break;
 
-        default:
+            default:
             LERR("Invalid origin specified")
                 return (FALSE);
-            break;
+                break;
         }
 
         if (SetFilePointer(handle, offset, nullptr, method) == 0xFFFFFFFF)
@@ -393,7 +393,7 @@ namespace Win32
         path;
         newpath;
         LERR("Uninplemented!")
-            return (TRUE);
+        return (TRUE);
     }
 
 
@@ -531,7 +531,7 @@ namespace Win32
         if (!f.Open(path, MODE_READ))
         {
             LERR(("Could not open file to collect CRC"))
-                return (0);
+            return (0);
         }
 
         // Allocate buffer and initialise CRC
@@ -572,7 +572,7 @@ namespace Win32
     //
     File::Mapping::Mapping()
         : handle(nullptr),
-        ptr(nullptr)
+          ptr(nullptr)
     {
     }
 
@@ -622,7 +622,7 @@ namespace Win32
         if (handle == nullptr)
         {
             LWARN("Could not create file mapping: " << Debug::LastError())
-                return (FALSE);
+            return (FALSE);
         }
 
         // Get a pointer to the mapping

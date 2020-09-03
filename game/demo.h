@@ -17,49 +17,49 @@
 //
 namespace Demo
 {
-  // Save options
-  enum
-  {
-    SAVE_ORDERS = 0x0001,
-    SAVE_CAMERA = 0x0002,
-    SAVE_ALL    = 0xFFFF
-  };
+    // Save options
+    enum
+    {
+        SAVE_ORDERS = 0x0001,
+        SAVE_CAMERA = 0x0002,
+        SAVE_ALL = 0xFFFF
+    };
 
-  // Initialise
-  void Init();
+    // Initialise
+    void Init();
 
-  // Shutdown
-  void Done();
+    // Shutdown
+    void Done();
 
-  // Is the demo loading?
-  Bool IsLoading();
+    // Is the demo loading?
+    Bool IsLoading();
 
-  // Is the demo playing?
-  Bool IsPlaying();
+    // Is the demo playing?
+    Bool IsPlaying();
 
-  // PostLoad the demo
-  void PostLoad();
+    // PostLoad the demo
+    void PostLoad();
 
-  // Pre simulation processing
-  void InitSimulation();
+    // Pre simulation processing
+    void InitSimulation();
 
-  // Post simulation processing
-  void DoneSimulation();
+    // Post simulation processing
+    void DoneSimulation();
 
-  // Inform that all blocks have been loaded
-  void Loaded();
+    // Inform that all blocks have been loaded
+    void Loaded();
 
-  // Demo processing
-  void Process();
+    // Demo processing
+    void Process();
 
-  // Save demo
-  Bool Save(const char *file, U32 flags = SAVE_ALL);
+    // Save demo
+    Bool Save(const char* file, U32 flags = SAVE_ALL);
 
-  // Play demo
-  Bool Play(const char *file, const char *camera = NULL);
+    // Play demo
+    Bool Play(const char* file, const char* camera = NULL);
 
-  // Benchmark
-  Bool Benchmark(const char *file, const char *camera = NULL);
+    // Benchmark
+    Bool Benchmark(const char* file, const char* camera = NULL);
 }
 
 #endif

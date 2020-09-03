@@ -225,20 +225,30 @@ namespace MultiPlayer
 
                                     if (first)
                                     {
-                                        LOG_DIAG(
+                                        LOG_DIAG
+                                        (
                                             ("MINT AddGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
-                                                numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
-                                        WonIface::AddGame(sessionInfo->name.str, sizeof(StyxNet::Session),
-                                                          reinterpret_cast<U8*>(&session));
+                                                numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort())
+                                        );
+                                        WonIface::AddGame
+                                        (
+                                            sessionInfo->name.str, sizeof(StyxNet::Session),
+                                            reinterpret_cast<U8*>(&session)
+                                        );
                                         first = FALSE;
                                     }
                                     else
                                     {
-                                        LOG_DIAG(
+                                        LOG_DIAG
+                                        (
                                             ("MINT UpdateGame: %s [%d/%d] %s:%d", sessionInfo->name.str, sessionInfo->
-                                                numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort()));
-                                        WonIface::UpdateGame(sessionInfo->name.str, sizeof(StyxNet::Session),
-                                                             reinterpret_cast<U8*>(&session));
+                                                numUsers, sessionInfo->maxUsers, address.GetText(), address.GetPort())
+                                        );
+                                        WonIface::UpdateGame
+                                        (
+                                            sessionInfo->name.str, sizeof(StyxNet::Session),
+                                            reinterpret_cast<U8*>(&session)
+                                        );
                                     }
                                 }
                             }
@@ -279,9 +289,12 @@ namespace MultiPlayer
                                 LOG_DIAG(("'%s' entered the game", player->GetName()));
 
                                 // Tell everyone that a player entered
-                                CONSOLE(0x7EF342D8,
-                                        (TRANSLATE(("#multiplayer.chat.playerenter", 1, Utils::Ansi2Unicode(player->
-                                            GetName()))))) // "MultiMessage"
+                                CONSOLE
+                                (
+                                    0x7EF342D8,
+                                    (TRANSLATE(("#multiplayer.chat.playerenter", 1, Utils::Ansi2Unicode(player->
+                                        GetName()))))
+                                ) // "MultiMessage"
 
                                 // Tell the host that a player entered
                                 Host::EnterPlayer(sessionUserAdded->name.crc);
@@ -321,9 +334,12 @@ namespace MultiPlayer
                             }
 
                             // Tell everyone that a player exited
-                            CONSOLE(0x7EF342D8,
-                                    (TRANSLATE(("#multiplayer.chat.playerexit", 1, Utils::Ansi2Unicode(player->GetName()
-                                    ))))) // "MultiMessage"
+                            CONSOLE
+                            (
+                                0x7EF342D8,
+                                (TRANSLATE(("#multiplayer.chat.playerexit", 1, Utils::Ansi2Unicode(player->GetName()
+                                ))))
+                            ) // "MultiMessage"
 
                             // Tell the host that a player left
                             Host::ExitPlayer(sessionUserRemoved->name.crc);
@@ -344,9 +360,12 @@ namespace MultiPlayer
                             ASSERT(player);
 
                             // Tell everyone that a player disconnected
-                            CONSOLE(0x7EF342D8,
-                                    (TRANSLATE(("#multiplayer.chat.playerdisconnected", 1, Utils::Ansi2Unicode(player->
-                                        GetName()))))) // "MultiMessage"
+                            CONSOLE
+                            (
+                                0x7EF342D8,
+                                (TRANSLATE(("#multiplayer.chat.playerdisconnected", 1, Utils::Ansi2Unicode(player->
+                                    GetName()))))
+                            ) // "MultiMessage"
 
                             // Mark the player as being disconnceted
 
@@ -361,9 +380,12 @@ namespace MultiPlayer
                             ASSERT(player);
 
                             // Tell everyone that a player reconnected
-                            CONSOLE(0x7EF342D8,
-                                    (TRANSLATE(("#multiplayer.chat.playerreconnected", 1, Utils::Ansi2Unicode(player->
-                                        GetName()))))) // "MultiMessage"
+                            CONSOLE
+                            (
+                                0x7EF342D8,
+                                (TRANSLATE(("#multiplayer.chat.playerreconnected", 1, Utils::Ansi2Unicode(player->
+                                    GetName()))))
+                            ) // "MultiMessage"
 
                             // Mark the player as being reconnected
 
@@ -379,14 +401,18 @@ namespace MultiPlayer
 
                         case StyxNet::EventMessage::SessionPrivateData:
                             // Tell the data system that private data arrived
-                            Data::SessionPrivateData(
-                                reinterpret_cast<StyxNet::EventMessage::Data::SessionPrivateData*>(data));
+                            Data::SessionPrivateData
+                            (
+                                reinterpret_cast<StyxNet::EventMessage::Data::SessionPrivateData*>(data)
+                            );
                             break;
 
                         case StyxNet::EventMessage::SessionSyncData:
                             // Tell the data system that syncronous data arrived
-                            Data::SessionSyncData(
-                                reinterpret_cast<StyxNet::EventMessage::Data::SessionSyncData*>(data));
+                            Data::SessionSyncData
+                            (
+                                reinterpret_cast<StyxNet::EventMessage::Data::SessionSyncData*>(data)
+                            );
                             break;
 
                         case StyxNet::EventMessage::SessionMigrateRequest:
@@ -405,8 +431,11 @@ namespace MultiPlayer
 
                             // Setup the session for migrating to on this server
                             U32 key;
-                            server->SetupMigration(localSessionData.name, localSessionData.maxUsers,
-                                                   sessionMigrateRequest->seq, key);
+                            server->SetupMigration
+                            (
+                                localSessionData.name, localSessionData.maxUsers,
+                                sessionMigrateRequest->seq, key
+                            );
 
                             // Tell the client that we're going to accept the migration
                             client->AcceptMigration(config.port, key);
@@ -434,8 +463,11 @@ namespace MultiPlayer
                         {
                             CAST(StyxNet::EventMessage::Data::Ping*, ping, data)
 
-                            Utils::Memmove(&PrivData::localPings[1], &PrivData::localPings[0],
-                                           sizeof(U16) * (PrivData::maxLocalPings - 1));
+                            Utils::Memmove
+                            (
+                                &PrivData::localPings[1], &PrivData::localPings[0],
+                                sizeof(U16) * (PrivData::maxLocalPings - 1)
+                            );
                             PrivData::localPings[0] = U16(Clamp<U32>(0, ping->rtt, U16_MAX));
 
                             delete ping;

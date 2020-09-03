@@ -23,17 +23,16 @@
 //
 namespace Switch
 {
-  struct Value;
+    struct Value;
 
-  // Get the value of a switch statement
-  Value & GetValue(FScope *fScope, void *context);
+    // Get the value of a switch statement
+    Value& GetValue(FScope* fScope, void* context);
 
-  // Compare the value of a switch statement
-  Bool CompareValue(Value &value, FScope *fScope, void *context);
+    // Compare the value of a switch statement
+    Bool CompareValue(Value& value, FScope* fScope, void* context);
 
-  // Dispose of a value
-  void DisposeValue(Value &value);
-
+    // Dispose of a value
+    void DisposeValue(Value& value);
 }
 
 

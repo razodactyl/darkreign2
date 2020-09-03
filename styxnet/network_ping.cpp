@@ -55,8 +55,8 @@ namespace Network
             // Constructor
             Handle(const Win32::Socket::Address& address, Callback callback, void* context)
                 : address(address),
-                callback(callback),
-                context(context)
+                  callback(callback),
+                  context(context)
             {
             }
         };
@@ -112,7 +112,7 @@ namespace Network
         {
         private:
 
-            typedef BOOL(STDCALL* GetRTTAndHopCountFunc
+            typedef BOOL (STDCALL* GetRTTAndHopCountFunc
             )(U32 DestIpAddress, PULONG HopCount, ULONG MaxHops, PULONG RTT);
 
             // DLL
@@ -214,8 +214,11 @@ namespace Network
             Handle* FindHandleByAddress(U32 ip);
 
             // Receive a ping
-            static Bool Recv(Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
-                U8& hops);
+            static Bool Recv
+            (
+                Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
+                U8& hops
+            );
 
             // Thread for handling pings
             static U32 STDCALL ThreadProc(void* context);
@@ -457,7 +460,8 @@ namespace Network
                                     Ping::events.AddPost();
                                 }
                             }
-                        } while (handle);
+                        }
+                        while (handle);
                     }
                     else
                     {
@@ -482,8 +486,8 @@ namespace Network
         //
         RawSocket::RawSocket()
             : pingSocket(Win32::Socket::RAW),
-            sequenceNumbers(&Seq::node),
-            handles(&Handle::node)
+              sequenceNumbers(&Seq::node),
+              handles(&Handle::node)
         {
             if (IsAvailable())
             {
@@ -599,8 +603,11 @@ namespace Network
         //
         // Decode an incoming ping
         //
-        Bool RawSocket::Recv(Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
-            U8& hops)
+        Bool RawSocket::Recv
+        (
+            Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
+            U8& hops
+        )
         {
             U8 buffer[512];
             U32 recv = socket.Recv(address, buffer, sizeof(buffer));
@@ -621,23 +628,23 @@ namespace Network
 
             switch (headerICMP->type)
             {
-            case ICMP::Type::EchoReply:
-                if (headerICMP->id != static_cast<U16>(GetCurrentProcessId()))
-                {
-                    // This is a reply for another process
+                case ICMP::Type::EchoReply:
+                    if (headerICMP->id != static_cast<U16>(GetCurrentProcessId()))
+                    {
+                        // This is a reply for another process
+                        return (FALSE);
+                    }
+                    break;
+
+                case ICMP::Type::TimeExceeded:
+                    break;
+
+                case ICMP::Type::DestinationUnreachable:
                     return (FALSE);
-                }
-                break;
 
-            case ICMP::Type::TimeExceeded:
-                break;
-
-            case ICMP::Type::DestinationUnreachable:
-                return (FALSE);
-
-            default:
-                //LDIAG("Unknown ICMP packet type " << int(headerICMP->type);<< " received");
-                return (FALSE);
+                default:
+                    //LDIAG("Unknown ICMP packet type " << int(headerICMP->type);<< " received");
+                    return (FALSE);
             }
 
             // Grab the sequence number

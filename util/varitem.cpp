@@ -10,7 +10,6 @@
 #include "varsys.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class VarItem - A single var item, such as a variable or a sub-scope
@@ -186,38 +185,37 @@ void VarSys::VarItem::Clear()
     // Type specific destruction
     switch (type)
     {
-        // Do nout
-    case VI_NONE:
-    case VI_INTEGER:
-    case VI_FPOINT:
-    case VI_CMD:
-        break;
+            // Do nout
+        case VI_NONE:
+        case VI_INTEGER:
+        case VI_FPOINT:
+        case VI_CMD:
+            break;
 
-        // Delete the string
-    case VI_STRING:
-        delete string.val;
-        break;
+            // Delete the string
+        case VI_STRING:
+            delete string.val;
+            break;
 
-        // Delete the data associated with the var
-    case VI_BINARY:
-        delete binary.data;
-        break;
+            // Delete the data associated with the var
+        case VI_BINARY:
+            delete binary.data;
+            break;
 
-        // Delete the sub-scope
-    case VI_SCOPE:
-        delete scope.ptr;
-        break;
+            // Delete the sub-scope
+        case VI_SCOPE:
+            delete scope.ptr;
+            break;
 
-        // Someone's stuffed up
-    default:
+            // Someone's stuffed up
+        default:
         ERR_FATAL(("Unknown scope item type (%d)", type));
-        break;
+            break;
     }
 
     // Clear type
     type = VI_NONE;
 }
-
 
 
 //
@@ -235,7 +233,7 @@ VarSys::VarItem::VarItem(const char* identIn, U32 pathCrcIn, VarScope* parent)
     pathCrc = pathCrcIn;
     pScope = parent;
     flags = DEFAULT;
-    pNotify = NULL;
+    pNotify = nullptr;
 
     // Add to search tree
     if (allItems.Add(pathCrc, this))
@@ -290,31 +288,31 @@ const char* VarSys::VarItem::GetStringValue()
 
     switch (type)
     {
-    default:
-    case VarSys::VI_SCOPE:
-    case VarSys::VI_BINARY:
+        default:
+        case VI_SCOPE:
+        case VI_BINARY:
         ERR_FATAL(("Unsupported type for getting string value"));
-        break;
+            break;
 
-    case VarSys::VI_INTEGER:
-    {
-        Utils::Sprintf(buff, 32, "%d", Integer());
-        return (buff);
-        break;
-    }
+        case VI_INTEGER:
+        {
+            Utils::Sprintf(buff, 32, "%d", Integer());
+            return (buff);
+            break;
+        }
 
-    case VarSys::VI_FPOINT:
-    {
-        Utils::Sprintf(buff, 32, "%f", Float());
-        return (buff);
-        break;
-    }
+        case VI_FPOINT:
+        {
+            Utils::Sprintf(buff, 32, "%f", Float());
+            return (buff);
+            break;
+        }
 
-    case VarSys::VI_STRING:
-    {
-        return (Str());
-        break;
-    }
+        case VI_STRING:
+        {
+            return (Str());
+            break;
+        }
     }
 }
 
@@ -613,13 +611,13 @@ void VarSys::VarItem::ForgetMe(VarNotify* obj)
 {
     ASSERT(obj);
 
-    VarNotify* p = pNotify, * prev = NULL;
+    VarNotify *p = pNotify, *prev = nullptr;
 
     while (p)
     {
         if (p == obj)
         {
-            if (prev == NULL)
+            if (prev == nullptr)
             {
                 // Unlink first element in list
                 pNotify = p->next;
@@ -629,7 +627,7 @@ void VarSys::VarItem::ForgetMe(VarNotify* obj)
                 // Unlink from middle or end of list
                 prev->next = p->next;
             }
-            p->next = NULL;
+            p->next = nullptr;
 
             return;
         }

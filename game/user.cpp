@@ -343,7 +343,8 @@ namespace User
                         LOG_DIAG(("The user directory [%s] was invalid", find.finddata.name));
                     }
                 }
-            } while (Dir::FindNext(find));
+            }
+            while (Dir::FindNext(find));
         }
 
         // Finish find operation
@@ -443,6 +444,7 @@ namespace User
 
                         Sound::Vorbis::SetEnabled(StdLoad::TypeU32(sScope, "Enabled", TRUE));
                         Sound::Vorbis::SyncEnabled();
+                        Sound::Vorbis::SetVolume(StdLoad::TypeF32(sScope, "Volume", 0.8));
                         break;
 
                     case 0xA8F8B58E: // "MissionProgress"
@@ -724,6 +726,8 @@ namespace User
                 // Save redbook sound settings
                 fScope = gScope->AddFunction("SoundRedbook");
                 StdSave::TypeU32(fScope, "Enabled", Sound::Redbook::GetEnabled());
+                // Sound::Redbook::SetVolume only works if `initialized` and `driver`.
+                StdSave::TypeF32(fScope, "Volume", Sound::Vorbis::Volume());
 
                 // Save campaign progress
                 Campaigns::GetProgress().SaveState(gScope->AddFunction("MissionProgress"));

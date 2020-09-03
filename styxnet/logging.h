@@ -57,7 +57,6 @@
 //
 namespace Logging
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Forward Declarations
@@ -116,7 +115,6 @@ namespace Logging
 
         // Write
         void Write();
-
     };
 
 
@@ -136,7 +134,6 @@ namespace Logging
 
     // Remove a destination
     void RemoveDestination(Destination* destination);
-
 }
 
 // Global Logging

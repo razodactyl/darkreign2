@@ -94,7 +94,7 @@ namespace Babel
                 static CH unknown[128];
 
 #ifdef DEVELOPMENT
-          Utils::Sprintf(unknown, 128, (const CH*)L"Unknown[%s]", Utils::Ansi2Unicode(key));
+                Utils::Sprintf(unknown, 128, (const CH*)L"Unknown[%s]", Utils::Ansi2Unicode(key));
 #else
                 Utils::Sprintf(unknown, 128, (const CH*)L"%s", Utils::Ansi2Unicode(key));
 #endif

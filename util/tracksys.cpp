@@ -29,16 +29,16 @@ DTrack* TrackSys::dTracker;
 //
 void TrackSys::Init()
 {
-  ASSERT(!sysInit);
+    ASSERT(!sysInit);
 
-  // Allocate a death tracker
-  dTracker = new DTrack("Misc", 4096);
+    // Allocate a death tracker
+    dTracker = new DTrack("Misc", 4096);
 
-  // System now initialized
-  sysInit = TRUE;
+    // System now initialized
+    sysInit = TRUE;
 }
 
- 
+
 //
 // TrackSys::Done
 //
@@ -46,27 +46,27 @@ void TrackSys::Init()
 //
 void TrackSys::Done()
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Delete the death tracker
-  delete dTracker;
+    // Delete the death tracker
+    delete dTracker;
 
-  // System now shutdown
-  sysInit = FALSE;
+    // System now shutdown
+    sysInit = FALSE;
 }
- 
+
 
 //
 // TrackSys::RegisterConstruction
 //
 // Register the creation of an item
 //
-void TrackSys::RegisterConstruction(DTrack::Info &info)
+void TrackSys::RegisterConstruction(DTrack::Info& info)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Call the death tracker object
-  dTracker->RegisterConstruction(info);
+    // Call the death tracker object
+    dTracker->RegisterConstruction(info);
 }
 
 
@@ -75,10 +75,10 @@ void TrackSys::RegisterConstruction(DTrack::Info &info)
 //
 // Register the destruction of the item 'info'
 //
-void TrackSys::RegisterDestruction(DTrack::Info &info)
+void TrackSys::RegisterDestruction(DTrack::Info& info)
 {
-  ASSERT(sysInit);
+    ASSERT(sysInit);
 
-  // Call the death tracker object
-  dTracker->RegisterDestruction(info);
+    // Call the death tracker object
+    dTracker->RegisterDestruction(info);
 }

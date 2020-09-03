@@ -24,7 +24,6 @@
 //
 namespace Win32
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Event
@@ -45,7 +44,7 @@ namespace Win32
         U32 index;
 
         // Create a new event
-        Event(const char* name = NULL);
+        Event(const char* name = nullptr);
 
         // ~Event
         ~Event();
@@ -64,7 +63,6 @@ namespace Win32
 
         // IsPrimary
         Bool IsPrimary();
-
     };
 
 
@@ -84,13 +82,14 @@ namespace Win32
 
     public:
 
-        template <U32 MAX_EVENTS> class List;
+        template <U32 MAX_EVENTS>
+        class List;
 
         // Create a new event
-        EventIndex(const char* name = NULL);
+        EventIndex(const char* name = nullptr);
 
-        template <U32 MAX_EVENTS> friend class List;
-
+        template <U32 MAX_EVENTS>
+        friend class List;
     };
 
 
@@ -98,7 +97,8 @@ namespace Win32
     //
     // Template EventIndex::List
     //
-    template <U32 MAX_EVENTS> class EventIndex::List
+    template <U32 MAX_EVENTS>
+    class EventIndex::List
     {
     private:
 
@@ -166,34 +166,32 @@ namespace Win32
             U32 i = WaitForMultipleObjects(numEvents, handles, all, timeout);
             switch (i)
             {
-            case WAIT_TIMEOUT:
-                context = NULL;
-                return (FALSE);
-                break;
+                case WAIT_TIMEOUT:
+                    context = nullptr;
+                    return (FALSE);
+                    break;
 
-            case WAIT_FAILED:
-                context = NULL;
-                return (FALSE);
-                break;
+                case WAIT_FAILED:
+                    context = nullptr;
+                    return (FALSE);
+                    break;
 
-            default:
+                default:
 
-                if (i >= WAIT_OBJECT_0 && i < WAIT_OBJECT_0 + numEvents)
                 {
-                    context = contexts[i - WAIT_OBJECT_0];
-                    return (TRUE);
-                }
-                else
+                    if (i >= WAIT_OBJECT_0 && i < WAIT_OBJECT_0 + numEvents)
+                    {
+                        context = contexts[i - WAIT_OBJECT_0];
+                        return (TRUE);
+                    }
                     if (i >= WAIT_ABANDONED_0 && i < WAIT_ABANDONED_0 + numEvents)
                     {
                         context = contexts[i - WAIT_ABANDONED_0];
                         return (FALSE);
                     }
-                    else
-                    {
-                        //   LERR("Got Unknown Result from WaitForMultipleObjects: " << i)
-                        return (FALSE);
-                    }
+                    //   LERR("Got Unknown Result from WaitForMultipleObjects: " << i)
+                    return (FALSE);
+                }
                 break;
             }
         }

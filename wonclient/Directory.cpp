@@ -33,7 +33,7 @@ namespace MINTCLIENT
         std::string body;
         
         auto file = File();
-        file.Open(ctx->saveAsPath, File::CREATE | File::WRITE | File::FLUSH);
+        file.Open(ctx->saveAsPath, File::CREATE | File::WRITE);
         
         std::shared_ptr<httplib::Response> res = cli.Get(
             ctx->getPath, httplib::Headers(),

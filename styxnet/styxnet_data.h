@@ -24,7 +24,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Data
@@ -74,9 +73,7 @@ namespace StyxNet
         {
             return (keySets.GetCount() ? FALSE : TRUE);
         }
-
     };
-
 }
 
 #endif

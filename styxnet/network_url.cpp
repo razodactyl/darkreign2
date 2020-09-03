@@ -20,17 +20,14 @@
 //
 namespace Network
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Url
+    //
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Url
-  //
-
-  // Construct from a text string
-  Url::Url(const char *text)
-  {
-    text;
-  }
-  
+    // Construct from a text string
+    Url::Url(const char* text)
+    {
+        text;
+    }
 }
-

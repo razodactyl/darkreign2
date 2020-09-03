@@ -289,11 +289,13 @@ namespace Orders
         // Creating Timing Scope
         VarSys::RegisterHandler("order", CmdHandler);
 
+#ifdef DEVELOPMENT
         // Create testing commands
         VarSys::CreateCmd("order.spam");
         VarSys::CreateCmd("order.blip");
         VarSys::CreateCmd("order.oos");
         VarSys::CreateCmd("order.abort");
+#endif
 
         // Test order
         Spam::Register();

@@ -24,27 +24,23 @@
 //
 namespace Network
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Url
+    //
+    class Url
+    {
+    private:
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Url
-  //
-  class Url
-  {
-  private:
+        StrCrc<32> scheme;
+        StrCrc<256> host;
+        StrCrc<256> path;
 
-    StrCrc<32> scheme;
-    StrCrc<256> host;
-    StrCrc<256> path;
+    public:
 
-  public:
-
-    // Construct from a text string
-    Url(const char *text);
-  
-  };
-
+        // Construct from a text string
+        Url(const char* text);
+    };
 }
 
 #endif
-

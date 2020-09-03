@@ -280,8 +280,10 @@ namespace MultiPlayer
 
                 if (options->startCredits)
                 {
-                    ctrl->SetTextString(
-                        TRANSLATE(("#multiplayer.config.options.startresource", 1, options->startCredits)), TRUE);
+                    ctrl->SetTextString
+                    (
+                        TRANSLATE(("#multiplayer.config.options.startresource", 1, options->startCredits)), TRUE
+                    );
                     ctrl->SetStateItem("Selected", TRUE);
                 }
                 else
@@ -291,8 +293,10 @@ namespace MultiPlayer
                 }
 
                 ctrl = IFace::Find<IControl>("UnitLimit", PrivData::infoCtrl, TRUE);
-                ctrl->SetTextString(
-                    TRANSLATE(("#multiplayer.config.options.unitlimit.info", 1, options->unitLimit)), TRUE);
+                ctrl->SetTextString
+                (
+                    TRANSLATE(("#multiplayer.config.options.unitlimit.info", 1, options->unitLimit)), TRUE
+                );
                 ctrl->SetStateItem("Selected", options->unitLimit != UnitLimits::GetLimit());
 
                 ctrl = IFace::Find<IControl>("ResourceType", PrivData::infoCtrl, TRUE);
@@ -506,8 +510,11 @@ namespace MultiPlayer
                         }
 
                         Win32::Socket::Address address("127.0.0.1", port);
-                        hostInfo = new HostInformation(address, CmdLine::session.str, CmdLine::password.crc,
-                                                       CmdLine::maxPlayers);
+                        hostInfo = new HostInformation
+                        (
+                            address, CmdLine::session.str, CmdLine::password.crc,
+                            CmdLine::maxPlayers
+                        );
                     }
                     else if (CmdLine::join)
                     {
@@ -816,8 +823,11 @@ namespace MultiPlayer
                             // Send it to the registered interface control
                             if (PrivData::clientCtrl.Alive())
                             {
-                                SendEvent(PrivData::clientCtrl, nullptr, IFace::NOTIFY,
-                                          0x5A263875); // "MultiPlayer::PasswordRequired"
+                                SendEvent
+                                (
+                                    PrivData::clientCtrl, nullptr, IFace::NOTIFY,
+                                    0x5A263875
+                                ); // "MultiPlayer::PasswordRequired"
                             }
                         }
                         else
@@ -862,8 +872,11 @@ namespace MultiPlayer
                             // Send it to the registered interface control
                             if (PrivData::clientCtrl.Alive())
                             {
-                                SendEvent(PrivData::clientCtrl, nullptr, IFace::NOTIFY,
-                                          0xD20EDD94); // "MultiPlayer::NoSelectedSession"
+                                SendEvent
+                                (
+                                    PrivData::clientCtrl, nullptr, IFace::NOTIFY,
+                                    0xD20EDD94
+                                ); // "MultiPlayer::NoSelectedSession"
                             }
                         }
                         else
@@ -910,8 +923,11 @@ namespace MultiPlayer
                             // Send it to the registered interface control
                             if (PrivData::clientCtrl.Alive())
                             {
-                                SendEvent(PrivData::clientCtrl, nullptr, IFace::NOTIFY,
-                                          0x8A77211B); // "MultiPlayer::SessionNameTooShort"
+                                SendEvent
+                                (
+                                    PrivData::clientCtrl, nullptr, IFace::NOTIFY,
+                                    0x8A77211B
+                                ); // "MultiPlayer::SessionNameTooShort"
                             }
                         }
                         else
@@ -982,9 +998,11 @@ namespace MultiPlayer
                             // Update the chat window
                             if (PrivData::chatCtrl.Alive())
                             {
-                                PrivData::chatCtrl->SetTextString(
+                                PrivData::chatCtrl->SetTextString
+                                (
                                     TRANSLATE(("#multiplayer.config.chat.title", 1, Utils::Ansi2Unicode(session))),
-                                    TRUE);
+                                    TRUE
+                                );
                             }
                         }
                     }
@@ -1019,8 +1037,10 @@ namespace MultiPlayer
 
                         if (Console::GetArgString(1, control))
                         {
-                            Game::MissionSelection* missions = IFace::Find<Game::MissionSelection>(
-                                control, nullptr, TRUE);
+                            Game::MissionSelection* missions = IFace::Find<Game::MissionSelection>
+                            (
+                                control, nullptr, TRUE
+                            );
 
                             if (const Missions::Mission* m = Host::GetMission())
                             {
@@ -1037,8 +1057,10 @@ namespace MultiPlayer
 
                         if (Console::GetArgString(1, control))
                         {
-                            Game::MissionSelection* missions = IFace::Find<Game::MissionSelection>(
-                                control, nullptr, TRUE);
+                            Game::MissionSelection* missions = IFace::Find<Game::MissionSelection>
+                            (
+                                control, nullptr, TRUE
+                            );
                             const Missions::Mission* m = missions->GetSelectedMission();
 
                             VarString varPlacement("$.placement", missions);
@@ -1143,20 +1165,29 @@ namespace MultiPlayer
                                     if (player)
                                     {
                                         U32 id = player->GetId();
-                                        Data::Send(1, &id, Commands::MessagePrivate, Utils::Strlen(chat) + 1,
-                                                   (const U8*)chat);
+                                        Data::Send
+                                        (
+                                            1, &id, Commands::MessagePrivate, Utils::Strlen(chat) + 1,
+                                            (const U8*)chat
+                                        );
 
                                         // Echo locally
-                                        CONSOLE(0xAD95B2DF,
-                                                (TRANSLATE(("#multiplayer.chat.privmsg", 2, playerBuff, Utils::
-                                                    Ansi2Unicode(chat))))); // "ChatLocal"
+                                        CONSOLE
+                                        (
+                                            0xAD95B2DF,
+                                            (TRANSLATE(("#multiplayer.chat.privmsg", 2, playerBuff, Utils::
+                                                Ansi2Unicode(chat))))
+                                        ); // "ChatLocal"
                                     }
                                     else
                                     {
                                         // Could not find player with the name!
                                         // "MultiError"
-                                        CONSOLE(0xB2178C6E,
-                                                (TRANSLATE(("#multiplayer.chat.error.noplayer", 1, playerBuff))));
+                                        CONSOLE
+                                        (
+                                            0xB2178C6E,
+                                            (TRANSLATE(("#multiplayer.chat.error.noplayer", 1, playerBuff)))
+                                        );
                                     }
                                 }
                             }
@@ -1224,9 +1255,12 @@ namespace MultiPlayer
                                             }
 
                                             // Echo locally
-                                            CONSOLE(0xAD95B2DF,
-                                                    (TRANSLATE(("#multiplayer.chat.teammsg", 1, Utils::Ansi2Unicode(str)
-                                                    )))); // "ChatLocal"
+                                            CONSOLE
+                                            (
+                                                0xAD95B2DF,
+                                                (TRANSLATE(("#multiplayer.chat.teammsg", 1, Utils::Ansi2Unicode(str)
+                                                )))
+                                            ); // "ChatLocal"
 
                                             if (index)
                                             {
@@ -1287,14 +1321,20 @@ namespace MultiPlayer
                                 }
 
                                 // Echo locally
-                                CONSOLE(0xAD95B2DF,
-                                        (TRANSLATE(("#multiplayer.chat.enemymsg", 1, Utils::Ansi2Unicode(str)))
-                                        )); // "ChatLocal"
+                                CONSOLE
+                                (
+                                    0xAD95B2DF,
+                                    (TRANSLATE(("#multiplayer.chat.enemymsg", 1, Utils::Ansi2Unicode(str)))
+                                    )
+                                ); // "ChatLocal"
 
                                 if (index)
                                 {
-                                    Data::Send(index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1,
-                                               (const U8*)str);
+                                    Data::Send
+                                    (
+                                        index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1,
+                                        (const U8*)str
+                                    );
                                 }
                             }
                             groups.DisposeAll();
@@ -1346,14 +1386,20 @@ namespace MultiPlayer
                                         }
 
                                         // Echo locally
-                                        CONSOLE(0xAD95B2DF,
-                                                (TRANSLATE(("#multiplayer.chat.allymsg", 1, Utils::Ansi2Unicode(str)))
-                                                )); // "ChatLocal"
+                                        CONSOLE
+                                        (
+                                            0xAD95B2DF,
+                                            (TRANSLATE(("#multiplayer.chat.allymsg", 1, Utils::Ansi2Unicode(str)))
+                                            )
+                                        ); // "ChatLocal"
 
                                         if (index)
                                         {
-                                            Data::Send(index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1,
-                                                       (const U8*)str);
+                                            Data::Send
+                                            (
+                                                index, ids, Commands::MessageGroup, Utils::Strlen(str) + 1,
+                                                (const U8*)str
+                                            );
                                         }
                                     }
                                 }

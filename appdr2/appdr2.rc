@@ -6,8 +6,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,455,0,0
- PRODUCTVERSION 1,455,0,0
+ FILEVERSION 1,453,0,0
+ PRODUCTVERSION 1,453,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -22,14 +22,14 @@ BEGIN
   BEGIN
     BLOCK "040904b0"
     BEGIN
-      VALUE "FileVersion", "1,455\0"
+      VALUE "FileVersion", "1,453\0"
       VALUE "FileDescription", "Dark Reign 2\0"
       VALUE "LegalCopyright", "Copyright © 1997-2000\0"
       VALUE "CompanyName", "Pandemic Studios\0"
-      VALUE "Comments", "RELEASE\0"
-      VALUE "Build String", "Dark Reign 2 b0 [RELEASE] Fri Aug 21 01:56:06 2020\0"
-      VALUE "Build Time", "01:56:06\0"
-      VALUE "Build Date", "08/21/20\0"
+      VALUE "Comments", "DEVELOPMENT\0"
+      VALUE "Build String", "Dark Reign 2 b0 [DEVELOPMENT] Wed Sep 02 16:34:22 2020\0"
+      VALUE "Build Time", "16:34:22\0"
+      VALUE "Build Date", "09/02/20\0"
       VALUE "Build Number", "0\0"
       VALUE "Build User", "razod\0"
       VALUE "Build Machine", "JONATHAN-WIN10\0"

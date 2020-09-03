@@ -12,7 +12,6 @@
     <ClCompile Include="sound_digital_stream.cpp" />
     <ClCompile Include="sound_redbook.cpp" />
     <ClCompile Include="sound_vorbis.cpp" />
-    <ClCompile Include="sound_redbook_proxy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sound.h" />

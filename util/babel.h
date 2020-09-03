@@ -25,18 +25,17 @@
 //
 namespace Babel
 {
-  // Translate
-  const CH * CDECL Translate(const char *key, U32 params = 0, ...);
+    // Translate
+    const CH* CDECL Translate(const char* key, U32 params = 0, ...);
 
-  // Translate
-  const CH * Translate(va_list args, U32 params, const char *key);
+    // Translate
+    const CH* Translate(va_list args, U32 params, const char* key);
 
-  // Sprintf
-  void CDECL Sprintf(CH *buffer, U32 size, const CH *format, U32 params = 0, ...);
+    // Sprintf
+    void CDECL Sprintf(CH* buffer, U32 size, const CH* format, U32 params = 0, ...);
 
-  // Sprintf
-  void Sprintf(CH *buffer, U32 size, va_list args, U32 params, const CH *format);
-
+    // Sprintf
+    void Sprintf(CH* buffer, U32 size, va_list args, U32 params, const CH* format);
 }
 
 

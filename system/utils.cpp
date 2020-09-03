@@ -15,6 +15,8 @@
 #include <float.h>
 #include <fenv.h>
 
+#include "../wonclient/Directory.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -1283,7 +1285,7 @@ namespace Utils
     //
     // ChopPath: return a pointer to the file name in a file path
     //
-    char* ChopPath(const char* path)
+    char* FindName(const char* path)
     {
         char* fileName = (char*)path;
 
@@ -1310,6 +1312,19 @@ namespace Utils
 
         return fileName;
     }
+
+
+    // char* FindDir(const char* path)
+    // {
+    //     FileDrive drive;
+    //     FileDir dir;
+    //     FileName name;
+    //     FileExt ext;
+    //
+    //     Dir::PathExpand(path, drive, dir, name, ext);
+    //
+    //     return dir.str;
+    // }
 
 
     //
