@@ -76,7 +76,7 @@ namespace Vid
         U32 LoopStart()
         {
             if (waterR - Terrain::waterList.data >= (S32)Terrain::waterCount)
-                //      if (waterR != Terrain::waterList.data)
+            // if (waterR != Terrain::waterList.data)
             {
                 return FALSE;
             }

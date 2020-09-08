@@ -259,25 +259,29 @@ namespace Game
                 }
 
                 case 0xBB563A77: // "sys.game.migrate.start"
-                SYNC("Migration commencing")
+                {
+                    SYNC("Migration commencing");
 
                     IFace::Activate("|Game::Resync");
                     migration = MIGRATING;
-                    LOG_DIAG(("Switching to MIGRATING"))
+                    LOG_DIAG(("Switching to MIGRATING"));
                     break;
+                }
 
                 case 0x7CE02766: // "sys.game.migrate.resync"
+                {
                     if (migration == MIGRATING)
                     {
                         migration = RESYNC;
-                        LOG_DIAG(("Switching to RESYNC"))
+                        LOG_DIAG(("Switching to RESYNC"));
                         MultiPlayer::SetReady();
                     }
                     break;
+                }
 
                 case 0x7D690127: // "sys.game.migrate.end"
                 {
-                    SYNC("Migration completed")
+                    SYNC("Migration completed");
 
                     // Change runcode to the sim
                     IControl* ctrl = IFace::FindByName("|Game::Resync");
@@ -288,7 +292,7 @@ namespace Game
                     }
                     MultiPlayer::ClearReady();
                     migration = NORMAL;
-                    LOG_DIAG(("Switching to NORMAL"))
+                    LOG_DIAG(("Switching to NORMAL"));
                     break;
                 }
 
@@ -312,15 +316,13 @@ namespace Game
             {
                 Terrain::Sky::Render();
 
-                //      if (val > 1)
+                // if (val > 1)
                 {
-                    // test for clip against mirror plane 
-                    //
+                    // Test for clip against mirror plane.
                     MapObjCtrl::BuildMirrorList();
 
                     // Render
                     PERF_S("Terrain::Render");
-
                     if (Vid::renderState.status.mirTerrain)
                     {
                         Terrain::Render();
@@ -380,9 +382,9 @@ namespace Game
             }
 
             // Inform client
-            PERF_S("BuildDisplayList")
+            PERF_S("BuildDisplayList");
             MapObjCtrl::BuildDisplayList(Team::GetDisplayTeam(), simFrame);
-            PERF_E("BuildDisplayList")
+            PERF_E("BuildDisplayList");
 
             // Render
             PERF_S("Terrain::Render");
@@ -396,7 +398,6 @@ namespace Game
             if (Vid::Config::TrilinearOff())
             {
                 // turn trilinear filtering off for models
-
                 Vid::SetFilterStateI(Vid::renderState.status.filter & ~Vid::filterMIPFILTER);
             }
 
@@ -433,13 +434,11 @@ namespace Game
             //
             void Init()
             {
-                /*
-                // Set the correct video mode
-                if (Vid::isStatus.fullScreen)
-                {
-                  Vid::SetMode(Vid::shellMode);
-                }
-                */
+                // // Set the correct video mode
+                // if (Vid::isStatus.fullScreen)
+                // {
+                //     Vid::SetMode(Vid::shellMode);
+                // }
 
                 // Increment Games Played
                 User::SampleStatCount("GamesPlayed");
@@ -458,7 +457,7 @@ namespace Game
             void Post()
             {
                 // Repaint the interface
-                //IFace::PaintAll();
+                // IFace::PaintAll();
 
                 // Reset FPU
                 Utils::FP::Reset();
@@ -558,17 +557,15 @@ namespace Game
             //
             void Init()
             {
-                /*
-                // Set the correct video mode
-                if (Vid::isStatus.fullScreen)
-                {
-                  Vid::SetMode(Vid::gameMode);
-                }
-                */
+                // // Set the correct video mode
+                // if (Vid::isStatus.fullScreen)
+                // {
+                //     Vid::SetMode(Vid::gameMode);
+                // }
 
                 // Clear the migration status
                 migration = NORMAL;
-                LOG_DIAG(("Switching to NORMAL"))
+                LOG_DIAG(("Switching to NORMAL"));
 
                 // Bring the client online
                 Client::Init();
@@ -577,14 +574,14 @@ namespace Game
                 AI::InitSimulation();
 
                 // Process Environment
-                //Environment::Process();
+                // Environment::Process();
 
                 // Perform first rendering of sight
-                //Sight::UpdateDisplay(Team::GetDisplayTeam());
+                // Sight::UpdateDisplay(Team::GetDisplayTeam());
 
-                //Terrain::Simulate(GameTime::SimTime());
+                // Terrain::Simulate(GameTime::SimTime());
 
-                //        MapObjCtrl::SimulateSim(GameTime::SimTime());
+                // MapObjCtrl::SimulateSim(GameTime::SimTime());
                 MapObjCtrl::UpdateMapPos();
 
                 // Do display
@@ -659,12 +656,13 @@ namespace Game
                             Set("Sim");
                         }
                         else
-
+                        {
                             // If there is nothing in the queue then send an order indicating that we are ready
                             if (!MultiPlayer::Data::GetLag())
                             {
                                 MultiPlayer::SetReady();
                             }
+                        }
 
                         // Process input events
                         if (Main::active)
@@ -688,7 +686,7 @@ namespace Game
                 // If the next runcode isn't Sim then go through the motions of Sim
                 if (runCodes.GetNextCrc() != 0xBE9A9686) // "Sim"
                 {
-                    LOG_DIAG(("Leaving SimInit and not going to Sim, cycling Sim::Init & Sim::Done"))
+                    LOG_DIAG(("Leaving SimInit and not going to Sim, cycling Sim::Init & Sim::Done"));
                     Sim::Init();
                     Sim::Done();
                 }
@@ -718,8 +716,8 @@ namespace Game
 
                 // Only allow modal pausing if the session started in multiplayer
                 allowModalPause = !MultiPlayer::Data::Online() && (Missions::GetActive()
-                                                                       ? !Missions::GetActive()->IsSystem()
-                                                                       : TRUE);
+                    ? !Missions::GetActive()->IsSystem()
+                    : TRUE);
 
 #ifdef DEVELOPMENT
 
@@ -730,7 +728,7 @@ namespace Game
 
                 if (!Load::Loaded())
                 {
-                    ERR_FATAL(("Attempt to load the Simulation without loading a map"))
+                    ERR_FATAL(("Attempt to load the Simulation without loading a map"));
                 }
 
                 // Exec mod files
@@ -756,25 +754,22 @@ namespace Game
 
                 Terrain::Simulate(GameTime::SimTime());
 
-                // Generate time message
-                //Environment::Time::GenerateMessage();
+                // Generate time message.
+                // Environment::Time::GenerateMessage();
 
                 // Reset sync
                 Sync::Reset();
 
-                // Force processing of all teams, will allow objectives/cineractives to
-                // start on the first game cycle
-                //
+                // Force processing of all teams, will allow objectives/cineractives to start on the first game cycle.
                 Team::ProcessAll(TRUE);
 
-                // set up first frame
-                //
+                // Set up first frame.
                 MapObjCtrl::UpdateMapPos();
 
-                // Notify save game that the load is completed
+                // Notify save game that the load is completed.
                 SaveGame::Notify(0x0272D3DA); // "Load::Completed"
 
-                // We are now in the simulation
+                // We are now in the simulation.
                 CoreGame::SetInSimulation(TRUE);
             }
 
@@ -834,8 +829,7 @@ namespace Game
                         }
 
                         // update auto mrm error factor
-                        //
-                        //Mesh::Manager::UpdateMRMFactor();
+                        // Mesh::Manager::UpdateMRMFactor();
 
                         // Pause when a modal control is active
                         if (allowModalPause)
@@ -866,7 +860,7 @@ namespace Game
 
                         if (gameTest)
                         {
-                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState() << " Random: " << Random::sync.Raw())
+                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState() << " Random: " << Random::sync.Raw());
 
                             // Blip an order
 #ifdef SYNC_BRUTAL_ACTIVE
@@ -877,9 +871,9 @@ namespace Game
 #endif
 
 #ifdef SYNC_BRUTAL_ACTIVE
-                        SYNC(" === SIM START ===")
+                            SYNC(" === SIM START ===");
                             Sync::SyncObjects(TRUE);
-                        SYNC(" ___ SIM START ___")
+                            SYNC(" ___ SIM START ___");
 #endif
 
                             PERF_S("Simulation");
@@ -894,7 +888,7 @@ namespace Game
                             MapObjCtrl::SimulateInt(GameTime::SimTime());
                             PERF_E("SimulateInt");
 
-                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState())
+                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState());
                         }
 
                         if (disPost)
@@ -917,13 +911,10 @@ namespace Game
                             // Reset mode
                             Utils::FP::Reset();
 
-                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState())
+                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState());
 
                             // Sync vars which should be synced
-                            SYNC
-                            (
-                                Vid::Var::Terrain::shroud
-                            )
+                            SYNC(Vid::Var::Terrain::shroud);
 
                             // Process Environment
                             PERF_S("Environment");
@@ -944,7 +935,6 @@ namespace Game
                             // MUST be before particle and mesheffect processing
                             // MUST be before GameObjCtrl::DeleteDyingObjects
                             // MUST be after ProcessObjectThought
-                            //
                             PERF_S("FX");
                             FX::Process();
                             PERF_E("FX");
@@ -975,7 +965,8 @@ namespace Game
 
                             // Perform Particle Processing
                             PERF_S("ParticleSimulate");
-                            ParticleSystem::Simulate(GameTime::SimTime());
+                            // JONATHAN: Slow down particles, thicker smoke / effects...
+                            ParticleSystem::Simulate(GameTime::SimTime() / 2);
                             ParticleSystem::SimulateInt(Main::elapSecs);
                             PERF_E("ParticleSimulate");
 
@@ -985,12 +976,12 @@ namespace Game
                             PERF_E("Team");
 
 #ifdef SYNC_BRUTAL_ACTIVE
-                        SYNC(" === SIM END ===")
+                            SYNC(" === SIM END ===");
                             Sync::SyncObjects(TRUE);
-                        SYNC(" ___ SIM END ___")
+                            SYNC(" ___ SIM END ___");
 #endif
 
-                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState())
+                            SYNC_BRUTAL("Mode: " << Utils::FP::GetState());
 
                             // Update line of sight display
                             PERF_S("Sight::DetachedList");
@@ -1013,7 +1004,7 @@ namespace Game
                             PERF_E("Simulation");
                         }
                         else
-
+                        {
                             // Process interpolation
                             if (Vid::renderState.status.interpMesh && !GameTime::Paused() && !GameTime::IsStalled())
                             {
@@ -1039,6 +1030,7 @@ namespace Game
 
                                 ParticleSystem::SimulateInt(Main::elapSecs);
                             }
+                        }
 
                         // Main rendering code
                         if (display)
@@ -1071,11 +1063,12 @@ namespace Game
                     }
 
                     case MIGRATING:
+                    {
 
                         if (!MultiPlayer::Data::Online())
                         {
                             migration = NORMAL;
-                            LOG_DIAG(("Switching to NORMAL"))
+                            LOG_DIAG(("Switching to NORMAL"));
                             return;
                         }
 
@@ -1088,7 +1081,7 @@ namespace Game
                         if (!MultiPlayer::Data::Online())
                         {
                             migration = NORMAL;
-                            LOG_DIAG(("Switching to NORMAL"))
+                            LOG_DIAG(("Switching to NORMAL"));
                             return;
                         }
 
@@ -1098,7 +1091,7 @@ namespace Game
                         if (!MultiPlayer::Data::Online())
                         {
                             migration = NORMAL;
-                            LOG_DIAG(("Switching to NORMAL"))
+                            LOG_DIAG(("Switching to NORMAL"));
                             return;
                         }
 
@@ -1106,13 +1099,14 @@ namespace Game
                         IFace::PaintAll();
 
                         break;
+                    }
 
                     case RESYNC:
-
+                    {
                         if (!MultiPlayer::Data::Online())
                         {
                             migration = NORMAL;
-                            LOG_DIAG(("Switching to NORMAL"))
+                            LOG_DIAG(("Switching to NORMAL"));
                             return;
                         }
 
@@ -1125,7 +1119,7 @@ namespace Game
                         if (!MultiPlayer::Data::Online())
                         {
                             migration = NORMAL;
-                            LOG_DIAG(("Switching to NORMAL"))
+                            LOG_DIAG(("Switching to NORMAL"));
                             return;
                         }
 
@@ -1135,13 +1129,14 @@ namespace Game
                         if (!MultiPlayer::Data::Online())
                         {
                             migration = NORMAL;
-                            LOG_DIAG(("Switching to NORMAL"))
+                            LOG_DIAG(("Switching to NORMAL"));
                             return;
                         }
 
                         // Repaint interface only
                         IFace::PaintAll();
                         break;
+                    }
                 }
             }
 
@@ -1151,7 +1146,7 @@ namespace Game
             //
             void Done()
             {
-                LOG_DIAG(("Shutting down simulation"))
+                LOG_DIAG(("Shutting down simulation"));
 
                 // No longer in simulation
                 CoreGame::SetInSimulation(FALSE);

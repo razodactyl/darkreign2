@@ -399,7 +399,7 @@ namespace Missions
     //
     // GetRandomMission
     //
-    // Select a mission at ramdom
+    // Select a mission at random
     //
     const Mission* Group::GetRandomMission() const
     {
@@ -976,8 +976,7 @@ namespace Missions
         {
             ERR_FATAL
             (
-                ("Unable to setup active mission stream [%s][%s]", active->GetGroup().GetPath().str, active->GetName().
-                    str)
+                ("Unable to setup active mission stream [%s][%s]", active->GetGroup().GetPath().str, active->GetName().str)
             );
         }
     }

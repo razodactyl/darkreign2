@@ -700,7 +700,7 @@ namespace GameTime
             }
         }
 
-        //LOG_DIAG(("gameCycle %d [nextNetworkCycle %d]", gameCycle, nextNetworkGameCycle))
+        // LOG_DIAG(("gameCycle %d [nextNetworkCycle %d]", gameCycle, nextNetworkGameCycle))
 
         // Have we completed the required number of cycles ?
         if (gameCycle == nextNetworkGameCycle)
@@ -725,12 +725,12 @@ namespace GameTime
 
                 // Move game time by this amount to prevent future stalls
                 timeNextGameCycle += period;
-                //LOG_DIAG(("Stall forced adjustment of %d", period))
+                // LOG_DIAG(("Stall forced adjustment of %d", period))
             }
             else
             {
                 MultiPlayer::Data::ProcessSyncData(networkSequence, nextTime, arrivalTime);
-                //LOG_DIAG(("!Stalled: Next time %d", nextTime))
+                // LOG_DIAG(("!Stalled: Next time %d", nextTime))
             }
 
             // Are we lagged ?
@@ -739,7 +739,7 @@ namespace GameTime
                 // If we're allowed to bump, then do so
                 if (nowTime - lastPosBumpTime > BUMPINTERVALUS)
                 {
-                    //LOG_DIAG(("Negative Bump : %d - %d (behind)", timeNextGameCycle, BUMPTIMENEGUS))
+                    // LOG_DIAG(("Negative Bump : %d - %d (behind)", timeNextGameCycle, BUMPTIMENEGUS))
 
                     timeNextGameCycle -= BUMPTIMENEGUS;
                     lastNegBumpTime = nowTime;
@@ -754,10 +754,10 @@ namespace GameTime
             {
                 // Calculate the next game cycle which networking will occur on
                 nextNetworkGameCycle = gameCycle + (nextTime / 100);
-                //LOG_DIAG(("Setting next network cycle to %d", nextNetworkGameCycle))
+                // LOG_DIAG(("Setting next network cycle to %d", nextNetworkGameCycle))
 
-                //U32 now = nowTime; 
-                //LOG_DIAG(("Processing Sync Data @ %d which arived @ %d (diff %d)", now, arrivalTime, now - arrivalTime))
+                // U32 now = nowTime; 
+                // LOG_DIAG(("Processing Sync Data @ %d which arrived @ %d (diff %d)", now, arrivalTime, now - arrivalTime))
 
                 // Update mono
                 MonoBufWriteV(monoBuffer, ( 2, 58, Mono::NORMAL, "%10u", nextNetworkGameCycle));
@@ -775,7 +775,7 @@ namespace GameTime
                 // If we're allowed to bump, then do so
                 if (networkStallTime - lastNegBumpTime > BUMPINTERVALUS)
                 {
-                    //LOG_DIAG(("Positive Bump : %d + %d (infront)", timeNextGameCycle, BUMPTIMEPOSUS))
+                    // LOG_DIAG(("Positive Bump : %d + %d (infront)", timeNextGameCycle, BUMPTIMEPOSUS))
 
                     timeNextGameCycle += BUMPTIMEPOSUS;
                     lastPosBumpTime = networkStallTime;
@@ -841,7 +841,7 @@ namespace GameTime
     {
         if (paused)
         {
-            //LOG_DIAG(("Unpausing [%f]", simTotalTime))
+            // LOG_DIAG(("Unpausing [%f]", simTotalTime))
             if (triggerMessage)
             {
                 Message::TriggerGameMessage(0x1BF1D0DD); // "Game::Unpaused"
@@ -852,7 +852,7 @@ namespace GameTime
         }
         else
         {
-            //LOG_DIAG(("Pausing [%f]", simTotalTime))
+            // LOG_DIAG(("Pausing [%f]", simTotalTime))
             if (triggerMessage)
             {
                 Message::TriggerGameMessage(0xA2A95F95); // "Game::Paused"
@@ -878,7 +878,7 @@ namespace GameTime
     //
     void StepOnce()
     {
-        //LOG_DIAG(("Stepping Once [%f]", simTotalTime))
+        // LOG_DIAG(("Stepping Once [%f]", simTotalTime))
         Message::TriggerGameMessage(0x80014D42); // "Game::StepOnce"
 
         stepOnce = TRUE;
@@ -910,7 +910,7 @@ namespace GameTime
     void Synchronize()
     {
         nextNetworkGameCycle = gameCycle + 1;
-        //LOG_DIAG(("Synchronizing network cycle [%d]", nextNetworkGameCycle))
+        // LOG_DIAG(("Synchronizing network cycle [%d]", nextNetworkGameCycle))
     }
 
 
@@ -920,7 +920,7 @@ namespace GameTime
     void SetFastMode(Bool flag)
     {
         fastMode = flag;
-        //LOG_DIAG(("GameTime::FastMode %s", fastMode ? "on" : "off"))
+        // LOG_DIAG(("GameTime::FastMode %s", fastMode ? "on" : "off"))
     }
 
 
@@ -948,7 +948,7 @@ namespace GameTime
     void SetDisplayMode(Bool flag)
     {
         displayMode = flag;
-        //LOG_DIAG(("GameTime::DisplayMode %s", displayMode ? "on" : "off"))
+        // LOG_DIAG(("GameTime::DisplayMode %s", displayMode ? "on" : "off"))
     }
 
 

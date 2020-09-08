@@ -42,11 +42,11 @@ namespace StyxNet
     //
     Server::Server(const Config& config, Bool standalone)
         : config(config),
-          flags(standalone ? ServerFlags::StandAlone : 0),
-          users(&User::nodeServer),
-          disconnected(&User::nodeServer),
-          sessions(&Session::nodeServer),
-          migrations(&Migration::nodeServer)
+        flags(standalone ? ServerFlags::StandAlone : 0),
+        users(&User::nodeServer),
+        disconnected(&User::nodeServer),
+        sessions(&Session::nodeServer),
+        migrations(&Migration::nodeServer)
     {
         AddServer();
 
@@ -142,7 +142,7 @@ namespace StyxNet
 
         Server* server = static_cast<Server*>(context);
 
-        // Setup a socket to listen for incomming connections
+        // Setup a socket to listen for incoming connections
         Win32::Socket listenerSocket;
         listenerSocket.Bind(Win32::Socket::Address(ADDR_ANY, server->config.port));
 
@@ -217,7 +217,7 @@ namespace StyxNet
                         }
                         else
                         {
-                            LDIAG("New Connectiong from " << address << " who is remote");
+                            LDIAG("New Connection from " << address << " who is remote");
                         }
 
                         server->mutexUsers.Wait();
@@ -385,21 +385,19 @@ namespace StyxNet
 
                 server->mutexSessions.Signal();
 
-                /*
-                // Check the disconnected users to see if they've timed out
-                U32 time = Clock::Time::Ms();
-                server->mutexUsers.Wait();
-                NList<User>::Iterator u(&server->disconnected);
-
-                while (User *user = u++)
-                {
-                  if ((time - user->disconnectTime) > maximumDisconnectTime)
-                  {
-                    server->disconnected.Dispose(user);
-                  }
-                }
-                server->mutexUsers.Signal();
-                */
+                // // Check the disconnected users to see if they've timed out
+                // U32 time = Clock::Time::Ms();
+                // server->mutexUsers.Wait();
+                // NList<User>::Iterator u(&server->disconnected);
+                //
+                // while (User* user = u++)
+                // {
+                //     if ((time - user->disconnectTime) > maximumDisconnectTime)
+                //     {
+                //         server->disconnected.Dispose(user);
+                //     }
+                // }
+                // server->mutexUsers.Signal();
             }
         }
 
@@ -430,16 +428,16 @@ namespace StyxNet
     //
     // Server::ProcessPacket
     //
-    // Handle an incomming packet
+    // Handle an incoming packet
     //
     Bool Server::ProcessPacket(User& user, const Packet& packet)
     {
         // Is this a server command or a custom command
         switch (packet.GetCommand())
         {
-                //
-                // Client wishes to login
-                //
+            //
+            // Client wishes to login
+            //
             case ClientMessage::UserLogin:
             {
                 ClientMessage::Data::UserLogin* data;
@@ -492,9 +490,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client wishes to logout
-                //
+            //
+            // Client wishes to logout
+            //
             case ClientMessage::UserLogout:
             {
                 LDIAG("Received UserLogout: " << user.name.str);
@@ -513,9 +511,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client is migrating
-                //
+            //
+            // Client is migrating
+            //
             case ClientMessage::UserMigrating:
             {
                 ClientMessage::Data::UserMigrating* data;
@@ -566,9 +564,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client wishes to reconnect
-                //
+            //
+            // Client wishes to reconnect
+            //
             case ClientMessage::UserReconnect:
             {
                 ClientMessage::Data::UserReconnect* data;
@@ -660,9 +658,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client wants to create a session
-                //
+            //
+            // Client wants to create a session
+            //
             case ClientMessage::SessionCreate:
             {
                 // Convert the packet data into the SessionCreate data
@@ -730,9 +728,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client want to connect to a session
-                //
+            //
+            // Client want to connect to a session
+            //
             case ClientMessage::SessionConnect:
             {
                 // Convert the packet data into the SessionCreate data
@@ -762,7 +760,7 @@ namespace StyxNet
                                 LDIAG("User already in session");
                                 Packet::Create(ServerResponse::SessionBadUser).Send(user.socket);
                             }
-                                // Would this user cause us to go over the maximum count
+                            // Would this user cause us to go over the maximum count
                             else if (session->users.GetCount() == session->maxUsers)
                             {
                                 LDIAG("Session full");
@@ -808,9 +806,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client wants to destroy a session
-                //
+            //
+            // Client wants to destroy a session
+            //
             case ClientMessage::SessionDestroy:
             {
                 // Destroy a session
@@ -855,9 +853,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client wants to get the list of sessions
-                //
+            //
+            // Client wants to get the list of sessions
+            //
             case ClientMessage::SessionList:
             {
                 mutexSessions.Wait();
@@ -898,9 +896,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client wants to join a session
-                //
+            //
+            // Client wants to join a session
+            //
             case ClientMessage::SessionJoin:
             {
                 // Join a session
@@ -933,7 +931,7 @@ namespace StyxNet
                                     LDIAG("User already in session");
                                     Packet::Create(ServerResponse::SessionBadUser).Send(user.socket);
                                 }
-                                    // Would this user cause us to go over the maximum count
+                                // Would this user cause us to go over the maximum count
                                 else if (session->users.GetCount() == session->maxUsers)
                                 {
                                     LDIAG("Session full");
@@ -971,9 +969,9 @@ namespace StyxNet
             }
 
 
-                //
-                // Client wants to lock the session they are in
-                //
+            //
+            // Client wants to lock the session they are in
+            //
             case ClientMessage::SessionLock:
                 if (user.session)
                 {
@@ -1136,7 +1134,7 @@ namespace StyxNet
 
 
                 //
-                // Client wants to send an asynchornous message to all other clients in the session
+                // Client wants to send an asynchronous message to all other clients in the session
                 //
             case ClientMessage::SessionData:
 
@@ -1315,7 +1313,7 @@ namespace StyxNet
 
             default:
                 // Unknown packet command
-            LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from " << user.GetName().str);
+                LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from " << user.GetName().str);
                 return (FALSE);
         }
         return (TRUE);

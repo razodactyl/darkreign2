@@ -18,10 +18,10 @@
 #endif
 
 // XMM build
-//#define __DO_XMM_BUILD
+// #define __DO_XMM_BUILD
 
 // Demo build
-//#define DEMO
+// #define DEMO
 
 // Sync checking build
-//#define SYNC_BRUTAL_ACTIVE
+// #define SYNC_BRUTAL_ACTIVE

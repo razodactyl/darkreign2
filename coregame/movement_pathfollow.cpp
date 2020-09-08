@@ -453,11 +453,11 @@ namespace Movement
     Bool GrainOnMap(S32 x, S32 z)
     {
         return
-        (
+            (
             (x >= 0) && (x < S32(WorldCtrl::CellMapX()) * 2)
             &&
             (z >= 0) && (z < S32(WorldCtrl::CellMapZ()) * 2)
-        );
+            );
     }
 
     Bool GrainOnMap(const Point<S32>& grain)
@@ -473,7 +473,7 @@ namespace Movement
     {
         ASSERT(U32(gs) <= 2)
 
-        x = (F32(cx) + CellPctOfsX[gs - 1][q]) * WC_CELLSIZEF32;
+            x = (F32(cx) + CellPctOfsX[gs - 1][q]) * WC_CELLSIZEF32;
         z = (F32(cz) + CellPctOfsZ[gs - 1][q]) * WC_CELLSIZEF32;
     }
 
@@ -514,8 +514,8 @@ namespace Movement
     {
         ASSERT(WorldCtrl::MetreOnMap(x, z))
 
-        // Truncate metre position
-        gx = Utils::FtoL((x + error) * GRAIN_SIZE_INV);
+            // Truncate metre position
+            gx = Utils::FtoL((x + error) * GRAIN_SIZE_INV);
         gz = Utils::FtoL((z + error) * GRAIN_SIZE_INV);
 
         return (GrainToQuadrant(gx, gz));
@@ -699,20 +699,20 @@ namespace Movement
     {
         LOG_ERR(
             ("  unit=%d type=%s team=%s", unitObj->Id(), unitObj->TypeName(), unitObj->GetTeam() ? unitObj->GetTeam()->
-                GetName() : "none"));
+            GetName() : "none"));
         LOG_ERR(("  grainPos:%d,%d q:%d", grainPos.x, grainPos.z, quadrant));
         LOG_ERR(
             ("  state:%s move:%s board:%s path:%s", state.GetName(), moveState.GetName(), boardState.GetName(),
-                pathState.GetName()));
+            pathState.GetName()));
 
         if (flags & DUMP_PROBE)
         {
             LOG_ERR(("  probe buffer... count=%d", probeCount))
 
-            for (int n = 0; n < probeCount; n++)
-            {
-                LOG_ERR(("    %d [%3d,%3d] ", n, probeBuf[n].grain.x, probeBuf[n].grain.z))
-            }
+                for (int n = 0; n < probeCount; n++)
+                {
+                    LOG_ERR(("    %d [%3d,%3d] ", n, probeBuf[n].grain.x, probeBuf[n].grain.z))
+                }
         }
     }
 
@@ -726,17 +726,17 @@ namespace Movement
         PathPoint* pt = list->head;
 
         LOG_ERR(("  pointlist..."))
-        while (pt)
-        {
-            LOG_ERR
-            ((
-                "    [g:%d,%d d:%d f:%d] %s %s",
-                pt->grain.x, pt->grain.z, pt->direction, pt->flags,
-                list->curr == pt ? "CURR" : "",
-                traverse == pt ? "TRAV" : ""
-            ))
-            pt = pt->next;
-        }
+            while (pt)
+            {
+                LOG_ERR
+                ((
+                    "    [g:%d,%d d:%d f:%d] %s %s",
+                    pt->grain.x, pt->grain.z, pt->direction, pt->flags,
+                    list->curr == pt ? "CURR" : "",
+                    traverse == pt ? "TRAV" : ""
+                ))
+                    pt = pt->next;
+            }
     }
 
     static void DumpFooter()
@@ -869,10 +869,10 @@ namespace Movement
         inline Point<S32> GrainToMap(const Point<S32>& p)
         {
             ASSERT(p.x >= 0 && p.x < S32(WorldCtrl::CellMapX()) * 2)
-            ASSERT(p.z >= 0 && p.z < S32(WorldCtrl::CellMapZ()) * 2)
+                ASSERT(p.z >= 0 && p.z < S32(WorldCtrl::CellMapZ()) * 2)
 
-            // Adjust to relative coordinates
-            Point<S32> rc;
+                // Adjust to relative coordinates
+                Point<S32> rc;
             rc.x = p.x - oPos.x + MAX_TRACE_DIST;
             rc.z = p.z - oPos.z + MAX_TRACE_DIST;
             return (rc);
@@ -965,7 +965,7 @@ namespace Movement
 
         ASSERT(to)
 
-        origDist = Max<S32>(abs(traceData.to->grain.x - fromGrain.x), abs(traceData.to->grain.z - fromGrain.z));
+            origDist = Max<S32>(abs(traceData.to->grain.x - fromGrain.x), abs(traceData.to->grain.z - fromGrain.z));
 
         // Initialise closest point
         closestPt = oPos;
@@ -1009,7 +1009,7 @@ namespace Movement
     {
         ASSERT(from)
 
-        PathPoint* p = from;
+            PathPoint* p = from;
 
         while (p)
         {
@@ -1020,13 +1020,13 @@ namespace Movement
             }
             ASSERT(p->grainCount != U16_MAX)
 
-            // Is this point too far from the obstacle?
-            S32 oDist = Max<S32>(abs(pos.x - oPos.x), abs(pos.z - oPos.z));
+                // Is this point too far from the obstacle?
+                S32 oDist = Max<S32>(abs(pos.x - oPos.x), abs(pos.z - oPos.z));
 
             if (oDist > MAX_TRACE_DIST)
             {
                 LOG_MOVE2(("ReachedLine %3d,%3d terminated at %3d,%3d", pos.x, pos.z, p->grain.x, p->grain.z))
-                return (NULL);
+                    return (NULL);
             }
 
             // Delta between sense position and this segment's grain
@@ -1158,10 +1158,10 @@ namespace Movement
             // Constructor
             Item(UnitObj* unit1, UnitObj* unit2, S16 priority, U32 handle, U32 expire)
                 : priority(priority),
-                  handle(handle),
-                  expire(expire),
-                  state(SS_NONE),
-                  unownedClaim(FALSE)
+                handle(handle),
+                expire(expire),
+                state(SS_NONE),
+                unownedClaim(FALSE)
             {
                 unit[0] = unit1;
                 unit[1] = unit2;
@@ -1170,10 +1170,10 @@ namespace Movement
             // Constructor with unowned claim
             Item(UnitObj* unit1, S16 priority, U32 handle, U32 expire)
                 : priority(priority),
-                  handle(handle),
-                  expire(expire),
-                  state(SS_NONE),
-                  unownedClaim(TRUE)
+                handle(handle),
+                expire(expire),
+                state(SS_NONE),
+                unownedClaim(TRUE)
             {
                 unit[0] = unit1;
                 unit[1] = NULL;
@@ -1252,7 +1252,7 @@ namespace Movement
         static NList<Item>* GetPriorityList(S32 priority)
         {
             ASSERT(priority >= 0 && priority < PR_MAX)
-            return (&priorityList[priority]);
+                return (&priorityList[priority]);
         }
 
 
@@ -1305,7 +1305,7 @@ namespace Movement
                 LOG_MOVE2
                 (
                     ("M%6d Add %d-%d (%s-%s) priority:%d", newItem->handle, unit1->Id(), unit2->Id(), unit1->TypeName(),
-                        unit2->TypeName(), newItem->priority)
+                    unit2->TypeName(), newItem->priority)
                 )
             }
         }
@@ -1335,7 +1335,7 @@ namespace Movement
                 LOG_MOVE2
                 (
                     ("M%6d Add %d-* (%s-[unowned]) priority:%d", newItem->handle, unit1->Id(), unit1->TypeName(),
-                        newItem->priority)
+                    newItem->priority)
                 )
             }
         }
@@ -1547,10 +1547,11 @@ namespace Movement
             LOG_MOVE2
             (
                 ("M%6d BuggerOff d1:%d d2:%d swap:%d", item->handle, driver1->GetUnitObj()->Id(), driver2->GetUnitObj()
-                    ->Id(), swap)
+                ->Id(), swap)
             );
 
-            Driver *buggerOffer, *buggerOffee;
+            Driver* buggerOffer;
+            Driver* buggerOffee;
 
             if (swap)
             {
@@ -1597,7 +1598,7 @@ namespace Movement
             LOG_MOVE2
             (
                 ("M%6d TraceAround d1:%d d2:%d swap:%d", item->handle, driver1->GetUnitObj()->Id(), driver2 ? driver2->
-                    GetUnitObj()->Id() : -1, swap)
+                GetUnitObj()->Id() : -1, swap)
             );
 
             U32 traceAroundResult = theDriver->TraceAround();
@@ -1718,11 +1719,11 @@ namespace Movement
                 {
                     Bool purge = FALSE;
 
-                    // Check for exceeding max per cycle cost
-                    //if (cost > 100) 
-                    //{
-                    //  break;
-                    //}
+                    // // Check for exceeding max per cycle cost
+                    // if (cost > 100)
+                    // {
+                    //     break;
+                    // }
 
                     if (item->unit[0].Alive() && item->unit[0]->OnMap())
                     {
@@ -1745,7 +1746,7 @@ namespace Movement
                             LOG_MOVE
                             (
                                 ("M%6d %d vs %d [expire cycle:%d]", item->handle, item->unit[0]->Id(), item->unit[1]->Id
-                                    (), item->expire)
+                                (), item->expire)
                             );
 
                             if (GameTime::SimCycle() > item->expire)
@@ -1763,7 +1764,7 @@ namespace Movement
                                 LOG_MOVE2
                                 (
                                     ("M%6d Requester %d is blocked until %d (now:%d)", item->handle, item->unit[0]->Id()
-                                        , driver[0]->GetCoordinator().blockedUntil, now)
+                                    , driver[0]->GetCoordinator().blockedUntil, now)
                                 );
                                 //  break;
                             }
@@ -1772,7 +1773,7 @@ namespace Movement
                                 LOG_MOVE2
                                 (
                                     ("M%6d Non-requester %d is blocked until %d (now:%d)", item->handle, item->unit[1]->
-                                        Id(), driver[1]->GetCoordinator().blockedUntil, now)
+                                    Id(), driver[1]->GetCoordinator().blockedUntil, now)
                                 );
                                 continue;
                             }
@@ -2087,8 +2088,7 @@ namespace Movement
 #ifdef DEVELOPMENT
             if (p->flags & p->next->flags)
             {
-                LOG_ERR(
-                    ("%5d duplicate flags %.4Xh,%.4Xh", debugUnit ? debugUnit->Id() : -1, p->flags, p->next->flags));
+                LOG_ERR(("%5d duplicate flags %.4Xh,%.4Xh", debugUnit ? debugUnit->Id() : -1, p->flags, p->next->flags));
             }
 
             if (dx && dz && abs(dx) != abs(dz))
@@ -2096,12 +2096,8 @@ namespace Movement
                 DumpHeader();
 
                 LOG_ERR(("Badly aligned segment: %d,%d", dx, dz));
-                LOG_ERR(
-                    ("from [g:%d,%d m:%f,%f d:%d f:%d]", p->grain.x, p->grain.z, p->pos.x, p->pos.z, p->direction, p->
-                        flags));
-                LOG_ERR(
-                    ("to   [g:%d,%d m:%f,%f d:%d f:%d]", next->grain.x, next->grain.z, next->pos.x, next->pos.z, next->
-                        direction, next->flags));
+                LOG_ERR(("from [g:%d,%d m:%f,%f d:%d f:%d]", p->grain.x, p->grain.z, p->pos.x, p->pos.z, p->direction, p->flags));
+                LOG_ERR(("to   [g:%d,%d m:%f,%f d:%d f:%d]", next->grain.x, next->grain.z, next->pos.x, next->pos.z, next->direction, next->flags));
 
                 if (debugUnit)
                 {
@@ -2134,11 +2130,7 @@ namespace Movement
                 // Calculate grain count
                 p->grainCount = p->grainsLeft = U16
                 (
-                    Max
-                    (
-                        abs(p->grain.x - next->grain.x),
-                        abs(p->grain.z - next->grain.z)
-                    )
+                    Max(abs(p->grain.x - next->grain.x), abs(p->grain.z - next->grain.z))
                 );
             }
             else
@@ -2696,7 +2688,7 @@ namespace Movement
 
 #ifdef DEVELOPMENT
             default:
-            ERR_FATAL(("Bad stuff"))
+                ERR_FATAL(("Bad stuff"));
 #endif
         }
     }
@@ -2823,62 +2815,62 @@ namespace Movement
                     // Type specific data
                 case 0xF750D9AA: // "Line.AltChange"
                     ASSERT(type == ST_LINE)
-                    line.altChange = StdLoad::TypeU32(sScope);
+                        line.altChange = StdLoad::TypeU32(sScope);
                     break;
 
                 case 0xEDB72376: // "Line.Coeff"
                     ASSERT(type == ST_LINE)
-                    line.slopeCoeff = StdLoad::TypeF32(sScope);
+                        line.slopeCoeff = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0xF52EE02F: // "Line.Alt0"
                     ASSERT(type == ST_LINE)
-                    line.alt0 = StdLoad::TypeF32(sScope);
+                        line.alt0 = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0xF1EFFD98: // "Line.Alt1"
                     ASSERT(type == ST_LINE)
-                    line.alt1 = StdLoad::TypeF32(sScope);
+                        line.alt1 = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0x39D4A96A: // "Arc.Theta0"
                     ASSERT(type == ST_ARC)
-                    arc.theta0 = StdLoad::TypeF32(sScope);
+                        arc.theta0 = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0x3D15B4DD: // "Arc.Theta1"
                     ASSERT(type == ST_ARC)
-                    arc.theta1 = StdLoad::TypeF32(sScope);
+                        arc.theta1 = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0xCEE82281: // "Arc.Radius"
                     ASSERT(type == ST_ARC)
-                    arc.radius = StdLoad::TypeF32(sScope);
+                        arc.radius = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0xCD7F1C3F: // "Turn.Start"
                     ASSERT(type == ST_TURN)
-                    turn.start = StdLoad::TypeF32(sScope);
+                        turn.start = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0xFBAC16CD: // "Turn.Dir"
                     ASSERT(type == ST_TURN)
-                    turn.dir = StdLoad::TypeF32(sScope);
+                        turn.dir = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0x14F3934D: // "Layer.New"
                     ASSERT(type == ST_LAYER)
-                    layer.newLayer = (Claim::LayerId)StdLoad::TypeU32(sScope);
+                        layer.newLayer = (Claim::LayerId)StdLoad::TypeU32(sScope);
                     break;
 
                 case 0x51DD3C7A: // "Layer.Alt0"
                     ASSERT(type == ST_LAYER)
-                    layer.alt0 = StdLoad::TypeF32(sScope);
+                        layer.alt0 = StdLoad::TypeF32(sScope);
                     break;
 
                 case 0xC12EA7EB: // "Layer.Dir"
                     ASSERT(type == ST_LAYER)
-                    layer.dir = StdLoad::TypeF32(sScope);
+                        layer.dir = StdLoad::TypeF32(sScope);
                     break;
             }
         }
@@ -3099,24 +3091,24 @@ namespace Movement
     //
     Driver::Driver(UnitObj* unitObj)
         : state(&stateMachine, "Ready"),
-          moveState(&moveStateMachine, "Moving"),
-          pathState(&pathStateMachine, "Ready"),
-          boardState(&boardStateMachine, "None"),
-          unitObj(unitObj),
-          claimInfo(unitObj),
-          model(unitObj->UnitType()->GetMovementModel()),
-          applyBalanceData(TRUE),
-          claimGrains(TRUE),
-          traversePoint(NULL),
-          tail(0),
-          prevSmooth(FALSE),
-          blockByLayer(FALSE),
-          blockByBoard(FALSE),
-          hardReset(FALSE),
-          passUnit(FALSE),
-          omega(0.0F),
-          probeCount(0),
-          prevDirectTurn(F32_MAX)
+        moveState(&moveStateMachine, "Moving"),
+        pathState(&pathStateMachine, "Ready"),
+        boardState(&boardStateMachine, "None"),
+        unitObj(unitObj),
+        claimInfo(unitObj),
+        model(unitObj->UnitType()->GetMovementModel()),
+        applyBalanceData(TRUE),
+        claimGrains(TRUE),
+        traversePoint(NULL),
+        tail(0),
+        prevSmooth(FALSE),
+        blockByLayer(FALSE),
+        blockByBoard(FALSE),
+        hardReset(FALSE),
+        passUnit(FALSE),
+        omega(0.0F),
+        probeCount(0),
+        prevDirectTurn(F32_MAX)
     {
         ASSERT(unitObj);
         current.valid = pending.valid = FALSE;
@@ -3149,31 +3141,22 @@ namespace Movement
 
         if (snap)
         {
-            if (!claimInfo.FindClosestGrain
-                (
-                    grainPos.x, grainPos.z, grainSize,
-                    unitObj->UnitType()->GetTractionIndex(unitObj->GetCurrentLayer()),
-                    claimRange
-                ))
+            if (!claimInfo.FindClosestGrain(grainPos.x, grainPos.z, grainSize, unitObj->UnitType()->GetTractionIndex(unitObj->GetCurrentLayer()), claimRange))
             {
                 LOG_MOVE2
                 (
                     ("%5d FindClosestGrain [%4d,%4d] failed for [%s]", unitObj->Id(), grainPos.x, grainPos.z, unitObj->
-                        TypeName())
-                )
+                    TypeName())
+                );
                 unitObj->MarkForDeletion();
                 return;
             }
         }
 
         // Test for an overlap
-        if (!claimInfo.ProbeIgnore
-            (
-                grainPos.x, grainPos.z, grainPos.x + grainSize - 1, grainPos.z + grainSize - 1,
-                CLAIM_KEY
-            ))
+        if (!claimInfo.ProbeIgnore(grainPos.x, grainPos.z, grainPos.x + grainSize - 1, grainPos.z + grainSize - 1, CLAIM_KEY))
         {
-            LOG_ERR(("%5d unable to claim grains", unitObj->Id()))
+            LOG_ERR(("%5d unable to claim grains", unitObj->Id()));
             unitObj->MarkForDeletion();
             return;
         }
@@ -3377,11 +3360,11 @@ namespace Movement
             {
                 // Both requests are to board
                 if
-                (
+                    (
                     current.boardObj.Alive() &&
                     pending.boardObj.Alive() &&
                     current.boardObj->Id() == pending.boardObj->Id()
-                )
+                    )
                 {
                     isDup = TRUE;
                 }
@@ -3390,11 +3373,11 @@ namespace Movement
             {
                 // Both requests are move
                 if
-                (
+                    (
                     (current.boarding == pending.boarding) &&
                     (current.dstCell == pending.dstCell) &&
                     (current.hasDir == pending.hasDir)
-                )
+                    )
                 {
                     isDup = TRUE;
                 }
@@ -3405,16 +3388,16 @@ namespace Movement
                 LOG_MOVE1
                 (
                     (
-                        "%5d duplicate request: dst?:%c brd?:%c dst:%d,%d brdobj:%d handle:%d",
-                        unitObj->Id(),
-                        current.hasDst ? 'Y' : 'N',
-                        current.boarding ? 'Y' : 'N',
-                        current.hasDst ? current.dstCell.x : -1,
-                        current.hasDst ? current.dstCell.z : -1,
-                        current.boardObj.Alive() ? current.boardObj->Id() : -1,
-                        current.handle.id
-                    )
+                    "%5d duplicate request: dst?:%c brd?:%c dst:%d,%d brdobj:%d handle:%d",
+                    unitObj->Id(),
+                    current.hasDst ? 'Y' : 'N',
+                    current.boarding ? 'Y' : 'N',
+                    current.hasDst ? current.dstCell.x : -1,
+                    current.hasDst ? current.dstCell.z : -1,
+                    current.boardObj.Alive() ? current.boardObj->Id() : -1,
+                    current.handle.id
                 )
+                );
 
                 // Use handle of last request
                 handle.id = current.handle.id;
@@ -3428,7 +3411,7 @@ namespace Movement
         // Store the movement handle
         pending.handle.id = handle.id = GetRequestId();
 
-        LOG_MOVE2(("%5d Pending handle=%d", unitObj->Id(), pending.handle.id))
+        LOG_MOVE2(("%5d Pending handle=%d", unitObj->Id(), pending.handle.id));
 
         // Fill in extra data
         SetupRequestData(pending, req);
@@ -3480,7 +3463,7 @@ namespace Movement
     //
     void Driver::SegmentReset()
     {
-        LOG_MOVE2(("%5d SegmentReset@%d", unitObj->Id(), GameTime::SimCycle()))
+        LOG_MOVE2(("%5d SegmentReset@%d", unitObj->Id(), GameTime::SimCycle()));
 
         // Reset segments
         tail = 0;
@@ -3647,17 +3630,17 @@ namespace Movement
 
         if (blockByBoard || blockByLayer)
         {
-            LOG_MOVE1(("%5d setup: block by board or layer", unitObj->Id()))
+            LOG_MOVE1(("%5d setup: block by board or layer", unitObj->Id()));
             return (FALSE);
         }
         if (boardedObj.Alive())
         {
-            LOG_MOVE1(("%5d setup: boarded obj is alive", unitObj->Id()))
+            LOG_MOVE1(("%5d setup: boarded obj is alive", unitObj->Id()));
             return (FALSE);
         }
         if (pointList.head)
         {
-            LOG_MOVE1(("%5d setup: pointlist is not empty", unitObj->Id()))
+            LOG_MOVE1(("%5d setup: pointlist is not empty", unitObj->Id()));
             return (FALSE);
         }
 
@@ -3706,7 +3689,7 @@ namespace Movement
             case STOP_DYING:
             {
                 // Death related stop, stop instantly
-                moveState.Set(0x8A677538); // "Dying"        
+                moveState.Set(0x8A677538); // "Dying"
                 return;
             }
         }
@@ -3922,8 +3905,7 @@ namespace Movement
         {
             // Special case! 2 points in list (from the PrunePointList call by StartParallelPath)
             // In this case, prune the point list again to get a smooth transition onto the new path
-            if (pointList.head && pointList.tail && pointList.head->next == pointList.tail && (pointList.head->direction
-                != 15))
+            if (pointList.head && pointList.tail && pointList.head->next == pointList.tail && (pointList.head->direction != 15))
             {
                 Point<S32> next = pointList.tail->grain;
 
@@ -4022,10 +4004,7 @@ namespace Movement
                 {
 #ifdef DEVELOPMENT
                     DumpHeader();
-                    LOG_ERR(
-                        ("%5d BuildPath: append quadrant bad:%d-%d", unitObj->Id(), GrainToQuadrant(pointList.tail->
-                            grain.x, pointList.tail->grain.z), current.srcQuadrant));
-
+                    LOG_ERR(("%5d BuildPath: append quadrant bad:%d-%d", unitObj->Id(), GrainToQuadrant(pointList.tail->grain.x, pointList.tail->grain.z), current.srcQuadrant));
                     DumpDriver();
                     DumpPointList(&pointList, traversePoint);
                     DumpFooter();
@@ -4130,9 +4109,7 @@ namespace Movement
             if (usePathList && currPt && (cx != S32(currPt->x) || cz != S32(currPt->z)))
             {
 #ifdef DEVELOPMENT
-                LOG_ERR(
-                    ("%5d entrance to object %d (%s) is not pathable", unitObj->Id(), current.boardObj->Id(), current.
-                        boardObj->TypeName()));
+                LOG_ERR(("%5d entrance to object %d (%s) is not pathable", unitObj->Id(), current.boardObj->Id(), current.boardObj->TypeName()));
 #endif
 
                 pointList.DisposeAll();
@@ -4151,15 +4128,13 @@ namespace Movement
                 );
                 finalFlags = 0;
             }
-            /*
-            else
-            {
-              if (!current.leaving)
-              {
-                finalFlags = PathPoint::BOARDING;
-              }
-            }
-            */
+            // else
+            // {
+            //     if (!current.leaving)
+            //     {
+            //         finalFlags = PathPoint::BOARDING;
+            //     }
+            // }
 
             pointList.AddMetre(pointList.tail, hp1.x, hp1.z, -1, -1, finalFlags);
             pointList.AddMetre(pointList.tail, hp2.x, hp2.z, -1, -1, PathPoint::BOARDED);
@@ -4303,16 +4278,16 @@ namespace Movement
             else if (current.stop)
             {
 #if 0
-                        // Stop requested
-                        if (PrunePointList())
-                        {
-                            // If there are no more points left, then we have successfully stopped
-                            if (pointList.head == NULL)
-                            {
-                                LOG_MOVE2(("%5d stopped successfully", unitObj->Id()));
-                                Finished(Notify::Completed);
-                            }
-                        }
+                // Stop requested
+                if (PrunePointList())
+                {
+                    // If there are no more points left, then we have successfully stopped
+                    if (pointList.head == NULL)
+                    {
+                        LOG_MOVE2(("%5d stopped successfully", unitObj->Id()));
+                        Finished(Notify::Completed);
+                    }
+                }
 #else
                 StopPrivate();
 #endif
@@ -4337,8 +4312,8 @@ namespace Movement
         ASSERT(building);
 
         if
-        (
-                // Can enter only if no units are inside
+            (
+            // Can enter only if no units are inside
             !building->GetBoardManager()->InUse()
 
             &&
@@ -4350,18 +4325,16 @@ namespace Movement
 
             // .. and the task allows us to enter
             !building->SendEvent(Task::Event(Notify::BlockEntry, unitObj))
-        )
+            )
         {
             return (TRUE);
         }
 
 #ifdef DEVELOPMENT
-        /*
-        if (building->GetBoardManager()->InUse() && (building->GetBoardManager()->Id() == unitObj->Id()))
-        {
-          LOG_DIAG(("%5d trying to enter a building it's already in [%d]", unitObj->Id(), building->Id()))
-        }
-        */
+        // if (building->GetBoardManager()->InUse() && (building->GetBoardManager()->Id() == unitObj->Id()))
+        // {
+        //     LOG_DIAG(("%5d trying to enter a building it's already in [%d]", unitObj->Id(), building->Id()))
+        // }
 #endif
 
         return (FALSE);
@@ -4409,7 +4382,7 @@ namespace Movement
         LOG_MOVE2
         (
             ("M%6d cycle:%d %d:%s told %d:%s to move", item->handle, GameTime::SimCycle(), otherUnit->Id(), otherUnit->
-                TypeName(), unitObj->Id(), unitObj->TypeName())
+            TypeName(), unitObj->Id(), unitObj->TypeName())
         );
 
         // Need permission to interrupt the current task
@@ -4419,7 +4392,7 @@ namespace Movement
             LOG_MOVE1
             (
                 ("M%6d %d blocking: brd:%d lay:%d brdst:%s task:%s", item->handle, unitObj->Id(), blockByBoard,
-                    blockByLayer, boardState.GetName(), task ? task->GetName() : "<none>")
+                blockByLayer, boardState.GetName(), task ? task->GetName() : "<none>")
             );
             return (BUGGER_NOTALLOWED);
         }
@@ -4491,10 +4464,10 @@ namespace Movement
         U8 claimed = 0;
 
         // Solution length for each direction index
-        U8 solutionLength[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        U8 solutionLength[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
         // Time spent on the block list
-        U8 blockListLength[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        U8 blockListLength[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
         // Order to search directions in
         // Index into this table corresponds to the appropriate bit in the above variables
@@ -4523,7 +4496,7 @@ namespace Movement
         LOG_MOVE
         (
             ("M%6d ourdir:%d hisdir:%d grain:%d,%d", item->handle, initialDir, hisInitialDir, startGrain.x, startGrain.z
-            )
+        )
         );
 
         for (U8 itr = 1; itr < MaxIterations; itr++)
@@ -4548,7 +4521,7 @@ namespace Movement
                 LOG_MOVE
                 (
                     ("M%6d Itr %d.%d dir:%d grain:%d,%d", item->handle, itr, idx, directions[idx], nextGrain.x,
-                        nextGrain.z)
+                    nextGrain.z)
                 );
 
                 if (OnBlockList(nextGrain, grainSize, &blockList))
@@ -4573,7 +4546,7 @@ namespace Movement
                 }
 
                 // If moving across cells in a diagonal direction then test the surfaces of diagonals
-                Point<S32> *diag1 = NULL, *diag2 = NULL;
+                Point<S32>* diag1 = NULL, * diag2 = NULL;
                 Point<S32> diagPt1, diagPt2;
 
                 if (DirIsDiagonal[directions[idx]])
@@ -4620,7 +4593,7 @@ namespace Movement
                         {
                             for (U8 j = 0; j < probeInfo.owned; j++)
                             {
-                                ASSERT(probeInfo.obstacles[j])
+                                ASSERT(probeInfo.obstacles[j]);
 
                                 if (!probeInfo.obstacles[j]->CanEverMove())
                                 {
@@ -4640,7 +4613,7 @@ namespace Movement
                     LOG_MOVE
                     (
                         ("M%6d Solution found idx=%d dir=%d itr=%d grain=%d,%d", item->handle, idx, directions[idx], itr
-                            , nextGrain.x, nextGrain.z)
+                        , nextGrain.x, nextGrain.z)
                     );
                 }
 
@@ -4693,19 +4666,13 @@ namespace Movement
                     LOG_MOVE
                     (
                         ("M%6d Real solution idx:%d dir:%d len:%d ang:%d", item->handle, idx, directions[idx],
-                            solutionLength[idx], thisAngle)
+                        solutionLength[idx], thisAngle)
                     );
 
                     // A solution was found here
                     if (solutionLength[idx] < bestLen)
                     {
-                        LOG_MOVE
-                        (
-                            (
-                                "M%6d Better length idx:%d dir:%d len:%d ang:%d (was:%d)",
-                                item->handle, idx, directions[idx], solutionLength[idx], thisAngle, bestLen
-                            )
-                        );
+                        LOG_MOVE(("M%6d Better length idx:%d dir:%d len:%d ang:%d (was:%d)", item->handle, idx, directions[idx], solutionLength[idx], thisAngle, bestLen));
 
                         // Shorter direction is better
                         bestIndex = idx;
@@ -4717,13 +4684,7 @@ namespace Movement
                         // Smaller angle relative to requesting unit is better
                         if (thisAngle < bestAngle)
                         {
-                            LOG_MOVE
-                            (
-                                (
-                                    "M%6d Better angle idx:%d dir:%d len:%d ang:%d (was:%d)",
-                                    item->handle, idx, directions[idx], solutionLength[idx], thisAngle, bestAngle
-                                )
-                            );
+                            LOG_MOVE(("M%6d Better angle idx:%d dir:%d len:%d ang:%d (was:%d)", item->handle, idx, directions[idx], solutionLength[idx], thisAngle, bestAngle));
 
                             bestIndex = idx;
                             bestAngle = thisAngle;
@@ -4804,9 +4765,9 @@ namespace Movement
                         LOG_MOVE
                         (
                             (
-                                "M%6d Better score idx:%d dir:%d len:%d ang:%d score:%f (was:%f)",
-                                item->handle, idx, directions[idx], solutionLength[idx], thisAngle, thisScore, bestScore
-                            )
+                            "M%6d Better score idx:%d dir:%d len:%d ang:%d score:%f (was:%f)",
+                            item->handle, idx, directions[idx], solutionLength[idx], thisAngle, thisScore, bestScore
+                        )
                         );
 
                         bestScore = thisScore;
@@ -5097,9 +5058,9 @@ namespace Movement
             LOG_MOVE
             (
                 ("%5d AddGrain %3d, %3d after %3d,%3d", unitObj->Id(), list[i].x, list[i].z, from->grain.x, from->grain.
-                    z)
+                z)
             )
-            from = pointList.AddGrain(from, list[i].x, list[i].z, grainSize);
+                from = pointList.AddGrain(from, list[i].x, list[i].z, grainSize);
         }
 
         if (from && from->next)
@@ -5123,16 +5084,16 @@ namespace Movement
     {
         // This is the longer of the 2 axis of the delta
         S32 closestDist = Max<S32>
-        (
+            (
             abs(traceData.to->grain.x - traceData.closestPt.x),
             abs(traceData.to->grain.z - traceData.closestPt.z)
-        );
+            );
 
         // Traces collided and didnt get us any closer than before
         if (traceData.collided && (traceData.origDist <= (closestDist + 1)))
         {
             LOG_MOVE(("%5d traces collided and still %d away (was %d)", unitObj->Id(), closestDist, traceData.origDist))
-            ;
+                ;
             return (TRACE_DSTINAHOLE);
         }
 
@@ -5140,7 +5101,7 @@ namespace Movement
         S32 remaining = pointList.RemainingLength(traversePoint ? traversePoint : pointList.head);
 
         LOG_MOVE(("%5d closest=%d (td=%d), remaining=%d", unitObj->Id(), closestDist, traceData.closestDist, remaining))
-        ;
+            ;
 
         if (remaining <= closestDist + 1)
         {
@@ -5259,7 +5220,7 @@ namespace Movement
                 LOG_MOVE
                 (
                     ("  Sense %d Iteration %2d pos=%3d,%3d dir=%d, prevdir=%d", s, itr + 1, traceData.sense[s].curPos.x,
-                        traceData.sense[s].curPos.z, dir, traceData.sense[s].lastDir)
+                    traceData.sense[s].curPos.z, dir, traceData.sense[s].lastDir)
                 );
 
                 // Current cell
@@ -5275,7 +5236,7 @@ namespace Movement
 
                     // Is grain still in range
                     if (abs(traceData.oPos.x - pos.x) > MAX_TRACE_DIST || abs(traceData.oPos.z - pos.z) > MAX_TRACE_DIST
-                    )
+                        )
                     {
                         // Hit edge of search range
                         traceData.sense[s].aborted = TRUE;
@@ -5325,9 +5286,9 @@ namespace Movement
 
                         // Check for claiming
                         if (!claimInfo.ProbeIgnore
-                            (
-                                pos.x, pos.z, pos.x + grainSize - 1, pos.z + grainSize - 1,
-                                CLAIM_KEY, &probeInfo
+                        (
+                            pos.x, pos.z, pos.x + grainSize - 1, pos.z + grainSize - 1,
+                            CLAIM_KEY, &probeInfo
                             ))
                         {
                             if (probeInfo.owned == 0)
@@ -5355,7 +5316,7 @@ namespace Movement
                                                 LOG_MOVE
                                                 (
                                                     ("  Grain %3d,%3d blocked by stopping unit (%d)", pos.x, pos.z, unit
-                                                        ->Id())
+                                                    ->Id())
                                                 );
 
                                                 // Unit is stopping
@@ -5367,7 +5328,7 @@ namespace Movement
                                                 LOG_MOVE
                                                 (
                                                     ("  Grain %3d,%3d blocked by blocked unit (%d)", pos.x, pos.z, unit
-                                                        ->Id())
+                                                    ->Id())
                                                 );
 
                                                 // Unit can't move
@@ -5380,7 +5341,7 @@ namespace Movement
                                             LOG_MOVE
                                             (
                                                 ("  Grain %3d,%3d blocked by stationary unit (%d)", pos.x, pos.z, unit->
-                                                    Id())
+                                                Id())
                                             );
 
                                             // Unit is stopped, try and avoid it
@@ -5393,7 +5354,7 @@ namespace Movement
                                         LOG_MOVE
                                         (
                                             ("  Grain %3d,%3d blocked by immovable unit (%d)", pos.x, pos.z, unit->Id()
-                                            )
+                                        )
                                         );
 
                                         // Unit can't be moved so this grain is out
@@ -5556,15 +5517,13 @@ namespace Movement
                 if (giveUp)
                 {
                     LOG_MOVE2
-                    (
-                        (
-                            "%5d Giving up %d,%d to %d,%d, grains=%d tasks=%d",
-                            unitObj->Id(), current.dstCell.x, current.dstCell.z,
-                            unitObj->GetCellX(), unitObj->GetCellZ(),
-                            traversePoint == NULL ? -1 : pointList.RemainingLength(traversePoint),
-                            unitObj->GetTaskList().GetCount()
-                        )
-                    );
+                    ((
+                        "%5d Giving up %d,%d to %d,%d, grains=%d tasks=%d",
+                        unitObj->Id(), current.dstCell.x, current.dstCell.z,
+                        unitObj->GetCellX(), unitObj->GetCellZ(),
+                        traversePoint == NULL ? -1 : pointList.RemainingLength(traversePoint),
+                        unitObj->GetTaskList().GetCount()
+                    ));
 
                     Finished(Notify::Completed);
                     return (QTR_GAVEUP);
@@ -5698,7 +5657,7 @@ namespace Movement
             case SMN_EXIT:
             {
                 ASSERT(pointList.head == NULL)
-                return;
+                    return;
             }
         }
     }
@@ -5851,7 +5810,7 @@ namespace Movement
                 break;
             }
 
-                // There is a unit ahead
+            // There is a unit ahead
             case SO_SLOWDOWN:
             case SO_CONTINUE:
             {
@@ -5867,7 +5826,7 @@ namespace Movement
                 break;
             }
 
-                // Blocked from moving forwards
+            // Blocked from moving forwards
             case SO_BLOCKED:
             {
                 // Tell unit to get out of way?
@@ -5878,7 +5837,7 @@ namespace Movement
                 break;
             }
 
-                // Blocked from changing layers
+            // Blocked from changing layers
             case SO_BLOCKED_VERTICAL:
             {
                 // Tell unit to get out of way?
@@ -5889,7 +5848,7 @@ namespace Movement
                 break;
             }
 
-                // Blocked from entering a building
+            // Blocked from entering a building
             case SO_BLOCKED_ENTRY:
             {
                 unitObj->SetSpeed(0.0F);
@@ -5899,7 +5858,7 @@ namespace Movement
                 break;
             }
 
-                // Terrain has changed
+            // Terrain has changed
             case SO_REPATH:
             {
                 // Terrain has changed, need to repath
@@ -6149,20 +6108,20 @@ namespace Movement
             Bool cont = FALSE;
 
             if
-            (
-                    // Been waiting for a path
+                (
+                // Been waiting for a path
                 moveState.Test(0x401CF735) // "WaitingPath"
 
                 ||
 
                 // Or has found a path but hasn't been booted into it
                 (pointList.head && !pointList.curr)
-            )
+                )
             {
                 LOG_MOVE2
                 (
                     ("%5d ContinueDriving cont=%d moveState=%s head=%.8X curr=%.8X", unitObj->Id(), cont, moveState.
-                        GetName(), pointList.head, pointList.curr)
+                    GetName(), pointList.head, pointList.curr)
                 );
                 cont = TRUE;
             }
@@ -6194,7 +6153,7 @@ namespace Movement
                 LOG_MOVE1
                 (
                     ("%5d ContinueDriving: next state was !driving", unitObj->dTrack.id
-                        /*, state.NextState()->GetName()*/)
+                /*, state.NextState()->GetName()*/)
                 );
             }
             state.Set(0xDCED7E12); // "Driving"
@@ -6274,12 +6233,12 @@ namespace Movement
                                     {
                                         // Can give up now
                                         LOG_MOVE1
-                                        (
-                                            ("%5d Giving up %d,%d to %d,%d, grains=%d tasks=%d", unitObj->Id(), current.
-                                                dstCell.x, current.dstCell.z, unitObj->GetCellX(), unitObj->GetCellZ(),
-                                                traversePoint == NULL ? -1 : pointList.RemainingLength(traversePoint),
-                                                unitObj->GetTaskList().GetCount())
-                                        );
+                                        ((
+                                            "%5d Giving up %d,%d to %d,%d, grains=%d tasks=%d", unitObj->Id(), current.
+                                            dstCell.x, current.dstCell.z, unitObj->GetCellX(), unitObj->GetCellZ(),
+                                            traversePoint == NULL ? -1 : pointList.RemainingLength(traversePoint),
+                                            unitObj->GetTaskList().GetCount()
+                                        ));
                                         Finished(Notify::Completed);
                                         break;
                                     }
@@ -6428,8 +6387,7 @@ namespace Movement
                         }
 
                         // Same cell while boarding means we are already on the board point
-                        if ((current.boarding && current.boardObj.Alive()) || (current.leaving && current
-                                                                                                  .leaveObj.Alive()))
+                        if ((current.boarding && current.boardObj.Alive()) || (current.leaving && current.leaveObj.Alive()))
                         {
                             // Build a path, not including pathsearch points
                             if (BuildPath(FALSE))
@@ -6450,11 +6408,11 @@ namespace Movement
                                 LOG_MOVE2
                                 (
                                     ("%5d SameCell: from %d,%d q:%d to %d,%d q:%d curr g:%d,%d q:%d pointList:%d",
-                                        unitObj->Id(),
-                                        current.srcCell.x, current.srcCell.z, current.srcQuadrant,
-                                        current.dstCell.x, current.dstCell.z, current.dstQuadrant,
-                                        grainPos.x, grainPos.z, quadrant,
-                                        pointList.head)
+                                    unitObj->Id(),
+                                    current.srcCell.x, current.srcCell.z, current.srcQuadrant,
+                                    current.dstCell.x, current.dstCell.z, current.dstQuadrant,
+                                    grainPos.x, grainPos.z, quadrant,
+                                    pointList.head)
                                 );
 
                                 if (current.leaving)
@@ -6894,9 +6852,7 @@ namespace Movement
 #ifdef DEVELOPMENT
             if (unitObj->GetBalanceData().speed < 0.05F)
             {
-                LOG_MOVE1(
-                    ("%5d Balance speed too low [%f] for [%s]", unitObj->Id(), unitObj->GetBalanceData().speed, unitObj
-                        ->TypeName()));
+                LOG_MOVE1(("%5d Balance speed too low [%f] for [%s]", unitObj->Id(), unitObj->GetBalanceData().speed, unitObj->TypeName()));
             }
 #endif
             requiredSpeed *= Max<F32>(unitObj->GetBalanceData().speed, 0.05F);
@@ -7019,15 +6975,13 @@ namespace Movement
                     unitObj->SetAnimation(stepInfo.next);
                 }
 
-                // If its a controlled animation, setup banking information
-                /*
-                if (animList->type = animCONTROL)
-                {
-                  unitObj->Mesh().SetAnimTargetFrame(2.0F + stepInfo.controlFrame);
-                  //unitObj->Mesh().Set
-                }
-                else
-                */
+                // // If its a controlled animation, setup banking information
+                // if (animList->type = animCONTROL)
+                // {
+                //     unitObj->Mesh().SetAnimTargetFrame(2.0F + stepInfo.controlFrame);
+                //     //unitObj->Mesh().Set
+                // }
+                // else
                 {
                     F32 fps = stepInfo.factor ? animList->framesPerMeter * unitObj->GetSpeed() : animList->animSpeed;
                     unitObj->SetAnimationSpeed(fps);
@@ -7049,7 +7003,7 @@ namespace Movement
             LOG_MOVE1
             (
                 ("%5d terrainchangerepath@%d handle=%d boardState=%s", unitObj->Id(), GameTime::SimCycle(), current.
-                    handle.id, boardState.GetName())
+                handle.id, boardState.GetName())
             );
 
             // Reset movement but don't invalidate current request
@@ -7144,8 +7098,7 @@ namespace Movement
             do
             {
                 from = from->next;
-            }
-            while (from && (from->direction == INVALID_DIR));
+            } while (from && (from->direction == INVALID_DIR));
         }
 
         // If there are valid segments, build from the first valid one
@@ -7187,7 +7140,7 @@ namespace Movement
                 LOG_MOVE
                 (
                     ("%5d BuildProbeBuf[%d]: %d,%d", unitObj->Id(), count, buffer[count].grain.x, buffer[count].grain.z
-                    )
+                )
                 );
 
                 ASSERT(GrainOnMap(buffer[count].grain.x, buffer[count].grain.z));
@@ -7232,10 +7185,10 @@ namespace Movement
 
             // Test optional diagonals
             if
-            (
+                (
                 (diag1 && !PathSearch::CanMoveToCell(tractionIndex, diag1->x, diag1->z)) ||
                 (diag2 && !PathSearch::CanMoveToCell(tractionIndex, diag2->x, diag2->z))
-            )
+                )
             {
                 return U32(PROBE_IMPASSABLE);
             }
@@ -7243,9 +7196,9 @@ namespace Movement
 
         // Check if cell is not claimed
         if (!claimInfo.ProbeIgnore
-            (
-                grain.x, grain.z, grain.x + grainSize - 1, grain.z + grainSize - 1, CLAIM_KEY,
-                probeInfo
+        (
+            grain.x, grain.z, grain.x + grainSize - 1, grain.z + grainSize - 1, CLAIM_KEY,
+            probeInfo
             ))
         {
             return U32(PROBE_CLAIMED);
@@ -7400,13 +7353,13 @@ namespace Movement
 
                         // Above distance in grains
                         S32 dstOfs = Clamp<S32>
-                        (
+                            (
                             0, Utils::FtoL
                             (
-                                (dist + HALF_GRAIN) * DirIndexToDistanceInv[currentPoint->direction] + F32_MIN_MOD
+                            (dist + HALF_GRAIN) * DirIndexToDistanceInv[currentPoint->direction] + F32_MIN_MOD
                             ),
                             currentPoint->grainCount
-                        );
+                            );
 
                         // Current offset
                         S32 srcOfs = S32(currentPoint->grainCount) - S32(currentPoint->grainsLeft);
@@ -7430,7 +7383,7 @@ namespace Movement
                                     LOG_MOVE1
                                     (
                                         ("%5d Can't move to grain %d,%d, repathing", unitObj->Id(), testGrain.x,
-                                            testGrain.z)
+                                        testGrain.z)
                                     );
                                     return (SO_REPATH);
                                 }
@@ -7453,9 +7406,9 @@ namespace Movement
 
                         // Claim those grains
                         if (!claimInfo.ProbeIgnore
-                            (
-                                grainPos.x, grainPos.z, grainPos.x + grainSize - 1,
-                                grainPos.z + grainSize - 1, CLAIM_KEY
+                        (
+                            grainPos.x, grainPos.z, grainPos.x + grainSize - 1,
+                            grainPos.z + grainSize - 1, CLAIM_KEY
                             ))
                         {
 #ifdef DEVELOPMENT
@@ -7525,31 +7478,31 @@ namespace Movement
                     if (currentPoint)
                     {
 #ifdef DEBUGSEGMENTS
-                    if (currentPoint != currSeg.pointAdvance)
-                    {
-                        DumpHeader();
+                        if (currentPoint != currSeg.pointAdvance)
+                        {
+                            DumpHeader();
 
-                        LOG_ERR(("CurrPt: %.8X != CurrSeg.pt %.8X", currentPoint, currSeg.pointAdvance));
+                            LOG_ERR(("CurrPt: %.8X != CurrSeg.pt %.8X", currentPoint, currSeg.pointAdvance));
 
-                        DumpDriver();
-                        DumpPointList(&pointList, NULL);
-                        DumpFooter();
-                    }
-                    ASSERT(currentPoint == currSeg.pointAdvance)
+                            DumpDriver();
+                            DumpPointList(&pointList, NULL);
+                            DumpFooter();
+                        }
+                        ASSERT(currentPoint == currSeg.pointAdvance)
 #endif
 
-                        // Are we allowed to proceed past this point?
-                        switch (ProcessSegmentFlags(currentPoint->flags))
-                        {
-                            case PSF_BLOCKED:
-                                return (SO_BLOCKED);
+                            // Are we allowed to proceed past this point?
+                            switch (ProcessSegmentFlags(currentPoint->flags))
+                            {
+                                case PSF_BLOCKED:
+                                    return (SO_BLOCKED);
 
-                            case PSF_BLOCKED_ENTRY:
-                                return (SO_BLOCKED_ENTRY);
+                                case PSF_BLOCKED_ENTRY:
+                                    return (SO_BLOCKED_ENTRY);
 
-                            case PSF_ABORT:
-                                return (SO_ABORT);
-                        }
+                                case PSF_ABORT:
+                                    return (SO_ABORT);
+                            }
                     }
 
                     currSeg.pointAdvance = 0;
@@ -7558,11 +7511,11 @@ namespace Movement
                     if (claimGrains)
                     {
                         if
-                        (
+                            (
                             traversePoint &&
                             (traversePoint->grainsLeft > 0) &&
                             (traversePoint->direction != INVALID_DIR)
-                        )
+                            )
                         {
                             ASSERT(traversePoint->grainsLeft == 1);
 
@@ -7869,7 +7822,7 @@ namespace Movement
         LOG_MOVE
         (
             ("%5d LineSeg[%d]: c%d %.8X %6.1f,%6.1f->%6.1f,%6.1f", unitObj->Id(), tail - 1, consume, pt, seg.p0.x, seg.
-                p0.z, seg.p1.x, seg.p1.z)
+            p0.z, seg.p1.x, seg.p1.z)
         );
 
         if (pt)
@@ -7898,8 +7851,8 @@ namespace Movement
     {
         ASSERT(p1.x != from.p1.x || p1.z != from.p1.z)
 
-        // If tangents are close enough, insert a line instead
-        F32 dot = Dot2d(t1, from.o);
+            // If tangents are close enough, insert a line instead
+            F32 dot = Dot2d(t1, from.o);
 
         if (dot > COS_5_DEGREES)
         {
@@ -7997,7 +7950,7 @@ namespace Movement
         LOG_MOVE
         (
             ("%5d ArcSeg [%d]: c%d %.8X %6.1f,%6.1f->%6.1f,%6.1f", unitObj->Id(), tail - 1, consume, pt, seg.p0.x, seg.
-                p0.z, seg.p1.x, seg.p1.z)
+            p0.z, seg.p1.x, seg.p1.z)
         );
         //LOG_MOVE(("ArcSeg r=%6.1f, a=%6.3f d=%6.1f o=%f,%f", seg.radius, angle * RAD2DEG, seg.length, seg.o.x, seg.o.z))
 
@@ -8046,7 +7999,7 @@ namespace Movement
         LOG_MOVE
         (
             ("%5d TurnSeg[%d]: c%d %.8X %6.3f->%6.3f (%6.3f) dir=%.0f", unitObj->Id(), tail - 1, consume, pt, seg.turn.
-                start, end, seg.length, seg.turn.dir)
+            start, end, seg.length, seg.turn.dir)
         );
 
         if (pt)
@@ -8272,11 +8225,11 @@ namespace Movement
                     F32 smoothed = Min<F32>(Min<F32>(lenDelta0, lenDelta1) * 0.5F, MAX_SMOOTH) * 0.95F;
                     ASSERT(smoothed > 0.0F)
 
-                    Segment& prevSeg = InsertLineSegment
-                    (
+                        Segment& prevSeg = InsertLineSegment
+                        (
                         p0, pointList.curr->pos, smoothed, !prevSmooth,
                         prevSmooth ? NULL : pointList.curr->prev, changeAlt
-                    );
+                        );
 
                     // Check for layer change
                     if (pointList.curr->flags & PathPoint::LAYERCHANGE)
@@ -8373,7 +8326,7 @@ namespace Movement
         LOG_MOVE
         (
             ("%5d ConsumeSegment: %d %6.3f,%6.3f->%6.3f,%6.3f", unitObj->Id(), segments[0].type, segments[0].p0.x,
-                segments[0].p0.z, segments[0].p1.x, segments[0].p0.z)
+            segments[0].p0.z, segments[0].p1.x, segments[0].p0.z)
         );
 
         // Delete the segment
@@ -8865,8 +8818,8 @@ namespace Movement
 #if 1
         addToMapHookProc = editMode ? &Movement::Driver::AddToMapHookEdit : &Movement::Driver::AddToMapHookGame;
         removeFromMapHookProc = editMode
-                                    ? &Movement::Driver::RemoveFromMapHookEdit
-                                    : &Movement::Driver::RemoveFromMapHookGame;
+            ? &Movement::Driver::RemoveFromMapHookEdit
+            : &Movement::Driver::RemoveFromMapHookGame;
 #else
         editMode;
 
@@ -8987,7 +8940,7 @@ namespace Movement
         // Render trace data
         if (traceData.valid)
         {
-            const F32 ALT[2] = {1.0F, 1.2F};
+            const F32 ALT[2] = { 1.0F, 1.2F };
             const Color TraceClr[2] =
             {
                 Color(255L, 128L, 0L),
@@ -9003,10 +8956,10 @@ namespace Movement
                 while (pt.x != traceData.oPos.x || pt.z != traceData.oPos.z)
                 {
                     if
-                    (
+                        (
                         abs(traceData.oPos.x - pt.x) > MAX_TRACE_DIST ||
                         abs(traceData.oPos.z - pt.z) > MAX_TRACE_DIST
-                    )
+                        )
                     {
                         break;
                     }
@@ -9039,27 +8992,27 @@ namespace Movement
         MonoBufWriteV
         (
             buf, (row++, 0,
-                "Unit Id: %6d Type:%-32s", unitObj->Id(), unitObj->TypeName())
+            "Unit Id: %6d Type:%-32s", unitObj->Id(), unitObj->TypeName())
         );
 
         MonoBufWriteV
         (
             buf, (row++, 0,
-                "grain: %4d,%4d (q:%d) spd:%7.1f[%6.1f,%6.1f,%6.1f] omega:%7.1f",
-                grainPos.x, grainPos.z, quadrant,
-                unitObj->GetSpeed(), unitObj->GetVelocity().x, unitObj->GetVelocity().y, unitObj->GetVelocity().z, omega
-            )
+            "grain: %4d,%4d (q:%d) spd:%7.1f[%6.1f,%6.1f,%6.1f] omega:%7.1f",
+            grainPos.x, grainPos.z, quadrant,
+            unitObj->GetSpeed(), unitObj->GetVelocity().x, unitObj->GetVelocity().y, unitObj->GetVelocity().z, omega
+        )
         );
 
         MonoBufWriteV
         (
             buf, (row++, 0,
-                "state:%-12s moveState:%-12s boardState:%-12s slow:%c ",
-                state.GetName(), moveState.GetName(), boardState.GetName(), 'N'/*slowingDown ? 'Y' : 'N'*/)
+            "state:%-12s moveState:%-12s boardState:%-12s slow:%c ",
+            state.GetName(), moveState.GetName(), boardState.GetName(), 'N'/*slowingDown ? 'Y' : 'N'*/)
         );
 
-        Request* reqs[2] = {&current, &pending};
-        const char* rstr[2] = {"current", "pending"};
+        Request* reqs[2] = { &current, &pending };
+        const char* rstr[2] = { "current", "pending" };
 
         for (U32 r = 0; r < 2; r++)
         {
@@ -9072,23 +9025,23 @@ namespace Movement
                 MonoBufWriteV
                 (
                     buf, (row++, 0,
-                        "%7s  dst:%4d,%4d -> %4d,%4d (q:%d) dir:%5.2f.%5.2f ",
-                        rstr[r],
-                        req->hasDst ? req->srcCell.x : 0, req->hasDst ? req->srcCell.z : 0,
-                        req->hasDst ? req->dstCell.x : 0, req->hasDst ? req->dstCell.z : 0,
-                        req->hasDst ? req->dstQuadrant : 0,
-                        req->hasDir ? req->dir.x : 0.0F, req->hasDir ? req->dir.z : 0.0F)
+                    "%7s  dst:%4d,%4d -> %4d,%4d (q:%d) dir:%5.2f.%5.2f ",
+                    rstr[r],
+                    req->hasDst ? req->srcCell.x : 0, req->hasDst ? req->srcCell.z : 0,
+                    req->hasDst ? req->dstCell.x : 0, req->hasDst ? req->dstCell.z : 0,
+                    req->hasDst ? req->dstQuadrant : 0,
+                    req->hasDir ? req->dir.x : 0.0F, req->hasDir ? req->dir.z : 0.0F)
                 );
 
                 MonoBufWriteV
                 (
                     buf, (row++, 0,
-                        "  tract:%3d path:%d layer:%c giveup:%3d board:%c leave:%c stop:%c layer:%c order:%c ",
-                        req->tractionIndex, req->pathingMethod,
-                        req->searchLayer == Claim::LAYER_LOWER ? 'L' : 'U',
-                        req->giveUpGrains,
-                        req->boarding ? 'Y' : 'N', req->leaving ? 'Y' : 'N', req->stop ? 'Y' : 'N',
-                        req->layerChange ? 'Y' : 'N', req->fromOrder ? 'Y' : 'N')
+                    "  tract:%3d path:%d layer:%c giveup:%3d board:%c leave:%c stop:%c layer:%c order:%c ",
+                    req->tractionIndex, req->pathingMethod,
+                    req->searchLayer == Claim::LAYER_LOWER ? 'L' : 'U',
+                    req->giveUpGrains,
+                    req->boarding ? 'Y' : 'N', req->leaving ? 'Y' : 'N', req->stop ? 'Y' : 'N',
+                    req->layerChange ? 'Y' : 'N', req->fromOrder ? 'Y' : 'N')
                 );
             }
             else

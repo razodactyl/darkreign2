@@ -621,7 +621,7 @@ namespace Network
             // Make sure the reply is sane
             if (recv < headerLength + ICMP::MinimumSize)
             {
-                //LOG_DIAG("Too few bytes from " << address)
+                // LOG_DIAG("Too few bytes from " << address)
                 return (FALSE);
             }
             type = headerICMP->type;
@@ -643,14 +643,14 @@ namespace Network
                     return (FALSE);
 
                 default:
-                    //LDIAG("Unknown ICMP packet type " << int(headerICMP->type);<< " received");
+                    // LDIAG("Unknown ICMP packet type " << int(headerICMP->type);<< " received");
                     return (FALSE);
             }
 
             // Grab the sequence number
             seq = headerICMP->seq;
 
-            // Figure out how far the packet travelled
+            // Figure out how far the packet traveled
             hops = U8(256 - headerIP->ttl);
 
             if (hops == 192)
@@ -680,10 +680,10 @@ namespace Network
 
             if (headerICMP->type == ICMP::Type::TimeExceeded)
             {
-                //LDIAG("TTL expired.");
+                // LDIAG("TTL expired.");
                 return (FALSE);
             }
-            //LDIAG("Ping: " << (int) rtt << " Hops: " << (int) hops << " TTL: " << (int) headerIP->ttl);
+            // LDIAG("Ping: " << (int) rtt << " Hops: " << (int) hops << " TTL: " << (int) headerIP->ttl);
             return (TRUE);
         }
 
@@ -747,7 +747,7 @@ namespace Network
                                         // We lost a ping or they are returning out of sequence
                                         lost = diff;
 
-                                        // Move the expeceted sequence to this ping
+                                        // Move the expected sequence to this ping
                                         sequence->in = U16(seq);
                                     }
 

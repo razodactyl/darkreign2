@@ -231,6 +231,7 @@
     <ClCompile Include="BucketDesc.cpp" />
     <ClCompile Include="buckets_light.cpp" />
     <ClCompile Include="buckets_lock.cpp" />
+    <ClCompile Include="meshmrm.cpp" />
     <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="TranBucket.cpp" />
     <ClCompile Include="camera.cpp" />

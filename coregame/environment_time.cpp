@@ -126,11 +126,7 @@ namespace Environment
         //
         const CH* GetDayOfWeekStr()
         {
-            return (TRANSLATE
-                (
-                    (MultiLanguage::BuildKey(2, "standard.days", Clock::Date::GetDayStr(Clock::Date::DayOfWeek(year, month,
-                        day))))
-                ));
+            return (TRANSLATE((MultiLanguage::BuildKey(2, "standard.days", Clock::Date::GetDayStr(Clock::Date::DayOfWeek(year, month, day))))));
         }
 
 

@@ -281,7 +281,7 @@ namespace MultiPlayer
                             char buf[200];
 
                             LOG_DIAG(("%s has a different build", player ? player->GetName() : "???"))
-                            Utils::Sprintf(buf, 200, "notes that '%s' had a different version", player ? player->GetName() : "???");
+                            Utils::Sprintf(buf, 200, "notes that '%s' is running a different version", player ? player->GetName() : "???");
                             Data::Send(Commands::MessageQuote, Utils::Strlen(buf) + 1, (const U8*)buf, FALSE);
                         }
 
@@ -317,7 +317,7 @@ namespace MultiPlayer
                         }
                         else
                         {
-                            // Clear our launch readyness
+                            // Clear our launch readiness
                             pi->launchReady = FALSE;
                             Data::Store(*pi, from);
                         }
@@ -1165,7 +1165,7 @@ namespace MultiPlayer
                 {
                     // "MultiError"
                     CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.setup.error.wrongversion", 1, Utils::Ansi2Unicode(np->GetName())))))
-                    LOG_DIAG(("%s has the a different version", np->GetName()))
+                    LOG_DIAG(("%s has a different version", np->GetName()))
                     return (FALSE);
                 }
 

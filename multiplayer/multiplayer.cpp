@@ -60,11 +60,11 @@ namespace MultiPlayer
     LOGDEFLOCAL("MultiPlayer")
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Prototypes
-    //
-    static void Handler(CRC from, U32 key, U32 size, const U8* data);
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Prototypes
+        //
+        static void Handler(CRC from, U32 key, U32 size, const U8* data);
     static void CmdLineHookProc(const Main::CmdLineArg& arg, const Main::CmdLineVal& val);
 
 
@@ -633,37 +633,35 @@ namespace MultiPlayer
                 BinTree<GroupTree> groups;
                 BuildPlayerHierachy(groups);
 
-                /*
-                {
-                  for (BinTree<GroupTree>::Iterator gti(&groups); *gti; gti++)
-                  {
-                    LOG_DIAG(("Group %d", gti.GetKey()))
-
-                    for (BinTree<TeamTree>::Iterator tti(&(*gti)->teams); *tti; tti++)
-                    {
-                      LOG_DIAG((" Team %d", tti.GetKey()))
-                      LOG_DIAG((" - group id: %d", (*tti)->team->groupId))
-                      LOG_DIAG((" - owner id: %08X", (*tti)->team->ownerId))
-                      LOG_DIAG((" - color: %d", (*tti)->team->color))
-                      LOG_DIAG((" - startlocation: %08X", (*tti)->team->startLocation))
-                      LOG_DIAG((" - ai: %d", (*tti)->team->ai))
-                      LOG_DIAG((" - personality: %08X", (*tti)->team->personality))
-                      LOG_DIAG((" - difficulty: %08X", (*tti)->team->difficulty))
-                      LOG_DIAG((" - side: %s", (*tti)->team->side.str))
-
-                      for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; pi++)
-                      {
-                        LOG_DIAG(("  Player %08X", pi.GetKey()))
-                        LOG_DIAG(("  - CPU: %s", (*pi)->cpu.str))
-                        LOG_DIAG(("  - Memory: %d", (*pi)->memory))
-                        LOG_DIAG(("  - Video: %s", (*pi)->video.str))
-                        LOG_DIAG(("  - OS: %s", (*pi)->os.str))
-                        LOG_DIAG(("  - Ready: %d", (*pi)->ready))
-                      }
-                    }
-                  }
-                }
-                */
+                // {
+                //     for (BinTree<GroupTree>::Iterator gti(&groups); *gti; gti++)
+                //     {
+                //         LOG_DIAG(("Group %d", gti.GetKey()));
+                //
+                //         for (BinTree<TeamTree>::Iterator tti(&(*gti)->teams); *tti; tti++)
+                //         {
+                //             LOG_DIAG((" Team %d", tti.GetKey()));
+                //             LOG_DIAG((" - group id: %d", (*tti)->team->groupId));
+                //             LOG_DIAG((" - owner id: %08X", (*tti)->team->ownerId));
+                //             LOG_DIAG((" - color: %d", (*tti)->team->color));
+                //             LOG_DIAG((" - startlocation: %08X", (*tti)->team->startLocation));
+                //             LOG_DIAG((" - ai: %d", (*tti)->team->ai));
+                //             LOG_DIAG((" - personality: %08X", (*tti)->team->personality));
+                //             LOG_DIAG((" - difficulty: %08X", (*tti)->team->difficulty));
+                //             LOG_DIAG((" - side: %s", (*tti)->team->side.str));
+                //
+                //             for (BinTree<const Player>::Iterator pi(&(*tti)->players); *pi; pi++)
+                //             {
+                //                 LOG_DIAG(("  Player %08X", pi.GetKey()));
+                //                 LOG_DIAG(("  - CPU: %s", (*pi)->cpu.str));
+                //                 LOG_DIAG(("  - Memory: %d", (*pi)->memory));
+                //                 LOG_DIAG(("  - Video: %s", (*pi)->video.str));
+                //                 LOG_DIAG(("  - OS: %s", (*pi)->os.str));
+                //                 LOG_DIAG(("  - Ready: %d", (*pi)->ready));
+                //             }
+                //         }
+                //     }
+                // }
 
                 // Execute loading config
                 U32 teamId = 0;
@@ -690,15 +688,17 @@ namespace MultiPlayer
                         switch (options->placement)
                         {
                             case Settings::Options::Fixed:
+                            {
                                 team = ::Team::NameCrc2Team((*tti)->team->startLocation);
                                 if (!team)
                                 {
                                     ERR_FATAL(("Could not find team"));
                                 }
                                 break;
+                            }
 
                             case Settings::Options::Random:
-
+                            {
                                 if (!teams.GetCount())
                                 {
                                     ERR_FATAL(("More players than teams"));
@@ -711,6 +711,7 @@ namespace MultiPlayer
                                 team = teams[index];
                                 teams.Unlink(team);
                                 break;
+                            }
                         }
 
                         const TeamMap* mapping;
@@ -822,7 +823,7 @@ namespace MultiPlayer
                             LOG_DIAG
                             (
                                 ("Creating AI [%08X] for Team '%s' [%d]", (*tti)->team->personality, team->GetName(),
-                                    team->GetId())
+                                team->GetId())
                             );
                         }
 
@@ -842,7 +843,7 @@ namespace MultiPlayer
                             LOG_DIAG
                             (
                                 ("Creating Player '%s' for Team '%s' [%d]", networkPlayer->GetName(), team->GetName(),
-                                    team->GetId())
+                                team->GetId())
                             );
 
                             // If this is the local player then set the current player
@@ -880,7 +881,7 @@ namespace MultiPlayer
                                     LOG_DIAG
                                     (
                                         ("Setting relation between %d and %d to %s", teamWho->GetId(), teamWith->GetId()
-                                            , relation.GetName())
+                                        , relation.GetName())
                                     );
 
                                     teamWho->SetRelation(teamWith->GetId(), relation);
@@ -1087,11 +1088,11 @@ namespace MultiPlayer
 
             // Does this network player have Player and PlayerInfo and a Team ?
             if
-            (
+                (
                 Data::Get(&player, playerId) &&
                 Data::Get(&playerInfo, playerId) &&
                 Data::Get(&team, playerInfo->teamId)
-            )
+                )
             {
                 // Do we have an entry for this teams group ?
                 GroupTree* groupTree;
@@ -1308,17 +1309,17 @@ namespace MultiPlayer
                     switch (key)
                     {
                         case Commands::Message:
-                        CONSOLE(0x4DBB67F6, ("[%s] %s", player->GetName(), data)); // "ChatMessage"
+                            CONSOLE(0x4DBB67F6, ("[%s] %s", player->GetName(), data)); // "ChatMessage"
                             break;
 
                         case Commands::MessageQuote:
-                        CONSOLE(0x18B19FE6, ("%s %s", player->GetName(), data)); // "ChatQuote"
+                            CONSOLE(0x18B19FE6, ("%s %s", player->GetName(), data)); // "ChatQuote"
                             break;
 
                         case Commands::MessagePrivate:
                         case Commands::MessageTeam:
                         case Commands::MessageGroup:
-                        CONSOLE(0xCBA10203, ("[%s] %s", player->GetName(), data)); // "ChatPrivate" 
+                            CONSOLE(0xCBA10203, ("[%s] %s", player->GetName(), data)); // "ChatPrivate" 
                     }
                 }
                 break;

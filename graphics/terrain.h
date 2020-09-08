@@ -15,15 +15,15 @@
 
 #define DOTERRAINCOLOR
 #define DOTERRAINOVERLAYS
-//#define DOTERRAINLOD
+// #define DOTERRAINLOD
 
-#define CELLSIZE                      8     // meters
-#define CELLPERCLUSTERSHIFT           2     // in one dimension
-#define DEFAULTHEIGHT   						  10.0f
-#define NORMALCOUNT							      256
-#define TEXTURECOUNT                  256
-#define MAXBRUSHX                     20
-#define MAXBRUSHZ                     20
+#define CELLSIZE                    8   // meters
+#define CELLPERCLUSTERSHIFT         2   // in one dimension
+#define DEFAULTHEIGHT               10.0f
+#define NORMALCOUNT                 256
+#define TEXTURECOUNT                256
+#define MAXBRUSHX                   20
+#define MAXBRUSHZ                   20
 //----------------------------------------------------------------------------
 
 struct Cluster;
@@ -54,8 +54,8 @@ struct Cell
 #endif
 
 #ifdef DOTERRAINLOD
-  Cell *          parent1;  // each sub-tri in an lod'ed cluster is controled
-  Cell *          parent2;  // by 2 parent tris
+    Cell* parent1;  // each sub-tri in an lod'ed cluster is controled
+    Cell* parent2;  // by 2 parent tris
 #endif
 
     enum CellFlags
@@ -80,26 +80,26 @@ struct Cell
     void Activate()
     {
 #ifdef DOTERRAINLOD
-    if (!(flags & cellLOD))
-    {
-      flags |= cellLOD;
+        if (!(flags & cellLOD))
+        {
+            flags |= cellLOD;
 
-      ActivateParents();
-    }
+            ActivateParents();
+        }
 #endif
     }
 
     void ActivateParents()
     {
 #ifdef DOTERRAINLOD
-    if (parent1)
-    {
-      parent1->Activate();
-    }
-    if (parent2)
-    {
-      parent2->Activate();
-    }
+        if (parent1)
+        {
+            parent1->Activate();
+        }
+        if (parent2)
+        {
+            parent2->Activate();
+        }
 #endif
     }
 
@@ -139,19 +139,18 @@ struct Cell
         return retValue;
     }
 
-    /*
-      U8 GetFog()
-      {
-        return (U8) (flags & cellFOG);
-      }
-      U8 SetFog( U8 fog)
-      {
-        U8 retValue = (U8) (flags & cellFOG);
-        flags &= ~cellFOG;
-        flags |= (fog & cellFOG);
-        return retValue;
-      }
-    */
+    // U8 GetFog()
+    // {
+    //     return (U8)(flags & cellFOG);
+    // }
+    // U8 SetFog(U8 fog)
+    // {
+    //     U8 retValue = (U8)(flags & cellFOG);
+    //     flags &= ~cellFOG;
+    //     flags |= (fog & cellFOG);
+    //     return retValue;
+    // }
+
     inline S32 GetFog()
     {
         return fog;
@@ -164,7 +163,7 @@ struct Cell
 #ifdef DOTERRAINCOLOR
         return color;
 #else
-    return 0xffffffff;
+        return 0xffffffff;
 #endif
     }
 
@@ -175,7 +174,7 @@ struct Cell
         color = c;
         return oldColor;
 #else
-    return 0xffffffff;
+        return 0xffffffff;
 #endif
     }
 };
@@ -196,26 +195,26 @@ struct Cluster
         U16 left : 1;
         U16 top : 1;
         U16 bottom : 1;
-        U16 shroud : 1;   // fully shrouded
+        U16 shroud : 1; // fully shrouded
     } status;
 
-    U8 shroudCount;  // reference counting
+    U8 shroudCount; // reference counting
     U8 waterIndex;
 
     F32 waterHeight;
     F32 zDepth;
 
 #ifdef DOTERRAINLOD
-  S32             x, z;
-  U32             offset;
-  U32             clipFlags;
+    S32 x, z;
+    U32 offset;
+    U32 clipFlags;
 #endif
 
 #ifdef DOCLUSTERCELLS
-  Cell            cells[25];  // no performance improvement
+    Cell cells[25];  // no performance improvement
 #endif
 
-    GeoCache geo;        // experimental caching of render data
+    GeoCache geo;   // experimental caching of render data
 
     Cluster()
     {
@@ -412,7 +411,7 @@ public:
         x += offsetX;
         z += offsetZ;
 
-        return (x >= 0.0f && x < (F32)meterWidth && z >= 0.0f && z < (S32)meterHeight);
+        return (x >= 0.0f && x < (F32)meterWidth&& z >= 0.0f && z < (S32)meterHeight);
     }
 
     // editing related

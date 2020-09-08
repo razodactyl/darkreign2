@@ -310,16 +310,16 @@ namespace Terrain
             {
                 Vid::SetTranBucketZMaxPlus();
                 Vid::SetWorldTransform(matrix);
-                /*
-                        if (Vid::renderState.status.mirrorIn && Vid::Clip::Xtra::Revert())
-                        {
-                          // clip sky below waterline
-                          //
-                          mesh->RenderColorNoAnim( Vid::Light::sunColor, clipALL | clipPLANE0, mesh->rootControlFlags);
-                          Vid::Clip::Xtra::Restore();
-                        }
-                        else
-                */
+
+                // if (Vid::renderState.status.mirrorIn && Vid::Clip::Xtra::Revert())
+                // {
+                //   // clip sky below waterline
+                //   //
+                //   mesh->RenderColorNoAnim( Vid::Light::sunColor, clipALL | clipPLANE0, mesh->rootControlFlags);
+                //   Vid::Clip::Xtra::Restore();
+                // }
+                // else
+
                 {
                     mesh->RenderColorNoAnim(Vid::Light::sunColor, clipALL, mesh->rootControlFlags);
                 }

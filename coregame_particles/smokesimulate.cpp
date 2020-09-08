@@ -71,12 +71,12 @@ SmokeSimulate::SmokeSimulate
 Bool SmokeSimulate::Simulate(F32 dt)
 {
 #if 0
-	// call parent simulator
-  if (veloc.z != Terrain::Sky::windVector.z)
-  {
-    F32 dz = (Terrain::Sky::windVector.z - veloc.z);  
-    veloc.z += dz * dt * 4;
-  }
+    // call parent simulator
+    if (veloc.z != Terrain::Sky::windVector.z)
+    {
+        F32 dz = (Terrain::Sky::windVector.z - veloc.z);
+        veloc.z += dz * dt * 4;
+    }
 #endif
     return Particle::Simulate(dt);
 }

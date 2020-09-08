@@ -62,10 +62,7 @@ namespace StyxNet
             List<Win32::Socket::Address> addresses;
 
             // Constructor
-            Config()
-                : port(defaultPort),
-                  updateInterval(defaultUpdateInterval),
-                  filter(FILTER_NONE)
+            Config() : port(defaultPort), updateInterval(defaultUpdateInterval), filter(FILTER_NONE)
             {
             }
 

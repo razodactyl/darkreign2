@@ -84,7 +84,7 @@ struct MapObjType::AnimationFX
     // Constructor
     AnimationFX(F32 animFrame, FScope* fScope)
         : typeCrc(StdLoad::TypeStringCrc(fScope)),
-          animFrame(animFrame)
+        animFrame(animFrame)
     {
     }
 };
@@ -172,16 +172,16 @@ void MapObjType::FatalCollision(MapObj& obj, MapObj*, const Vector*)
 //
 MapObjType::MapObjType(const char* name, FScope* fScope)
     : GameObjType(name, fScope),
-      isProjectile(FALSE),
-      isExplosion(FALSE),
-      resourcesInitialized(FALSE),
-      idleAnimationCount(0),
-      mapPhysicsProc(nullptr),
-      mapCollideProc(nullptr)
+    isProjectile(FALSE),
+    isExplosion(FALSE),
+    resourcesInitialized(FALSE),
+    idleAnimationCount(0),
+    mapPhysicsProc(nullptr),
+    mapCollideProc(nullptr)
 {
     ASSERT(fScope);
 
-    FScope *sScope, *ssScope;
+    FScope* sScope, * ssScope;
 
     // Get specific config scope
     fScope = fScope->GetFunction(SCOPE_CONFIG);
@@ -248,12 +248,8 @@ MapObjType::MapObjType(const char* name, FScope* fScope)
     autoRepairHitpoints = StdLoad::TypeU32(fScope, "AutoRepairHitPoints", hitpoints / 2, Range<U32>(0, 100000));
 
     // High and Low health marks
-    healthHighMark = static_cast<S32>(StdLoad::TypeF32(fScope, "HealthHighMark", 0.6666f, Range<F32>::percentage) *
-        static_cast<F32>(
-            hitpoints));
-    healthLowMark = static_cast<S32>(StdLoad::TypeF32(fScope, "HealthLowMark", 0.3333f, Range<F32>::percentage) *
-        static_cast<F32>(
-            hitpoints));
+    healthHighMark = static_cast<S32>(StdLoad::TypeF32(fScope, "HealthHighMark", 0.6666f, Range<F32>::percentage) * static_cast<F32>(hitpoints));
+    healthLowMark = static_cast<S32>(StdLoad::TypeF32(fScope, "HealthLowMark", 0.3333f, Range<F32>::percentage) * static_cast<F32>(hitpoints));
 
     // Movement model 
     movementIdent = StdLoad::TypeString(fScope, "PhysicsModel", "Default");
@@ -484,8 +480,8 @@ void MapObjType::PostLoad()
 
             default:
                 // This isnt life threatening, just means objects will sit around doing nothing
-            LOG_ERR(("Invalid physics simulation type for [%s]", typeId.str))
-            break;
+                LOG_ERR(("Invalid physics simulation type for [%s]", typeId.str));
+                break;
         }
 
         // Setup collision function pointer
@@ -538,7 +534,7 @@ Bool MapObjType::InitializeResources()
         footPrintType = new FootPrint::Type(root, GetName(), this);
     }
     // discard mesh local geometry (only footprints in dr2)
-    //  root.ReleaseLocals();
+    // root.ReleaseLocals();
 
     // Resolve any light attatchment points
     List<Vid::Light::Desc>::Iterator il(&lights);
@@ -571,15 +567,14 @@ Bool MapObjType::InitializeResources()
         if (!a->pointIdent.Null() && !root.FindIdent(a->pointIdent))
         {
             LOG_ERR(("Can't find attach point '%s' on %s", a->pointIdent.str, typeId.str))
-            attachments.Dispose(a);
+                attachments.Dispose(a);
         }
     }
 
     // Calculate the surface area (use the surface area of the bounding sphere)
     const Bounds& bounds = GetMeshRoot()->ObjectBounds();
 
-    surface = 8.0F * ((bounds.Width() * bounds.Height()) + (bounds.Width() * bounds.Breadth()) + (bounds.Height() *
-        bounds.Breadth()));
+    surface = 8.0F * ((bounds.Width() * bounds.Height()) + (bounds.Width() * bounds.Breadth()) + (bounds.Height() * bounds.Breadth()));
     surfaceInv = surface ? 1.0f / surface : 0.0f;
 
     // Auto-calculate grain size of object if not already specified
@@ -587,7 +582,8 @@ Bool MapObjType::InitializeResources()
     {
         const F32 GRAIN_METRES = WC_CELLSIZEF32 * 0.5F;
 
-        F32 radius = Max<F32>(bounds.Width(), bounds.Breadth());
+        // JONATHAN: Halve `Width` and `Breadth` to allow units to cluster closer together.
+        F32 radius = Max<F32>(bounds.Width() / 2, bounds.Breadth() / 2);
         grainSize = Clamp<U32>(1, Utils::FtoL((GRAIN_METRES + radius * 2.0F) / GRAIN_METRES), 2);
     }
 
@@ -740,28 +736,28 @@ void MapObj::CreateLight(Vid::Light::Desc* desc)
 // Constructor
 //
 MapObj::MapObj(MapObjType* objType, U32 id) : GameObj(objType, id),
-                                              animList(nullptr),
-                                              animationFX(nullptr),
-                                              negativeModifyHitPoints(FALSE),
-                                              dying(FALSE),
-                                              meshEnt(nullptr),
-                                              balanceData(nullptr),
-                                              currentLayer(objType->GetDefaultLayer()),
-                                              footInstance(nullptr),
-                                              hitpoints(0),
-                                              armour(0),
-                                              clustOverlapX(0),
-                                              clustOverlapZ(0),
-                                              attachments(&MapObj::attachedNode),
-                                              currentCluster(nullptr),
-                                              cellX(-1),
-                                              cellZ(-1),
-                                              iterTicker(0)
+animList(nullptr),
+animationFX(nullptr),
+negativeModifyHitPoints(FALSE),
+dying(FALSE),
+meshEnt(nullptr),
+balanceData(nullptr),
+currentLayer(objType->GetDefaultLayer()),
+footInstance(nullptr),
+hitpoints(0),
+armour(0),
+clustOverlapX(0),
+clustOverlapZ(0),
+attachments(&MapObj::attachedNode),
+currentCluster(nullptr),
+cellX(-1),
+cellZ(-1),
+iterTicker(0)
 {
     // NOTE: Cell position initaialised to an INVALID location so that 
     // the first call to UpdateMapPos will update the cell pos.
 
-    SYNC_BRUTAL("MapObjConstruct: " << objType->GetName() << " Id: " << id)
+    SYNC_BRUTAL("MapObjConstruct: " << objType->GetName() << " Id: " << id);
 
     // Save the object's time of birth
     birthTime = GameTime::SimTotalTime();
@@ -902,10 +898,10 @@ void MapObj::SetPrimitiveProcessing(Bool request)
 //
 void MapObj::ProcessCycle()
 {
-    SYNC_BRUTAL("ProcessCycle " << TypeName() << ' ' << Id())
+    SYNC_BRUTAL("ProcessCycle " << TypeName() << ' ' << Id());
 
     // Perform type specific physics
-    PERF_S(("MapObj Physics"))
+    PERF_S(("MapObj Physics"));
     if (MapType()->mapPhysicsProc)
     {
         Matrix m = WorldMatrix();
@@ -917,10 +913,10 @@ void MapObj::ProcessCycle()
         // Register movement with the collision system
         CollisionCtrl::AddObject(this);
     }
-    PERF_E(("MapObj Physics"))
+    PERF_E(("MapObj Physics"));
 
     // Regen armor
-    PERF_S(("Regen Armor"))
+    PERF_S(("Regen Armor"));
     if (armour > 0 && armour < MapType()->armour)
     {
         if (armourRegenCycles)
@@ -932,12 +928,12 @@ void MapObj::ProcessCycle()
             }
         }
     }
-    PERF_E(("Regen Armor"))
+    PERF_E(("Regen Armor"));
 
     // Process animation
-    PERF_S(("Animation"))
+    PERF_S(("Animation"));
     ProcessAnimation();
-    PERF_E(("Animation"))
+    PERF_E(("Animation"));
 }
 
 
@@ -992,13 +988,14 @@ void MapObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
         fScope->AddFunction("Zip");
     }
     else
-
+    {
         // Generate a save error if saving non-zipped objects
         if (MapType()->GetFootPrintType() && !SaveGame::SaveActive())
         {
             // "Mission::LoadError"
-            CONSOLE(0xA1D5DDD2, ("Object %s (id:%d) was not zipped", TypeName(), Id()))
+            CONSOLE(0xA1D5DDD2, ("Object %s (id:%d) was not zipped", TypeName(), Id()));
         }
+    }
 
     // Save game data
     if (SaveGame::SaveActive())
@@ -1211,7 +1208,7 @@ void MapObj::PostLoad()
             // For some reason parent is not alive, so delete
             MarkForDeletion();
 
-            LOG_DIAG(("No Parent, Marking for deletion [%s]", TypeName()))
+            LOG_DIAG(("No Parent, Marking for deletion [%s]", TypeName()));
         }
     }
 }
@@ -1915,8 +1912,8 @@ Bool MapObj::GetVisible(Team* team)
 void MapObj::AddToMapHook()
 {
     // Update current cell indexes
-    //  cellX = WorldCtrl::MetresToCellX(WorldMatrix().posit.x);
-    //  cellZ = WorldCtrl::MetresToCellZ(WorldMatrix().posit.z);
+    // cellX = WorldCtrl::MetresToCellX(WorldMatrix().posit.x);
+    // cellZ = WorldCtrl::MetresToCellZ(WorldMatrix().posit.z);
 
     // Capture all map hooks
     CaptureAllHooks(TRUE);
@@ -2012,7 +2009,7 @@ void MapObj::CaptureMapHooks(Bool capture)
         }
     }
 
-        // ReleaseMapHooks
+    // ReleaseMapHooks
     else
     {
     }
@@ -2057,10 +2054,10 @@ void MapObj::CaptureClusterHooks(Bool capture, Bool calcOverlap)
     ASSERT(currentCluster);
 
     if
-    (
+        (
         MapType()->IsProjectile() ||
         MapType()->IsExplosion()
-    )
+        )
     {
         return;
     }
@@ -2099,7 +2096,7 @@ void MapObj::CaptureClusterHooks(Bool capture, Bool calcOverlap)
         }
     }
 
-        // ReleaseClusterHooks
+    // ReleaseClusterHooks
     else
     {
         for (U32 i = 0; i < 4; i++)
@@ -2262,18 +2259,18 @@ void MapObj::SetAnimation(U32 crc, Bool blend, Bool activate) // = TRUE, TRUE
 {
     SYNC_BRUTAL("Animation " << crc << ' ' << blend << ' ' << activate << ' ' << TypeName() << ' ' << Id())
 
-    // Is there an animation currently active
-    if (animList && Mesh().AnimIsActive())
-    {
-        // Notify the task that the animation is completed
-        PostEvent(Task::Event(MapObjNotify::AnimationDone, this, animList->name.crc));
-
-        // Notify the parent if there is one (for animating upgrades)
-        if (parent.Alive())
+        // Is there an animation currently active
+        if (animList && Mesh().AnimIsActive())
         {
-            parent->PostEvent(Task::Event(MapObjNotify::AnimationDoneChild, this, animList->name.crc));
+            // Notify the task that the animation is completed
+            PostEvent(Task::Event(MapObjNotify::AnimationDone, this, animList->name.crc));
+
+            // Notify the parent if there is one (for animating upgrades)
+            if (parent.Alive())
+            {
+                parent->PostEvent(Task::Event(MapObjNotify::AnimationDoneChild, this, animList->name.crc));
+            }
         }
-    }
 
     // Will this object have animations processed
     if (OnPrimitiveList())
@@ -2554,9 +2551,9 @@ Bool MapObj::MediumHealthCallBack(MapObj* mapObj, FX::CallBackData&, void*)
     // If out health has fallen below the low mark or above
     // the high mark then stop producing medium health mark FX
     return (mapObj->hitpoints >= mapObj->MapType()->healthHighMark ||
-            mapObj->hitpoints <= mapObj->MapType()->healthLowMark
-                ? TRUE
-                : FALSE);
+        mapObj->hitpoints <= mapObj->MapType()->healthLowMark
+        ? TRUE
+        : FALSE);
 }
 
 

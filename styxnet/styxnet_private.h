@@ -50,7 +50,7 @@ namespace StyxNet
     const U32 maxSyncDataSize = 1024;
 
     // Default update interval
-    const U32 defaultUpdateInterval = 650;
+    const U32 defaultUpdateInterval = 500;
 
     // Event queue size
     const U32 eventQueueSize = 256;

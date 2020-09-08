@@ -2082,9 +2082,9 @@ void MeshEnt::LoadState(FScope* fScope)
         }
     }
 
-    //  fogFactor->SaveState( sScope, "FogFactor");
-    //  alphaCurrent->SaveState( sScope, "alphaCurrent");
-    //  StdSave::TypeS32( fScope, "ExtraFog",   extraFog);
+    // fogFactor->SaveState( sScope, "FogFactor");
+    // alphaCurrent->SaveState( sScope, "alphaCurrent");
+    // StdSave::TypeS32( fScope, "ExtraFog",   extraFog);
 }
 
 //----------------------------------------------------------------------------
@@ -2096,8 +2096,8 @@ void MeshEnt::SetFogTarget(S32 fog, S32 alpha, Bool immediate) // = 255, FALSE
         fogCurrent = fog;
         alphaCurrent = alpha;
 
-        //    SetOpaque( Color( (U32)fogCurrent, (U32)fogCurrent, (U32)fogCurrent, U32(255)));
-        //    SetTranslucent( (U32)alphaCurrent);
+        // SetOpaque( Color( (U32)fogCurrent, (U32)fogCurrent, (U32)fogCurrent, U32(255)));
+        // SetTranslucent( (U32)alphaCurrent);
     }
     else
     {
@@ -2158,8 +2158,8 @@ U32 MeshEnt::GetMem() const
     mem += blends.size;
     mem += treads.size;
 
-    //  NList<MeshEnt>          eChildren;
-    //  NList<MeshEnt>::Node    eChildNode;
+    // NList<MeshEnt>          eChildren;
+    // NList<MeshEnt>::Node    eChildNode;
 
     return mem;
 }
@@ -2170,7 +2170,7 @@ void MeshEnt::MRMGen(Bool doSelVerts) // = TRUE
 {
     RootPriv().MRMGen(doSelVerts ? &selData->verts : nullptr);
 
-    //  UnSelectVerts();
+    // UnSelectVerts();
     Reset(RootPriv());
 }
 

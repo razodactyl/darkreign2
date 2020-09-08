@@ -157,17 +157,15 @@ Bool ChunkSimulate::Simulate(F32 dt)
         {
             delete this;
             return FALSE;
-            //      omega.x = omega.y = omega.z = 1.0f;
+            // omega.x = omega.y = omega.z = 1.0f;
         }
-        /*
-            else
-            {
-                // give the particle an euler kick
-                omega.x += (2.0f - F32(Random::nonSync.Integer(4000)) * 0.001F);
-                omega.y += (2.0f - F32(Random::nonSync.Integer(4000)) * 0.001F);
-                omega.z += (2.0f - F32(Random::nonSync.Integer(4000)) * 0.001F);
-            }
-        */
+        // else
+        // {
+        //     // give the particle an euler kick
+        //     omega.x += (2.0f - F32(Random::nonSync.Integer(4000)) * 0.001F);
+        //     omega.y += (2.0f - F32(Random::nonSync.Integer(4000)) * 0.001F);
+        //     omega.z += (2.0f - F32(Random::nonSync.Integer(4000)) * 0.001F);
+        // }
         // reflect velocity around surface normal
         F32 dot = veloc.Dot(normal);
         veloc = (veloc * 0.5F) - (normal * dot);

@@ -151,8 +151,8 @@ namespace MultiPlayer
                 ASSERT(lag >= interval);
                 lag -= interval;
 
-                //LOG_DIAG(("SyncData: %08X", sessionSyncData))
-                //LOG_DIAG(("Data Seq: %d Interval: %d Lag: %d", seq, interval, lag))
+                // LOG_DIAG(("SyncData: %08X", sessionSyncData))
+                LOG_DIAG(("Data Seq: %d Interval: %d Lag: %d", seq, interval, lag))
                 SYNC("Data Seq: " << seq)
 
                 U32 remaining = sessionSyncData->length;
@@ -165,12 +165,12 @@ namespace MultiPlayer
                 U32 length;
                 const U8* d;
 
-                //LOG_DIAG(("PreExtract: %d %08X", remaining, ptr))
+                // LOG_DIAG(("PreExtract: %d %08X", remaining, ptr))
 
                 // Process all of the data
                 while (StyxNet::Client::ExtractSyncData(ptr, remaining, type, from, key, index, length, d))
                 {
-                    //LOG_DIAG(("SyncData: %d %08X %08X %08X %08X %08X %d", remaining, ptr, type, from, key, index, length))
+                    LOG_DIAG(("SyncData: %d %08X %08X %08X %08X %08X %d", remaining, ptr, type, from, key, index, length))
 
                     switch (type)
                     {
@@ -394,7 +394,7 @@ namespace MultiPlayer
             // Append this new sync data
             syncData.Append(sessionSyncData);
 
-            //LOG_DIAG(("SyncData added %08X list [%d] %08X %08X", sessionSyncData, syncData.GetCount(), syncData.GetHead(), syncData.GetTail()))
+            // LOG_DIAG(("SyncData added %08X list [%d] %08X %08X", sessionSyncData, syncData.GetCount(), syncData.GetHead(), syncData.GetTail()))
 
             // Add the interval to our lag
             lag += sessionSyncData->interval;

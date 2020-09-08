@@ -173,9 +173,9 @@ namespace ParticleSystem
     {
         ASSERT(sysInit);
 
-        //    simulators.DisposeAll();
-        //    renderSim.DisposeAll();
-        //    renderInt.DisposeAll();
+        //  simulators.DisposeAll();
+        //  renderSim.DisposeAll();
+        //  renderInt.DisposeAll();
 
         // Dispose of particles
         for (NList<Particle>::Iterator i(&simulators); *i;)
@@ -317,7 +317,7 @@ namespace ParticleSystem
 
         if (particleTypes.Exists(typeId.crc))
         {
-            ERR_CONFIG(("Particle type '%s' already defined, ignoring definition", typeId.str))
+            ERR_CONFIG(("Particle type '%s' already defined, ignoring definition", typeId.str));
             return (FALSE);
         }
         if ((newParticle = CreateSimulateClass(simClass)) != nullptr)
@@ -360,7 +360,7 @@ namespace ParticleSystem
         // Add to list
         particleTypes.Add(newParticle->typeId.crc, newParticle);
 
-        //LOG_DIAG(("Registered Particle Simulator [%s]", newParticle->typeId.str));
+        // LOG_DIAG(("Registered Particle Simulator [%s]", newParticle->typeId.str));
 
         // Success
         return (TRUE);
@@ -383,7 +383,7 @@ namespace ParticleSystem
 
         if (renderTypes.Exists(typeId.crc))
         {
-            ERR_CONFIG(("Particle render type '%s' already defined, ignoring definition", typeId.str))
+            ERR_CONFIG(("Particle render type '%s' already defined, ignoring definition", typeId.str));
             return (FALSE);
         }
 
@@ -430,7 +430,7 @@ namespace ParticleSystem
         // Add to list
         renderTypes.Add(newRender->typeId.crc, newRender);
 
-        //LOG_DIAG(("Registered Particle Renderer [%s]", newRender->typeId.str));
+        // LOG_DIAG(("Registered Particle Renderer [%s]", newRender->typeId.str));
 
         // Success
         return (TRUE);
@@ -479,17 +479,17 @@ namespace ParticleSystem
             if (!Team::GetDisplayTeam()
                 || Sight::Visible
                 (
-                    WorldCtrl::MetresToCellX(p0.x),
-                    WorldCtrl::MetresToCellZ(p0.z),
-                    Team::GetDisplayTeam()
+                WorldCtrl::MetresToCellX(p0.x),
+                WorldCtrl::MetresToCellZ(p0.z),
+                Team::GetDisplayTeam()
                 )
                 || (p1 && WorldCtrl::MetreOnMap(p1->x, p1->z)
-                    && Sight::Visible
-                    (
-                        WorldCtrl::MetresToCellX(p1->x),
-                        WorldCtrl::MetresToCellZ(p1->z),
-                        Team::GetDisplayTeam()
-                    )))
+                && Sight::Visible
+                (
+                WorldCtrl::MetresToCellX(p1->x),
+                WorldCtrl::MetresToCellZ(p1->z),
+                Team::GetDisplayTeam()
+                )))
             {
                 // Create if display team can see cell
                 return (TRUE);
@@ -622,7 +622,7 @@ namespace ParticleSystem
     {
         MSWRITEV(13, (0, 0, "Simulators: %6d", simulators.GetCount()));
         MSWRITEV(13, (1, 0, "Renderers : %6d", renderSim.GetCount() + renderInt.GetCount()));
-        MSWRITEV(13, (2, 0, "TOTAL     : %6d", simulators.GetCount()+renderSim.GetCount()+renderInt.GetCount()));
+        MSWRITEV(13, (2, 0, "TOTAL     : %6d", simulators.GetCount() + renderSim.GetCount() + renderInt.GetCount()));
 
         if (cineractiveMode)
         {
@@ -890,7 +890,7 @@ namespace ParticleSystem
                 }
 
                 // Registered particle simulator types
-                CON_DIAG(("[Particle Simulators]"))
+                CON_DIAG(("[Particle Simulators]"));
 
                 BinTree<ParticleClass>::Iterator i(&particleTypes);
                 for (!i; *i; ++i)
@@ -902,7 +902,7 @@ namespace ParticleSystem
                 }
 
                 // Registered particle renderer types
-                CON_DIAG(("[Particle Renderers]"))
+                CON_DIAG(("[Particle Renderers]"));
 
                 for (BinTree<ParticleRenderClass>::Iterator j(&renderTypes); *j; ++j)
                 {
@@ -926,8 +926,7 @@ namespace ParticleSystem
 
                 Vector pos;
 
-                if (TerrainData::ScreenToTerrain(Input::MousePos().x, Input::MousePos().y, pos) &&
-                    WorldCtrl::MetreOnMap(pos.x, pos.z))
+                if (TerrainData::ScreenToTerrain(Input::MousePos().x, Input::MousePos().y, pos) && WorldCtrl::MetreOnMap(pos.x, pos.z))
                 {
                     // above the ground
                     pos.y += 5.0F;
@@ -973,8 +972,7 @@ namespace ParticleSystem
                 {
                     Vector pos;
 
-                    if (TerrainData::ScreenToTerrain(Input::MousePos().x, Input::MousePos().y, pos) &&
-                        WorldCtrl::MetreOnMap(pos.x, pos.z))
+                    if (TerrainData::ScreenToTerrain(Input::MousePos().x, Input::MousePos().y, pos) && WorldCtrl::MetreOnMap(pos.x, pos.z))
                     {
                         // above the ground
                         pos.y += 1.0F;

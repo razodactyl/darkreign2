@@ -298,6 +298,9 @@
       <Filter>vid</Filter>
     </ClCompile>
     <ClCompile Include="..\system\pchbuilder.cpp" />
+    <ClCompile Include="meshmrm.cpp">
+      <Filter>mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bucket.h">

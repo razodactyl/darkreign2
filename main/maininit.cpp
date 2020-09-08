@@ -902,7 +902,7 @@ namespace Main
             else
             {
                 // Be nice in the background
-                Sleep(0);
+                Sleep(1);
             }
         }
         while (!quitGame);
@@ -1098,11 +1098,11 @@ namespace Main
                 {
                     POINT point;
                     RECT rect;
-
+            
                     GetCursorPos(&point);
                     ScreenToClient(hwnd, &point);
                     GetClientRect(hwnd, &rect);
-
+            
                     if (point.x >= 0 && point.x <= rect.right && point.y >= 0 && point.y <= rect.bottom)
                     {
                         // only suppress when the cursor is in the client window
@@ -1296,8 +1296,7 @@ namespace Main
         // User Details
         LOG_DIAG
         (
-            ("Executed by %s\\%s on %s", Hardware::OS::GetComputer(), Hardware::OS::GetUser(), Hardware::OS::GetDesc()
-            )
+            ("Executed by %s\\%s on %s", Hardware::OS::GetComputer(), Hardware::OS::GetUser(), Hardware::OS::GetDesc())
         );
 
         // Compilation details

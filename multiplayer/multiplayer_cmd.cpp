@@ -560,8 +560,8 @@ namespace MultiPlayer
                             joinInfo->address,
                             Settings::GetFirewallStatus() ==
                             Settings::FirewallStatus::NotBehindFirewall
-                                ? TRUE
-                                : FALSE
+                            ? TRUE
+                            : FALSE
                         );
                         Network::client = new StyxNet::Client(config);
                         online = TRUE;
@@ -601,7 +601,7 @@ namespace MultiPlayer
                                 break;
 
                             default:
-                            ERR_FATAL(("Unknown result from GetFirewallStatus"));
+                                ERR_FATAL(("Unknown result from GetFirewallStatus"));
                         }
                     }
                     break;
@@ -762,8 +762,8 @@ namespace MultiPlayer
                         Win32::Socket::Address("127.0.0.1", Settings::GetPort()),
                         Settings::GetFirewallStatus() ==
                         Settings::FirewallStatus::NotBehindFirewall
-                            ? TRUE
-                            : FALSE
+                        ? TRUE
+                        : FALSE
                     );
 
                     const char* address;
@@ -794,8 +794,8 @@ namespace MultiPlayer
                             joinInfo->address,
                             Settings::GetFirewallStatus() ==
                             Settings::FirewallStatus::NotBehindFirewall
-                                ? TRUE
-                                : FALSE
+                            ? TRUE
+                            : FALSE
                         );
 
                         Network::client = new StyxNet::Client(config);
@@ -903,11 +903,11 @@ namespace MultiPlayer
                     S32 maxUsers;
 
                     if
-                    (
+                        (
                         Console::GetArgString(1, name) &&
                         Console::GetArgString(2, password) &&
                         Console::GetArgInteger(3, maxUsers)
-                    )
+                        )
                     {
                         // Build up the hosting information
                         if (hostInfo)
@@ -1038,9 +1038,9 @@ namespace MultiPlayer
                         if (Console::GetArgString(1, control))
                         {
                             Game::MissionSelection* missions = IFace::Find<Game::MissionSelection>
-                            (
+                                (
                                 control, nullptr, TRUE
-                            );
+                                );
 
                             if (const Missions::Mission* m = Host::GetMission())
                             {
@@ -1058,9 +1058,9 @@ namespace MultiPlayer
                         if (Console::GetArgString(1, control))
                         {
                             Game::MissionSelection* missions = IFace::Find<Game::MissionSelection>
-                            (
+                                (
                                 control, nullptr, TRUE
-                            );
+                                );
                             const Missions::Mission* m = missions->GetSelectedMission();
 
                             VarString varPlacement("$.placement", missions);
@@ -1172,22 +1172,13 @@ namespace MultiPlayer
                                         );
 
                                         // Echo locally
-                                        CONSOLE
-                                        (
-                                            0xAD95B2DF,
-                                            (TRANSLATE(("#multiplayer.chat.privmsg", 2, playerBuff, Utils::
-                                                Ansi2Unicode(chat))))
-                                        ); // "ChatLocal"
+                                        CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.privmsg", 2, playerBuff, Utils::Ansi2Unicode(chat))))); // "ChatLocal"
                                     }
                                     else
                                     {
                                         // Could not find player with the name!
                                         // "MultiError"
-                                        CONSOLE
-                                        (
-                                            0xB2178C6E,
-                                            (TRANSLATE(("#multiplayer.chat.error.noplayer", 1, playerBuff)))
-                                        );
+                                        CONSOLE(0xB2178C6E, (TRANSLATE(("#multiplayer.chat.error.noplayer", 1, playerBuff))));
                                     }
                                 }
                             }
@@ -1259,7 +1250,7 @@ namespace MultiPlayer
                                             (
                                                 0xAD95B2DF,
                                                 (TRANSLATE(("#multiplayer.chat.teammsg", 1, Utils::Ansi2Unicode(str)
-                                                )))
+                                            )))
                                             ); // "ChatLocal"
 
                                             if (index)
@@ -1325,7 +1316,7 @@ namespace MultiPlayer
                                 (
                                     0xAD95B2DF,
                                     (TRANSLATE(("#multiplayer.chat.enemymsg", 1, Utils::Ansi2Unicode(str)))
-                                    )
+                                )
                                 ); // "ChatLocal"
 
                                 if (index)
@@ -1386,12 +1377,7 @@ namespace MultiPlayer
                                         }
 
                                         // Echo locally
-                                        CONSOLE
-                                        (
-                                            0xAD95B2DF,
-                                            (TRANSLATE(("#multiplayer.chat.allymsg", 1, Utils::Ansi2Unicode(str)))
-                                            )
-                                        ); // "ChatLocal"
+                                        CONSOLE(0xAD95B2DF, (TRANSLATE(("#multiplayer.chat.allymsg", 1, Utils::Ansi2Unicode(str))))); // "ChatLocal"
 
                                         if (index)
                                         {
@@ -1452,7 +1438,8 @@ namespace MultiPlayer
                     break;
 
                 case 0x2AA25944: // "multiplayer.cmd.help"
-                CONSOLE(0xAD95B2DF, ("Available commands:")); // "ChatLocal"
+                {
+                    CONSOLE(0xAD95B2DF, ("Available commands:")); // "ChatLocal"
 
                     CONSOLE(0xAD95B2DF, ("/me message")); // "ChatLocal"
                     CONSOLE(0xAD95B2DF, ("  Emote a message")); // "ChatLocal"
@@ -1474,7 +1461,8 @@ namespace MultiPlayer
 
                     CONSOLE(0xAD95B2DF, ("/kick (or k) player")); // "ChatLocal"
                     CONSOLE(0xAD95B2DF, ("  Kick a player from the game (host only)")); // "ChatLocal"
-                    break;
+                }
+                break;
 
                 case 0x53AEBE8C: // "multiplayer.download.motd"
                     Download::GetMotd();

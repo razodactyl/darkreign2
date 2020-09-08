@@ -99,7 +99,7 @@
       <DisableSpecificWarnings>4996;</DisableSpecificWarnings>
     </ClCompile>
     <PreLinkEvent>
-      <Command>..\tools\version appdr2.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,453
+      <Command>..\tools\version appdr2.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,458
 rc appdr2.rc</Command>
     </PreLinkEvent>
     <PostBuildEvent>
@@ -228,7 +228,6 @@ rc appdr2.rc</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\graphics\meshmrm.cpp" />
     <ClCompile Include="winmain.cpp" />
   </ItemGroup>
   <ItemGroup>

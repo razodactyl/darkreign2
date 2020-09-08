@@ -239,7 +239,7 @@ namespace StyxNet
             return (FALSE);
         }
 
-        // Pull out sync data from the incomming queue 
+        // Pull out sync data from the incoming queue 
         // and build an update packet to send to all users
 
         // LDIAG("Sending SessionData Seq:" << sequenceNumber << " Size:" << size);

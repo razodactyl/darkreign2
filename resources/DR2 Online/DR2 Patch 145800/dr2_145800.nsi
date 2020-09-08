@@ -13,6 +13,7 @@ Section "Dark Reign II 1.458.0.0"
     ; File /r library
     ; File /r music
     File "dr2.exe"
+    File "dr2_mouse_test_only.exe"
     ; File "mss32.dll"
 SectionEnd
 

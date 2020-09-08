@@ -57,8 +57,8 @@ namespace Terrain
     extern U32 waterCount;
     extern WaterRegion* bigWater;
 
-    extern void (* renderFunc)();
-    extern void (* renderMirrorMaskFunc)(WaterRegion* waterR);
+    extern void (*renderFunc)();
+    extern void (*renderMirrorMaskFunc)(WaterRegion* waterR);
 
     namespace Sky
     {
@@ -349,7 +349,7 @@ namespace Terrain
     void Simulate(F32 timestep);
     void SimulateViewer(F32 timestep);
 
-    typedef F32 (*FINDFLOORPROCPTR)(F32 x, F32 z, Vector* surfNormal);
+    typedef F32(*FINDFLOORPROCPTR)(F32 x, F32 z, Vector* surfNormal);
 
     Bool Intersect
     (
@@ -368,7 +368,7 @@ namespace Terrain
         return ScreenToTerrain(sx, sy, pos, FindFloorWithWater);
     }
 
-    typedef F32 (*GETHEIGHTPROCPTR)(S32 cx, S32 cz);
+    typedef F32(*GETHEIGHTPROCPTR)(S32 cx, S32 cz);
 
     Bucket* RenderGroundSprite
     (
@@ -575,12 +575,12 @@ namespace Terrain
 
 #ifdef DOTERRAINLOD
 
-  void SetClusLod( U32 offset, Bool flag);
-  void ClusSetParents( U32 o0, U32 o1, U32 o2, U32 i0, U32 i1, U32 i2, U32 level = 0)
-  Bool ChekTri( F32 py, U32 o0, U32 o1, U32 o2, U32 level = 0);
-  Bool DrawTri( U32 o0, U32 o1, U32 o2, U32 i0, U32 i1, U32 i2, Vector * verts, U16 ** indexList, U32 level = 0);
-  void RenderClusterLOD( Cluster & clus, S32 x, S32 z, U32 cellOffset, U32 clipFlags = clipALL);
-  void RenderClusterLODQuick( Cluster & clus, S32 x, S32 z, U32 cellOffset, U32 clipFlags = clipALL);
+    void SetClusLod(U32 offset, Bool flag);
+    void ClusSetParents(U32 o0, U32 o1, U32 o2, U32 i0, U32 i1, U32 i2, U32 level = 0);
+    Bool ChekTri(F32 py, U32 o0, U32 o1, U32 o2, U32 level = 0);
+    Bool DrawTri(U32 o0, U32 o1, U32 o2, U32 i0, U32 i1, U32 i2, Vector* verts, U16** indexList, U32 level = 0);
+    void RenderClusterLOD(Cluster& clus, S32 x, S32 z, U32 cellOffset, U32 clipFlags = clipALL);
+    void RenderClusterLODQuick(Cluster& clus, S32 x, S32 z, U32 cellOffset, U32 clipFlags = clipALL);
 
 #endif
 
@@ -607,7 +607,7 @@ namespace Terrain
     extern Color normLights[NORMALCOUNT];
 
     extern U32 renderFlags;
-    extern Bitmap *waterTex, *defTex, *editTex;
+    extern Bitmap* waterTex, * defTex, * editTex;
     extern Bitmap* texList[TEXTURECOUNT];
     extern Bitmap* overlayList[TEXTURECOUNT];
 

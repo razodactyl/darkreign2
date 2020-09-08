@@ -222,19 +222,19 @@ namespace Main
 
 #ifdef DEVELOPMENT
 
-        case 0xBC36982D: // "ls"
-        {
-            U32 flags = Console::SHOWSCOPES | Console::SHOWVARS | Console::SHOWCMDS;
-
-            // Recurse if there are any args ;)
-            if (Console::ArgCount() == 1)
+            case 0xBC36982D: // "ls"
             {
-                flags |= Console::NORECURSE;
-            }
+                U32 flags = Console::SHOWSCOPES | Console::SHOWVARS | Console::SHOWCMDS;
 
-            Console::DisplayVarScope(VarSys::gScope, 0, flags);
-            break;
-        }
+                // Recurse if there are any args ;)
+                if (Console::ArgCount() == 1)
+                {
+                    flags |= Console::NORECURSE;
+                }
+
+                Console::DisplayVarScope(VarSys::gScope, 0, flags);
+                break;
+            }
 
 #endif
 
