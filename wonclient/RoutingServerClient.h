@@ -37,41 +37,6 @@ namespace MINTCLIENT
 
             typedef std::list<ClientData> ClientDataList;
 
-            struct ReadDataObjectResult
-            {
-                //
-            };
-
-            // struct ClientDataWithReason
-            // {
-            //     //
-            // };
-
-            struct ClientIdWithReason
-            {
-                //
-            };
-
-            struct ClientIdWithFlag
-            {
-                //
-            };
-
-            // struct DataObjectWithLifespan
-            // {
-            //     //
-            // };
-
-            struct DataObject
-            {
-                //
-            };
-
-            struct DataObjectModification
-            {
-                //
-            };
-
             struct ASCIIChatMessage
             {
                 static const int CHATTYPE_ASCII_EMOTE = 0x01;
@@ -134,12 +99,12 @@ namespace MINTCLIENT
         //
         ////////////////////////////////////////////////////////////////
 
-        struct GetNumUsersResult : Result {};
-
         ////////////////////////////////////////////////////////////////
         //
         // Get the list of clients connected to this server.
         //
+
+        struct GetNumUsersResult : Result {};
 
         struct GetUserListRequest : Request {};
 
@@ -160,12 +125,17 @@ namespace MINTCLIENT
 
         struct ClientEnterResult : Result
         {
-            RoutingServerClient::Data::ClientData client;
+            Data::ClientData client;
+        };
+
+        struct ClientUpdateResult : Result
+        {
+            Data::ClientData client;
         };
 
         struct ClientLeaveResult : Result
         {
-            RoutingServerClient::Data::ClientData client;
+            Data::ClientData client;
         };
 
         //
@@ -195,7 +165,7 @@ namespace MINTCLIENT
 
         ////////////////////////////////////////////////////////////////
         //
-        //
+        // Game Object Creation / Modification / Deletion - Ignoring original WON convention of an abstract Data Object and Opting for concrete StyxNet session data.
         //
 
         struct CreateGameRequest : Request
@@ -214,9 +184,7 @@ namespace MINTCLIENT
             U32 game_data_size;
         };
 
-        struct CreateGameResult : GameResult
-        {
-        };
+        struct CreateGameResult : GameResult {};
 
         struct UpdateGameRequest : Request
         {
@@ -225,9 +193,8 @@ namespace MINTCLIENT
             // <StyxNet Session data appended as bytes to payload>
         };
 
-        struct UpdateGameResult : GameResult
-        {
-        };
+        struct UpdateGameResult : GameResult {};
+        struct ReplaceGameResult : GameResult {};
 
         // Opposes convention of "GetUserList stored in Data::"
         typedef std::list<GameResult> GameResultList;
@@ -239,11 +206,12 @@ namespace MINTCLIENT
 
         struct DeleteGameRequest : Request
         {
+            U32 clientId;
+            StrCrc<32, CH> name;
+            // <StyxNet Session data appended as bytes to payload>
         };
 
-        struct DeleteGameResult : Result
-        {
-        };
+        struct DeleteGameResult : GameResult {};
 
         //
         //
@@ -258,10 +226,13 @@ namespace MINTCLIENT
 
         Win32::Thread h_RoutingServerClientThread;
 
-        static const int ID_ASCIIPeerChatCatcher = 0;
-        static const int ID_ClientEnterCatcher = 1;
-        static const int ID_ClientLeaveCatcher = 2;
-        static const int ID_GameCreatedCatcher = 3;
+        static const int ID_ASCIIPeerChatCatcher    = 0;
+        static const int ID_ClientEnterCatcher      = 1;
+        static const int ID_ClientLeaveCatcher      = 2;
+        static const int ID_GameCreatedCatcher      = 3;
+        static const int ID_GameUpdatedCatcher      = 4;
+        static const int ID_GameReplacedCatcher     = 5;
+        static const int ID_GameDeletedCatcher      = 6;
         std::map<int, std::list<MINTCLIENT::Client::CommandList*>> catchers;
 
         RoutingServerClient()
@@ -280,6 +251,9 @@ namespace MINTCLIENT
         WONAPI::Error InstallClientEnterCatcher(void (*callback)(const RoutingServerClient::ClientEnterResult& result), void* context);
         WONAPI::Error InstallClientLeaveCatcher(void (*callback)(const RoutingServerClient::ClientLeaveResult& result), void* context);
         WONAPI::Error InstallGameCreatedCatcher(void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context);
+        WONAPI::Error InstallGameUpdatedCatcher(void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context);
+        WONAPI::Error InstallGameReplacedCatcher(void (*callback)(const RoutingServerClient::ReplaceGameResult& result), void* context);
+        WONAPI::Error InstallGameDeletedCatcher(void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context);
         WONAPI::Error InstallASCIIPeerChatCatcher(void (*callback)(const RoutingServerClient::ASCIIChatMessageResult& message), void* context);
 
         WONAPI::Error GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context);

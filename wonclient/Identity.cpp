@@ -42,6 +42,16 @@ namespace MINTCLIENT
                         cmd->DropFromClient();
                     }
                     break;
+
+                    case MINTCLIENT::Message::IdentityUpdate: // 0xB6CFD48E
+                    {
+                        Identity::Result result;
+                        result.error = cmd->GetError();
+                        result.context = cmd->context;
+                        cmd->callback(result);
+                        cmd->DropFromClient();
+                    }
+                    break;
                 }
 
                 done_processing = true;
@@ -97,6 +107,31 @@ namespace MINTCLIENT
         auto identity = Data::Credentials();
         identity.username.Set(username);
         identity.password.Set(password);
+        cmd->SetDataFromStruct(identity);
+        cmd->SetContext(context);
+
+        command_list->Add(cmd);
+
+        if (!identityThread.IsAlive()) {
+            identityThread.Start(Process, command_list);
+        }
+
+        return WONAPI::Error_Pending;
+    }
+
+    WONAPI::Error Identity::Update(MINTCLIENT::Client* client, const CH* username, const CH* password, const CH* new_password, void (*callback)(const Identity::Result& result), void* context)
+    {
+        auto* command_list = new MINTCLIENT::Client::CommandList();
+
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(client);
+        cmd->command_id = MINTCLIENT::Message::IdentityUpdate;
+        cmd->callback = callback;
+
+        auto identity = Data::Credentials();
+        identity.username.Set(username);
+        identity.password.Set(password);
+        identity.new_password.Set(new_password);
         cmd->SetDataFromStruct(identity);
         cmd->SetContext(context);
 
