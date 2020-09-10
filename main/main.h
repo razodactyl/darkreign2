@@ -25,7 +25,7 @@
 
 // JONATHAN
 #define GLEW_STATIC
-#include <GL/glew.h>
+#include <../3rdparty/glew-2.1.0/include/GL/glew.h>
 #pragma comment(lib, "opengl32")
 //#define GLFW_INCLUDE_NONE
 //#define GLFW_DLL

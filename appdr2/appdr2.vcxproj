@@ -224,7 +224,7 @@ rc appdr2.rc</Command>
       <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonclient.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/;$(SolutionDir)/3rdparty/glfw-3.3.2.bin.WIN32/lib;$(SolutionDir)/3rdparty/glew-2.1.0/lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

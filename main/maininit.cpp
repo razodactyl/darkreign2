@@ -436,8 +436,8 @@ namespace Main
             (GetSystemMetrics(SM_CYSCREEN) - 600) >> 1,
             800 + ew, 600 + eh, SWP_NOREDRAW);
 
-        Vid::doStatus.ogl = false;
-        //Vid::Init_PreGL(window);
+        Vid::doStatus.ogl = true;
+        Vid::Init_PreGL(window);
         Vid::Init(instance, mainHwnd);
 
         ShowWindow(mainHwnd, SW_SHOWMINIMIZED);
@@ -863,7 +863,7 @@ namespace Main
         do
         {
             // Process all windows messages
-            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+            while (PeekMessage(&msg, mainHwnd, 0, 0, PM_REMOVE))
             {
                 if (msg.message == WM_QUIT)
                 {
@@ -895,9 +895,11 @@ namespace Main
                 Sleep(0);
             }
 
-        } while (!quitGame); // && !glfwWindowShouldClose(window));
+        } while (!quitGame && !glfwWindowShouldClose(window));
 
-        // glfwTerminate();
+#ifdef DO_OPENGL
+        glfwTerminate();
+#endif
 
         // Reset the current run-code
         runCodes.Reset();
@@ -1195,17 +1197,19 @@ namespace Main
     HWND CreateGameWindow(const char* title)
     {
         // JONATHAN - GLFW
-        // glfwWindowHint(GLFW_SAMPLES, 4);
-        //
-        // window = glfwCreateWindow(MAININIT_SCREEN_WIDTH, MAININIT_SCREEN_HEIGHT, title, NULL, NULL);
-        // if (!window) {
-        //     glfwTerminate();
-        //     return NULL;
-        // }
-        //
-        // glfwMakeContextCurrent(window);
-        // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-        // glewInit();
+#ifdef DO_OPENGL
+        glfwWindowHint(GLFW_SAMPLES, 4);
+        
+        window = glfwCreateWindow(MAININIT_SCREEN_WIDTH, MAININIT_SCREEN_HEIGHT, title, NULL, NULL);
+        if (!window) {
+            glfwTerminate();
+            return NULL;
+        }
+        
+        glfwMakeContextCurrent(window);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        glewInit();
+#endif
 
         /////////////////////////
 
@@ -1235,23 +1239,25 @@ namespace Main
             return NULL;
         }
 
-        // Create the window, leave it hidden until a video mode is set
-        HWND hwnd = CreateWindowEx
-        (
-            0,
-            "DR2",
-            title,
-            WS_CAPTION | WS_BORDER,
-            0, 0, 0, 0,
-            NULL,
-            NULL,
-            instance,
-            NULL
-        );
+        // // Create the window, leave it hidden until a video mode is set
+        // HWND hwnd = CreateWindowEx
+        // (
+        //     0,
+        //     "DR2",
+        //     title,
+        //     WS_CAPTION | WS_BORDER,
+        //     0, 0, 0, 0,
+        //     NULL,
+        //     NULL,
+        //     instance,
+        //     NULL
+        // );
 
-        // return glfwGetWin32Window(window);
-
+#ifdef DO_OPENGL
+        return glfwGetWin32Window(window);
+#else
         return hwnd;
+#endif
     }
 
 

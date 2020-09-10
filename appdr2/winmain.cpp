@@ -39,7 +39,7 @@ namespace Main
     {
         HWND win = CreateGameWindow("Dark Reign II");
 
-        // JONATHAN
+        // // JONATHAN
         // glfwSetMouseButtonCallback(Main::GetGameWindowGLFW(), mouse_button_callback);
         // glfwSetCursorPosCallback(Main::GetGameWindowGLFW(), &cursor_position_callback);
         // glfwPollEvents();

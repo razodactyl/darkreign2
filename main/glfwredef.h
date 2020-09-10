@@ -19,9 +19,9 @@
 #define glfwGetWin32Window _cdecl glfwGetWin32Window
 #define glfwSetWindowMonitor _cdecl glfwSetWindowMonitor
 
-#include <GLFW/glfw3.h>
+#include <../3rdparty/glfw-3.3.2.bin.WIN32/include/GLFW/glfw3.h>
 #define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+#include <../3rdparty/glfw-3.3.2.bin.WIN32/include/GLFW/glfw3native.h>
 
 #undef glfwInit
 #undef glfwWindowHint

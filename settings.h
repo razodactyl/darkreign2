@@ -25,3 +25,6 @@
 
 // Sync checking build
 // #define SYNC_BRUTAL_ACTIVE
+
+#define DO_OPENGL
+
