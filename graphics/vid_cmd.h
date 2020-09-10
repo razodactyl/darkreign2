@@ -9,6 +9,7 @@
 #define __VIDCMD_H
 
 #include "icwindow.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -29,11 +30,12 @@ namespace Vid
 
         extern Color nightLightColor;
     };
+
     //-----------------------------------------------------------------------------
 
     class Options : public ICWindow
     {
-        PROMOTE_LINK(Options, ICWindow, 0x9C586C0C) // "Vid::Options"
+    PROMOTE_LINK(Options, ICWindow, 0x9C586C0C) // "Vid::Options"
 
     public:
 
@@ -56,7 +58,7 @@ namespace Vid
         U32 saveMode;
 
         Bool setmode;
-        F32  savePerfs[4];
+        F32 savePerfs[4];
 
         U32 saveMultiTex;
         U32 saveMipmap;
@@ -77,11 +79,12 @@ namespace Vid
 
         static void OnModeChange();
     };
+
     //-----------------------------------------------------------------------------
 
     class Graphics : public ICWindow
     {
-        PROMOTE_LINK(Graphics, ICWindow, 0x1D786456); // "Vid::Graphics"
+    PROMOTE_LINK(Graphics, ICWindow, 0x1D786456); // "Vid::Graphics"
 
     public:
 
@@ -96,6 +99,7 @@ namespace Vid
 
         static void OnModeChange();
     };
+
     //-----------------------------------------------------------------------------
 };
 

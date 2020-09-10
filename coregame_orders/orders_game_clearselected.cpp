@@ -21,45 +21,43 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class ClearSelected
+    // NameSpace Game
     //
-
-    U32 ClearSelected::orderId;
-
-    //
-    // Generate
-    //
-    void ClearSelected::Generate(Player &player)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class ClearSelected
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 ClearSelected::orderId;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+        //
+        // Generate
+        //
+        void ClearSelected::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 ClearSelected::Execute(const U8*, Player& player)
+        {
+            // Clear the list of selected objects for this player
+            player.ClearSelectedList();
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 ClearSelected::Execute(const U8 *, Player &player)
-    {
-      // Clear the list of selected objects for this player
-      player.ClearSelectedList();
-
-      return (sizeof(Data));
-    }
-  }
 }

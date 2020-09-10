@@ -27,16 +27,16 @@
 //
 // true if 'ident' is a legal identifier name
 //
-Bool FScope::IsLegalIdent(const char *ident)
+Bool FScope::IsLegalIdent(const char* ident)
 {
-  // check legal first character
-  if (!isalpha(*ident))
-  {
-    return (FALSE);
-  }
+    // check legal first character
+    if (!isalpha(*ident))
+    {
+        return (FALSE);
+    }
 
-  // rockin
-  return (TRUE);
+    // rockin
+    return (TRUE);
 }
 
 
@@ -45,32 +45,32 @@ Bool FScope::IsLegalIdent(const char *ident)
 //
 // constructor
 //
-FScope::FScope(FScope *parent, const char *name, U32 crc) : 
-  parentScope(parent),
-  argList(&VNode::node),
-  bodyList(&VNode::node),
-  argItr(&argList),
-  bodyItr(&bodyList),
-  scopeItr(&bodyList)
+FScope::FScope(FScope* parent, const char* name, U32 crc) :
+    parentScope(parent),
+    argList(&VNode::node),
+    bodyList(&VNode::node),
+    argItr(&argList),
+    bodyItr(&bodyList),
+    scopeItr(&bodyList)
 #ifdef DEVELOPMENT
-  ,dirty(FALSE)
+    , dirty(FALSE)
 #endif
 {
-  // Set function name
-  nameStr = name ? Utils::Strdup(name) : NULL;
+    // Set function name
+    nameStr = name ? Utils::Strdup(name) : nullptr;
 
-  // Set crc of name
-  nameCrc = nameStr ? Crc::CalcStr(nameStr) : crc;
- 
-  // Add to list of previous scope
-  if (parentScope)
-  {
-    // create a scope node
-    VNode *node = new VNode;
+    // Set crc of name
+    nameCrc = nameStr ? Crc::CalcStr(nameStr) : crc;
 
-    node->SetupScope(this);
-    parentScope->bodyList.Append(node);
-  }
+    // Add to list of previous scope
+    if (parentScope)
+    {
+        // create a scope node
+        VNode* node = new VNode;
+
+        node->SetupScope(this);
+        parentScope->bodyList.Append(node);
+    }
 }
 
 
@@ -81,15 +81,15 @@ FScope::FScope(FScope *parent, const char *name, U32 crc) :
 //
 FScope::~FScope()
 {
-  // Delete nodes
-  argList.DisposeAll();
-  bodyList.DisposeAll();
+    // Delete nodes
+    argList.DisposeAll();
+    bodyList.DisposeAll();
 
-  // Delete the allocated name
-  if (nameStr)
-  {
-    delete [] nameStr;
-  }
+    // Delete the allocated name
+    if (nameStr)
+    {
+        delete [] nameStr;
+    }
 }
 
 
@@ -98,24 +98,23 @@ FScope::~FScope()
 //
 // for fatal errors in this scope, displays with context information
 //
-void CDECL FScope::ScopeError(const char *fmt, ...)
+void CDECL FScope::ScopeError(const char* fmt, ...)
 {
-  LOG_WARN(("Parse Callstack:"))
+    LOG_WARN(("Parse Callstack:"))
 
-  // display the callstack for the scope
-  StackRecurse();
+    // display the callstack for the scope
+    StackRecurse();
 
-  // process the variable args
-  va_list args;
-  char fmtBuf[1024];
-  va_start(args, fmt);
-  vsprintf(fmtBuf, fmt, args);
-  va_end(args);
+    // process the variable args
+    va_list args;
+    char fmtBuf[1024];
+    va_start(args, fmt);
+    vsprintf(fmtBuf, fmt, args);
+    va_end(args);
 
-  // trigger the error
-  ERR_CONFIG(("(%s) Error! %s", NameStr(), fmtBuf));
+    // trigger the error
+    ERR_CONFIG(("(%s) Error! %s", NameStr(), fmtBuf));
 }
-
 
 
 //
@@ -123,12 +122,12 @@ void CDECL FScope::ScopeError(const char *fmt, ...)
 //
 // returns the string name of this function
 //
-const char * FScope::NameStr()
+const char* FScope::NameStr()
 {
-  // This is returned if scope loaded from a binary file
-  static const char *noName = "[Unavailable]";
+    // This is returned if scope loaded from a binary file
+    static const char* noName = "[Unavailable]";
 
-  return (nameStr ? nameStr : noName);
+    return (nameStr ? nameStr : noName);
 }
 
 
@@ -139,9 +138,9 @@ const char * FScope::NameStr()
 //
 void FScope::InitIterators()
 {
-  argItr.GoToHead();
-  bodyItr.GoToHead();
-  scopeItr.GoToHead();
+    argItr.GoToHead();
+    bodyItr.GoToHead();
+    scopeItr.GoToHead();
 }
 
 
@@ -150,47 +149,47 @@ void FScope::InitIterators()
 //
 // Duplicate the entire scope and all data
 //
-FScope *FScope::Dup(FScope *parent)
+FScope* FScope::Dup(FScope* parent)
 {
-  FSCOPE_DIRTY(this)
+    FSCOPE_DIRTY(this)
 
-  // Create the new scope
-  FScope *newScope = new FScope(parent, nameStr, nameCrc);
+    // Create the new scope
+    FScope* newScope = new FScope(parent, nameStr, nameCrc);
 
-  // Duplicate argument list
-  NList<VNode>::Iterator args(&argList);
-  for (; *args; args++)
-  {
-    VNode *node = (*args)->NewAtomicNode();
-    ASSERT(node);
-
-    newScope->argList.Append(node);
-  }
-
-  // Duplicate body list
-  for (NList<VNode>::Iterator body(&bodyList); *body; body++)
-  {
-    VNode *node = *body;
-
-    switch (node->aType)
+    // Duplicate argument list
+    NList<VNode>::Iterator args(&argList);
+    for (; *args; ++args)
     {
-      case VNode::AT_SCOPE:
-      {
-        node->GetScope()->Dup(newScope);
-        break;
-      }
+        VNode* node = (*args)->NewAtomicNode();
+        ASSERT(node);
 
-      default:
-      {
-        VNode *newNode = (*args)->NewAtomicNode();
-        ASSERT(newNode);
-        newScope->bodyList.Append(newNode);
-        break;
-      }       
+        newScope->argList.Append(node);
     }
-  }
 
-  return newScope;
+    // Duplicate body list
+    for (NList<VNode>::Iterator body(&bodyList); *body; ++body)
+    {
+        VNode* node = *body;
+
+        switch (node->aType)
+        {
+            case VNode::AT_SCOPE:
+            {
+                node->GetScope()->Dup(newScope);
+                break;
+            }
+
+            default:
+            {
+                VNode* newNode = (*args)->NewAtomicNode();
+                ASSERT(newNode);
+                newScope->bodyList.Append(newNode);
+                break;
+            }
+        }
+    }
+
+    return newScope;
 }
 
 
@@ -201,16 +200,16 @@ FScope *FScope::Dup(FScope *parent)
 //
 VNode* FScope::NextArgument(Bool required)
 {
-  VNode *n = argItr++;
+    VNode* n = argItr++;
 
-  FSCOPE_DIRTY(this)
+    FSCOPE_DIRTY(this)
 
-  if (!n && required)
-  {
-    ScopeError("Argument expected (pos %d)", argItr.GetPos());
-  }
+    if (!n && required)
+    {
+        ScopeError("Argument expected (pos %d)", argItr.GetPos());
+    }
 
-  return (n);
+    return (n);
 }
 
 
@@ -222,38 +221,38 @@ VNode* FScope::NextArgument(Bool required)
 //
 VNode* FScope::NextArgument(VNode::VNodeAtomicType aType, Bool required)
 {
-  // save the position of this 'expected' argument
-  U32 argPos = argItr.GetPos() + 1;
- 
-  // get the next argument
-  VNode *vNode = NextArgument();
+    // save the position of this 'expected' argument
+    U32 argPos = argItr.GetPos() + 1;
 
-  // did we find one
-  if (vNode)
-  {
-    // is it the right type
-    if (vNode->aType != aType)
+    // get the next argument
+    VNode* vNode = NextArgument();
+
+    // did we find one
+    if (vNode)
     {
-      ScopeError
-      (
-        "'%s' argument expected (pos %d) but found type '%s'",
-        VNode::GetAtomicString(aType), 
-        argPos,
-        VNode::GetAtomicString(vNode->aType)
-      );
+        // is it the right type
+        if (vNode->aType != aType)
+        {
+            ScopeError
+            (
+                "'%s' argument expected (pos %d) but found type '%s'",
+                VNode::GetAtomicString(aType),
+                argPos,
+                VNode::GetAtomicString(vNode->aType)
+            );
+        }
     }
-  }
-  else
-  {
-    // was it required
-    if (required)
+    else
     {
-      ScopeError("'%s' argument expected (pos %d)", VNode::GetAtomicString(aType), argPos);
+        // was it required
+        if (required)
+        {
+            ScopeError("'%s' argument expected (pos %d)", VNode::GetAtomicString(aType), argPos);
+        }
     }
-  }
-  
-  // success
-  return (vNode);
+
+    // success
+    return (vNode);
 }
 
 
@@ -264,9 +263,9 @@ VNode* FScope::NextArgument(VNode::VNodeAtomicType aType, Bool required)
 //
 const char* FScope::NextArgString()
 {
-  VNode *vNode = NextArgument(VNode::AT_STRING);
-  ASSERT(vNode); 
-  return (vNode->GetString());
+    VNode* vNode = NextArgument(VNode::AT_STRING);
+    ASSERT(vNode);
+    return (vNode->GetString());
 }
 
 
@@ -277,9 +276,9 @@ const char* FScope::NextArgString()
 //
 S32 FScope::NextArgInteger()
 {
-  VNode *vNode = NextArgument(VNode::AT_INTEGER);
-  ASSERT(vNode); 
-  return (vNode->GetInteger());
+    VNode* vNode = NextArgument(VNode::AT_INTEGER);
+    ASSERT(vNode);
+    return (vNode->GetInteger());
 }
 
 
@@ -290,33 +289,30 @@ S32 FScope::NextArgInteger()
 //
 F32 FScope::NextArgFPoint()
 {
-  // save the position of this 'expected' argument
-  U32 argPos = argItr.GetPos() + 1;
+    // save the position of this 'expected' argument
+    U32 argPos = argItr.GetPos() + 1;
 
-  // get the next argument
-  VNode *vNode = NextArgument();
+    // get the next argument
+    VNode* vNode = NextArgument();
 
-  if (vNode)
-  {
-    switch (vNode->aType)
+    if (vNode)
     {
-      case VNode::AT_FPOINT:
-        return (vNode->GetFPoint());
-        break;
+        switch (vNode->aType)
+        {
+            case VNode::AT_FPOINT:
+                return (vNode->GetFPoint());
+                break;
 
-      case VNode::AT_INTEGER:
-        // integers can be turned into floats
-        return ((F32) vNode->GetInteger());
-        break;
+            case VNode::AT_INTEGER:
+                // integers can be turned into floats
+                return static_cast<F32>(vNode->GetInteger());
+                break;
 
-      default:
-        ScopeError("Floating Point argument expected (pos %d) but found type '%s'", argPos, VNode::GetAtomicString(vNode->aType));
+            default:
+                ScopeError("Floating Point argument expected (pos %d) but found type '%s'", argPos, VNode::GetAtomicString(vNode->aType));
+        }
     }
-  }
-  else
-  {
     ScopeError("Floating Point argument expected (pos %d) but none found", argPos);
-  }
 }
 
 
@@ -327,7 +323,7 @@ F32 FScope::NextArgFPoint()
 //
 VNode* FScope::PeekArgument()
 {
-  return (*argItr);
+    return (*argItr);
 }
 
 
@@ -336,8 +332,8 @@ VNode* FScope::PeekArgument()
 //
 Bool FScope::IsNextArgString()
 {
-  VNode *vNode = PeekArgument();
-  return ((vNode && vNode->aType == VNode::AT_STRING) ? TRUE : FALSE);
+    VNode* vNode = PeekArgument();
+    return ((vNode && vNode->aType == VNode::AT_STRING) ? TRUE : FALSE);
 }
 
 
@@ -346,8 +342,8 @@ Bool FScope::IsNextArgString()
 //
 Bool FScope::IsNextArgInteger()
 {
-  VNode *vNode = PeekArgument();
-  return ((vNode && vNode->aType == VNode::AT_INTEGER) ? TRUE : FALSE);
+    VNode* vNode = PeekArgument();
+    return ((vNode && vNode->aType == VNode::AT_INTEGER) ? TRUE : FALSE);
 }
 
 
@@ -356,8 +352,8 @@ Bool FScope::IsNextArgInteger()
 //
 Bool FScope::IsNextArgFPoint()
 {
-  VNode *vNode = PeekArgument();
-  return ((vNode && (vNode->aType == VNode::AT_FPOINT || vNode->aType == VNode::AT_INTEGER)) ? TRUE : FALSE);
+    VNode* vNode = PeekArgument();
+    return ((vNode && (vNode->aType == VNode::AT_FPOINT || vNode->aType == VNode::AT_INTEGER)) ? TRUE : FALSE);
 }
 
 
@@ -368,7 +364,7 @@ Bool FScope::IsNextArgFPoint()
 //
 VNode* FScope::NextBodyVNode()
 {
-  return (bodyItr++);
+    return (bodyItr++);
 }
 
 
@@ -377,23 +373,23 @@ VNode* FScope::NextBodyVNode()
 //
 // get REQUIRED integer variable (error if not found)
 //
-S32 FScope::GetVarInteger(const char *ident)
+S32 FScope::GetVarInteger(const char* ident)
 {
-  ASSERT(ident);
-  
-  S32 iVal = 0;
-  
-  // can we see this variable
-  if (!GetVarIntegerRef(ident, iVal))
-  {
-    ScopeError
-    (
-      "expected to find variable '%s' of type '%s'", 
-      ident, VNode::GetAtomicString(VNode::AT_INTEGER)
-    );
-  }
+    ASSERT(ident);
 
-  return (iVal);
+    S32 iVal = 0;
+
+    // can we see this variable
+    if (!GetVarIntegerRef(ident, iVal))
+    {
+        ScopeError
+        (
+            "expected to find variable '%s' of type '%s'",
+            ident, VNode::GetAtomicString(VNode::AT_INTEGER)
+        );
+    }
+
+    return (iVal);
 }
 
 
@@ -402,23 +398,23 @@ S32 FScope::GetVarInteger(const char *ident)
 //
 // get REQUIRED FPoint variable (error if not found)
 //
-F32 FScope::GetVarFPoint(const char *ident)
+F32 FScope::GetVarFPoint(const char* ident)
 {
-  ASSERT(ident);
-  
-  F32 fVal = 0.0;
-  
-  // can we see this variable
-  if (!GetVarFPointRef(ident, fVal))
-  {
-    ScopeError
-    (
-      "expected to find variable '%s' of type '%s'", 
-      ident, VNode::GetAtomicString(VNode::AT_FPOINT)
-    );
-  }
+    ASSERT(ident);
 
-  return (fVal);
+    F32 fVal = 0.0;
+
+    // can we see this variable
+    if (!GetVarFPointRef(ident, fVal))
+    {
+        ScopeError
+        (
+            "expected to find variable '%s' of type '%s'",
+            ident, VNode::GetAtomicString(VNode::AT_FPOINT)
+        );
+    }
+
+    return (fVal);
 }
 
 
@@ -427,23 +423,23 @@ F32 FScope::GetVarFPoint(const char *ident)
 //
 // get REQUIRED String variable (error if not found)
 //
-const char* FScope::GetVarString(const char *ident)
+const char* FScope::GetVarString(const char* ident)
 {
-  ASSERT(ident);
-  
-  const char *sVal = NULL;
-  
-  // can we see this variable
-  if (!GetVarStringRef(ident, sVal))
-  {
-    ScopeError
-    (
-      "expected to find variable '%s' of type '%s'", 
-      ident, VNode::GetAtomicString(VNode::AT_STRING)
-    );
-  }
+    ASSERT(ident);
 
-  return (sVal);
+    const char* sVal = nullptr;
+
+    // can we see this variable
+    if (!GetVarStringRef(ident, sVal))
+    {
+        ScopeError
+        (
+            "expected to find variable '%s' of type '%s'",
+            ident, VNode::GetAtomicString(VNode::AT_STRING)
+        );
+    }
+
+    return (sVal);
 }
 
 
@@ -452,19 +448,19 @@ const char* FScope::GetVarString(const char *ident)
 //
 // get OPTIONAL integer variable (return 'dVal' if not found)
 //
-S32 FScope::GetVarInteger(const char *ident, S32 dVal)
+S32 FScope::GetVarInteger(const char* ident, S32 dVal)
 {
-  ASSERT(ident);
+    ASSERT(ident);
 
-  S32 iVal = 0;
-  
-  // can we see this variable
-  if (GetVarIntegerRef(ident, iVal))
-  {
-    return (iVal);
-  }
+    S32 iVal = 0;
 
-  return (dVal);
+    // can we see this variable
+    if (GetVarIntegerRef(ident, iVal))
+    {
+        return (iVal);
+    }
+
+    return (dVal);
 }
 
 
@@ -473,19 +469,19 @@ S32 FScope::GetVarInteger(const char *ident, S32 dVal)
 //
 // get OPTIONAL FPoint variable (return 'dVal' if not found)
 //
-F32 FScope::GetVarFPoint(const char *ident, F32 dVal)
+F32 FScope::GetVarFPoint(const char* ident, F32 dVal)
 {
-  ASSERT(ident);
+    ASSERT(ident);
 
-  F32 fVal = 0.0;
-  
-  // can we see this variable
-  if (GetVarFPointRef(ident, fVal))
-  {
-    return (fVal);
-  }
+    F32 fVal = 0.0;
 
-  return (dVal);
+    // can we see this variable
+    if (GetVarFPointRef(ident, fVal))
+    {
+        return (fVal);
+    }
+
+    return (dVal);
 }
 
 
@@ -494,19 +490,19 @@ F32 FScope::GetVarFPoint(const char *ident, F32 dVal)
 //
 // get OPTIONAL String variable (return 'dVal' if not found)
 //
-const char* FScope::GetVarString(const char *ident, const char *dVal)
+const char* FScope::GetVarString(const char* ident, const char* dVal)
 {
-  ASSERT(ident);
+    ASSERT(ident);
 
-  const char *sVal = NULL;
-  
-  // can we see this variable
-  if (GetVarStringRef(ident, sVal))
-  {
-    return (sVal);
-  }
+    const char* sVal = nullptr;
 
-  return (dVal);
+    // can we see this variable
+    if (GetVarStringRef(ident, sVal))
+    {
+        return (sVal);
+    }
+
+    return (dVal);
 }
 
 
@@ -515,33 +511,33 @@ const char* FScope::GetVarString(const char *ident, const char *dVal)
 //
 // get OPTIONAL integer variable (returns FALSE and 'dest' unchanged if not found)
 //
-Bool FScope::GetVarIntegerRef(const char *ident, S32 &dest)
+Bool FScope::GetVarIntegerRef(const char* ident, S32& dest)
 {
-  ASSERT(ident);
+    ASSERT(ident);
 
-  VNode *vNode;
-  
-  // try and find the variable visible from this scope
-  vNode = FindVariableVisible(Crc::CalcStr(ident));
+    VNode* vNode;
 
-  if (vNode)
-  {
-    // check the atomic type
-    if (vNode->aType != VNode::AT_INTEGER)
+    // try and find the variable visible from this scope
+    vNode = FindVariableVisible(Crc::CalcStr(ident));
+
+    if (vNode)
     {
-      ScopeError
-      (
-        "expecting '%s' to be of type '%s' but found '%s'", ident,
-        VNode::GetAtomicString(VNode::AT_INTEGER),
-        VNode::GetAtomicString(vNode->aType)
-      );
+        // check the atomic type
+        if (vNode->aType != VNode::AT_INTEGER)
+        {
+            ScopeError
+            (
+                "expecting '%s' to be of type '%s' but found '%s'", ident,
+                VNode::GetAtomicString(VNode::AT_INTEGER),
+                VNode::GetAtomicString(vNode->aType)
+            );
+        }
+
+        // store the value
+        dest = vNode->GetInteger();
     }
 
-    // store the value
-    dest = vNode->GetInteger();
-  }
-  
-  return (vNode ? TRUE : FALSE);
+    return (vNode ? TRUE : FALSE);
 }
 
 
@@ -550,33 +546,33 @@ Bool FScope::GetVarIntegerRef(const char *ident, S32 &dest)
 //
 // get OPTIONAL FPoint variable (returns FALSE and 'dest' unchanged if not found)
 //
-Bool FScope::GetVarFPointRef(const char *ident, F32 &dest)
+Bool FScope::GetVarFPointRef(const char* ident, F32& dest)
 {
-  ASSERT(ident);
+    ASSERT(ident);
 
-  VNode *vNode;
-  
-  // try and find the variable visible from this scope
-  vNode = FindVariableVisible(Crc::CalcStr(ident));
+    VNode* vNode;
 
-  if (vNode)
-  {
-    // check the atomic type
-    if (vNode->aType != VNode::AT_FPOINT)
+    // try and find the variable visible from this scope
+    vNode = FindVariableVisible(Crc::CalcStr(ident));
+
+    if (vNode)
     {
-      ScopeError
-      (
-        "expecting '%s' to be of type '%s' but found '%s'", ident,
-        VNode::GetAtomicString(VNode::AT_FPOINT),
-        VNode::GetAtomicString(vNode->aType)
-      );
+        // check the atomic type
+        if (vNode->aType != VNode::AT_FPOINT)
+        {
+            ScopeError
+            (
+                "expecting '%s' to be of type '%s' but found '%s'", ident,
+                VNode::GetAtomicString(VNode::AT_FPOINT),
+                VNode::GetAtomicString(vNode->aType)
+            );
+        }
+
+        // store the value
+        dest = vNode->GetFPoint();
     }
 
-    // store the value
-    dest = vNode->GetFPoint();
-  }
-  
-  return (vNode ? TRUE : FALSE);
+    return (vNode ? TRUE : FALSE);
 }
 
 
@@ -585,33 +581,33 @@ Bool FScope::GetVarFPointRef(const char *ident, F32 &dest)
 //
 // get OPTIONAL String variable (returns FALSE and 'dest' unchanged if not found)
 //
-Bool FScope::GetVarStringRef(const char *ident, const char * &dest)
+Bool FScope::GetVarStringRef(const char* ident, const char* & dest)
 {
-  ASSERT(ident);
+    ASSERT(ident);
 
-  VNode *vNode;
-  
-  // try and find the variable visible from this scope
-  vNode = FindVariableVisible(Crc::CalcStr(ident));
+    VNode* vNode;
 
-  if (vNode)
-  {
-    // check the atomic type
-    if (vNode->aType != VNode::AT_STRING)
+    // try and find the variable visible from this scope
+    vNode = FindVariableVisible(Crc::CalcStr(ident));
+
+    if (vNode)
     {
-      ScopeError
-      (
-        "expecting '%s' to be of type '%s' but found '%s'", ident,
-        VNode::GetAtomicString(VNode::AT_STRING),
-        VNode::GetAtomicString(vNode->aType)
-      );
+        // check the atomic type
+        if (vNode->aType != VNode::AT_STRING)
+        {
+            ScopeError
+            (
+                "expecting '%s' to be of type '%s' but found '%s'", ident,
+                VNode::GetAtomicString(VNode::AT_STRING),
+                VNode::GetAtomicString(vNode->aType)
+            );
+        }
+
+        // store the value
+        dest = vNode->GetString();
     }
 
-    // store the value
-    dest = vNode->GetString();
-  }
-  
-  return (vNode ? TRUE : FALSE);
+    return (vNode ? TRUE : FALSE);
 }
 
 
@@ -623,22 +619,22 @@ Bool FScope::GetVarStringRef(const char *ident, const char * &dest)
 //
 FScope* FScope::NextFunction()
 {
-  VNode *node;
+    VNode* node;
 
-  // get the next node
-  while ((node = scopeItr++) != 0)
-  {
-    // is it a function scope
-    if (node->aType == VNode::AT_SCOPE)
+    // get the next node
+    while ((node = scopeItr++) != nullptr)
     {
-      FScope *fScope = node->GetScope();
+        // is it a function scope
+        if (node->aType == VNode::AT_SCOPE)
+        {
+            FScope* fScope = node->GetScope();
 
-      return (fScope);
+            return (fScope);
+        }
     }
-  }
-  
-  // nout more scopes
-  return (NULL);
+
+    // nout more scopes
+    return (nullptr);
 }
 
 
@@ -650,24 +646,24 @@ FScope* FScope::NextFunction()
 //
 FScope* FScope::PeekFunction()
 {
-  VNode *node;
+    VNode* node;
 
-  // Copy the iterator
-  NList<VNode>::Iterator itr(scopeItr);
+    // Copy the iterator
+    NList<VNode>::Iterator itr(scopeItr);
 
-  // get the next node
-  while ((node = itr++) != 0)
-  {
-    // is it a function scope
-    if (node->aType == VNode::AT_SCOPE)
+    // get the next node
+    while ((node = itr++) != nullptr)
     {
-      FScope *fScope = node->GetScope();
-      return (fScope);
+        // is it a function scope
+        if (node->aType == VNode::AT_SCOPE)
+        {
+            FScope* fScope = node->GetScope();
+            return (fScope);
+        }
     }
-  }
-  
-  // nout more scopes
-  return (NULL);
+
+    // nout more scopes
+    return (nullptr);
 }
 
 
@@ -676,7 +672,7 @@ FScope* FScope::PeekFunction()
 //
 FScope* FScope::ParentFunction()
 {
-  return (parentScope);
+    return (parentScope);
 }
 
 
@@ -687,41 +683,41 @@ FScope* FScope::ParentFunction()
 // found.  resets 'this' sub-scope iterator, and resets all iterators
 // in the resulting scope.
 //
-FScope* FScope::GetFunction(const char *name, Bool required)
+FScope* FScope::GetFunction(const char* name, Bool required)
 {
-  FSCOPE_DIRTY(this)
+    FSCOPE_DIRTY(this)
 
-  // calc the crc we're looking for
-  U32 crc = Crc::CalcStr(name);
+    // calc the crc we're looking for
+    U32 crc = Crc::CalcStr(name);
 
-  // step through nodes
-  for (NList<VNode>::Iterator i(&bodyList); *i; i++)
-  {
-    // is it a function scope
-    if ((*i)->aType == VNode::AT_SCOPE)
+    // step through nodes
+    for (NList<VNode>::Iterator i(&bodyList); *i; ++i)
     {
-      // get the scope
-      FScope *fScope = (*i)->GetScope();
-      
-      // is this the one we're after
-      if (fScope->NameCrc() == crc)
-      {
-        FSCOPE_DIRTY(fScope)
+        // is it a function scope
+        if ((*i)->aType == VNode::AT_SCOPE)
+        {
+            // get the scope
+            FScope* fScope = (*i)->GetScope();
 
-        // return it
-        return (fScope);
-      }
+            // is this the one we're after
+            if (fScope->NameCrc() == crc)
+            {
+                FSCOPE_DIRTY(fScope)
+
+                // return it
+                return (fScope);
+            }
+        }
     }
-  }
 
-  // do we need to trigger an error
-  if (required)
-  {
-    ScopeError("expected function '%s'", name);
-  }
+    // do we need to trigger an error
+    if (required)
+    {
+        ScopeError("expected function '%s'", name);
+    }
 
-  // didn't find it
-  return (NULL);
+    // didn't find it
+    return (nullptr);
 }
 
 
@@ -734,21 +730,21 @@ FScope* FScope::GetFunction(const char *name, Bool required)
 //
 VNode* FScope::FindVariableInScope(U32 crcVal)
 {
-  // search list for crcVal
-  for (NList<VNode>::Iterator i(&bodyList); *i; i++)
-  {
-    if ((*i)->nType == VNode::NT_VARIABLE)
+    // search list for crcVal
+    for (NList<VNode>::Iterator i(&bodyList); *i; ++i)
     {
-      // is this the one we're looking for
-      if ((*i)->GetVariableCrc() == crcVal)
-      {
-        return (*i);
-      }
+        if ((*i)->nType == VNode::NT_VARIABLE)
+        {
+            // is this the one we're looking for
+            if ((*i)->GetVariableCrc() == crcVal)
+            {
+                return (*i);
+            }
+        }
     }
-  }
 
-  // not visible from current scope
-  return (NULL);
+    // not visible from current scope
+    return (nullptr);
 }
 
 
@@ -761,20 +757,20 @@ VNode* FScope::FindVariableInScope(U32 crcVal)
 //
 VNode* FScope::FindVariableVisible(U32 crcVal)
 {
-  VNode *node;
+    VNode* node;
 
-  // search 'fScope' and all above it, in turn
-  for (FScope *fScope = this; fScope; fScope = fScope->parentScope)
-  {
-    // is the variable in 'pScope'
-    if ((node = fScope->FindVariableInScope(crcVal)) != 0)
+    // search 'fScope' and all above it, in turn
+    for (FScope* fScope = this; fScope; fScope = fScope->parentScope)
     {
-      return (node);
+        // is the variable in 'pScope'
+        if ((node = fScope->FindVariableInScope(crcVal)) != nullptr)
+        {
+            return (node);
+        }
     }
-  }
 
-  // not visible from 'fScope'
-  return (NULL);
+    // not visible from 'fScope'
+    return (nullptr);
 }
 
 
@@ -785,7 +781,7 @@ VNode* FScope::FindVariableVisible(U32 crcVal)
 //
 U32 FScope::GetArgCount()
 {
-  return (argList.GetCount());
+    return (argList.GetCount());
 }
 
 
@@ -796,7 +792,7 @@ U32 FScope::GetArgCount()
 //
 U32 FScope::GetBodyCount()
 {
-  return (bodyList.GetCount());
+    return (bodyList.GetCount());
 }
 
 
@@ -807,18 +803,20 @@ U32 FScope::GetBodyCount()
 //
 void FScope::ExpectArgCount(U32 count)
 {
-  // check argument list node count
-  if (argList.GetCount() != count)
-  {
-    ERR_CONFIG
-    (( 
-      "Expecting %d argument%s in function '%s' but found %d", 
-      count,
-      (count > 1) ? "s" : "",
-      NameStr(),
-      argList.GetCount()
-    ))
-  }
+    // check argument list node count
+    if (argList.GetCount() != count)
+    {
+        ERR_CONFIG
+        (
+            (
+                "Expecting %d argument%s in function '%s' but found %d",
+                count,
+                (count > 1) ? "s" : "",
+                NameStr(),
+                argList.GetCount()
+            )
+        )
+    }
 }
 
 
@@ -827,15 +825,15 @@ void FScope::ExpectArgCount(U32 count)
 //
 // add a function to this scope
 //
-FScope* FScope::AddFunction(const char *name, U32 crc)
+FScope* FScope::AddFunction(const char* name, U32 crc)
 {
-  // allocate a new function scope
-  FScope *newScope = new FScope(this, name, crc);
+    // allocate a new function scope
+    FScope* newScope = new FScope(this, name, crc);
 
-  FSCOPE_DIRTY(newScope)
+    FSCOPE_DIRTY(newScope)
 
-  // and return it
-  return (newScope);
+    // and return it
+    return (newScope);
 }
 
 
@@ -844,9 +842,9 @@ FScope* FScope::AddFunction(const char *name, U32 crc)
 //
 // add a dup of 'src' to this scope
 //
-FScope* FScope::AddDup(FScope *src)
+FScope* FScope::AddDup(FScope* src)
 {
-  return (src->Dup(this));
+    return (src->Dup(this));
 }
 
 
@@ -855,44 +853,44 @@ FScope* FScope::AddDup(FScope *src)
 //
 // add or modify a variable
 //
-VNode* FScope::AddVar(const char *vName, VNode *valNode)
+VNode* FScope::AddVar(const char* vName, VNode* valNode)
 {
-  VNode *varNode;
+    VNode* varNode;
 
-  // make sure legal variable name
-  if (!IsLegalIdent(vName))
-  {
-    ERR_FATAL(("Attempt to add illegal identifer name '%s' to '%s'", vName, NameStr()));
-  }
-
-  // are we just changing the value of an existing variable
-  varNode = FindVariableInScope(Crc::CalcStr(vName));
-
-  if (varNode)
-  {
-    // make sure atomic type hasn't changed
-    if (valNode->aType != varNode->aType)
+    // make sure legal variable name
+    if (!IsLegalIdent(vName))
     {
-      ERR_FATAL(("Attempt to change atomic type of '%s' in '%s'", vName, NameStr()));
+        ERR_FATAL(("Attempt to add illegal identifer name '%s' to '%s'", vName, NameStr()));
     }
 
-    // clear the variable VNode
-    varNode->Clear();
+    // are we just changing the value of an existing variable
+    varNode = FindVariableInScope(Crc::CalcStr(vName));
 
-    // and setup again
-    varNode->SetupVariable(vName, valNode);
-  }
-  else
-  {
-    // create a variable node and attach value node
-    varNode = new VNode;
-    varNode->SetupVariable(vName, valNode);
+    if (varNode)
+    {
+        // make sure atomic type hasn't changed
+        if (valNode->aType != varNode->aType)
+        {
+            ERR_FATAL(("Attempt to change atomic type of '%s' in '%s'", vName, NameStr()));
+        }
 
-    // add to global vars within scope
-    bodyList.Append(varNode);
-  }
+        // clear the variable VNode
+        varNode->Clear();
 
-  return (varNode);
+        // and setup again
+        varNode->SetupVariable(vName, valNode);
+    }
+    else
+    {
+        // create a variable node and attach value node
+        varNode = new VNode;
+        varNode->SetupVariable(vName, valNode);
+
+        // add to global vars within scope
+        bodyList.Append(varNode);
+    }
+
+    return (varNode);
 }
 
 
@@ -901,11 +899,11 @@ VNode* FScope::AddVar(const char *vName, VNode *valNode)
 //
 // add an integer variable to this scope
 //
-VNode* FScope::AddVarInteger(const char *vName, S32 data)
+VNode* FScope::AddVarInteger(const char* vName, S32 data)
 {
-  VNode *valNode = new VNode;
-  valNode->SetupInteger(data);
-  return (AddVar(vName, valNode));
+    VNode* valNode = new VNode;
+    valNode->SetupInteger(data);
+    return (AddVar(vName, valNode));
 }
 
 
@@ -914,11 +912,11 @@ VNode* FScope::AddVarInteger(const char *vName, S32 data)
 //
 // add a floating point variable to this scope
 //
-VNode* FScope::AddVarFPoint(const char *vName, F32 data)
+VNode* FScope::AddVarFPoint(const char* vName, F32 data)
 {
-  VNode *valNode = new VNode;
-  valNode->SetupFPoint(data);
-  return (AddVar(vName, valNode));
+    VNode* valNode = new VNode;
+    valNode->SetupFPoint(data);
+    return (AddVar(vName, valNode));
 }
 
 
@@ -927,11 +925,11 @@ VNode* FScope::AddVarFPoint(const char *vName, F32 data)
 //
 // add a string variable to this scope
 //
-VNode* FScope::AddVarString(const char *vName, const char *data)
+VNode* FScope::AddVarString(const char* vName, const char* data)
 {
-  VNode *valNode = new VNode;
-  valNode->SetupString(data);
-  return (AddVar(vName, valNode));
+    VNode* valNode = new VNode;
+    valNode->SetupString(data);
+    return (AddVar(vName, valNode));
 }
 
 
@@ -942,10 +940,10 @@ VNode* FScope::AddVarString(const char *vName, const char *data)
 //
 VNode* FScope::AddArgInteger(S32 data)
 {
-  VNode *valNode = new VNode;
-  valNode->SetupInteger(data);
-  argList.Append(valNode);
-  return (NULL);
+    VNode* valNode = new VNode;
+    valNode->SetupInteger(data);
+    argList.Append(valNode);
+    return (nullptr);
 }
 
 
@@ -956,10 +954,10 @@ VNode* FScope::AddArgInteger(S32 data)
 //
 VNode* FScope::AddArgFPoint(F32 data)
 {
-  VNode *valNode = new VNode;
-  valNode->SetupFPoint(data);
-  argList.Append(valNode);
-  return (NULL);
+    VNode* valNode = new VNode;
+    valNode->SetupFPoint(data);
+    argList.Append(valNode);
+    return (nullptr);
 }
 
 
@@ -968,12 +966,12 @@ VNode* FScope::AddArgFPoint(F32 data)
 //
 // add a string argument to this scope
 //
-VNode* FScope::AddArgString(const char *data)
+VNode* FScope::AddArgString(const char* data)
 {
-  VNode *valNode = new VNode;
-  valNode->SetupString(data);
-  argList.Append(valNode);
-  return (NULL);
+    VNode* valNode = new VNode;
+    valNode->SetupString(data);
+    argList.Append(valNode);
+    return (nullptr);
 }
 
 
@@ -984,31 +982,31 @@ VNode* FScope::AddArgString(const char *data)
 //
 void FScope::DumpScope()
 {
-  // Compose Scope Name and arguments into a buffer
-  static char buffer[256];
-  Utils::Sprintf(buffer, 256, "%s(", NameStr());
+    // Compose Scope Name and arguments into a buffer
+    static char buffer[256];
+    Utils::Sprintf(buffer, 256, "%s(", NameStr());
 
-  // Reset scope iterators
-  InitIterators();
+    // Reset scope iterators
+    InitIterators();
 
-  // Write arguments
-  Bool firstArg = TRUE;
-  VNode *aNode;
+    // Write arguments
+    Bool firstArg = TRUE;
+    VNode* aNode;
 
-  while ((aNode = NextArgument()) != 0)
-  {
-    if (!firstArg)
+    while ((aNode = NextArgument()) != nullptr)
     {
-      Utils::Strcat(buffer, ", ");
+        if (!firstArg)
+        {
+            Utils::Strcat(buffer, ", ");
+        }
+
+        Utils::Strcat(buffer, aNode->StringForm());
+        firstArg = FALSE;
     }
+    Utils::Strcat(buffer, ")");
 
-    Utils::Strcat(buffer, aNode->StringForm());
-    firstArg = FALSE;
-  }
-  Utils::Strcat(buffer, ")");
-
-  // Write the log
-  LOG_WARN(("%s", buffer))
+    // Write the log
+    LOG_WARN(("%s", buffer))
 }
 
 
@@ -1020,15 +1018,15 @@ void FScope::DumpScope()
 //
 void FScope::StackRecurse()
 {
-  // Log the name of this scope and any arguments it has
-  DumpScope();
+    // Log the name of this scope and any arguments it has
+    DumpScope();
 
-  // Does this scope have a parent scope ?
-  if (parentScope)
-  {
-    // Recurse to the parent scope
-    parentScope->StackRecurse();
-  }
+    // Does this scope have a parent scope ?
+    if (parentScope)
+    {
+        // Recurse to the parent scope
+        parentScope->StackRecurse();
+    }
 }
 
 
@@ -1041,13 +1039,13 @@ void FScope::StackRecurse()
 //
 void FScope::Dirty()
 {
-  dirty = TRUE;
+    dirty = TRUE;
 
-  // Dirty the parent if its not already dirty
-  if (parentScope && !parentScope->dirty)
-  {
-    FSCOPE_DIRTY(parentScope)
-  }
+    // Dirty the parent if its not already dirty
+    if (parentScope && !parentScope->dirty)
+    {
+        FSCOPE_DIRTY(parentScope)
+    }
 }
 
 
@@ -1058,21 +1056,21 @@ void FScope::Dirty()
 //
 void FScope::DirtyAll()
 {
-  dirty = TRUE;
+    dirty = TRUE;
 
-  for (NList<VNode>::Iterator body(&bodyList); *body; body++)
-  {
-    VNode *node = *body;
-
-    switch (node->aType)
+    for (NList<VNode>::Iterator body(&bodyList); *body; ++body)
     {
-      case VNode::AT_SCOPE:
-      {
-        node->GetScope(FALSE)->DirtyAll();
-        break;
-      }
+        VNode* node = *body;
+
+        switch (node->aType)
+        {
+            case VNode::AT_SCOPE:
+            {
+                node->GetScope(FALSE)->DirtyAll();
+                break;
+            }
+        }
     }
-  }
 }
 
 
@@ -1083,24 +1081,22 @@ void FScope::DirtyAll()
 //
 void FScope::CleanAll()
 {
-  dirty = FALSE;
+    dirty = FALSE;
 
-  for (NList<VNode>::Iterator body(&bodyList); *body; body++)
-  {
-    VNode *node = *body;
-
-    switch (node->aType)
+    for (NList<VNode>::Iterator body(&bodyList); *body; ++body)
     {
-      case VNode::AT_SCOPE:
-      {
-        node->GetScope(FALSE)->CleanAll();
-        break;
-      }
+        VNode* node = *body;
+
+        switch (node->aType)
+        {
+            case VNode::AT_SCOPE:
+            {
+                node->GetScope(FALSE)->CleanAll();
+                break;
+            }
+        }
     }
-  }
 }
-
-
 
 
 //
@@ -1110,27 +1106,27 @@ void FScope::CleanAll()
 //
 void FScope::CheckDirty()
 {
-  if (!dirty)
-  {
-    LOG_ERR(("Unreferenced FScope:"))
-    StackRecurse();
-    return;
-  }
-
-  // Check all of the subscopes
-  for (NList<VNode>::Iterator body(&bodyList); *body; body++)
-  {
-    VNode *node = *body;
-
-    switch (node->aType)
+    if (!dirty)
     {
-      case VNode::AT_SCOPE:
-      {
-        node->GetScope(FALSE)->CheckDirty();
-        break;
-      }
+        LOG_ERR(("Unreferenced FScope:"))
+        StackRecurse();
+        return;
     }
-  }
+
+    // Check all of the subscopes
+    for (NList<VNode>::Iterator body(&bodyList); *body; ++body)
+    {
+        VNode* node = *body;
+
+        switch (node->aType)
+        {
+            case VNode::AT_SCOPE:
+            {
+                node->GetScope(FALSE)->CheckDirty();
+                break;
+            }
+        }
+    }
 }
 
 

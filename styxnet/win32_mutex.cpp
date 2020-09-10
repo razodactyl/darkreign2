@@ -20,78 +20,75 @@
 //
 namespace Win32
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Mutex
-  //
-
-
-  //
-  // Mutex
-  //
-  // Create a new mutex
-  //
-  Mutex::Mutex(const char *name)
-  {
-    mutex = CreateMutex(NULL, 0, name);
-    primary = name && (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
-  }
-
-  
-  //
-  // ~Mutex
-  //
-  // Destroy Mutex
-  //
-  Mutex::~Mutex()
-  {
-    CloseHandle(mutex);
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Mutex
+    //
 
 
-  //
-  // GetHandle
-  //
-  // Returns the mutex handle if you need it
-  //
-  HANDLE Mutex::GetHandle() const
-  {
-    return (mutex);
-  }
+    //
+    // Mutex
+    //
+    // Create a new mutex
+    //
+    Mutex::Mutex(const char* name)
+    {
+        mutex = CreateMutex(nullptr, 0, name);
+        primary = name && (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
+    }
 
 
-  //
-  // Wait
-  //
-  // Wait for mutex to become signaled (with optional timeout)
-  //
-  Bool Mutex::Wait(U32 timeout)
-  {
-    return ((WaitForSingleObject(mutex, timeout) == WAIT_OBJECT_0) ? TRUE : FALSE);
-  }
-
-  
-  //
-  // Signal
-  //
-  // Signal mutex
-  //
-  void Mutex::Signal()
-  {
-    ReleaseMutex(mutex);
-  }
+    //
+    // ~Mutex
+    //
+    // Destroy Mutex
+    //
+    Mutex::~Mutex()
+    {
+        CloseHandle(mutex);
+    }
 
 
-  //
-  // IsPrimary
-  //
-  // Test to see if this is the primary mutex (only applies to named mutexes)
-  //
-  Bool Mutex::IsPrimary()
-  {
-    return (primary);
-  }
+    //
+    // GetHandle
+    //
+    // Returns the mutex handle if you need it
+    //
+    HANDLE Mutex::GetHandle() const
+    {
+        return (mutex);
+    }
 
+
+    //
+    // Wait
+    //
+    // Wait for mutex to become signaled (with optional timeout)
+    //
+    Bool Mutex::Wait(U32 timeout)
+    {
+        return ((WaitForSingleObject(mutex, timeout) == WAIT_OBJECT_0) ? TRUE : FALSE);
+    }
+
+
+    //
+    // Signal
+    //
+    // Signal mutex
+    //
+    void Mutex::Signal()
+    {
+        ReleaseMutex(mutex);
+    }
+
+
+    //
+    // IsPrimary
+    //
+    // Test to see if this is the primary mutex (only applies to named mutexes)
+    //
+    Bool Mutex::IsPrimary()
+    {
+        return (primary);
+    }
 }
-

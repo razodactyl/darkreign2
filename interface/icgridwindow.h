@@ -26,26 +26,26 @@
 
 class ICGridWindow : public ICWindow
 {
-  PROMOTE_LINK(ICGridWindow, ICWindow, 0xE3EFB3BB); // "ICGridWindow"
+PROMOTE_LINK(ICGridWindow, ICWindow, 0xE3EFB3BB); // "ICGridWindow"
 
 protected:
 
-  // The grid control
-  ICGrid *grid;
+    // The grid control
+    ICGrid* grid;
 
 public:
 
-  // Constructor 
-  ICGridWindow(const char *name, U32 sx, U32 sy, U32 cx, U32 cy);
+    // Constructor 
+    ICGridWindow(const char* name, U32 sx, U32 sy, U32 cx, U32 cy);
 
-  // Returns a reference to the grid
-  ICGrid & Grid()
-  {
-    return (*grid);
-  }
+    // Returns a reference to the grid
+    ICGrid& Grid()
+    {
+        return (*grid);
+    }
 
-  // Deactivate
-  Bool Deactivate();
+    // Deactivate
+    Bool Deactivate();
 };
 
 

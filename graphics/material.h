@@ -21,8 +21,13 @@
 
 const U32 DEFRAMPSIZE = 32;
 
+#ifdef DODX6
+typedef D3DMATERIALHANDLE MaterialD3D;
+typedef D3DMATERIAL MaterialDescD3D;
+#else
 typedef D3DMATERIAL7* MaterialD3D;
-typedef D3DMATERIAL7			MaterialDescD3D;
+typedef D3DMATERIAL7 MaterialDescD3D;
+#endif
 
 class Material : public RootObj
 {
@@ -31,27 +36,27 @@ public:
 private:
     friend Manager;
 
-    NBinTree<Material>::Node  treeNode;         // node for Material::Manager::tree
+    NBinTree<Material>::Node treeNode;         // node for Material::Manager::tree
 
 protected:
 
     struct Status
     {
-        U32                   d3d : 1;
-        U32                   translucent : 1;
-        U32                   specular : 1;
+        U32 d3d : 1;
+        U32 translucent : 1;
+        U32 specular : 1;
 
         void ClearData()
         {
             Utils::Memset(this, 0, sizeof(*this));
         }
-    }                       status;
+    } status;
 
-    MaterialDescD3D			    desc;
+    MaterialDescD3D desc;
 
-    U32                     powerCount;
+    U32 powerCount;
 
-    U32                     blendFlags;
+    U32 blendFlags;
 
 public:
     void ClearData();
@@ -60,6 +65,7 @@ public:
     {
         ClearData();
     }
+
     Material(const char* name);
 
     ~Material();
@@ -80,22 +86,27 @@ public:
     {
         return (ColorF32&)desc.diffuse;
     }
+
     inline ColorF32& Specular() const
     {
         return (ColorF32&)desc.specular;
     }
+
     inline F32 SpecularPower() const
     {
         return desc.power;
     }
+
     inline U32 PowerCount() const
     {
         return powerCount;
     }
+
     inline ColorF32& Emissive() const
     {
         return (ColorF32&)desc.emissive;
     }
+
     inline ColorF32& Ambient() const
     {
         return (ColorF32&)desc.ambient;
@@ -114,24 +125,24 @@ public:
     class Wrap : public RootObj
     {
     public:
-        NBinTree<Wrap>::Node    treeNode;         // node for Material::Manager::wrapTree
+        NBinTree<Wrap>::Node treeNode;         // node for Material::Manager::wrapTree
 
         Material* material;
 
         struct Status
         {
-            U32                   teamColor : 1;
-            U32                   envMap : 1;
-            U32                   overlay : 1;
+            U32 teamColor : 1;
+            U32 envMap : 1;
+            U32 overlay : 1;
 
             void ClearData()
             {
                 Utils::Memset(this, 0, sizeof(*this));
             }
-        }                       status;
+        } status;
 
-        U32                     blendFlags;
-        U32                     crcMat;
+        U32 blendFlags;
+        U32 crcMat;
 
         void ClearData();
 
@@ -139,6 +150,7 @@ public:
         {
             ClearData();
         }
+
         ~Wrap();
 
         void SetStatus(U32 _teamColor, U32 _envMap, U32 _overlay)
@@ -147,6 +159,7 @@ public:
             status.envMap = _envMap;
             status.overlay = _overlay;
         }
+
         void SetBlendFlags(U32 blend)
         {
             blendFlags = blend;
@@ -159,6 +172,7 @@ public:
                 material->SetDiffuse(r, g, b, a);
             }
         }
+
         void SetSpecular(F32 r, F32 g, F32 b, F32 a = 1.0f, F32 power = 1.0f)
         {
             if (material)
@@ -166,6 +180,7 @@ public:
                 material->SetSpecular(r, g, b, a, power);
             }
         }
+
         void SetEmissive(F32 r, F32 g, F32 b, F32 a = 1.0f)
         {
             if (material)
@@ -190,11 +205,11 @@ public:
     {
     public:
 
-        static NBinTree<Material>          tree;
-        static NBinTree<Wrap>              wrapTree;
+        static NBinTree<Material> tree;
+        static NBinTree<Wrap> wrapTree;
 
         static const Material* curMaterial;
-        static F32                         diffuseVal;
+        static F32 diffuseVal;
 
     public:
         static Bool Init()
@@ -205,14 +220,17 @@ public:
 
             return TRUE;
         }
+
         static void Done()
         {
             DisposeAll();
         }
+
         static void ResetData()
         {
             curMaterial = NULL;
         }
+
         static void DisposeAll();
         static void DisposeWraps();
 
@@ -220,6 +238,7 @@ public:
         {
             curMaterial = mat;
         }
+
         static const Material* GetMaterial()
         {
             return curMaterial;
@@ -235,22 +254,28 @@ public:
         {
             return tree.Find(Crc::CalcStr(name));
         }
+
         static Material* FindCreate();
         static Material* FindCreate(const char* name);
-        static Material* FindCreate(
+        static Material* FindCreate
+        (
             ColorF32& diffuse, ColorF32& specular, F32 power,
             ColorF32& emissive, ColorF32& ambient,
             U32 blend = RS_BLEND_DEF,
-            Bool teamColor = 0, Bool envMap = 0, Bool overlay = 0);
+            Bool teamColor = 0, Bool envMap = 0, Bool overlay = 0
+        );
 
         static void Save(GodFile* god, const Material& material);
         static Material* Load(GodFile* god);
 
-        static void GenerateName(char* matName,
+        static void GenerateName
+        (
+            char* matName,
             ColorF32& diffuse, ColorF32& specular, F32 power,
             ColorF32& emissive, ColorF32& ambient,
             U32 blend = RS_BLEND_DEF,
-            Bool teamColor = 0, Bool envMap = 0, Bool overlay = 0);
+            Bool teamColor = 0, Bool envMap = 0, Bool overlay = 0
+        );
 
         static void SetDiffuse(F32 diff);
 
@@ -264,13 +289,16 @@ public:
         {
             return wrapTree.Find(Crc::CalcStr(name));
         }
-        static Wrap* FindCreateWrap(
+
+        static Wrap* FindCreateWrap
+        (
             ColorF32& diffuse, ColorF32& specular, F32 power,
             ColorF32& emissive, ColorF32& ambient,
-            U32 blend, Bool teamColor, Bool envMap, Bool overlay);
-
+            U32 blend, Bool teamColor, Bool envMap, Bool overlay
+        );
     };
 };
+
 //----------------------------------------------------------------------------
 
 #endif			// MATERIALH_DEF

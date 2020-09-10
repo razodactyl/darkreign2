@@ -24,26 +24,23 @@
 //
 namespace Client
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class OrderLag
+    //
+    class OrderLag : public ICWindow
+    {
+    public:
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class OrderLag
-  //
-  class OrderLag: public ICWindow
-  {
-  public:
+        // Constructor
+        OrderLag(IControl* parent);
 
-    // Constructor
-    OrderLag(IControl *parent);
+        // Destructor
+        ~OrderLag();
 
-    // Destructor
-    ~OrderLag();
-
-    // Redraw self
-    void DrawSelf(PaintInfo &pi);
-
-  };
-
+        // Redraw self
+        void DrawSelf(PaintInfo& pi);
+    };
 }
 
 

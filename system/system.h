@@ -37,8 +37,8 @@ public:
     class Thread
     {
     private:
-        U32         threadid;
-        HANDLE      threadh;
+        U32 threadid;
+        HANDLE threadh;
 
     public:
 
@@ -58,18 +58,18 @@ public:
         // 
         // Creates a new thread
         //
-        Thread(U32(STDCALL* func)(void*), void* arg = NULL)
+        Thread(U32 (STDCALL* func)(void*), void* arg = nullptr)
         {
-            threadh = CreateThread(NULL, 0, func, arg, 0, &threadid);
+            threadh = CreateThread(nullptr, 0, func, arg, 0, &threadid);
         }
 
         //
         // Start
         // 
-        static void Start(U32(STDCALL* func)(void*), void* arg = NULL)
+        static void Start(U32 (STDCALL* func)(void*), void* arg = nullptr)
         {
             U32 threadid;
-            CreateThread(NULL, 0, func, arg, 0, &threadid);
+            CreateThread(nullptr, 0, func, arg, 0, &threadid);
         }
 
         //
@@ -99,7 +99,7 @@ public:
         // Retrieve the priority of the thread
         Priority GetPriority()
         {
-            return ((Thread::Priority) GetThreadPriority(threadh));
+            return static_cast<Priority>(GetThreadPriority(threadh));
         }
 
         //
@@ -107,7 +107,7 @@ public:
         //
         // Retrieve the ID of the thread
         //
-        inline U32 GetId()
+        U32 GetId()
         {
             return (threadid);
         }
@@ -163,9 +163,8 @@ public:
         // Collects the name of the current process
         static void GetProcessName(char* name, U32 len)
         {
-            GetModuleFileName(NULL, name, len);
+            GetModuleFileName(nullptr, name, len);
         }
-
     };
 
 
@@ -178,7 +177,7 @@ public:
     class CritSect
     {
     private:
-        CRITICAL_SECTION  critSect;
+        CRITICAL_SECTION critSect;
 
     public:
 
@@ -221,7 +220,6 @@ public:
         {
             LeaveCriticalSection(&critSect);
         }
-
     };
 
 
@@ -274,8 +272,6 @@ public:
         {
             LeaveCriticalSection(&criticalSection);
         }
-
-
     };
 
 
@@ -290,7 +286,7 @@ public:
     private:
 
         HANDLE mutex;
-        Bool   primary;
+        Bool primary;
 
     public:
 
@@ -299,9 +295,9 @@ public:
         //
         // Create a new mutex
         //
-        Mutex(const char* name = NULL)
+        Mutex(const char* name = nullptr)
         {
-            mutex = CreateMutex(NULL, 0, name);
+            mutex = CreateMutex(nullptr, 0, name);
             primary = name && (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
         }
 
@@ -352,7 +348,6 @@ public:
         {
             return (primary);
         }
-
     };
 
 
@@ -367,7 +362,7 @@ public:
     private:
 
         HANDLE sem;
-        Bool   primary;
+        Bool primary;
 
     public:
 
@@ -376,9 +371,9 @@ public:
         //
         // Create a new semaphore
         //
-        Semaphore(int init, int max, const char* name = NULL)
+        Semaphore(int init, int max, const char* name = nullptr)
         {
-            sem = CreateSemaphore(NULL, init, max, name);
+            sem = CreateSemaphore(nullptr, init, max, name);
             primary = name && (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
         }
 
@@ -419,13 +414,10 @@ public:
         {
             if (WaitForSingleObject(sem, 0) == WAIT_OBJECT_0)
             {
-                ReleaseSemaphore(sem, 1, NULL);
+                ReleaseSemaphore(sem, 1, nullptr);
                 return (TRUE);
             }
-            else
-            {
-                return (FALSE);
-            }
+            return (FALSE);
         }
 
         //
@@ -435,7 +427,7 @@ public:
         //
         void Signal(int step = 1)
         {
-            ReleaseSemaphore(sem, step, NULL);
+            ReleaseSemaphore(sem, step, nullptr);
         }
 
         // Test to see if this is the primary semaphore (only applies to named semaphores)
@@ -457,7 +449,7 @@ public:
     private:
 
         HANDLE event;
-        Bool   primary;
+        Bool primary;
 
     public:
 
@@ -466,9 +458,9 @@ public:
         //
         // Create a new event
         //
-        Event(const char* name = NULL)
+        Event(const char* name = nullptr)
         {
-            event = CreateEvent(NULL, FALSE, FALSE, name);
+            event = CreateEvent(nullptr, FALSE, FALSE, name);
             primary = (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
         }
 
@@ -541,10 +533,7 @@ public:
         {
             return (primary);
         }
-
     };
-
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -559,7 +548,7 @@ public:
 
         HANDLE handle;
         U8* ptr;
-        Bool   primary;
+        Bool primary;
 
     public:
 
@@ -569,38 +558,42 @@ public:
             //
             // Create File mapping
             //
-            handle = CreateFileMapping(
+            handle = CreateFileMapping
+            (
                 (HANDLE)0xFFFFFFFF,
-                NULL,
+                nullptr,
                 PAGE_READWRITE,
                 0,
                 size,
-                name);
+                name
+            );
 
             //
             // Was it successful ?
             //
-            if (handle == NULL)
+            if (handle == nullptr)
             {
-                return (NULL);
+                return (nullptr);
             }
 
             //
             // Get pointer to the shared memory
             //
-            ptr = (U8*)MapViewOfFile(
-                handle,
-                FILE_MAP_WRITE,
-                0,
-                0,
-                0);
+            ptr = static_cast<U8*>(MapViewOfFile
+                (
+                    handle,
+                    FILE_MAP_WRITE,
+                    0,
+                    0,
+                    0
+                ));
 
             //
             // Did we get the pointer ?
             //
-            if (ptr == NULL)
+            if (ptr == nullptr)
             {
-                return (NULL);
+                return (nullptr);
             }
 
             //
@@ -630,7 +623,6 @@ public:
                 //
                 CloseHandle(handle);
             }
-
         }
 
         //
@@ -638,7 +630,7 @@ public:
         //
         // Is this the first to use this shared memory
         //
-        inline Bool IsPrimary()
+        Bool IsPrimary()
         {
             return (primary);
         }

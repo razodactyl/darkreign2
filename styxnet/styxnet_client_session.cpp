@@ -21,66 +21,64 @@
 //
 namespace StyxNet
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Client::Session
+    //
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Client::Session
-  //
-
-  //
-  // Constructor
-  //
-  Client::Session::Session()
-  : users(&User::nodeSession)
-  {
-  }
-
-
-  //
-  // Destructor
-  //
-  Client::Session::~Session()
-  {
-    users.DisposeAll();
-  }
-
-
-  //
-  // Add a user to the session
-  //
-  void Client::Session::AddUser(const UserName &name)
-  {
-    ASSERT(!users.Find(name.crc))
-    users.Add(name.crc, new User(name));
-    ++numUsers;
-  }
-
-
-  //
-  // Remove a user from the session
-  //
-  void Client::Session::RemoveUser(CRC name)
-  {
-    User *user = users.Find(name);
-
-    if (user)
+    //
+    // Constructor
+    //
+    Client::Session::Session()
+        : users(&User::nodeSession)
     {
-      users.Dispose(user);
-      --numUsers;
     }
-    else
+
+
+    //
+    // Destructor
+    //
+    Client::Session::~Session()
     {
-      LWARN("Instructed to remove user " << HEX(name, 8) << " but they could not be found")
+        users.DisposeAll();
     }
-  }
 
 
-  //
-  // Find a user in the session
-  //
-  Client::User * Client::Session::FindUser(CRC name)
-  {
-    return (users.Find(name));
-  }
+    //
+    // Add a user to the session
+    //
+    void Client::Session::AddUser(const UserName& name)
+    {
+        ASSERT(!users.Find(name.crc));
+        users.Add(name.crc, new User(name));
+        ++numUsers;
+    }
 
+
+    //
+    // Remove a user from the session
+    //
+    void Client::Session::RemoveUser(CRC name)
+    {
+        User* user = users.Find(name);
+
+        if (user)
+        {
+            users.Dispose(user);
+            --numUsers;
+        }
+        else
+        {
+            LWARN("Instructed to remove user " << HEX(name, 8) << " but they could not be found")
+        }
+    }
+
+
+    //
+    // Find a user in the session
+    //
+    Client::User* Client::Session::FindUser(CRC name)
+    {
+        return (users.Find(name));
+    }
 }

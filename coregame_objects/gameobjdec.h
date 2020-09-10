@@ -22,4 +22,4 @@
 OBJDEC(GameObj)
 
 
-#endif  
+#endif

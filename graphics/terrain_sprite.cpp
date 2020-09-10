@@ -16,6 +16,7 @@
 #include "terrain.h"
 #include "statistics.h"
 #include "meshent.h"
+
 //----------------------------------------------------------------------------
 
 namespace Terrain
@@ -39,9 +40,9 @@ namespace Terrain
         uv2.v -= dv;
 
 #if 0
-        m.Rotate(uv0);
-        m.Rotate(uv1);
-        m.Rotate(uv2);
+    m.Rotate( uv0);
+    m.Rotate( uv1);
+    m.Rotate( uv2);
 #else
         m.UnRotate(uv0);
         m.UnRotate(uv1);
@@ -55,6 +56,7 @@ namespace Terrain
         uv2.u += du;
         uv2.v += dv;
     }
+
     //----------------------------------------------------------------------------
 
     Bucket* RenderShadow(MeshEnt& ent, const GETHEIGHTPROCPTR getHeightProc) // = GetHeight)
@@ -62,6 +64,7 @@ namespace Terrain
         ShadowInfo& si = ent.shadowInfo;
         return RenderGroundSprite(si.p, si.radx, si.rady, si.clipFlags, si.z, si.texture, si.color, si.blend, si.uv0, si.uv1, si.uv2, getHeightProc, Vid::sortSURFACE0);
     }
+
     //----------------------------------------------------------------------------
 
     Bool BoundsTestShadow(MeshEnt& ent, const GETHEIGHTPROCPTR getHeightProc, const FINDFLOORPROCPTR findFloorProc) // = 255, = GetHeight, = FindFloor 
@@ -88,6 +91,7 @@ namespace Terrain
         */
         return retVal;
     }
+
     //----------------------------------------------------------------------------
 
     Bool BoundsTestShadow(ShadowInfo& si, const Matrix& world, F32 radius, U32 shadowType, U32 translucency, const GETHEIGHTPROCPTR getHeightProc, const FINDFLOORPROCPTR findFloorProc) // = 255, = GetHeight, = FindFloor 
@@ -240,12 +244,14 @@ namespace Terrain
         }
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     Bucket* RenderShadow(const Matrix& world, F32 radius, U32 shadowType, U32 translucency, const GETHEIGHTPROCPTR getHeightProc, const FINDFLOORPROCPTR findFloorProc) // = 0xfffffff, = GetHeight, = FindFloor 
     {
         return RenderShadow(*Vid::Light::sun, world, radius, shadowType, translucency, getHeightProc, findFloorProc);
     }
+
     //----------------------------------------------------------------------------
 
     Bucket* RenderShadow(const Vid::Light::Obj& light, const Matrix& world, F32 radius, U32 shadowType, U32 translucency, const GETHEIGHTPROCPTR getHeightProc, const FINDFLOORPROCPTR findFloorProc) // = 0xfffffff, = GetHeight, = FindFloor 
@@ -260,6 +266,7 @@ namespace Terrain
         }
         return bucket;
     }
+
     //----------------------------------------------------------------------------
 
     Bool BoundsTestLight(ShadowInfo& si, const Vid::Light::Obj& light, const GETHEIGHTPROCPTR getHeightProc, const FINDFLOORPROCPTR findFloorProc) // = GetHeight, = FindFloor 
@@ -375,6 +382,7 @@ namespace Terrain
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     Bucket* RenderLight(const Vid::Light::Obj& light, const GETHEIGHTPROCPTR getHeightProc, const FINDFLOORPROCPTR findFloorProc) // = 0xfffffff, = GetHeight, = FindFloor 
@@ -387,6 +395,7 @@ namespace Terrain
         }
         return bucket;
     }
+
     //----------------------------------------------------------------------------
 
     // draw a ground-hugging sprite; rotate the texture first
@@ -396,6 +405,7 @@ namespace Terrain
         RotateUVs(front, uv0, uv1, uv2);
         return RenderGroundSprite(origin, radx, rady, texture, color, blend, uv0, uv1, uv2, getHeightProc, sorting);
     }
+
     //----------------------------------------------------------------------------
 
     // draw a ground-hugging sprite
@@ -410,6 +420,7 @@ namespace Terrain
         }
         return RenderGroundSprite(origin, radx, rady, clipFlags, viewpos.z, texture, color, blend, uv0, uv1, uv2, getHeightProc, sorting);
     }
+
     //----------------------------------------------------------------------------
 
     // draw a ground-hugging sprite
@@ -434,8 +445,11 @@ namespace Terrain
         }
 
         // set the primitive description
-        Vid::SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | blend);
+        Vid::SetBucketPrimitiveDesc
+        (
+            PT_TRIANGLELIST, FVF_TLVERTEX,
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | blend
+        );
 
         // set the world transform matrix
         Vid::SetWorldTransform(Matrix::I);
@@ -476,8 +490,8 @@ namespace Terrain
             return NULL;
         }
 #if 0
-        // verify buffer size
-        ASSERT();
+    // verify buffer size
+    ASSERT();
 #endif
 
         // lock primitive memory
@@ -544,7 +558,7 @@ namespace Terrain
             {
                 // allow cells at Width and Height
                 //
-                if (cellX < 0 || cellX >(S32)CellWidth() || cellZ < 0 || cellZ >(S32)CellHeight())
+                if (cellX < 0 || cellX > (S32)CellWidth() || cellZ < 0 || cellZ > (S32)CellHeight())
                 {
                     pvert++;
                     continue;
@@ -595,11 +609,11 @@ namespace Terrain
         Bucket* bucket = NULL;
         // submit for projection and clipping
 #if 0
-        if (clipFlags == clipNONE)
-        {
-            bucket = Vid::CurCamera().ProjectNoClipBias(NULL, vertmem, pvert - vertmem, indexmem, pindex - indexmem);
-        }
-        else
+    if (clipFlags == clipNONE)
+    {
+      bucket = Vid::CurCamera().ProjectNoClipBias( NULL, vertmem, pvert - vertmem, indexmem, pindex - indexmem);
+    }
+    else
 #endif
         {
             bucket = Vid::ProjectClip(vertmem, pvert - vertmem, indexmem, pindex - indexmem);
@@ -613,6 +627,7 @@ namespace Terrain
 
         return bucket;
     }
+
     //----------------------------------------------------------------------------
 
     // draw a water-hugging sprite; rotate the texture first
@@ -648,6 +663,7 @@ namespace Terrain
 
         return RenderWaterSprite(origin, radius, texture, color, blend, uv0, uv1, uv2, sorting);
     }
+
     //----------------------------------------------------------------------------
 
     // draw a water-hugging sprite
@@ -669,6 +685,7 @@ namespace Terrain
         }
         return RenderWaterSprite(origin, radius, clipFlags, viewpos.z, texture, color, blend, uv0, uv1, uv2, sorting);
     }
+
     //----------------------------------------------------------------------------
     F32 globalWaterHeight = 0;
 
@@ -687,101 +704,102 @@ namespace Terrain
 
 #if 0
 #ifdef DOSTATISTICS
-        Statistics::tempTris = 0;
+    Statistics::tempTris = 0;
 #endif
 
-        clipFlags;
-        viewz;
+    clipFlags;
+    viewz;
 
-        if (texture)
-        {
-            uv0.u += texture->UVShiftWidth();
-            uv0.v += texture->UVShiftHeight();
-            uv1.u += texture->UVShiftWidth();
-            uv1.v += texture->UVShiftHeight();
-            uv2.u += texture->UVShiftWidth();
-            uv2.v += texture->UVShiftHeight();
-        }
+    if (texture)
+    {
+      uv0.u += texture->UVShiftWidth();
+      uv0.v += texture->UVShiftHeight();
+      uv1.u += texture->UVShiftWidth();
+      uv1.v += texture->UVShiftHeight();
+      uv2.u += texture->UVShiftWidth();
+      uv2.v += texture->UVShiftHeight();
+    }
 
-        // set the primitive description
-        Vid::SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | blend);
+ 	  // set the primitive description
+	  Vid::SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
+		  DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | blend);
 
-        // set the world transform matrix
-        Vid::SetWorldTransform(Matrix::I);
+	  // set the world transform matrix
+	  Vid::SetWorldTransform(Matrix::I);
 
-        // set material, texture, and force translucency
-        Vid::SetBucketMaterial(Vid::defMaterial);
-        Vid::SetBucketTexture(texture, TRUE, 0, RS_TEXCLAMP | blend);
-        //	  Vid::SetTranBucketZ(viewz);
-        Vid::SetTranBucketZMax(Vid::sortSURFACE0);
+    // set material, texture, and force translucency
+    Vid::SetBucketMaterial( Vid::defMaterial);
+	  Vid::SetBucketTexture( texture, TRUE, 0, RS_TEXCLAMP | blend);
+//	  Vid::SetTranBucketZ(viewz);
+    Vid::SetTranBucketZMax( Vid::sortSURFACE0);
 
-        // sprite corners in world coordinates
-        F32 meterX0 = origin.x - radius;
-        F32 meterZ0 = origin.z - radius;
-        F32 meterX1 = origin.x + radius;
-        F32 meterZ1 = origin.z + radius;
+	  // sprite corners in world coordinates
+	  F32 meterX0 = origin.x - radius;
+	  F32 meterZ0 = origin.z - radius;
+    F32 meterX1 = origin.x + radius;
+	  F32 meterZ1 = origin.z + radius;
 
-        // lock primitive memory
-        VertexTL* vertmem;
-        U32 heapSize = Vid::Heap::ReqVertex(&vertmem);
-        VertexTL* verts = vertmem;
+	  // lock primitive memory
+    VertexTL * vertmem;
+    U32 heapSize = Vid::Heap::ReqVertex( &vertmem);
+    VertexTL * verts = vertmem;
 
-        verts->vv.x = meterX0;
-        verts->vv.y = height;
-        verts->vv.z = meterZ0;
-        verts->uv = uv0;
-        verts->diffuse = color;
-        verts->specular = 0xff000000;
-        verts++;
+    verts->vv.x = meterX0;
+    verts->vv.y = height;
+    verts->vv.z = meterZ0;
+    verts->uv   = uv0;
+    verts->diffuse  = color;
+    verts->specular = 0xff000000;
+    verts++;
 
-        verts->vv.x = meterX1;
-        verts->vv.y = height;
-        verts->vv.z = meterZ0;
-        verts->uv = uv1;
-        verts->diffuse = color;
-        verts->specular = 0xff000000;
-        verts++;
+    verts->vv.x = meterX1;
+    verts->vv.y = height;
+    verts->vv.z = meterZ0;
+    verts->uv   = uv1;
+    verts->diffuse  = color;
+    verts->specular = 0xff000000;
+    verts++;
 
-        verts->vv.x = meterX1;
-        verts->vv.y = height;
-        verts->vv.z = meterZ1;
-        verts->uv = uv2;
-        verts->diffuse = color;
-        verts->specular = 0xff000000;
-        verts++;
+    verts->vv.x = meterX1;
+    verts->vv.y = height;
+    verts->vv.z = meterZ1;
+    verts->uv   = uv2;
+    verts->diffuse  = color;
+    verts->specular = 0xff000000;
+    verts++;
 
-        verts->vv.x = meterX0;
-        verts->vv.y = height;
-        verts->vv.z = meterZ1;
-        verts->uv.u = uv0.u + uv2.u - uv1.u;
-        verts->uv.v = uv2.v + uv0.v - uv1.v;
-        verts->diffuse = color;
-        verts->specular = 0xff000000;
+    verts->vv.x = meterX0;
+    verts->vv.y = height;
+    verts->vv.z = meterZ1;
+    verts->uv.u = uv0.u + uv2.u - uv1.u;
+    verts->uv.v = uv2.v + uv0.v - uv1.v;
+    verts->diffuse  = color;
+    verts->specular = 0xff000000;
 
-        Bucket* bucket = NULL;
-        /*
-            // submit for projection and clipping
-            if (clipFlags == clipNONE)
-            {
-              bucket = Vid::ProjectNoClip( vertmem, 4, Vid::rectIndices, 6);
-            }
-            else
-        */
-        {
-            bucket = Vid::ProjectClip(vertmem, 4, Vid::rectIndices, 6);
-        }
+    Bucket * bucket = NULL;
+/*
+    // submit for projection and clipping
+    if (clipFlags == clipNONE)
+    {
+      bucket = Vid::ProjectNoClip( vertmem, 4, Vid::rectIndices, 6);
+    }
+    else
+*/
+    {
+      bucket = Vid::ProjectClip( vertmem, 4, Vid::rectIndices, 6);
+    }
 
-        Vid::Heap::Restore(heapSize);
+    Vid::Heap::Restore( heapSize);
 
 #ifdef DOSTATISTICS
-        Statistics::groundSpriteTris = Statistics::groundSpriteTris + Statistics::tempTris;
+    Statistics::groundSpriteTris = Statistics::groundSpriteTris + Statistics::tempTris;
 #endif
 
-        return bucket;
+    return bucket;
 #endif
     }
-    //----------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------
 }
+
 //----------------------------------------------------------------------------

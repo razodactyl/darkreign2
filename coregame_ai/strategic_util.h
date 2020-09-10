@@ -22,19 +22,15 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Util
-  //
-  namespace Util
-  {
-    
-    // Load type
-    UnitObjType * LoadType(FScope *fScope, Team *team = NULL);
-
-  }
-
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Util
+    //
+    namespace Util
+    {
+        // Load type
+        UnitObjType* LoadType(FScope* fScope, Team* team = NULL);
+    }
 }
 
 

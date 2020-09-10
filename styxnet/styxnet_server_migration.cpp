@@ -22,7 +22,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Server::Migration
@@ -33,7 +32,7 @@ namespace StyxNet
     //
     Server::Migration::Migration(Session& session)
         : session(session),
-        users(&User::nodeMigration)
+          users(&User::nodeMigration)
     {
         // 1: Sort the users by suitability
         for (NBinTree<User, CRC>::Iterator u(&session.users); *u; ++u)
@@ -144,7 +143,7 @@ namespace StyxNet
         session.items.Append(new Item(0, pkt));
 
         // The session is now considered migrated, we can delete the migration
-        offer = NULL;
+        offer = nullptr;
     }
 
 
@@ -167,11 +166,7 @@ namespace StyxNet
         {
             return (FALSE);
         }
-        else
-        {
-            // No user on offer, bail out, kill ourselves
-            return (TRUE);
-        }
+        // No user on offer, bail out, kill ourselves
+        return (TRUE);
     }
-
 }

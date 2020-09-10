@@ -30,21 +30,19 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class SyncList::PlayerItem
         //
         class SyncList::PlayerItem : public ICStatic
         {
-            PROMOTE_LINK(SyncList::PlayerItem, ICStatic, 0x2CAF5046); // "SyncList::PlayerItem"
+        PROMOTE_LINK(SyncList::PlayerItem, ICStatic, 0x2CAF5046); // "SyncList::PlayerItem"
 
         protected:
 
@@ -59,15 +57,14 @@ namespace MultiPlayer
             // Constructor
             PlayerItem(SyncList& syncList, IControl* parent, U32 networkId)
                 : syncList(syncList),
-                ICStatic(parent),
-                networkId(networkId)
+                  ICStatic(parent),
+                  networkId(networkId)
             {
                 SetColorGroup(IFace::data.cgListItem);
             }
 
             // Redraw self
             void DrawSelf(PaintInfo& pi);
-
         };
 
 
@@ -84,8 +81,8 @@ namespace MultiPlayer
         //
         SyncList::SyncList(IControl* parent)
             : ICListBox(parent),
-            offsetName(20),
-            offsetReady(0)
+              offsetName(20),
+              offsetReady(0)
         {
             listBoxStyle |= STYLE_NOSELECTION;
         }
@@ -161,28 +158,27 @@ namespace MultiPlayer
         {
             switch (fScope->NameCrc())
             {
-            case 0x4ED32653: // "IconReadyOff"
-                IFace::FScopeToTextureInfo(fScope, iconReady[0]);
-                break;
+                case 0x4ED32653: // "IconReadyOff"
+                    IFace::FScopeToTextureInfo(fScope, iconReady[0]);
+                    break;
 
-            case 0xAB192B33: // "IconReadyOn"
-                IFace::FScopeToTextureInfo(fScope, iconReady[1]);
-                break;
+                case 0xAB192B33: // "IconReadyOn"
+                    IFace::FScopeToTextureInfo(fScope, iconReady[1]);
+                    break;
 
-            case 0xD6ABAE33: // "OffsetName"
-                offsetName = StdLoad::TypeU32(fScope);
-                break;
+                case 0xD6ABAE33: // "OffsetName"
+                    offsetName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x96BD498C: // "OffsetReady"
-                offsetReady = StdLoad::TypeU32(fScope);
-                break;
+                case 0x96BD498C: // "OffsetReady"
+                    offsetReady = StdLoad::TypeU32(fScope);
+                    break;
 
-            default:
-                ICListBox::Setup(fScope);
-                break;
+                default:
+                    ICListBox::Setup(fScope);
+                    break;
             }
         }
-
 
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -223,7 +219,8 @@ namespace MultiPlayer
 
                 // Add Player name
                 ch = Utils::Ansi2Unicode(networkPlayer->GetName());
-                pi.font->Draw(
+                pi.font->Draw
+                (
                     pi.client.p0.x + syncList.offsetName,
                     pi.client.p0.y + yoffs,
                     ch,
@@ -244,23 +241,20 @@ namespace MultiPlayer
                         // Add launch ready icon
                         IFace::RenderRectangle
                         (
-                            ClipRect(
+                            ClipRect
+                            (
                                 pi.client.p0.x + syncList.offsetReady,
                                 midY - (icon->pixels.Height() >> 1),
                                 pi.client.p0.x + syncList.offsetReady + icon->pixels.Width(),
-                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()),
+                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()
+                            ),
                             Color(1.0f, 1.0f, 1.0f),
                             icon,
                             pi.alphaScale
                         );
                     }
-
                 }
-
             }
-
         }
-
     }
-
 }

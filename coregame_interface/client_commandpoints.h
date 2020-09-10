@@ -25,33 +25,32 @@
 //
 namespace Client
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class CommandPoints - Command points display
-  //
-  class CommandPoints : public IControl
-  {
-  private:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class CommandPoints - Command points display
+    //
+    class CommandPoints : public IControl
+    {
+    private:
 
-    // Colors
-    Color clr1;
-    Color clr2;
+        // Colors
+        Color clr1;
+        Color clr2;
 
-  public:
+    public:
 
-    // Constructor
-    CommandPoints(IControl *parent);
+        // Constructor
+        CommandPoints(IControl* parent);
 
-    // Setup
-    void Setup(FScope *fScope);
+        // Setup
+        void Setup(FScope* fScope);
 
-    // Event handler
-    U32 HandleEvent(Event &e);
+        // Event handler
+        U32 HandleEvent(Event& e);
 
-    // DrawSelf
-    void DrawSelf(PaintInfo &pi);
-  };
+        // DrawSelf
+        void DrawSelf(PaintInfo& pi);
+    };
 }
 
 #endif
-

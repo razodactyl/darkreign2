@@ -24,42 +24,42 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class TerrainTweak - Brush for advanced terrain editing
+    // Namespace Brush - Contains all available brushes
     //
-    class TerrainTweak : public ApplyCell
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class TerrainTweak - Brush for advanced terrain editing
+        //
+        class TerrainTweak : public ApplyCell
+        {
+        protected:
 
-      // Interface vars
-      IFaceVar *varVertexColor1;
-      IFaceVar *varVertexColor2;
-      IFaceVar *varColorScale;
-      IFaceVar *varSmoothFloor;
+            // Interface vars
+            IFaceVar* varVertexColor1;
+            IFaceVar* varVertexColor2;
+            IFaceVar* varColorScale;
+            IFaceVar* varSmoothFloor;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      TerrainTweak(const char *name);
-      ~TerrainTweak();
+            // Constructor and destructor
+            TerrainTweak(const char* name);
+            ~TerrainTweak();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

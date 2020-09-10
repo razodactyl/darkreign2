@@ -20,7 +20,8 @@
 //
 // Destructor
 //
-template <> GameTask<ResourceObjType, ResourceObj>::~GameTask()
+template <>
+GameTask<ResourceObjType, ResourceObj>::~GameTask()
 {
 }
 
@@ -30,6 +31,7 @@ template <> GameTask<ResourceObjType, ResourceObj>::~GameTask()
 //
 // Type specific processing
 //
-template <> void GameTask<ResourceObjType, ResourceObj>::GameProcess()
+template <>
+void GameTask<ResourceObjType, ResourceObj>::GameProcess()
 {
 }

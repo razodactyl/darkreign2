@@ -11,6 +11,7 @@
 #include "vid_cmd.h"
 #include "iface.h"
 #include "iface_priv.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -21,6 +22,7 @@ namespace Vid
     Graphics::Graphics(IControl* parent) : ICWindow(parent)
     {
     }
+
     //-----------------------------------------------------------------------------
 
     //
@@ -29,6 +31,7 @@ namespace Vid
     Graphics::~Graphics()
     {
     }
+
     //-----------------------------------------------------------------------------
 
     void Graphics::OnModeChange()
@@ -48,12 +51,14 @@ namespace Vid
             }
         }
     }
+
     //-----------------------------------------------------------------------------
 
     void Graphics::_OnModeChange()
     {
         SendNotify(this, Vid::caps.clipGuard ? 0x92DDA669 : 0x7CA5E1CC); // "Vid::Graphics:GuardOff"
     }
+
     //-----------------------------------------------------------------------------
 
     U32 Graphics::HandleEvent(Event& e)
@@ -62,22 +67,24 @@ namespace Vid
         {
             switch (e.subType)
             {
-            case IFace::NOTIFY:
-            {
-                U32 id = e.iface.p1;
-
-                switch (id)
+                case IFace::NOTIFY:
                 {
-                case IControlNotify::Activated:
-                    Command::OnModeChange();
-                    _OnModeChange();
-                    break;
+                    U32 id = e.iface.p1;
+
+                    switch (id)
+                    {
+                        case IControlNotify::Activated:
+                            Command::OnModeChange();
+                            _OnModeChange();
+                            break;
+                    }
                 }
-            }
             }
         }
         return (ICWindow::HandleEvent(e));
     }
+
     //-----------------------------------------------------------------------------
 }
+
 //-----------------------------------------------------------------------------

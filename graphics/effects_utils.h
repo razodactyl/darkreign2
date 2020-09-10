@@ -24,6 +24,7 @@
 //
 class Bitmap;
 class MeshRoot;
+
 namespace Effects
 {
     enum Flags
@@ -36,6 +37,7 @@ namespace Effects
 
     struct Data;
 }
+
 struct KeyFrame;
 struct ColorKey;
 struct ScaleKey;
@@ -51,7 +53,8 @@ struct ScaleKey;
 //
 // DATA must have 'frame' and 'Interpolate()' members
 //
-template <class DATA> class KeyList : public List<DATA>
+template <class DATA>
+class KeyList : public List<DATA>
 {
 protected:
     friend Effects::Data;
@@ -81,9 +84,9 @@ public:
 
         // find the maxframe
         //
-        List<DATA>::Iterator key(this);
+        typename List<DATA>::Iterator key(this);
         F32 lastFrame = -1.0f;
-        for (!key; *key; key++)
+        for (!key; *key; ++key)
         {
             ASSERT((*key)->frame > lastFrame);
             lastFrame = (*key)->frame;
@@ -98,7 +101,7 @@ public:
         //
         maxFrame = 1.0f / maxFrame;
 
-        for (!key; *key; key++)
+        for (!key; *key; ++key)
         {
             (*key)->frame *= maxFrame;
         }
@@ -108,7 +111,6 @@ public:
     {
         return sizeof(*this) + count * sizeof(DATA);
     }
-
 };
 
 
@@ -124,7 +126,8 @@ public:
 //
 // DATA must have 'frame' and 'Interpolate()' members
 //
-template <class DATA> class KeyAnim
+template <class DATA>
+class KeyAnim
 {
 protected:
     friend Effects::Data;
@@ -145,54 +148,60 @@ public:
     {
         list = NULL;
     }
-    KeyAnim<DATA>(F32 _lifeTime, const KeyList<DATA>* _list = NULL, U32 _flags = 0, F32 _frame = 0.0f)
+
+    KeyAnim<DATA>(F32 _lifeTime, const KeyList<DATA>* _list = nullptr, U32 _flags = 0, F32 _frame = 0.0f)
     {
         Setup(_lifeTime, _list, _flags, _frame);
     }
 
-    inline Bool IsLoop()
+    Bool IsLoop()
     {
         return flags & Effects::flagLOOP;
     }
-    inline Bool IsDestroy()
+
+    Bool IsDestroy()
     {
         return flags & Effects::flagDESTROY;
     }
 
-    inline F32 OneOverLife() const
+    F32 OneOverLife() const
     {
         return oneOverLife;
     }
-    inline F32 LifeTime() const
+
+    F32 LifeTime() const
     {
         return lifeTime;
     }
 
-    inline F32 CurTime() const
+    F32 CurTime() const
     {
         return current.frame * lifeTime;
     }
 
-    inline const DATA& Current() const
+    const DATA& Current() const
     {
         return current;
     }
-    inline const DATA* CurrKey() const
+
+    const DATA* CurrKey() const
     {
         return *currKey;
     }
-    inline const DATA* NextKey() const
+
+    const DATA* NextKey() const
     {
         return *nextKey;
     }
 
     // current total anim parametric value
     //
-    inline F32 Dt() const
+    F32 Dt() const
     {
         return current.frame;
     }
-    inline F32 CurFrame() const
+
+    F32 CurFrame() const
     {
         return current.frame;
     }
@@ -210,9 +219,13 @@ public:
 
     // 'dt' in Simulate calls will be scaled so maxFrame is reached at 'lifeTime'
     //
-    void Setup(F32 _lifeTime, const KeyList<DATA>* _list = NULL, const Effects::Data* data = NULL, U32 _flags = Effects::flagDESTROY, F32 frame = 0.0f)
+    void Setup
+    (
+        F32 _lifeTime, const KeyList<DATA>* _list = nullptr, const Effects::Data* data = nullptr,
+        U32 _flags = Effects::flagDESTROY, F32 frame = 0.0f
+    )
     {
-        //    ASSERT( _list.GetCount() >= 2);
+        //    ASSERT( _list.GetCount();>= 2);
 
         ASSERT(_lifeTime >= 0.0f);
 
@@ -227,7 +240,7 @@ public:
             list = _list;
             currKey.SetList(list);
             nextKey.SetList(list);
-            nextKey++;
+            ++nextKey;
         }
         else if (data)
         {
@@ -250,7 +263,7 @@ public:
         {
             if (flags & Effects::flagLOOP)
             {
-                frame = (F32)fmod(frame, 1.0f);
+                frame = static_cast<F32>(fmod(frame, 1.0f));
             }
             else
             {
@@ -279,13 +292,13 @@ public:
                 //
                 !currKey;
                 nextKey = currKey;
-                nextKey++;
+                ++nextKey;
             }
 
             while ((*nextKey)->frame < current.frame)
             {
                 currKey = nextKey;
-                nextKey++;
+                ++nextKey;
             }
 
             Interpolate();
@@ -296,27 +309,28 @@ public:
     //
     // scales frame to normalized value (0.0f-1.0f)
     //
-    inline Bool SetFrame(F32 frame)
+    Bool SetFrame(F32 frame)
     {
         return SetFrameScaled(frame * oneOverLife);
     }
 
     // call DATA's 'Interpolate()' member
     //
-    inline void Interpolate()
+    void Interpolate()
     {
         current.Interpolate(*CurrKey(), *NextKey(), DtDf());
     }
 
     // returns FALSE if past maxFrame
     //
-    inline Bool Simulate(F32 seconds, F32 modifier = 1)
+    Bool Simulate(F32 seconds, F32 modifier = 1)
     {
         // scale 'seconds' to normalized value
         //
         return SetFrameScaled(current.frame + seconds * oneOverLife * (IsLoop() ? modifier : 1));
     }
-    inline Bool Process(F32 percentDone)
+
+    Bool Process(F32 percentDone)
     {
         // scale 'seconds' to normalized value
         //
@@ -336,13 +350,12 @@ typedef KeyAnim<KeyFrame> FrameAnim;
 
 namespace Effects
 {
-
     namespace Blend
     {
         //
         // Convert a blend string to a D3D blend value
         //
-        U32  GetValue(const char* blendStr, U32 defval);
+        U32 GetValue(const char* blendStr, U32 defval);
         void GetString(U32 blend, GameIdent& string, Bool defs = TRUE);
     }
 
@@ -423,6 +436,7 @@ struct KeyFrame
     {
         data;
     }
+
     void Interpolate(const KeyFrame& k1, const KeyFrame& k2, F32 dt)
     {
         k1;
@@ -445,21 +459,25 @@ struct ColorKey : public KeyFrame
         frame = 0.0f;
         color = 0xffffffff;
     }
+
     ColorKey(F32 f, U32 r, U32 g, U32 b, U32 a)
     {
         frame = f;
         color.Set(r, g, b, a);
     }
+
     ColorKey(F32 f, Color c)
     {
         frame = f;
         color = c;
     }
+
     ColorKey(F32 f, U32 c)
     {
         frame = f;
         color = c;
     }
+
     void Setup(const Effects::Data& data)
     {
         color = data.color;
@@ -485,11 +503,13 @@ struct ScaleKey : public KeyFrame
         frame = 0.0f;
         scale = 1.0f;
     }
+
     ScaleKey(F32 f, F32 s)
     {
         frame = f;
         scale = s;
     }
+
     void Setup(const Effects::Data& data)
     {
         scale = data.scale;

@@ -24,14 +24,12 @@
 //
 namespace Won
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class RoomList
@@ -42,10 +40,10 @@ namespace Won
         //
         RoomList::RoomList(IControl* parent)
             : ICListBox(parent),
-            offsetLocked(0),
-            offsetName(20),
-            widthName(100),
-            offsetUsers(150)
+              offsetLocked(0),
+              offsetName(20),
+              widthName(100),
+              offsetUsers(150)
         {
         }
 
@@ -57,29 +55,29 @@ namespace Won
         {
             switch (fScope->NameCrc())
             {
-            case 0xD6ABAE33: // "OffsetName"
-                offsetName = StdLoad::TypeU32(fScope);
-                break;
+                case 0xD6ABAE33: // "OffsetName"
+                    offsetName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x4F76FDA5: // "WidthName"
-                widthName = StdLoad::TypeU32(fScope);
-                break;
+                case 0x4F76FDA5: // "WidthName"
+                    widthName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x87CA6B98: // "OffsetUsers"
-                offsetUsers = StdLoad::TypeU32(fScope);
-                break;
+                case 0x87CA6B98: // "OffsetUsers"
+                    offsetUsers = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x026FBE4B: // "OffsetLocked"
-                offsetLocked = StdLoad::TypeU32(fScope);
-                break;
+                case 0x026FBE4B: // "OffsetLocked"
+                    offsetLocked = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x82ACDEED: // "IconLocked"
-                IFace::FScopeToTextureInfo(fScope, iconLocked);
-                break;
+                case 0x82ACDEED: // "IconLocked"
+                    IFace::FScopeToTextureInfo(fScope, iconLocked);
+                    break;
 
-            default:
-                ICListBox::Setup(fScope);
-                break;
+                default:
+                    ICListBox::Setup(fScope);
+                    break;
             }
         }
 
@@ -111,8 +109,8 @@ namespace Won
         //
         RoomList::Item::Item(RoomList& roomList, const WonIface::Room& room, IControl* parent)
             : roomList(roomList),
-            room(room),
-            ICStatic(parent)
+              room(room),
+              ICStatic(parent)
         {
             controlStyle &= ~STYLE_INERT;
 
@@ -142,11 +140,13 @@ namespace Won
                         // Add launch ready icon
                         IFace::RenderRectangle
                         (
-                            ClipRect(
+                            ClipRect
+                            (
                                 pi.client.p0.x + roomList.offsetLocked,
                                 midY - (icon->pixels.Height() >> 1),
                                 pi.client.p0.x + roomList.offsetLocked + icon->pixels.Width(),
-                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()),
+                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()
+                            ),
                             Color(1.0f, 1.0f, 1.0f),
                             icon,
                             pi.alphaScale
@@ -165,7 +165,8 @@ namespace Won
 
                 // Add Room name
                 ch = room.name.str;
-                pi.font->Draw(
+                pi.font->Draw
+                (
                     pi.client.p0.x + roomList.offsetName,
                     pi.client.p0.y + yoffs,
                     ch,
@@ -178,7 +179,8 @@ namespace Won
                 CH buff[10];
                 Utils::Sprintf(buff, 10, (CH*)L"%d", room.numPlayers);
                 ch = buff;
-                pi.font->Draw(
+                pi.font->Draw
+                (
                     pi.client.p0.x + roomList.offsetUsers,
                     pi.client.p0.y + yoffs,
                     ch,
@@ -186,11 +188,7 @@ namespace Won
                     pi.colors->fg[ColorIndex()],
                     &pi.client
                 );
-
             }
-
         }
-
     }
-
 }

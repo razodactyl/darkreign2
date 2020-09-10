@@ -17,12 +17,14 @@
 
 #ifndef __ARRAY_H
 #define __ARRAY_H
+
 //----------------------------------------------------------------------------
 
-template <class DATA, U32 ALIGNMENT = 0> class Array
+template <class DATA, U32 ALIGNMENT = 0>
+class Array
 {
 public:
-    U32                     count, size;
+    U32 count, size;
     DATA* data;
 
     void ClearData()
@@ -30,10 +32,12 @@ public:
         data = NULL;
         count = size = 0;
     }
+
     Array()
     {
         ClearData();
     }
+
     Array(U32 c)
     {
         ClearData();
@@ -44,6 +48,7 @@ public:
     {
         Release();
     }
+
     void Release()
     {
         if (data)
@@ -53,6 +58,7 @@ public:
         }
         count = size = 0;
     }
+
     DATA* Alloc(U32 c)
     {
         if (data)
@@ -65,18 +71,20 @@ public:
         }
         count = c;
         size = count * sizeof(DATA);
-        return data = (DATA*)Debug::Memory::Aligning::AligningAlloc(size, ALIGNMENT);
+        return data = static_cast<DATA*>(Debug::Memory::Aligning::AligningAlloc(size, ALIGNMENT));
     }
+
     DATA* Setup(const Array<DATA>& array)
     {
         if (!Alloc(array.count))
         {
-            return NULL;
+            return nullptr;
         }
         Copy(array);
 
         return data;
     }
+
     void Copy(const Array<DATA>& array)
     {
         memcpy(data, array.data, array.count * sizeof(DATA));
@@ -86,16 +94,18 @@ public:
     {
         if (!Alloc(_count))
         {
-            return NULL;
+            return nullptr;
         }
         Copy(array);
 
         return data;
     }
+
     void Copy(const DATA* array)
     {
         memcpy(data, array, count * sizeof(DATA));
     }
+
     void Swap(Array<DATA>& array)
     {
         U32 i = count;
@@ -113,24 +123,27 @@ public:
     {
         return data[index];
     }
+
     DATA& operator[](U32 index) const
     {
         return data[index];
     }
-
 };
+
 //----------------------------------------------------------------------------
 
 // pads array data to always contain multiples of 4 entries
 // count is as passed in
 //
-template <class DATA, U32 ALIGNMENT = 0> class Array4 : public Array<DATA, ALIGNMENT>
+template <class DATA, U32 ALIGNMENT = 0>
+class Array4 : public Array<DATA, ALIGNMENT>
 {
 public:
     Array4()
     {
         ClearData();
     }
+
     Array4(U32 c)
     {
         ClearData();
@@ -154,28 +167,31 @@ public:
             c += 4 - mod;
         }
         size = c * sizeof(DATA);
-        return data = (DATA*)Debug::Memory::Aligning::AligningAlloc(size, ALIGNMENT);
+        return data = static_cast<DATA*>(Debug::Memory::Aligning::AligningAlloc(size, ALIGNMENT));
     }
+
     DATA* Setup(const Array<DATA>& array)
     {
         if (!Alloc(array.count))
         {
-            return NULL;
+            return nullptr;
         }
         Copy(array);
 
         return data;
     }
+
     DATA* Setup(U32 _count, const DATA* array)
     {
         if (!Alloc(_count))
         {
-            return NULL;
+            return nullptr;
         }
         Copy(array);
 
         return data;
     }
+
     void Copy(const DATA* array)
     {
         memcpy(data, array, count * sizeof(DATA));
@@ -185,11 +201,12 @@ public:
     {
         memcpy(data, array.data, array.count * sizeof(DATA));
     }
+
     DATA* Setup(const Array4<DATA, ALIGNMENT>& array)
     {
         if (!Alloc(array.count))
         {
-            return NULL;
+            return nullptr;
         }
         Copy(array);
 
@@ -209,6 +226,7 @@ public:
         array.data = d;
     }
 };
+
 //----------------------------------------------------------------------------
 
 #endif		// __ARRAY_H

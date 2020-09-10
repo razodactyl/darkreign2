@@ -18,37 +18,34 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Notification
-  //
-  struct Notification
-  {
-    // From
-    GameObjPtr from;
-
-    // The message
-    U32 message;
-
-    // The parameters
-    U32 param1;
-    U32 param2;
-
-    // List node
-    NList<Notification>::Node node;
-
-    // Constructor
-    Notification(GameObj *from, U32 message, U32 param1, U32 param2)
-    : from(from),
-      message(message),
-      param1(param1),
-      param2(param2)
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Notification
+    //
+    struct Notification
     {
-    }
+        // From
+        GameObjPtr from;
 
-  };
+        // The message
+        U32 message;
 
+        // The parameters
+        U32 param1;
+        U32 param2;
+
+        // List node
+        NList<Notification>::Node node;
+
+        // Constructor
+        Notification(GameObj* from, U32 message, U32 param1, U32 param2)
+            : from(from),
+              message(message),
+              param1(param1),
+              param2(param2)
+        {
+        }
+    };
 }
 
 #endif

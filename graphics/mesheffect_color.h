@@ -27,7 +27,7 @@ class MeshColor : public MeshBaseColor
 {
 public:
 
-	MeshColor( MeshColorType * _type, MeshEnt * _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshColor(MeshColorType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 };
 
 #endif

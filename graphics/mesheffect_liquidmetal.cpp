@@ -58,20 +58,20 @@ Bool MeshLiquidMetalType::Configure(FScope* fScope)
     {
         switch (fScope->NameCrc())
         {
-        default:
-            if (!data.Configure(fScope, paramKeys))
-            {
-                return data.Configure(fScope, colorKeys2, 2);
-            }
-            break;
+            default:
+                if (!data.Configure(fScope, paramKeys))
+                {
+                    return data.Configure(fScope, colorKeys2, 2);
+                }
+                break;
 
-        case 0xFD3418D4: // "Wiggle"
-            wiggle = StdLoad::TypeF32(fScope, wiggle);
-            break;
+            case 0xFD3418D4: // "Wiggle"
+                wiggle = StdLoad::TypeF32(fScope, wiggle);
+                break;
 
-        case 0x6C97D2D9: // "WiggleSpeed"
-            wiggleSpeed = StdLoad::TypeF32(fScope, wiggleSpeed);
-            break;
+            case 0x6C97D2D9: // "WiggleSpeed"
+                wiggleSpeed = StdLoad::TypeF32(fScope, wiggleSpeed);
+                break;
         }
     }
     return TRUE;
@@ -196,8 +196,8 @@ Bool MeshLiquidMetal::Simulate(F32 dt, MeshFX::CallBackData* cbd) // = NULL
 
     //  F32 tt = t > .9f ? 1.0f - t : 1.0f;
 
-      // adjust vertices
-      //
+    // adjust vertices
+    //
     for (U32 i = 0; i < vertices.count; i++)
     {
         Vector& sv = root.vertices[i];

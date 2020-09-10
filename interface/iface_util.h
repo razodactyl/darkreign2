@@ -28,7 +28,6 @@
 //
 namespace IFace
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // Pulsating value (0..1)
@@ -48,7 +47,9 @@ namespace IFace
     public:
 
         // Constructor
-        PulsingValue() : rate(1.0F), low(0.2F), high(1.5F), scale(1.0F), actual(1.5F), dir(-1.0F) {}
+        PulsingValue() : rate(1.0F), low(0.2F), high(1.5F), scale(1.0F), actual(1.5F), dir(-1.0F)
+        {
+        }
 
         // Simulate
         void Simulate(F32 time)
@@ -60,13 +61,11 @@ namespace IFace
                 actual = low;
                 dir = 1.0F;
             }
-            else
-
-                if (actual > high)
-                {
-                    actual = high;
-                    dir = -1.0F;
-                }
+            else if (actual > high)
+            {
+                actual = high;
+                dir = -1.0F;
+            }
 
             scale = Min<F32>(actual, 1.0F);
         }
@@ -149,8 +148,7 @@ namespace IFace
     void ScreenDump(const char* mask = "DR2 screenshot %d.bmp");
 
     // Build an expanded variable name, and return the dereferenced string value if necessary
-    Bool ExpandDerefVar(const char* untrans, Bool canDeref, IControl* base, const char*& str);
-
+    Bool ExpandDerefVar(const char* untrans, Bool canDeref, IControl* base, const char* & str);
 }
 
 #endif

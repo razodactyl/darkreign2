@@ -14,183 +14,183 @@
 //-----------------------------------------------------------------------------
 
 #if 0
-void Matrix::Transform(Vertex* dst, const Vertex* src, U32 count) const
+void Matrix::Transform( Vertex *dst, const Vertex *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Transform(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Transform( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Rotate(Vertex* dst, const Vertex* src, U32 count) const
+void Matrix::Rotate( Vertex *dst, const Vertex *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Rotate(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Rotate( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::RotateInv(Vertex* dst, const Vertex* src, U32 count) const
+void Matrix::RotateInv( Vertex *dst, const Vertex *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        RotateInv(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    RotateInv( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Transform(Vertex* dst, Vertex* src, U32 count) const
+void Matrix::Transform( Vertex *dst, Vertex *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Transform(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Transform( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Rotate(Vertex* dst, Vertex* src, U32 count) const
+void Matrix::Rotate( Vertex *dst, Vertex *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Rotate(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Rotate( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::RotateInv(Vertex* dst, Vertex* src, U32 count) const
+void Matrix::RotateInv( Vertex *dst, Vertex *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        RotateInv(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    RotateInv( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Transform(VertexL* dst, const VertexL* src, U32 count) const
+void Matrix::Transform( VertexL *dst, const VertexL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Transform(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Transform( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Rotate(VertexL* dst, const VertexL* src, U32 count) const
+void Matrix::Rotate( VertexL *dst, const VertexL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Rotate(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Rotate( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::RotateInv(VertexL* dst, const VertexL* src, U32 count) const
+void Matrix::RotateInv( VertexL *dst, const VertexL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        RotateInv(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    RotateInv( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Transform(VertexL* dst, VertexL* src, U32 count) const
+void Matrix::Transform( VertexL *dst, VertexL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Transform(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Transform( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Rotate(VertexL* dst, VertexL* src, U32 count) const
+void Matrix::Rotate( VertexL *dst, VertexL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Rotate(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Rotate( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::RotateInv(VertexL* dst, VertexL* src, U32 count) const
+void Matrix::RotateInv( VertexL *dst, VertexL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        RotateInv(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    RotateInv( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Transform(VertexTL* dst, const VertexTL* src, U32 count) const
+void Matrix::Transform( VertexTL *dst, const VertexTL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Transform(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Transform( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Rotate(VertexTL* dst, const VertexTL* src, U32 count) const
+void Matrix::Rotate( VertexTL *dst, const VertexTL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Rotate(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Rotate( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::RotateInv(VertexTL* dst, const VertexTL* src, U32 count) const
+void Matrix::RotateInv( VertexTL *dst, const VertexTL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        RotateInv(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    RotateInv( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Transform(VertexTL* dst, VertexTL* src, U32 count) const
+void Matrix::Transform( VertexTL *dst, VertexTL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Transform(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Transform( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::Rotate(VertexTL* dst, VertexTL* src, U32 count) const
+void Matrix::Rotate( VertexTL *dst, VertexTL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        Rotate(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    Rotate( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 
-void Matrix::RotateInv(VertexTL* dst, VertexTL* src, U32 count) const
+void Matrix::RotateInv( VertexTL *dst, VertexTL *src, U32 count) const
 {
-    U32 i;
-    for (i = 0; i < count; i++)
-    {
-        RotateInv(dst[i], src[i]);
-    }
+  U32 i;
+  for (i = 0; i < count; i++)
+  {
+    RotateInv( dst[i], src[i]);
+  }
 }
 //-----------------------------------------------------------------------------
 #endif
@@ -201,12 +201,12 @@ void Bounds::RenderBox(const Matrix& world, Color color, Bitmap* texture) const 
     U16* index;
 
     static U16 Faces[12][3] = {
-     {0, 1, 2}, {0, 2, 3},
-     {4, 5, 6}, {4, 6, 7},
-     {1, 5, 6}, {1, 6, 2},
-     {0, 4, 7}, {0, 7, 3},
-     {0, 1, 5}, {0, 5, 4},
-     {3, 2, 6}, {3, 6, 7}
+        {0, 1, 2}, {0, 2, 3},
+        {4, 5, 6}, {4, 6, 7},
+        {1, 5, 6}, {1, 6, 2},
+        {0, 4, 7}, {0, 7, 3},
+        {0, 1, 5}, {0, 5, 4},
+        {3, 2, 6}, {3, 6, 7}
     };
 
     Camera& cam = Vid::CurCamera();
@@ -220,9 +220,12 @@ void Bounds::RenderBox(const Matrix& world, Color color, Bitmap* texture) const 
     v -= cam.WorldMatrix().Position();
     Vid::Math::viewMatrix.Rotate(v);
 
-    Vid::SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
+    Vid::SetBucketPrimitiveDesc
+    (
+        PT_TRIANGLELIST, FVF_TLVERTEX,
         RS_BLEND_DEF |
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP
+    );
 
     // set vid and bucket states
     //
@@ -305,10 +308,11 @@ void Bounds::RenderBox(const Matrix& world, Color color, Bitmap* texture) const 
     matrix.posit = origin;
     matrix.Transform(box, box, 8);
 
-    Utils::Memcpy(index, Faces, sizeof(Faces));
+    Utils::Memcpy(index, Faces, sizeof (Faces));
 
     Vid::ProjectClip(box, 8, index, 36);
 }
+
 //----------------------------------------------------------------------------
 
 void Bounds::RenderSphere(const Matrix& world, Color color, Bitmap* texture) const //  = NULL
@@ -325,10 +329,12 @@ void Bounds::RenderSphere(const Matrix& world, Color color, Bitmap* texture) con
         return;
     }
 
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_DEF);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_DEF
+    );
 
     Vid::SetBucketTexture(texture);
     Vid::SetTranslucent(color.a < 255 ? TRUE : FALSE);
@@ -380,5 +386,5 @@ void Bounds::RenderSphere(const Matrix& world, Color color, Bitmap* texture) con
 
     Vid::UnlockIndexedPrimitiveMem(BOUNDSVERTCOUNT * 2, BOUNDSVERTCOUNT * 6);
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

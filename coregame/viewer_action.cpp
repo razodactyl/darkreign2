@@ -64,12 +64,12 @@ namespace Viewer
         static void AddPrim(NList<Prim>& list, Prim* prim)
         {
             NList<Prim>::Iterator i(&list);
-            NList<Prim>::Node* node = NULL;
+            NList<Prim>::Node* node = nullptr;
 
             while ((*i) && (*i)->Priority() <= prim->Priority())
             {
                 node = i.CurrentNode();
-                i++;
+                ++i;
             }
 
             if (node)
@@ -174,7 +174,7 @@ namespace Viewer
         static S32 prevElapCap;
 
         // Cineractive camera
-        static CinemaCam* camera = NULL;
+        static CinemaCam* camera = nullptr;
 
         // List of running cineractives
         static NList<Cineractive> cineractives(&Cineractive::node);
@@ -183,10 +183,10 @@ namespace Viewer
         static BinTree<FScope> debriefings;
 
         // Previous game handler
-        static EventSys::HANDLERPROC oldProc = NULL;
+        static EventSys::HANDLERPROC oldProc = nullptr;
 
         // Previous iface repaint
-        static IFace::RepaintProc* oldRepaint = NULL;
+        static IFace::RepaintProc* oldRepaint = nullptr;
 
         // Current cineractive viewport, e.g. inside of letterbox
         static Area<S32> cineViewPort;
@@ -217,7 +217,7 @@ namespace Viewer
             ~Movie();
 
             // Simulation
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
 
 
@@ -241,10 +241,14 @@ namespace Viewer
         public:
 
             // Constructor
-            ChangeCameraPrim(Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit = TRUE, FScope* scope = NULL);
+            ChangeCameraPrim
+            (
+                Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit = TRUE,
+                FScope* scope = nullptr
+            );
 
             // Notify
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
 
 
@@ -299,7 +303,7 @@ namespace Viewer
             ~Letterbox();
 
             // Simulation
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
 
 
@@ -320,7 +324,7 @@ namespace Viewer
             Fade(Cineractive* cineractive, FScope* fScope);
 
             // Simulation
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
 
 
@@ -363,7 +367,7 @@ namespace Viewer
             }
 
             // Simulation
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
 
 
@@ -387,7 +391,7 @@ namespace Viewer
             ~Mesh();
 
             // Simulation
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
 
 
@@ -415,7 +419,7 @@ namespace Viewer
             ~Subtitle();
 
             // Simulation
-            void Notify(U32);
+            void Notify(U32) override;
 
             // Console message callback
             static Bool ConsoleHook(const CH* text, U32& type, void* context);
@@ -453,9 +457,8 @@ namespace Viewer
             Image(Cineractive* cineractive, FScope* fScope);
 
             // Simulation
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
-
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -484,7 +487,7 @@ namespace Viewer
             ~Wallpaper();
 
             // Simulation
-            void Notify(U32 crc);
+            void Notify(U32 crc) override;
         };
 
 
@@ -520,28 +523,26 @@ namespace Viewer
 
                 flags |= DISABLE_IFACE;
             }
-            else
+            else if (!mode && (flags & DISABLE_IFACE))
+            {
+                // Restore full screen viewport
+                Area<S32> vp(0, 0, Vid::backBmp.Width(), Vid::backBmp.Height());
+                Vid::CurCamera().Setup(vp);
 
-                if (!mode && (flags & DISABLE_IFACE))
-                {
-                    // Restore full screen viewport
-                    Area<S32> vp(0, 0, Vid::backBmp.Width(), Vid::backBmp.Height());
-                    Vid::CurCamera().Setup(vp);
+                // Restore prevous repaint proc
+                IFace::SetRepaintProc(oldRepaint);
 
-                    // Restore prevous repaint proc
-                    IFace::SetRepaintProc(oldRepaint);
+                // Set Client event processing state
+                Client::Events::SetProcessing(TRUE);
 
-                    // Set Client event processing state
-                    Client::Events::SetProcessing(TRUE);
+                // Enable HUD display
+                Client::HUD::Enable(TRUE);
 
-                    // Enable HUD display
-                    Client::HUD::Enable(TRUE);
+                // Fade the interface back in
+                IFace::SetFade(0.0F, 0.75F, TRUE);
 
-                    // Fade the interface back in
-                    IFace::SetFade(0.0F, 0.75F, TRUE);
-
-                    flags &= ~DISABLE_IFACE;
-                }
+                flags &= ~DISABLE_IFACE;
+            }
         }
 
 
@@ -557,15 +558,13 @@ namespace Viewer
 
                 flags |= DISABLE_HUD;
             }
-            else
+            else if (!mode && (flags & DISABLE_HUD))
+            {
+                // Enable HUD display
+                Client::HUD::Enable(TRUE);
 
-                if (!mode && (flags & DISABLE_HUD))
-                {
-                    // Enable HUD display
-                    Client::HUD::Enable(TRUE);
-
-                    flags &= ~DISABLE_HUD;
-                }
+                flags &= ~DISABLE_HUD;
+            }
         }
 
 
@@ -580,7 +579,7 @@ namespace Viewer
                 oldProc = IFace::SetGameHandler(HandlerProc);
 
                 // Disable console activation
-                IFace::SetFlag(IFace::DISABLE_CONSOLE, TRUE);
+                SetFlag(IFace::DISABLE_CONSOLE, TRUE);
 
                 // Deactivate all modal controls
                 IFace::DeactivateModals();
@@ -590,21 +589,19 @@ namespace Viewer
 
                 flags |= DISABLE_INPUT;
             }
-            else
+            else if (!mode && (flags & DISABLE_INPUT))
+            {
+                // Release keyboard focus
+                IFace::GameWindow()->ReleaseKeyFocus();
 
-                if (!mode && (flags & DISABLE_INPUT))
-                {
-                    // Release keyboard focus
-                    IFace::GameWindow()->ReleaseKeyFocus();
+                // Enable console activation
+                SetFlag(IFace::DISABLE_CONSOLE, FALSE);
 
-                    // Enable console activation
-                    IFace::SetFlag(IFace::DISABLE_CONSOLE, FALSE);
+                // Restore previous handler
+                IFace::SetGameHandler(oldProc);
 
-                    // Restore previous handler
-                    IFace::SetGameHandler(oldProc);
-
-                    flags &= ~DISABLE_INPUT;
-                }
+                flags &= ~DISABLE_INPUT;
+            }
         }
 
 
@@ -629,26 +626,24 @@ namespace Viewer
                 // Immediately set object fogging values
                 MapObjCtrl::SetObjectFogging(Team::GetDisplayTeam());
             }
-            else
+            else if (!mode && (flags & DISABLE_SHROUD))
+            {
+                // Restore them
+                Vid::Var::Terrain::shroud = TRUE;
+                Sight::showAllUnits = FALSE;
+                ParticleSystem::SetCineractiveMode(FALSE);
 
-                if (!mode && (flags & DISABLE_SHROUD))
-                {
-                    // Restore them
-                    Vid::Var::Terrain::shroud = TRUE;
-                    Sight::showAllUnits = FALSE;
-                    ParticleSystem::SetCineractiveMode(FALSE);
+                // Restore minimum framerate
+                Main::elapCap = prevElapCap;
 
-                    // Restore minimum framerate
-                    Main::elapCap = prevElapCap;
+                // Forcibly redraw minimap when line of sight changes
+                Common::MapWindow::LOSDisplayChanged();
 
-                    // Forcibly redraw minimap when line of sight changes
-                    Common::MapWindow::LOSDisplayChanged();
+                flags &= ~DISABLE_SHROUD;
 
-                    flags &= ~DISABLE_SHROUD;
-
-                    // Immediately set object fogging values
-                    MapObjCtrl::SetObjectFogging(Team::GetDisplayTeam());
-                }
+                // Immediately set object fogging values
+                MapObjCtrl::SetObjectFogging(Team::GetDisplayTeam());
+            }
         }
 
 
@@ -662,11 +657,11 @@ namespace Viewer
         //
         Cineractive::Cineractive(Team* team, FScope* fScope)
             : team(team),
-            done(FALSE),
-            alphaNear(FALSE),
-            primitiveList(&Prim::node)
+              primitiveList(&Prim::node),
+              done(FALSE),
+              alphaNear(FALSE)
         {
-            moviePrim = NULL;
+            moviePrim = nullptr;
 
             // Initialise instructions
             instructions = fScope;
@@ -691,7 +686,7 @@ namespace Viewer
         //
         void Cineractive::Terminate()
         {
-            LOG_VIEWER(("Terminate: %d left", cineractives.GetCount() - 1));
+            LOG_VIEWER(("Terminate: %d left", cineractives.GetCount() - 1))
 
             // Delete primitives
             primitiveList.DisposeAll();
@@ -722,33 +717,33 @@ namespace Viewer
             ASSERT(instructions);
 
             FScope* fScope;
-            nextScope = NULL;
+            nextScope = nullptr;
 
             // Step to the next "At"
-            while ((fScope = instructions->NextFunction()) != NULL)
+            while ((fScope = instructions->NextFunction()) != nullptr)
             {
-                LOG_VIEWER(("NextInstruction: [%s]", fScope->NameStr()));
+                LOG_VIEWER(("NextInstruction: [%s]", fScope->NameStr()))
 
                 switch (fScope->NameCrc())
                 {
-                case 0x3F159CC9: // "DefineDebriefing"
-                {
-                    debriefings.Add(Crc::CalcStr(fScope->NextArgString()), fScope);
-                    break;
-                }
-
-                case 0xBF046B0F: // "At"
-                {
-                    nextScope = fScope;
-                    nextCycle = Utils::FtoLNearest(nextScope->NextArgFPoint() * GameTime::CYCLESPERSECOND);
-                    return;
-                }
-
-                default:
-                {
-                    LOG_WARN(("Unexpected function [%s] in Cineractive", fScope->NameStr()))
+                    case 0x3F159CC9: // "DefineDebriefing"
+                    {
+                        debriefings.Add(Crc::CalcStr(fScope->NextArgString()), fScope);
                         break;
-                }
+                    }
+
+                    case 0xBF046B0F: // "At"
+                    {
+                        nextScope = fScope;
+                        nextCycle = Utils::FtoLNearest(nextScope->NextArgFPoint() * GameTime::CYCLESPERSECOND);
+                        return;
+                    }
+
+                    default:
+                    {
+                        LOG_WARN(("Unexpected function [%s] in Cineractive", fScope->NameStr()))
+                        break;
+                    }
                 }
             }
         }
@@ -783,177 +778,177 @@ namespace Viewer
         {
             FScope* sScope;
 
-            while ((sScope = fScope->NextFunction()) != NULL)
+            while ((sScope = fScope->NextFunction()) != nullptr)
             {
-                LOG_VIEWER(("Exec: [%s]", sScope->NameStr()));
+                LOG_VIEWER(("Exec: [%s]", sScope->NameStr()))
 
                 switch (sScope->NameCrc())
                 {
-                case 0x9D71F205: // "Movie"
-                {
-                    // Disable movies in multiplayer campaigns
-                    if (!MultiPlayer::Data::Online())
+                    case 0x9D71F205: // "Movie"
                     {
-                        if (moviePrim)
+                        // Disable movies in multiplayer campaigns
+                        if (!MultiPlayer::Data::Online())
                         {
-                            delete moviePrim;
+                            if (moviePrim)
+                            {
+                                delete moviePrim;
+                            }
+                            moviePrim = new Movie(this, sScope);
                         }
-                        moviePrim = new Movie(this, sScope);
-                    }
-                    break;
-                }
-
-                case 0x0DA67726: // "AlphaNear"
-                    Vid::renderState.status.alphaNear = alphaNear = sScope->NextArgInteger();
-                    break;
-
-                case 0x70600744: // "DisableIFace"
-                {
-                    DisableIFace(sScope->NextArgInteger());
-                    break;
-                }
-
-                case 0x72C1779F: // "DisableHUD"
-                {
-                    DisableHUD(sScope->NextArgInteger());
-                    break;
-                }
-
-                case 0x288F19CB: // "DisableInput"
-                {
-                    DisableInput(sScope->NextArgInteger());
-                    break;
-                }
-
-                case 0xAA268B85: // "DisableShroud"
-                {
-                    DisableShroud(sScope->NextArgInteger());
-                    break;
-                }
-
-                case 0x47518EE4: // "EndCineractive"
-                {
-                    Terminate();
-                    break;
-                }
-
-                case 0x7E8E3E05: // "SkipPoint"
-                {
-                    RestoreDisplay();
-                    break;
-                }
-
-                case 0xEA4227E1: // "SetBookmark"
-                {
-                    SetBookmark(sScope);
-                    break;
-                }
-
-                case 0xDDD6437A: // "DefaultCamera"
-                {
-                    LOG_VIEWER(("DefaultCamera"));
-
-                    if (Demo::IsPlaying())
-                    {
-                        SetCurrent("Playback0", StdLoad::TypeU32(sScope, U32(FALSE), Range<U32>::flag), sScope);
-                    }
-                    else
-                    {
-                        SetCurrent("default", StdLoad::TypeU32(sScope, U32(FALSE), Range<U32>::flag), sScope);
-                    }
-                    break;
-                }
-
-                case 0xF4356EC8: // "SetCamera"
-                {
-                    SetCurrent(sScope->NextArgString(), FALSE, sScope);
-                    break;
-                }
-
-                case 0x9805A0A6: // "Mesh"
-                {
-                    AddPrim(primitiveList, new Mesh(this, sScope));
-                    break;
-                }
-
-                case 0x16556EBC: // "Letterbox"
-                {
-                    AddPrim(primitiveList, new Letterbox(this, sScope));
-                    break;
-                }
-
-                case 0x10A95B64: // "Fade"
-                {
-                    AddPrim(primitiveList, new Fade(this, sScope));
-                    break;
-                }
-
-                case 0x76802A4E: // "Image"
-                {
-                    AddPrim(primitiveList, new Image(this, sScope));
-                    break;
-                }
-
-                case 0x64DD3931: // "Wallpaper"
-                {
-                    AddPrim(primitiveList, new Wallpaper(this, sScope));
-                    break;
-                }
-
-                case 0xCB28D32D: // "Text"
-                {
-                    AddPrim(primitiveList, new Text(this, sScope));
-                    break;
-                }
-
-                case 0x8E18DC65: // "Subtitle"
-                {
-                    AddPrim(primitiveList, new Subtitle(this, sScope));
-                    break;
-                }
-
-                case 0x37345010: // "Pause"
-                {
-                    if (!GameTime::Paused())
-                    {
-                        GameTime::Pause(FALSE);
-                    }
-                    break;
-                }
-
-                case 0x0642D599: // "Unpause"
-                {
-                    if (GameTime::Paused())
-                    {
-                        GameTime::Pause(FALSE);
-                    }
-                    break;
-                }
-
-                case 0x3F159CC9: // "DefineDebriefing"
-                {
-                    debriefings.Add(Crc::CalcStr(sScope->NextArgString()), sScope);
-                    break;
-                }
-
-                case 0x311D74EF: // "Debrief"
-                {
-                    ProcessDebrief(sScope);
-                    break;
-                }
-
-                case 0x06A3B1BA: // "Action"
-                {
-                    // Execute an objective action block
-                    ::Action::Execute(team, sScope);
-                    break;
-                }
-
-                default:
-                {
-                    LOG_WARN(("Unknown function [%s] in Cineractive", sScope->NameStr()))
                         break;
-                }
+                    }
+
+                    case 0x0DA67726: // "AlphaNear"
+                        Vid::renderState.status.alphaNear = alphaNear = sScope->NextArgInteger();
+                        break;
+
+                    case 0x70600744: // "DisableIFace"
+                    {
+                        DisableIFace(sScope->NextArgInteger());
+                        break;
+                    }
+
+                    case 0x72C1779F: // "DisableHUD"
+                    {
+                        DisableHUD(sScope->NextArgInteger());
+                        break;
+                    }
+
+                    case 0x288F19CB: // "DisableInput"
+                    {
+                        DisableInput(sScope->NextArgInteger());
+                        break;
+                    }
+
+                    case 0xAA268B85: // "DisableShroud"
+                    {
+                        DisableShroud(sScope->NextArgInteger());
+                        break;
+                    }
+
+                    case 0x47518EE4: // "EndCineractive"
+                    {
+                        Terminate();
+                        break;
+                    }
+
+                    case 0x7E8E3E05: // "SkipPoint"
+                    {
+                        RestoreDisplay();
+                        break;
+                    }
+
+                    case 0xEA4227E1: // "SetBookmark"
+                    {
+                        SetBookmark(sScope);
+                        break;
+                    }
+
+                    case 0xDDD6437A: // "DefaultCamera"
+                    {
+                        LOG_VIEWER(("DefaultCamera"))
+
+                        if (Demo::IsPlaying())
+                        {
+                            SetCurrent("Playback0", StdLoad::TypeU32(sScope, U32(FALSE), Range<U32>::flag), sScope);
+                        }
+                        else
+                        {
+                            SetCurrent("default", StdLoad::TypeU32(sScope, U32(FALSE), Range<U32>::flag), sScope);
+                        }
+                        break;
+                    }
+
+                    case 0xF4356EC8: // "SetCamera"
+                    {
+                        SetCurrent(sScope->NextArgString(), FALSE, sScope);
+                        break;
+                    }
+
+                    case 0x9805A0A6: // "Mesh"
+                    {
+                        AddPrim(primitiveList, new Mesh(this, sScope));
+                        break;
+                    }
+
+                    case 0x16556EBC: // "Letterbox"
+                    {
+                        AddPrim(primitiveList, new Letterbox(this, sScope));
+                        break;
+                    }
+
+                    case 0x10A95B64: // "Fade"
+                    {
+                        AddPrim(primitiveList, new Fade(this, sScope));
+                        break;
+                    }
+
+                    case 0x76802A4E: // "Image"
+                    {
+                        AddPrim(primitiveList, new Image(this, sScope));
+                        break;
+                    }
+
+                    case 0x64DD3931: // "Wallpaper"
+                    {
+                        AddPrim(primitiveList, new Wallpaper(this, sScope));
+                        break;
+                    }
+
+                    case 0xCB28D32D: // "Text"
+                    {
+                        AddPrim(primitiveList, new Text(this, sScope));
+                        break;
+                    }
+
+                    case 0x8E18DC65: // "Subtitle"
+                    {
+                        AddPrim(primitiveList, new Subtitle(this, sScope));
+                        break;
+                    }
+
+                    case 0x37345010: // "Pause"
+                    {
+                        if (!GameTime::Paused())
+                        {
+                            GameTime::Pause(FALSE);
+                        }
+                        break;
+                    }
+
+                    case 0x0642D599: // "Unpause"
+                    {
+                        if (GameTime::Paused())
+                        {
+                            GameTime::Pause(FALSE);
+                        }
+                        break;
+                    }
+
+                    case 0x3F159CC9: // "DefineDebriefing"
+                    {
+                        debriefings.Add(Crc::CalcStr(sScope->NextArgString()), sScope);
+                        break;
+                    }
+
+                    case 0x311D74EF: // "Debrief"
+                    {
+                        ProcessDebrief(sScope);
+                        break;
+                    }
+
+                    case 0x06A3B1BA: // "Action"
+                    {
+                        // Execute an objective action block
+                        ::Action::Execute(team, sScope);
+                        break;
+                    }
+
+                    default:
+                    {
+                        LOG_WARN(("Unknown function [%s] in Cineractive", sScope->NameStr()))
+                        break;
+                    }
                 }
             }
         }
@@ -969,7 +964,7 @@ namespace Viewer
                 if (moviePrim->done)
                 {
                     delete moviePrim;
-                    moviePrim = NULL;
+                    moviePrim = nullptr;
                 }
                 else
                 {
@@ -992,7 +987,7 @@ namespace Viewer
             NList<Prim>::Iterator i(&primitiveList);
             Prim* prim;
 
-            while ((prim = i++) != NULL)
+            while ((prim = i++) != nullptr)
             {
                 if (prim->done)
                 {
@@ -1021,14 +1016,14 @@ namespace Viewer
         //
         void StopMovies()
         {
-            for (NList<Cineractive>::Iterator curr(&cineractives); *curr; curr++)
+            for (NList<Cineractive>::Iterator curr(&cineractives); *curr; ++curr)
             {
                 Cineractive* cin = *curr;
 
                 if (cin->moviePrim)
                 {
                     delete cin->moviePrim;
-                    cin->moviePrim = NULL;
+                    cin->moviePrim = nullptr;
                 }
             }
         }
@@ -1046,7 +1041,7 @@ namespace Viewer
                 if (cin->moviePrim)
                 {
                     delete cin->moviePrim;
-                    cin->moviePrim = NULL;
+                    cin->moviePrim = nullptr;
                 }
                 cin->Terminate();
                 cineractives.Dispose(cin);
@@ -1056,7 +1051,7 @@ namespace Viewer
 
             // Delete the cineractive cam
             DeleteViewer(camera);
-            camera = NULL;
+            camera = nullptr;
         }
 
 
@@ -1078,9 +1073,9 @@ namespace Viewer
         {
             FScope* fScope;
 
-            if ((fScope = debriefings.Find(Crc::CalcStr(name))) != NULL)
+            if ((fScope = debriefings.Find(Crc::CalcStr(name))) != nullptr)
             {
-                Execute(NULL, fScope);
+                Execute(nullptr, fScope);
             }
             else
             {
@@ -1129,7 +1124,7 @@ namespace Viewer
             NList<Cineractive>::Iterator i(&cineractives);
             Cineractive* curr;
 
-            while ((curr = i++) != NULL)
+            while ((curr = i++) != nullptr)
             {
                 curr->GameTimeSim();
                 if (curr->done)
@@ -1168,12 +1163,12 @@ namespace Viewer
                 return;
             }
 
-            ASSERT(camera)
+            ASSERT(camera);
 
-                // Update real time
-                F32 realOffset = GameTime::GameCycleOffset();
+            // Update real time
+            F32 realOffset = GameTime::GameCycleOffset();
             NList<Cineractive>::Iterator i(&cineractives);
-            for (; *i; i++)
+            for (; *i; ++i)
             {
                 Cineractive* curr = *i;
                 curr->elapsedReal = F32(curr->elapsedCycles) * GameTime::INTERVAL + realOffset;
@@ -1181,7 +1176,7 @@ namespace Viewer
 
             // Update the camera along its curve
             i.GoToTail();
-            for (; *i; i--)
+            for (; *i; --i)
             {
                 Cineractive* curr = *i;
 
@@ -1216,11 +1211,11 @@ namespace Viewer
                 cineViewPort = Vid::viewRect;
             }
 
-            for (NList<Cineractive>::Iterator curr(&cineractives); *curr; curr++)
+            for (NList<Cineractive>::Iterator curr(&cineractives); *curr; ++curr)
             {
                 Cineractive* cin = *curr;
 
-                for (NList<Prim>::Iterator i(&cin->primitiveList); *i; i++)
+                for (NList<Prim>::Iterator i(&cin->primitiveList); *i; ++i)
                 {
                     Prim* prim = *i;
 
@@ -1256,33 +1251,33 @@ namespace Viewer
             {
                 switch (e.subType)
                 {
-                case Input::KEYDOWN:
-                    //case Input::KEYREPEAT:
-                {
-                    switch (e.input.code)
+                    case Input::KEYDOWN:
+                        //case Input::KEYREPEAT:
                     {
-                    case DIK_ESCAPE:
-                    {
-                        // Never allow skipping in multiplayer
-                        if (!MultiPlayer::Data::Online())
+                        switch (e.input.code)
                         {
-                            if (movie)
+                            case DIK_ESCAPE:
                             {
-                                StopMovies();
-                            }
-                            else
-                            {
-                                Abort();
-                            }
+                                // Never allow skipping in multiplayer
+                                if (!MultiPlayer::Data::Online())
+                                {
+                                    if (movie)
+                                    {
+                                        StopMovies();
+                                    }
+                                    else
+                                    {
+                                        Abort();
+                                    }
 
-                            //Input::FlushEvents();
+                                    //Input::FlushEvents();
+                                }
+
+                                break;
+                            }
                         }
-
                         break;
                     }
-                    }
-                    break;
-                }
                 }
             }
             return (TRUE);
@@ -1302,9 +1297,9 @@ namespace Viewer
         // Base primitive
         //
         Prim::Prim(Cineractive* cineractive, FScope* fScope, S32 defaultPriority)
-            : cineractive(cineractive),
-            done(FALSE),
-            priority(defaultPriority)
+            : done(FALSE),
+              cineractive(cineractive),
+              priority(defaultPriority)
         {
             startTime = F32(cineractive->elapsedCycles) * GameTime::INTERVAL;
 
@@ -1322,7 +1317,7 @@ namespace Viewer
         //
         Movie::Movie(Cineractive* cineractive, FScope* fScope)
             : Prim(cineractive, fScope),
-            wasPaused(FALSE)
+              wasPaused(FALSE)
         {
             if (movie)
             {
@@ -1379,7 +1374,7 @@ namespace Viewer
             {
                 delete binkbmp;
             }
-            binkbmp = NULL;
+            binkbmp = nullptr;
 
             // Unpause the game
             if (GameTime::Paused() && !wasPaused)
@@ -1391,7 +1386,7 @@ namespace Viewer
             //
             movieCycle = GameTime::GameCycle() - movieCycle;
 
-            for (NList<Cineractive>::Iterator i(&cineractives); *i; i++)
+            for (NList<Cineractive>::Iterator i(&cineractives); *i; ++i)
             {
                 (*i)->startCycle += movieCycle;
             }
@@ -1408,13 +1403,13 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0x7FEF2C7B: // "CycleTick"
-                if (binkbmp->BinkDone())
-                {
-                    done = TRUE;
-                }
+                case 0x7FEF2C7B: // "CycleTick"
+                    if (binkbmp->BinkDone())
+                    {
+                        done = TRUE;
+                    }
 
-                break;
+                    break;
             }
         }
 
@@ -1428,11 +1423,15 @@ namespace Viewer
         //
         // Constructor
         //
-        ChangeCameraPrim::ChangeCameraPrim(Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit, FScope* scope)
+        ChangeCameraPrim::ChangeCameraPrim
+        (
+            Cineractive* cineractive, FScope* fScope, const char* name, Bool inherit,
+            FScope* scope
+        )
             : Prim(cineractive, fScope),
-            name(name),
-            scope(scope),
-            inherit(inherit)
+              name(name),
+              scope(scope),
+              inherit(inherit)
         {
         }
 
@@ -1444,12 +1443,11 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0xF530E366: // "Render::PreRender"
-            {
-                SetCurrent(name, inherit, scope);
-                done = TRUE;
-                return;
-            }
+                case 0xF530E366: // "Render::PreRender"
+                {
+                    SetCurrent(name, inherit, scope);
+                    done = TRUE;
+                }
             }
         }
 
@@ -1471,20 +1469,20 @@ namespace Viewer
             // Rate
             switch (StdLoad::TypeStringCrc(fScope, "Direction", 0xF975A769)) // "Up"
             {
-            case 0xF975A769: // "Up"
-            {
-                dir = 1.0F;
-                holdAt = 1.0F;
-                break;
-            }
+                case 0xF975A769: // "Up"
+                {
+                    dir = 1.0F;
+                    holdAt = 1.0F;
+                    break;
+                }
 
-            case 0xEF54F336: // "Down"
-            default:
-            {
-                dir = -1.0F;
-                holdAt = 0.0F;
-                break;
-            }
+                case 0xEF54F336: // "Down"
+                default:
+                {
+                    dir = -1.0F;
+                    holdAt = 0.0F;
+                    break;
+                }
             }
         }
 
@@ -1498,37 +1496,37 @@ namespace Viewer
             F32 elapsed = cineractive->elapsedReal - startTime;
             F32 newVal = 0.0F;
 
-            ASSERT(elapsed >= 0.0F)
+            ASSERT(elapsed >= 0.0F);
 
-                // Ramping up
-                if (elapsed < timeIn)
+            // Ramping up
+            if (elapsed < timeIn)
+            {
+                F32 gap = timeIn;
+                F32 pct = (gap > 1e-4f) ? elapsed / gap : 1.0F;
+                newVal = (1.0F - holdAt) + (dir * pct);
+            }
+            else
+
+                // Holding steady
+                if (elapsed < timeHold)
                 {
-                    F32 gap = timeIn;
-                    F32 pct = (gap > 1e-4f) ? elapsed / gap : 1.0F;
-                    newVal = (1.0F - holdAt) + (dir * pct);
+                    newVal = holdAt;
                 }
                 else
 
-                    // Holding steady
-                    if (elapsed < timeHold)
+                    // Ramping down
+                    if (elapsed < timeOut)
                     {
-                        newVal = holdAt;
+                        F32 gap = timeOut - timeHold;
+                        F32 pct = (gap > 1e-4f) ? (elapsed - timeHold) / gap : 1.0F;
+                        newVal = holdAt - (dir * pct);
                     }
+
                     else
-
-                        // Ramping down
-                        if (elapsed < timeOut)
-                        {
-                            F32 gap = timeOut - timeHold;
-                            F32 pct = (gap > 1e-4f) ? (elapsed - timeHold) / gap : 1.0F;
-                            newVal = holdAt - (dir * pct);
-                        }
-
-                        else
-                        {
-                            LOG_VIEWER(("Primitive ended [%.1f]", elapsed))
-                                done = TRUE;
-                        }
+                    {
+                        LOG_VIEWER(("Primitive ended [%.1f]", elapsed))
+                        done = TRUE;
+                    }
 
             return (newVal);
         }
@@ -1567,57 +1565,56 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0xF530E366: // "Render::PreRender"
-            {
-                F32 curr = Simulate();
-
-                // Modify the viewport
-                S32 x = Vid::backBmp.Width();
-                S32 y = Vid::backBmp.Height();
-                S32 viewY = (x * 9) >> 4;
-                S32 bordY = (y - viewY) >> 1;
-
-                currPixels = bordY - Utils::FtoLNearest(F32(bordY) * curr);
-
-                if (bordY > 0)
+                case 0xF530E366: // "Render::PreRender"
                 {
-                    // Enter letterbox mode
-                    viewport.SetSize(0, currPixels, x, y - (currPixels << 1));
-                    Vid::CurCamera().Setup(viewport);
+                    F32 curr = Simulate();
+
+                    // Modify the viewport
+                    S32 x = Vid::backBmp.Width();
+                    S32 y = Vid::backBmp.Height();
+                    S32 viewY = (x * 9) >> 4;
+                    S32 bordY = (y - viewY) >> 1;
+
+                    currPixels = bordY - Utils::FtoLNearest(F32(bordY) * curr);
+
+                    if (bordY > 0)
+                    {
+                        // Enter letterbox mode
+                        viewport.SetSize(0, currPixels, x, y - (currPixels << 1));
+                        Vid::CurCamera().Setup(viewport);
+                    }
+                    else
+                    {
+                        viewport.SetSize(0, 0, Vid::backBmp.Width(), Vid::backBmp.Height());
+                    }
+
+                    //LOG_DIAG(("viewport=%d,%d,%d,%d", viewport.p0.x, viewport.p0.z, viewport.p1.x, viewport.p1.z))
+
+                    // cineViewPort should reflect current view inside borders
+                    cineViewPort = viewport;
+
+                    // Setup full viewport parameters
+                    fullvp.Set(0, 0, x, y);
+
+                    ClipRect rc;
+
+                    return;
                 }
-                else
+                case 0xCEEF613F: // "Render::PostIFace1"
                 {
-                    viewport.SetSize(0, 0, Vid::backBmp.Width(), Vid::backBmp.Height());
+                    Vid::ClipScreen();    // full screen clipping
+
+                    // Draw border
+                    ClipRect rc;
+
+                    rc.Set(0, 0, fullvp.p1.x, currPixels);
+                    RenderRectangle(rc, 0xff000000, nullptr, RS_BLEND_DEF, Vid::sortNORMAL0, 0, 1, TRUE);
+
+                    rc.Set(0, fullvp.p1.y - currPixels, fullvp.p1.x, fullvp.p1.y);
+                    RenderRectangle(rc, 0xff000000, nullptr, RS_BLEND_DEF, Vid::sortNORMAL0, 0, 1, TRUE);
+
+                    Vid::ClipRestore();   // restore letterbox clipping
                 }
-
-                //LOG_DIAG(("viewport=%d,%d,%d,%d", viewport.p0.x, viewport.p0.z, viewport.p1.x, viewport.p1.z))
-
-                // cineViewPort should reflect current view inside borders
-                cineViewPort = viewport;
-
-                // Setup full viewport parameters
-                fullvp.Set(0, 0, x, y);
-
-                ClipRect rc;
-
-                return;
-            }
-            case 0xCEEF613F: // "Render::PostIFace1"
-            {
-                Vid::ClipScreen();    // full screen clipping
-
-                // Draw border
-                ClipRect rc;
-
-                rc.Set(0, 0, fullvp.p1.x, currPixels);
-                Vid::RenderRectangle(rc, 0xff000000, NULL, RS_BLEND_DEF, Vid::sortNORMAL0, 0, 1, TRUE);
-
-                rc.Set(0, fullvp.p1.y - currPixels, fullvp.p1.x, fullvp.p1.y);
-                Vid::RenderRectangle(rc, 0xff000000, NULL, RS_BLEND_DEF, Vid::sortNORMAL0, 0, 1, TRUE);
-
-                Vid::ClipRestore();   // restore letterbox clipping
-                return;
-            }
             }
         }
 
@@ -1645,14 +1642,13 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0xC3AC47E6: // "Render::PostIFace2"
-            {
-                F32 curr = Simulate();
+                case 0xC3AC47E6: // "Render::PostIFace2"
+                {
+                    F32 curr = Simulate();
 
-                // Draw a big ass poly
-                IFace::RenderRectangle(cineViewPort, clr, NULL, Clamp<F32>(0.0F, curr, 1.0F));
-                return;
-            }
+                    // Draw a big ass poly
+                    IFace::RenderRectangle(cineViewPort, clr, nullptr, Clamp<F32>(0.0F, curr, 1.0F));
+                }
             }
         }
 
@@ -1667,11 +1663,11 @@ namespace Viewer
         //
         Image::Image(Cineractive* cineractive, FScope* fScope)
             : StepHoldPrim(cineractive, fScope),
-            pos(0.0F, 0.0F),
-            size(1.0F, 1.0F),
-            absPos(0, 0),
-            absSize(32, 32),
-            absolute(0)
+              pos(0.0F, 0.0F),
+              size(1.0F, 1.0F),
+              absPos(0, 0),
+              absSize(32, 32),
+              absolute(0)
         {
             IFace::FScopeToTextureInfo(fScope->GetFunction("Image"), texture);
 
@@ -1698,47 +1694,45 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0xC3AC47E6: // "Render::PostIFace2"
-            {
-                F32 curr = Simulate();
-
-                // Calculate screen rectangle
-                const ClipRect& rc = cineViewPort;
-                ClipRect newRc;
-
-                if (absolute)
+                case 0xC3AC47E6: // "Render::PostIFace2"
                 {
-                    if (absPos.x < 0)
+                    F32 curr = Simulate();
+
+                    // Calculate screen rectangle
+                    const ClipRect& rc = cineViewPort;
+                    ClipRect newRc;
+
+                    if (absolute)
                     {
-                        newRc.p0.x = rc.p1.x - absSize.x + absPos.x;
+                        if (absPos.x < 0)
+                        {
+                            newRc.p0.x = rc.p1.x - absSize.x + absPos.x;
+                        }
+                        else
+                        {
+                            newRc.p0.x = rc.p0.x + absPos.x;
+                        }
+
+                        if (absPos.y < 0)
+                        {
+                            newRc.p0.y = rc.p1.y - absSize.y + absPos.y;
+                        }
+                        else
+                        {
+                            newRc.p0.y = rc.p0.y + absPos.y;
+                        }
+
+                        newRc.p1 = newRc.p0 + absSize;
                     }
                     else
                     {
-                        newRc.p0.x = rc.p0.x + absPos.x;
+                        newRc.p0.x = rc.p0.x + Utils::FtoL(pos.x * F32(rc.Width()));
+                        newRc.p0.y = rc.p0.y + Utils::FtoL(pos.y * F32(rc.Height()));
+                        newRc.p1.x = rc.p0.x + Utils::FtoL((pos.x + size.x) * F32(rc.Width()));
+                        newRc.p1.y = rc.p0.y + Utils::FtoL((pos.y + size.y) * F32(rc.Height()));
                     }
-
-                    if (absPos.y < 0)
-                    {
-                        newRc.p0.y = rc.p1.y - absSize.y + absPos.y;
-                    }
-                    else
-                    {
-                        newRc.p0.y = rc.p0.y + absPos.y;
-                    }
-
-                    newRc.p1 = newRc.p0 + absSize;
+                    IFace::RenderRectangle(newRc, clr, &texture, curr * IFace::data.alphaScale);
                 }
-                else
-                {
-                    newRc.p0.x = rc.p0.x + Utils::FtoL(pos.x * F32(rc.Width()));
-                    newRc.p0.y = rc.p0.y + Utils::FtoL(pos.y * F32(rc.Height()));
-                    newRc.p1.x = rc.p0.x + Utils::FtoL((pos.x + size.x) * F32(rc.Width()));
-                    newRc.p1.y = rc.p0.y + Utils::FtoL((pos.y + size.y) * F32(rc.Height()));
-                }
-                IFace::RenderRectangle(newRc, clr, &texture, curr * IFace::data.alphaScale);
-
-                return;
-            }
             }
         }
 
@@ -1753,8 +1747,8 @@ namespace Viewer
         //
         Wallpaper::Wallpaper(Cineractive* cineractive, FScope* fScope)
             : StepHoldPrim(cineractive, fScope),
-            pos(0.0F, 0.0F),
-            size(1.0F, 1.0F)
+              pos(0.0F, 0.0F),
+              size(1.0F, 1.0F)
         {
             // Sheets
             IFace::FScopeToSheetInfo(fScope->GetFunction("Sheet"), images, sheets);
@@ -1784,26 +1778,25 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0xC3AC47E6: // "Render::PostIFace2"
-            {
-                F32 curr = Simulate();
+                case 0xC3AC47E6: // "Render::PostIFace2"
+                {
+                    F32 curr = Simulate();
 
-                // Rebuild rectangles
-                const ClipRect& rc = cineViewPort;
-                ClipRect newRc;
+                    // Rebuild rectangles
+                    const ClipRect& rc = cineViewPort;
+                    ClipRect newRc;
 
-                newRc.p0.x = rc.p0.x + Utils::FtoL(pos.x * F32(rc.Width()));
-                newRc.p0.y = rc.p0.y + Utils::FtoL(pos.y * F32(rc.Height()));
-                newRc.p1.x = rc.p0.x + Utils::FtoL((pos.x + size.x) * F32(rc.Width()));
-                newRc.p1.y = rc.p0.y + Utils::FtoL((pos.y + size.y) * F32(rc.Height()));
+                    newRc.p0.x = rc.p0.x + Utils::FtoL(pos.x * F32(rc.Width()));
+                    newRc.p0.y = rc.p0.y + Utils::FtoL(pos.y * F32(rc.Height()));
+                    newRc.p1.x = rc.p0.x + Utils::FtoL((pos.x + size.x) * F32(rc.Width()));
+                    newRc.p1.y = rc.p0.y + Utils::FtoL((pos.y + size.y) * F32(rc.Height()));
 
 
-                IFace::UpdateSheets(newRc, images, sheets);
+                    IFace::UpdateSheets(newRc, images, sheets);
 
-                // Display
-                IFace::RenderSheets(Point<S32>(0, 0), images, clr, curr);
-                return;
-            }
+                    // Display
+                    IFace::RenderSheets(Point<S32>(0, 0), images, clr, curr);
+                }
             }
         }
 
@@ -1818,12 +1811,12 @@ namespace Viewer
         //
         Text::Text(Cineractive* cineractive, FScope* fScope, S32 priority)
             : StepHoldPrim(cineractive, fScope, priority),
-            text(NULL)
+              text(nullptr)
         {
             // Font
             const char* name = StdLoad::TypeString(fScope, "Font", "System");
 
-            if ((font = FontSys::GetFont(Crc::CalcStr(name))) == NULL)
+            if ((font = FontSys::GetFont(Crc::CalcStr(name))) == nullptr)
             {
                 ERR_FATAL(("Font not found [%s] for Cineractive Text", name))
             }
@@ -1831,13 +1824,13 @@ namespace Viewer
             // Text
             FScope* sScope;
 
-            if ((sScope = fScope->GetFunction("Text", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("Text", FALSE)) != nullptr)
             {
                 SetText(TRANSLATE((StdLoad::TypeString(sScope))));
             }
 
             // Position
-            if ((sScope = fScope->GetFunction("Pos", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("Pos", FALSE)) != nullptr)
             {
                 x = StdLoad::TypeF32(sScope);
                 y = StdLoad::TypeF32(sScope);
@@ -1861,7 +1854,7 @@ namespace Viewer
             if (text)
             {
                 delete[] text;
-                text = NULL;
+                text = nullptr;
             }
         }
 
@@ -1873,21 +1866,20 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0xC3AC47E6: // "Render::PostIFace2"
-            {
-                F32 curr = Simulate();
-
-                // Draw the text
-                if (text)
+                case 0xC3AC47E6: // "Render::PostIFace2"
                 {
-                    S32 width = font->Width(text, len);
-                    S32 height = font->Height();
-                    S32 xpos = Max<S32>(Utils::FtoL(F32(Vid::backBmp.Width() - width) * x), 0);
-                    S32 ypos = Max<S32>(Utils::FtoL(F32(Vid::backBmp.Height() - height) * y), 0);
-                    font->Draw(xpos, ypos, text, len, clr, NULL, curr);
+                    F32 curr = Simulate();
+
+                    // Draw the text
+                    if (text)
+                    {
+                        S32 width = font->Width(text, len);
+                        S32 height = font->Height();
+                        S32 xpos = Max<S32>(Utils::FtoL(F32(Vid::backBmp.Width() - width) * x), 0);
+                        S32 ypos = Max<S32>(Utils::FtoL(F32(Vid::backBmp.Height() - height) * y), 0);
+                        font->Draw(xpos, ypos, text, len, clr, nullptr, curr);
+                    }
                 }
-                return;
-            }
             }
         }
 
@@ -1934,20 +1926,19 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0xEF30A860: // "Render::PostObject"
-            {
-                Simulate();
-
-                if (root && !done)
+                case 0xEF30A860: // "Render::PostObject"
                 {
-                    Matrix mat = Vid::CurCamera().WorldMatrix();
-                    Vector vect;
-                    mat.Transform(vect, offset);
-                    mat.posit = vect;
-                    root->Render(mat);
+                    Simulate();
+
+                    if (root && !done)
+                    {
+                        Matrix mat = Vid::CurCamera().WorldMatrix();
+                        Vector vect;
+                        mat.Transform(vect, offset);
+                        mat.posit = vect;
+                        root->Render(mat);
+                    }
                 }
-                return;
-            }
             }
         }
 
@@ -1961,7 +1952,7 @@ namespace Viewer
         //
         Subtitle::Subtitle(Cineractive* cineractive, FScope* fScope)
             : Prim(cineractive, fScope, 100),
-            textPrim(NULL)
+              textPrim(nullptr)
         {
             // Item configuration
             config = fScope->GetFunction("ItemConfig");
@@ -2000,14 +1991,14 @@ namespace Viewer
         //
         Bool Subtitle::ConsoleHook(const CH* text, U32&, void* context)
         {
-            Subtitle* ptr = (Subtitle*)context;
+            Subtitle* ptr = static_cast<Subtitle*>(context);
 
             // Is the text primitive still alive
             if (ptr->textPrim)
             {
                 Bool found = FALSE;
 
-                for (NList<Prim>::Iterator i(&ptr->cineractive->primitiveList); *i; i++)
+                for (NList<Prim>::Iterator i(&ptr->cineractive->primitiveList); *i; ++i)
                 {
                     if (*i == ptr->textPrim)
                     {
@@ -2025,7 +2016,11 @@ namespace Viewer
             }
 
             // Create a new text primitive
-            AddPrim(ptr->cineractive->primitiveList, ptr->textPrim = new Text(ptr->cineractive, ptr->config, ptr->priority));
+            AddPrim
+            (
+                ptr->cineractive->primitiveList,
+                ptr->textPrim = new Text(ptr->cineractive, ptr->config, ptr->priority)
+            );
             ptr->textPrim->SetText(text);
 
             return (TRUE);
@@ -2039,7 +2034,7 @@ namespace Viewer
 
 
         // Static data
-        DebriefPrim* DebriefPrim::current = NULL;
+        DebriefPrim* DebriefPrim::current = nullptr;
 
 
         //
@@ -2053,46 +2048,43 @@ namespace Viewer
             {
                 ERR_FATAL(("Only one debreifing allowed!"))
             }
-            else
-            {
-                current = this;
-            }
+            current = this;
 
             // Step through each function
             FScope* sScope;
 
-            while ((sScope = fScope->NextFunction()) != NULL)
+            while ((sScope = fScope->NextFunction()) != nullptr)
             {
                 switch (sScope->NameCrc())
                 {
-                case 0xAAD665AB: // "Exec"
-                {
-                    Main::Exec(sScope->NextArgString(), Main::ScopeHandler, FALSE);
-                    break;
-                }
-
-                case 0x546486D8: // "OnEvent"
-                {
-                    U32 id = StdLoad::TypeStringCrc(sScope);
-                    endScripts.Add(id, sScope);
-                    break;
-                }
-
-                case 0x27884D6D: // "AddBookmark"
-                {
-                    // Add the optional bookmark            
-                    if (BookmarkObj* obj = BookmarkObj::FindBookmark(StdLoad::TypeString(sScope, "Name")))
+                    case 0xAAD665AB: // "Exec"
                     {
-                        bookmarkList.Append(obj);
-                    }
-                    break;
-                }
-
-                default:
-                {
-                    LOG_WARN(("Unknown function in Debrief [%s]", sScope->NameStr()))
+                        Main::Exec(sScope->NextArgString(), Main::ScopeHandler, FALSE);
                         break;
-                }
+                    }
+
+                    case 0x546486D8: // "OnEvent"
+                    {
+                        U32 id = StdLoad::TypeStringCrc(sScope);
+                        endScripts.Add(id, sScope);
+                        break;
+                    }
+
+                    case 0x27884D6D: // "AddBookmark"
+                    {
+                        // Add the optional bookmark            
+                        if (BookmarkObj* obj = BookmarkObj::FindBookmark(StdLoad::TypeString(sScope, "Name")))
+                        {
+                            bookmarkList.Append(obj);
+                        }
+                        break;
+                    }
+
+                    default:
+                    {
+                        LOG_WARN(("Unknown function in Debrief [%s]", sScope->NameStr()))
+                        break;
+                    }
                 }
             }
 
@@ -2110,7 +2102,7 @@ namespace Viewer
         {
             bookmarkList.Clear();
             endScripts.UnlinkAll();
-            current = NULL;
+            current = nullptr;
         }
 
 
@@ -2121,15 +2113,14 @@ namespace Viewer
         {
             switch (crc)
             {
-            case 0x7FEF2C7B: // "CycleTick"
-            {
-                // Is the bookmark finished?
-                if (!cineractive->bookmarkPtr.Alive())
+                case 0x7FEF2C7B: // "CycleTick"
                 {
-                    PickRandomBookmark();
+                    // Is the bookmark finished?
+                    if (!cineractive->bookmarkPtr.Alive())
+                    {
+                        PickRandomBookmark();
+                    }
                 }
-                return;
-            }
             }
         }
 
@@ -2148,12 +2139,10 @@ namespace Viewer
                 cineractive->curveOfs = 0;
                 cineractive->curveStart = F32(cineractive->elapsedCycles) * GameTime::INTERVAL;
 
-                ASSERT(camera)
-                    SetCurrent(camera);
+                ASSERT(camera);
+                SetCurrent(camera);
 
                 LOG_VIEWER(("PickBookmark(%s)", obj->GetName()))
-
-                    return;
             }
             LOG_VIEWER(("PickBookmark: none available"))
         }

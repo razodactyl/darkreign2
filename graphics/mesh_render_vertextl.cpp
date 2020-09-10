@@ -32,6 +32,7 @@ void MeshRoot::SetMatricesView(const Array<FamilyState>& stateArray, Matrix* tra
         tranys[i] = stateMats[i] * stateArray[i].WorldMatrix() * Vid::Math::viewMatrix;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetMatricesWorld(const Array<FamilyState>& stateArray, Matrix* tranys) const
@@ -42,6 +43,7 @@ void MeshRoot::SetMatricesWorld(const Array<FamilyState>& stateArray, Matrix* tr
         tranys[i] = stateMats[i] * stateArray[i].WorldMatrix();
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetMatricesWorldInverseZ(const Array<FamilyState>& stateArray, Matrix* tranys) const
@@ -54,6 +56,7 @@ void MeshRoot::SetMatricesWorldInverseZ(const Array<FamilyState>& stateArray, Ma
         tranys[i] = stateMats[i] * stateArray[i].WorldMatrix() * mat;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetMatricesModel(const Array<FamilyState>& stateArray, Matrix* tranys) const
@@ -67,6 +70,7 @@ void MeshRoot::SetMatricesModel(const Array<FamilyState>& stateArray, Matrix* tr
         tranys[i] = stateMats[i] * stateArray[i].WorldMatrix() * temp;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetVertsView(const Array<FamilyState>& stateArray, Matrix* tranys, Vector* verts, U32 vCount, Bool doMultiWeight) const
@@ -80,6 +84,7 @@ void MeshRoot::SetVertsView(const Array<FamilyState>& stateArray, Matrix* tranys
         SetVert(tranys, i, verts[i], doMultiWeight);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetVertsWorld(const Array<FamilyState>& stateArray, Matrix* tranys, Vector* verts, U32 vCount, Bool doMultiWeight) const
@@ -93,6 +98,7 @@ void MeshRoot::SetVertsWorld(const Array<FamilyState>& stateArray, Matrix* trany
         SetVert(tranys, i, verts[i], doMultiWeight);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetVertsWorld(const Array<FamilyState>& stateArray, Vector* verts, U32 vCount, Bool doMultiWeight) const
@@ -108,6 +114,7 @@ void MeshRoot::SetVertsWorld(const Array<FamilyState>& stateArray, Vector* verts
         SetVert(tranys, i, verts[i], doMultiWeight);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetVertsIdentity(const Array<FamilyState>& stateArray, Vector* verts, U32 vCount, Bool doMultiWeight) const
@@ -119,7 +126,7 @@ void MeshRoot::SetVertsIdentity(const Array<FamilyState>& stateArray, Vector* ve
         //    SetMatricesWorldInverseZ( stateArray, tranys);
         SetMatricesWorld(stateArray, tranys);
 
-        Matrix* m, * me = tranys + stateArray.count;
+        Matrix *m, *me = tranys + stateArray.count;
         for (m = tranys + 1; m < me; m++)
         {
             m->posit -= tranys->posit;
@@ -128,19 +135,19 @@ void MeshRoot::SetVertsIdentity(const Array<FamilyState>& stateArray, Vector* ve
 
         // transform verts to world space
         VertIndex* vi = vertToState.data;
-        Vector* v, * e = verts + vCount, * src = vertices.data;
+        Vector *v, *e = verts + vCount, *src = vertices.data;
         for (v = verts; v < e; v++, vi++, src++)
         {
             // set a single vert with multi-weighting
 
             // get the vertex in local coordinates
-          // transform by the zeroth matrix
-          //
+            // transform by the zeroth matrix
+            //
             U32 index = vi->index[0];
             tranys[index].Transform(*v, *src);
 
             // if we are doing multiple weights
-          //
+            //
             if (doMultiWeight && (vi->count > 1))
             {
                 // scale by zeroth weight
@@ -169,6 +176,7 @@ void MeshRoot::SetVertsIdentity(const Array<FamilyState>& stateArray, Vector* ve
         stateArray[0].WorldMatrix().Rotate(verts, vertices.data, vCount);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
@@ -181,7 +189,7 @@ void MeshRoot::RenderLightAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
 #endif
 
     Vector* verts;
-    U16* iv, * in, * iu;
+    U16 *iv, *in, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &in, normals.count, &iu, uvs.count);
 
     // set up transform matrices and transform verts to view space
@@ -197,24 +205,26 @@ void MeshRoot::RenderLightAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags
+    );
 
     ColorF32 base(baseColor);
 
     // clear indexers
     //
 #if 0
-    memset(iv, 0xff, sizeof(U16) * bucky.vertices.count);
-    memset(in, 0xfe, sizeof(U16) * bucky.vertices.count);
-    memset(iu, 0xfd, sizeof(U16) * bucky.vertices.count);
+  memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
+  memset( in, 0xfe, sizeof(U16) * bucky.vertices.count);
+  memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
 #endif
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     U16 sort = Vid::sortNORMAL0;
     for (b = _buckys.data; b < be; b++, sort++)
     {
@@ -233,7 +243,8 @@ void MeshRoot::RenderLightAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
 
         // calc the ambient diffuse component for each material (bucky)
         //
-        bucky.diffInitF32.Set(
+        bucky.diffInitF32.Set
+        (
             bucky.diff.r * Vid::renderState.ambientColorF32.r * F32(baseColor.r) * U8toNormF32,
             bucky.diff.g * Vid::renderState.ambientColorF32.g * F32(baseColor.b) * U8toNormF32,
             bucky.diff.b * Vid::renderState.ambientColorF32.b * F32(baseColor.g) * U8toNormF32,
@@ -243,18 +254,18 @@ void MeshRoot::RenderLightAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
 
         // clear indexers
         //
-    /*
-        memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
-        memset( in, 0xfe, sizeof(U16) * bucky.vertices.count);
-        memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
-    */
+        /*
+            memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
+            memset( in, 0xfe, sizeof(U16) * bucky.vertices.count);
+            memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
+        */
         memset(iv, 0xff, sizeof(U16) * vertices.count);
         memset(in, 0xfe, sizeof(U16) * normals.count);
         memset(iu, 0xfd, sizeof(U16) * uvs.count);
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -280,7 +291,7 @@ void MeshRoot::RenderLightAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
                 U16 inj = face.norms[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& inj < normals.count&& iuj < uvs.count);
+                ASSERT(ivj < vCount && inj < normals.count && iuj < uvs.count);
 
                 if (iv[ivj] != in[inj])
                 {
@@ -376,8 +387,8 @@ void MeshRoot::RenderLightAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
@@ -392,7 +403,7 @@ void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
 #endif
 
     Vector* verts;
-    U16* iv, * in, * iu;
+    U16 *iv, *in, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &in, normals.count, &iu, uvs.count);
 
     //  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
@@ -402,16 +413,18 @@ void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
     }
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags
+    );
 
     ColorF32 base(baseColor);
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     U16 sort = Vid::sortNORMAL0;
     for (b = _buckys.data; b < be; b++, sort++)
     {
@@ -430,7 +443,8 @@ void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
 
         // calc constant diffuse component for each material (bucky)
         //
-        bucky.diffInitF32.Set(
+        bucky.diffInitF32.Set
+        (
             bucky.diff.r * Vid::renderState.ambientColorF32.r * F32(baseColor.r) * U8toNormF32,
             bucky.diff.g * Vid::renderState.ambientColorF32.g * F32(baseColor.b) * U8toNormF32,
             bucky.diff.b * Vid::renderState.ambientColorF32.b * F32(baseColor.g) * U8toNormF32,
@@ -440,18 +454,18 @@ void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
 
         // clear indexers
         //
-    /*
-        memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
-        memset( in, 0xfe, sizeof(U16) * bucky.vertices.count);
-        memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
-    */
+        /*
+            memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
+            memset( in, 0xfe, sizeof(U16) * bucky.vertices.count);
+            memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
+        */
         memset(iv, 0xff, sizeof(U16) * vertices.count);
         memset(in, 0xfe, sizeof(U16) * normals.count);
         memset(iu, 0xfd, sizeof(U16) * uvs.count);
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -463,7 +477,7 @@ void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
             {
                 // non-animating planes are pre-calced
                 //
-        //        Plane &plane = planes[face.index];
+                //        Plane &plane = planes[face.index];
                 Plane plane;
                 plane.Set(vertices[face.verts[0]], vertices[face.verts[1]], vertices[face.verts[2]]);
                 if (plane.Evalue(Vid::Math::modelViewVector) <= 0.0f)
@@ -480,7 +494,7 @@ void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
                 U16 inj = face.norms[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& inj < normals.count&& iuj < uvs.count);
+                ASSERT(ivj < vCount && inj < normals.count && iuj < uvs.count);
 
                 if (iv[ivj] != in[inj])
                 {
@@ -573,8 +587,8 @@ void MeshRoot::RenderLightNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -587,7 +601,7 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
 #endif
 
     Vector* verts;
-    U16* iv, * iu;
+    U16 *iv, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &iu, uvs.count);
 
     // set up transform matrices and transform verts to view space
@@ -602,14 +616,16 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
     }
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags
+    );
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     for (b = _buckys.data; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
@@ -629,7 +645,8 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
         {
             // calc constant diffuse component for each material (bucky)
             //
-            bucky.diffInitC.SetNoExpand(
+            bucky.diffInitC.SetNoExpand
+            (
                 (Vid::renderState.ambientColorF32.r + 1) * baseColor.r,
                 (Vid::renderState.ambientColorF32.g + 1) * baseColor.g,
                 (Vid::renderState.ambientColorF32.b + 1) * baseColor.b,
@@ -640,7 +657,8 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
         {
             // calc constant diffuse component for each material (bucky)
             //
-            bucky.diffInitC.SetNoExpand(
+            bucky.diffInitC.SetNoExpand
+            (
                 (bucky.diff.r * Vid::renderState.ambientColorF32.r + bucky.diff.r) * baseColor.r,
                 (bucky.diff.g * Vid::renderState.ambientColorF32.g + bucky.diff.g) * baseColor.g,
                 (bucky.diff.b * Vid::renderState.ambientColorF32.b + bucky.diff.b) * baseColor.b,
@@ -651,7 +669,8 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
         if (colors.count)
         {
             // calc constant diffuse component for each material (bucky)
-            bucky.diffInitF32.Set(
+            bucky.diffInitF32.Set
+            (
                 bucky.diffInitC.r * U8toNormF32,
                 bucky.diffInitC.g * U8toNormF32,
                 bucky.diffInitC.b * U8toNormF32,
@@ -661,16 +680,16 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
 
         // clear indexers
         //
-    /*
-        memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
-        memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
-    */
+        /*
+            memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
+            memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
+        */
         memset(iv, 0xff, sizeof(U16) * vertices.count);
         memset(iu, 0xfd, sizeof(U16) * uvs.count);
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -695,7 +714,7 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
                 U16 ivj = face.verts[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& iuj < uvs.count);
+                ASSERT(ivj < vCount && iuj < uvs.count);
 
                 if (iv[ivj] == iu[iuj])
                 {
@@ -766,8 +785,8 @@ void MeshRoot::RenderColorAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const A
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -782,7 +801,7 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
 #endif
 
     Vector* verts;
-    U16* iv, * iu;
+    U16 *iv, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &iu, uvs.count);
 
     //  if ((_controlFlags & controlTRANSLUCENT) || baseColor.a < 255) 
@@ -792,14 +811,16 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
     }
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags
+    );
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     for (b = _buckys.data; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
@@ -819,7 +840,8 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
         {
             // calc constant diffuse component for each material (bucky)
             //
-            bucky.diffInitC.SetNoExpand(
+            bucky.diffInitC.SetNoExpand
+            (
                 (Vid::renderState.ambientColorF32.r + 1) * baseColor.r,
                 (Vid::renderState.ambientColorF32.g + 1) * baseColor.g,
                 (Vid::renderState.ambientColorF32.b + 1) * baseColor.b,
@@ -830,7 +852,8 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
         {
             // calc constant diffuse component for each material (bucky)
             //
-            bucky.diffInitC.SetNoExpand(
+            bucky.diffInitC.SetNoExpand
+            (
                 (bucky.diff.r * Vid::renderState.ambientColorF32.r + bucky.diff.r) * baseColor.r,
                 (bucky.diff.g * Vid::renderState.ambientColorF32.g + bucky.diff.g) * baseColor.g,
                 (bucky.diff.b * Vid::renderState.ambientColorF32.b + bucky.diff.b) * baseColor.b,
@@ -841,7 +864,8 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
         if (colors.count)
         {
             // calc constant diffuse component for each material (bucky)
-            bucky.diffInitF32.Set(
+            bucky.diffInitF32.Set
+            (
                 bucky.diffInitC.r * U8toNormF32,
                 bucky.diffInitC.g * U8toNormF32,
                 bucky.diffInitC.b * U8toNormF32,
@@ -851,16 +875,16 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
 
         // clear indexers
         //
-    /*
-        memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
-        memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
-    */
+        /*
+            memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
+            memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
+        */
         memset(iv, 0xff, sizeof(U16) * vertices.count);
         memset(iu, 0xfd, sizeof(U16) * uvs.count);
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -886,7 +910,7 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
                 U16 ivj = face.verts[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& iuj < uvs.count);
+                ASSERT(ivj < vCount && iuj < uvs.count);
 
                 if (iv[ivj] == iu[iuj])
                 {
@@ -956,22 +980,22 @@ void MeshRoot::RenderColorNoAnimVtl(Array<FaceGroup>& _buckys, U32 vCount, const
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
+
 //----------------------------------------------------------------------------
 
 /*
 GLE_TEXTURE_VERTEX_SPH
-  Uses u = phi/(2*pi) = arctan (vy/vx)/(2*pi) as the texture "u"
-  coordinate, and v = theta/pi = (1.0 - arccos(vz))/pi as the texture "v"
-  coordinate. In the above equation, "vx","vy" and "vz" stand for the vertex's
-  x, y and z coordinates.
+  Uses u = phi/(2*pi) = arctan (vy/vx)/(2*pi) as the texture "u" 
+  coordinate, and v = theta/pi = (1.0 - arccos(vz))/pi as the texture "v" 
+  coordinate. In the above equation, "vx","vy" and "vz" stand for the vertex's 
+  x, y and z coordinates. 
 
 GLE_TEXTURE_NORMAL_SPH
-  Uses u = phi/(2*pi) = arctan (ny/nx)/(2*pi) as the texture "u"
-  coordinate, and v = theta/pi = (1.0 - arccos(nz))/pi as the texture "v"
-  coordinate. In the above equation, "nx","ny" and "nz" stand for the normal's
-  x, y and z coordinates.
+  Uses u = phi/(2*pi) = arctan (ny/nx)/(2*pi) as the texture "u" 
+  coordinate, and v = theta/pi = (1.0 - arccos(nz))/pi as the texture "v" 
+  coordinate. In the above equation, "nx","ny" and "nz" stand for the normal's 
+  x, y and z coordinates. 
 */
 
 void MeshRoot::RenderEnvMapVtl(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color color, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort, Bool envmap, Bool smooth, F32 rotate) // = clipALL, NULL, RS_BLEND_DEF, sortEFFECT0, TRUE, FALSE, 0
@@ -984,10 +1008,12 @@ void MeshRoot::RenderEnvMapVtl(Array<FaceGroup>& _buckys, U32 vCount, const Arra
         tex = Mesh::Manager::envMap;
     }
 
-    color.Modulate(
+    color.Modulate
+    (
         Vid::Light::sunColor.r * U8toNormF32,
         Vid::Light::sunColor.g * U8toNormF32,
-        Vid::Light::sunColor.b * U8toNormF32);
+        Vid::Light::sunColor.b * U8toNormF32
+    );
 
     if (envmap)
     {
@@ -1017,16 +1043,18 @@ void MeshRoot::RenderEnvMapVtl(Array<FaceGroup>& _buckys, U32 vCount, const Arra
         BucketMan::forceTranslucent = TRUE;
     }
 
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | renderFlags
+    );
 
     BucketMan::SetTag1(sort);
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     U32 counter = 0;
     for (b = _buckys.data; b < be; b++)
     {
@@ -1047,8 +1075,9 @@ void MeshRoot::RenderEnvMapVtl(Array<FaceGroup>& _buckys, U32 vCount, const Arra
         }
 
         // calc constant diffuse component for each material (bucky)
-         //
-        bucky.diffInitC.SetNoExpand(
+        //
+        bucky.diffInitC.SetNoExpand
+        (
             (Vid::renderState.ambientColorF32.r + 1) * color.r,
             (Vid::renderState.ambientColorF32.g + 1) * color.g,
             (Vid::renderState.ambientColorF32.b + 1) * color.b,
@@ -1057,7 +1086,7 @@ void MeshRoot::RenderEnvMapVtl(Array<FaceGroup>& _buckys, U32 vCount, const Arra
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++, counter += 3)
         {
             FaceObj& face = *f;
@@ -1112,23 +1141,23 @@ void MeshRoot::RenderEnvMapVtl(Array<FaceGroup>& _buckys, U32 vCount, const Arra
                         dir.Normalize();
                         dir = dir - norm * 2.0f * dir.Dot( norm);
                 //	      dir.Normalize();
-
+                
                         // spherical reflection mapping
                         //
                         dv.uv.v = (F32)acos( Utils::FSign(dir.y) * dir.z) / PI;
                         dv.uv.u = (F32)acos( dir.x) / PI;
-
-
+                
+                
                         // spherical reflection mapping
                         //
                         dv.uv.v = (F32)asin( dir.y) / PI;
                         dv.uv.u = .5f + (F32)atan2( -dir.x, dir.z) / (2*PI);
-
+                
                         // spherical normal mapping
                         //
                         dv.uv.v = (F32)asin( norm.y) / PI;
                         dv.uv.u = .5f + (F32)atan2( norm.z, norm.x) / (2*PI);
-
+                
                 */
                 if (clipFlags == clipNONE)
                 {
@@ -1166,6 +1195,7 @@ void MeshRoot::RenderEnvMapVtl(Array<FaceGroup>& _buckys, U32 vCount, const Arra
 
     Vid::Heap::Restore(heapSize);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderShadowPlane(U32 number, const Array<FamilyState>& stateArray, Color color, U32 clipFlags) // = clipALL)
@@ -1223,6 +1253,7 @@ void MeshRoot::RenderShadowPlane(U32 number, const Array<FamilyState>& stateArra
 
     Vid::Heap::Restore(heapSize);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderNormals(const Array<FamilyState>& stateArray, Color color, U32 clipFlags) // = clipALL)
@@ -1242,7 +1273,7 @@ void MeshRoot::RenderNormals(const Array<FamilyState>& stateArray, Color color, 
     Vid::SetBucketTexture(NULL, TRUE);
 
     Vector* verts;
-    U16* iv, * in;
+    U16 *iv, *in;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vertices.count, &iv, vertices.count, &in, vertices.count);
 
     // set up transform matrices and transform verts to view space
@@ -1316,6 +1347,7 @@ void MeshRoot::RenderNormals(const Array<FamilyState>& stateArray, Color color, 
     }
     Vid::Heap::Restore(heapSize);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderWireframe(const Array<FamilyState>& stateArray, Color color, U32 blend, U32 clipFlags) // = RS_BLEND_DEF, clipALL)
@@ -1325,10 +1357,12 @@ void MeshRoot::RenderWireframe(const Array<FamilyState>& stateArray, Color color
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_LINELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | RS_NOINDEXED | blend);
+        DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_NOSORT | RS_NOINDEXED | blend
+    );
 
     // set the polygon material
     // force translucency
@@ -1352,15 +1386,15 @@ void MeshRoot::RenderWireframe(const Array<FamilyState>& stateArray, Color color
         FaceObj& face = faces[i];
 
 #if 0
-        BucketLock& bucky = groups[face.buckyIndex];
-        if (!(bucky.flags0 & RS_2SIDED))
-        {
-            Plane& plane = planes[face.index];
-            if (plane.Evalue(Vid::Math::modelViewVector) <= 0.0f)
-            {
-                continue;
-            }
-        }
+    BucketLock & bucky = groups[face.buckyIndex];
+    if (!(bucky.flags0 & RS_2SIDED))
+    {
+      Plane &plane = planes[face.index];
+	    if (plane.Evalue(Vid::Math::modelViewVector) <= 0.0f)
+      {
+        continue;
+      }
+    }
 #endif
 
         for (U32 j = 0; j < 3; j++)
@@ -1381,22 +1415,23 @@ void MeshRoot::RenderWireframe(const Array<FamilyState>& stateArray, Color color
 
     Vid::Heap::Restore(heapSize);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetupRenderProc()
 {
 #if 0
-    if (animCycles.GetCount())
-    {
-        renderProc = &MeshRoot::RenderLightAnimVtl;
-    }
-    else
+  if (animCycles.GetCount())
+  {
+    renderProc = &MeshRoot::RenderLightAnimVtl;
+  }
+  else
 #endif
     {
         renderProc = &MeshRoot::RenderLightNoAnimVtl;
     }
 
-    BucketLock* b, * be = buckys.data + buckys.count;
+    BucketLock *b, *be = buckys.data + buckys.count;
     for (b = buckys.data; b < be; b++)
     {
         U32 flags = b->flags0 & RS_TEX_MASK;
@@ -1415,6 +1450,7 @@ void MeshRoot::SetupRenderProc()
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::Render(const Matrix& world, Color baseColor, U32 _controlFlags) // 0xffffffff, = controlDEF
@@ -1482,6 +1518,7 @@ void MeshRoot::Render(const Matrix& world, Color baseColor, U32 _controlFlags) /
         RenderLightNoAnim(baseColor, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColor(const Matrix& world, Color color, U32 _controlFlags) // = controlDEF)
@@ -1541,6 +1578,7 @@ void MeshRoot::RenderColor(const Matrix& world, Color color, U32 _controlFlags) 
         RenderColorNoAnim(color, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorLight(const Matrix& world, Color color, U32 _controlFlags) // = controlDEF)
@@ -1608,6 +1646,7 @@ void MeshRoot::RenderColorLight(const Matrix& world, Color color, U32 _controlFl
         RenderLightNoAnim(color, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightSun(const Matrix& world, Color baseColor, U32 _controlFlags) // = controlDEF
@@ -1673,6 +1712,7 @@ void MeshRoot::RenderLightSun(const Matrix& world, Color baseColor, U32 _control
         RenderLightNoAnim(baseColor, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorLightSun(const Matrix& world, Color color, U32 _controlFlags) // = controlDEF)
@@ -1738,6 +1778,7 @@ void MeshRoot::RenderColorLightSun(const Matrix& world, Color color, U32 _contro
         RenderLightNoAnim(color, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderSelVerts(Bool showverts, const List<U16>* verts, const Array<FamilyState>& stateArray, Color color0, Color color1, U32 clipFlags) // = clipALL)
@@ -1812,6 +1853,7 @@ void MeshRoot::RenderSelVerts(Bool showverts, const List<U16>* verts, const Arra
 
     Vid::Heap::Restore(heapSize);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderSelFaces(Bool show, const List<U16>* faces, const Array<FamilyState>& stateArray, Color color0, Color color1, U32 clipFlags) // = clipALL)
@@ -1827,7 +1869,7 @@ void MeshRoot::RenderSelFaces(Bool show, const List<U16>* faces, const Array<Fam
       // setup _controlFlags
       //
       U32 _controlFlags;
-
+    
       if (Vid::renderState.status.multiWeight)
       {
         _controlFlags |= (rootControlFlags & controlMULTIWEIGHT);
@@ -1836,14 +1878,15 @@ void MeshRoot::RenderSelFaces(Bool show, const List<U16>* faces, const Array<Fam
       {
         _controlFlags &= ~controlMULTIWEIGHT;
       }
-
+    
       // set up transform matrices and transform verts to view space
       Matrix tranys[MAXMESHPERGROUP];
       Vector *verts = (Vector *) Vid::tempVertices;
       SetVertsView( stateArray, tranys, verts, vertices.count, (_controlFlags & controlMULTIWEIGHT) ? TRUE : FALSE);
-
+    
     */
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderShadowTextureGeneric(Color color, U32 blend, U32 jitter, Bool doBuild) // = FALSE
@@ -1932,8 +1975,8 @@ void MeshRoot::RenderShadowTexture(ShadowInfo& si, const Matrix** lightA, U32 lC
     //
     const int MAXSHADOWS = 5;
     Color cA[MAXSHADOWS];
-    const Matrix** m = lightA, ** me = lightA + lCount;
-    Vector* vA, l1 = (*m)->front;
+    const Matrix **m = lightA, **me = lightA + lCount;
+    Vector *vA, l1 = (*m)->front;
     U32 i = 0;
     for (vA = verts; i < MAXSHADOWS && m < me; vA += vCount, m++, i++)
     {
@@ -1973,6 +2016,7 @@ void MeshRoot::RenderShadowTexture(ShadowInfo& si, const Matrix** lightA, U32 lC
     //
     Vid::Heap::Restore(heapSize);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderShadowVerts(const Vector& vect, Area<F32>& size, U32 type, Vector* vA, U32 vCount, const Array<FamilyState>& stateArray, U32 _controlFlags, Color color, U32 blend) //  = 0x00000000, NULL, RS_BLEND_DEF
@@ -2018,7 +2062,7 @@ void MeshRoot::RenderShadowVerts(const Vector& vect, Area<F32>& size, U32 type, 
     // project the light vector thru the verts to the ground (world.y = 0)
     // keep the 2d coords (x,z)
     //
-    Vector* v, * ve = vA + vCount;
+    Vector *v, *ve = vA + vCount;
     for (v = vA; v < ve; v++)
     {
         // parametric scale of x and z by (vertex->y / light.y)
@@ -2051,6 +2095,7 @@ void MeshRoot::RenderShadowVerts(const Vector& vect, Area<F32>& size, U32 type, 
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderShadowTex(Bitmap& dstT, Area<F32>& size, const Vector* vA, U32 lCount, U32 vCount, const Color* cA, Array<FaceGroup>& _buckys, U32 blend, U32 jitter, Bool fitOneWay) //S_BLEND_DEF)
@@ -2063,7 +2108,7 @@ void MeshRoot::RenderShadowTex(Bitmap& dstT, Area<F32>& size, const Vector* vA, 
     }
 
     VertexTL* dstV;
-    U16* dstI, * iv, * iu;
+    U16 *dstI, *iv, *iu;
     U32 heapSize = Vid::Heap::ReqVertex(&dstV, &dstI, &iv, vertices.count, &iu, uvs.count);
 
     // calculate ground rect to texture rect scaling values
@@ -2123,7 +2168,7 @@ void MeshRoot::RenderShadowTex(Bitmap& dstT, Area<F32>& size, const Vector* vA, 
 
         // render the tris
         //
-        FaceGroup* b, * be = _buckys.data + _buckys.count;
+        FaceGroup *b, *be = _buckys.data + _buckys.count;
         for (b = _buckys.data; b < be; b++)
         {
             FaceGroup& bucky = *b;
@@ -2148,7 +2193,7 @@ void MeshRoot::RenderShadowTex(Bitmap& dstT, Area<F32>& size, const Vector* vA, 
 
             // for all the faces in this group
             //
-            FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+            FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
             for (f = bucky.faces.data; f < fe; f++)
             {
                 FaceObj& face = *f;
@@ -2199,11 +2244,13 @@ void MeshRoot::RenderShadowTex(Bitmap& dstT, Area<F32>& size, const Vector* vA, 
             {
                 // draw this group
                 //
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     dstV, count, dstI, di - dstI,
-                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | blend);
+                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | blend
+                );
             }
         }
     }
@@ -2228,6 +2275,7 @@ void MeshRoot::RenderShadowTex(Bitmap& dstT, Area<F32>& size, const Vector* vA, 
         back == 0xff000000 ? 0 : 255 // alpha = 0 is alpha replicate
     );
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightAnim(Color teamColor, U32 clipFlags, U32 _controlFlags)
@@ -2241,6 +2289,7 @@ void MeshRoot::RenderLightAnim(Color teamColor, U32 clipFlags, U32 _controlFlags
         RenderLightAnimVtl(groups, vertices.count, states, teamColor, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightNoAnim(Color teamColor, U32 clipFlags, U32 _controlFlags)
@@ -2254,6 +2303,7 @@ void MeshRoot::RenderLightNoAnim(Color teamColor, U32 clipFlags, U32 _controlFla
         RenderLightNoAnimVtl(groups, vertices.count, states, teamColor, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorAnim(Color color, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -2267,6 +2317,7 @@ void MeshRoot::RenderColorAnim(Color color, U32 clipFlags, U32 _controlFlags, Bi
         RenderColorAnimVtl(groups, vertices.count, states, color, clipFlags, _controlFlags, tex, blend, sort);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorNoAnim(Color color, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -2280,6 +2331,7 @@ void MeshRoot::RenderColorNoAnim(Color color, U32 clipFlags, U32 _controlFlags, 
         RenderColorNoAnimVtl(groups, vertices.count, states, color, clipFlags, _controlFlags, tex, blend, sort);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderEnvMap(Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort, Bool envmap, Bool smooth, F32 rotate)
@@ -2293,4 +2345,5 @@ void MeshRoot::RenderEnvMap(Color baseColor, U32 clipFlags, U32 _controlFlags, B
         RenderEnvMapVtl(groups, vertices.count, states, baseColor, clipFlags, _controlFlags, tex, blend, sort, envmap, smooth, rotate);
     }
 }
+
 //----------------------------------------------------------------------------

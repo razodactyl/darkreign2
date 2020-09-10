@@ -21,7 +21,6 @@
 //
 namespace Movement
 {
-
     // Invalid movement handle
     const U32 InvalidHandle = 0xFFFFFFFF;
 
@@ -33,7 +32,7 @@ namespace Movement
     struct Model
     {
         // Pointer to a find floor functoin
-        typedef F32(*FindFloorProcPtr)(F32, F32, Vector*);
+        typedef F32 (*FindFloorProcPtr)(F32, F32, Vector*);
 
         // Single layer definition
         struct LayerDef
@@ -101,63 +100,62 @@ namespace Movement
 
             // Elasticity
             F32 elasticity;
-
         } physics;
 
 
         // Member access functions
         Bool GetAlignToTerrain(Claim::LayerId layer)
         {
-            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER)
-                return (layers[layer].alignToTerrain);
+            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER);
+            return (layers[layer].alignToTerrain);
         }
 
         Bool GetCheckSurface(Claim::LayerId layer)
         {
-            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER)
-                return (layers[layer].checkSurface);
+            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER);
+            return (layers[layer].checkSurface);
         }
 
         F32 GetSlopeEffect(Claim::LayerId layer)
         {
-            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER)
-                return (layers[layer].slopeEffect);
+            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER);
+            return (layers[layer].slopeEffect);
         }
 
         U32 GetPathingMethod(Claim::LayerId layer)
         {
-            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER)
-                return (layers[layer].pathingMethod);
+            ASSERT(layer == Claim::LAYER_LOWER || layer == Claim::LAYER_UPPER);
+            return (layers[layer].pathingMethod);
         }
 
         Bool AlignTrajectory()
         {
-            ASSERT(hasPhysics)
-                return (physics.alignTrajectory);
+            ASSERT(hasPhysics);
+            return (physics.alignTrajectory);
         }
 
         F32 Drag()
         {
-            ASSERT(hasPhysics)
-                return (physics.drag);
+            ASSERT(hasPhysics);
+            return (physics.drag);
         }
 
         F32 Elasticity()
         {
-            ASSERT(hasPhysics)
-                return (physics.elasticity);
+            ASSERT(hasPhysics);
+            return (physics.elasticity);
         }
 
         U32 SimulationModel()
         {
-            ASSERT(hasPhysics)
-                return (physics.simulationModel);
+            ASSERT(hasPhysics);
+            return (physics.simulationModel);
         }
 
         U32 CollisionModel()
         {
-            ASSERT(hasPhysics)
-                return (physics.collisionModel);
+            ASSERT(hasPhysics);
+            return (physics.collisionModel);
         }
     };
 
@@ -174,7 +172,9 @@ namespace Movement
     public:
 
         // Constructor
-        Handle() : id(InvalidHandle) {}
+        Handle() : id(InvalidHandle)
+        {
+        }
 
         // Save state
         void SaveState(FScope* scope)
@@ -259,8 +259,8 @@ namespace Movement
         // Get the object that is boarded
         UnitObj* GetUnitObj()
         {
-            ASSERT(Alive())
-                return (GetData());
+            ASSERT(Alive());
+            return (GetData());
         }
     };
 
@@ -284,7 +284,7 @@ namespace Movement
     void Load(FScope* scope);
 
     // Smoothed Terrain
-    F32 GetFloorHelper(F32* heights, F32 dx, F32 dz, Vector* surfNormal = NULL);
+    F32 GetFloorHelper(F32* heights, F32 dx, F32 dz, Vector* surfNormal = nullptr);
 
     // Calculate smoothed terrain
     void UpdateSmoothedTerrain();
@@ -323,7 +323,6 @@ namespace Movement
 
     // Claim key for path follower
     const U32 CLAIM_KEY = 0xB917CBFF; // "Movement"
-
 }
 
 #endif

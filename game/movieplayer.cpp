@@ -41,7 +41,6 @@ MoviePlayer::~MoviePlayer()
 }
 
 
-
 //
 // Start
 //

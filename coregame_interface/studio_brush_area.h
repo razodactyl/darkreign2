@@ -24,42 +24,42 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class AreaBase - Base for all terrain area-type brushes
+    // Namespace Brush - Contains all available brushes
     //
-    class AreaBase : public Base
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class AreaBase - Base for all terrain area-type brushes
+        //
+        class AreaBase : public Base
+        {
+        protected:
 
-      // Extents of area
-      Area<F32> metreArea;
+            // Extents of area
+            Area<F32> metreArea;
 
-      // Is selection area valid?
-      U32 valid : 1;
+            // Is selection area valid?
+            U32 valid : 1;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      AreaBase(const char *name);
-      ~AreaBase();
+            // Constructor and destructor
+            AreaBase(const char* name);
+            ~AreaBase();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

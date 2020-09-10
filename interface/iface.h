@@ -36,7 +36,6 @@ struct PixFormat;
 //
 namespace IFace
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Definitions
@@ -361,7 +360,8 @@ namespace IFace
     Bool CaretState();
 
     // Control promoter
-    template <class CONTROL> CONTROL* Promote(IControl* control, Bool required = FALSE)
+    template <class CONTROL>
+    CONTROL* Promote(IControl* control, Bool required = FALSE)
     {
         ASSERT(control);
 
@@ -381,14 +381,15 @@ namespace IFace
     }
 
     // Find a specific type
-    template <class CONTROL> CONTROL* Find(const char* name, IControl* base = NULL, Bool required = FALSE)
+    template <class CONTROL>
+    CONTROL* Find(const char* name, IControl* base = NULL, Bool required = FALSE)
     {
         // Find the control
         IControl* ctrl = FindByName(name, base);
 
         if (required && !ctrl)
         {
-            ERR_FATAL(("Could not find control '%s' in control '%s'", name, base ? base->Name() : "Root"))
+            ERR_FATAL(("Could not find control '%s' in control '%s'", name, base ? base->Name(): "Root"))
         }
 
         CONTROL* control = ctrl ? Promote<CONTROL>(ctrl, required) : NULL;
@@ -398,7 +399,8 @@ namespace IFace
     }
 
     // Find a specific type
-    template <class CONTROL> CONTROL* Find(U32 crc, IControl* base)
+    template <class CONTROL>
+    CONTROL* Find(U32 crc, IControl* base)
     {
         // Find the control
         IControl* ctrl = base->Find(crc, TRUE);
@@ -406,7 +408,6 @@ namespace IFace
         // If found, attempt to promote
         return (ctrl ? Promote<CONTROL>(ctrl) : NULL);
     }
-
 }
 
 #endif

@@ -19,6 +19,7 @@ void AnimKey::SaveState(FScope* fScope)
     StdSave::TypeVector(fScope, "Position", position);
     StdSave::TypeVector(fScope, "Scale", scale);
 }
+
 //----------------------------------------------------------------------------
 
 void AnimKey::LoadState(FScope* fScope)
@@ -28,6 +29,7 @@ void AnimKey::LoadState(FScope* fScope)
     StdLoad::TypeVector(fScope, "Position", position);
     StdLoad::TypeVector(fScope, "Scale", scale);
 }
+
 //----------------------------------------------------------------------------
 
 void FamilyNode::ClearData()
@@ -35,11 +37,12 @@ void FamilyNode::ClearData()
     RootObj::ClearData();
 
     nodeType = nodeNone;
-    parent = NULL;
+    parent = nullptr;
     children.SetNodeMember(&FamilyNode::childNode);
 
-    statePtr = NULL;
+    statePtr = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 // inserts 'node' as 'this's' primary/last child depending on 'insert' flag
@@ -59,6 +62,7 @@ void FamilyNode::Attach(FamilyNode& node, Bool insert) // = TRUE
     }
     node.SetWorldAll();   // FIXME
 }
+
 //----------------------------------------------------------------------------
 
 // removes 'this' and all its children from parent
@@ -70,19 +74,21 @@ void FamilyNode::Detach()
         ASSERT(parent->children.GetCount());
 
         parent->children.Unlink(this);
-        parent = NULL;
+        parent = nullptr;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void FamilyNode::Attach(const char* _name, FamilyNode& node, Bool local) // = FALSE
 {
-    FamilyNode* part = (FamilyNode*)Find(_name, local);
+    FamilyNode* part = static_cast<FamilyNode*>(Find(_name, local));
     if (part)
     {
         part->Attach(node);
     }
 }
+
 //----------------------------------------------------------------------------
 
 // removes 'this' from parent leaving its children in place
@@ -97,7 +103,7 @@ void FamilyNode::Extract()
         // add this's children to parent's list
         NList<FamilyNode>::Iterator kids(&children);
         FamilyNode* node;
-        while ((node = kids++) != NULL)
+        while ((node = kids++) != nullptr)
         {
             children.Unlink(node);
 
@@ -106,9 +112,10 @@ void FamilyNode::Extract()
         }
 
         // clear ourselves
-        parent = NULL;
+        parent = nullptr;
     }
 }
+
 //----------------------------------------------------------------------------
 
 //  if local == TRUE then find won't cross to attached objs'
@@ -122,7 +129,7 @@ FamilyNode* FamilyNode::Find(U32 crc, Bool local) // = FALSE)
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         if (local && node->nodeType != nodeMesh && node->nodeType != nodeMeshObj)
         {
@@ -133,15 +140,16 @@ FamilyNode* FamilyNode::Find(U32 crc, Bool local) // = FALSE)
             return fn;
         }
     }
-    return FALSE;
+    return nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 // find the root node
 //
 MeshEnt* FamilyNode::FindMeshEnt(Bool local) // = FALSE
 {
-    FamilyNode* node = (FamilyNode*)this;
+    FamilyNode* node = static_cast<FamilyNode*>(this);
 
     while (node->parent)
     {
@@ -152,15 +160,17 @@ MeshEnt* FamilyNode::FindMeshEnt(Bool local) // = FALSE
         node = node->parent;
     }
 
-    return node->IsMeshEnt() ? (MeshEnt*)node : NULL;
+    return node->IsMeshEnt() ? (MeshEnt*)node : nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 FamilyNode::~FamilyNode()
 {
-    parent = NULL;
+    parent = nullptr;
     children.DisposeAll();
 }
+
 //----------------------------------------------------------------------------
 
 void FamilyNode::SetWorldRecurse(const Matrix& world)
@@ -169,11 +179,12 @@ void FamilyNode::SetWorldRecurse(const Matrix& world)
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->SetWorldRecurse(WorldMatrix());
     }
 }
+
 //----------------------------------------------------------------------------
 
 void FamilyNode::SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray)
@@ -184,11 +195,12 @@ void FamilyNode::SetWorldRecurseRender(const Matrix& world, FamilyState* stateAr
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->SetWorldRecurseRender(state.WorldMatrix(), stateArray);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void FamilyNode::SetWorldAll(const Matrix& world)
@@ -199,6 +211,7 @@ void FamilyNode::SetWorldAll(const Matrix& world)
     //
     SetWorldRecurse(world);
 }
+
 //----------------------------------------------------------------------------
 
 void FamilyNode::SetWorldAll()
@@ -214,32 +227,43 @@ void FamilyNode::SetWorldAll()
     //
     SetWorldRecurse(WorldMatrix());
 }
+
 //----------------------------------------------------------------------------
 
-void FamilyNode::Render(const Array<FamilyState>& stateArray, Color tColor, U32 clipFlags, U32 _controlFlags) // = clipALL, = controlDEF
+void FamilyNode::Render
+(
+    const Array<FamilyState>& stateArray, Color tColor, U32 clipFlags,
+    U32 _controlFlags
+) // = clipALL, = controlDEF
 {
     ASSERT(statePtr);
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->Render(stateArray, tColor, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
-void FamilyNode::RenderColor(const Array<FamilyState>& stateArray, Color color, U32 clipFlags, U32 _controlFlags) // = clipALL, = controlDEF
+void FamilyNode::RenderColor
+(
+    const Array<FamilyState>& stateArray, Color color, U32 clipFlags,
+    U32 _controlFlags
+) // = clipALL, = controlDEF
 {
     ASSERT(statePtr);
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->RenderColor(stateArray, color, clipFlags, _controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 // caller must call matrix.ClearData() before calling
@@ -261,7 +285,7 @@ Bool FamilyNode::FindOffset(const FamilyNode* findNode, Matrix& matrix, Bool loc
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         if (local && node->nodeType != nodeMesh && node->nodeType != nodeMeshObj)
         {
@@ -276,6 +300,7 @@ Bool FamilyNode::FindOffset(const FamilyNode* findNode, Matrix& matrix, Bool loc
     }
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 // caller must call matrix.ClearData() before calling
@@ -297,7 +322,7 @@ Bool FamilyNode::FindOffsetRecurse(const FamilyNode* findNode, Matrix& matrix, B
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         if (local && node->nodeType != nodeMesh && node->nodeType != nodeMeshObj)
         {
@@ -313,6 +338,7 @@ Bool FamilyNode::FindOffsetRecurse(const FamilyNode* findNode, Matrix& matrix, B
     }
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 FamilyNode* FamilyNode::FindOffset(const char* _name, Matrix& matrix, Bool local) // = FALSE)
@@ -324,9 +350,14 @@ FamilyNode* FamilyNode::FindOffset(const char* _name, Matrix& matrix, Bool local
     }
     return node;
 }
+
 //----------------------------------------------------------------------------
 
-U32 FamilyNode::GetHierarchy(BuffString* names, U32& count, Bool local, U32 tabCount, Matrix* matrix) const // = FALSE, = 0, = NULL
+U32 FamilyNode::GetHierarchy
+(
+    BuffString* names, U32& count, Bool local, U32 tabCount,
+    Matrix* matrix
+) const // = FALSE, = 0, = NULL
 {
     if (count >= MAXMESHPERGROUP)
     {
@@ -385,7 +416,7 @@ U32 FamilyNode::GetHierarchy(BuffString* names, U32& count, Bool local, U32 tabC
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         if (local && node->nodeType != nodeMesh && node->nodeType != nodeMeshObj)
         {
@@ -402,6 +433,7 @@ U32 FamilyNode::GetHierarchy(BuffString* names, U32& count, Bool local, U32 tabC
     }
     return count;
 }
+
 //----------------------------------------------------------------------------
 
 void AnimKey::ClearData()
@@ -413,6 +445,7 @@ void AnimKey::ClearData()
     frame = 0.0f;
     type = animNONE;
 }
+
 //----------------------------------------------------------------------------
 
 void FamilyState::ClearData()
@@ -422,15 +455,16 @@ void FamilyState::ClearData()
     objectMatrix.ClearData();
     worldMatrix.ClearData();
 }
+
 //----------------------------------------------------------------------------
 
 #if 0
-void FamilyState::operator=(FamilyState& state)
+void FamilyState::operator=( FamilyState & state)
 {
-    *((AnimKey*)this) = state;
+  *((AnimKey *)this) = state;
 
-    objectMatrix = state.objectMatrix;
-    worldMatrix = state.worldMatrix;
+  objectMatrix = state.objectMatrix;
+  worldMatrix  = state.worldMatrix;
 }
 //----------------------------------------------------------------------------
 #endif
@@ -439,5 +473,5 @@ void FamilyState::SetNode(const FamilyNode& _node)
 {
     node = (FamilyNode*)&_node;
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

@@ -65,7 +65,6 @@ namespace Claim
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Block - A block of claimed grains in a single row
@@ -124,10 +123,10 @@ namespace Claim
     //
     Block* Block::PrevInRow()
     {
-        ASSERT(rowNode.InUse())
+        ASSERT(rowNode.InUse());
 
-            // Grab the previous node
-            NList<Block>::Node* prev = rowNode.GetPrev();
+        // Grab the previous node
+        NList<Block>::Node* prev = rowNode.GetPrev();
 
         return (prev ? prev->GetData() : NULL);
     }
@@ -151,12 +150,12 @@ namespace Claim
     //
     void Block::AddToGroupPrev(Block* prev)
     {
-        ASSERT(!prevInGroup)
-            ASSERT(!nextInGroup)
-            ASSERT(prev)
+        ASSERT(!prevInGroup);
+        ASSERT(!nextInGroup);
+        ASSERT(prev);
 
-            // Link previous block to this one
-            prev->nextInGroup = this;
+        // Link previous block to this one
+        prev->nextInGroup = this;
 
         // Link this block back to previous
         prevInGroup = prev;
@@ -170,12 +169,12 @@ namespace Claim
     //
     void Block::AddToGroupNext(Block* next)
     {
-        ASSERT(!prevInGroup)
-            ASSERT(!nextInGroup)
-            ASSERT(next)
+        ASSERT(!prevInGroup);
+        ASSERT(!nextInGroup);
+        ASSERT(next);
 
-            // Link next block to this one
-            next->prevInGroup = this;
+        // Link next block to this one
+        next->prevInGroup = this;
 
         // Link this block to next
         nextInGroup = next;
@@ -192,18 +191,18 @@ namespace Claim
         // Unlink from previous block
         if (prevInGroup)
         {
-            ASSERT(prevInGroup->nextInGroup == this)
+            ASSERT(prevInGroup->nextInGroup == this);
 
-                prevInGroup->nextInGroup = NULL;
+            prevInGroup->nextInGroup = NULL;
             prevInGroup = NULL;
         }
 
         // Unlink from next block
         if (nextInGroup)
         {
-            ASSERT(nextInGroup->prevInGroup == this)
+            ASSERT(nextInGroup->prevInGroup == this);
 
-                nextInGroup->prevInGroup = NULL;
+            nextInGroup->prevInGroup = NULL;
             nextInGroup = NULL;
         }
     }
@@ -220,10 +219,10 @@ namespace Claim
         Block* b = this;
         for (; b->prevInGroup; b = b->prevInGroup);
 
-        ASSERT(b)
+        ASSERT(b);
 
-            // Return a reference
-            return (*b);
+        // Return a reference
+        return (*b);
     }
 
 
@@ -238,10 +237,10 @@ namespace Claim
         Block* b = this;
         for (; b->nextInGroup; b = b->nextInGroup);
 
-        ASSERT(b)
+        ASSERT(b);
 
-            // Return a reference
-            return (*b);
+        // Return a reference
+        return (*b);
     }
 
 
@@ -252,10 +251,10 @@ namespace Claim
     //
     void Block::Validate()
     {
-        ASSERT(rowNode.InUse())
+        ASSERT(rowNode.InUse());
 
-            // Get previous block
-            Block* b = PrevInRow();
+        // Get previous block
+        Block* b = PrevInRow();
 
         // Get the grain just after the previous block, or the first grain
         S32 x = b ? b->x1 + 1 : 0;
@@ -267,12 +266,14 @@ namespace Claim
             UnitObj* o2 = b->manager.GetOwner();
 
             ERR_FATAL
-            ((
-                "Claim Overlap: Prev [%d->(%d-%d)]:0x%08x (%s:%d and %s:%d)",
-                x, x0, x1, key,
-                o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
-                o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
-                ));
+            (
+                (
+                    "Claim Overlap: Prev [%d->(%d-%d)]:0x%08x (%s:%d and %s:%d)",
+                    x, x0, x1, key,
+                    o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
+                    o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
+                )
+            );
         }
 
         // Get next block
@@ -288,15 +289,16 @@ namespace Claim
             UnitObj* o2 = b->manager.GetOwner();
 
             ERR_FATAL
-            ((
-                "Claim Overlap: Next [(%d-%d)->%d]:0x%08x (%s:%d and %s:%d)",
-                x0, x1, x, key,
-                o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
-                o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
-                ));
+            (
+                (
+                    "Claim Overlap: Next [(%d-%d)->%d]:0x%08x (%s:%d and %s:%d)",
+                    x0, x1, x, key,
+                    o1 ? o1->TypeName() : "NONE", o1 ? o1->Id() : 0,
+                    o2 ? o2->TypeName() : "NONE", o2 ? o2->Id() : 0
+                )
+            );
         }
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -318,7 +320,7 @@ namespace Claim
     Row::~Row()
     {
         // Claimed blocks must be released before destruction
-        ASSERT(IsEmpty())
+        ASSERT(IsEmpty());
     }
 
 
@@ -418,7 +420,7 @@ namespace Claim
         // Unlink from the list
         Unlink(block);
 
-        ASSERT((slider && GetCount()) || (!slider && !GetCount()))
+        ASSERT((slider && GetCount()) || (!slider && !GetCount()));
     }
 
 
@@ -483,7 +485,6 @@ namespace Claim
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Layer - A single map layer holding rows
@@ -514,9 +515,9 @@ namespace Claim
     //
     Row& Layer::GetRow(S32 z)
     {
-        ASSERT(z < zGrain)
+        ASSERT(z < zGrain);
 
-            return (rows[z]);
+        return (rows[z]);
     }
 
 
@@ -671,7 +672,6 @@ namespace Claim
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Manager - The interface to block claiming
@@ -683,8 +683,8 @@ namespace Claim
     //
     Manager::Manager(UnitObj* owner, LayerId id)
         : NList<Block>(&Block::managerNode),
-        layer(Claim::GetLayer(id)),
-        owner(owner)
+          layer(Claim::GetLayer(id)),
+          owner(owner)
     {
     }
 
@@ -743,7 +743,7 @@ namespace Claim
                 Block* block;
 
                 // Unset all of our bits
-                for (Iterator i(&row); (block = i++) != NULL; )
+                for (Iterator i(&row); (block = i++) != NULL;)
                 {
                     S32 ox0 = Max<S32>(x0, block->x0);
                     S32 ox1 = Min<S32>(x1, block->x1);
@@ -766,13 +766,11 @@ namespace Claim
                             info->unowned++;
                         }
                     }
-                    else
-
-                        if (block->x0 > x1)
-                        {
-                            // No need to check rest of row
-                            break;
-                        }
+                    else if (block->x0 > x1)
+                    {
+                        // No need to check rest of row
+                        break;
+                    }
                 }
             }
 
@@ -799,7 +797,7 @@ namespace Claim
 
         // Unset all of our bits
         Iterator i(this);
-        for (; (block = i++) != NULL; )
+        for (; (block = i++) != NULL;)
         {
             if (block->key == key)
             {
@@ -812,7 +810,7 @@ namespace Claim
         rc = Probe(x0, z0, x1, z1, info);
 
         // Restore all of our bits
-        for (!i; (block = i++) != NULL; )
+        for (!i; (block = i++) != NULL;)
         {
             if (block->key == key)
             {
@@ -875,7 +873,7 @@ namespace Claim
         Block* block;
 
         // Step through each block
-        for (Iterator i(this); (block = i++) != NULL; )
+        for (Iterator i(this); (block = i++) != NULL;)
         {
             // Does this one match
             if (block->key == key && (!l || block->layer.GetId() == l->GetId()))
@@ -887,11 +885,11 @@ namespace Claim
                 block->GetRow().RemoveBlock(block);
 
                 // Other blocks in group should also be removed
-                ASSERT(!block->prevInGroup || block->prevInGroup->key == block->key)
-                    ASSERT(!block->nextInGroup || block->nextInGroup->key == block->key)
+                ASSERT(!block->prevInGroup || block->prevInGroup->key == block->key);
+                ASSERT(!block->nextInGroup || block->nextInGroup->key == block->key);
 
-                    // Remove block from any group
-                    block->RemoveFromGroup();
+                // Remove block from any group
+                block->RemoveFromGroup();
 
                 // Delete from the manager
                 Dispose(block);
@@ -1153,7 +1151,7 @@ namespace Claim
     {
         Block* block;
 
-        for (NList<Block>::Iterator i(&GetLayer(layer)->GetRow(z)); (block = i++) != NULL; )
+        for (NList<Block>::Iterator i(&GetLayer(layer)->GetRow(z)); (block = i++) != NULL;)
         {
             if (x >= block->x0 && x <= block->x1)
             {

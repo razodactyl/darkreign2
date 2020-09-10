@@ -11,6 +11,7 @@
 #include "vidclip.h"
 #include "vidclip_priv.h"
 #include "statistics.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -30,12 +31,12 @@ namespace Vid
         U16* tmpIndices0;
         U16* tmpIndices1;
         U16* idx;
-        U8* clipFlagA, * faceCountV;
+        U8 *clipFlagA, *faceCountV;
 
-        U32          inPoolCount;
-        VertexTL** inPool, ** outPool, ** outDst;
+        U32 inPoolCount;
+        VertexTL **inPool, **outPool, **outDst;
 
-        U32          tempMemSize;
+        U32 tempMemSize;
         //-----------------------------------------------------------------------------
 
         U32 GetTempMemSize()
@@ -45,65 +46,69 @@ namespace Vid
                 + ((2 * renderState.maxIndices + renderState.maxVerts) << 1)
                 + renderState.maxVerts + renderState.maxTris;
         }
+
         //-----------------------------------------------------------------------------
 
         // in camera space
         //
         Bool BoundsTestAlpha(F32 origin, F32 radius)
         {
-            if (Vid::renderState.status.alphaFar)
+            if (renderState.status.alphaFar)
             {
-                F32 oz = Vid::ProjectZ(origin + radius);
-                if (oz > Vid::renderState.alphaFar)
+                F32 oz = ProjectZ(origin + radius);
+                if (oz > renderState.alphaFar)
                 {
                     return TRUE;
                 }
             }
 
-            if (Vid::renderState.status.alphaNear)
+            if (renderState.status.alphaNear)
             {
-                F32 oz = Vid::ProjectZ(origin - radius);
-                if (oz < Vid::renderState.alphaNear)
+                F32 oz = ProjectZ(origin - radius);
+                if (oz < renderState.alphaNear)
                 {
                     return TRUE;
                 }
             }
             return FALSE;
         }
+
         //-----------------------------------------------------------------------------
 
         Bool BoundsTestAlphaNear(F32 origin, F32 radius)
         {
-            if (Vid::renderState.status.alphaNear)
+            if (renderState.status.alphaNear)
             {
-                F32 oz = Vid::ProjectZ(origin - radius);
-                if (oz < Vid::renderState.alphaNear)
+                F32 oz = ProjectZ(origin - radius);
+                if (oz < renderState.alphaNear)
                 {
                     return TRUE;
                 }
             }
             return FALSE;
         }
+
         //-----------------------------------------------------------------------------
 
         Bool BoundsTestAlphaFar(F32 origin, F32 radius)
         {
-            if (Vid::renderState.status.alphaFar)
+            if (renderState.status.alphaFar)
             {
-                F32 oz = Vid::ProjectZ(origin + radius);
-                if (oz > Vid::renderState.alphaFar)
+                F32 oz = ProjectZ(origin + radius);
+                if (oz > renderState.alphaFar)
                 {
                     return TRUE;
                 }
             }
             return FALSE;
         }
+
         //-----------------------------------------------------------------------------
 
         void SetClipFlags(VertexTL* srcV, U32 vCount)
         {
             U8* c = clipFlagA;
-            for (VertexTL* sv = srcV, *ev = srcV + vCount; sv < ev; sv++, c++)
+            for (VertexTL *sv = srcV, *ev = srcV + vCount; sv < ev; sv++, c++)
             {
                 F32 w = SetHomogeneousFromCamera_I(*sv);
                 if (w < 0)
@@ -128,7 +133,7 @@ namespace Vid
                 {
                     *c |= MIN_Z;
                 }
-                else if (Vid::Math::farPlane < sv->vv.z)
+                else if (Math::farPlane < sv->vv.z)
                 {
                     *c |= MAX_Z;
                 }
@@ -138,13 +143,14 @@ namespace Vid
 #endif
             }
         }
+
         //-----------------------------------------------------------------------------
 
         void ClipToPlane(U32 plane)
         {
             // start with last vertex in the list
-          //
-            VertexTL** start0V = inPool + (inPoolCount - 1), ** startV = start0V;
+            //
+            VertexTL **start0V = inPool + (inPoolCount - 1), **startV = start0V;
             F32 startD = Distance(plane, **startV);
 
             for (VertexTL** endV = inPool; endV <= start0V; endV++)
@@ -158,7 +164,7 @@ namespace Vid
                     if (startD >= 0.0f)
                     {
                         // start is in
-                // compute intersection with clipping plane and interpolate new vert
+                        // compute intersection with clipping plane and interpolate new vert
 
                         *outDst = clipDst++;
                         (*outDst)->Interpolate(**startV, **endV, startD / (startD - endD));
@@ -174,7 +180,7 @@ namespace Vid
                     if (startD < 0.0f)
                     {
                         // start is out
-                // compute intersection with clipping plane and interpolate new vert
+                        // compute intersection with clipping plane and interpolate new vert
 
                         *outDst = clipDst++;
                         (*outDst)->Interpolate(**endV, **startV, endD / (endD - startD));
@@ -194,33 +200,38 @@ namespace Vid
                 startD = endD;
             }
         }
+
         //-----------------------------------------------------------------------------
 
         // eliminate all off screen tris, don't actually clip
         //
-        Bucket* ClipGuardBucket(VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog, BucketLock* bucky)
+        Bucket* ClipGuardBucket
+        (
+            VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog,
+            BucketLock* bucky
+        )
         {
             ASSERT(vCount <= renderState.maxIndices && iCount <= renderState.maxIndices);
 
             // get memory
             //
-            Vid::SetBucketVertexType(FVF_TLVERTEX);
+            SetBucketVertexType(FVF_TLVERTEX);
             VertexTL* vertmem;
             U16* indexmem;
-            Bucket* bucket = Vid::LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id);
+            Bucket* bucket = LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id);
             if (!bucket)
             {
                 if (bucky)
                 {
                     bucky->vCount = bucky->iCount = 0;
                 }
-                return NULL;
+                return nullptr;
             }
 
             // setup verts and clip flags
             // submit all the verts
             //
-            VertexTL* dv, * ve = vertmem + vCount, * sv = srcV;
+            VertexTL *dv, *ve = vertmem + vCount, *sv = srcV;
             U8* c = clipFlagA;
             for (dv = vertmem; dv < ve; dv++, sv++, c++)
             {
@@ -267,7 +278,7 @@ namespace Vid
             // decimate the index array
             //
             U16* di = indexmem;
-            for (const U16* si = srcI, *se = srcI + iCount; si < se; )
+            for (const U16 *si = srcI, *se = srcI + iCount; si < se;)
             {
                 U16 i0 = *si++;
                 U16 i1 = *si++;
@@ -288,20 +299,20 @@ namespace Vid
             {
                 // nothing visible
                 //
-                Vid::UnlockIndexedPrimitiveMem(0, 0);
+                UnlockIndexedPrimitiveMem(0, 0);
 
                 if (bucky)
                 {
                     bucky->vCount = bucky->iCount = 0;
                 }
-                return NULL;
+                return nullptr;
             }
 
 #ifdef DOSTATISTICS
             Statistics::clipTris += iCount / 3;
 #endif
 
-            Vid::UnlockIndexedPrimitiveMem(vCount, iCount);
+            UnlockIndexedPrimitiveMem(vCount, iCount);
 
             if (bucky)
             {
@@ -315,11 +326,16 @@ namespace Vid
             }
             return bucket;
         }
+
         //-----------------------------------------------------------------------------
 
         // clip indexed tris to bucket
         //
-        Bucket* ToBucket(VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog, U32 clipFlags, BucketLock* bucky) // = (void *)0xcdcdcdcd, = TRUE, = clipALL, = NULL
+        Bucket* ToBucket
+        (
+            VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog,
+            U32 clipFlags, BucketLock* bucky
+        ) // = (void *)0xcdcdcdcd, = TRUE, = clipALL, = NULL
         {
             ASSERT(srcV && srcI);
             ASSERT(vCount <= renderState.maxIndices && iCount <= renderState.maxIndices);
@@ -330,7 +346,7 @@ namespace Vid
                 {
                     bucky->vCount = bucky->iCount = 0;
                 }
-                return NULL;
+                return nullptr;
             }
 
             GetTempMem();
@@ -350,7 +366,7 @@ namespace Vid
                     {
                         bucky->vCount = bucky->iCount = 0;
                     }
-                    return NULL;
+                    return nullptr;
                 }
 
                 ASSERT(vCount <= renderState.maxIndices && iCount <= renderState.maxIndices);
@@ -373,7 +389,7 @@ namespace Vid
 
             // initialize
             //
-            Utils::Memset((void*)idx, 0xff, vCount * sizeof(U16));
+            Utils::Memset(static_cast<void*>(idx), 0xff, vCount * sizeof(U16));
             U32 iCountIn = iCount;
             vCount = iCount = 0;
             clipDst = clipPool0;
@@ -383,7 +399,7 @@ namespace Vid
 
             // clip triangles
             //
-            for (const U16* se = srcI + iCountIn; srcI < se; )
+            for (const U16* se = srcI + iCountIn; srcI < se;)
             {
                 U16 i0 = *srcI++;
                 U16 i1 = *srcI++;
@@ -399,13 +415,13 @@ namespace Vid
                     {
                         // initialize the vertex pointer pools
                         //
-                        VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                        VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                         SetupPool(vp0, vp1);
 
                         inPoolCount = 3;
-                        inPool[0] = (VertexTL*)&srcV[i0];
-                        inPool[1] = (VertexTL*)&srcV[i1];
-                        inPool[2] = (VertexTL*)&srcV[i2];
+                        inPool[0] = static_cast<VertexTL*>(&srcV[i0]);
+                        inPool[1] = static_cast<VertexTL*>(&srcV[i1]);
+                        inPool[2] = static_cast<VertexTL*>(&srcV[i2]);
 
                         // clip to all planes
                         //
@@ -420,30 +436,30 @@ namespace Vid
 
                             sign = 0x80000000 & (~sign);
                             index += sign >> 31;
-
-                        } while ((index < 3) && (inPoolCount >= 3));
+                        }
+                        while ((index < 3) && (inPoolCount >= 3));
 
                         if (inPoolCount >= 3)
                         {
                             // 'inPool' (swaped out) contains pointers to vertices that form
-                          // a triangle fan with inPoolCount number of vertices
-                          //
+                            // a triangle fan with inPoolCount number of vertices
+                            //
 
-                          // copy the vertices
-                          //
+                            // copy the vertices
+                            //
                             memcpy(outDst, inPool, inPoolCount * sizeof(VertexTL*));
                             outDst += inPoolCount;
 
                             // set the first 3 indices
                             //
-                            *tmpI++ = (U16)vCount++;
-                            *tmpI++ = (U16)vCount++;
-                            *tmpI++ = (U16)vCount++;
+                            *tmpI++ = static_cast<U16>(vCount++);
+                            *tmpI++ = static_cast<U16>(vCount++);
+                            *tmpI++ = static_cast<U16>(vCount++);
                             vCount += (inPoolCount - 3);
 
                             // save number of verts in this poly
                             //
-                            *countDst++ = (U8)inPoolCount;
+                            *countDst++ = static_cast<U8>(inPoolCount);
 
                             // number of indices
                             //
@@ -454,18 +470,18 @@ namespace Vid
                     {
                         if (idx[i0] == 0xffff)
                         {
-                            *outDst++ = (VertexTL*)&srcV[i0];
-                            idx[i0] = (U16)vCount++;
+                            *outDst++ = static_cast<VertexTL*>(&srcV[i0]);
+                            idx[i0] = static_cast<U16>(vCount++);
                         }
                         if (idx[i1] == 0xffff)
                         {
-                            *outDst++ = (VertexTL*)&srcV[i1];
-                            idx[i1] = (U16)vCount++;
+                            *outDst++ = static_cast<VertexTL*>(&srcV[i1]);
+                            idx[i1] = static_cast<U16>(vCount++);
                         }
                         if (idx[i2] == 0xffff)
                         {
-                            *outDst++ = (VertexTL*)&srcV[i2];
-                            idx[i2] = (U16)vCount++;
+                            *outDst++ = static_cast<VertexTL*>(&srcV[i2]);
+                            idx[i2] = static_cast<U16>(vCount++);
                         }
 
                         *tmpI++ = idx[i0];
@@ -492,16 +508,16 @@ namespace Vid
                 {
                     bucky->vCount = bucky->iCount = 0;
                 }
-                return NULL;
+                return nullptr;
             }
             ASSERT(vCount <= renderState.maxIndices && iCount <= renderState.maxIndices);
 
             // allocate bucket memory
             //
-            Vid::SetBucketVertexType(FVF_TLVERTEX);
+            SetBucketVertexType(FVF_TLVERTEX);
             VertexTL* vertmem;
             U16* indexmem;
-            Bucket* bucket = Vid::LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id);
+            Bucket* bucket = LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id);
             if (!bucket)
             {
                 // out of bucket memory
@@ -512,13 +528,13 @@ namespace Vid
                 {
                     bucky->vCount = bucky->iCount = 0;
                 }
-                return NULL;
+                return nullptr;
             }
 
             // copy the vertices
             //
             outDst = tmpVertPtrs;
-            for (VertexTL* dv = vertmem, *ev = vertmem + vCount; dv < ev; dv++, outDst++)
+            for (VertexTL *dv = vertmem, *ev = vertmem + vCount; dv < ev; dv++, outDst++)
             {
 #ifdef __DO_XMM_BUILD
                 if (Vid::isStatus.xmm)
@@ -530,7 +546,7 @@ namespace Vid
 #endif
                 {
                     // finish the projection
-                    Vid::ProjectFromHomogeneous_I(*dv, *(*outDst));
+                    ProjectFromHomogeneous_I(*dv, *(*outDst));
                 }
 
                 if (calcFog)
@@ -565,9 +581,9 @@ namespace Vid
                 {
                     // split fans into indexed tri lists
                     //
-                    *dI++ = (U16)(c + 0);
-                    *dI++ = (U16)(c + k - 1);
-                    *dI++ = (U16)(c + k);
+                    *dI++ = static_cast<U16>(c + 0);
+                    *dI++ = static_cast<U16>(c + k - 1);
+                    *dI++ = static_cast<U16>(c + k);
                 }
             }
             ASSERT(dI - indexmem == (S32)iCount);
@@ -576,7 +592,7 @@ namespace Vid
             Statistics::clipTris += iCount / 3;
 #endif
 
-            Vid::UnlockIndexedPrimitiveMem(vCount, iCount);
+            UnlockIndexedPrimitiveMem(vCount, iCount);
 
             RestoreTempMem();
 
@@ -592,17 +608,22 @@ namespace Vid
             }
             return bucket;
         }
+
         //-----------------------------------------------------------------------------
 
         // eliminate all off screen tris, don't actually clip
         //
-        void ClipGuardBuffer(VertexTL* dstV, U16* dstI, VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, U32 calcFog)
+        void ClipGuardBuffer
+        (
+            VertexTL* dstV, U16* dstI, VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount,
+            U32 calcFog
+        )
         {
             ASSERT(vCount <= renderState.maxIndices && iCount <= renderState.maxIndices);
 
             // setup verts and clip flags
             //
-            VertexTL* dv, * ve = dstV + vCount, * sv = srcV;
+            VertexTL *dv, *ve = dstV + vCount, *sv = srcV;
             U8* clip = clipFlagA;
             for (dv = dstV; dv < ve; dv++, sv++, clip++)
             {
@@ -651,7 +672,7 @@ namespace Vid
             // decimate the index array
             //
             U16* di = dstI;
-            for (const U16* si = srcI, *se = srcI + iCount; si < se; )
+            for (const U16 *si = srcI, *se = srcI + iCount; si < se;)
             {
                 U16 i0 = *si++;
                 U16 i1 = *si++;
@@ -675,11 +696,16 @@ namespace Vid
 #endif
             }
         }
+
         //-----------------------------------------------------------------------------
 
         // clip indexed tris to buffer
         //
-        void ToBuffer(VertexTL* dstV, U16* dstI, VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount, U32 calcFog, U32 clipFlags) // = FALSE, = clipALL
+        void ToBuffer
+        (
+            VertexTL* dstV, U16* dstI, VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount, U32 calcFog,
+            U32 clipFlags
+        ) // = FALSE, = clipALL
         {
             ASSERT(srcV && srcI);
             ASSERT(vCount <= renderState.maxVerts && iCount <= renderState.maxIndices);
@@ -716,14 +742,14 @@ namespace Vid
 
             // initialize
             //
-            Utils::Memset((void*)idx, 0xff, vCount * sizeof(U16));
+            Utils::Memset(static_cast<void*>(idx), 0xff, vCount * sizeof(U16));
             U32 iCountIn = iCount;
             vCount = iCount = 0;
             clipDst = clipPool0;
 
             // clip triangles
             //
-            for (const U16* se = srcI + iCountIn; srcI < se; )
+            for (const U16* se = srcI + iCountIn; srcI < se;)
             {
                 U16 i0 = *srcI++;
                 U16 i1 = *srcI++;
@@ -739,27 +765,27 @@ namespace Vid
                     {
                         // initialize the vertex pointer pools
                         //
-                        VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                        VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                         SetupPool(vp0, vp1);
 
                         inPoolCount = 3;
-                        inPool[0] = (VertexTL*)&srcV[i0];
-                        inPool[1] = (VertexTL*)&srcV[i1];
-                        inPool[2] = (VertexTL*)&srcV[i2];
+                        inPool[0] = static_cast<VertexTL*>(&srcV[i0]);
+                        inPool[1] = static_cast<VertexTL*>(&srcV[i1]);
+                        inPool[2] = static_cast<VertexTL*>(&srcV[i2]);
 
                         // clip to all planes
                         //
                         for (U32 sign = 0x80000000, index = 0;
-                            index < 3 && inPoolCount >= 3;
-                            sign = 0x80000000 & (~sign), index += sign >> 31)
+                             index < 3 && inPoolCount >= 3;
+                             sign = 0x80000000 & (~sign), index += sign >> 31)
                         {
                             ClipToPlane(sign | index);
                             SwapPool();
                         }
 
                         // now 'out' contains a pointers to vertices that form a triangle fan with vCount number of vertices
-                      // convert 'out' to an indexed tri list in 'out_vertices'
-                      //
+                        // convert 'out' to an indexed tri list in 'out_vertices'
+                        //
                         if (inPoolCount >= 3)
                         {
                             // copy the first two vertices
@@ -773,23 +799,23 @@ namespace Vid
                             {
                                 dstV[vCount + i] = *inPool[i];
 
-                                dstI[iCount + 0] = (U16)(vCount + 0);
-                                dstI[iCount + 1] = (U16)(vCount + i - 1);
-                                dstI[iCount + 2] = (U16)(vCount + i);
+                                dstI[iCount + 0] = static_cast<U16>(vCount + 0);
+                                dstI[iCount + 1] = static_cast<U16>(vCount + i - 1);
+                                dstI[iCount + 2] = static_cast<U16>(vCount + i);
                                 iCount += 3;
                             }
                             vCount += inPoolCount;
                         }
                     }
-                    // if or_cf == 0 then whole triangle is in the frustum --> just copy it to out_vertices
-                    //
+                        // if or_cf == 0 then whole triangle is in the frustum --> just copy it to out_vertices
+                        //
                     else
                     {
                         if (idx[i0] == 0xffff)
                         {
                             dstV[vCount] = srcV[i0];
 
-                            idx[i0] = (U16)vCount;
+                            idx[i0] = static_cast<U16>(vCount);
                             vCount++;
                         }
 
@@ -797,7 +823,7 @@ namespace Vid
                         {
                             dstV[vCount] = srcV[i1];
 
-                            idx[i1] = (U16)vCount;
+                            idx[i1] = static_cast<U16>(vCount);
                             vCount++;
                         }
 
@@ -805,7 +831,7 @@ namespace Vid
                         {
                             dstV[vCount] = srcV[i2];
 
-                            idx[i2] = (U16)vCount;
+                            idx[i2] = static_cast<U16>(vCount);
                             vCount++;
                         }
 
@@ -840,7 +866,7 @@ namespace Vid
 #endif
                 {
                     // finish the projection
-                    Vid::ProjectFromHomogeneous_I(*dstV);
+                    ProjectFromHomogeneous_I(*dstV);
                 }
 
                 if (calcFog)
@@ -857,7 +883,7 @@ namespace Vid
                 }
             }
         }
+
         //-----------------------------------------------------------------------------
     };
-
 };

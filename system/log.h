@@ -74,7 +74,6 @@
 //
 namespace Log
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Logging Levels
@@ -139,7 +138,6 @@ namespace Log
         {
             return (name);
         }
-
     };
 
 
@@ -175,7 +173,6 @@ namespace Log
 
     // Submit the log file
     void Submit(const char* subject);
-
 };
 
 

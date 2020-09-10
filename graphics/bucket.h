@@ -29,23 +29,23 @@ class BucketMan
 {
 protected:
     // used by all bucket managers
-    static PrimitiveDesc		primitive;
+    static PrimitiveDesc primitive;
 
-    NList<Bucket>				    bucketList;
+    NList<Bucket> bucketList;
 
     Bucket* currentBucket;
     Bucket* lastUsedBucket;
 
-    char* memBlock, * curMem, * lastMem;
-    U32                     memSize, curSize, lastSize;
+    char *memBlock, *curMem, *lastMem;
+    U32 memSize, curSize, lastSize;
 
-    U32											sizeofBucket;
-    F32											memRatio;
+    U32 sizeofBucket;
+    F32 memRatio;
 
 public:
-    U32         						flushWhenFull : 1;
+    U32 flushWhenFull : 1;
 
-    static Bool             forceTranslucent;
+    static Bool forceTranslucent;
     static Bitmap* texture;
 
 protected:
@@ -60,10 +60,12 @@ public:
     {
         ClearData();
     }
+
     ~BucketMan()
     {
         DisposeAll();
     }
+
     void ClearData();
     void DisposeAll();
 
@@ -76,7 +78,7 @@ public:
     void Init(U32 _count, U32 _size, F32 _ratio, Bool _flushWhenFull);
     void FlushBucket(Bucket& bucket, Bool doDraw = TRUE);
 
-    static inline void	SetTexture(const Bitmap* texture, U32 stage = 0, U32 blend = RS_BLEND_DEF)
+    static inline void SetTexture(const Bitmap* texture, U32 stage = 0, U32 blend = RS_BLEND_DEF)
     {
         primitive.SetTexture(texture, stage, blend);
     }
@@ -113,6 +115,7 @@ public:
     {
         return primitive;
     }
+
     inline static U32 GetPrimitiveFlags()
     {
         return primitive.flags;
@@ -120,57 +123,67 @@ public:
 
     //  static set primitive desc functions
     //
-    inline static void SetPrimitiveDesc(
+    inline static void SetPrimitiveDesc
+    (
         PRIMITIVE_TYPE primitiveType,
         VERTEX_TYPE vertexType,
-        U32 flags)
+        U32 flags
+    )
     {
         primitive.SetPrimitiveDesc(primitiveType, vertexType, flags);
     }
-    inline static void	SetPrimitiveType(PRIMITIVE_TYPE primitiveType)
+
+    inline static void SetPrimitiveType(PRIMITIVE_TYPE primitiveType)
     {
         primitive.primitive_type = primitiveType;
     }
-    inline static void	SetVertexType(VERTEX_TYPE vertexType)
+
+    inline static void SetVertexType(VERTEX_TYPE vertexType)
     {
         primitive.vertex_type = vertexType;
     }
-    inline static void	SetFlags(U32 flags)
+
+    inline static void SetFlags(U32 flags)
     {
         primitive.flags = flags;
     }
 
-    inline static U16   GetTag()
+    inline static U16 GetTag()
     {
         return primitive.tag0;
     }
-    inline static void	SetTag(U16 _tag)
+
+    inline static void SetTag(U16 _tag)
     {
         primitive.tag0 = _tag;
     }
-    inline static U16   GetTag1()
+
+    inline static U16 GetTag1()
     {
         return primitive.tag1;
     }
-    inline static void	SetTag1(U16 _tag1)
+
+    inline static void SetTag1(U16 _tag1)
     {
         primitive.tag1 = _tag1;
     }
 
-    inline static void	SetMaterial(const Material* material)
+    inline static void SetMaterial(const Material* material)
     {
         primitive.material = (Material*)material;
     }
+
     inline static Material* GetMaterial()
     {
         return primitive.material;
     }
-    inline static void	ClearTextures()
+
+    inline static void ClearTextures()
     {
         primitive.ClearTextures();
     }
 };
+
 //----------------------------------------------------------------------------
 
 #endif // __BUCKET_H
-

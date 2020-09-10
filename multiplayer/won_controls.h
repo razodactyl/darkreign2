@@ -16,19 +16,16 @@
 //
 namespace Won
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
-    // Initialization and Shutdown
-    void Init();
-    void Done();
-
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Controls
+    //
+    namespace Controls
+    {
+        // Initialization and Shutdown
+        void Init();
+        void Done();
+    }
 }
 
 

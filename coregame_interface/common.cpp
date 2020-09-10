@@ -77,7 +77,7 @@ namespace Common
     static void SaveToUser()
     {
         // Save user settings
-        FScope fScope(NULL, userDataKey.str);
+        FScope fScope(nullptr, userDataKey.str);
 
         User::SetConfigScope(userDataKey.crc, &fScope);
     }
@@ -94,21 +94,21 @@ namespace Common
 
         switch (pathCrc)
         {
-        case 0x5CAD41C5: // "common.debug.lookat"
-        {
-            S32 id;
-
-            if (Console::GetArgInteger(1, id))
+            case 0x5CAD41C5: // "common.debug.lookat"
             {
-                MapObj* mapObj = Resolver::Object<MapObj, MapObjType>(id);
+                S32 id;
 
-                if (mapObj && mapObj->OnMap())
+                if (Console::GetArgInteger(1, id))
                 {
-                    Viewer::GetCurrent()->LookAt(mapObj->Position().x, mapObj->Position().z);
+                    MapObj* mapObj = Resolver::Object<MapObj, MapObjType>(id);
+
+                    if (mapObj && mapObj->OnMap())
+                    {
+                        Viewer::GetCurrent()->LookAt(mapObj->Position().x, mapObj->Position().z);
+                    }
                 }
+                break;
             }
-            break;
-        }
         }
     }
 
@@ -120,69 +120,69 @@ namespace Common
     //
     static IControl* CreateHandler(U32 crc, IControl* parent, U32)
     {
-        IControl* ctrl = NULL;
+        IControl* ctrl = nullptr;
 
         switch (crc)
         {
-        case 0xB57D2BB8: // "MapWindow"
-            ctrl = new MapWindow(parent);
-            break;
+            case 0xB57D2BB8: // "MapWindow"
+                ctrl = new MapWindow(parent);
+                break;
 
-        case 0x1974C5DE: // "MessageWindow"
-            ctrl = new MessageWindow(parent);
-            break;
+            case 0x1974C5DE: // "MessageWindow"
+                ctrl = new MessageWindow(parent);
+                break;
 
-        case 0x58BCAC6A: // "TypeList"
-            ctrl = new TypeList(parent);
-            break;
+            case 0x58BCAC6A: // "TypeList"
+                ctrl = new TypeList(parent);
+                break;
 
-        case 0xC01F9142: // "Stats"
-            ctrl = new Stats(parent);
-            break;
+            case 0xC01F9142: // "Stats"
+                ctrl = new Stats(parent);
+                break;
 
-        case 0xFB6A0289: // "Calendar"
-            ctrl = new Calendar(parent);
-            break;
+            case 0xFB6A0289: // "Calendar"
+                ctrl = new Calendar(parent);
+                break;
 
-        case 0xA715E223: // "TeamListBox"
-            ctrl = new TeamListBox(parent);
-            break;
+            case 0xA715E223: // "TeamListBox"
+                ctrl = new TeamListBox(parent);
+                break;
 
-        case 0x422BC5FC: // "PlayerListBox"
-            ctrl = new PlayerListBox(parent);
-            break;
+            case 0x422BC5FC: // "PlayerListBox"
+                ctrl = new PlayerListBox(parent);
+                break;
 
-        case 0xBD5C79C8: // "SideListBox"
-            ctrl = new SideListBox(parent);
-            break;
+            case 0xBD5C79C8: // "SideListBox"
+                ctrl = new SideListBox(parent);
+                break;
 
-        case 0x0D719CE9: // "RuleSetListBox"
-            ctrl = new RuleSetListBox(parent);
-            break;
+            case 0x0D719CE9: // "RuleSetListBox"
+                ctrl = new RuleSetListBox(parent);
+                break;
 
-        case 0x3B994011: // "PersonalityListBox"
-            ctrl = new PersonalityListBox(parent);
-            break;
+            case 0x3B994011: // "PersonalityListBox"
+                ctrl = new PersonalityListBox(parent);
+                break;
 
-        case 0xE1FC3FC1: // "WorldListBox"
-            ctrl = new WorldListBox(parent);
-            break;
+            case 0xE1FC3FC1: // "WorldListBox"
+                ctrl = new WorldListBox(parent);
+                break;
 
-        case 0xF8E8F42E: // "TerrainCursorPos"
-            ctrl = new TerrainCursorPos(parent);
-            break;
+            case 0xF8E8F42E: // "TerrainCursorPos"
+                ctrl = new TerrainCursorPos(parent);
+                break;
 
-        case 0xF210E7EF: // "PrereqList"
-            ctrl = new PrereqList(parent);
-            break;
+            case 0xF210E7EF: // "PrereqList"
+                ctrl = new PrereqList(parent);
+                break;
 
-        case 0x509FE9F5: // "PrereqTree"
-            ctrl = new PrereqTree(parent);
-            break;
+            case 0x509FE9F5: // "PrereqTree"
+                ctrl = new PrereqTree(parent);
+                break;
 
-        case 0xD74EB6C3: // "TypePreview"
-            ctrl = new TypePreview(parent);
-            break;
+            case 0xD74EB6C3: // "TypePreview"
+                ctrl = new TypePreview(parent);
+                break;
         }
 
         return (ctrl);
@@ -342,9 +342,9 @@ namespace Common
         VarInteger lights;
         VarInteger lightMulti;
 
-        VarFloat   terrMrmThresh;
-        VarFloat   terrMrmDistFactor;
-        VarFloat   terrMrmDist;
+        VarFloat terrMrmThresh;
+        VarFloat terrMrmDistFactor;
+        VarFloat terrMrmDist;
         VarInteger terrMrm;
     }
 
@@ -368,8 +368,8 @@ namespace Common
         //
         Bool GetModifierKey(U32 i)
         {
-            ASSERT(i > 0 && i <= MAX_MOD_KEYS)
-                return (*modKeys[i - 1] ? TRUE : FALSE);
+            ASSERT(i > 0 && i <= MAX_MOD_KEYS);
+            return (*modKeys[i - 1] ? TRUE : FALSE);
         }
 
 

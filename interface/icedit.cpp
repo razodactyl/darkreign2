@@ -36,20 +36,20 @@
 //
 ICEdit::ICEdit(IControl* parent)
     : IControl(parent),
-    editStyle(0),
-    editBuf(NULL),
-    displayBuf(NULL),
-    editMax(256),
-    editLen(0),
-    caretPos(0),
-    dispPos(0),
-    editVar(NULL),
-    selectX0(0),
-    selectX1(0),
-    selected(FALSE),
-    freeDispBuf(FALSE),
-    passwordChar('*'),
-    inputFilterProc(NULL)
+      editStyle(0),
+      editBuf(nullptr),
+      displayBuf(nullptr),
+      editMax(256),
+      editLen(0),
+      caretPos(0),
+      dispPos(0),
+      selectX0(0),
+      selectX1(0),
+      selected(FALSE),
+      freeDispBuf(FALSE),
+      passwordChar('*'),
+      editVar(nullptr),
+      inputFilterProc(nullptr)
 {
     // Default color
     SetColorGroup(IFace::data.cgClient);
@@ -58,7 +58,7 @@ ICEdit::ICEdit(IControl* parent)
     controlStyle |= (STYLE_DROPSHADOW | STYLE_TABSTOP);
 
     // Default cursor
-    cursor = CursorSys::GetStandardCursor(CursorSys::IBEAM);
+    cursor = GetStandardCursor(CursorSys::IBEAM);
 
     // Default font
     SetTextFont("System");
@@ -77,19 +77,19 @@ ICEdit::~ICEdit()
     if (editBuf)
     {
         delete[] editBuf;
-        editBuf = NULL;
+        editBuf = nullptr;
     }
     if (displayBuf && freeDispBuf)
     {
         delete[] displayBuf;
-        displayBuf = NULL;
+        displayBuf = nullptr;
     }
 
     // Delete the var
     if (editVar)
     {
         delete editVar;
-        editVar = NULL;
+        editVar = nullptr;
     }
 }
 
@@ -120,24 +120,24 @@ Bool ICEdit::SetStyleItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0xE8BE3AFC: // "IntegerFilter"
-        style = STYLE_INTFILTER;
-        break;
+        case 0xE8BE3AFC: // "IntegerFilter"
+            style = STYLE_INTFILTER;
+            break;
 
-    case 0x3F770EEA: // "FloatFilter"
-        style = STYLE_FLOATFILTER;
-        break;
+        case 0x3F770EEA: // "FloatFilter"
+            style = STYLE_FLOATFILTER;
+            break;
 
-    case 0x10BEFD70: // "PathFilter"
-        style = STYLE_PATHFILTER;
-        break;
+        case 0x10BEFD70: // "PathFilter"
+            style = STYLE_PATHFILTER;
+            break;
 
-    case 0x4FA7EDBB: // "Password"
-        style = STYLE_PASSWORD;
-        break;
+        case 0x4FA7EDBB: // "Password"
+            style = STYLE_PASSWORD;
+            break;
 
-    default:
-        return IControl::SetStyleItem(s, toggle);
+        default:
+            return IControl::SetStyleItem(s, toggle);
     }
 
     // Toggle the style
@@ -155,10 +155,10 @@ Bool ICEdit::SetStyleItem(const char* s, Bool toggle)
 void ICEdit::UpdateEditValue()
 {
     ASSERT(editBuf);
-    ASSERT(editVar)
+    ASSERT(editVar);
 
-        // Retrieve string representation of var
-        Utils::Unicode2Ansi(editBuf, editMax + 1, editVar->GetValue(formatStr, FALSE));
+    // Retrieve string representation of var
+    Utils::Unicode2Ansi(editBuf, editMax + 1, editVar->GetValue(formatStr, FALSE));
     editLen = Utils::Strlen(editBuf);
 
     SetCaretPos(caretPos);
@@ -176,13 +176,13 @@ void ICEdit::SetValue()
 {
     if (IsActive())
     {
-        ASSERT(editBuf)
+        ASSERT(editBuf);
 
-            // Avoid multilanguage bork-ups
-            if (*editBuf == '#')
-            {
-                *editBuf = ' ';
-            }
+        // Avoid multilanguage bork-ups
+        if (*editBuf == '#')
+        {
+            *editBuf = ' ';
+        }
 
         editVar->SetValue(editBuf);
     }
@@ -234,7 +234,7 @@ void ICEdit::SetCaretPos(S32 pos)
     if (caretPos <= dispPos)
     {
         // Caret is to the left of first visible character
-        dispPos = Max(caretPos - 1, (long)0);
+        dispPos = Max(caretPos - 1, static_cast<long>(0));
     }
     else
     {
@@ -407,9 +407,9 @@ S32 ICEdit::DeleteText(S32 pos, S32 len, Bool backSpace)
 //
 S32 ICEdit::StartOfWord(S32 pos, Bool back)
 {
-    ASSERT(pos >= 0 && pos <= editLen)
+    ASSERT(pos >= 0 && pos <= editLen);
 
-        S32 p = pos;
+    S32 p = pos;
 
     if (back)
     {
@@ -451,8 +451,8 @@ void ICEdit::SelectText(S32 p0, S32 p1)
     selectX1 = Min<S32>(p1, editLen);
     selected = (selectX0 != selectX1);
 
-    ASSERT(selectX0 >= 0 && selectX0 <= editLen)
-        ASSERT(selectX1 >= 0 && selectX1 <= editLen)
+    ASSERT(selectX0 >= 0 && selectX0 <= editLen);
+    ASSERT(selectX1 >= 0 && selectX1 <= editLen);
 }
 
 
@@ -484,8 +484,8 @@ void ICEdit::ReplaceSelectedText(const char* newText)
 
         for (S32 i = x1; i < editLen; i++)
         {
-            ASSERT(i - rm >= 0 && i - rm < editLen)
-                editBuf[i - rm] = editBuf[i];
+            ASSERT(i-rm >= 0 && i-rm < editLen);
+            editBuf[i - rm] = editBuf[i];
         }
         editLen -= rm;
         editBuf[editLen] = 0;
@@ -526,7 +526,7 @@ void ICEdit::ClipboardCopy(Bool cut)
         HANDLE hData = GlobalAlloc(GMEM_DDESHARE, len + 1);
 
         // Copy the data in
-        char* s = (char*)GlobalLock(hData);
+        char* s = static_cast<char*>(GlobalLock(hData));
 
         if (s)
         {
@@ -535,7 +535,7 @@ void ICEdit::ClipboardCopy(Bool cut)
         }
 
         // Lock the clipboard
-        if (OpenClipboard(NULL))
+        if (OpenClipboard(nullptr))
         {
             // Empty the contents of clipboard and insert our data
             EmptyClipboard();
@@ -547,7 +547,7 @@ void ICEdit::ClipboardCopy(Bool cut)
             // If cutting, delete selected text
             if (cut)
             {
-                ReplaceSelectedText(NULL);
+                ReplaceSelectedText(nullptr);
             }
         }
     }
@@ -562,20 +562,20 @@ void ICEdit::ClipboardCopy(Bool cut)
 void ICEdit::ClipboardPaste()
 {
     // Lock the clipboard
-    if (OpenClipboard(NULL))
+    if (OpenClipboard(nullptr))
     {
         HANDLE hData;
 
         // Get a handle to TEXT data
-        if ((hData = GetClipboardData(CF_TEXT)) != NULL)
+        if ((hData = GetClipboardData(CF_TEXT)) != nullptr)
         {
             // Get a pointer to the handle
-            char* s = (char*)GlobalLock(hData);
+            char* s = static_cast<char*>(GlobalLock(hData));
 
             if (s)
             {
                 // Delete currently selected text
-                ReplaceSelectedText(NULL);
+                ReplaceSelectedText(nullptr);
 
                 // Now insert it into the edit buffer
                 S32 n = InsertText(caretPos, s, Utils::Strlen(s));
@@ -715,6 +715,7 @@ void ICEdit::DrawSelf(PaintInfo& pi)
             {
                 offset = pi.font->Width(Utils::Ansi2Unicode(displayBuf + dispPos), s0 - dispPos);
             }
+
             ASSERT(offset < paintInfo.client.Width());
 
             // Copy selected portion string into temporary buffer so DrawCtrlText can draw it
@@ -736,7 +737,7 @@ void ICEdit::DrawSelf(PaintInfo& pi)
                 pi.client.p1.y
             );
 
-            IFace::RenderRectangle(selectedRect, pi.colors->bg[ColorIndex() | ColorGroup::SELECTED], NULL);
+            IFace::RenderRectangle(selectedRect, pi.colors->bg[ColorIndex() | ColorGroup::SELECTED], nullptr);
 
             // Draw selected text 
             pi.font->Draw
@@ -755,7 +756,11 @@ void ICEdit::DrawSelf(PaintInfo& pi)
     if (HasKeyFocus() && IFace::CaretState() && !HasMouseCapture())
     {
         // Draw the caret
-        S32 caretX = pi.client.p0.x + textPos.x + pi.font->Width(Utils::Ansi2Unicode(displayBuf + dispPos), caretPos - dispPos);
+        S32 caretX = pi.client.p0.x + textPos.x + pi.font->Width
+        (
+            Utils::Ansi2Unicode(displayBuf + dispPos),
+            caretPos - dispPos
+        );
         ClipRect r
         (
             caretX,
@@ -784,24 +789,24 @@ void ICEdit::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x742EA048: // "UseVar"
-    {
-        ConfigureVar(editVar, fScope);
-        break;
-    }
+        case 0x742EA048: // "UseVar"
+        {
+            ConfigureVar(editVar, fScope);
+            break;
+        }
 
-    case 0x7BE57672: // "MaxLength"
-    {
-        ASSERT(!editBuf);
-        editMax = fScope->NextArgInteger();
-        break;
-    }
+        case 0x7BE57672: // "MaxLength"
+        {
+            ASSERT(!editBuf);
+            editMax = fScope->NextArgInteger();
+            break;
+        }
 
-    default:
-    {
-        IControl::Setup(fScope);
-        break;
-    }
+        default:
+        {
+            IControl::Setup(fScope);
+            break;
+        }
     }
 }
 
@@ -860,7 +865,7 @@ Bool ICEdit::Activate()
         }
         else
         {
-            inputFilterProc = NULL;
+            inputFilterProc = nullptr;
         }
 
         return (TRUE);
@@ -883,7 +888,7 @@ Bool ICEdit::Deactivate()
         if (editBuf)
         {
             delete[] editBuf;
-            editBuf = NULL;
+            editBuf = nullptr;
         }
         if (displayBuf)
         {
@@ -891,15 +896,12 @@ Bool ICEdit::Deactivate()
             {
                 delete[] displayBuf;
             }
-            displayBuf = NULL;
+            displayBuf = nullptr;
         }
 
         return (TRUE);
     }
-    else
-    {
-        return (FALSE);
-    }
+    return (FALSE);
 }
 
 
@@ -912,321 +914,315 @@ U32 ICEdit::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDOWN:
             {
-                if (!HasMouseCapture())
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    // Enter selection mode
-                    selectX0 = selectX1 = GetCharAt(ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)));
-                    selected = TRUE;
-                    GetMouseCapture();
-
-                    if (!HasKeyFocus())
+                    if (!HasMouseCapture())
                     {
-                        GetKeyFocus();
+                        // Enter selection mode
+                        selectX0 = selectX1 = GetCharAt(ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)));
+                        selected = TRUE;
+                        GetMouseCapture();
+
+                        if (!HasKeyFocus())
+                        {
+                            GetKeyFocus();
+                        }
                     }
+
+                    return TRUE;
                 }
-
-                return TRUE;
+                break;
             }
-            break;
-        }
 
-        case Input::MOUSEBUTTONUP:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONUP:
             {
-                if (HasMouseCapture())
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    caretPos = GetCharAt(ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)));
-
-                    if ((selectX1 = caretPos) == selectX0)
+                    if (HasMouseCapture())
                     {
-                        selected = FALSE;
-                    }
-                    ReleaseMouseCapture();
-                }
-                return TRUE;
-            }
-            else
+                        caretPos = GetCharAt(ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)));
 
+                        if ((selectX1 = caretPos) == selectX0)
+                        {
+                            selected = FALSE;
+                        }
+                        ReleaseMouseCapture();
+                    }
+                    return TRUE;
+                }
                 if (e.input.code == Input::RightButtonCode())
                 {
                     // Display pop up menu
                 }
 
-            break;
-        }
+                break;
+            }
 
-        case Input::MOUSEMOVE:
-        {
-            if (HasMouseCapture())
+            case Input::MOUSEMOVE:
             {
-                selectX1 = GetCharAt(ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)));
+                if (HasMouseCapture())
+                {
+                    selectX1 = GetCharAt(ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)));
+                    return TRUE;
+                }
+                break;
+            }
+
+            case Input::KEYCHAR:
+            {
+                if (HasKeyFocus())
+                {
+                    // If any text is selected delete it
+                    if (selected)
+                    {
+                        ReplaceSelectedText(nullptr);
+                    }
+
+                    // Insert this character
+                    char ch = static_cast<char>(e.input.ch);
+
+                    // Advance the caret
+                    SetCaretPos(caretPos + InsertText(caretPos, &ch, 1));
+                }
                 return TRUE;
             }
-            break;
-        }
 
-        case Input::KEYCHAR:
-        {
-            if (HasKeyFocus())
+            case Input::KEYDOWN:
+            case Input::KEYREPEAT:
             {
-                // If any text is selected delete it
-                if (selected)
+                if (!HasMouseCapture())
                 {
-                    ReplaceSelectedText(NULL);
-                }
-
-                // Insert this character
-                char ch = (char)e.input.ch;
-
-                // Advance the caret
-                SetCaretPos(caretPos + InsertText(caretPos, &ch, 1));
-            }
-            return TRUE;
-        }
-
-        case Input::KEYDOWN:
-        case Input::KEYREPEAT:
-        {
-            if (!HasMouseCapture())
-            {
-                switch (e.input.code)
-                {
-                case DIK_BACK:
-                {
-                    if ((e.input.state == 0) || ((e.input.state & ~Input::SHIFTDOWN) == 0))
+                    switch (e.input.code)
                     {
-                        // If text is selected, delete it but do perform the 
-                        // backspace operation afterwards
-                        if (selected)
+                        case DIK_BACK:
                         {
-                            ReplaceSelectedText(NULL);
-                        }
-                        else if (caretPos > 0)
-                        {
-                            S32 n;
-
-                            if ((n = DeleteText(caretPos, 1, TRUE)) != 0)
+                            if ((e.input.state == 0) || ((e.input.state & ~Input::SHIFTDOWN) == 0))
                             {
-                                SetCaretPos(caretPos - n);
+                                // If text is selected, delete it but do perform the 
+                                // backspace operation afterwards
+                                if (selected)
+                                {
+                                    ReplaceSelectedText(nullptr);
+                                }
+                                else if (caretPos > 0)
+                                {
+                                    S32 n;
+
+                                    if ((n = DeleteText(caretPos, 1, TRUE)) != 0)
+                                    {
+                                        SetCaretPos(caretPos - n);
+                                    }
+                                }
                             }
-                        }
-                    }
-                    else
-
-                        if (e.input.state & Input::CTRLDOWN)
-                        {
-                            // Delete last word
-                            S32 begin = StartOfWord(caretPos);
-
-                            // Replace the text
-                            SelectText(begin, caretPos);
-                            ReplaceSelectedText(NULL);
-
-                            // Move caret back
-                            SetCaretPos(begin);
-                        }
-                    return TRUE;
-                }
-
-                case DIK_INSERT:
-                {
-                    if (e.input.state & Input::CTRLDOWN)
-                    {
-                        // Copy
-                        ClipboardCopy(FALSE);
-                    }
-                    else if (e.input.state & Input::SHIFTDOWN)
-                    {
-                        // Paste
-                        ClipboardPaste();
-                    }
-                    break;
-                }
-
-                case DIK_DELETE:
-                {
-                    if (HasKeyFocus())
-                    {
-                        if (e.input.state & Input::SHIFTDOWN)
-                        {
-                            // Cut from clipboard
-                            ClipboardCopy(TRUE);
-                        }
-                        if (e.input.state == 0)
-                        {
-                            // If text is selected, delete it but do perform the 
-                            // "delete" operation afterwards
-                            if (selected)
+                            else if (e.input.state & Input::CTRLDOWN)
                             {
-                                ReplaceSelectedText(NULL);
+                                // Delete last word
+                                S32 begin = StartOfWord(caretPos);
+
+                                // Replace the text
+                                SelectText(begin, caretPos);
+                                ReplaceSelectedText(nullptr);
+
+                                // Move caret back
+                                SetCaretPos(begin);
                             }
-                            else if (caretPos < editLen)
+                            return TRUE;
+                        }
+
+                        case DIK_INSERT:
+                        {
+                            if (e.input.state & Input::CTRLDOWN)
                             {
-                                DeleteText(caretPos, 1, FALSE);
+                                // Copy
+                                ClipboardCopy(FALSE);
                             }
+                            else if (e.input.state & Input::SHIFTDOWN)
+                            {
+                                // Paste
+                                ClipboardPaste();
+                            }
+                            break;
+                        }
+
+                        case DIK_DELETE:
+                        {
+                            if (HasKeyFocus())
+                            {
+                                if (e.input.state & Input::SHIFTDOWN)
+                                {
+                                    // Cut from clipboard
+                                    ClipboardCopy(TRUE);
+                                }
+                                if (e.input.state == 0)
+                                {
+                                    // If text is selected, delete it but do perform the 
+                                    // "delete" operation afterwards
+                                    if (selected)
+                                    {
+                                        ReplaceSelectedText(nullptr);
+                                    }
+                                    else if (caretPos < editLen)
+                                    {
+                                        DeleteText(caretPos, 1, FALSE);
+                                    }
+                                }
+                            }
+
+                            return TRUE;
+                        }
+
+                        case DIK_LEFT:
+                        {
+                            // Begin selection mode
+                            OnSelectKeyStart(e);
+
+                            if (e.input.state & Input::CTRLDOWN)
+                            {
+                                // Move to start of word
+                                SetCaretPos(StartOfWord(caretPos));
+                            }
+                            else
+                            {
+                                // Move caret left 1 character
+                                SetCaretPos(caretPos - 1);
+                            }
+
+                            // Adjust selection range
+                            OnSelectKeyEnd(e);
+
+                            break;
+                        }
+
+                        case DIK_RIGHT:
+                        {
+                            // Begin selection mode
+                            OnSelectKeyStart(e);
+
+                            if (e.input.state & Input::CTRLDOWN)
+                            {
+                                // Move to end of word
+                                SetCaretPos(StartOfWord(caretPos, FALSE));
+                            }
+                            else
+                            {
+                                // Move caret right by 1
+                                SetCaretPos(caretPos + 1);
+                            }
+
+                            // Adjust selection range
+                            OnSelectKeyEnd(e);
+
+                            break;
+                        }
+
+                        case DIK_HOME:
+                        {
+                            if (HasKeyFocus())
+                            {
+                                // Begin selection mode
+                                OnSelectKeyStart(e);
+
+                                // Move caret
+                                SetCaretPos(0);
+
+                                // Adjust selection range
+                                OnSelectKeyEnd(e);
+                            }
+                            break;
+                        }
+
+                        case DIK_END:
+                        {
+                            if (HasKeyFocus())
+                            {
+                                // Begin selection mode
+                                OnSelectKeyStart(e);
+
+                                // Move caret
+                                SetCaretPos(editLen);
+
+                                // Adjust selection range
+                                OnSelectKeyEnd(e);
+                            }
+                            break;
+                        }
+
+                        case DIK_RETURN:
+                        case DIK_NUMPADENTER:
+                        {
+                            // Set the value of the variable
+                            if (HasKeyFocus())
+                            {
+                                // Release key focus
+                                ReleaseKeyFocus();
+
+                                // Generate message
+                                SendNotify(this, ICEditMsg::Enter, FALSE);
+                            }
+                            break;
+                        }
+
+                        case DIK_ESCAPE:
+                        {
+                            if (HasKeyFocus())
+                            {
+                                SendNotify(this, ICEditMsg::Escape, FALSE);
+                            }
+
+                            break;
+                        }
+
+                        case DIK_C: // copy
+                        case DIK_X: // cut
+                        {
+                            // Copy to clipboard
+                            if (e.input.state & Input::CTRLDOWN)
+                            {
+                                // Copy contents to clipboard
+                                ClipboardCopy(e.input.code == DIK_X ? TRUE : FALSE);
+                            }
+                            break;
+                        }
+
+                        case DIK_V:       // Paste
+                        {
+                            if (e.input.state & Input::CTRLDOWN)
+                            {
+                                // Paste text into edit buffer
+                                ClipboardPaste();
+                            }
+                            break;
+                        }
+
+                        case DIK_A: // Select all
+                        {
+                            if (e.input.state & Input::CTRLDOWN)
+                            {
+                                SendNotify(this, ICEditMsg::SelectAll, FALSE);
+                            }
+                            break;
+                        }
+
+                        case DIK_TAB:
+                        {
+                            // Pass TAB to IControl level so it can handle tab stops
+                            return IControl::HandleEvent(e);
                         }
                     }
-
-                    return TRUE;
-                }
-
-                case DIK_LEFT:
-                {
-                    // Begin selection mode
-                    OnSelectKeyStart(e);
-
-                    if (e.input.state & Input::CTRLDOWN)
-                    {
-                        // Move to start of word
-                        SetCaretPos(StartOfWord(caretPos));
-                    }
-                    else
-                    {
-                        // Move caret left 1 character
-                        SetCaretPos(caretPos - 1);
-                    }
-
-                    // Adjust selection range
-                    OnSelectKeyEnd(e);
-
-                    break;
-                }
-
-                case DIK_RIGHT:
-                {
-                    // Begin selection mode
-                    OnSelectKeyStart(e);
-
-                    if (e.input.state & Input::CTRLDOWN)
-                    {
-                        // Move to end of word
-                        SetCaretPos(StartOfWord(caretPos, FALSE));
-                    }
-                    else
-                    {
-                        // Move caret right by 1
-                        SetCaretPos(caretPos + 1);
-                    }
-
-                    // Adjust selection range
-                    OnSelectKeyEnd(e);
-
-                    break;
-                }
-
-                case DIK_HOME:
-                {
-                    if (HasKeyFocus())
-                    {
-                        // Begin selection mode
-                        OnSelectKeyStart(e);
-
-                        // Move caret
-                        SetCaretPos(0);
-
-                        // Adjust selection range
-                        OnSelectKeyEnd(e);
-                    }
-                    break;
-                }
-
-                case DIK_END:
-                {
-                    if (HasKeyFocus())
-                    {
-                        // Begin selection mode
-                        OnSelectKeyStart(e);
-
-                        // Move caret
-                        SetCaretPos(editLen);
-
-                        // Adjust selection range
-                        OnSelectKeyEnd(e);
-                    }
-                    break;
-                }
-
-                case DIK_RETURN:
-                case DIK_NUMPADENTER:
-                {
-                    // Set the value of the variable
-                    if (HasKeyFocus())
-                    {
-                        // Release key focus
-                        ReleaseKeyFocus();
-
-                        // Generate message
-                        SendNotify(this, ICEditMsg::Enter, FALSE);
-                    }
-                    break;
-                }
-
-                case DIK_ESCAPE:
-                {
-                    if (HasKeyFocus())
-                    {
-                        SendNotify(this, ICEditMsg::Escape, FALSE);
-                    }
-
-                    break;
-                }
-
-                case DIK_C: // copy
-                case DIK_X: // cut
-                {
-                    // Copy to clipboard
-                    if (e.input.state & Input::CTRLDOWN)
-                    {
-                        // Copy contents to clipboard
-                        ClipboardCopy(e.input.code == DIK_X ? TRUE : FALSE);
-                    }
-                    break;
-                }
-
-                case DIK_V:       // Paste
-                {
-                    if (e.input.state & Input::CTRLDOWN)
-                    {
-                        // Paste text into edit buffer
-                        ClipboardPaste();
-                    }
-                    break;
-                }
-
-                case DIK_A: // Select all
-                {
-                    if (e.input.state & Input::CTRLDOWN)
-                    {
-                        SendNotify(this, ICEditMsg::SelectAll, FALSE);
-                    }
-                    break;
-                }
-
-                case DIK_TAB:
-                {
-                    // Pass TAB to IControl level so it can handle tab stops
-                    return IControl::HandleEvent(e);
-                }
                 }
             }
-        }
         }
 
         // Consume all input events
         return (TRUE);
     }
-    else
-
-        if (e.type == IFace::EventID())
+    if (e.type == IFace::EventID())
+    {
+        // Interface events
+        switch (e.subType)
         {
-            // Interface events
-            switch (e.subType)
-            {
                 // Notification events
             case IFace::NOTIFY:
             {
@@ -1234,48 +1230,48 @@ U32 ICEdit::HandleEvent(Event& e)
                 {
                     switch (e.iface.p1)
                     {
-                    case ICEditMsg::Enter:
-                    {
-                        if (editVar)
+                        case ICEditMsg::Enter:
                         {
-                            ASSERT(editVar);
+                            if (editVar)
+                            {
+                                ASSERT(editVar);
 
-                            // Store the current value
-                            SetValue();
+                                // Store the current value
+                                SetValue();
 
-                            // Generate enter notification
-                            SendNotify(this, ICEditNotify::Entered);
+                                // Generate enter notification
+                                SendNotify(this, ICEditNotify::Entered);
+                            }
+
+                            // Handled
+                            return (TRUE);
                         }
 
-                        // Handled
-                        return (TRUE);
-                    }
-
-                    case ICEditMsg::Escape:
-                    {
-                        // Undo variable
-                        if (HasKeyFocus())
+                        case ICEditMsg::Escape:
                         {
-                            // Restore the previous value
-                            UpdateEditValue();
+                            // Undo variable
+                            if (HasKeyFocus())
+                            {
+                                // Restore the previous value
+                                UpdateEditValue();
 
-                            // Release key focus
-                            ReleaseKeyFocus();
+                                // Release key focus
+                                ReleaseKeyFocus();
 
-                            // Generate escape notification
-                            SendNotify(this, ICEditNotify::Escaped);
+                                // Generate escape notification
+                                SendNotify(this, ICEditNotify::Escaped);
+                            }
+
+                            // Handled
+                            return (TRUE);
                         }
 
-                        // Handled
-                        return (TRUE);
-                    }
-
-                    case ICEditMsg::SelectAll:
-                    {
-                        SelectText(0, editLen);
-                        SetCaretPos(editLen);
-                        break;
-                    }
+                        case ICEditMsg::SelectAll:
+                        {
+                            SelectText(0, editLen);
+                            SetCaretPos(editLen);
+                            break;
+                        }
                     }
                 }
 
@@ -1304,8 +1300,8 @@ U32 ICEdit::HandleEvent(Event& e)
                 // Pass through to IControl
                 break;
             }
-            }
         }
+    }
 
     // Allow IControl class to process this event
     return IControl::HandleEvent(e);

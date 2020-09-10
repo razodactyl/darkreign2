@@ -36,7 +36,7 @@ ColorBar::ColorBar(const char* name, const ClipRect& rect, IControl* parent) :
     var = NULL;
 
     // Add dropshadow
-  //    controlStyle |= STYLE_DROPSHADOW;
+    //    controlStyle |= STYLE_DROPSHADOW;
 
     // Set control values
     SetName(name);
@@ -57,52 +57,52 @@ U32 ColorBar::HandleEvent(Event& e)
         // Input events
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        case Input::MOUSEBUTTONDBLCLK:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDOWN:
+            case Input::MOUSEBUTTONDBLCLK:
             {
-                Point<S32> mouse(e.input.mouseX, e.input.mouseY);
-                if (InClient(mouse))
-                {
-                    GetMouseCapture();
-
-                    if (var)
-                    {
-                        var->SetIntegerValue(ScreenToWindow(mouse).y);
-                    }
-                }
-            }
-            break;
-        }
-
-        case Input::MOUSEMOVE:
-        {
-            if (HasMouseCapture()) //  || !IFace::GetCapture())
-            {
-                if (var)
+                if (e.input.code == Input::LeftButtonCode())
                 {
                     Point<S32> mouse(e.input.mouseX, e.input.mouseY);
-                    var->SetIntegerValue(ScreenToWindow(mouse).y);
-                }
-                return (TRUE);
-            }
-            break;
-        }
+                    if (InClient(mouse))
+                    {
+                        GetMouseCapture();
 
-        case Input::MOUSEBUTTONUP:
-        case Input::MOUSEBUTTONDBLCLKUP:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+                        if (var)
+                        {
+                            var->SetIntegerValue(ScreenToWindow(mouse).y);
+                        }
+                    }
+                }
+                break;
+            }
+
+            case Input::MOUSEMOVE:
             {
-                if (HasMouseCapture())
+                if (HasMouseCapture()) //  || !IFace::GetCapture())
                 {
-                    ReleaseMouseCapture();
+                    if (var)
+                    {
+                        Point<S32> mouse(e.input.mouseX, e.input.mouseY);
+                        var->SetIntegerValue(ScreenToWindow(mouse).y);
+                    }
                     return (TRUE);
                 }
+                break;
             }
-            break;
-        }
+
+            case Input::MOUSEBUTTONUP:
+            case Input::MOUSEBUTTONDBLCLKUP:
+            {
+                if (e.input.code == Input::LeftButtonCode())
+                {
+                    if (HasMouseCapture())
+                    {
+                        ReleaseMouseCapture();
+                        return (TRUE);
+                    }
+                }
+                break;
+            }
         }
     }
 
@@ -135,11 +135,13 @@ void ColorBar::SetBottomColor(const Color& color)
     bottomColor = color;
 
     // Set middle color to average color
-    middleColor = Color(
+    middleColor = Color
+    (
         (S32)((topColor.r + bottomColor.r) >> 1),
         (S32)((topColor.g + bottomColor.g) >> 1),
         (S32)((topColor.b + bottomColor.b) >> 1),
-        (S32)((topColor.a + bottomColor.a) >> 1));
+        (S32)((topColor.a + bottomColor.a) >> 1)
+    );
 }
 
 
@@ -214,7 +216,7 @@ ColorMap::ColorMap(const char* name, const Point<S32>& point, IControl* parent) 
     IControl(parent)
 {
     // Add dropshadow
-  //    controlStyle |= STYLE_DROPSHADOW;
+    //    controlStyle |= STYLE_DROPSHADOW;
 
     // Clear internal data
     hueVar = NULL;
@@ -239,16 +241,34 @@ U32 ColorMap::HandleEvent(Event& e)
         // Input events
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        case Input::MOUSEBUTTONDBLCLK:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDOWN:
+            case Input::MOUSEBUTTONDBLCLK:
             {
-                Point<S32> mouse(e.input.mouseX, e.input.mouseY);
-                if (InClient(mouse))
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    GetMouseCapture();
+                    Point<S32> mouse(e.input.mouseX, e.input.mouseY);
+                    if (InClient(mouse))
+                    {
+                        GetMouseCapture();
 
+                        if (hueVar)
+                        {
+                            hueVar->SetIntegerValue(ScreenToWindow(mouse).x);
+                        }
+                        if (saturationVar)
+                        {
+                            saturationVar->SetIntegerValue(255 - ScreenToWindow(mouse).y);
+                        }
+                    }
+                }
+                break;
+            }
+
+            case Input::MOUSEMOVE:
+            {
+                if (HasMouseCapture()) //  || !IFace::GetCapture())
+                {
+                    Point<S32> mouse(e.input.mouseX, e.input.mouseY);
                     if (hueVar)
                     {
                         hueVar->SetIntegerValue(ScreenToWindow(mouse).x);
@@ -257,42 +277,24 @@ U32 ColorMap::HandleEvent(Event& e)
                     {
                         saturationVar->SetIntegerValue(255 - ScreenToWindow(mouse).y);
                     }
-                }
-            }
-            break;
-        }
-
-        case Input::MOUSEMOVE:
-        {
-            if (HasMouseCapture()) //  || !IFace::GetCapture())
-            {
-                Point<S32> mouse(e.input.mouseX, e.input.mouseY);
-                if (hueVar)
-                {
-                    hueVar->SetIntegerValue(ScreenToWindow(mouse).x);
-                }
-                if (saturationVar)
-                {
-                    saturationVar->SetIntegerValue(255 - ScreenToWindow(mouse).y);
-                }
-                return (TRUE);
-            }
-            break;
-        }
-
-        case Input::MOUSEBUTTONUP:
-        case Input::MOUSEBUTTONDBLCLKUP:
-        {
-            if (e.input.code == Input::LeftButtonCode())
-            {
-                if (HasMouseCapture())
-                {
-                    ReleaseMouseCapture();
                     return (TRUE);
                 }
+                break;
             }
-            break;
-        }
+
+            case Input::MOUSEBUTTONUP:
+            case Input::MOUSEBUTTONDBLCLKUP:
+            {
+                if (e.input.code == Input::LeftButtonCode())
+                {
+                    if (HasMouseCapture())
+                    {
+                        ReleaseMouseCapture();
+                        return (TRUE);
+                    }
+                }
+                break;
+            }
         }
     }
 
@@ -346,45 +348,59 @@ void ColorMap::DrawSelf(PaintInfo& pi)
     // Draw Hue first
     CalculateRGB(color1, 0, 255, luminosityVar->GetIntegerValue());
     CalculateRGB(color2, 59, 255, luminosityVar->GetIntegerValue());
-    IFace::RenderGradient(
-        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE);
+    IFace::RenderGradient
+    (
+        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE
+    );
     point += Point<S32>(60, 0);
 
     CalculateRGB(color1, 60, 255, luminosityVar->GetIntegerValue());
     CalculateRGB(color2, 119, 255, luminosityVar->GetIntegerValue());
-    IFace::RenderGradient(
-        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE);
+    IFace::RenderGradient
+    (
+        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE
+    );
     point += Point<S32>(60, 0);
 
     CalculateRGB(color1, 120, 255, luminosityVar->GetIntegerValue());
     CalculateRGB(color2, 179, 255, luminosityVar->GetIntegerValue());
-    IFace::RenderGradient(
-        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE);
+    IFace::RenderGradient
+    (
+        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE
+    );
     point += Point<S32>(60, 0);
 
     CalculateRGB(color1, 180, 255, luminosityVar->GetIntegerValue());
     CalculateRGB(color2, 239, 255, luminosityVar->GetIntegerValue());
-    IFace::RenderGradient(
-        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE);
+    IFace::RenderGradient
+    (
+        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE
+    );
     point += Point<S32>(60, 0);
 
     CalculateRGB(color1, 240, 255, luminosityVar->GetIntegerValue());
     CalculateRGB(color2, 299, 255, luminosityVar->GetIntegerValue());
-    IFace::RenderGradient(
-        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE);
+    IFace::RenderGradient
+    (
+        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE
+    );
     point += Point<S32>(60, 0);
 
     CalculateRGB(color1, 300, 255, luminosityVar->GetIntegerValue());
     CalculateRGB(color2, 359, 255, luminosityVar->GetIntegerValue());
-    IFace::RenderGradient(
-        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE);
+    IFace::RenderGradient
+    (
+        ClipRect(point, point + Point<S32>(60, 256)), color1, color2, FALSE
+    );
     point += Point<S32>(60, 0);
 
     // Overlay the saturation
     CalculateRGB(color2, 0, 0, luminosityVar->GetIntegerValue());
     color1.Set(color2.R(), color2.G(), color2.B(), 0.0f);
-    IFace::RenderGradient(
-        ClipRect(pi.client.p0, pi.client.p0 + Point<S32>(360, 256)), color1, color2);
+    IFace::RenderGradient
+    (
+        ClipRect(pi.client.p0, pi.client.p0 + Point<S32>(360, 256)), color1, color2
+    );
 
     // Draw the hue and saturation
     if (hueVar)
@@ -511,39 +527,38 @@ U32 ColorEditor::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
-        case IFace::NOTIFY:
-        {
-            // Do specific handling
-            switch (e.iface.p1)
+            case IFace::NOTIFY:
             {
-            case 0xA4C4F136: // "OK"
-                if (color)
+                // Do specific handling
+                switch (e.iface.p1)
                 {
-                    Color c(red->GetIntegerValue(), green->GetIntegerValue(), blue->GetIntegerValue());
-                    color->SetIntegerValue(c);
+                    case 0xA4C4F136: // "OK"
+                        if (color)
+                        {
+                            Color c(red->GetIntegerValue(), green->GetIntegerValue(), blue->GetIntegerValue());
+                            color->SetIntegerValue(c);
+                        }
+                        IFace::Deactivate(this);
+                        color = NULL;
+                        break;
+
+                    case 0x3E412225: // "Cancel"
+                        IFace::Deactivate(this);
+                        color = NULL;
+                        break;
+
+                    default:
+                        ICWindow::HandleEvent(e);
+                        break;
                 }
-                IFace::Deactivate(this);
-                color = NULL;
-                break;
 
-            case 0x3E412225: // "Cancel"
-                IFace::Deactivate(this);
-                color = NULL;
-                break;
-
-            default:
-                ICWindow::HandleEvent(e);
-                break;
+                return (TRUE);
             }
-
-            return (TRUE);
-        }
         }
     }
 
     return (ICWindow::HandleEvent(e));
 }
-
 
 
 //
@@ -591,7 +606,6 @@ void ColorEditor::DrawSelf(PaintInfo& pi)
 
     // Set the blue display bar
     blueDisp->SetTopColor(Color(0, 0, blue->GetIntegerValue()));
-
 }
 
 
@@ -662,5 +676,3 @@ void ColorEditor::SetColorVar(IFaceVar* colorIn)
       blue->SetIntegerValue(c.b);
     */
 }
-
-

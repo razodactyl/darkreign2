@@ -21,326 +21,317 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Transport::Manager
+    //
 
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Transport::Manager
-  //
-
-
-  //
-  // Constructor
-  //
-  Transport::Manager::Manager()
-  : idle(&Transport::nodeManager),
-    active(&Transport::nodeManager)
-  {
-
-  }
-
-
-  //
-  // Destructor
-  //
-  Transport::Manager::~Manager()
-  {
-    // Clean up
-    idle.DisposeAll();
-    active.DisposeAll();
-  }
-
-
-  //
-  // SaveTransportTree
-  //
-  // Save a transport tree
-  //
-  void Transport::Manager::SaveTransportTree(FScope *scope, const NBinTree<Transport> &tree)
-  {
-    for (NBinTree<Transport>::Iterator i(&tree); *i; i++)
+    //
+    // Constructor
+    //
+    Transport::Manager::Manager()
+        : idle(&Transport::nodeManager),
+          active(&Transport::nodeManager)
     {
-      if (FScope *sScope = StdSave::TypeReaper(scope, "Transport", **i))
-      {
-        (*i)->SaveState(sScope);
-      }
     }
-  }
 
 
-  //
-  // SaveState
-  //
-  // Save state information
-  //
-  void Transport::Manager::SaveState(FScope *scope)
-  {
-    SaveTransportTree(scope, idle);
-    SaveTransportTree(scope, active);
-  }
-
-
-  //
-  // LoadState
-  //
-  // Load state information
-  //
-  void Transport::Manager::LoadState(FScope *scope)
-  {
-    FScope *sScope;
-
-    while ((sScope = scope->NextFunction()) != NULL)
+    //
+    // Destructor
+    //
+    Transport::Manager::~Manager()
     {
-      switch (sScope->NameCrc())
-      {
-        case 0xDFB7F0C8: // "Transport"
-        {
-          // Load and resolve the transport object
-          TransportObjPtr reaper;
-          StdLoad::TypeReaper(sScope, reaper);
-          Resolver::Object<TransportObj, TransportObjType>(reaper);
+        // Clean up
+        idle.DisposeAll();
+        active.DisposeAll();
+    }
 
-          if (reaper.Alive())
-          {
-            if (Transport *transport = FindIdleTransport(*reaper))
+
+    //
+    // SaveTransportTree
+    //
+    // Save a transport tree
+    //
+    void Transport::Manager::SaveTransportTree(FScope* scope, const NBinTree<Transport>& tree)
+    {
+        for (NBinTree<Transport>::Iterator i(&tree); *i; ++i)
+        {
+            if (FScope* sScope = StdSave::TypeReaper(scope, "Transport", **i))
             {
-              transport->LoadState(sScope);
+                (*i)->SaveState(sScope);
             }
-          }       
-          break;
         }
-      }
     }
-  }
 
 
-  //
-  // Handle notification
-  //
-  void Transport::Manager::Notify(Notification &notification)
-  {
-    // Is this one of our transports ?
-    Transport *transport = active.Find(notification.from.DirectId());
-
-    switch (notification.message)
+    //
+    // SaveState
+    //
+    // Save state information
+    //
+    void Transport::Manager::SaveState(FScope* scope)
     {
-      case 0x61FC2088: // "Unit::MoveCompleted"
-        if (transport)
+        SaveTransportTree(scope, idle);
+        SaveTransportTree(scope, active);
+    }
+
+
+    //
+    // LoadState
+    //
+    // Load state information
+    //
+    void Transport::Manager::LoadState(FScope* scope)
+    {
+        FScope* sScope;
+
+        while ((sScope = scope->NextFunction()) != nullptr)
         {
-          // If this transport is assigned to a script then
-          // tell that script the transport has completed its move
-          if (transport->script)
-          {
-            transport->SetFlag();
-            transport->script->Notify(0x998A995A); // "Transport::Moved"
-          }
-        }
+            switch (sScope->NameCrc())
+            {
+                case 0xDFB7F0C8: // "Transport"
+                {
+                    // Load and resolve the transport object
+                    TransportObjPtr reaper;
+                    StdLoad::TypeReaper(sScope, reaper);
+                    Resolver::Object<TransportObj, TransportObjType>(reaper);
 
-      case 0x5CA4B1C1: // "Transport::Unloaded"
-        if (transport)
+                    if (reaper.Alive())
+                    {
+                        if (Transport* transport = FindIdleTransport(*reaper))
+                        {
+                            transport->LoadState(sScope);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+
+    //
+    // Handle notification
+    //
+    void Transport::Manager::Notify(Notification& notification)
+    {
+        // Is this one of our transports ?
+        Transport* transport = active.Find(notification.from.DirectId());
+
+        switch (notification.message)
         {
-          // If this transport is assigned to a script then 
-          // tell that script the transport is unloaded
-          if (transport->script)
-          {
-            transport->SetFlag();
-            transport->script->Notify(0x5CA4B1C1); // "Transport::Unloaded"
-          }
+            case 0x61FC2088: // "Unit::MoveCompleted"
+                if (transport)
+                {
+                    // If this transport is assigned to a script then
+                    // tell that script the transport has completed its move
+                    if (transport->script)
+                    {
+                        transport->SetFlag();
+                        transport->script->Notify(0x998A995A); // "Transport::Moved"
+                    }
+                }
+
+            case 0x5CA4B1C1: // "Transport::Unloaded"
+                if (transport)
+                {
+                    // If this transport is assigned to a script then 
+                    // tell that script the transport is unloaded
+                    if (transport->script)
+                    {
+                        transport->SetFlag();
+                        transport->script->Notify(0x5CA4B1C1); // "Transport::Unloaded"
+                    }
+                }
+                break;
+
+            case 0x11EAEF8E: // "Unit::Died"
+
+                // A unit has died, check to see if its one of our transports
+                if (transport)
+                {
+                    // If this transport is assigned to a base then remove it
+
+                    // If this transport is assigned to a squad then
+                    // notify the squad that the transport has died
+
+                    if (transport->script)
+                    {
+                        transport->RemoveFromSquad(transport->script);
+                        transport->script->Notify(0x38601711); // "Transport::Died"
+                    }
+                }
+                break;
         }
-        break;
+    }
 
-      case 0x11EAEF8E: // "Unit::Died"
 
-        // A unit has died, check to see if its one of our transports
-        if (transport)
+    //
+    // Add a transport
+    //
+    void Transport::Manager::AddTransport(TransportObj& transport)
+    {
+        idle.Add(transport.Id(), new Transport(&transport, *this));
+    }
+
+
+    //
+    // Remove a transport
+    //
+    void Transport::Manager::RemoveTransport(TransportObj& transport)
+    {
+        transport;
+
+        ERR_FATAL(("Why are we removing a transport ??"))
+    }
+
+
+    //
+    // Find a transport
+    //
+    Transport* Transport::Manager::FindIdleTransport(TransportObj& transport)
+    {
+        return (idle.Find(transport.Id()));
+    }
+
+
+    //
+    // Activate transport
+    //
+    void Transport::Manager::ActivateTransport(Transport& transport)
+    {
+        ASSERT(transport.nodeManager.InUse());
+        ASSERT(idle.InTree(&transport));
+
+        U32 key = transport.nodeManager.GetKey();
+
+        idle.Unlink(&transport);
+        active.Add(key, &transport);
+    }
+
+
+    //
+    // Deactivate transport
+    //
+    void Transport::Manager::DeactivateTransport(Transport& transport)
+    {
+        ASSERT(transport.nodeManager.InUse());
+        ASSERT(active.InTree(&transport));
+
+        U32 key = transport.nodeManager.GetKey();
+
+        active.Unlink(&transport);
+        idle.Add(key, &transport);
+    }
+
+
+    //
+    // FindTransports
+    //
+    // Find a suitable list of transports for this squad
+    //
+    void Transport::Manager::FindTransports(Script& script)
+    {
+        // We have a number of slots we need (provided by the number of units in the squad)
+        // Use the transports closest to the squad first
+
+        U32 slots = script.GetSquad()->GetList().GetCount();
+
+        BinTree<Transport, F32> transports;
+
+        // Get the current location of the suqad
+        Vector location;
+
+        if (script.GetSquad()->GetLocation(location))
         {
-          // If this transport is assigned to a base then remove it
+            // Make sure that there's no dead transports lingering around
+            RemoveDeadTransports();
 
-          // If this transport is assigned to a squad then
-          // notify the squad that the transport has died
+            // Sort the transports by distance from the squad
+            for (NBinTree<Transport>::Iterator i(&idle); *i; ++i)
+            {
+                transports.Add((location - (**i)->Origin()).Magnitude2(), *i);
+            }
 
-          if (transport->script)
-          {
-            transport->RemoveFromSquad(transport->script);
-            transport->script->Notify(0x38601711); // "Transport::Died"
-          }
+            // Now itereate the sorted transports and assign them to the script
+            for (BinTree<Transport, F32>::Iterator t(&transports); *t; ++t)
+            {
+                Transport& transport = **t;
 
+                // Assign this transport to the script
+                transport.AssignToSquad(&script);
+
+                // How many slots does this transport provide ?
+                U32 available = transport->TransportType()->GetSpaces();
+
+                if (available >= slots)
+                {
+                    slots = 0;
+                    break;
+                }
+
+                // We still have slots to go .. keep looking
+                slots -= available;
+            }
+
+            // We're out of transports, did we get enough ?
+            if (slots)
+            {
+                // We didn't get enough, notify the script
+                script.Notify(0x3BBBD1F7); // "Transport::NotEnough"
+            }
+            else
+            {
+                // We got enough, notify the script
+                script.Notify(0x9BA84E05); // "Transport::Enough"
+            }
+
+            transports.UnlinkAll();
         }
-        break;
     }
-  }
 
 
-  //
-  // Add a transport
-  //
-  void Transport::Manager::AddTransport(TransportObj &transport)
-  {
-    idle.Add(transport.Id(), new Transport(&transport, *this));
-  }
-
-
-  //
-  // Remove a transport
-  //
-  void Transport::Manager::RemoveTransport(TransportObj &transport)
-  {
-    transport;
-
-    ERR_FATAL(("Why are we removing a transport ??"))
-  }
-
-
-  //
-  // Find a transport
-  //
-  Transport * Transport::Manager::FindIdleTransport(TransportObj &transport)
-  {
-    return (idle.Find(transport.Id()));
-  }
-
-
-  //
-  // Activate transport
-  //
-  void Transport::Manager::ActivateTransport(Transport &transport)
-  {
-    ASSERT(transport.nodeManager.InUse())
-    ASSERT(idle.InTree(&transport))
-
-    U32 key = transport.nodeManager.GetKey();
-
-    idle.Unlink(&transport);
-    active.Add(key, &transport);
-  }
-
-
-  //
-  // Deactivate transport
-  //
-  void Transport::Manager::DeactivateTransport(Transport &transport)
-  {
-    ASSERT(transport.nodeManager.InUse())
-    ASSERT(active.InTree(&transport))
-
-    U32 key = transport.nodeManager.GetKey();
-
-    active.Unlink(&transport);
-    idle.Add(key, &transport);
-  }
-
-
-  //
-  // FindTransports
-  //
-  // Find a suitable list of transports for this squad
-  //
-  void Transport::Manager::FindTransports(Script &script)
-  {
-    // We have a number of slots we need (provided by the number of units in the squad)
-    // Use the transports closest to the squad first
-
-    U32 slots = script.GetSquad()->GetList().GetCount();
-
-    BinTree<Transport, F32> transports;
-
-    // Get the current location of the suqad
-    Vector location;
-
-    if (script.GetSquad()->GetLocation(location))
+    //
+    // Remove the dead transports
+    //
+    void Transport::Manager::RemoveDeadTransports()
     {
-      // Make sure that there's no dead transports lingering around
-      RemoveDeadTransports();
-
-      // Sort the transports by distance from the squad
-      for (NBinTree<Transport>::Iterator i(&idle); *i; i++)
-      {
-        transports.Add((location - (**i)->Origin()).Magnitude2(), *i);
-      }
-
-      // Now itereate the sorted transports and assign them to the script
-      for (BinTree<Transport, F32>::Iterator t(&transports); *t; t++)
-      {
-        Transport &transport = **t;
-
-        // Assign this transport to the script
-        transport.AssignToSquad(&script);
-
-        // How many slots does this transport provide ?
-        U32 available = transport->TransportType()->GetSpaces();
-
-        if (available >= slots)
+        NBinTree<Transport>::Iterator i(&idle);
+        Transport* transport;
+        while ((transport = i++) != nullptr)
         {
-          slots = 0;
-          break;
+            if (!transport->Alive())
+            {
+                idle.Dispose(transport);
+            }
         }
 
-        // We still have slots to go .. keep looking
-        slots -= available;
-      }
-
-      // We're out of transports, did we get enough ?
-      if (slots)
-      {
-        // We didn't get enough, notify the script
-        script.Notify(0x3BBBD1F7); // "Transport::NotEnough"
-      }
-      else
-      {
-        // We got enough, notify the script
-        script.Notify(0x9BA84E05); // "Transport::Enough"
-      }
-
-      transports.UnlinkAll();
+        NBinTree<Transport>::Iterator a(&active);
+        while ((transport = a++) != nullptr)
+        {
+            if (!transport->Alive())
+            {
+                active.Dispose(transport);
+            }
+        }
     }
 
-  }
 
-
-  //
-  // Remove the dead transports
-  //
-  void Transport::Manager::RemoveDeadTransports()
-  {
-    NBinTree<Transport>::Iterator i(&idle);
-    Transport *transport;
-    while ((transport = i++) != NULL)
+    //
+    // Cleanup all transports
+    //
+    void Transport::Manager::CleanUp()
     {
-      if (!transport->Alive())
-      {
-        idle.Dispose(transport);
-      }
+        // Remove the transports from any scripts they are associated with
+        NBinTree<Transport>::Iterator t(&active);
+        Transport* transport;
+        while ((transport = t++) != nullptr)
+        {
+            if (transport->script)
+            {
+                transport->RemoveFromSquad(transport->script);
+            }
+        }
     }
-
-    NBinTree<Transport>::Iterator a(&active);
-    while ((transport = a++) != NULL)
-    {
-      if (!transport->Alive())
-      {
-        active.Dispose(transport);
-      }
-    }
-
-  }
-
-
-  //
-  // Cleanup all transports
-  //
-  void Transport::Manager::CleanUp()
-  {
-    // Remove the transports from any scripts they are associated with
-    NBinTree<Transport>::Iterator t(&active);
-    Transport *transport;
-    while ((transport = t++) != NULL)
-    {
-      if (transport->script)
-      {
-        transport->RemoveFromSquad(transport->script);
-      }
-    }
-
-  }
-
 }
-

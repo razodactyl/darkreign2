@@ -76,24 +76,24 @@ public:
     // Constructor
     GameIdentListWeightedNode(const char* ident, F32 weight)
         : ident(ident),
-        weight(weight)
+          weight(weight)
     {
     }
 
     // Allow to be used as a game ident
-    operator const GameIdent& ()
+    operator const GameIdent&()
     {
         return (ident);
     }
 
     // Allow to be used as const char *
-    operator const char* ()
+    operator const char*()
     {
         return (ident.str);
     }
 
     // Allow to be used as F32
-    operator F32 ()
+    operator F32()
     {
         return (weight);
     }
@@ -124,7 +124,6 @@ public:
 
     // Get an identifier at random
     const GameIdent& RandomSync();
-
 };
 
 
@@ -132,7 +131,8 @@ public:
 //
 // Template Range
 //
-template <class TYPE> class Range
+template <class TYPE>
+class Range
 {
 private:
 
@@ -189,7 +189,6 @@ public:
 
     // Range for a flag
     static const Range<TYPE> flag;
-
 };
 
 

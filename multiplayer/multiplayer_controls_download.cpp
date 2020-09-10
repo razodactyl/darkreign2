@@ -25,14 +25,12 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class Download
@@ -46,7 +44,7 @@ namespace MultiPlayer
         //
         Download::Download(IControl* parent)
             : ICWindow(parent),
-            heightProgress(10)
+              heightProgress(10)
         {
         }
 
@@ -58,33 +56,33 @@ namespace MultiPlayer
         {
             switch (fScope->NameCrc())
             {
-            case 0xF39D93DD: // "OffsetFile"
-                StdLoad::TypePoint<S32>(fScope, offsetFile);
-                break;
+                case 0xF39D93DD: // "OffsetFile"
+                    StdLoad::TypePoint<S32>(fScope, offsetFile);
+                    break;
 
-            case 0xEFC39332: // "OffsetTransferred"
-                StdLoad::TypePoint<S32>(fScope, offsetTransferred);
-                break;
+                case 0xEFC39332: // "OffsetTransferred"
+                    StdLoad::TypePoint<S32>(fScope, offsetTransferred);
+                    break;
 
-            case 0xECA04E02: // "OffsetRate"
-                StdLoad::TypePoint<S32>(fScope, offsetRate);
-                break;
+                case 0xECA04E02: // "OffsetRate"
+                    StdLoad::TypePoint<S32>(fScope, offsetRate);
+                    break;
 
-            case 0x92BD62DD: // "OffsetETA"
-                StdLoad::TypePoint<S32>(fScope, offsetETA);
-                break;
+                case 0x92BD62DD: // "OffsetETA"
+                    StdLoad::TypePoint<S32>(fScope, offsetETA);
+                    break;
 
-            case 0x5592337B: // "OffsetProgress"
-                StdLoad::TypePoint<S32>(fScope, offsetProgress);
-                break;
+                case 0x5592337B: // "OffsetProgress"
+                    StdLoad::TypePoint<S32>(fScope, offsetProgress);
+                    break;
 
-            case 0x4669855C: // "HeightProgress"
-                heightProgress = StdLoad::TypeU32(fScope);
-                break;
+                case 0x4669855C: // "HeightProgress"
+                    heightProgress = StdLoad::TypeU32(fScope);
+                    break;
 
-            default:
-                ICWindow::Setup(fScope);
-                break;
+                default:
+                    ICWindow::Setup(fScope);
+                    break;
             }
         }
 
@@ -98,20 +96,20 @@ namespace MultiPlayer
             {
                 switch (e.subType)
                 {
-                case IFace::NOTIFY:
-                {
-                    // Do specific handling
-                    switch (e.iface.p1)
+                    case IFace::NOTIFY:
                     {
-                    case DownloadMsg::Halt:
+                        // Do specific handling
+                        switch (e.iface.p1)
+                        {
+                            case DownloadMsg::Halt:
 
-                        // Abort the download
-                        MultiPlayer::Download::AbortDownload();
+                                // Abort the download
+                                MultiPlayer::Download::AbortDownload();
 
-                        // Handled
-                        return (TRUE);
+                                // Handled
+                                return (TRUE);
+                        }
                     }
-                }
                 }
             }
             return (ICWindow::HandleEvent(e));
@@ -184,13 +182,13 @@ namespace MultiPlayer
             pi.font->Draw
             (
               pi.client.p0.x + offsetRate.x,
-              pi.client.p0.y + offsetRate.y,
-              ch,
+              pi.client.p0.y + offsetRate.y, 
+              ch, 
               Utils::Strlen(ch),
               pi.colors->fg[ColorIndex()],
               &pi.client
             );
-
+      
             // Draw the ETA
             if (rate)
             {
@@ -204,8 +202,8 @@ namespace MultiPlayer
             pi.font->Draw
             (
               pi.client.p0.x + offsetETA.x,
-              pi.client.p0.y + offsetETA.y,
-              ch,
+              pi.client.p0.y + offsetETA.y, 
+              ch, 
               Utils::Strlen(ch),
               pi.colors->fg[ColorIndex()],
               &pi.client
@@ -240,9 +238,6 @@ namespace MultiPlayer
                     Color(0.1f, 0.5f, 0.5f, pi.alphaScale)
                 );
             }
-
         }
-
     }
-
 }

@@ -22,9 +22,10 @@ const F32 TEXTURETIMER = .1f;
 void MeshObj::ClearData()
 {
     nodeType = nodeMeshObj;
-    mesh = NULL;
+    mesh = nullptr;
     clipFlagCache = clipOUTSIDE;
 }
+
 //----------------------------------------------------------------------------
 
 // meshEnt/meshObj hierarchies must be setup via SetupFamily for this release to always work
@@ -35,6 +36,7 @@ MeshObj::~MeshObj()
     //  FamilyNode::Release();
     //  delete this;
 }
+
 //----------------------------------------------------------------------------
 
 // inserts 'node' as 'this's' primary/last child depending on 'insert' flag
@@ -43,7 +45,7 @@ void MeshEnt::Attach(FamilyNode& node, Bool insert) // = TRUE
 {
     if (node.IsMeshEnt())
     {
-        MeshEnt* entNode = (MeshEnt*)&node;
+        MeshEnt* entNode = static_cast<MeshEnt*>(&node);
 
         // put it in the list
         if (insert)
@@ -71,13 +73,14 @@ void MeshEnt::Attach(FamilyNode& node, Bool insert) // = TRUE
         FamilyNode::Attach(node);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::AttachAt(FamilyNode& at, FamilyNode& node, Bool insert) // = TRUE)
 {
     if (node.IsMeshEnt())
     {
-        MeshEnt* entNode = (MeshEnt*)&node;
+        MeshEnt* entNode = static_cast<MeshEnt*>(&node);
 
         // put it in the list
         if (insert)
@@ -105,6 +108,7 @@ void MeshEnt::AttachAt(FamilyNode& at, FamilyNode& node, Bool insert) // = TRUE)
         at.FamilyNode::Attach(node);
     }
 }
+
 //----------------------------------------------------------------------------
 
 // removes 'this' and all its children from parent
@@ -118,13 +122,14 @@ void MeshEnt::Detach()
         ASSERT(eParent->eChildren.GetCount());
 
         eParent->eChildren.Unlink(this);
-        eParent = NULL;
+        eParent = nullptr;
 
         // maintain world matrix
         //
         SetSimCurrent(states0[0].WorldMatrix());
     }
 }
+
 //----------------------------------------------------------------------------
 
 int MeshObj::GetMeshArray(MeshObj** array, int maxSize, int count)
@@ -141,12 +146,13 @@ int MeshObj::GetMeshArray(MeshObj** array, int maxSize, int count)
 
     NList<FamilyNode>::Iterator kids(&children);
     FamilyNode* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
-        count = ((MeshObj*)node)->GetMeshArray(array, maxSize, count);
+        count = static_cast<MeshObj*>(node)->GetMeshArray(array, maxSize, count);
     }
     return count;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshObj::SetupFamily(const Mesh* _mesh, Array<FamilyState>& stateArray)
@@ -169,7 +175,7 @@ Bool MeshObj::SetupFamily(const Mesh* _mesh, Array<FamilyState>& stateArray)
     NList<FamilyNode>::Iterator kids(&mesh->children);
     U32 insert = TRUE;
     Mesh* node;
-    for (; (node = (Mesh*)kids++) != NULL; insert = FALSE)
+    for (; (node = static_cast<Mesh*>(kids++)) != nullptr; insert = FALSE)
     {
         if (node->nodeType != nodeMesh)
         {
@@ -185,6 +191,7 @@ Bool MeshObj::SetupFamily(const Mesh* _mesh, Array<FamilyState>& stateArray)
     }
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 // MeshEnt
@@ -192,12 +199,12 @@ Bool MeshObj::SetupFamily(const Mesh* _mesh, Array<FamilyState>& stateArray)
 void MeshEnt::ClearData()
 {
     nodeType = nodeMeshEnt;
-    eParent = NULL;
+    eParent = nullptr;
     eChildren.SetNodeMember(&MeshEnt::eChildNode);
 
-    mesh = NULL;
-    curCycle = NULL;
-    conCycle = NULL;
+    mesh = nullptr;
+    curCycle = nullptr;
+    conCycle = nullptr;
     curCycleID = 0;
     fps = ANIMFPS;
     texTimer = TEXTURETIMER;
@@ -213,11 +220,11 @@ void MeshEnt::ClearData()
 
     renderProc = &MeshEnt::RenderAnimVtl;
 
-    selData = NULL;
+    selData = nullptr;
 
-    renderProcSave = NULL;
-    effect = NULL;
-    texture = NULL;
+    renderProcSave = nullptr;
+    effect = nullptr;
+    texture = nullptr;
     dirtyShadow = TRUE;    // update shadowTexture
 
     baseColor = 0xffffffff;
@@ -234,14 +241,15 @@ void MeshEnt::ClearData()
     fogCurrent = 255;
     alphaCurrent = 255;
 
-    shadowTexture = NULL;
+    shadowTexture = nullptr;
     shadowTime = 0;
     shadowAlpha0 = 255;
     shadowAlpha1 = 0;
-    shadowInfo.texture = NULL;
+    shadowInfo.texture = nullptr;
 
     dirtyRoot = dirtyAll = dirtyIntRoot = dirtyIntAll = TRUE;
 }
+
 //----------------------------------------------------------------------------
 static U32 row = 2;
 
@@ -254,6 +262,7 @@ MeshEnt::MeshEnt(const MeshRoot* root) // = NULL
         Setup(*root);
     }
 }
+
 //----------------------------------------------------------------------------
 
 MeshEnt::MeshEnt(const char* meshName)
@@ -267,6 +276,7 @@ MeshEnt::MeshEnt(const char* meshName)
         Setup(*root);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::ReleaseBuckys()
@@ -281,6 +291,7 @@ void MeshEnt::ReleaseBuckys()
     }
     buckys.Release();
 }
+
 //----------------------------------------------------------------------------
 
 MeshEnt::~MeshEnt()
@@ -305,7 +316,7 @@ MeshEnt::~MeshEnt()
     //
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->Detach();
     }
@@ -331,14 +342,15 @@ MeshEnt::~MeshEnt()
         delete selData;
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SetupStates(const MeshRoot& root)
 {
-    if (states0.Setup(root.states) == NULL
-        || statesR.Setup(root.states) == NULL
-        || states1.Alloc(root.states.count) == NULL
-        || blends.Alloc(root.states.count) == NULL)
+    if (states0.Setup(root.states) == nullptr
+        || statesR.Setup(root.states) == nullptr
+        || states1.Alloc(root.states.count) == nullptr
+        || blends.Alloc(root.states.count) == nullptr)
     {
         return FALSE;
     }
@@ -362,6 +374,7 @@ Bool MeshEnt::SetupStates(const MeshRoot& root)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::Reset(const MeshRoot& root)
@@ -372,6 +385,7 @@ void MeshEnt::Reset(const MeshRoot& root)
     //
     SetTeamColor(Vid::renderState.teamColor);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetupBuckys(const MeshRoot& root)
@@ -392,7 +406,7 @@ void MeshEnt::SetupBuckys(const MeshRoot& root)
         // setup does a copy: clear the copied pointers! hack!!
         bucky.geo.ClearData();
         bucky.faces.count = 0;
-        bucky.faces.data = NULL;
+        bucky.faces.data = nullptr;
         bucky.faces.count = 0;
         bucky.faces.Setup(group.faces);
     }
@@ -407,6 +421,7 @@ void MeshEnt::SetupBuckys(const MeshRoot& root)
     animState0.bounds = root.ObjectBounds();
     animStateR.bounds = animState0.bounds;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::Setup(const MeshRoot& root)
@@ -490,6 +505,7 @@ void MeshEnt::Setup(const MeshRoot& root)
     //
     SetWorldAll(Matrix::I);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetTeamColor(Color _teamColor)
@@ -511,12 +527,13 @@ void MeshEnt::SetTeamColor(Color _teamColor)
         bucky.diff.g = U8toNormF32 * teamColor.g;
         bucky.diff.b = U8toNormF32 * teamColor.b;
 
-        ColorF32 zero(0, 0, 0), diffuse(
-            bucky.diff.r * Material::Manager::diffuseVal,
-            bucky.diff.g * Material::Manager::diffuseVal,
-            bucky.diff.b * Material::Manager::diffuseVal,
-            bucky.diff.a
-        );
+        ColorF32 zero(0, 0, 0), diffuse
+                 (
+                     bucky.diff.r * Material::Manager::diffuseVal,
+                     bucky.diff.g * Material::Manager::diffuseVal,
+                     bucky.diff.b * Material::Manager::diffuseVal,
+                     bucky.diff.a
+                 );
         GameIdent gi;
         Material::Manager::GenerateName(gi.str, diffuse, zero, 0, zero, diffuse);
         Material* mat = Material::Manager::FindCreate(name.str);
@@ -530,11 +547,12 @@ void MeshEnt::SetTeamColor(Color _teamColor)
     //
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->SetTeamColor(teamColor);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetBaseColor(Color _baseColor)
@@ -543,7 +561,7 @@ void MeshEnt::SetBaseColor(Color _baseColor)
 
 #if 0
     // setup child ents
-    // 
+  // 
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
     while ((node = kids++) != NULL)
@@ -552,12 +570,14 @@ void MeshEnt::SetBaseColor(Color _baseColor)
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::ModulateBaseColor(Color bColor)
 {
     baseColor.Modulate(bColor.r * U8toNormF32, bColor.g * U8toNormF32, bColor.b * U8toNormF32, bColor.a * U8toNormF32);
 }
+
 //----------------------------------------------------------------------------
 
 // setup just the opaque part of the baseColor
@@ -570,7 +590,7 @@ void MeshEnt::SetOpaque(Color oColor)
 
 #if 0
     // setup child ents
-    // 
+  // 
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
     while ((node = kids++) != NULL)
@@ -579,6 +599,7 @@ void MeshEnt::SetOpaque(Color oColor)
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 // setup just the opaque part of the baseColor
@@ -591,7 +612,7 @@ void MeshEnt::SetOpaque(U32 oColor)
 
 #if 0
     // setup child ents
-    // 
+  // 
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
     while ((node = kids++) != NULL)
@@ -600,6 +621,7 @@ void MeshEnt::SetOpaque(U32 oColor)
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 // setup just the alpha part of the baseColor
@@ -610,7 +632,7 @@ void MeshEnt::SetTranslucent(U32 t)
 
 #if 0
     // setup child ents
-    // 
+  // 
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
     while ((node = kids++) != NULL)
@@ -619,6 +641,7 @@ void MeshEnt::SetTranslucent(U32 t)
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 // get a vertex's world location
@@ -640,6 +663,7 @@ void MeshEnt::GetVertWorld(Vector& vert, U32 index) const
 
     trany.Transform(vert, Root().vertices[index]);
 }
+
 //----------------------------------------------------------------------------
 
 // setup the sim world matrices
@@ -660,6 +684,7 @@ void MeshEnt::SetWorldRecurse(const Matrix& world)
     WorldMatrix().Transform(animState0.origin, animState0.bounds.Offset());
     WorldMatrix().Transform(animState0.rootOrigin, RootBounds().Offset());
 }
+
 //----------------------------------------------------------------------------
 
 // setup the interpolated world matrices
@@ -673,13 +698,13 @@ void MeshEnt::SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray
     statesR[0].WorldMatrix().Transform(animStateR.origin, animStateR.bounds.Offset());
     statesR[0].WorldMatrix().Transform(animStateR.rootOrigin, RootBounds().Offset());
 }
+
 //----------------------------------------------------------------------------
 
 // returns was dirty
 //
 Bool MeshEnt::UpdateSim(F32 dt)
 {
-
 #ifdef DEVELOPMENT
 
     if (this == Mesh::Manager::curEnt)
@@ -772,7 +797,7 @@ Bool MeshEnt::UpdateSim(F32 dt)
     //
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->UpdateSim(dt);
     }
@@ -783,7 +808,7 @@ Bool MeshEnt::UpdateSim(F32 dt)
 
     if (dirtyAll)
     {
-        FamilyState* src0, * es = &states0[statesR.count];
+        FamilyState *src0, *es = &states0[statesR.count];
         AnimKey* src1 = &states1[1];
 
         for (src0 = &states0[1]; src0 < es; src0++, src1++)
@@ -800,7 +825,7 @@ Bool MeshEnt::UpdateSim(F32 dt)
 
                 // clear dirty flag
                 //
-        //        src->type &= ~animALLDIRTY;
+                //        src->type &= ~animALLDIRTY;
                 src1->type &= ~animDIRTY;
             }
         }
@@ -817,6 +842,7 @@ Bool MeshEnt::UpdateSim(F32 dt)
 
     return wasDirty;
 }
+
 //----------------------------------------------------------------------------
 
 // setup target matrices via animation
@@ -827,7 +853,7 @@ void MeshEnt::SimulateSim(F32 dt)
     //
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->SimulateSim(dt);
     }
@@ -848,6 +874,7 @@ void MeshEnt::SimulateSim(F32 dt)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 // setup render states via animation
@@ -858,7 +885,7 @@ void MeshEnt::SimulateInt(F32 dt, Bool isInterpFrame) // = TRUE
 
     if (dt > states1[0].frame)
     {
-        dt = (F32)fmod(dt, states1[0].frame);
+        dt = static_cast<F32>(fmod(dt, states1[0].frame));
     }
 
     interpFrame = interpolated ? interpFrame + dt : 0.0f;
@@ -895,6 +922,7 @@ void MeshEnt::SimulateInt(F32 dt, Bool isInterpFrame) // = TRUE
         dirtyShadow = TRUE;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SimulateIntRecurse(F32 dt, F32 dtdi)
@@ -918,7 +946,7 @@ void MeshEnt::SimulateIntRecurse(F32 dt, F32 dtdi)
     {
         // setup render states
         //
-        FamilyState* ss, * es = &statesR[statesR.count], * src0 = &states0[1];
+        FamilyState *ss, *es = &statesR[statesR.count], *src0 = &states0[1];
         AnimKey* src1 = &states1[1];
         for (ss = &statesR[1]; ss < es; ss++, src0++, src1++)
         {
@@ -943,12 +971,13 @@ void MeshEnt::SimulateIntRecurse(F32 dt, F32 dtdi)
     //
     NList<MeshEnt>::Iterator kids(&eChildren);
     MeshEnt* node;
-    while ((node = kids++) != NULL)
+    while ((node = kids++) != nullptr)
     {
         node->SimulateIntRecurse(dt, dtdi);
     }
     interpolated = TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 // meter per sec
@@ -966,6 +995,7 @@ void MeshEnt::SetTreadRate(NodeIdent& ident, F32 rate)
         treads[ident.index].rate = rate;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetUVAnimRate(F32 rate)
@@ -974,7 +1004,7 @@ void MeshEnt::SetUVAnimRate(F32 rate)
 
     rate *= -root.treadPerMeter;
 
-    FamilyState* s, * e = root.states.data + root.states.count;
+    FamilyState *s, *e = root.states.data + root.states.count;
     U32 i = 0;
     for (s = root.states.data; s < e; s++, i++)
     {
@@ -984,6 +1014,7 @@ void MeshEnt::SetUVAnimRate(F32 rate)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 // 2 = auto run
@@ -1002,12 +1033,14 @@ void MeshEnt::ActivateTexAnim(U32 active) // = TRUE
         SetTexFrame(0);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::PollActivateTexAnim()
 {
     texAnimPoll = 1;
 }
+
 //----------------------------------------------------------------------------
 
 // animate textures
@@ -1039,6 +1072,7 @@ void MeshEnt::SimulateTex(F32 dt, Bool simFrame)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 // animate textures
@@ -1093,6 +1127,7 @@ void MeshEnt::SetTexFrame(U32 frame) // = 0
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetFrameSimulate(AnimState& animState, F32 lframe, Array<FamilyState>& stateArray)
@@ -1150,6 +1185,7 @@ void MeshEnt::SetFrameSimulate(AnimState& animState, F32 lframe, Array<FamilySta
       }
     */
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetFrameSimulate(AnimState& animState, F32 lframe, Array<AnimKey>& keyArray)
@@ -1207,6 +1243,7 @@ void MeshEnt::SetFrameSimulate(AnimState& animState, F32 lframe, Array<AnimKey>&
       }
     */
 }
+
 //----------------------------------------------------------------------------
 
 // Set the current and next simulation frame's rotation, position, and scale
@@ -1232,6 +1269,7 @@ void MeshEnt::SetSimCurrent(const Quaternion& quaternion)
         SetWorldRecurseRender(parent->WorldMatrix(), &statesR[0]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimCurrent(const Vector& position)
@@ -1255,6 +1293,7 @@ void MeshEnt::SetSimCurrent(const Vector& position)
         SetWorldRecurseRender(parent->WorldMatrix(), &statesR[0]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimCurrent(const Quaternion& quaternion, const Vector& position)
@@ -1278,6 +1317,7 @@ void MeshEnt::SetSimCurrent(const Quaternion& quaternion, const Vector& position
         SetWorldRecurseRender(parent->WorldMatrix(), &statesR[0]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimCurrent(const Matrix& matrix)
@@ -1301,6 +1341,7 @@ void MeshEnt::SetSimCurrent(const Matrix& matrix)
         SetWorldRecurseRender(parent->WorldMatrix(), &statesR[0]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimCurrentScale(const Vector& scale)
@@ -1324,6 +1365,7 @@ void MeshEnt::SetSimCurrentScale(const Vector& scale)
         SetWorldRecurseRender(parent->WorldMatrix(), &statesR[0]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 // Set the next simulation frame's rotation, position, and scale
@@ -1333,6 +1375,7 @@ void MeshEnt::SetSimTarget(const Quaternion& quaternion)
     states1[0].Set(quaternion);
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTarget(const Vector& position)
@@ -1340,6 +1383,7 @@ void MeshEnt::SetSimTarget(const Vector& position)
     states1[0].Set(position);
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTarget(const Quaternion& quaternion, const Vector& position)
@@ -1347,6 +1391,7 @@ void MeshEnt::SetSimTarget(const Quaternion& quaternion, const Vector& position)
     states1[0].Set(quaternion, position);
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTarget(const Matrix& matrix)
@@ -1354,6 +1399,7 @@ void MeshEnt::SetSimTarget(const Matrix& matrix)
     states1[0].Set(matrix);
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTargetScale(const Vector& scale)
@@ -1361,6 +1407,7 @@ void MeshEnt::SetSimTargetScale(const Vector& scale)
     states1[0].SetScale(scale);
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetTreeDirty(Bool rootDirty) // = TRUE)
@@ -1376,6 +1423,7 @@ void MeshEnt::SetTreeDirty(Bool rootDirty) // = TRUE)
         p = p->eParent;
     }
 }
+
 //----------------------------------------------------------------------------
 
 // Set the next simulation frame's rotation, position, and scale
@@ -1388,6 +1436,7 @@ void MeshEnt::SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion)
 
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTarget(const NodeIdent& ident, const Vector& position)
@@ -1398,6 +1447,7 @@ void MeshEnt::SetSimTarget(const NodeIdent& ident, const Vector& position)
 
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion, const Vector& position)
@@ -1408,6 +1458,7 @@ void MeshEnt::SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion,
 
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTarget(const NodeIdent& ident, const Matrix& matrix)
@@ -1418,6 +1469,7 @@ void MeshEnt::SetSimTarget(const NodeIdent& ident, const Matrix& matrix)
 
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetSimTargetScale(const NodeIdent& ident, const Vector& scale)
@@ -1428,6 +1480,7 @@ void MeshEnt::SetSimTargetScale(const NodeIdent& ident, const Vector& scale)
 
     SetTreeDirty();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetWorldRender()
@@ -1441,6 +1494,7 @@ void MeshEnt::SetWorldRender()
         SetWorldRecurseRender(parent->WorldMatrix(), &statesR[0]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetAnimType(AnimType _type)
@@ -1452,6 +1506,7 @@ void MeshEnt::SetAnimType(AnimType _type)
         animState0.active = animStateR.active = TRUE;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::ClampFrame(AnimState& animState)
@@ -1460,11 +1515,11 @@ void MeshEnt::ClampFrame(AnimState& animState)
     {
         if (animState.curFrame > curCycle->maxFrame)
         {
-            animState.curFrame = (F32)fmod(animState.curFrame, curCycle->maxFrame);
+            animState.curFrame = static_cast<F32>(fmod(animState.curFrame, curCycle->maxFrame));
         }
         else if (animState.dir < 0.0f && animState.curFrame < 0.0f)
         {
-            animState.curFrame = (F32)fmod(animState.curFrame, curCycle->maxFrame) + curCycle->maxFrame;
+            animState.curFrame = static_cast<F32>(fmod(animState.curFrame, curCycle->maxFrame)) + curCycle->maxFrame;
         }
     }
     else // 1 or 2 way
@@ -1488,6 +1543,7 @@ void MeshEnt::ClampFrame(AnimState& animState)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SetFrame(F32 frame) // = 0.0)
@@ -1514,6 +1570,7 @@ Bool MeshEnt::SetFrame(F32 frame) // = 0.0)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SetAnimOverlay(U32 cycleID)
@@ -1530,13 +1587,14 @@ Bool MeshEnt::SetAnimOverlay(U32 cycleID)
     }
     return SetAnimOverlay(cycle);
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SetAnimOverlay(AnimList* cycle)
 {
     if (!mesh || !cycle)
     {
-        conCycle = NULL;
+        conCycle = nullptr;
         return TRUE;
     }
     if (cycle->type != animCONTROL || cycle == conCycle)
@@ -1556,6 +1614,7 @@ Bool MeshEnt::SetAnimOverlay(AnimList* cycle)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetAnimTarget(F32 target)  // -1, 0, 1
@@ -1586,6 +1645,7 @@ void MeshEnt::SetAnimTarget(F32 target)  // -1, 0, 1
     animStateR.targetFrame = animState0.targetFrame;
     animStateR.conDir = animState0.conDir;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetAnimTargetFrame(F32 target)
@@ -1603,6 +1663,7 @@ void MeshEnt::SetAnimTargetFrame(F32 target)
     animStateR.targetFrame = animState0.targetFrame;
     animStateR.conDir = animState0.conDir;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SetAnimCycle(U32 cycleID)
@@ -1619,6 +1680,7 @@ Bool MeshEnt::SetAnimCycle(U32 cycleID)
     }
     return SetAnimCycle(*cycle);
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SetAnimCycle(AnimList& cycle)
@@ -1705,6 +1767,7 @@ Bool MeshEnt::SetAnimCycle(AnimList& cycle)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::BlendAnimCycle(U32 cycleID, F32 blendTime) // = DEFBLENDTIME
@@ -1721,6 +1784,7 @@ Bool MeshEnt::BlendAnimCycle(U32 cycleID, F32 blendTime) // = DEFBLENDTIME
     }
     return BlendAnimCycle(*cycle, blendTime);
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::BlendAnimCycle(AnimList& cycle, F32 blendTime) // = DEFBLENDTIME
@@ -1745,12 +1809,12 @@ Bool MeshEnt::BlendAnimCycle(AnimList& cycle, F32 blendTime) // = DEFBLENDTIME
     fps = cycle.animSpeed;
     //  fps = Mesh::Manager::animBlendRate;
 
-      // setup other blend key info
+    // setup other blend key info
     U32 i;
     for (i = 1; i < statesR.count; i++)
     {
         // copy state info
-    //    blends[i] = states0[i];
+        //    blends[i] = states0[i];
         blends[i] = statesR[i];
 
         // blend keys are negative
@@ -1772,7 +1836,7 @@ Bool MeshEnt::BlendAnimCycle(AnimList& cycle, F32 blendTime) // = DEFBLENDTIME
 
 #if 0
     // setup this cycle's bounds
-    //
+  //
     Bounds& cycleBounds = cycle.bounds;
 
     if (cycleBounds.width > bounds.width)
@@ -1797,6 +1861,7 @@ Bool MeshEnt::BlendAnimCycle(AnimList& cycle, F32 blendTime) // = DEFBLENDTIME
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::ActivateAnim(Bool activate) // = TRUE
@@ -1819,12 +1884,14 @@ void MeshEnt::ActivateAnim(Bool activate) // = TRUE
         animStateR = animState0;
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::IsAnimCompleted()
 {
     return curCycle ? AnimCurFrame() == curCycle->endFrame : FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::Copy(const MeshEnt* srcEnt, Bool local) // = FALSE
@@ -1833,7 +1900,7 @@ void MeshEnt::Copy(const MeshEnt* srcEnt, Bool local) // = FALSE
     local;
 
     const MeshRoot* root = &Root(); // fixme
-    if (root != NULL)
+    if (root != nullptr)
     {
         if (!SetupStates(*root))
         {
@@ -1848,6 +1915,7 @@ void MeshEnt::Copy(const MeshEnt* srcEnt, Bool local) // = FALSE
     //	SetSimCurrent( orig->WorldMatrix());
     SetWorldAll();
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::CollideBounds(const Vector& vStart, const Vector& vEnd)
@@ -1860,6 +1928,7 @@ Bool MeshEnt::CollideBounds(const Vector& vStart, const Vector& vEnd)
 
     return r2 <= ObjectBounds().Radius2();
 }
+
 //----------------------------------------------------------------------------
 
 const MeshObj* MeshEnt::CollidePoly(const Vector& vStart, const Vector& vEnd, F32& t)
@@ -1870,6 +1939,7 @@ const MeshObj* MeshEnt::CollidePoly(const Vector& vStart, const Vector& vEnd, F3
 
     return meshobj;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SaveState(FScope* fScope)
@@ -1886,7 +1956,7 @@ void MeshEnt::SaveState(FScope* fScope)
         StdSave::TypeF32(sScope, "CurrFrame", animState0.curFrame < 0 ? 0 : animState0.curFrame);
         StdSave::TypeF32(sScope, "LastFrame", animState0.lastFrame < 0 ? 0 : animState0.lastFrame);
         StdSave::TypeF32(sScope, "Direction", animState0.dir);
-        StdSave::TypeU32(sScope, "Active", (U32)animState0.active);
+        StdSave::TypeU32(sScope, "Active", static_cast<U32>(animState0.active));
         StdSave::TypeF32(sScope, "FPS", fps);
     }
     if (hasTexAnim)
@@ -1944,6 +2014,7 @@ void MeshEnt::SaveState(FScope* fScope)
     //  alphaCurrent->SaveState( sScope, "alphaCurrent");
     //  StdSave::TypeS32( fScope, "ExtraFog",   extraFog);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::LoadState(FScope* fScope)
@@ -1954,65 +2025,68 @@ void MeshEnt::LoadState(FScope* fScope)
     {
         switch (sScope->NameCrc())
         {
-        case 0xBAB1E5A5: // "Animation"
-            ASSERT(hasAnim);
+            case 0xBAB1E5A5: // "Animation"
+                ASSERT(hasAnim);
 
-            SetAnimCycle(StdLoad::TypeU32(sScope, "CycleId", curCycleID));
-            SetFrame(StdLoad::TypeF32(sScope, "CurrFrame", animState0.curFrame));
+                SetAnimCycle(StdLoad::TypeU32(sScope, "CycleId", curCycleID));
+                SetFrame(StdLoad::TypeF32(sScope, "CurrFrame", animState0.curFrame));
 
-            animState0.lastFrame = StdLoad::TypeF32(sScope, "LastFrame", animState0.lastFrame);
-            animState0.dir = StdLoad::TypeF32(sScope, "Direction", animState0.dir);
-            animState0.active = StdLoad::TypeU32(sScope, "Active", (U32)animState0.active);
-            fps = StdLoad::TypeF32(sScope, "FPS", fps);
-            break;
+                animState0.lastFrame = StdLoad::TypeF32(sScope, "LastFrame", animState0.lastFrame);
+                animState0.dir = StdLoad::TypeF32(sScope, "Direction", animState0.dir);
+                animState0.active = StdLoad::TypeU32(sScope, "Active", static_cast<U32>(animState0.active));
+                fps = StdLoad::TypeF32(sScope, "FPS", fps);
+                break;
 
-        case 0xA897C4CB: // "TextureAnim"
-            ASSERT(hasTexAnim);
+            case 0xA897C4CB: // "TextureAnim"
+                ASSERT(hasTexAnim);
 
-            texTimer = StdLoad::TypeF32(sScope, "Timer", texTimer);
-            texAnimPoll = StdLoad::TypeU32(sScope, "Poll", texAnimPoll);
-            lastTexPoll = StdLoad::TypeU32(sScope, "LastPoll", lastTexPoll);
-            texAnimAuto = StdLoad::TypeU32(sScope, "Auto", texAnimAuto);
-            break;
+                texTimer = StdLoad::TypeF32(sScope, "Timer", texTimer);
+                texAnimPoll = StdLoad::TypeU32(sScope, "Poll", texAnimPoll);
+                lastTexPoll = StdLoad::TypeU32(sScope, "LastPoll", lastTexPoll);
+                texAnimAuto = StdLoad::TypeU32(sScope, "Auto", texAnimAuto);
+                break;
 
-        case 0xE383575D: // "TreadStates"
-            ASSERT(hasTread);
+            case 0xE383575D: // "TreadStates"
+                ASSERT(hasTread);
 
-            while (FScope* ssScope = sScope->NextFunction())
-            {
-                ASSERT(ssScope->NameCrc() == 0x294B9C85); // "Tread"
+                while (FScope* ssScope = sScope->NextFunction())
+                {
+                    ASSERT(ssScope->NameCrc() == 0x294B9C85); // "Tread"
 
-                NodeIdent ident = ssScope->NextArgString();
-                MeshObj* meshObj = FindIdent(ident);
-                ASSERT(meshObj); meshObj;
+                    NodeIdent ident = ssScope->NextArgString();
+                    MeshObj* meshObj = FindIdent(ident);
+                    ASSERT(meshObj);
+                    meshObj;
 
-                treads[ident.index].offset = StdLoad::TypeF32(ssScope, "Offset", treads[ident.index].offset);
-                treads[ident.index].rate = StdLoad::TypeF32(ssScope, "Rate", treads[ident.index].rate);
-            }
-            break;
+                    treads[ident.index].offset = StdLoad::TypeF32(ssScope, "Offset", treads[ident.index].offset);
+                    treads[ident.index].rate = StdLoad::TypeF32(ssScope, "Rate", treads[ident.index].rate);
+                }
+                break;
 
-        case 0x01008A89: // "ControlStates"
-            ASSERT(hasControl);
+            case 0x01008A89: // "ControlStates"
+                ASSERT(hasControl);
 
-            while (FScope* ssScope = sScope->NextFunction())
-            {
-                ASSERT(ssScope->NameCrc() == 0x838CB20C); // "Control"
+                while (FScope* ssScope = sScope->NextFunction())
+                {
+                    ASSERT(ssScope->NameCrc() == 0x838CB20C); // "Control"
 
-                NodeIdent ident = ssScope->NextArgString();
-                MeshObj* meshObj = FindIdent(ident);
-                ASSERT(meshObj); meshObj;
+                    NodeIdent ident = ssScope->NextArgString();
+                    MeshObj* meshObj = FindIdent(ident);
+                    ASSERT(meshObj);
+                    meshObj;
 
-                states0[ident.index].LoadState(ssScope);
-                states1[ident.index].LoadState(ssScope);
-            }
-            break;
+                    states0[ident.index].LoadState(ssScope);
+                    states1[ident.index].LoadState(ssScope);
+                }
+                break;
         }
     }
 
-    //  fogFactor->SaveState( sScope, "FogFactor");
-    //  alphaCurrent->SaveState( sScope, "alphaCurrent");
-    //  StdSave::TypeS32( fScope, "ExtraFog",   extraFog);
+    // fogFactor->SaveState( sScope, "FogFactor");
+    // alphaCurrent->SaveState( sScope, "alphaCurrent");
+    // StdSave::TypeS32( fScope, "ExtraFog",   extraFog);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SetFogTarget(S32 fog, S32 alpha, Bool immediate) // = 255, FALSE
@@ -2022,8 +2096,8 @@ void MeshEnt::SetFogTarget(S32 fog, S32 alpha, Bool immediate) // = 255, FALSE
         fogCurrent = fog;
         alphaCurrent = alpha;
 
-        //    SetOpaque( Color( (U32)fogCurrent, (U32)fogCurrent, (U32)fogCurrent, U32(255)));
-        //    SetTranslucent( (U32)alphaCurrent);
+        // SetOpaque( Color( (U32)fogCurrent, (U32)fogCurrent, (U32)fogCurrent, U32(255)));
+        // SetTranslucent( (U32)alphaCurrent);
     }
     else
     {
@@ -2045,6 +2119,7 @@ void MeshEnt::SetFogTarget(S32 fog, S32 alpha, Bool immediate) // = 255, FALSE
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SimulateIntBasic(F32 dt, Bool simFrame)
@@ -2053,15 +2128,23 @@ void MeshEnt::SimulateIntBasic(F32 dt, Bool simFrame)
 
     if (Root().hasTread)
     {
-        TreadState* s, * e = treads.data + treads.count;
+        TreadState *s, *e = treads.data + treads.count;
         for (s = treads.data; s < e; s++)
         {
-            s->offset = (F32)fmod(s->offset + s->rate * dt, 1.0f);
+            s->offset = static_cast<F32>(fmod(s->offset + s->rate * dt, 1.0f));
         }
     }
-    SetOpaque(Color((U32)fogCurrent, (U32)fogCurrent, (U32)fogCurrent, U32(255)));
-    SetTranslucent((U32)alphaCurrent);
+    SetOpaque
+    (
+        Color
+        (
+            static_cast<U32>(fogCurrent), static_cast<U32>(fogCurrent), static_cast<U32>(fogCurrent),
+            U32(255)
+        )
+    );
+    SetTranslucent(static_cast<U32>(alphaCurrent));
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshEnt::GetMem() const
@@ -2075,18 +2158,20 @@ U32 MeshEnt::GetMem() const
     mem += blends.size;
     mem += treads.size;
 
-    //  NList<MeshEnt>          eChildren;
-    //  NList<MeshEnt>::Node    eChildNode;
+    // NList<MeshEnt>          eChildren;
+    // NList<MeshEnt>::Node    eChildNode;
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::MRMGen(Bool doSelVerts) // = TRUE
 {
-    RootPriv().MRMGen(doSelVerts ? &selData->verts : NULL);
+    RootPriv().MRMGen(doSelVerts ? &selData->verts : nullptr);
 
-    //  UnSelectVerts();
+    // UnSelectVerts();
     Reset(RootPriv());
 }
+
 //----------------------------------------------------------------------------

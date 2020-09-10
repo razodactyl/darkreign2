@@ -20,7 +20,8 @@
 //
 // Destructor
 //
-template <> GameTask<ParasiteObjType, ParasiteObj>::~GameTask()
+template <>
+GameTask<ParasiteObjType, ParasiteObj>::~GameTask()
 {
 }
 
@@ -30,6 +31,7 @@ template <> GameTask<ParasiteObjType, ParasiteObj>::~GameTask()
 //
 // Type specific processing
 //
-template <> void GameTask<ParasiteObjType, ParasiteObj>::GameProcess()
+template <>
+void GameTask<ParasiteObjType, ParasiteObj>::GameProcess()
 {
 }

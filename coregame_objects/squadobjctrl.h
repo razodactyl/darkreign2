@@ -24,16 +24,14 @@
 //
 namespace SquadObjCtrl
 {
+    // Initialize system
+    void Init();
 
-  // Initialize system
-  void Init();
+    // Shutdown system
+    void Done();
 
-  // Shutdown system
-  void Done();
-
-  // Create a squad
-  SquadObj *Create(Team *team);
-
+    // Create a squad
+    SquadObj* Create(Team* team);
 }
 
 #endif

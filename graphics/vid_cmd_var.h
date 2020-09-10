@@ -9,6 +9,7 @@
 #define __VIDCMDVAR_H
 
 #include "varsys.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -23,7 +24,7 @@ namespace Vid
         VarInteger d;
 
         Bool last[4];
-        U32  count;
+        U32 count;
 
         void Setup(const char* nA, Bool vA, const char* nB, Bool vB, const char* nC = NULL, Bool vC = 0, const char* nD = NULL, Bool vD = 0)
         {
@@ -55,6 +56,7 @@ namespace Vid
             VarInteger* vi = &a;
             vi[i] = TRUE;
         }
+
         void SetExclusive(U32 i)
         {
             VarInteger* vi = &a;
@@ -81,10 +83,12 @@ namespace Vid
         {
             return SetRadio(2);
         }
+
         inline U32 SetRadio3()
         {
             return SetRadio(3);
         }
+
         inline U32 SetRadio4()
         {
             return SetRadio(4);
@@ -162,265 +166,268 @@ namespace Vid
             //
             return *(vi[curr]) ? curr : next;
         }
+
         //-----------------------------------------------------------------------------
     };
+
     //-----------------------------------------------------------------------------
 
     namespace Var
     {
         namespace Dialog
         {
-            extern Bool           inDialog;
-            extern ButtGroup      texButts;
+            extern Bool inDialog;
+            extern ButtGroup texButts;
 
-            extern VarFloat       perfs[6];
+            extern VarFloat perfs[6];
 
-            extern VarInteger     winMode;
-            extern VarInteger     winWid;
-            extern VarInteger     winHgt;
+            extern VarInteger winMode;
+            extern VarInteger winWid;
+            extern VarInteger winHgt;
 
-            extern U32            texReduce;
-            extern VarInteger     tripleBuf;
-            extern VarInteger     tex32;
-            extern VarInteger     antiAlias;
-            extern VarInteger     mipmap;
-            extern VarInteger     mipfilter;
-            extern VarInteger     movie;
-            extern VarInteger     mirror;
-            extern VarInteger     multiTex;
-            extern VarInteger     hardTL;
-            extern VarInteger     weather;
-            extern VarFloat       gamma;
+            extern U32 texReduce;
+            extern VarInteger tripleBuf;
+            extern VarInteger tex32;
+            extern VarInteger antiAlias;
+            extern VarInteger mipmap;
+            extern VarInteger mipfilter;
+            extern VarInteger movie;
+            extern VarInteger mirror;
+            extern VarInteger multiTex;
+            extern VarInteger hardTL;
+            extern VarInteger weather;
+            extern VarFloat gamma;
         };
+
         //----------------------------------------------------------------------------
 
         // referenced by vidrend.cpp
         //
-        extern VarFloat         farPlane;
-        extern VarFloat         farOverride;
-        extern VarFloat         fogDepth;
+        extern VarFloat farPlane;
+        extern VarFloat farOverride;
+        extern VarFloat fogDepth;
 
         // general performance constants
         //               
-        extern VarFloat         perfProcessor;
-        extern VarFloat         perfMemory;
-        extern VarFloat         perfVideo;
+        extern VarFloat perfProcessor;
+        extern VarFloat perfMemory;
+        extern VarFloat perfVideo;
 
         // specific performance constants
         //               
-        extern VarFloat         perfs[6];
+        extern VarFloat perfs[6];
 
-        extern VarFloat         perfHighFarplane;
-        extern VarFloat         perfMedFarplane;
-        extern VarFloat         perfLowFarplane;
+        extern VarFloat perfHighFarplane;
+        extern VarFloat perfMedFarplane;
+        extern VarFloat perfLowFarplane;
 
         // automatic nearplane adjustment
         //               
-        extern VarInteger       nearAdjust;
-        extern VarFloat         nearMin;
-        extern VarFloat         nearMax;
+        extern VarInteger nearAdjust;
+        extern VarFloat nearMin;
+        extern VarFloat nearMax;
 
-        extern VarInteger       varTripleBuf;
-        extern VarInteger       varTex32;
-        extern VarInteger       varTexReduce;
-        extern VarInteger       varTexNoSwap;
-        extern VarInteger       varTexNoSwapMem;
-        extern VarInteger       varFilter;
-        extern VarInteger       varAntiAlias;
-        extern VarInteger       varMipmap;
-        extern VarInteger       varMipfilter;
-        extern VarInteger       varMovie;
-        extern VarInteger       varMirror;
-        extern VarInteger       varMultiTex;
-        extern VarInteger       varGamma;
-        extern VarInteger       varHardTL;
-        extern VarInteger       varDxTL;
-        extern VarInteger       varWeather;
-        extern VarInteger       varRenderPostSim;
+        extern VarInteger varTripleBuf;
+        extern VarInteger varTex32;
+        extern VarInteger varTexReduce;
+        extern VarInteger varTexNoSwap;
+        extern VarInteger varTexNoSwapMem;
+        extern VarInteger varFilter;
+        extern VarInteger varAntiAlias;
+        extern VarInteger varMipmap;
+        extern VarInteger varMipfilter;
+        extern VarInteger varMovie;
+        extern VarInteger varMirror;
+        extern VarInteger varMultiTex;
+        extern VarInteger varGamma;
+        extern VarInteger varHardTL;
+        extern VarInteger varDxTL;
+        extern VarInteger varWeather;
+        extern VarInteger varRenderPostSim;
 
-        extern VarInteger       alphaNearActive;
+        extern VarInteger alphaNearActive;
 
-        extern VarFloat         varShadowFadeDist;
-        extern VarFloat         varShadowFadeDepth;
-        extern VarFloat         varShadowLiveDistFactor;
-        extern VarInteger       varShadowFadeCutoff;
-        extern VarInteger       varShadowSize;
+        extern VarFloat varShadowFadeDist;
+        extern VarFloat varShadowFadeDepth;
+        extern VarFloat varShadowLiveDistFactor;
+        extern VarInteger varShadowFadeCutoff;
+        extern VarInteger varShadowSize;
 
-        extern VarInteger       varFog;
-        extern VarInteger       varWire;
-        extern VarInteger       varFlat;
-        extern VarInteger       varTexture;
-        extern VarInteger       varSpecular;
-        extern VarInteger       varDither;
+        extern VarInteger varFog;
+        extern VarInteger varWire;
+        extern VarInteger varFlat;
+        extern VarInteger varTexture;
+        extern VarInteger varSpecular;
+        extern VarInteger varDither;
 
-        extern ButtGroup        detail;
-        extern VarInteger       perfTurtle;
+        extern ButtGroup detail;
+        extern VarInteger perfTurtle;
 
-        extern VarInteger       waitRetrace;
-        extern VarInteger       xmm;
-        extern VarInteger       transort;
+        extern VarInteger waitRetrace;
+        extern VarInteger xmm;
+        extern VarInteger transort;
 
-        extern VarInteger       clipGuardSize;
-        extern VarInteger       clipGuard;
-        extern VarInteger       clipVis;
-        extern VarInteger       clipBox;
-        extern VarInteger       clipFunc;
+        extern VarInteger clipGuardSize;
+        extern VarInteger clipGuard;
+        extern VarInteger clipVis;
+        extern VarInteger clipBox;
+        extern VarInteger clipFunc;
 
-        extern VarInteger       checkVerts;
-        extern VarInteger       mirrorDebug;
+        extern VarInteger checkVerts;
+        extern VarInteger mirrorDebug;
 
-        extern VarFloat         suntime;
-        extern VarInteger       suncolor;
-        extern VarFloat         sunMinAngle;
+        extern VarFloat suntime;
+        extern VarInteger suncolor;
+        extern VarFloat sunMinAngle;
 
-        extern VarFloat         zBias;
+        extern VarFloat zBias;
 
-        extern VarInteger       alphaFarActive;
-        extern VarFloat         alphaFar;
-        extern VarFloat         alphaNear;
+        extern VarInteger alphaFarActive;
+        extern VarFloat alphaFar;
+        extern VarFloat alphaNear;
 
-        extern VarInteger       checkMaxVerts;
-        extern VarInteger       checkMaxTris;
+        extern VarInteger checkMaxVerts;
+        extern VarInteger checkMaxTris;
 
         // mesh          
         // load controls
-        extern VarFloat         scaleFactor;
-        extern VarFloat         vertexThresh;
-        extern VarFloat         normalThresh;
-        extern VarFloat         tcoordThresh;
-        extern VarInteger       doBasePose;
-        extern VarInteger       doMrmGen;
-        extern VarInteger       doFrogPose;     // special pose for mrmgen
-        extern VarInteger       doGenericMat;   // use generic 70% grey material
-        extern VarInteger       doOptimize;
-        extern VarInteger       doLoadGod;
+        extern VarFloat scaleFactor;
+        extern VarFloat vertexThresh;
+        extern VarFloat normalThresh;
+        extern VarFloat tcoordThresh;
+        extern VarInteger doBasePose;
+        extern VarInteger doMrmGen;
+        extern VarInteger doFrogPose;     // special pose for mrmgen
+        extern VarInteger doGenericMat;   // use generic 70% grey material
+        extern VarInteger doOptimize;
+        extern VarInteger doLoadGod;
 
-        extern VarFloat         mrmMergeThresh;
-        extern VarFloat         mrmNormalCrease;
-        extern VarInteger       mrmMultiNormals;
+        extern VarFloat mrmMergeThresh;
+        extern VarFloat mrmNormalCrease;
+        extern VarInteger mrmMultiNormals;
 
-        extern VarInteger       mipMin;
-        extern VarInteger       mipCount;
-        extern VarInteger       terrMipCount;
+        extern VarInteger mipMin;
+        extern VarInteger mipCount;
+        extern VarInteger terrMipCount;
 
         // runtime controls
-        extern VarFloat         mrmDist;
-        extern VarFloat         mrmFactor;
+        extern VarFloat mrmDist;
+        extern VarFloat mrmFactor;
 
-        extern VarInteger       mrmAuto;
-        extern VarFloat         mrmAutoFactor;
-        extern VarInteger       mrmLow;
-        extern VarInteger       mrmHigh;
-        extern VarFloat         mrmAutoConstant1;
-        extern VarFloat         mrmAutoConstant2;
-        extern VarInteger       mrmAutoCutoff;
+        extern VarInteger mrmAuto;
+        extern VarFloat mrmAutoFactor;
+        extern VarInteger mrmLow;
+        extern VarInteger mrmHigh;
+        extern VarFloat mrmAutoConstant1;
+        extern VarFloat mrmAutoConstant2;
+        extern VarInteger mrmAutoCutoff;
 
-        extern VarFloat         mrmAutoConstant3;
+        extern VarFloat mrmAutoConstant3;
 
-        extern VarInteger       doMRM;          // use mrm
-        extern VarInteger       doMultiWeight;  // use multi-weighting
-        extern VarInteger       doInterpolate;  // interp between sim frames
+        extern VarInteger doMRM;          // use mrm
+        extern VarInteger doMultiWeight;  // use multi-weighting
+        extern VarInteger doInterpolate;  // interp between sim frames
 
-        extern VarInteger       teamColor;
-        extern VarInteger       baseColor;
-        extern VarInteger       envAlpha;
-        extern VarInteger       shadowAlpha;
-        extern VarInteger       alphaColor;
+        extern VarInteger teamColor;
+        extern VarInteger baseColor;
+        extern VarInteger envAlpha;
+        extern VarInteger shadowAlpha;
+        extern VarInteger alphaColor;
 
-        extern VarInteger       showBounds;     // draw bounds
-        extern VarInteger       showNormals;    // draw normals
-        extern VarInteger       showHardPoints; // draw hardpoints
-        extern VarInteger       showOrigin;     // draw mesh origins
-        extern VarInteger       showShadows;    // draw fake shadows
-        extern VarInteger       showShadowReal; // draw cast shadows
-        extern VarInteger       showEnvMap;     // draw environment mapping
-        extern VarInteger       showOverlay;    // draw texture overlay
-        extern VarInteger       showOverlayMip; // diplay overlay with mipmapping
-        extern VarInteger       showSP0;        // draw shadow plane 0
-        extern VarInteger       showSP1;        // draw shadow plane 1
-        extern VarInteger       render2;        // use alternate render func
-        extern VarInteger       animOverlay;    // do anim overlay
-        extern VarInteger       showMesh;       // draw the mesh
+        extern VarInteger showBounds;     // draw bounds
+        extern VarInteger showNormals;    // draw normals
+        extern VarInteger showHardPoints; // draw hardpoints
+        extern VarInteger showOrigin;     // draw mesh origins
+        extern VarInteger showShadows;    // draw fake shadows
+        extern VarInteger showShadowReal; // draw cast shadows
+        extern VarInteger showEnvMap;     // draw environment mapping
+        extern VarInteger showOverlay;    // draw texture overlay
+        extern VarInteger showOverlayMip; // diplay overlay with mipmapping
+        extern VarInteger showSP0;        // draw shadow plane 0
+        extern VarInteger showSP1;        // draw shadow plane 1
+        extern VarInteger render2;        // use alternate render func
+        extern VarInteger animOverlay;    // do anim overlay
+        extern VarInteger showMesh;       // draw the mesh
 
-        extern VarFloat         animBlendTime;
+        extern VarFloat animBlendTime;
 
-        extern VarInteger       lightQuick;     // full bright lighting on units
-        extern VarInteger       lightSingle;
-        extern VarFloat         shadowY;        // limit shadow stretching
+        extern VarInteger lightQuick;     // full bright lighting on units
+        extern VarInteger lightSingle;
+        extern VarFloat shadowY;        // limit shadow stretching
 
-        extern VarString        godFilePath;    // where to save god files
-        extern VarString        gfgFilePath;    // where to save gfg files
+        extern VarString godFilePath;    // where to save god files
+        extern VarString gfgFilePath;    // where to save gfg files
 
         namespace Terrain
         {
-            extern VarInteger     water;
-            extern VarFloat       waterSpeed;
+            extern VarInteger water;
+            extern VarFloat waterSpeed;
 
-            extern VarInteger     shroud;
-            extern VarInteger     lightMap;
+            extern VarInteger shroud;
+            extern VarInteger lightMap;
 
-            extern VarFloat       waterAlphaTopFactor;
+            extern VarFloat waterAlphaTopFactor;
 
-            extern VarInteger     waveActive;
-            extern VarFloat       waveSpeed;
-            extern VarFloat       waveHeight;
+            extern VarInteger waveActive;
+            extern VarFloat waveSpeed;
+            extern VarFloat waveHeight;
 
-            extern VarFloat       waterSpeed;
-            extern VarInteger     waterColorTop;
-            extern VarInteger     waterColorBottom;
-            extern VarInteger     waterAlphaBottom;
-            extern VarInteger     waterAlphaMirror;
-            extern VarInteger     varOffMap;
-            extern VarFloat       varOffMapHeight;
-            extern VarInteger     overlay;
-            extern VarInteger     lightQuick;
-            extern VarInteger     lightMap;
-            extern VarInteger     clusterCells;
+            extern VarFloat waterSpeed;
+            extern VarInteger waterColorTop;
+            extern VarInteger waterColorBottom;
+            extern VarInteger waterAlphaBottom;
+            extern VarInteger waterAlphaMirror;
+            extern VarInteger varOffMap;
+            extern VarFloat varOffMapHeight;
+            extern VarInteger overlay;
+            extern VarInteger lightQuick;
+            extern VarInteger lightMap;
+            extern VarInteger clusterCells;
 
-            extern VarInteger     invisibleShroud;
-            extern VarInteger     softShroud;
-            extern VarInteger     shroudUpdate;
-            extern VarInteger     shroudRate;
-            extern VarInteger     shroudFog;
+            extern VarInteger invisibleShroud;
+            extern VarInteger softShroud;
+            extern VarInteger shroudUpdate;
+            extern VarInteger shroudRate;
+            extern VarInteger shroudFog;
 
-            extern VarInteger     shading;
-            extern VarFloat       shadefactor;
+            extern VarInteger shading;
+            extern VarFloat shadefactor;
 
-            extern VarInteger     lodActive;
-            extern VarInteger     lodAuto;
-            extern VarFloat       lodThresh;
-            extern VarFloat       lodDistFactor;
-            extern VarFloat       lodDist;
+            extern VarInteger lodActive;
+            extern VarInteger lodAuto;
+            extern VarFloat lodThresh;
+            extern VarFloat lodDistFactor;
+            extern VarFloat lodDist;
 
-            extern VarString      baseTexName;
+            extern VarString baseTexName;
 
-            extern VarFloat       perfAdjust;
-            extern VarFloat       minFarPlane;
-            extern VarFloat       standardFarPlane;
-            extern VarFloat       varAnimRate;
+            extern VarFloat perfAdjust;
+            extern VarFloat minFarPlane;
+            extern VarFloat standardFarPlane;
+            extern VarFloat varAnimRate;
 
-            extern VarInteger     renderColor;
-            extern VarInteger     renderOverlay;
+            extern VarInteger renderColor;
+            extern VarInteger renderOverlay;
 
             namespace Sky
             {
-                extern VarString    meshName;
+                extern VarString meshName;
 
-                extern VarFloat     level;
-                extern VarFloat     cloudOffset;
-                extern VarFloat     windSpeed;
+                extern VarFloat level;
+                extern VarFloat cloudOffset;
+                extern VarFloat windSpeed;
 
-                extern VarInteger   showSun;      // show the sun and moon orbs?
-                extern VarInteger   showClouds;   // show cloud layer
+                extern VarInteger showSun;      // show the sun and moon orbs?
+                extern VarInteger showClouds;   // show cloud layer
 
-                extern VarFloat     levelCam;     // at this camera height
-                extern VarFloat     levelFactor;  // reducing at meters/camerameters
+                extern VarFloat levelCam;     // at this camera height
+                extern VarFloat levelFactor;  // reducing at meters/camerameters
 
-                extern VarFloat     alphaHeight;  // how much alpha sky
+                extern VarFloat alphaHeight;  // how much alpha sky
             };
         };
 
-        extern Bool             lockout;
+        extern Bool lockout;
     };
 };
 

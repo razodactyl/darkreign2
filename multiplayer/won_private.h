@@ -25,28 +25,26 @@
 //
 namespace Won
 {
+#define CON_WON(x) CONSOLE(0x516DBDE5, x ) // "Won"
 
-  #define CON_WON(x) CONSOLE(0x516DBDE5, x ) // "Won"
+    // Control to send WON messages to
+    extern IControlPtr wonConnectCtrl;
 
-  // Control to send WON messages to
-  extern IControlPtr wonConnectCtrl;
+    // Player list
+    extern ICListBoxPtr wonPlayersCtrl;
 
-  // Player list
-  extern ICListBoxPtr wonPlayersCtrl;
+    // Chat window
+    extern IControlPtr wonChatCtrl;
 
-  // Chat window
-  extern IControlPtr wonChatCtrl;
-
-  // Games window
-  extern IControlPtr wonGamesCtrl;
+    // Games window
+    extern IControlPtr wonGamesCtrl;
 
 
-  // Abort
-  void Abort();
+    // Abort
+    void Abort();
 
-  // Load config
-  void LoadConfig();
-
+    // Load config
+    void LoadConfig();
 }
 
 #endif

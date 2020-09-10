@@ -26,6 +26,7 @@ void MeshRoot::SetVertsWorldAnim(const Array<FamilyState>& stateArray, Matrix* t
         SetVert(tranys, i, verts[i].vv, doMultiWeight);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
@@ -64,17 +65,19 @@ void MeshRoot::RenderLightAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Ar
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     ColorF32 base(baseColor);
 
     // setup _buckys and fill them
     //
-  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-    FaceGroup* b = groups.data, * be = groups.data + groups.count;
+    //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup *b = groups.data, *be = groups.data + groups.count;
     for (U16 sort = Vid::sortNORMAL0; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
@@ -98,7 +101,7 @@ void MeshRoot::RenderLightAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Ar
 
         // for all the faces in this group
         //
-        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        U16 *ii, *ie = bucky.geo.idx + bucky.geo.iCount;
         for (ii = bucky.geo.idx; ii < ie; ii++)
         {
             U16 ivj = *ii;
@@ -147,6 +150,7 @@ void MeshRoot::RenderLightAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Ar
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 
@@ -186,17 +190,19 @@ void MeshRoot::RenderLightNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const 
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     ColorF32 base(baseColor);
 
     // setup _buckys and fill them
     //
-  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-    FaceGroup* b = groups.data, * be = groups.data + groups.count;
+    //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup *b = groups.data, *be = groups.data + groups.count;
     for (U16 sort = Vid::sortNORMAL0; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
@@ -220,7 +226,7 @@ void MeshRoot::RenderLightNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const 
 
         // for all the faces in this group
         //
-        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        U16 *ii, *ie = bucky.geo.idx + bucky.geo.iCount;
         for (ii = bucky.geo.idx; ii < ie; ii++)
         {
             U16 ivj = *ii;
@@ -269,6 +275,7 @@ void MeshRoot::RenderLightNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const 
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -307,18 +314,20 @@ void MeshRoot::RenderColorAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Ar
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     ColorF32 base(baseColor);
 
     // setup _buckys and fill them
     //
-  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-    FaceGroup* b = groups.data, * be = groups.data + groups.count;
-    for ( /*sort = Vid::sortNORMAL0 */; b < be; b++, sort++)
+    //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup *b = groups.data, *be = groups.data + groups.count;
+    for (/*sort = Vid::sortNORMAL0 */; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
 
@@ -341,7 +350,7 @@ void MeshRoot::RenderColorAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Ar
 
         // for all the faces in this group
         //
-        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        U16 *ii, *ie = bucky.geo.idx + bucky.geo.iCount;
         for (ii = bucky.geo.idx; ii < ie; ii++)
         {
             U16 ivj = *ii;
@@ -390,6 +399,7 @@ void MeshRoot::RenderColorAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Ar
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -428,17 +438,19 @@ void MeshRoot::RenderColorNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const 
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     ColorF32 base(baseColor);
 
     // setup _buckys and fill them
     //
-  //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
-    FaceGroup* b = groups.data, * be = groups.data + groups.count;
+    //  FaceGroup * b = _buckys.data, * be = _buckys.data + _buckys.count;
+    FaceGroup *b = groups.data, *be = groups.data + groups.count;
     for (/*sort = Vid::sortNORMAL0*/; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
@@ -462,7 +474,7 @@ void MeshRoot::RenderColorNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const 
 
         // for all the faces in this group
         //
-        U16* ii, * ie = bucky.geo.idx + bucky.geo.iCount;
+        U16 *ii, *ie = bucky.geo.idx + bucky.geo.iCount;
         for (ii = bucky.geo.idx; ii < ie; ii++)
         {
             U16 ivj = *ii;
@@ -511,13 +523,14 @@ void MeshRoot::RenderColorNoAnimV1(Array<FaceGroup>& _buckys, U32 vCount, const 
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::MrmUpdate1(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCount, U32& _faceCount)
 {
     while (_vertCount != vCountNew)
     {
-        FaceGroup* b, * be = _groups.data + _groups.count;
+        FaceGroup *b, *be = _groups.data + _groups.count;
         for (b = _groups.data; b < be; b++)
         {
             FaceGroup& bucky = *b;
@@ -548,7 +561,7 @@ void MeshRoot::MrmUpdate1(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCo
                 dir = 0;
             }
 
-            GeoCache::Mrm::Rec* r, * re = mrm->rec + mrm->rCount;
+            GeoCache::Mrm::Rec *r, *re = mrm->rec + mrm->rCount;
             for (r = mrm->rec; r < re; r++)
             {
                 bucky.geo.idx[r->index] = r->value[dir];
@@ -564,4 +577,5 @@ void MeshRoot::MrmUpdate1(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCo
         }
     }
 }
+
 //----------------------------------------------------------------------------

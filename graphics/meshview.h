@@ -11,6 +11,7 @@
 #define _MESHVIEW_H
 
 #include "meshoptions.h"
+
 //----------------------------------------------------------------------------
 
 namespace MeshView
@@ -20,8 +21,8 @@ namespace MeshView
     void Done();
 
     void SetMessage(const char* mess0, const char* mess1 = NULL, const char* mess2 = NULL);
-
 }
+
 //----------------------------------------------------------------------------
 
 #endif      // _MESHVIEW_H

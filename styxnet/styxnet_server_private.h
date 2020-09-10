@@ -24,7 +24,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Server::Item
@@ -52,8 +51,7 @@ namespace StyxNet
 
     public:
 
-        friend class Server::Session;
-
+        friend class Session;
     };
 
 
@@ -125,7 +123,6 @@ namespace StyxNet
         friend class Server;
         friend class Session;
         friend class Migration;
-
     };
 
 
@@ -233,7 +230,6 @@ namespace StyxNet
         friend class Server;
         friend class User;
         friend class Migration;
-
     };
 
 
@@ -283,9 +279,7 @@ namespace StyxNet
     public:
 
         friend class Server;
-
     };
-
 }
 
 #endif

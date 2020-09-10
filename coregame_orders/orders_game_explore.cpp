@@ -21,63 +21,59 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 Explore::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Explore
-    //
-
-
-    //
-    // Generate
-    //
-    void Explore::Generate(Player &player, Modifier mod)
+    namespace Game
     {
-      Data  data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.mod = mod;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 Explore::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Explore::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Explore
+        //
 
-      // Create an iterator
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; ++i)
-      {
-        UnitObj *unit = **i;
 
-        if (unit->CanEverMove())
+        //
+        // Generate
+        //
+        void Explore::Generate(Player& player, Modifier mod)
         {
-          IssueTask(d->mod, unit, new Tasks::UnitExplore(unit), player, Task::TF_FLAG1);
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.mod = mod;
+
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
 
-      return (sizeof (Data));
+
+        //
+        // Execute
+        //
+        U32 Explore::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Create an iterator
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; ++i)
+            {
+                UnitObj* unit = **i;
+
+                if (unit->CanEverMove())
+                {
+                    IssueTask(d->mod, unit, new Tasks::UnitExplore(unit), player, Task::TF_FLAG1);
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }
-
-

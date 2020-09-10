@@ -35,19 +35,29 @@ namespace CursorSys
     public:
 
         // Destructor
-        virtual ~Base() {}
+        virtual ~Base()
+        {
+        }
 
         // Notifications
-        virtual void Notify(U32) {}
+        virtual void Notify(U32)
+        {
+        }
 
         // Configure the cursor
-        virtual void Configure(FScope*) {};
+        virtual void Configure(FScope*)
+        {
+        };
 
         // Simulate the cursor
-        virtual void Simulate(U32) {}
+        virtual void Simulate(U32)
+        {
+        }
 
         // Draw the cursor
-        virtual void Draw(const Point<S32>&) {};
+        virtual void Draw(const Point<S32>&)
+        {
+        };
     };
 
 
@@ -64,24 +74,26 @@ namespace CursorSys
     public:
 
         // Constructor
-        Derived(Base* base) : base(base) {}
+        Derived(Base* base) : base(base)
+        {
+        }
 
         // Notify
-        void Notify(U32 id)
+        void Notify(U32 id) override
         {
             ASSERT(base);
             base->Notify(id);
         }
 
         // Simulate
-        void Simulate(U32 ms)
+        void Simulate(U32 ms) override
         {
             ASSERT(base);
             base->Simulate(ms);
         }
 
         // Display
-        void Draw(const Point<S32>& p)
+        void Draw(const Point<S32>& p) override
         {
             ASSERT(base);
             base->Draw(p);
@@ -127,7 +139,7 @@ namespace CursorSys
             IFace::FScopeToTextureInfo(sScope, frame->tex);
 
             // Optional hotspot
-            if ((sScope = fScope->GetFunction("Hotspot", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("Hotspot", FALSE)) != nullptr)
             {
                 frame->hotspot.x = sScope->NextArgInteger();
                 frame->hotspot.y = sScope->NextArgInteger();
@@ -158,13 +170,13 @@ namespace CursorSys
         //
         // Notifications
         //
-        void Notify(U32 id)
+        void Notify(U32 id) override
         {
             switch (id)
             {
-            case CN_ACTIVATE:
-                current.GoToHead();
-                return;
+                case CN_ACTIVATE:
+                    current.GoToHead();
+                    return;
             }
 
             Base::Notify(id);
@@ -173,21 +185,21 @@ namespace CursorSys
         //
         // Configure the cursor
         //
-        void Configure(FScope* fScope)
+        void Configure(FScope* fScope) override
         {
             FScope* sScope;
 
-            while ((sScope = fScope->NextFunction()) != NULL)
+            while ((sScope = fScope->NextFunction()) != nullptr)
             {
                 switch (sScope->NameCrc())
                 {
-                case 0x207C29E1: // "FrameRate"
-                    speed = 1000 / Clamp<U32>(1, sScope->NextArgInteger(), 1000);
-                    break;
+                    case 0x207C29E1: // "FrameRate"
+                        speed = 1000 / Clamp<U32>(1, sScope->NextArgInteger(), 1000);
+                        break;
 
-                case 0xD13EA311: // "AddFrame"
-                    AddFrame(sScope);
-                    break;
+                    case 0xD13EA311: // "AddFrame"
+                        AddFrame(sScope);
+                        break;
                 }
             }
         }
@@ -195,7 +207,7 @@ namespace CursorSys
         //
         // Simulate
         //
-        void Simulate(U32 ms)
+        void Simulate(U32 ms) override
         {
             if (frames.GetCount() > 1)
             {
@@ -203,7 +215,7 @@ namespace CursorSys
                 {
                     // Move to next frame
                     elapsed = 0;
-                    current++;
+                    ++current;
 
                     // Move back to head if necessary
                     if (!*current)
@@ -217,11 +229,11 @@ namespace CursorSys
         //
         // Draw the cursor
         //
-        void Draw(const Point<S32>& p)
+        void Draw(const Point<S32>& p) override
         {
             FrameInfo* frame;
 
-            if ((frame = *current) != NULL)
+            if ((frame = *current) != nullptr)
             {
                 frame->tex.texRect = frame->tex.pixels - frame->tex.pixels.p0 - frame->hotspot + p;
                 IFace::RenderRectangle(frame->tex.texRect, 0xFFFFFFFF, &frame->tex);
@@ -249,7 +261,7 @@ namespace CursorSys
 
     // Registered cursors
     static BinTree<Base> cursors;
-    static Base* current = NULL;
+    static Base* current = nullptr;
 
     // Standard cursors 
     static U32 standardCrs[MAX_CURSORS];
@@ -262,7 +274,7 @@ namespace CursorSys
     {
         ASSERT(!sysInit);
 
-        current = NULL;
+        current = nullptr;
 
         // Initialise standard cursors
         for (U32 i = 0; i < MAX_CURSORS; i++)
@@ -300,11 +312,8 @@ namespace CursorSys
         {
             return (id);
         }
-        else
-        {
-            LOG_ERR(("Cursor [%s] not found", name));
-            return (0);
-        }
+        LOG_ERR(("Cursor [%s] not found", name));
+        return (0);
     }
 
 
@@ -320,38 +329,38 @@ namespace CursorSys
         const char* cls = fScope->NextArgString();
 
         // Create the cursor
-        Base* newCrs = NULL;
+        Base* newCrs = nullptr;
         U32 key = Crc::CalcStr(cls);
 
         switch (key)
         {
-        case 0x5B2A0A5F: // "Null"
-            newCrs = new Base;
-            break;
+            case 0x5B2A0A5F: // "Null"
+                newCrs = new Base;
+                break;
 
-        case 0xE04B5BBC: // "Bitmap"
-            newCrs = new Bmp;
-            break;
+            case 0xE04B5BBC: // "Bitmap"
+                newCrs = new Bmp;
+                break;
 
-        case 0xE5A51519: // "Geometric"
-            newCrs = new Geometric;
-            break;
+            case 0xE5A51519: // "Geometric"
+                newCrs = new Geometric;
+                break;
 
-        default:
-        {
-            Base* derived;
-
-            if ((derived = cursors.Find(key)) != NULL)
+            default:
             {
-                newCrs = new Derived(derived);
+                Base* derived;
+
+                if ((derived = cursors.Find(key)) != nullptr)
+                {
+                    newCrs = new Derived(derived);
+                }
+                else
+                {
+                    LOG_ERR(("Unknown Cursor Class [%s]", cls));
+                    return;
+                }
+                break;
             }
-            else
-            {
-                LOG_ERR(("Unknown Cursor Class [%s]", cls));
-                return;
-            }
-            break;
-        }
         }
 
         // Configure the cursor
@@ -369,31 +378,31 @@ namespace CursorSys
     {
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0x8F651465: // "Default"
-                standardCrs[DEFAULT] = FindByName(sScope->NextArgString());
-                break;
+                case 0x8F651465: // "Default"
+                    standardCrs[DEFAULT] = FindByName(sScope->NextArgString());
+                    break;
 
-            case 0x23C19271: // "IBeam"
-                standardCrs[IBEAM] = FindByName(sScope->NextArgString());
-                break;
+                case 0x23C19271: // "IBeam"
+                    standardCrs[IBEAM] = FindByName(sScope->NextArgString());
+                    break;
 
-            case 0x6E758990: // "Wait"
-                standardCrs[WAIT] = FindByName(sScope->NextArgString());
-                break;
+                case 0x6E758990: // "Wait"
+                    standardCrs[WAIT] = FindByName(sScope->NextArgString());
+                    break;
 
-            case 0x65D94636: // "No"
-                standardCrs[NO] = FindByName(sScope->NextArgString());
-                break;
+                case 0x65D94636: // "No"
+                    standardCrs[NO] = FindByName(sScope->NextArgString());
+                    break;
 
-            default:
-            {
-                LOG_ERR(("Unknown standard cursor type [%s]", sScope->NameStr()));
-                break;
-            }
+                default:
+                {
+                    LOG_ERR(("Unknown standard cursor type [%s]", sScope->NameStr()));
+                    break;
+                }
             }
         }
     }
@@ -407,7 +416,7 @@ namespace CursorSys
         ASSERT(sysInit);
 
         // Unset the current cursor
-        current = NULL;
+        current = nullptr;
 
         // Clear standard cursors
         for (int i = 0; i < MAX_CURSORS; i++)
@@ -453,7 +462,7 @@ namespace CursorSys
 
         Base* crs = cursors.Find(id);
 
-        if (crs != NULL)
+        if (crs != nullptr)
         {
             if (crs != current)
             {
@@ -469,12 +478,8 @@ namespace CursorSys
             }
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
-
 
 
     //
@@ -497,10 +502,7 @@ namespace CursorSys
         {
             return (standardCrs[crs]);
         }
-        else
-        {
-            return (standardCrs[DEFAULT]);
-        }
+        return (standardCrs[DEFAULT]);
     }
 
 

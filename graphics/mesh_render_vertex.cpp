@@ -26,6 +26,7 @@ void MeshRoot::SetVertsWorldAnim(const Array<FamilyState>& stateArray, Matrix* t
         SetVert(tranys, i, verts[i].vv, doMultiWeight);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
@@ -38,7 +39,7 @@ void MeshRoot::RenderLightAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
 #endif
 
     Vector* verts;
-    U16* iv, * in, * iu;
+    U16 *iv, *in, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &in, normals.count, &iu, uvs.count);
 
     // set up transform matrices and transform verts to view space
@@ -54,16 +55,18 @@ void MeshRoot::RenderLightAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     ColorF32 base(baseColor);
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     U16 sort = Vid::sortNORMAL0;
     for (b = _buckys.data; b < be; b++, sort++)
     {
@@ -88,7 +91,7 @@ void MeshRoot::RenderLightAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -102,7 +105,7 @@ void MeshRoot::RenderLightAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
                 U16 inj = face.norms[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& inj < normals.count&& iuj < uvs.count);
+                ASSERT(ivj < vCount && inj < normals.count && iuj < uvs.count);
 
                 if (iv[ivj] != in[inj])
                 {
@@ -126,11 +129,11 @@ void MeshRoot::RenderLightAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
                               {
                                 Color c;
                                 c.Modulate( colors[ivj], base.r, base.g, base.b);
-                                bucky.LightCamInline( dv, sv, norm, c);
+                                bucky.LightCamInline( dv, sv, norm, c); 
                               }
                               else
                               {
-                                bucky.LightCamInline( dv, sv, norm, baseColor);
+                                bucky.LightCamInline( dv, sv, norm, baseColor); 
                               }
                     */
                     bucky.SetIndex((U16)bucky.vCount);
@@ -186,8 +189,8 @@ void MeshRoot::RenderLightAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderLightNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags)
@@ -202,7 +205,7 @@ void MeshRoot::RenderLightNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
 #endif
 
     Vector* verts;
-    U16* iv, * in, * iu;
+    U16 *iv, *in, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &in, normals.count, &iu, uvs.count);
 
     // set up transform matrices and transform verts to world space
@@ -217,16 +220,18 @@ void MeshRoot::RenderLightNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     ColorF32 base(baseColor);
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     U16 sort = Vid::sortNORMAL0;
     for (b = _buckys.data; b < be; b++, sort++)
     {
@@ -251,7 +256,7 @@ void MeshRoot::RenderLightNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -265,7 +270,7 @@ void MeshRoot::RenderLightNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
                 U16 inj = face.norms[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& inj < normals.count&& iuj < uvs.count);
+                ASSERT(ivj < vCount && inj < normals.count && iuj < uvs.count);
 
                 if (iv[ivj] != in[inj])
                 {
@@ -288,11 +293,11 @@ void MeshRoot::RenderLightNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
                               {
                                 Color c;
                                 c.Modulate( colors[ivj], base.r, base.g, base.b);
-                                bucky.LightModInline( dv, sv, normals[inj], c);
+                                bucky.LightModInline( dv, sv, normals[inj], c); 
                               }
                               else
                               {
-                                bucky.LightModInline( dv, sv, normals[inj], baseColor);
+                                bucky.LightModInline( dv, sv, normals[inj], baseColor); 
                               }
                     */
                     bucky.SetIndex((U16)bucky.vCount);
@@ -349,8 +354,8 @@ void MeshRoot::RenderLightNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -363,7 +368,7 @@ void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
 #endif
 
     Vector* verts;
-    U16* iv, * iu;
+    U16 *iv, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &iu, uvs.count);
 
     // set up transform matrices and transform verts to view space
@@ -378,14 +383,16 @@ void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
     }
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        DP_DONOTLIGHT | RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        DP_DONOTLIGHT | RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     for (b = _buckys.data; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
@@ -406,10 +413,10 @@ void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
             {
               // calc constant diffuse component for each material (bucky)
               //
-              bucky.diffInitC.SetNoExpand(
-                (Vid::renderState.ambientColorF32.r + 1) * baseColor.r,
-                (Vid::renderState.ambientColorF32.g + 1) * baseColor.g,
-                (Vid::renderState.ambientColorF32.b + 1) * baseColor.b,
+              bucky.diffInitC.SetNoExpand( 
+                (Vid::renderState.ambientColorF32.r + 1) * baseColor.r, 
+                (Vid::renderState.ambientColorF32.g + 1) * baseColor.g, 
+                (Vid::renderState.ambientColorF32.b + 1) * baseColor.b, 
                  bucky.diff.a * F32(baseColor.a)
               );
             }
@@ -417,14 +424,14 @@ void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
             {
               // calc constant diffuse component for each material (bucky)
               //
-              bucky.diffInitC.SetNoExpand(
-                (bucky.diff.r * Vid::renderState.ambientColorF32.r + bucky.diff.r) * baseColor.r,
-                (bucky.diff.g * Vid::renderState.ambientColorF32.g + bucky.diff.g) * baseColor.g,
-                (bucky.diff.b * Vid::renderState.ambientColorF32.b + bucky.diff.b) * baseColor.b,
+              bucky.diffInitC.SetNoExpand( 
+                (bucky.diff.r * Vid::renderState.ambientColorF32.r + bucky.diff.r) * baseColor.r, 
+                (bucky.diff.g * Vid::renderState.ambientColorF32.g + bucky.diff.g) * baseColor.g, 
+                (bucky.diff.b * Vid::renderState.ambientColorF32.b + bucky.diff.b) * baseColor.b, 
                  bucky.diff.a * F32(baseColor.a)
               );
             }
-
+        
             if (colors.count)
             {
               // calc constant diffuse component for each material (bucky)
@@ -438,16 +445,16 @@ void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
         */
         // clear indexers
         //
-    /*
-        memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
-        memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
-    */
+        /*
+            memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
+            memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
+        */
         memset(iv, 0xff, sizeof(U16) * vertices.count);
         memset(iu, 0xfd, sizeof(U16) * uvs.count);
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -472,7 +479,7 @@ void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
                 U16 ivj = face.verts[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& iuj < uvs.count);
+                ASSERT(ivj < vCount && iuj < uvs.count);
 
                 if (iv[ivj] == iu[iuj])
                 {
@@ -536,8 +543,8 @@ void MeshRoot::RenderColorAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Arr
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const Array<FamilyState>& stateArray, Color baseColor, U32 clipFlags, U32 _controlFlags, Bitmap* tex, U32 blend, U16 sort)
@@ -552,7 +559,7 @@ void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
 #endif
 
     Vector* verts;
-    U16* iv, * in, * iu;
+    U16 *iv, *in, *iu;
     U32 heapSize = Vid::Heap::ReqMesh(&verts, vCount, &iv, vertices.count, &in, normals.count, &iu, uvs.count);
 
     // set up transform matrices and transform verts to view space
@@ -567,14 +574,16 @@ void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
 
     // setup bucket desc elements common to all faces
     //
-    Vid::SetBucketPrimitiveDesc(
+    Vid::SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_VERTEX,
-        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP));
+        RS_NOSORT | renderFlags | ((clipFlags & clipALL) ? 0 : DP_DONOTCLIP)
+    );
 
     // setup _buckys and fill them
     //
-    FaceGroup* b, * be = _buckys.data + _buckys.count;
+    FaceGroup *b, *be = _buckys.data + _buckys.count;
     for (b = _buckys.data; b < be; b++, sort++)
     {
         FaceGroup& bucky = *b;
@@ -594,10 +603,10 @@ void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
             {
               // calc constant diffuse component for each material (bucky)
               //
-              bucky.diffInitC.SetNoExpand(
-                (Vid::renderState.ambientColorF32.r + 1) * baseColor.r,
-                (Vid::renderState.ambientColorF32.g + 1) * baseColor.g,
-                (Vid::renderState.ambientColorF32.b + 1) * baseColor.b,
+              bucky.diffInitC.SetNoExpand( 
+                (Vid::renderState.ambientColorF32.r + 1) * baseColor.r, 
+                (Vid::renderState.ambientColorF32.g + 1) * baseColor.g, 
+                (Vid::renderState.ambientColorF32.b + 1) * baseColor.b, 
                  bucky.diff.a * F32(baseColor.a)
               );
             }
@@ -605,14 +614,14 @@ void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
             {
               // calc constant diffuse component for each material (bucky)
               //
-              bucky.diffInitC.SetNoExpand(
-                (bucky.diff.r * Vid::renderState.ambientColorF32.r + bucky.diff.r) * baseColor.r,
-                (bucky.diff.g * Vid::renderState.ambientColorF32.g + bucky.diff.g) * baseColor.g,
-                (bucky.diff.b * Vid::renderState.ambientColorF32.b + bucky.diff.b) * baseColor.b,
+              bucky.diffInitC.SetNoExpand( 
+                (bucky.diff.r * Vid::renderState.ambientColorF32.r + bucky.diff.r) * baseColor.r, 
+                (bucky.diff.g * Vid::renderState.ambientColorF32.g + bucky.diff.g) * baseColor.g, 
+                (bucky.diff.b * Vid::renderState.ambientColorF32.b + bucky.diff.b) * baseColor.b, 
                  bucky.diff.a * F32(baseColor.a)
               );
             }
-
+        
             if (colors.count)
             {
               // calc constant diffuse component for each material (bucky)
@@ -626,16 +635,16 @@ void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
         */
         // clear indexers
         //
-    /*
-        memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
-        memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
-    */
+        /*
+            memset( iv, 0xff, sizeof(U16) * bucky.vertices.count);
+            memset( iu, 0xfd, sizeof(U16) * bucky.vertices.count);
+        */
         memset(iv, 0xff, sizeof(U16) * vertices.count);
         memset(iu, 0xfd, sizeof(U16) * uvs.count);
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -648,7 +657,7 @@ void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
                 U16 ivj = face.verts[j];
                 U16 iuj = face.uvs[j];
 
-                ASSERT(ivj < vCount&& iuj < uvs.count);
+                ASSERT(ivj < vCount && iuj < uvs.count);
 
                 if (iv[ivj] == iu[iuj])
                 {
@@ -712,7 +721,6 @@ void MeshRoot::RenderColorNoAnimV(Array<FaceGroup>& _buckys, U32 vCount, const A
         Statistics::nonMRMTris = Statistics::nonMRMTris + Statistics::tempTris;
     }
 #endif
-
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

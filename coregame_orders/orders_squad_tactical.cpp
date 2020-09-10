@@ -24,61 +24,59 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Tactical
+    // NameSpace Squad
     //
-
-    U32 Tactical::orderId;
-
-
-    //
-    // Generate
-    //
-    void Tactical::Generate(Player &player, U32 squad, U8 mIndex, U8 sIndex)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Tactical
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 Tactical::orderId;
 
-      // Pack the squad
-      data.squad = squad;
 
-      // Pack the modifier index
-      data.mIndex = mIndex;
+        //
+        // Generate
+        //
+        void Tactical::Generate(Player& player, U32 squad, U8 mIndex, U8 sIndex)
+        {
+            Data data;
 
-      // Pack the setting index
-      data.sIndex = sIndex;
+            // Setup data structure
+            data.Setup(orderId, player);
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+            // Pack the squad
+            data.squad = squad;
+
+            // Pack the modifier index
+            data.mIndex = mIndex;
+
+            // Pack the setting index
+            data.sIndex = sIndex;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Tactical::Execute(const U8* data, Player&)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                // Set the tactical modifier setting of the squad
+                squadObj->SetTacticalModifierSetting(d->mIndex, d->sIndex);
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Tactical::Execute(const U8 *data, Player &)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        // Set the tactical modifier setting of the squad
-        squadObj->SetTacticalModifierSetting(d->mIndex, d->sIndex);
-      }
-  
-      return (sizeof (Data));
-    }
-  }
 }

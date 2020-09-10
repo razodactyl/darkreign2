@@ -207,7 +207,7 @@ namespace Sound
             }
         };
 
-        // List of providers    
+        // List of providers
         List<Provider> Provider::list;
         List<Provider>::Iterator Provider::listIterator;
 
@@ -228,14 +228,14 @@ namespace Sound
             sPCMWF.wf.nChannels = chans;
             sPCMWF.wf.nSamplesPerSec = rate;
             sPCMWF.wf.nAvgBytesPerSec = rate * (bits / 8) * chans;
-            sPCMWF.wf.nBlockAlign = (U16)((bits / 8) * chans);
+            sPCMWF.wf.nBlockAlign = static_cast<U16>((bits / 8) * chans);
             sPCMWF.wBitsPerSample = bits;
 
             // Get the digital driver, returning error code
             return
-                (
-                    AIL_waveOutOpen(dig, NULL, WAVE_MAPPER, (LPWAVEFORMAT)&sPCMWF) ? FALSE : TRUE
-                    );
+            (
+                AIL_waveOutOpen(dig, nullptr, WAVE_MAPPER, (LPWAVEFORMAT)&sPCMWF) ? FALSE : TRUE
+            );
         }
 
 
@@ -269,14 +269,12 @@ namespace Sound
                     found = TRUE;
                 }
             }
-            else
-
-                if (found && !key.NotFound())
-                {
-                    // Restore the poor users splash screen values
-                    key.SetInt("SplashScreen", screen);
-                    key.SetInt("SplashAudio", audio);
-                }
+            else if (found && !key.NotFound())
+            {
+                // Restore the poor users splash screen values
+                key.SetInt("SplashScreen", screen);
+                key.SetInt("SplashAudio", audio);
+            }
         }
 
 
@@ -294,8 +292,8 @@ namespace Sound
 
             // Setup local data
             disabled = FALSE;
-            driver = NULL;
-            provider = NULL;
+            driver = nullptr;
+            provider = nullptr;
 
             // Find available 3D service providers
             Provider::Init();
@@ -370,7 +368,7 @@ namespace Sound
         //
         HDIGDRIVER GetDriver()
         {
-            return (initialized ? driver : NULL);
+            return (initialized ? driver : nullptr);
         }
 
 
@@ -398,7 +396,7 @@ namespace Sound
             {
                 // Release sound driver
                 AIL_waveOutClose(driver);
-                driver = NULL;
+                driver = nullptr;
             }
         }
 
@@ -421,7 +419,7 @@ namespace Sound
                 *digDriverStr = '\0';
 
                 // Get text description of driver
-                AIL_digital_configuration(driver, 0, 0, digDriverStr);
+                AIL_digital_configuration(driver, nullptr, nullptr, digDriverStr);
 
                 LOG_DIAG(("Claim2D: Opened [%s]", GetServiceName2D()));
 
@@ -436,7 +434,7 @@ namespace Sound
             LOG_DIAG((" - %s", AIL_last_error()));
 
             // Must clear this because Miles screws with it
-            driver = NULL;
+            driver = nullptr;
             return (FALSE);
         }
 
@@ -455,7 +453,7 @@ namespace Sound
                 provider->Close();
 
                 // Clear our pointer
-                provider = NULL;
+                provider = nullptr;
             }
         }
 
@@ -474,7 +472,7 @@ namespace Sound
             if (providerPreference)
             {
                 // Search all providers for the preference
-                for (List<Provider>::Iterator i(&Provider::GetList()); *i; i++)
+                for (List<Provider>::Iterator i(&Provider::GetList()); *i; ++i)
                 {
                     // Get a pointer to the provider
                     Provider* p = *i;
@@ -491,12 +489,9 @@ namespace Sound
                             provider = p;
                             return (TRUE);
                         }
-                        else
-                        {
-                            LOG_DIAG(("Claim3D: Failed [%s]", p->Name()));
-                            LOG_DIAG((" - %s", AIL_last_error()));
-                            return (FALSE);
-                        }
+                        LOG_DIAG(("Claim3D: Failed [%s]", p->Name()));
+                        LOG_DIAG((" - %s", AIL_last_error()));
+                        return (FALSE);
                     }
                 }
 
@@ -523,8 +518,8 @@ namespace Sound
             // Claim output channels
             Output::Claim
             (
-                driver ? &driver : NULL, defaultVoice2D,
-                provider ? &provider->Handle() : NULL, defaultVoice3D
+                driver ? &driver : nullptr, defaultVoice2D,
+                provider ? &provider->Handle() : nullptr, defaultVoice3D
             );
         }
 
@@ -632,9 +627,11 @@ namespace Sound
                 }
 
                 LOG_DIAG
-                ((
-                    "SetProviderPreference: Failed (%d/%d)", index, Provider::GetList().GetCount()
-                    ));
+                (
+                    (
+                        "SetProviderPreference: Failed (%d/%d)", index, Provider::GetList().GetCount()
+                    )
+                );
 
                 // Clear the preference
                 providerPreference = 0;
@@ -654,7 +651,7 @@ namespace Sound
             if (initialized)
             {
                 // Search all providers for the preference
-                for (List<Provider>::Iterator i(&Provider::GetList()); *i; i++)
+                for (List<Provider>::Iterator i(&Provider::GetList()); *i; ++i)
                 {
                     // Get a pointer to the provider
                     Provider* p = *i;
@@ -847,7 +844,7 @@ namespace Sound
         {
             if (initialized && driver)
             {
-                return (F32(AIL_digital_master_volume(driver)) / F32(MAX_VOLUME));
+                return (static_cast<F32>(AIL_digital_master_volume(driver)) / static_cast<F32>(MAX_VOLUME));
             }
 
             return (0.0F);
@@ -894,4 +891,3 @@ namespace Sound
         }
     }
 }
-

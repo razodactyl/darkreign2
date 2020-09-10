@@ -60,7 +60,6 @@ namespace TerrainData
             terrain = type.Index();
             surface = type.Surface();
         }
-
     };
 
 
@@ -70,8 +69,14 @@ namespace TerrainData
     struct NPoint : public Point<S32>
     {
         NList<NPoint>::Node node;
-        NPoint(S32 x, S32 z) : Point<S32>(x, z) {}
-        NPoint(const Point<S32>& p) : Point<S32>(p) {}
+
+        NPoint(S32 x, S32 z) : Point<S32>(x, z)
+        {
+        }
+
+        NPoint(const Point<S32>& p) : Point<S32>(p)
+        {
+        }
     };
 
 
@@ -96,8 +101,14 @@ namespace TerrainData
     {
         U8 type;
         NList<PaintCell>::Node node;
-        PaintCell(S32 x, S32 z, U8 type) : Point<S32>(x, z), type(type) {}
-        PaintCell(const Point<S32>& p, U8 type) : Point<S32>(p), type(type) {}
+
+        PaintCell(S32 x, S32 z, U8 type) : Point<S32>(x, z), type(type)
+        {
+        }
+
+        PaintCell(const Point<S32>& p, U8 type) : Point<S32>(p), type(type)
+        {
+        }
     };
 
 
@@ -185,8 +196,8 @@ namespace TerrainData
 
     // including footprinted objects
     //
-    F32 FindFloor(F32 x, F32 z, Vector* surfNormal = NULL);
-    F32 FindFloorWithWater(F32 x, F32 z, Vector* surfNormal = NULL);
+    F32 FindFloor(F32 x, F32 z, Vector* surfNormal = nullptr);
+    F32 FindFloorWithWater(F32 x, F32 z, Vector* surfNormal = nullptr);
 
     F32 GetHeightWithWater(S32 cx, S32 cz);
     F32 GetHeightWithWaterGroundSprite(S32 cx, S32 cz);    // ignores use of 
@@ -197,14 +208,14 @@ namespace TerrainData
 
     // Find the water height at this METER location (FALSE if no water)
     //
-    inline Bool FindWater(F32 x, F32 z, F32* height = NULL, F32* depth = NULL)
+    inline Bool FindWater(F32 x, F32 z, F32* height = nullptr, F32* depth = nullptr)
     {
         return Terrain::FindWater(x, z, height, depth);
     }
 
     // Find the water height at this CELL location (FALSE if no water)
     //
-    inline Bool GetWater(S32 cx, S32 cz, F32* height = NULL)
+    inline Bool GetWater(S32 cx, S32 cz, F32* height = nullptr)
     {
         return Terrain::GetWater(cx, cz, height);
     }
@@ -260,8 +271,8 @@ namespace TerrainData
     // Should a second footprinted layer be used on this cell (map location)
     inline Bool UseSecondLayer(U32 x, U32 z)
     {
-        ASSERT(WorldCtrl::CellOnMap(x, z))
-            return (bitArraySecondLayer->Get2(x, z));
+        ASSERT(WorldCtrl::CellOnMap(x, z));
+        return (bitArraySecondLayer->Get2(x, z));
     }
 
     // Should a second footprinted layer be used on this cell (map offset)
@@ -273,8 +284,8 @@ namespace TerrainData
     // Does a building block LOS at this cell
     inline Bool BlockLOS(U32 x, U32 z)
     {
-        ASSERT(WorldCtrl::CellOnMap(x, z))
-            return (bitArrayBlockLOS->Get2(x, z));
+        ASSERT(WorldCtrl::CellOnMap(x, z));
+        return (bitArrayBlockLOS->Get2(x, z));
     }
 
     // including footprinted objects
@@ -285,7 +296,7 @@ namespace TerrainData
 
         if (UseSecondLayer(x, z))
         {
-            FootPrint::CellHeights((S32)x, (S32)z, heights);
+            FootPrint::CellHeights(static_cast<S32>(x), static_cast<S32>(z), heights);
         }
         else
         {
@@ -295,11 +306,12 @@ namespace TerrainData
 
     // ignoring footprinted objects
     //
-    inline F32 FindFloorLower(F32 x, F32 z, Vector* surfNormal = NULL)
+    inline F32 FindFloorLower(F32 x, F32 z, Vector* surfNormal = nullptr)
     {
         return Terrain::FindFloor(x, z, surfNormal);
     }
-    inline F32 FindFloorLowerWithWater(F32 x, F32 z, Vector* surfNormal = NULL)
+
+    inline F32 FindFloorLowerWithWater(F32 x, F32 z, Vector* surfNormal = nullptr)
     {
         return Terrain::FindFloorWithWater(x, z, surfNormal);
     }
@@ -310,6 +322,7 @@ namespace TerrainData
     {
         return Terrain::BoundsTestShadow(ent, GetHeight, FindFloor);
     }
+
     inline Bucket* RenderShadowWithWater(MeshEnt& ent)
     {
         return Terrain::RenderShadow(ent, GetHeightWithWater);
@@ -319,10 +332,12 @@ namespace TerrainData
     {
         return Terrain::RenderShadow(si, GetHeight);
     }
+
     inline Bool BoundsTestShadowWithWater(MeshEnt& ent)
     {
         return Terrain::BoundsTestShadow(ent, GetHeightWithWater, FindFloorWithWater);
     }
+
     inline Bucket* RenderShadowWithWater(const ShadowInfo& si)
     {
         return Terrain::RenderShadow(si, GetHeightWithWater);
@@ -334,87 +349,203 @@ namespace TerrainData
     {
         return Terrain::BoundsTestLight(si, light, GetHeight, FindFloor);
     }
+
     inline Bucket* RenderLight(const Vid::Light::Obj& light)
     {
         return Terrain::RenderLight(light, GetHeight, FindFloor);
     }
+
     inline Bool BoundsTestLightWithWater(ShadowInfo& si, const Vid::Light::Obj& light)
     {
         return Terrain::BoundsTestLight(si, light, GetHeightWithWater, FindFloorWithWater);
     }
+
     inline Bucket* RenderLightWithWater(const Vid::Light::Obj& light)
     {
         return Terrain::RenderLight(light, GetHeightWithWater, FindFloorWithWater);
     }
 
-    inline Bucket* RenderGroundSprite(const Vector& origin, F32 radx, F32 rady, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortGROUND0)
+    inline Bucket* RenderGroundSprite
+    (
+        const Vector& origin, F32 radx, F32 rady, const Bitmap* texture, Color color,
+        U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1),
+        U16 sorting = Vid::sortGROUND0
+    )
     {
-        return Terrain::RenderGroundSprite(origin, radx, rady, texture, color, blend, uv0, uv1, uv2, GetHeight, sorting);
-    }
-    inline Bucket* RenderGroundSprite(const Vector& origin, F32 radx, F32 rady, U32 clipFlags, F32 viewz, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortGROUND0)
-    {
-        return Terrain::RenderGroundSprite(origin, radx, rady, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2, GetHeight, sorting);
-    }
-    inline Bucket* RenderGroundSprite(const Vector& origin, F32 radx, F32 rady, const Vector& front, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortGROUND0)
-    {
-        return Terrain::RenderGroundSprite(origin, radx, rady, front, texture, color, blend, uv0, uv1, uv2, GetHeight, sorting);
-    }
-
-    inline Bucket* RenderGroundSpriteWithWater(const Vector& origin, F32 radx, F32 rady, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0)
-    {
-        return Terrain::RenderGroundSprite(origin, radx, rady, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater, sorting);
-    }
-    inline Bucket* RenderGroundSpriteWithWater(const Vector& origin, F32 radx, F32 rady, U32 clipFlags, F32 viewz, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0)
-    {
-        return Terrain::RenderGroundSprite(origin, radx, rady, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater, sorting);
-    }
-    inline Bucket* RenderGroundSpriteWithWater(const Vector& origin, F32 radx, F32 rady, const Vector& front, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0)
-    {
-        return Terrain::RenderGroundSprite(origin, radx, rady, front, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater, sorting);
+        return Terrain::RenderGroundSprite
+        (
+            origin, radx, rady, texture, color, blend, uv0, uv1, uv2, GetHeight,
+            sorting
+        );
     }
 
-    inline Bucket* RenderGroundSprite(const Vector& origin, F32 rad, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortGROUND0)
+    inline Bucket* RenderGroundSprite
+    (
+        const Vector& origin, F32 radx, F32 rady, U32 clipFlags, F32 viewz,
+        const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1),
+        U16 sorting = Vid::sortGROUND0
+    )
+    {
+        return Terrain::RenderGroundSprite
+        (
+            origin, radx, rady, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2,
+            GetHeight, sorting
+        );
+    }
+
+    inline Bucket* RenderGroundSprite
+    (
+        const Vector& origin, F32 radx, F32 rady, const Vector& front,
+        const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1),
+        U16 sorting = Vid::sortGROUND0
+    )
+    {
+        return Terrain::RenderGroundSprite
+        (
+            origin, radx, rady, front, texture, color, blend, uv0, uv1, uv2, GetHeight,
+            sorting
+        );
+    }
+
+    inline Bucket* RenderGroundSpriteWithWater
+    (
+        const Vector& origin, F32 radx, F32 rady, const Bitmap* texture,
+        Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0),
+        UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0
+    )
+    {
+        return Terrain::RenderGroundSprite
+        (
+            origin, radx, rady, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater,
+            sorting
+        );
+    }
+
+    inline Bucket* RenderGroundSpriteWithWater
+    (
+        const Vector& origin, F32 radx, F32 rady, U32 clipFlags, F32 viewz,
+        const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0),
+        UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0
+    )
+    {
+        return Terrain::RenderGroundSprite
+        (
+            origin, radx, rady, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2,
+            GetHeightWithWater, sorting
+        );
+    }
+
+    inline Bucket* RenderGroundSpriteWithWater
+    (
+        const Vector& origin, F32 radx, F32 rady, const Vector& front,
+        const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0),
+        UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0
+    )
+    {
+        return Terrain::RenderGroundSprite
+        (
+            origin, radx, rady, front, texture, color, blend, uv0, uv1, uv2,
+            GetHeightWithWater, sorting
+        );
+    }
+
+    inline Bucket* RenderGroundSprite
+    (
+        const Vector& origin, F32 rad, const Bitmap* texture, Color color,
+        U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1),
+        U16 sorting = Vid::sortGROUND0
+    )
     {
         return Terrain::RenderGroundSprite(origin, rad, rad, texture, color, blend, uv0, uv1, uv2, GetHeight, sorting);
     }
-    inline Bucket* RenderGroundSprite(const Vector& origin, F32 rad, U32 clipFlags, F32 viewz, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortGROUND0)
+
+    inline Bucket* RenderGroundSprite
+    (
+        const Vector& origin, F32 rad, U32 clipFlags, F32 viewz, const Bitmap* texture,
+        Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1),
+        U16 sorting = Vid::sortGROUND0
+    )
     {
-        return Terrain::RenderGroundSprite(origin, rad, rad, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2, GetHeight, sorting);
-    }
-    inline Bucket* RenderGroundSprite(const Vector& origin, F32 rad, const Vector& front, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortGROUND0)
-    {
-        return Terrain::RenderGroundSprite(origin, rad, rad, front, texture, color, blend, uv0, uv1, uv2, GetHeight, sorting);
+        return Terrain::RenderGroundSprite
+        (
+            origin, rad, rad, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2,
+            GetHeight, sorting
+        );
     }
 
-    inline Bucket* RenderGroundSpriteWithWater(const Vector& origin, F32 rad, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0)
+    inline Bucket* RenderGroundSprite
+    (
+        const Vector& origin, F32 rad, const Vector& front, const Bitmap* texture,
+        Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1),
+        U16 sorting = Vid::sortGROUND0
+    )
     {
-        return Terrain::RenderGroundSprite(origin, rad, rad, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater, sorting);
+        return Terrain::RenderGroundSprite
+        (
+            origin, rad, rad, front, texture, color, blend, uv0, uv1, uv2, GetHeight,
+            sorting
+        );
     }
-    inline Bucket* RenderGroundSpriteWithWater(const Vector& origin, F32 rad, U32 clipFlags, F32 viewz, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0)
+
+    inline Bucket* RenderGroundSpriteWithWater
+    (
+        const Vector& origin, F32 rad, const Bitmap* texture, Color color,
+        U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0),
+        UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0
+    )
     {
-        return Terrain::RenderGroundSprite(origin, rad, rad, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater, sorting);
+        return Terrain::RenderGroundSprite
+        (
+            origin, rad, rad, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater,
+            sorting
+        );
     }
-    inline Bucket* RenderGroundSpriteWithWater(const Vector& origin, F32 rad, const Vector& front, const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
-        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0), UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0)
+
+    inline Bucket* RenderGroundSpriteWithWater
+    (
+        const Vector& origin, F32 rad, U32 clipFlags, F32 viewz,
+        const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0),
+        UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0
+    )
     {
-        return Terrain::RenderGroundSprite(origin, rad, rad, front, texture, color, blend, uv0, uv1, uv2, GetHeightWithWater, sorting);
+        return Terrain::RenderGroundSprite
+        (
+            origin, rad, rad, clipFlags, viewz, texture, color, blend, uv0, uv1, uv2,
+            GetHeightWithWater, sorting
+        );
+    }
+
+    inline Bucket* RenderGroundSpriteWithWater
+    (
+        const Vector& origin, F32 rad, const Vector& front,
+        const Bitmap* texture, Color color, U32 blend = RS_BLEND_DEF,
+        UVPair uv0 = UVPair(0, 0), UVPair uv1 = UVPair(1, 0),
+        UVPair uv2 = UVPair(1, 1), U16 sorting = Vid::sortSURFACE0
+    )
+    {
+        return Terrain::RenderGroundSprite
+        (
+            origin, rad, rad, front, texture, color, blend, uv0, uv1, uv2,
+            GetHeightWithWater, sorting
+        );
     }
 
     inline Bool Intersect(Vector& pos, Vector front, F32 stepScale = 1.0f)
     {
         return Terrain::Intersect(pos, front, stepScale, FindFloor);
     }
+
     inline Bool ScreenToTerrain(S32 sx, S32 sy, Vector& pos)
     {
         return Terrain::ScreenToTerrain(sx, sy, pos, FindFloor);
@@ -424,6 +555,7 @@ namespace TerrainData
     {
         return Terrain::Intersect(pos, front, stepScale, FindFloorWithWater);
     }
+
     inline Bool ScreenToTerrainWithWater(S32 sx, S32 sy, Vector& pos)
     {
         return Terrain::ScreenToTerrain(sx, sy, pos, FindFloorWithWater);

@@ -46,9 +46,9 @@ static ICButtonResize resizeInfo;
 //
 ICButton::ICButton(IControl* parent)
     : IControl(parent),
-    toggleVar(NULL),
-    buttonStyle(0),
-    icon(NULL)
+      buttonStyle(0),
+      toggleVar(nullptr),
+      icon(nullptr)
 {
     // Default Control style
     controlStyle |= (STYLE_DROPSHADOW | STYLE_VGRADIENT | STYLE_TABSTOP);
@@ -113,23 +113,23 @@ void ICButton::SetState(ButtonState state)
 //
 void ICButton::Notify(IFaceVar* var)
 {
-    ASSERT(buttonStyle & STYLE_TOGGLE)
+    ASSERT(buttonStyle & STYLE_TOGGLE);
 
-        if (toggleVar == var)
+    if (toggleVar == var)
+    {
+        ASSERT(toggleVar);
+
+        if (toggleVar->GetIntegerValue())
         {
-            ASSERT(toggleVar)
-
-                if (toggleVar->GetIntegerValue())
-                {
-                    controlState |= STATE_SELECTED;
-                    SetState(BS_DOWN);
-                }
-                else
-                {
-                    controlState &= ~STATE_SELECTED;
-                    SetState(BS_UP);
-                }
+            controlState |= STATE_SELECTED;
+            SetState(BS_DOWN);
         }
+        else
+        {
+            controlState &= ~STATE_SELECTED;
+            SetState(BS_UP);
+        }
+    }
 }
 
 
@@ -154,7 +154,7 @@ void ICButton::DrawSelf(PaintInfo& pi)
     // Draw the text
     if (pi.font)
     {
-        if ((buttonStyle & STYLE_TOGGLE) && (textStr != NULL))
+        if ((buttonStyle & STYLE_TOGGLE) && (textStr != nullptr))
         {
             DrawCtrlText(pi, textStr);
         }
@@ -195,7 +195,7 @@ void ICButton::AdjustGeometry()
         clientRects[BS_UP] = paintInfo.client;
 
         // Down client area is moved down by size of dropshadow
-        clientRects[BS_DOWN] = paintInfo.client + (IFace::GetMetric(IFace::DROPSHADOW_UP) - IFace::GetMetric(IFace::DROPSHADOW_DOWN));
+        clientRects[BS_DOWN] = paintInfo.client + (GetMetric(IFace::DROPSHADOW_UP) - GetMetric(IFace::DROPSHADOW_DOWN));
     }
     else
     {
@@ -255,20 +255,20 @@ Bool ICButton::SetStyleItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0x62A243C5: // "Toggle"
-        style = STYLE_TOGGLE;
-        break;
+        case 0x62A243C5: // "Toggle"
+            style = STYLE_TOGGLE;
+            break;
 
-    case 0xC73B0775: // "Flat"
-        style = STYLE_FLAT;
-        break;
+        case 0xC73B0775: // "Flat"
+            style = STYLE_FLAT;
+            break;
 
-    case 0xC1B3BA0B: // "SelectWhenDown"
-        style = STYLE_SELECTDOWN;
-        break;
+        case 0xC1B3BA0B: // "SelectWhenDown"
+            style = STYLE_SELECTDOWN;
+            break;
 
-    default:
-        return IControl::SetStyleItem(s, toggle);
+        default:
+            return IControl::SetStyleItem(s, toggle);
     }
 
     // Toggle the style
@@ -287,39 +287,39 @@ void ICButton::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x742EA048: // "UseVar"
-    {
-        ConfigureVar(toggleVar, fScope);
-        break;
-    }
-
-    case 0x2598B3EB: // "Icon"
-    {
-        TextureInfo t;
-        IFace::FScopeToTextureInfo(fScope, t);
-
-        // If we don't have an icon, allocate one
-        if (icon == NULL)
+        case 0x742EA048: // "UseVar"
         {
-            icon = new TextureInfo;
+            ConfigureVar(toggleVar, fScope);
+            break;
         }
-        *icon = t;
-        break;
-    }
 
-    default:
-    {
-        // Pass it to the previous level in the hierarchy
-        IControl::Setup(fScope);
-        break;
-    }
+        case 0x2598B3EB: // "Icon"
+        {
+            TextureInfo t;
+            IFace::FScopeToTextureInfo(fScope, t);
+
+            // If we don't have an icon, allocate one
+            if (icon == nullptr)
+            {
+                icon = new TextureInfo;
+            }
+            *icon = t;
+            break;
+        }
+
+        default:
+        {
+            // Pass it to the previous level in the hierarchy
+            IControl::Setup(fScope);
+            break;
+        }
     }
 }
 
 void ICButton::SetIcon(TextureInfo& tinfo)
 {
     // If we don't have an icon, allocate one
-    if (icon == NULL)
+    if (icon == nullptr)
     {
         icon = new TextureInfo;
     }
@@ -339,119 +339,69 @@ U32 ICButton::HandleEvent(Event& e)
         // Input events
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        case Input::MOUSEBUTTONDBLCLK:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDOWN:
+            case Input::MOUSEBUTTONDBLCLK:
             {
-                if (controlState & STATE_DISABLED)
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    SendNotify(this, ICButtonNotify::DisabledDown);
-                }
-                else
-                {
-                    if (buttonStyle & STYLE_TOGGLE)
+                    if (controlState & STATE_DISABLED)
                     {
-                        // Generate message
-                        SendNotify(this, ICButtonMsg::Toggle, FALSE);
+                        SendNotify(this, ICButtonNotify::DisabledDown);
+                    }
+                    else
+                    {
+                        if (buttonStyle & STYLE_TOGGLE)
+                        {
+                            // Generate message
+                            SendNotify(this, ICButtonMsg::Toggle, FALSE);
+
+                            // Play click sound
+                            IFace::Sound::Play(soundClick, this);
+                        }
+                        else
+                        {
+                            SetState(BS_DOWN);
+                            GetMouseCapture();
+                            GetKeyFocus();
+                            SendNotify(this, ICButtonNotify::Pressing);
+                            return TRUE;
+                        }
+                    }
+                }
+                break;
+            }
+
+            case Input::MOUSEBUTTONUP:
+            case Input::MOUSEBUTTONDBLCLKUP:
+            {
+                if (e.input.code == Input::LeftButtonCode())
+                {
+                    if (!(buttonStyle & STYLE_TOGGLE))
+                    {
+                        // If mouse is over the button, generate a message
+                        if (buttonState == BS_DOWN)
+                        {
+                            // Set button state
+                            SetState(BS_UP);
+
+                            // Generate message
+                            SendNotify(this, ICButtonMsg::Press, FALSE);
+                        }
+
+                        // Release keyboard focus
+                        if (HasKeyFocus())
+                        {
+                            ReleaseKeyFocus();
+                        }
+
+                        // Release mouse capture
+                        if (HasMouseCapture())
+                        {
+                            ReleaseMouseCapture();
+                        }
 
                         // Play click sound
                         IFace::Sound::Play(soundClick, this);
-                    }
-                    else
-                    {
-                        SetState(BS_DOWN);
-                        GetMouseCapture();
-                        GetKeyFocus();
-                        SendNotify(this, ICButtonNotify::Pressing);
-                        return TRUE;
-                    }
-                }
-            }
-            break;
-        }
-
-        case Input::MOUSEBUTTONUP:
-        case Input::MOUSEBUTTONDBLCLKUP:
-        {
-            if (e.input.code == Input::LeftButtonCode())
-            {
-                if (!(buttonStyle & STYLE_TOGGLE))
-                {
-                    // If mouse is over the button, generate a message
-                    if (buttonState == BS_DOWN)
-                    {
-                        // Set button state
-                        SetState(BS_UP);
-
-                        // Generate message
-                        SendNotify(this, ICButtonMsg::Press, FALSE);
-                    }
-
-                    // Release keyboard focus
-                    if (HasKeyFocus())
-                    {
-                        ReleaseKeyFocus();
-                    }
-
-                    // Release mouse capture
-                    if (HasMouseCapture())
-                    {
-                        ReleaseMouseCapture();
-                    }
-
-                    // Play click sound
-                    IFace::Sound::Play(soundClick, this);
-                }
-
-                // Handled
-                return (TRUE);
-            }
-
-            // Not handled
-            break;
-        }
-
-        case Input::MOUSEMOVE:
-        {
-            if (HasMouseCapture())
-            {
-                // Toggle the up state depending on the mouse position
-                if (InWindow(Point<S32>(e.input.mouseX, e.input.mouseY)))
-                {
-                    SetState(BS_DOWN);
-                }
-                else
-                {
-                    SetState(BS_UP);
-                }
-
-                // Handled
-                return (TRUE);
-            }
-
-            // Not handled
-            break;
-        }
-
-        case Input::KEYDOWN:
-        {
-            switch (e.input.code)
-            {
-            case DIK_RETURN:
-            case DIK_SPACE:
-            {
-                // Enter and space simulate left button clicks
-                if (!(controlState & STATE_DISABLED))
-                {
-                    // Generate message
-                    if (buttonStyle & STYLE_TOGGLE)
-                    {
-                        SendNotify(this, ICButtonMsg::Toggle, FALSE);
-                    }
-                    else
-                    {
-                        SendNotify(this, ICButtonMsg::Press, FALSE);
                     }
 
                     // Handled
@@ -461,79 +411,126 @@ U32 ICButton::HandleEvent(Event& e)
                 // Not handled
                 break;
             }
+
+            case Input::MOUSEMOVE:
+            {
+                if (HasMouseCapture())
+                {
+                    // Toggle the up state depending on the mouse position
+                    if (InWindow(Point<S32>(e.input.mouseX, e.input.mouseY)))
+                    {
+                        SetState(BS_DOWN);
+                    }
+                    else
+                    {
+                        SetState(BS_UP);
+                    }
+
+                    // Handled
+                    return (TRUE);
+                }
+
+                // Not handled
+                break;
             }
 
-            // Not handled
-            break;
-        }
+            case Input::KEYDOWN:
+            {
+                switch (e.input.code)
+                {
+                    case DIK_RETURN:
+                    case DIK_SPACE:
+                    {
+                        // Enter and space simulate left button clicks
+                        if (!(controlState & STATE_DISABLED))
+                        {
+                            // Generate message
+                            if (buttonStyle & STYLE_TOGGLE)
+                            {
+                                SendNotify(this, ICButtonMsg::Toggle, FALSE);
+                            }
+                            else
+                            {
+                                SendNotify(this, ICButtonMsg::Press, FALSE);
+                            }
+
+                            // Handled
+                            return (TRUE);
+                        }
+
+                        // Not handled
+                        break;
+                    }
+                }
+
+                // Not handled
+                break;
+            }
         }
     }
-    else
-
-        if (e.type == IFace::EventID())
+    else if (e.type == IFace::EventID())
+    {
+        // Interface events
+        switch (e.subType)
         {
-            // Interface events
-            switch (e.subType)
-            {
                 // Notification events
             case IFace::NOTIFY:
             {
                 switch (e.iface.p1)
                 {
-                case ICButtonMsg::Press:
-                {
-                    // Generate pressed notification
-                    SendNotify(this, ICButtonNotify::Pressed);
-
-                    // Handled
-                    return (TRUE);
-                }
-
-                case ICButtonMsg::Toggle:
-                {
-                    if (!(controlState & STATE_DISABLED))
+                    case ICButtonMsg::Press:
                     {
-                        if (toggleVar)
-                        {
-                            VALIDATE(toggleVar);
+                        // Generate pressed notification
+                        SendNotify(this, ICButtonNotify::Pressed);
 
-                            // Set the value of the var
-                            toggleVar->SetIntegerValue(!toggleVar->GetIntegerValue());
-
-                            // Generate toggled notification
-                            SendNotify(this, ICButtonNotify::Toggled);
-                        }
+                        // Handled
+                        return (TRUE);
                     }
 
-                    // Handled
-                    return (TRUE);
-                }
+                    case ICButtonMsg::Toggle:
+                    {
+                        if (!(controlState & STATE_DISABLED))
+                        {
+                            if (toggleVar)
+                            {
+                                VALIDATE(toggleVar);
 
-                case IControlNotify::PreResize:
-                {
-                    ASSERT(IsActive())
+                                // Set the value of the var
+                                toggleVar->SetIntegerValue(!toggleVar->GetIntegerValue());
+
+                                // Generate toggled notification
+                                SendNotify(this, ICButtonNotify::Toggled);
+                            }
+                        }
+
+                        // Handled
+                        return (TRUE);
+                    }
+
+                    case IControlNotify::PreResize:
+                    {
+                        ASSERT(IsActive());
 
                         resizeInfo.control = this;
-                    resizeInfo.state = buttonState;
+                        resizeInfo.state = buttonState;
 
-                    // Call base class
-                    break;
-                }
-
-                case IControlNotify::PostResize:
-                {
-                    if (resizeInfo.control.Alive() && (resizeInfo.control.GetData() == this))
-                    {
-                        SetState(resizeInfo.state);
+                        // Call base class
+                        break;
                     }
 
-                    // Clear reaper
-                    resizeInfo.control = NULL;
+                    case IControlNotify::PostResize:
+                    {
+                        if (resizeInfo.control.Alive() && (resizeInfo.control.GetData() == this))
+                        {
+                            SetState(resizeInfo.state);
+                        }
 
-                    // Call base class
-                    break;
-                }
+                        // Clear reaper
+                        resizeInfo.control = nullptr;
 
+                        // Call base class
+                        break;
+                    }
                 }
                 break;
             }
@@ -557,8 +554,8 @@ U32 ICButton::HandleEvent(Event& e)
                 IFace::Sound::Play(soundOver, this);
                 break;
             }
-            }
         }
+    }
 
     // Allow IControl class to process this event
     return (IControl::HandleEvent(e));

@@ -30,318 +30,315 @@ enum StateMachineNotify { SMN_ENTRY, SMN_PROCESS, SMN_EXIT };
 //
 // Template StateMachine
 //
-template <class TYPE> class StateMachine
+template <class TYPE>
+class StateMachine
 {
 private:
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class State
-  //
-  class State
-  {
-  public:
-
-    // Function call back typedefs
-    typedef void (TYPE::*NormalCallBack)();
-    typedef void (TYPE::*NotifyCallBack)(StateMachineNotify notify);
-
-    // State type
-    enum Types { ST_NORMAL, ST_NOTIFY } stateType;
-
-  private:
-
-    // State Identifier
-    GameIdent ident;
-
-    // Type specific data
-    union 
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class State
+    //
+    class State
     {
-      struct
-      {
-        NormalCallBack process;
-      } normal;
+    public:
 
-      struct
-      {
-        NotifyCallBack process;
-      } notify;
+        // Function call back typedefs
+        typedef void (TYPE::*NormalCallBack)();
+        typedef void (TYPE::*NotifyCallBack)(StateMachineNotify notify);
+
+        // State type
+        enum Types { ST_NORMAL, ST_NOTIFY } stateType;
+
+    private:
+
+        // State Identifier
+        GameIdent ident;
+
+        // Type specific data
+        union
+        {
+            struct
+            {
+                NormalCallBack process;
+            } normal;
+
+            struct
+            {
+                NotifyCallBack process;
+            } notify;
+        };
+
+    public:
+
+        // Normal constructor
+        State(const char* name, NormalCallBack callBack) : ident(name)
+        {
+            stateType = ST_NORMAL;
+            normal.process = callBack;
+        }
+
+        // Notify constructor
+        State(const char* name, NotifyCallBack callBack) : ident(name)
+        {
+            stateType = ST_NOTIFY;
+            notify.process = callBack;
+        }
+
+        // Peform state processing
+        void Process(TYPE* type, StateMachineNotify n)
+        {
+            switch (stateType)
+            {
+                case ST_NORMAL:
+                    if (n == SMN_PROCESS)
+                    {
+                        (type->*normal.process)();
+                    }
+                    break;
+
+                case ST_NOTIFY:
+                    (type->*notify.process)(n);
+                    break;
+            }
+        }
+
+        // Return the identifier name
+        const char* GetName()
+        {
+            return (ident.str);
+        }
+
+        // Returh the identifier CRC
+        U32 GetNameCrc()
+        {
+            return (ident.crc);
+        }
     };
 
-  public:
-
-    // Normal constructor
-    State(const char *name, NormalCallBack callBack) : ident(name)
-    {
-      stateType = ST_NORMAL;
-      normal.process = callBack;
-    }
-
-    // Notify constructor
-    State(const char *name, NotifyCallBack callBack) : ident(name) 
-    {
-      stateType = ST_NOTIFY;
-      notify.process = callBack;
-    }
-  
-    // Peform state processing
-    void Process(TYPE *type, StateMachineNotify n)
-    {
-      switch (stateType)
-      {
-        case ST_NORMAL:
-          if (n == SMN_PROCESS)
-          {
-            (type->*normal.process)();
-          }
-          break;
-
-        case ST_NOTIFY:
-          (type->*notify.process)(n);
-          break;
-      }
-    }
-
-    // Return the identifier name
-    const char *GetName()
-    {
-      return (ident.str);
-    }
-
-    // Returh the identifier CRC
-    U32 GetNameCrc()
-    {
-      return (ident.crc);
-    }
-
-  };
-
-  // All possible states
-  BinTree<State> states;
+    // All possible states
+    BinTree<State> states;
 
 public:
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Instance
-  //
-  class Instance
-  {
-  private:
-
-    // State machine used for this instance
-    StateMachine *machine;
-
-    // Runtime state management
-    State *currentState;
-    State *nextState;
-    Bool initializing;
-
-  public:
-
-    // Constructor
-    Instance(StateMachine *machine, const char *stateName = NULL) : machine(machine)
-    { 
-      currentState = NULL;
-      nextState = NULL;
-      initializing = FALSE;
-
-      if (stateName)
-      {
-        Set(stateName);
-        currentState = nextState;
-        initializing = TRUE;
-      }
-    }
-
-    // Set the current state
-    void Set(State *newState)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Instance
+    //
+    class Instance
     {
-      // Will occur if an unknown state name is used
-      if (!newState)
-      {
-        ERR_FATAL(("State machine instance passed a NULL state"));
-      }
+    private:
 
-      // Set the next state
-      nextState = newState;
-    }
+        // State machine used for this instance
+        StateMachine* machine;
 
-    // Set the current state
-    void Set(U32 stateCrc)
-    {
-      Set(machine->FindState(stateCrc));
-    }
+        // Runtime state management
+        State* currentState;
+        State* nextState;
+        Bool initializing;
 
-    // Set the current state
-    void Set(const char *stateName)
-    {
-      Set(machine->FindState(stateName));
-    }
+    public:
 
-    // Test the current state
-    Bool Test(U32 stateCrc)
-    {
-      return (currentState == machine->FindState(stateCrc) ? TRUE : FALSE);
-    }
-
-    // Test the current state
-    Bool Test(const char *stateName)
-    {
-      return (currentState == machine->FindState(stateName) ? TRUE : FALSE);
-    }
-
-    // Test the next state
-    Bool TestNext(U32 stateCrc)
-    {
-      return (nextState && nextState == machine->FindState(stateCrc) ? TRUE : FALSE);
-    }
-
-    // Test the next state
-    Bool TestNext(const char *stateName)
-    {
-      return (nextState && nextState == machine->FindState(stateName) ? TRUE : FALSE);
-    }
-
-    // Return pointer to the next state
-    const State *NextState()
-    {
-      return (nextState);
-    }
-
-    // Process the current state
-    void Process(TYPE *type)
-    {
-      ASSERT(currentState || nextState)
-
-      // Do we want to go into another state ?
-      if (nextState)
-      {
-        if (currentState && !initializing)
+        // Constructor
+        Instance(StateMachine* machine, const char* stateName = nullptr) : machine(machine)
         {
-          currentState->Process(type, SMN_EXIT);
+            currentState = NULL;
+            nextState = NULL;
+            initializing = FALSE;
+
+            if (stateName)
+            {
+                Set(stateName);
+                currentState = nextState;
+                initializing = TRUE;
+            }
         }
-        initializing = FALSE;
-        ASSERT(nextState)
-        currentState = nextState;
-        nextState = NULL;
 
-        currentState->Process(type, SMN_ENTRY);
-      }
-
-      if (!nextState)
-      {
-        // Do normal processing
-        currentState->Process(type, SMN_PROCESS);
-      }
-    }
-
-    // Get the name of the current state
-    const char * GetName()
-    {
-      if (currentState)
-      {
-        return (currentState->GetName());
-      }
-      else
-      {
-        return ("NULL");
-      }
-    }
-
-    // Get the Crc of the current state
-    U32 GetNameCrc()
-    {
-      ASSERT(currentState)
-      return (currentState->GetNameCrc());
-    }
-
-    // Save the state
-    void SaveState(FScope *scope)
-    {
-      if (currentState)
-      {
-        StdSave::TypeU32(scope, "CurrentState", currentState->GetNameCrc());
-      }
-
-      if (nextState)
-      {
-        StdSave::TypeU32(scope, "NextState", nextState->GetNameCrc());
-      }
-
-      if (initializing)
-      {
-        StdSave::TypeU32(scope, "Initializing", initializing);
-      }
-    }
-
-    // Load the state
-    void LoadState(FScope *scope)
-    {
-      FScope *sScope;
-
-      // The state save assumes these are null
-      currentState = NULL;
-      nextState = NULL;
-      initializing = FALSE;
-
-      while ((sScope = scope->NextFunction()) != NULL)
-      {
-        switch (sScope->NameCrc())
+        // Set the current state
+        void Set(State* newState)
         {
-          case 0xFE325917: // "CurrentState"
-            currentState = machine->FindState(StdLoad::TypeU32(sScope));
-            break;
+            // Will occur if an unknown state name is used
+            if (!newState)
+            {
+                ERR_FATAL(("State machine instance passed a NULL state"));
+            }
 
-          case 0xDAA4E823: // "NextState"
-            nextState = machine->FindState(StdLoad::TypeU32(sScope));
-            break;
-
-          case 0x37955420: // "Initializing"
-            initializing = StdLoad::TypeU32(sScope);
-            break;
+            // Set the next state
+            nextState = newState;
         }
-      }
-    }
-  };
 
-  // Add a state to the state machine
-  void AddState(const char *name, typename State::NormalCallBack process)
-  {
-    states.Add(Crc::CalcStr(name), new State(name, process));
-  }
+        // Set the current state
+        void Set(U32 stateCrc)
+        {
+            Set(machine->FindState(stateCrc));
+        }
 
-  // Add a state to the state machine
-  void AddState(const char *name, typename State::NotifyCallBack process)
-  {
-    states.Add(Crc::CalcStr(name), new State(name, process));
-  }
+        // Set the current state
+        void Set(const char* stateName)
+        {
+            Set(machine->FindState(stateName));
+        }
 
-  // Return pointer to the state
-  State *FindState(U32 crc)
-  {
-    State *state = states.Find(crc);
-    
-    if (!state)
+        // Test the current state
+        Bool Test(U32 stateCrc)
+        {
+            return (currentState == machine->FindState(stateCrc) ? TRUE : FALSE);
+        }
+
+        // Test the current state
+        Bool Test(const char* stateName)
+        {
+            return (currentState == machine->FindState(stateName) ? TRUE : FALSE);
+        }
+
+        // Test the next state
+        Bool TestNext(U32 stateCrc)
+        {
+            return (nextState && nextState == machine->FindState(stateCrc) ? TRUE : FALSE);
+        }
+
+        // Test the next state
+        Bool TestNext(const char* stateName)
+        {
+            return (nextState && nextState == machine->FindState(stateName) ? TRUE : FALSE);
+        }
+
+        // Return pointer to the next state
+        const State* NextState()
+        {
+            return (nextState);
+        }
+
+        // Process the current state
+        void Process(TYPE* type)
+        {
+            ASSERT(currentState || nextState);
+
+            // Do we want to go into another state ?
+            if (nextState)
+            {
+                if (currentState && !initializing)
+                {
+                    currentState->Process(type, SMN_EXIT);
+                }
+                initializing = FALSE;
+                ASSERT(nextState);
+                currentState = nextState;
+                nextState = NULL;
+
+                currentState->Process(type, SMN_ENTRY);
+            }
+
+            if (!nextState)
+            {
+                // Do normal processing
+                currentState->Process(type, SMN_PROCESS);
+            }
+        }
+
+        // Get the name of the current state
+        const char* GetName()
+        {
+            if (currentState)
+            {
+                return (currentState->GetName());
+            }
+            return ("NULL");
+        }
+
+        // Get the Crc of the current state
+        U32 GetNameCrc()
+        {
+            ASSERT(currentState);
+            return (currentState->GetNameCrc());
+        }
+
+        // Save the state
+        void SaveState(FScope* scope)
+        {
+            if (currentState)
+            {
+                StdSave::TypeU32(scope, "CurrentState", currentState->GetNameCrc());
+            }
+
+            if (nextState)
+            {
+                StdSave::TypeU32(scope, "NextState", nextState->GetNameCrc());
+            }
+
+            if (initializing)
+            {
+                StdSave::TypeU32(scope, "Initializing", initializing);
+            }
+        }
+
+        // Load the state
+        void LoadState(FScope* scope)
+        {
+            FScope* sScope;
+
+            // The state save assumes these are null
+            currentState = NULL;
+            nextState = NULL;
+            initializing = FALSE;
+
+            while ((sScope = scope->NextFunction()) != nullptr)
+            {
+                switch (sScope->NameCrc())
+                {
+                    case 0xFE325917: // "CurrentState"
+                        currentState = machine->FindState(StdLoad::TypeU32(sScope));
+                        break;
+
+                    case 0xDAA4E823: // "NextState"
+                        nextState = machine->FindState(StdLoad::TypeU32(sScope));
+                        break;
+
+                    case 0x37955420: // "Initializing"
+                        initializing = StdLoad::TypeU32(sScope);
+                        break;
+                }
+            }
+        }
+    };
+
+    // Add a state to the state machine
+    void AddState(const char* name, typename State::NormalCallBack process)
     {
-      ERR_FATAL(("Could not find state %08x", crc))
+        states.Add(Crc::CalcStr(name), new State(name, process));
     }
-    return (state);
-  }
 
-  // Return pointer to the state
-  State *FindState(const char *name)
-  {
-    return (FindState(Crc::CalcStr(name)));
-  }
+    // Add a state to the state machine
+    void AddState(const char* name, typename State::NotifyCallBack process)
+    {
+        states.Add(Crc::CalcStr(name), new State(name, process));
+    }
 
-  // Clean up the list of states
-  void CleanUp()
-  {
-    states.DisposeAll();
-  }
+    // Return pointer to the state
+    State* FindState(U32 crc)
+    {
+        State* state = states.Find(crc);
+
+        if (!state)
+        {
+            ERR_FATAL(("Could not find state %08x", crc))
+        }
+        return (state);
+    }
+
+    // Return pointer to the state
+    State* FindState(const char* name)
+    {
+        return (FindState(Crc::CalcStr(name)));
+    }
+
+    // Clean up the list of states
+    void CleanUp()
+    {
+        states.DisposeAll();
+    }
 };
 
 

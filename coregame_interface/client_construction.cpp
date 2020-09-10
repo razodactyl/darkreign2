@@ -28,7 +28,6 @@
 #include "common.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // NameSpace Client
@@ -45,7 +44,7 @@ namespace Client
     //
     ConstructionIcon::ConstructionIcon(IControl* parent, Mode m, UnitObjType* type, UnitObj* unit) :
         IControl(parent),
-        textureOverlay(NULL),
+        textureOverlay(nullptr),
         pointQueue(0, 0),
         pointCost(0, 0),
         areaProgress(0, 0, 0, 0),
@@ -99,36 +98,34 @@ namespace Client
     {
         switch (fScope->NameCrc())
         {
-        case 0x4CF287CE: // "TextureOverlay"
-        {
-            if (textureOverlay)
+            case 0x4CF287CE: // "TextureOverlay"
             {
-                delete textureOverlay;
+                if (textureOverlay)
+                {
+                    delete textureOverlay;
+                }
+                textureOverlay = new TextureInfo;
+                IFace::FScopeToTextureInfo(fScope, *textureOverlay);
+                break;
             }
-            textureOverlay = new TextureInfo;
-            IFace::FScopeToTextureInfo(fScope, *textureOverlay);
-            break;
-        }
 
-        case 0x9A101F4C: // "PointQueue"
-            StdLoad::TypePoint(fScope, pointQueue);
-            break;
+            case 0x9A101F4C: // "PointQueue"
+                StdLoad::TypePoint(fScope, pointQueue);
+                break;
 
-        case 0x9FE5B9CA: // "PointCost"
-            StdLoad::TypePoint(fScope, pointCost);
-            break;
+            case 0x9FE5B9CA: // "PointCost"
+                StdLoad::TypePoint(fScope, pointCost);
+                break;
 
-        case 0xC84F46D4: // "AreaProgress"
-            StdLoad::TypeArea(fScope, areaProgress);
-            break;
+            case 0xC84F46D4: // "AreaProgress"
+                StdLoad::TypeArea(fScope, areaProgress);
+                break;
 
-            // Pass it to the previous level in the hierarchy
-        default:
-            IControl::Setup(fScope);
+                // Pass it to the previous level in the hierarchy
+            default:
+                IControl::Setup(fScope);
         }
     }
-
-
 
 
     //
@@ -139,9 +136,9 @@ namespace Client
     void ConstructionIcon::DisplayPrereqs()
     {
         Common::PrereqList* pt = IFace::Promote<Common::PrereqList>
-            (
-                IFace::CreateControl("", "Common::PrereqList", IFace::OverlaysWindow())
-                );
+        (
+            IFace::CreateControl("", "Common::PrereqList", IFace::OverlaysWindow())
+        );
 
         if (pt)
         {
@@ -176,81 +173,81 @@ namespace Client
         // Is the current constructor object alive
         if (constructor.Alive())
         {
-            ASSERT(constructor->GetTeam())
+            ASSERT(constructor->GetTeam());
 
-                // Check the prereqs
-                if (constructor->CanConstructNow(construct))
-                {
-                    flags |= FLAG_PREREQ;
-                }
+            // Check the prereqs
+            if (constructor->CanConstructNow(construct))
+            {
+                flags |= FLAG_PREREQ;
+            }
 
             // Mode specific setup
             switch (mode)
             {
-            case MODE_FACILITY:
-            {
-                // Get constructor task
-                if (Tasks::UnitConstructor* task = TaskCtrl::PromoteIdle<Tasks::UnitConstructor>(constructor))
+                case MODE_FACILITY:
                 {
-                    // Task must be active for icons to be valid
+                    // Get constructor task
+                    if (Tasks::UnitConstructor* task = TaskCtrl::PromoteIdle<Tasks::UnitConstructor>(constructor))
+                    {
+                        // Task must be active for icons to be valid
+                        flags |= FLAG_VALID;
+
+                        // Has the unit limit been reached for this type
+                        if (constructor->GetTeam()->UnitLimitReached(construct))
+                        {
+                            flags |= FLAG_LIMITED;
+                        }
+
+                        // Is there an offmap object waiting
+                        OffMapObj* offMap = task->GetOffMapObject();
+
+                        // Is it related to this icon
+                        if (offMap && offMap->UnitType() == construct)
+                        {
+                            flags |= FLAG_OFFMAP;
+                        }
+                        else
+
+                            // Is this type under construction
+                            if (task->GetConstructType() == construct)
+                            {
+                                // Get the progress values
+                                progress = task->GetProgress();
+
+                                // Set the flag
+                                flags |= FLAG_PROGRESS;
+                            }
+
+                        // Get the current queue count
+                        queue = task->QueueCount(construct);
+
+                        // Is the task currently active and no order in transit
+                        if (task == constructor->GetCurrentTask() && !task->GetOrderInTransit())
+                        {
+                            // If an offmap, only activate if this is its icon
+                            if (!offMap || (offMap->UnitType() == construct))
+                            {
+                                flags |= FLAG_ACTIVE;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                case MODE_RIG:
+                {
+                    // Set as valid
                     flags |= FLAG_VALID;
 
                     // Has the unit limit been reached for this type
-                    if (constructor->GetTeam()->UnitLimitReached(construct))
+                    if (constructor->GetTeam()->UnitLimitReached(construct, constructor->UnitType()))
                     {
                         flags |= FLAG_LIMITED;
                     }
 
-                    // Is there an offmap object waiting
-                    OffMapObj* offMap = task->GetOffMapObject();
-
-                    // Is it related to this icon
-                    if (offMap && offMap->UnitType() == construct)
-                    {
-                        flags |= FLAG_OFFMAP;
-                    }
-                    else
-
-                        // Is this type under construction
-                        if (task->GetConstructType() == construct)
-                        {
-                            // Get the progress values
-                            progress = task->GetProgress();
-
-                            // Set the flag
-                            flags |= FLAG_PROGRESS;
-                        }
-
-                    // Get the current queue count
-                    queue = task->QueueCount(construct);
-
-                    // Is the task currently active and no order in transit
-                    if (task == constructor->GetCurrentTask() && !task->GetOrderInTransit())
-                    {
-                        // If an offmap, only activate if this is its icon
-                        if (!offMap || (offMap->UnitType() == construct))
-                        {
-                            flags |= FLAG_ACTIVE;
-                        }
-                    }
+                    break;
                 }
-
-                break;
-            }
-
-            case MODE_RIG:
-            {
-                // Set as valid
-                flags |= FLAG_VALID;
-
-                // Has the unit limit been reached for this type
-                if (constructor->GetTeam()->UnitLimitReached(construct, constructor->UnitType()))
-                {
-                    flags |= FLAG_LIMITED;
-                }
-
-                break;
-            }
             }
         }
 
@@ -302,16 +299,14 @@ namespace Client
             {
                 IFace::RenderRectangle
                 (
-                    pi.client, Color::Std[Color::YELLOW], NULL,
+                    pi.client, Color::Std[Color::YELLOW], nullptr,
                     data.clientAlpha.GetValue() * IFace::data.alphaScale * 0.5F
                 );
             }
-            else
-
-                if (flags & FLAG_LIMITED)
-                {
-                    IFace::RenderRectangle(pi.client, Color::Std[Color::BLUE], NULL, IFace::data.alphaScale * 0.3F);
-                }
+            else if (flags & FLAG_LIMITED)
+            {
+                IFace::RenderRectangle(pi.client, Color::Std[Color::BLUE], nullptr, IFace::data.alphaScale * 0.3F);
+            }
         }
 
         // Draw the overlay
@@ -354,27 +349,31 @@ namespace Client
 
                 switch (mode)
                 {
-                case MODE_FACILITY:
-                {
-                    // Display queue count
-                    if (queue)
+                    case MODE_FACILITY:
                     {
-                        IFace::RenderS32
-                        (
-                            queue, pi.font, pi.colors->fg[ColorIndex()],
-                            pointQueue.x, pointQueue.y, &pi.client,
-                            IFace::data.alphaScale
-                        );
-                    }
+                        // Display queue count
+                        if (queue)
+                        {
+                            IFace::RenderS32
+                            (
+                                queue, pi.font, pi.colors->fg[ColorIndex()],
+                                pointQueue.x, pointQueue.y, &pi.client,
+                                IFace::data.alphaScale
+                            );
+                        }
 
-                    // Display off map object available
-                    if (flags & FLAG_OFFMAP)
-                    {
-                        IFace::RenderRectangle(areaProgress + pi.client.p0, Color(1.0F, 0.0F, 0.0F, 0.7F * IFace::data.alphaScale));
-                    }
+                        // Display off map object available
+                        if (flags & FLAG_OFFMAP)
+                        {
+                            IFace::RenderRectangle
+                            (
+                                areaProgress + pi.client.p0,
+                                Color(1.0F, 0.0F, 0.0F, 0.7F * IFace::data.alphaScale)
+                            );
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 }
             }
         }
@@ -394,83 +393,104 @@ namespace Client
             // Event specific handling
             switch (event)
             {
-            case 0xCCEDD540: // "Primary"
-            {
-                // If constructing something already
-                if ((flags & FLAG_OFFMAP) || task->GetConstructType())
+                case 0xCCEDD540: // "Primary"
                 {
-                    // "Client::Construction::QueueAdd"
-                    Message::TriggerGameMessage(0x2028C8E1);
-
-                    // Add to the queue
-                    task->QueueAdd(construct);
-                }
-                else
-
-                    // Can we currently start construction of this item
-                    if ((flags & FLAG_PREREQ) && (flags & FLAG_ACTIVE) && !(flags & FLAG_LIMITED))
+                    // If constructing something already
+                    if ((flags & FLAG_OFFMAP) || task->GetConstructType())
                     {
-                        // "Client::Construction::Build"
-                        Message::TriggerGameMessage(0xFE4A7807);
-
-                        // "Order::UnitConstructor::Build"
-                        Orders::Game::Constructor::Generate
-                        (
-                            GetPlayer(), constructor->Id(), 0x258B47CE, construct->GetNameCrc()
-                        );
-
-                        // Tell the task there is an order in transit
-                        task->SetOrderInTransit(TRUE);
-                    }
-                    else
-                    {
-                        // Has the unit limit been reached
-                        if (flags & FLAG_LIMITED)
-                        {
-                            // "Client::Construction::UnitLimitReached"
-                            Message::TriggerGameMessage(0x81019E23);
-                        }
-
                         // "Client::Construction::QueueAdd"
                         Message::TriggerGameMessage(0x2028C8E1);
 
                         // Add to the queue
                         task->QueueAdd(construct);
                     }
+                    else
 
-                break;
-            }
+                        // Can we currently start construction of this item
+                        if ((flags & FLAG_PREREQ) && (flags & FLAG_ACTIVE) && !(flags & FLAG_LIMITED))
+                        {
+                            // "Client::Construction::Build"
+                            Message::TriggerGameMessage(0xFE4A7807);
 
-            case 0x7C13A54E: // "PrimaryShift"
-            {
-                // "Client::Construction::QueueAdd"
-                Message::TriggerGameMessage(0x2028C8E1);
+                            // "Order::UnitConstructor::Build"
+                            Orders::Game::Constructor::Generate
+                            (
+                                GetPlayer(), constructor->Id(), 0x258B47CE, construct->GetNameCrc()
+                            );
 
-                // Add to the queue
-                for (U32 i = 0; i < 5; ++i)
-                {
-                    task->QueueAdd(construct);
+                            // Tell the task there is an order in transit
+                            task->SetOrderInTransit(TRUE);
+                        }
+                        else
+                        {
+                            // Has the unit limit been reached
+                            if (flags & FLAG_LIMITED)
+                            {
+                                // "Client::Construction::UnitLimitReached"
+                                Message::TriggerGameMessage(0x81019E23);
+                            }
+
+                            // "Client::Construction::QueueAdd"
+                            Message::TriggerGameMessage(0x2028C8E1);
+
+                            // Add to the queue
+                            task->QueueAdd(construct);
+                        }
+
+                    break;
                 }
 
-                break;
-            }
-
-            case 0xBD34689F: // "Secondary"
-            {
-                // Is there anything queued for this type
-                if (task->QueueCount(construct))
+                case 0x7C13A54E: // "PrimaryShift"
                 {
-                    // "Client::Construction::QueueRemove"
-                    Message::TriggerGameMessage(0xDDA6E36B);
+                    // "Client::Construction::QueueAdd"
+                    Message::TriggerGameMessage(0x2028C8E1);
 
-                    // Remove an item from the queue
-                    task->QueueRemove(construct);
+                    // Add to the queue
+                    for (U32 i = 0; i < 5; ++i)
+                    {
+                        task->QueueAdd(construct);
+                    }
+
+                    break;
                 }
-                else
 
+                case 0xBD34689F: // "Secondary"
+                {
+                    // Is there anything queued for this type
+                    if (task->QueueCount(construct))
+                    {
+                        // "Client::Construction::QueueRemove"
+                        Message::TriggerGameMessage(0xDDA6E36B);
+
+                        // Remove an item from the queue
+                        task->QueueRemove(construct);
+                    }
+                    else
+
+                        // Is this the thing being constructed
+                        if (task->GetConstructType() == construct)
+                        {
+                            // "Client::Construction::Cancel"
+                            Message::TriggerGameMessage(0xAA4BDB56);
+
+                            // "Order::UnitConstructor::Cancel"
+                            Orders::Game::Constructor::Generate
+                            (
+                                GetPlayer(), constructor->Id(), 0x51A492DE, construct->GetNameCrc()
+                            );
+                        }
+
+                    break;
+                }
+
+                case 0xBAAF3F34: // "SecondaryShift"
+                {
                     // Is this the thing being constructed
                     if (task->GetConstructType() == construct)
                     {
+                        // Clear the queue for this item
+                        task->QueueClear(construct);
+
                         // "Client::Construction::Cancel"
                         Message::TriggerGameMessage(0xAA4BDB56);
 
@@ -480,41 +500,20 @@ namespace Client
                             GetPlayer(), constructor->Id(), 0x51A492DE, construct->GetNameCrc()
                         );
                     }
+                    else
 
-                break;
-            }
+                        // Is there anything queued for this type
+                        if (task->QueueCount(construct))
+                        {
+                            // Clear the queue for this item
+                            task->QueueClear(construct);
 
-            case 0xBAAF3F34: // "SecondaryShift"
-            {
-                // Is this the thing being constructed
-                if (task->GetConstructType() == construct)
-                {
-                    // Clear the queue for this item
-                    task->QueueClear(construct);
+                            // "Client::Construction::QueueClear"
+                            Message::TriggerGameMessage(0x99C3B054);
+                        }
 
-                    // "Client::Construction::Cancel"
-                    Message::TriggerGameMessage(0xAA4BDB56);
-
-                    // "Order::UnitConstructor::Cancel"
-                    Orders::Game::Constructor::Generate
-                    (
-                        GetPlayer(), constructor->Id(), 0x51A492DE, construct->GetNameCrc()
-                    );
+                    break;
                 }
-                else
-
-                    // Is there anything queued for this type
-                    if (task->QueueCount(construct))
-                    {
-                        // Clear the queue for this item
-                        task->QueueClear(construct);
-
-                        // "Client::Construction::QueueClear"
-                        Message::TriggerGameMessage(0x99C3B054);
-                    }
-
-                break;
-            }
             }
         }
     }
@@ -530,56 +529,56 @@ namespace Client
         // Event specific handling
         switch (event)
         {
-        case 0xCCEDD540: // "Primary"
-        {
-            // Always clear the construct type
-            data.constructType = NULL;
-
-            // Always clear client mode
-            Events::TriggerClientMode(CM_NONE);
-
-            // Has the unit limit been reached
-            if (flags & FLAG_LIMITED)
+            case 0xCCEDD540: // "Primary"
             {
-                // "Client::Construction::UnitLimitReached"
-                Message::TriggerGameMessage(0x81019E23);
-            }
-            else
+                // Always clear the construct type
+                data.constructType = nullptr;
 
-                // Do we have prereqs
-                if (flags & FLAG_PREREQ)
+                // Always clear client mode
+                Events::TriggerClientMode(CM_NONE);
+
+                // Has the unit limit been reached
+                if (flags & FLAG_LIMITED)
                 {
-                    // Are we exceeding our resource reserves
-                    if (construct->GetResourceCost() > constructor->GetTeam()->GetResourceStore())
+                    // "Client::Construction::UnitLimitReached"
+                    Message::TriggerGameMessage(0x81019E23);
+                }
+                else
+
+                    // Do we have prereqs
+                    if (flags & FLAG_PREREQ)
                     {
-                        // "Client::Construction::LowResourceWarning"
-                        Message::TriggerGameMessage(0x1429D49C);
+                        // Are we exceeding our resource reserves
+                        if (construct->GetResourceCost() > constructor->GetTeam()->GetResourceStore())
+                        {
+                            // "Client::Construction::LowResourceWarning"
+                            Message::TriggerGameMessage(0x1429D49C);
+                        }
+                        else
+                        {
+                            // "Client::Construction::ConstructMode"
+                            Message::TriggerGameMessage(0xACD2C1EA);
+                        }
+
+                        // Enter the construct mode
+                        Events::TriggerClientMode(CM_CONSTRUCT);
+
+                        // Set the type to construct
+                        data.constructType = construct;
                     }
                     else
                     {
-                        // "Client::Construction::ConstructMode"
-                        Message::TriggerGameMessage(0xACD2C1EA);
+                        // "Client::Construction::Unavailable"
+                        Message::TriggerGameMessage(0x668DD0C2);
+                        DisplayPrereqs();
                     }
 
-                    // Enter the construct mode
-                    Events::TriggerClientMode(CM_CONSTRUCT);
+                break;
+            }
 
-                    // Set the type to construct
-                    data.constructType = construct;
-                }
-                else
-                {
-                    // "Client::Construction::Unavailable"
-                    Message::TriggerGameMessage(0x668DD0C2);
-                    DisplayPrereqs();
-                }
-
-            break;
-        }
-
-        case 0xBD34689F: // "Secondary"
-            Events::TriggerClientMode(CM_NONE);
-            break;
+            case 0xBD34689F: // "Secondary"
+                Events::TriggerClientMode(CM_NONE);
+                break;
         }
     }
 
@@ -596,13 +595,13 @@ namespace Client
         {
             switch (mode)
             {
-            case MODE_FACILITY:
-                ProcessFacility(event);
-                break;
+                case MODE_FACILITY:
+                    ProcessFacility(event);
+                    break;
 
-            case MODE_RIG:
-                ProcessRig(event);
-                break;
+                case MODE_RIG:
+                    ProcessRig(event);
+                    break;
             }
         }
     }
@@ -621,42 +620,40 @@ namespace Client
             // Interface events
             switch (e.subType)
             {
-            case IFace::DISPLAYTIP:
-                DisplayPrereqs();
-                return (TRUE);
+                case IFace::DISPLAYTIP:
+                    DisplayPrereqs();
+                    return (TRUE);
 
-            case IFace::TIPDELAY:
-                return (300);
+                case IFace::TIPDELAY:
+                    return (300);
             }
         }
         else
 
             // Input events
-            if (e.type == ::Input::EventID())
+            if (e.type == Input::EventID())
             {
                 // Process event 
                 switch (e.subType)
                 {
-                case ::Input::MOUSEBUTTONDOWN:
-                case ::Input::MOUSEBUTTONDBLCLKUP:
-                {
-                    if (constructor.Alive())
+                    case Input::MOUSEBUTTONDOWN:
+                    case Input::MOUSEBUTTONDBLCLKUP:
                     {
-                        // Send events to parent
-                        if (e.input.code == ::Input::LeftButtonCode())
+                        if (constructor.Alive())
                         {
-                            if (Common::Input::GetModifierKey(3))
+                            // Send events to parent
+                            if (e.input.code == Input::LeftButtonCode())
                             {
-                                ProcessOperation(0x7C13A54E); // "PrimaryShift"
+                                if (Common::Input::GetModifierKey(3))
+                                {
+                                    ProcessOperation(0x7C13A54E); // "PrimaryShift"
+                                }
+                                else
+                                {
+                                    ProcessOperation(0xCCEDD540); // "Primary"
+                                }
                             }
-                            else
-                            {
-                                ProcessOperation(0xCCEDD540); // "Primary"
-                            }
-                        }
-                        else
-
-                            if (e.input.code == ::Input::RightButtonCode())
+                            else if (e.input.code == Input::RightButtonCode())
                             {
                                 if (Common::Input::GetModifierKey(3))
                                 {
@@ -667,10 +664,10 @@ namespace Client
                                     ProcessOperation(0xBD34689F); // "Secondary"
                                 }
                             }
-                    }
+                        }
 
-                    return (TRUE);
-                }
+                        return (TRUE);
+                    }
                 }
             }
 
@@ -727,20 +724,20 @@ namespace Client
     void Construction::Poll()
     {
         if
-            (
+        (
                 // Control is active
-                IsActive() &&
-                (
-                    // Constructor is dead
-                    constructor.Dead() ||
+            IsActive() &&
+            (
+                // Constructor is dead
+                constructor.Dead() ||
 
-                    // Constructor is not on a team
-                    !constructor->GetTeam() ||
+                // Constructor is not on a team
+                !constructor->GetTeam() ||
 
-                    // Constructor is not only unit selected
-                    (constructor != ((data.sList.GetCount() == 1) ? data.sList.GetFirst() : NULL))
-                    )
-                )
+                // Constructor is not only unit selected
+                (constructor != ((data.sList.GetCount() == 1) ? data.sList.GetFirst() : nullptr))
+            )
+        )
         {
             Deactivate();
         }
@@ -754,9 +751,9 @@ namespace Client
     //
     Bool Construction::Generate(UnitObj* target)
     {
-        ASSERT(target)
+        ASSERT(target);
 
-            ConstructionIcon::Mode mode;
+        ConstructionIcon::Mode mode;
 
         // Clear any current icons
         DeleteIcon();
@@ -775,7 +772,7 @@ namespace Client
         }
 
         // Iterate over all types
-        for (List<GameObjType>::Iterator i(&GameObjCtrl::objTypesList); *i; i++)
+        for (List<GameObjType>::Iterator i(&GameObjCtrl::objTypesList); *i; ++i)
         {
             // Promote to a unit type
             UnitObjType* unitType = Promote::Type<UnitObjType>(*i);
@@ -824,6 +821,6 @@ namespace Client
     //
     UnitObj* Construction::GetConstructor()
     {
-        return (constructor.Alive() ? constructor.GetData() : NULL);
+        return (constructor.Alive() ? constructor.GetData() : nullptr);
     }
 }

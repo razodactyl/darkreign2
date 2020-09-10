@@ -29,13 +29,13 @@
 //
 ICStatic::ICStatic(IControl* parent)
     : IControl(parent),
-    displayVar(NULL),
-    imageVar(NULL),
-    staticStyle(0),
-    indent(0, 0)
+      staticStyle(0),
+      displayVar(nullptr),
+      imageVar(nullptr),
+      indent(0, 0)
 {
     // Default style
-    controlStyle |= IControl::STYLE_INERT;
+    controlStyle |= STYLE_INERT;
 }
 
 
@@ -48,19 +48,18 @@ ICStatic::~ICStatic()
     if (displayVar)
     {
         delete displayVar;
-        displayVar = NULL;
+        displayVar = nullptr;
     }
 
     // Dispose of image var
     if (imageVar)
     {
         delete imageVar;
-        imageVar = NULL;
+        imageVar = nullptr;
     }
 
     // Delete images
     images.DisposeAll();
-
 }
 
 
@@ -90,10 +89,7 @@ Bool ICStatic::Activate()
         }
         return (TRUE);
     }
-    else
-    {
-        return (FALSE);
-    }
+    return (FALSE);
 }
 
 
@@ -118,10 +114,7 @@ Bool ICStatic::Deactivate()
 
         return (TRUE);
     }
-    else
-    {
-        return (FALSE);
-    }
+    return (FALSE);
 }
 
 
@@ -134,50 +127,50 @@ void ICStatic::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x742EA048: // "UseVar"
-    {
-        ConfigureVar(displayVar, fScope);
-        break;
-    }
-
-    case 0x26186520: // "Images"
-    {
-        // Build up a tree of images to display keyed to tasks
-        FScope* sScope;
-
-        sScope = fScope->GetFunction("UseVar");
-        ConfigureVar(imageVar, sScope);
-
-        while ((sScope = fScope->NextFunction()) != NULL)
+        case 0x742EA048: // "UseVar"
         {
-            switch (sScope->NameCrc())
-            {
-            case 0x76802A4E: // "Image"
-            {
-                GameIdent name = StdLoad::TypeString(sScope);
-                TextureInfo* texture = new TextureInfo;
-                IFace::FScopeToTextureInfo(sScope, *texture);
-                images.Add(name.crc, texture);
-                break;
-            }
-            }
+            ConfigureVar(displayVar, fScope);
+            break;
         }
-        break;
-    }
 
-    case 0x6979D038: // "Sheet"
-    {
-        // Specify number images to tile
-        IFace::FScopeToSheetInfo(fScope, images, sheets);
-        staticStyle |= STYLE_SHEET;
-        break;
-    }
+        case 0x26186520: // "Images"
+        {
+            // Build up a tree of images to display keyed to tasks
+            FScope* sScope;
 
-    default:
-    {
-        IControl::Setup(fScope);
-        break;
-    }
+            sScope = fScope->GetFunction("UseVar");
+            ConfigureVar(imageVar, sScope);
+
+            while ((sScope = fScope->NextFunction()) != nullptr)
+            {
+                switch (sScope->NameCrc())
+                {
+                    case 0x76802A4E: // "Image"
+                    {
+                        GameIdent name = StdLoad::TypeString(sScope);
+                        TextureInfo* texture = new TextureInfo;
+                        IFace::FScopeToTextureInfo(sScope, *texture);
+                        images.Add(name.crc, texture);
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+
+        case 0x6979D038: // "Sheet"
+        {
+            // Specify number images to tile
+            IFace::FScopeToSheetInfo(fScope, images, sheets);
+            staticStyle |= STYLE_SHEET;
+            break;
+        }
+
+        default:
+        {
+            IControl::Setup(fScope);
+            break;
+        }
     }
 }
 
@@ -193,12 +186,12 @@ Bool ICStatic::SetStyleItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0x04EDEABF: // "ShowMinSec"
-        style = STYLE_SHOWMINSEC;
-        break;
+        case 0x04EDEABF: // "ShowMinSec"
+            style = STYLE_SHOWMINSEC;
+            break;
 
-    default:
-        return IControl::SetStyleItem(s, toggle);
+        default:
+            return IControl::SetStyleItem(s, toggle);
     }
 
     // Toggle the style
@@ -221,12 +214,10 @@ void ICStatic::DrawSelf(PaintInfo& pi)
     {
         IFace::RenderSheets(pi.client.p0, images, pi.colors->bg[ColorIndex()], alphaScale);
     }
-    else
-
-        if (!(imageVar && !tex))
-        {
-            DrawCtrlBackground(pi, tex);
-        }
+    else if (!(imageVar && !tex))
+    {
+        DrawCtrlBackground(pi, tex);
+    }
 
     DrawCtrlFrame(pi);
 
@@ -235,7 +226,7 @@ void ICStatic::DrawSelf(PaintInfo& pi)
     {
         // Optionally retrieve formatted value from the var
         CH buf[256];
-        CH* str = NULL;
+        CH* str = nullptr;
 
         if (displayVar)
         {
@@ -243,7 +234,11 @@ void ICStatic::DrawSelf(PaintInfo& pi)
             if ((staticStyle & STYLE_SHOWMINSEC) && (displayVar->Type() == VarSys::VI_FPOINT))
             {
                 F32 v = displayVar->GetFloatValue();
-                Utils::Sprintf(buf, 128, (const CH*)L"%02u:%02u", (U32)(v / 60.0F), (U32)fmod(v, 60.0F));
+                Utils::Sprintf
+                (
+                    buf, 128, (const CH*)L"%02u:%02u", static_cast<U32>(v / 60.0F),
+                    static_cast<U32>(fmod(v, 60.0F))
+                );
             }
             else
             {
@@ -254,7 +249,7 @@ void ICStatic::DrawSelf(PaintInfo& pi)
         }
 
         // Draw the text
-        DrawCtrlText(pi, str, NULL, indent);
+        DrawCtrlText(pi, str, nullptr, indent);
     }
 }
 
@@ -306,6 +301,6 @@ void ICStatic::SetDisplayVar(const char* name)
 //
 void ICStatic::UpdateSheets()
 {
-    ASSERT(staticStyle & STYLE_SHEET)
-        IFace::UpdateSheets(paintInfo.client, images, sheets);
+    ASSERT(staticStyle & STYLE_SHEET);
+    IFace::UpdateSheets(paintInfo.client, images, sheets);
 }

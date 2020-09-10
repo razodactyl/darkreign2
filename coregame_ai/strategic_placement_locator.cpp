@@ -19,28 +19,26 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Placement::Locator
-  //
-
-
-  //
-  // Constructor
-  //
-  Placement::Locator::Locator(Base::Token &token, ClusterSet &clusterSet)
-  : token(token),
-    clusterSet(clusterSet)
-  {
-  }
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Placement::Locator
+    //
 
 
-  //
-  // Destructor
-  //
-  Placement::Locator::~Locator()
-  {
-  }
+    //
+    // Constructor
+    //
+    Placement::Locator::Locator(Base::Token& token, ClusterSet& clusterSet)
+        : token(token),
+          clusterSet(clusterSet)
+    {
+    }
 
+
+    //
+    // Destructor
+    //
+    Placement::Locator::~Locator()
+    {
+    }
 }

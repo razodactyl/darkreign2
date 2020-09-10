@@ -24,16 +24,15 @@
 //
 namespace Debug
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Exception
-  //
-  namespace Exception
-  {
-    // Filter
-    S32 STDCALL Filter(LPEXCEPTION_POINTERS ep);
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Exception
+    //
+    namespace Exception
+    {
+        // Filter
+        S32 STDCALL Filter(LPEXCEPTION_POINTERS ep);
+    }
 }
 
 #endif

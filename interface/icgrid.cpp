@@ -158,66 +158,62 @@ U32 ICGrid::HandleEvent(Event& e)
         // Input events
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        case Input::MOUSEBUTTONDBLCLK:
-        {
-            // Is the click inside the client area
-            if (InClient(Point<S32>(e.input.mouseX, e.input.mouseY)))
+            case Input::MOUSEBUTTONDOWN:
+            case Input::MOUSEBUTTONDBLCLK:
             {
-                // Ignore if we already have capture
-                if (IFace::GetCapture() != this)
+                // Is the click inside the client area
+                if (InClient(Point<S32>(e.input.mouseX, e.input.mouseY)))
                 {
-                    // Grab capture
-                    GetMouseCapture();
+                    // Ignore if we already have capture
+                    if (IFace::GetCapture() != this)
+                    {
+                        // Grab capture
+                        GetMouseCapture();
 
-                    // Save mouse code
-                    captureCode = e.input.code;
+                        // Save mouse code
+                        captureCode = e.input.code;
+                    }
                 }
+                break;
             }
-            break;
-        }
 
-        case Input::MOUSEBUTTONUP:
-        case Input::MOUSEBUTTONDBLCLKUP:
-        {
-            if (HasMouseCapture() && e.input.code == captureCode)
+            case Input::MOUSEBUTTONUP:
+            case Input::MOUSEBUTTONDBLCLKUP:
             {
-                ReleaseMouseCapture();
-
-                // Get mouse position relative to client window
-                Point<S32> p = ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY));
-
-                // Calculate the (flipped) cell positions
-                U32 x = xFlip ? gridSize.x - (p.x / cellSize.x) - 1 : p.x / cellSize.x;
-                U32 y = yFlip ? gridSize.y - (p.y / cellSize.y) - 1 : p.y / cellSize.y;
-
-                // Set currently selected
-                if (x < gridSize.x && y < gridSize.y)
+                if (HasMouseCapture() && e.input.code == captureCode)
                 {
-                    selected.Set(x, y);
-                }
+                    ReleaseMouseCapture();
 
-                if (captureCode == Input::LeftButtonCode())
-                {
-                    CallEventHandler(0x90E4DA5D); // "LeftClick"
-                }
-                else
+                    // Get mouse position relative to client window
+                    Point<S32> p = ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY));
 
-                    if (captureCode == Input::MidButtonCode())
+                    // Calculate the (flipped) cell positions
+                    U32 x = xFlip ? gridSize.x - (p.x / cellSize.x) - 1 : p.x / cellSize.x;
+                    U32 y = yFlip ? gridSize.y - (p.y / cellSize.y) - 1 : p.y / cellSize.y;
+
+                    // Set currently selected
+                    if (x < gridSize.x && y < gridSize.y)
+                    {
+                        selected.Set(x, y);
+                    }
+
+                    if (captureCode == Input::LeftButtonCode())
+                    {
+                        CallEventHandler(0x90E4DA5D); // "LeftClick"
+                    }
+                    else if (captureCode == Input::MidButtonCode())
                     {
                         CallEventHandler(0x316EC946); // "MiddleClick"
                     }
-                    else
+                    else if (captureCode == Input::RightButtonCode())
+                    {
+                        CallEventHandler(0x173F5F78); // "RightClick"
+                    }
 
-                        if (captureCode == Input::RightButtonCode())
-                        {
-                            CallEventHandler(0x173F5F78); // "RightClick"
-                        }
-
-                return (TRUE);
+                    return (TRUE);
+                }
+                break;
             }
-            break;
-        }
         }
     }
 

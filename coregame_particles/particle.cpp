@@ -46,13 +46,15 @@ ParticleClass::~ParticleClass()
 //
 // Construct new simulator
 //
-Particle* ParticleClass::Build(
+Particle* ParticleClass::Build
+(
     const Matrix& matrix,
     const Vector& veloc,
     const Vector& omega,
     const Vector& length,
     F32 timer,
-    void* data) // = NULL
+    void* data
+) // = NULL
 {
     data;
 
@@ -79,33 +81,33 @@ void ParticleClass::Setup(FScope* fScope)
         GameIdent* name;
         switch (sScope->NameCrc())
         {
-        case 0xE51D19D4: // "RenderBase"
-        case 0xC6485A06: // "Render"
-            name = new GameIdent;
-            (*name) = sScope->NextArgString();
-            renderIdList.Append(name);
-            break;
+            case 0xE51D19D4: // "RenderBase"
+            case 0xC6485A06: // "Render"
+                name = new GameIdent;
+                (*name) = sScope->NextArgString();
+                renderIdList.Append(name);
+                break;
 
-        case 0x12CAD0FD: // "LifeTime"
-            lifeTime = sScope->NextArgFPoint();
-            break;
+            case 0x12CAD0FD: // "LifeTime"
+                lifeTime = sScope->NextArgFPoint();
+                break;
 
-        case 0xFFF34C6F: // "Priority"
-            priority = sScope->NextArgFPoint();
-            priority = Min<F32>(2.0f, Max<F32>(priority, 0.0f));
-            break;
+            case 0xFFF34C6F: // "Priority"
+                priority = sScope->NextArgFPoint();
+                priority = Min<F32>(2.0f, Max<F32>(priority, 0.0f));
+                break;
 
-        case 0x68066A92: // "ShowUnderFog"
-            showUnderFog = TRUE;
-            break;
+            case 0x68066A92: // "ShowUnderFog"
+                showUnderFog = TRUE;
+                break;
 
-        case 0xE1230819: // "MakeUnderFog"
-            makeUnderFog = TRUE;
-            break;
+            case 0xE1230819: // "MakeUnderFog"
+                makeUnderFog = TRUE;
+                break;
 
-        case 0x0312FA29: // "NoDefaultRender"
-            defaultRender = FALSE;
-            break;
+            case 0x0312FA29: // "NoDefaultRender"
+                defaultRender = FALSE;
+                break;
         }
     }
     if (lifeTime <= 0.0f)
@@ -147,14 +149,16 @@ void ParticleClass::PostLoad()
 //
 // Particle::Particle
 //
-Particle::Particle(
+Particle::Particle
+(
     ParticleClass* p,
     const Matrix& m,
     const Vector& v,
     const Vector& o,
     const Vector& l,
     F32 t,
-    void* data) // = NULL
+    void* data
+) // = NULL
     : proto(p), matrix(m), veloc(v), omega(o), timer(t), length(l)
 {
     List<ParticleRenderClass>::Iterator i(&proto->renderList);
@@ -253,7 +257,6 @@ void Particle::Update(const Matrix& m, const Vector& len)
 }
 
 
-
 //
 // SetupRenderers
 //
@@ -280,4 +283,3 @@ void Particle::Render()
         (*i)->Render();
     }
 }
-

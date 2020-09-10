@@ -58,23 +58,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>F:\Games\Dark Reign 2\</OutDir>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>F:\Games\Dark Reign 2</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>.\../Debug/appmesh\</OutDir>
-    <LinkIncremental>false</LinkIncremental>
+    <OutDir>F:\Games\Dark Reign 2</OutDir>
+    <LinkIncremental>true</LinkIncremental>
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
-    <OutDir>F:\Games\Dark Reign 2\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
-    <OutDir>.\../Debug/appmesh\</OutDir>
-    <LinkIncremental>false</LinkIncremental>
+    <OutDir>F:\Games\Dark Reign 2</OutDir>
+    <LinkIncremental>true</LinkIncremental>
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -82,7 +82,7 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>../3rdparty/glfw-3.3.2.bin.WIN32/include;../3rdparty/glew-2.1.0/include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;WIN32;DOMRMGEN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerOutput>NoListing</AssemblerOutput>
@@ -95,7 +95,7 @@
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -version=1,4 -comments="X"
- version.rc</Command>
+rc version.rc</Command>
     </PreLinkEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild release\mesh Pandemic Mesh Viewer [Release]</Command>
@@ -119,11 +119,11 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonclient.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>..\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;..\3rdparty\glew-2.1.0\lib\Release\Win32;$(SolutionDir)bin\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
     </Link>
-    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -132,7 +132,7 @@
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>../3rdparty/glfw-3.3.2.bin.WIN32/include;../3rdparty/glew-2.1.0/include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>DEVELOPMENT;WIN32;DOMRMGEN;%(PreprocessorDefinitions);DEVELOPMENT</PreprocessorDefinitions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
@@ -145,7 +145,7 @@
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -version=1,4 -comments="X"
- version.rc</Command>
+rc version.rc</Command>
     </PreLinkEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild debug\mesh Pandemic Mesh Viewer [Debug]</Command>
@@ -169,13 +169,13 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonclient.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <AdditionalLibraryDirectories>..\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;..\3rdparty\glew-2.1.0\lib\Release\Win32;$(SolutionDir)bin\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
     </Link>
-    <ProjectReference />
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">
@@ -185,7 +185,7 @@
       <Optimization>Disabled</Optimization>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <WarningLevel>Level4</WarningLevel>
-      <AdditionalIncludeDirectories>../3rdparty/glfw-3.3.2.bin.WIN32/include;../3rdparty/glew-2.1.0/include;../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../3rdparty;../coregame;../coregame_ai;../coregame_interface;../coregame_objects;../coregame_orders;../coregame_particles;../coregame_tasks;../game;../graphics;../interface;../main;../multiplayer;../sound;../system;../util;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>std.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <PreprocessorDefinitions>DEVELOPMENT;WIN32;DOMRMGEN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
@@ -198,7 +198,7 @@
     </ClCompile>
     <PreLinkEvent>
       <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -version=1,4 -comments="X"
- version.rc</Command>
+rc version.rc</Command>
     </PreLinkEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild debug\mesh Pandemic Mesh Viewer [Debug]</Command>
@@ -222,22 +222,17 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>coregame.lib;coregame_ai.lib;coregame_interface.lib;coregame_objects.lib;coregame_orders.lib;coregame_particles.lib;coregame_tasks.lib;game.lib;graphics.lib;interface.lib;main.lib;multiplayer.lib;sound.lib;styxnet.lib;system.lib;util.lib;wonclient.lib;wonlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <AdditionalLibraryDirectories>..\3rdparty\glfw-3.3.2.bin.WIN32\lib-vc2019;..\3rdparty\glew-2.1.0\lib\Release\Win32;$(SolutionDir)bin\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/bin/$(Configuration)/</AdditionalLibraryDirectories>
     </Link>
-    <ProjectReference />
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="guid.cpp" />
-    <ClCompile Include="..\graphics\meshmrm.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">INITGUID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">INITGUID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Development|Win32'">INITGUID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="..\system\pchbuilder.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">std.h</PrecompiledHeaderFile>
@@ -275,10 +270,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="version.rc" />
+    <Image Include="dr2.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="dr2.ico" />
+    <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

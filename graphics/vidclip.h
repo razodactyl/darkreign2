@@ -54,10 +54,12 @@ namespace Vid
         {
             return BoundsTestAlpha(origin.z, radius);
         }
+
         inline Bool BoundsTestAlphaNear(const Vector& origin, F32 radius)
         {
             return BoundsTestAlphaNear(origin.z, radius);
         }
+
         inline Bool BoundsTestAlphaFar(const Vector& origin, F32 radius)
         {
             return BoundsTestAlphaFar(origin.z, radius);
@@ -94,7 +96,7 @@ namespace Vid
             void Invert();
             Bool Revert();
 
-            U32  BoundsTest(const Vector& origin, F32 radius);
+            U32 BoundsTest(const Vector& origin, F32 radius);
 
             // Xtra::clip indexed tris to buffer
             //
@@ -111,9 +113,7 @@ namespace Vid
                 Bool ToBuffer(VertexTL* dstV, const VertexTL* srcV, U32& vCount, U32 clipFlags, Vector* traceOrigin = NULL);
             }
         };
-
     };
-
 };
 
 #endif

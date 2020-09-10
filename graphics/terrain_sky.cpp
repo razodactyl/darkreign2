@@ -13,6 +13,7 @@
 #include "random.h"
 #include "console.h"
 #include "statistics.h"
+
 //----------------------------------------------------------------------------
 
 namespace Terrain
@@ -21,10 +22,10 @@ namespace Terrain
     {
         // data
         //
-        Vector                windVector;
-        static F32            wind;
+        Vector windVector;
+        static F32 wind;
 
-        static Bool           suppressLoad;
+        static Bool suppressLoad;
 
         static Bitmap* sunTexture;   // sun sprite texture
         static Bitmap* moonTexture;  // moon sprite texture
@@ -33,7 +34,7 @@ namespace Terrain
         static Bitmap* cloudTexture;
 
         static MeshRoot* mesh;
-        static Matrix         matrix;
+        static Matrix matrix;
         //----------------------------------------------------------------------------
 
         // functions
@@ -42,6 +43,7 @@ namespace Terrain
         {
             return skyTexture;
         }
+
         Bitmap* CloudTexture()
         {
             return cloudTexture;
@@ -51,6 +53,7 @@ namespace Terrain
         {
             return Vid::Var::Terrain::Sky::level;
         }
+
         void SetLevel(F32 l)
         {
             Vid::Var::Terrain::Sky::level = l;
@@ -62,27 +65,28 @@ namespace Terrain
 
             switch (pathCrc)
             {
-            case 0x361AEF4B: // "terrain.sky.mesh"
-            {
-                if (!suppressLoad)
+                case 0x361AEF4B: // "terrain.sky.mesh"
                 {
-                    Load(*Vid::Var::Terrain::Sky::meshName);
+                    if (!suppressLoad)
+                    {
+                        Load(*Vid::Var::Terrain::Sky::meshName);
+                    }
                 }
-            }
-            case 0xE356E63E: // "terrain.sky.levelinc"
-            {
-                if (Console::GetArgFloat(1, f1))
+                case 0xE356E63E: // "terrain.sky.levelinc"
                 {
-                    SetLevel(GetLevel() + f1);
-                    CON_DIAG(("sky level = %.1f", GetLevel()))
+                    if (Console::GetArgFloat(1, f1))
+                    {
+                        SetLevel(GetLevel() + f1);
+                        CON_DIAG(("sky level = %.1f", GetLevel()))
+                    }
+                    break;
                 }
-                break;
-            }
-            case 0xC8AF6203: // "terrain.cloud.speed"
-                windVector.Set(0, 0, *Vid::Var::Terrain::Sky::windSpeed);
-                break;
+                case 0xC8AF6203: // "terrain.cloud.speed"
+                    windVector.Set(0, 0, *Vid::Var::Terrain::Sky::windSpeed);
+                    break;
             }
         }
+
         //----------------------------------------------------------------------------
 
         void Init()
@@ -112,6 +116,7 @@ namespace Terrain
             wind = 0.0f;
             suppressLoad = FALSE;
         }
+
         //----------------------------------------------------------------------------
 
         void InitResources()
@@ -120,6 +125,7 @@ namespace Terrain
             moonTexture = Bitmap::Manager::FindCreate(Bitmap::reduceHIGH, "engine_moon.pic");
             cloudTexture = Bitmap::Manager::FindCreate(Bitmap::reduceHIGH, "engine_cloud.pic");
         }
+
         //----------------------------------------------------------------------------
 
         void DoneResources()
@@ -130,6 +136,7 @@ namespace Terrain
 
             mesh = NULL;
         }
+
         //----------------------------------------------------------------------------
 
         void Done()
@@ -141,12 +148,14 @@ namespace Terrain
             VarSys::DeleteItem("terrain.sky.level");
             VarSys::DeleteItem("terrain.sky");
         }
+
         //----------------------------------------------------------------------------
 
         void Simulate(F32 timestep)
         {
             wind = fmodf(wind + Vid::Var::Terrain::Sky::windSpeed * timestep, 1);
         }
+
         //----------------------------------------------------------------------------
 
         void Load(const char* _meshName, const char* skyTexName, const char* cloudTexName) // = NULL, = NULL);
@@ -168,17 +177,21 @@ namespace Terrain
             {
                 if (Vid::CurDD().noAlphaMod)
                 {
-                    mesh->SetColorGradient(
+                    mesh->SetColorGradient
+                    (
                         Color(U32(255), U32(255), U32(255), U32(255)),
                         Color(U32(255), U32(255), U32(255), U32(255)),
-                        0, 1, TRUE);
+                        0, 1, TRUE
+                    );
                 }
                 else
                 {
-                    mesh->SetColorGradient(
+                    mesh->SetColorGradient
+                    (
                         Color(U32(255), U32(255), U32(255), U32(0)),
                         Color(U32(255), U32(255), U32(255), U32(255)),
-                        0, *Vid::Var::Terrain::Sky::alphaHeight, TRUE);
+                        0, *Vid::Var::Terrain::Sky::alphaHeight, TRUE
+                    );
                 }
                 // grab the sky texture for environmental reflection mapping
                 //
@@ -189,6 +202,7 @@ namespace Terrain
 
             InitResources();
         }
+
         //----------------------------------------------------------------------------
 
         void Render()
@@ -224,7 +238,6 @@ namespace Terrain
 
                 if (sunVector.z > 0.0f)
                 {
-
                     F32 sunRad = (F32)Vid::viewRect.Width() * 0.05f;
 
                     // if the flare is on screen...
@@ -277,11 +290,13 @@ namespace Terrain
 
                         Vid::SetTexture(Vid::Light::isSunUp ? sunTexture : moonTexture);
 
-                        Vid::DrawIndexedPrimitive(
+                        Vid::DrawIndexedPrimitive
+                        (
                             PT_TRIANGLELIST,
                             FVF_TLVERTEX,
                             vertmem, 4, Vid::rectIndices, 6,
-                            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_ADD);
+                            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_ADD
+                        );
 
                         //      LensFlare::RenderProjected( sunVector, Vid::Light::sunColor);
 
@@ -295,16 +310,16 @@ namespace Terrain
             {
                 Vid::SetTranBucketZMaxPlus();
                 Vid::SetWorldTransform(matrix);
-                /*
-                        if (Vid::renderState.status.mirrorIn && Vid::Clip::Xtra::Revert())
-                        {
-                          // clip sky below waterline
-                          //
-                          mesh->RenderColorNoAnim( Vid::Light::sunColor, clipALL | clipPLANE0, mesh->rootControlFlags);
-                          Vid::Clip::Xtra::Restore();
-                        }
-                        else
-                */
+
+                // if (Vid::renderState.status.mirrorIn && Vid::Clip::Xtra::Revert())
+                // {
+                //   // clip sky below waterline
+                //   //
+                //   mesh->RenderColorNoAnim( Vid::Light::sunColor, clipALL | clipPLANE0, mesh->rootControlFlags);
+                //   Vid::Clip::Xtra::Restore();
+                // }
+                // else
+
                 {
                     mesh->RenderColorNoAnim(Vid::Light::sunColor, clipALL, mesh->rootControlFlags);
                 }
@@ -321,10 +336,12 @@ namespace Terrain
             if (*Vid::Var::Terrain::Sky::showClouds)
             {
                 // draw the cloud layer
-                Vid::SetBucketPrimitiveDesc(
+                Vid::SetBucketPrimitiveDesc
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
-                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_ADD);
+                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_ADD
+                );
 
                 matrix.right = Matrix::I.right;
                 matrix.up = Matrix::I.up;
@@ -339,8 +356,8 @@ namespace Terrain
                 F32 dx = Vid::Math::farPlane * 3 / SKYINTERVAL;
                 F32 du = 3.0f / SKYINTERVAL;
                 F32 v = -.5f;
-                VertexTL vertmem[(SKYINTERVAL + 1) * (SKYINTERVAL + 1)], * vv = vertmem;
-                U16 indexmem[SKYINTERVAL * SKYINTERVAL * 6], * ii = indexmem;
+                VertexTL vertmem[(SKYINTERVAL + 1) * (SKYINTERVAL + 1)], *vv = vertmem;
+                U16 indexmem[SKYINTERVAL * SKYINTERVAL * 6], *ii = indexmem;
                 U32 vcount = 0;
                 U32 zcount = 0;
                 for (F32 z = -Vid::Math::farPlane * 1.5f; zcount <= SKYINTERVAL; zcount++, z += dx, v += du)
@@ -374,7 +391,9 @@ namespace Terrain
 
             Vid::SetZWriteState(isZ);
         }
+
         //----------------------------------------------------------------------------
     }
 }
+
 //----------------------------------------------------------------------------

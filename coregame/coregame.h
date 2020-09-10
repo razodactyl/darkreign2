@@ -22,35 +22,34 @@
 
 namespace CoreGame
 {
+    // Initialise and shutdown various systems
+    void Init();
+    void Done();
 
-  // Initialise and shutdown various systems
-  void Init();
-  void Done();
+    // Loads the active mission
+    Bool OpenMission();
 
-  // Loads the active mission
-  Bool OpenMission();
+    // Release an open mission if one exists
+    void CloseMission();
 
-  // Release an open mission if one exists
-  void CloseMission();
+    // Save currently loaded mission
+    Bool SaveMission();
 
-  // Save currently loaded mission
-  Bool SaveMission();
+    // Save mission in binary format
+    void SetBinarySave();
 
-  // Save mission in binary format
-  void SetBinarySave();
+    // Save mission in text format
+    void SetTextSave();
 
-  // Save mission in text format
-  void SetTextSave();
+    // Is mission saving in binary
+    Bool IsBinarySave();
 
-  // Is mission saving in binary
-  Bool IsBinarySave();
+    // Save the given tree
+    Bool WriteTree(PTree& pTree, const char* name);
 
-  // Save the given tree
-  Bool WriteTree(PTree &pTree, const char *name);
-
-  // Is the game being simulated
-  void SetInSimulation(Bool flag);
-  Bool GetInSimulation();
+    // Is the game being simulated
+    void SetInSimulation(Bool flag);
+    Bool GetInSimulation();
 };
 
 #endif

@@ -41,16 +41,17 @@
 //----------------------------------------------------------------------------
 
 extern Bool IsInTri(Vector& pos, Vector* v, Plane& plane);
+
 //----------------------------------------------------------------------------
 
 // legacy render support
 //
 struct VertGroup
 {
-    U16                     vertCount;          // number of verts for this group
-    U16                     indexCount;         // number of indices 
-    U16                     planeIndex;         // index of first plane equation
-    U16                     stateIndex;         // index of the state
+    U16 vertCount;          // number of verts for this group
+    U16 indexCount;         // number of indices 
+    U16 planeIndex;         // index of first plane equation
+    U16 stateIndex;         // index of the state
 
     Material* material;
     Bitmap* texture;
@@ -59,11 +60,13 @@ struct VertGroup
     {
         Utils::Memset(this, 0, sizeof(*this));
     }
+
     VertGroup()
     {
         ClearData();
     }
 };
+
 //----------------------------------------------------------------------------
 
 struct MeshData
@@ -72,20 +75,23 @@ struct MeshData
     // Array4 pads data to contain multiple of 4 entries
     //
 #ifdef X__DO_XMM_BUILD
-    Array4<Vector4, 4>  vertices;
-    Array4<Vector4, 4>  normals;
+  Array4<Vector4, 4>  vertices;
+  Array4<Vector4, 4>  normals;
 #else
-    Array4<Vector, 4>   vertices;
-    Array4<Vector, 4>   normals;
+    Array4<Vector, 4> vertices;
+    Array4<Vector, 4> normals;
 #endif
-    Array4<UVPair, 4>   uvs;
-    Array4<Color, 4>    colors;
+    Array4<UVPair, 4> uvs;
+    Array4<Color, 4> colors;
 
-    Array<VertGroup>    groups;
-    Array4<U16, 4>      indices;
+    Array<VertGroup> groups;
+    Array4<U16, 4> indices;
     //  Array<Plane>      planes;
 
-    MeshData() {}
+    MeshData()
+    {
+    }
+
     MeshData(U32 vCount, U32 iCount, U32 nCount, U32 uCount, U32 cCount)
     {
         // one material per mesh for now
@@ -96,6 +102,7 @@ struct MeshData
         uvs.Alloc(uCount);
         colors.Alloc(cCount);
     }
+
     MeshData(MeshData& mdata)
     {
         groups.Setup(mdata.groups);
@@ -125,8 +132,8 @@ struct MeshData
         uvs.Swap(mdata.uvs);
         colors.Swap(mdata.colors);
     }
-
 };
+
 //----------------------------------------------------------------------------
 
 class GodFile;
@@ -149,7 +156,7 @@ protected:
     friend class MeshRoot;
     friend struct MeshConfig;
 
-    U32                     renderFlags;    // double sided
+    U32 renderFlags;    // double sided
 
     U32 GetMem() const;
 
@@ -157,10 +164,10 @@ public:
 
     MeshData* local;          // shadow planes are stored as local MeshData
 
-    U32                     isNull : 1;
-    U32                     isTread : 1;
-    U32                     isControl : 1;
-    U32                     isShadowPlane : 1;
+    U32 isNull : 1;
+    U32 isTread : 1;
+    U32 isControl : 1;
+    U32 isShadowPlane : 1;
 
     void ClearData();
 
@@ -168,6 +175,7 @@ public:
     {
         ClearData();
     }
+
     virtual ~Mesh();
 
     void AllocLocal()
@@ -175,15 +183,18 @@ public:
         ReleaseLocal();
         local = new MeshData;
     }
+
     void AllocLocal(U32 vCount, U32 iCount, U32 nCount, U32 uCount, U32 cCount)
     {
         ReleaseLocal();
         local = new MeshData(vCount, iCount, nCount, uCount, cCount);
     }
+
     void SetupLocal(MeshData& mdata)
     {
         local = new MeshData(mdata);
     }
+
     void SwapLocal(MeshData& mdata)
     {
         local = new MeshData();
@@ -193,7 +204,7 @@ public:
     void ReleaseLocal();
 
 #ifdef DOLOCALRENDER
-    virtual void Render(const Array<FamilyState>& stateArray, U32 clipFlags = clipALL);
+  virtual void Render( const Array<FamilyState> & stateArray, U32 clipFlags = clipALL);
 #endif
 
     U32 RenderFlags()
@@ -218,18 +229,18 @@ public:
         friend class MeshObj;
         friend class MeshEnt;
 
-        static NBinTree<MeshRoot>   rootTree;     // searchable tree of root MeshGroups
-        static NList<MeshEnt>       entList;      // all MeshEnt's
-        static Bool                 sysInit;
+        static NBinTree<MeshRoot> rootTree;     // searchable tree of root MeshGroups
+        static NList<MeshEnt> entList;      // all MeshEnt's
+        static Bool sysInit;
         static MeshRoot* nullRoot;     // global null root
         static Bitmap* envMap;
-        static Vector               shadowVector; // limit shadow stretching
+        static Vector shadowVector; // limit shadow stretching
 
     public:
         // appearence globals
-        static U32                  vertCount, vertCountMRM, objCountMRM;
+        static U32 vertCount, vertCountMRM, objCountMRM;
 
-        static Bool                 readErrors;     // were there xsi read errors?
+        static Bool readErrors;     // were there xsi read errors?
 
         static MeshEnt* curParent;     // for common selection between 
         static MeshEnt* curEnt;        // DR2 and the mesh viewer
@@ -239,7 +250,7 @@ public:
 
     protected:
         static MeshRoot* FindExists(const char* meshName);
-        static Bool       SetupRoot(MeshRoot& root, const char* rootName = NULL);
+        static Bool SetupRoot(MeshRoot& root, const char* rootName = NULL);
 
         static void CmdInit();
         static void CmdDone();
@@ -257,7 +268,7 @@ public:
         static void DisposeAll();
         static void ResetCounts();
 
-        static void      MakeName(BuffString& buff, const char* meshName, F32 scale = 1.0f);
+        static void MakeName(BuffString& buff, const char* meshName, F32 scale = 1.0f);
         static MeshRoot* Find(const char* meshName);
         static MeshRoot* FindRead(const char* meshName, const char* fileName = NULL);
         static MeshRoot* FindRead(const char* meshName, F32 scale, Bool mrmGen, const char* fileName = NULL);
@@ -311,19 +322,21 @@ protected:
     static void LoadMRMVertex(GodFile* god, MRM::Vertex& vertex);
     static MRM* LoadMRM(GodFile* god, const MeshRoot& root);
 };
+
 //----------------------------------------------------------------------------
 
 // temporary read memory for xsi files
 //
 struct MeshRead
 {
-    Array<Matrix>               baseMats;         // base pose mats FIXME
+    Array<Matrix> baseMats;         // base pose mats FIXME
 
     ~MeshRead()
     {
         baseMats.Release();
     }
 };
+
 //----------------------------------------------------------------------------
 
 // main mesh type definition
@@ -342,22 +355,22 @@ public:
     friend class MeshEnt;
     friend struct MeshConfig;
 
-    NBinTree<MeshRoot>::Node    treeNode;         // node for MeshMan tree
+    NBinTree<MeshRoot>::Node treeNode;         // node for MeshMan tree
     MeshRead* read;             // temp read data
 
-    GameIdent                   fileName;
-    NameString                  xsiName;
+    GameIdent fileName;
+    NameString xsiName;
 
-    Array<Matrix>               stateMats;        // root space to object space transforms
-    Bounds                      bigBounds;        // bounding sphere for whole hierarchy
-    Bounds                      fixedBounds;      // bounding sphere for default pose
+    Array<Matrix> stateMats;        // root space to object space transforms
+    Bounds bigBounds;        // bounding sphere for whole hierarchy
+    Bounds fixedBounds;      // bounding sphere for default pose
 
-    Array<FamilyState>          states;           // base state array
+    Array<FamilyState> states;           // base state array
 
-    AnimCycles                  animCycles;       // searchable tree of anim cycles
-    F32                         texTimer;         // texture animation rate
+    AnimCycles animCycles;       // searchable tree of anim cycles
+    F32 texTimer;         // texture animation rate
 
-    F32                         scale;            // for multiple scaled versions of the same file
+    F32 scale;            // for multiple scaled versions of the same file
 
     // shadowtypes
     enum
@@ -367,70 +380,71 @@ public:
         shadowSEMILIVE,
         shadowLIVE,
     };
-    U32                         shadowType : 2;
-    U32                         godLoad : 1;    // was it loaded from a god file?
-    U32                         chunkify : 1;    // should chunks be auto produced?
-    U32                         quickLight : 1;    // light as if it has a single normal?
-    U32                         noLight : 1;    // full bright?
-    U32                         shadowPlane : 1;    // has a shadow plane?
-    U32                         isChunk : 1;    // is this root an auto produced chunk?
-    U32                         useMrm : 1;
-    U32                         envMap : 1;    // display with enviroment mapping?
-    U32                         hasAnim : 1;    // does the mesh have anim cycles?
-    U32                         hasTexAnim : 1;    // does it have animating textures?
-    U32                         hasTread : 1;    // does it have treads?
-    U32                         hasControl : 1;    // does it have code controlled joints (CP-)
+
+    U32 shadowType : 2;
+    U32 godLoad : 1;    // was it loaded from a god file?
+    U32 chunkify : 1;    // should chunks be auto produced?
+    U32 quickLight : 1;    // light as if it has a single normal?
+    U32 noLight : 1;    // full bright?
+    U32 shadowPlane : 1;    // has a shadow plane?
+    U32 isChunk : 1;    // is this root an auto produced chunk?
+    U32 useMrm : 1;
+    U32 envMap : 1;    // display with enviroment mapping?
+    U32 hasAnim : 1;    // does the mesh have anim cycles?
+    U32 hasTexAnim : 1;    // does it have animating textures?
+    U32 hasTread : 1;    // does it have treads?
+    U32 hasControl : 1;    // does it have code controlled joints (CP-)
 
     // basic mesh data
     // Array4 pads data to contain multiple of 4 entries
     //
 #ifdef X__DO_XMM_BUILD
-    Array4<Vector4, 4>          vertices;
-    Array4<Vector4, 4>          normals;
+  Array4<Vector4, 4>          vertices;
+  Array4<Vector4, 4>          normals;
 #else
-    Array4<Vector, 4>           vertices;
-    Array4<Vector, 4>           normals;
+    Array4<Vector, 4> vertices;
+    Array4<Vector, 4> normals;
 #endif
-    Array4<UVPair, 4>           uvs;
-    Array4<UVPair, 4>           uvs2;
-    Array<F32>                  vOffsets;           // tread offsets per state
+    Array4<UVPair, 4> uvs;
+    Array4<UVPair, 4> uvs2;
+    Array<F32> vOffsets;           // tread offsets per state
 
-    Array4<Color, 4>           colors;
+    Array4<Color, 4> colors;
 
-    Array4<VertexI, 4>          vertex;             // experimental hardwareTL render
+    Array4<VertexI, 4> vertex;             // experimental hardwareTL render
 
     // mrming mesh data
     //
-    Array<FaceObj>              faces;
-    Array<BucketLock>           buckys;
-    Array<FaceGroup>            groups;
-    Array<VertIndex>            vertToState;
+    Array<FaceObj> faces;
+    Array<BucketLock> buckys;
+    Array<FaceGroup> groups;
+    Array<VertIndex> vertToState;
 
     MRM* mrm;                // reworked mrm data
-    F32                         mrmFactor;
-    U32                         vertCount, faceCount;
+    F32 mrmFactor;
+    U32 vertCount, faceCount;
 
     // does this root use multiweighted anim, envmapping, overlays
     //
-    U32                         rootControlFlags;
+    U32 rootControlFlags;
 
-    Array<Plane>                planes;             // plane data for rest state tris
+    Array<Plane> planes;             // plane data for rest state tris
 
-    Array<MeshRoot*>           chunks;             // auto generated chunk meshes
-    U32                         curChunk, chunkIndex;
-    Color                       chunkColor;
+    Array<MeshRoot*> chunks;             // auto generated chunk meshes
+    U32 curChunk, chunkIndex;
+    Color chunkColor;
 
-    F32                         shadowRadius;
-    U32                         shadowTime;     // semilive shadow
+    F32 shadowRadius;
+    U32 shadowTime;     // semilive shadow
     Bitmap* shadowTexture;
-    ShadowInfo                  shadowInfo;     // generic shadow
+    ShadowInfo shadowInfo;     // generic shadow
 
-    F32                         treadPerMeter;     // convert meterPerSec to treadPerSec
+    F32 treadPerMeter;     // convert meterPerSec to treadPerSec
 
-    F32                         nearFadeFactor;     // camera collide fade behavior
+    F32 nearFadeFactor;     // camera collide fade behavior
 
-    typedef void (MeshRoot::* ROOTRENDERPROCPTR)(Array<FaceGroup>& _buckys, U32 vertCount, const Array<FamilyState>& stateArray, Color color, U32 clipFlags, U32 _controlFlags);
-    ROOTRENDERPROCPTR           renderProc;       // render function pointer
+    typedef void (MeshRoot::*ROOTRENDERPROCPTR)(Array<FaceGroup>& _buckys, U32 vertCount, const Array<FamilyState>& stateArray, Color color, U32 clipFlags, U32 _controlFlags);
+    ROOTRENDERPROCPTR renderProc;       // render function pointer
 
 protected:
     void ClearData();
@@ -475,7 +489,7 @@ protected:
         tranys[vindex.index[0]].Transform(vert, v);
 
         // if we are doing multiple weights
-  //	  if ((Mesh::Manager::doMultiWeight) && (vindex.count > 1))
+        //	  if ((Mesh::Manager::doMultiWeight) && (vindex.count > 1))
         if (doMultiWeight && (vindex.count > 1))
         {
             // scale by zeroth weight
@@ -505,7 +519,7 @@ protected:
         tranys[vindex.index[0]].Transform(dst, src);
 
         // if we are doing multiple weights
-  //	  if ((Mesh::Manager::doMultiWeight) && (vindex.count > 1))
+        //	  if ((Mesh::Manager::doMultiWeight) && (vindex.count > 1))
         if (doMultiWeight && (vindex.count > 1))
         {
             // scale by zeroth weight
@@ -560,6 +574,7 @@ public:
     {
         nearFadeFactor = nearF;
     }
+
     F32 GetNearFadeFactor()
     {
         return nearFadeFactor;
@@ -575,6 +590,7 @@ public:
         ClearData();
         animCycles.SetNodeMember(&AnimList::cycleNode);
     }
+
     virtual ~MeshRoot();
 
     AnimList* FindAnimCycle(U32 cycleID) const
@@ -601,7 +617,8 @@ public:
 
     Bool SetAnimCycle(U32 cycleID);
 
-    const Mesh* FindIdent(NodeIdent& ident)  const;
+    const Mesh* FindIdent(NodeIdent& ident) const;
+
     const Mesh* FindIdent(const char* _name, U32& index) const
     {
         NodeIdent ident;
@@ -629,6 +646,7 @@ public:
     {
         (this->*renderProc)(groups, vertices.count, stateArray, baseColor, clipFlags, _controlFlags);
     }
+
     void RenderColor(const Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL, U32 _controlFlags = controlDEF)
     {
         (this->*renderProc)(groups, vertices.count, stateArray, color, clipFlags, _controlFlags);
@@ -689,12 +707,14 @@ public:
 
     Bool MRMGen(List<U16>* verts = NULL);
     void MrmUpdate(Array<FaceGroup>& _groups, U32 vCountNew, U32& vertCount, U32& faceCount);
+
     inline void MrmUpdate(U32 vCountNew)
     {
         MrmUpdate(groups, vCountNew, vertCount, faceCount);
     }
 
     void MrmUpdate1(Array<FaceGroup>& _groups, U32 vCountNew, U32& vertCount, U32& faceCount);
+
     inline void MrmUpdate1(U32 vCountNew)
     {
         MrmUpdate1(groups, vCountNew, vertCount, faceCount);
@@ -720,34 +740,42 @@ public:
     {
         return bigBounds;
     }
+
     U32 VertCount() const
     {
         return vertices.count;
     }
+
     U32 NormCount() const
     {
         return normals.count;
     }
+
     U32 UVCount() const
     {
         return uvs.count;
     }
+
     U32 ColorCount() const
     {
         return colors.count;
     }
+
     Vector* Vertices() const
     {
         return &vertices[0];
     }
+
     Vector* Normals() const
     {
         return &normals[0];
     }
+
     UVPair* UVs() const
     {
         return &uvs[0];
     }
+
     Color* Colors() const
     {
         return colors.count ? &colors[0] : NULL;
@@ -762,10 +790,12 @@ public:
     {
         return vertices[index];
     }
+
     Vector& VertNormal(U32 index) const
     {
         return normals[index];
     }
+
     UVPair& VertUV(U32 index) const
     {
         return uvs[index];
@@ -775,10 +805,12 @@ public:
     {
         return VertVector(index).x;
     }
+
     F32& VertVectorY(U32 index) const
     {
         return VertVector(index).y;
     }
+
     F32& VertVectorZ(U32 index) const
     {
         return VertVector(index).z;
@@ -788,10 +820,12 @@ public:
     {
         return VertNormal(index).x;
     }
+
     F32& VertNormalY(U32 index) const
     {
         return VertNormal(index).y;
     }
+
     F32& VertNormalZ(U32 index) const
     {
         return VertNormal(index).z;
@@ -801,17 +835,20 @@ public:
     {
         return VertUV(index).u;
     }
+
     F32& VertV(U32 index) const
     {
         return VertUV(index).v;
     }
 };
+
 //----------------------------------------------------------------------------
 
 inline Bool FamilyState::IsTread() const
 {
     return GetMeshFromRoot()->isTread;
 }
+
 inline Bool FamilyState::IsControl() const
 {
     return GetMeshFromRoot()->isControl;

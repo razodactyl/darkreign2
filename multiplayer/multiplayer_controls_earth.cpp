@@ -29,14 +29,12 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class Earth
@@ -95,7 +93,6 @@ namespace MultiPlayer
             point[3].specular = 0xFF000000;
             point[3].u = bitmap->UVShiftWidth();
             point[3].v = 1.0f + bitmap->UVShiftHeight();
-
         }
 
 
@@ -138,9 +135,12 @@ namespace MultiPlayer
                             {
                                 // Night
                                 U32 data = src.GetPixel(x, z);
-                                U8 r = (U8)(((((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->rScaleInv)) * 64) >> 8);
-                                U8 g = (U8)(((((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->gScaleInv)) * 64) >> 8);
-                                U8 b = (U8)(((((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->bScaleInv)) * 64) >> 8);
+                                U8 r = static_cast<U8>(((((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->
+                                    rScaleInv)) * 64) >> 8);
+                                U8 g = static_cast<U8>(((((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->
+                                    gScaleInv)) * 64) >> 8);
+                                U8 b = static_cast<U8>(((((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->
+                                    bScaleInv)) * 64) >> 8);
                                 dst.PutPixel(x, z, dst.MakeRGBA(r, g, b, 255));
                             }
                             else if (light > 0.05f)
@@ -153,9 +153,12 @@ namespace MultiPlayer
                                 // Dusk
                                 U32 intensity = U32((light + 0.05f) * 1920.f) + 64;
                                 U32 data = src.GetPixel(x, z);
-                                U8 r = (U8)(((((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->rScaleInv)) * intensity) >> 8);
-                                U8 g = (U8)(((((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->gScaleInv)) * intensity) >> 8);
-                                U8 b = (U8)(((((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->bScaleInv)) * intensity) >> 8);
+                                U8 r = static_cast<U8>(((((data & pixForm->rMask) >> pixForm->rShift) << (pixForm->
+                                    rScaleInv)) * intensity) >> 8);
+                                U8 g = static_cast<U8>(((((data & pixForm->gMask) >> pixForm->gShift) << (pixForm->
+                                    gScaleInv)) * intensity) >> 8);
+                                U8 b = static_cast<U8>(((((data & pixForm->bMask) >> pixForm->bShift) << (pixForm->
+                                    bScaleInv)) * intensity) >> 8);
                                 dst.PutPixel(x, z, dst.MakeRGBA(r, g, b, 255));
                             }
 
@@ -206,10 +209,10 @@ namespace MultiPlayer
         {
             lastRedraw = 0;
 
-            earth[0] = NULL;
-            earth[1] = NULL;
-            lit[0] = NULL;
-            lit[1] = NULL;
+            earth[0] = nullptr;
+            earth[1] = nullptr;
+            lit[0] = nullptr;
+            lit[1] = nullptr;
 
             for (U32 i = 0; i < 256; i++)
             {
@@ -264,12 +267,11 @@ namespace MultiPlayer
 
             Info(const Network::Player* network, const Player* player, const PlayerInfo* playerInfo, const Team* team)
                 : network(network),
-                player(player),
-                playerInfo(playerInfo),
-                team(team)
+                  player(player),
+                  playerInfo(playerInfo),
+                  team(team)
             {
             }
-
         };
 
 
@@ -296,11 +298,11 @@ namespace MultiPlayer
 
                 // Does this network player have Player and PlayerInfo and a Team ?
                 if
-                    (
-                        Data::Get(&player, playerId) &&
-                        Data::Get(&playerInfo, playerId) &&
-                        Data::Get(&team, playerInfo->teamId)
-                        )
+                (
+                    Data::Get(&player, playerId) &&
+                    Data::Get(&playerInfo, playerId) &&
+                    Data::Get(&team, playerInfo->teamId)
+                )
                 {
                     // Draw the position of the local player
                     Point<S32> local
@@ -340,11 +342,11 @@ namespace MultiPlayer
 
                     // Does this network player have Player and PlayerInfo and a Team ?
                     if
-                        (
-                            Data::Get(&player, playerId) &&
-                            Data::Get(&playerInfo, playerId) &&
-                            Data::Get(&team, playerInfo->teamId)
-                            )
+                    (
+                        Data::Get(&player, playerId) &&
+                        Data::Get(&playerInfo, playerId) &&
+                        Data::Get(&team, playerInfo->teamId)
+                    )
                     {
                         F32 dx = player->longitude - pos.x;
                         F32 dy = player->latitude - pos.y;
@@ -397,7 +399,7 @@ namespace MultiPlayer
                         while (co)
                         {
                             U32 c = 0;
-                            i = NULL;
+                            i = nullptr;
                             F32 score = PI2;
 
                             for (NBinTree<Info, F32>::Iterator o(&old); *o; ++o)
@@ -420,10 +422,10 @@ namespace MultiPlayer
                                 }
                             }
 
-                            ASSERT(i)
+                            ASSERT(i);
 
-                                // Add the winner
-                                old.Unlink(i);
+                            // Add the winner
+                            old.Unlink(i);
                             info.Add(score, i);
 
                             co--;
@@ -474,13 +476,14 @@ namespace MultiPlayer
                             // Draw the name of the player
                             const CH* ch = Utils::Ansi2Unicode((*f)->network->GetName());
                             U32 len = Utils::Strlen(ch);
-                            pi.font->Draw(
+                            pi.font->Draw
+                            (
                                 s.x - (pi.font->Width(ch, len) / 2),
                                 s.y - (pi.font->Height() / 2),
                                 ch,
                                 len,
                                 pi.colors->fg[ColorIndex()],
-                                NULL
+                                nullptr
                             );
 
                             angle += angleStep;
@@ -504,25 +507,25 @@ namespace MultiPlayer
         {
             switch (fScope->NameCrc())
             {
-            case 0xDE16052E: // "Earth"
-            {
-                // Load bitmaps
-                earth[0] = Bitmap::Manager::FindCreate(Bitmap::reduceNONE, StdLoad::TypeString(fScope));
-                earth[1] = Bitmap::Manager::FindCreate(Bitmap::reduceNONE, StdLoad::TypeString(fScope));
+                case 0xDE16052E: // "Earth"
+                {
+                    // Load bitmaps
+                    earth[0] = Bitmap::Manager::FindCreate(Bitmap::reduceNONE, StdLoad::TypeString(fScope));
+                    earth[1] = Bitmap::Manager::FindCreate(Bitmap::reduceNONE, StdLoad::TypeString(fScope));
 
-                U32 size = earth[0]->Width();
+                    U32 size = earth[0]->Width();
 
-                // Create buffers
-                lit[0] = Bitmap::Manager::Create(Bitmap::reduceNONE, "earth0", 0, bitmapTEXTURE | bitmapWRITABLE);
-                lit[0]->Create(size, size, FALSE);
-                lit[1] = Bitmap::Manager::Create(Bitmap::reduceNONE, "earth1", 0, bitmapTEXTURE | bitmapWRITABLE);
-                lit[1]->Create(size, size, FALSE);
-                break;
-            }
+                    // Create buffers
+                    lit[0] = Bitmap::Manager::Create(Bitmap::reduceNONE, "earth0", 0, bitmapTEXTURE | bitmapWRITABLE);
+                    lit[0]->Create(size, size, FALSE);
+                    lit[1] = Bitmap::Manager::Create(Bitmap::reduceNONE, "earth1", 0, bitmapTEXTURE | bitmapWRITABLE);
+                    lit[1]->Create(size, size, FALSE);
+                    break;
+                }
 
-            default:
-                IControl::Setup(fScope);
-                break;
+                default:
+                    IControl::Setup(fScope);
+                    break;
             }
         }
 
@@ -589,37 +592,37 @@ namespace MultiPlayer
             {
                 switch (e.subType)
                 {
-                case IFace::NOTIFY:
-                {
-                    // Do specific handling
-                    switch (e.iface.p1)
+                    case IFace::NOTIFY:
                     {
-                    case EarthMsg::Upload:
-                    {
-                        VarFloat longitude("$.longitude", e.iface.from);
-                        VarFloat latitude("$.latitude", e.iface.from);
+                        // Do specific handling
+                        switch (e.iface.p1)
+                        {
+                            case EarthMsg::Upload:
+                            {
+                                VarFloat longitude("$.longitude", e.iface.from);
+                                VarFloat latitude("$.latitude", e.iface.from);
 
-                        longitude = Settings::GetLongitude();
-                        latitude = Settings::GetLatitude();
+                                longitude = Settings::GetLongitude();
+                                latitude = Settings::GetLatitude();
 
-                        return (TRUE);
+                                return (TRUE);
+                            }
+
+                            case EarthMsg::Download:
+                            {
+                                VarFloat longitude("$.longitude", e.iface.from);
+                                VarFloat latitude("$.latitude", e.iface.from);
+
+                                Settings::SetLongitude(Clamp<F32>(-180.0f, longitude, 180.0f));
+                                Settings::SetLatitude(Clamp<F32>(-90.0f, latitude, 90.0f));
+                                Settings::SaveToUser();
+
+                                UpdatePlayerInfo();
+
+                                return (TRUE);
+                            }
+                        }
                     }
-
-                    case EarthMsg::Download:
-                    {
-                        VarFloat longitude("$.longitude", e.iface.from);
-                        VarFloat latitude("$.latitude", e.iface.from);
-
-                        Settings::SetLongitude(Clamp<F32>(-180.0f, longitude, 180.0f));
-                        Settings::SetLatitude(Clamp<F32>(-90.0f, latitude, 90.0f));
-                        Settings::SaveToUser();
-
-                        UpdatePlayerInfo();
-
-                        return (TRUE);
-                    }
-                    }
-                }
                 }
             }
             else if (e.type == Input::EventID())
@@ -627,31 +630,29 @@ namespace MultiPlayer
                 // Input events
                 switch (e.subType)
                 {
-                case Input::MOUSEMOVE:
-                {
-                    Point<S32> mouse(e.input.mouseX, e.input.mouseY);
+                    case Input::MOUSEMOVE:
+                    {
+                        Point<S32> mouse(e.input.mouseX, e.input.mouseY);
 
-                    mouse = ScreenToClient(mouse);
+                        mouse = ScreenToClient(mouse);
 
-                    // Convert the position of the mouse into longitude and latitude
-                    Point<F32> pos
-                    (
-                        (F32(mouse.x) - 255.5f) * 180.0f / 256.0f,
-                        (127.5f - F32(mouse.y)) * 90.0f / 128.0f
-                    );
+                        // Convert the position of the mouse into longitude and latitude
+                        Point<F32> pos
+                        (
+                            (F32(mouse.x) - 255.5f) * 180.0f / 256.0f,
+                            (127.5f - F32(mouse.y)) * 90.0f / 128.0f
+                        );
 
-                    longitude->SetFloatValue(pos.x);
-                    latitude->SetFloatValue(pos.y);
+                        longitude->SetFloatValue(pos.x);
+                        latitude->SetFloatValue(pos.y);
 
-                    return (TRUE);
-                    break;
-                }
+                        return (TRUE);
+                        break;
+                    }
                 }
             }
 
             return (IControl::HandleEvent(e));
         }
-
     }
-
 }

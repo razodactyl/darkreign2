@@ -67,20 +67,21 @@ public:
     virtual void PostLoad();
 
     // build a new particle simulator
-    virtual Particle* Build(
+    virtual Particle* Build
+    (
         const Matrix& matrix,
         const Vector& veloc,
         const Vector& omega,
         const Vector& length,
         F32 timer,
-        void* data = NULL);
+        void* data = NULL
+    );
 
     // apply all particle simulators
     static void SimulateAll(F32 dt);
 
     // delete all particle simulators
     static void CleanAll(void);
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,14 +122,16 @@ public:
 
 public:
 
-    Particle(
+    Particle
+    (
         ParticleClass* proto,
         const Matrix& matrix,
         const Vector& veloc,
         const Vector& omega,
         const Vector& length,
         F32 timer,
-        void* data = NULL);
+        void* data = NULL
+    );
 
     virtual ~Particle();
 
@@ -148,6 +151,7 @@ public:
     {
         return timer * proto->lifeTimeInv;
     }
+
     U32 LifeIndex()
     {
         return Clamp(Utils::FtoL(LifeIndexNormalized() * 255.0f), 0L, 255L);

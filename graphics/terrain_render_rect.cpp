@@ -14,14 +14,18 @@
 #include "statistics.h"
 #include "terrain.h"
 #include "terrain_priv.h"
+
 //----------------------------------------------------------------------------
 
 namespace Terrain
 {
-
     // draw a single cluster
     //
-    void RenderClusterColor(Cluster& clus, S32 x, S32 z, U32 cellOffset, S32 cellStrideX, S32 cellStrideZ, Color color, U32 clipFlags) // = 0
+    void RenderClusterColor
+    (
+        Cluster& clus, S32 x, S32 z, U32 cellOffset, S32 cellStrideX, S32 cellStrideZ, Color color,
+        U32 clipFlags
+    ) // = 0
     {
         clus;
 
@@ -59,8 +63,8 @@ namespace Terrain
                 F32 uu = 0.0f;
                 for (x0 = x; x0 <= xend; x0 += meterStrideX, dv++, sv++, uu += 1.0f, c += cellStrideX)
                 {
-                    sv->x = (F32)x0;
-                    sv->z = (F32)z0;
+                    sv->x = static_cast<F32>(x0);
+                    sv->z = static_cast<F32>(z0);
                     sv->y = c->height;
 
                     dv->diffuse = color;
@@ -84,10 +88,10 @@ namespace Terrain
                     //  | \ |
                     // 1*--\*2
                     //
-                    iv[0] = (U16)(vcount);
-                    iv[1] = (U16)(vcount + 5);
-                    iv[2] = (U16)(vcount + 6);
-                    iv[5] = (U16)(vcount + 1);
+                    iv[0] = static_cast<U16>(vcount);
+                    iv[1] = static_cast<U16>(vcount + 5);
+                    iv[2] = static_cast<U16>(vcount + 6);
+                    iv[5] = static_cast<U16>(vcount + 1);
 
                     Plane planes[2];
                     planes[0].Set(verts[iv[0]], verts[iv[1]], verts[iv[2]]);
@@ -126,8 +130,8 @@ namespace Terrain
                 F32 uu = 0.0f;
                 for (x0 = x; x0 <= xend; x0 += meterStrideX, dv++, sv++, uu += 1.0f, c += cellStrideX)
                 {
-                    sv->x = (F32)x0;
-                    sv->z = (F32)z0;
+                    sv->x = static_cast<F32>(x0);
+                    sv->z = static_cast<F32>(z0);
                     sv->y = c->height;
                     dv->diffuse = color;
                     dv->specular = 0xff000000;
@@ -148,10 +152,10 @@ namespace Terrain
                     //  | \ |
                     // 1*--\*2
                     //
-                    iv[0] = (U16)(vcount);
-                    iv[1] = (U16)(vcount + 5);
-                    iv[2] = (U16)(vcount + 6);
-                    iv[5] = (U16)(vcount + 1);
+                    iv[0] = static_cast<U16>(vcount);
+                    iv[1] = static_cast<U16>(vcount + 5);
+                    iv[2] = static_cast<U16>(vcount + 6);
+                    iv[5] = static_cast<U16>(vcount + 1);
 
                     Plane planes[2];
                     planes[0].Set(verts[iv[0]], verts[iv[1]], verts[iv[2]]);
@@ -175,6 +179,7 @@ namespace Terrain
             Vid::Heap::Restore(heapSize);
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw a cell's normals; used by editing brush
@@ -224,12 +229,17 @@ namespace Terrain
         // submit the polygons
         Vid::UnlockIndexedPrimitiveMem(3, 3);
     }
+
     //----------------------------------------------------------------------------
 
 
     // draw a single cell
     //
-    void RenderCell(Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1, Color color, U32 clipFlags)
+    void RenderCell
+    (
+        Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1, Color color,
+        U32 clipFlags
+    )
     {
         UVPair* uvList = &cellUVList[c0.uv];
 
@@ -243,20 +253,20 @@ namespace Terrain
                 return;
             }
 
-            vertmem[0].vv.x = (F32)x0;
-            vertmem[0].vv.z = (F32)z0;
+            vertmem[0].vv.x = static_cast<F32>(x0);
+            vertmem[0].vv.z = static_cast<F32>(z0);
             vertmem[0].vv.y = c0.height;
 
-            vertmem[1].vv.x = (F32)x0;
-            vertmem[1].vv.z = (F32)z1;
+            vertmem[1].vv.x = static_cast<F32>(x0);
+            vertmem[1].vv.z = static_cast<F32>(z1);
             vertmem[1].vv.y = c1.height;
 
-            vertmem[2].vv.x = (F32)x1;
-            vertmem[2].vv.z = (F32)z1;
+            vertmem[2].vv.x = static_cast<F32>(x1);
+            vertmem[2].vv.z = static_cast<F32>(z1);
             vertmem[2].vv.y = c2.height;
 
-            vertmem[3].vv.x = (F32)x1;
-            vertmem[3].vv.z = (F32)z0;
+            vertmem[3].vv.x = static_cast<F32>(x1);
+            vertmem[3].vv.z = static_cast<F32>(z0);
             vertmem[3].vv.y = c3.height;
 
             U32 i;
@@ -274,26 +284,25 @@ namespace Terrain
             Utils::Memcpy(indexmem, Vid::rectIndices, 12);
 
             Vid::UnlockIndexedPrimitiveMem(4, 6);
-
         }
         else
         {
             VertexTL vertmem[4];
 
-            vertmem[0].vv.x = (F32)x0;
-            vertmem[0].vv.z = (F32)z0;
+            vertmem[0].vv.x = static_cast<F32>(x0);
+            vertmem[0].vv.z = static_cast<F32>(z0);
             vertmem[0].vv.y = c0.height;
 
-            vertmem[1].vv.x = (F32)x0;
-            vertmem[1].vv.z = (F32)z1;
+            vertmem[1].vv.x = static_cast<F32>(x0);
+            vertmem[1].vv.z = static_cast<F32>(z1);
             vertmem[1].vv.y = c1.height;
 
-            vertmem[2].vv.x = (F32)x1;
-            vertmem[2].vv.z = (F32)z1;
+            vertmem[2].vv.x = static_cast<F32>(x1);
+            vertmem[2].vv.z = static_cast<F32>(z1);
             vertmem[2].vv.y = c2.height;
 
-            vertmem[3].vv.x = (F32)x1;
-            vertmem[3].vv.z = (F32)z0;
+            vertmem[3].vv.x = static_cast<F32>(x1);
+            vertmem[3].vv.z = static_cast<F32>(z0);
             vertmem[3].vv.y = c3.height;
 
             U32 i;
@@ -310,15 +319,23 @@ namespace Terrain
             Vid::Clip::ToBucket(vertmem, 4, Vid::rectIndices, 6, &clus, TRUE, clipFlags);
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw a rectangle of cells; used by the edit brush
     //
-    void RenderCellRect(Area<S32>& rect, Color color, Bool dofill, Bool doFade, Bool doTile, Bitmap* tex, F32 rotation) // = FALSE, = FALSE, = TRUE, = NULL. = 0
+    void RenderCellRect
+    (
+        Area<S32>& rect, Color color, Bool dofill, Bool doFade, Bool doTile, Bitmap* tex,
+        F32 rotation
+    ) // = FALSE, = FALSE, = TRUE, = NULL. = 0
     {
         ASSERT(rect.p0.x < rect.p1.x&& rect.p0.y < rect.p1.y);
-        ASSERT(rect.p0.x >= 0 && rect.p1.x <= (S32)heightField.cellWidth
-            && rect.p0.y >= 0 && rect.p1.y <= (S32)heightField.cellHeight);
+        ASSERT
+        (
+            rect.p0.x >= 0 && rect.p1.x <= (S32)heightField.cellWidth
+            && rect.p0.y >= 0 && rect.p1.y <= (S32)heightField.cellHeight
+        );
 
         if (!tex)
         {
@@ -326,15 +343,17 @@ namespace Terrain
             tex = editTex;
         }
 
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | RS_BLEND_DEF);
-        Vid::SetTranBucketZMax(Vid::sortBRUSH0);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_TEXCLAMP | RS_BLEND_DEF
+        );
+        SetTranBucketZMax(Vid::sortBRUSH0);
 
         Vid::SetWorldTransform(Matrix::I);
         Vid::SetBucketMaterial(Vid::defMaterial);
-        Vid::SetBucketTexture(NULL);
+        Vid::SetBucketTexture(nullptr);
 
         S32 wid = rect.Width();
         S32 hgt = rect.Height();
@@ -343,15 +362,15 @@ namespace Terrain
         ASSERT(U32((wid + 1) * (hgt + 1)) < Vid::renderState.maxVerts && U32((wid) * (hgt) * 6) < Vid::renderState.maxIndices);
 
         S32 meterStride = heightField.meterPerCell;
-        S32 x = rect.p0.x * meterStride - (S32)OffsetX();
-        S32 z = rect.p0.y * meterStride - (S32)OffsetZ();
+        S32 x = rect.p0.x * meterStride - static_cast<S32>(OffsetX());
+        S32 z = rect.p0.y * meterStride - static_cast<S32>(OffsetZ());
         S32 xend = x + wid * meterStride;
         S32 zend = z + hgt * meterStride;
         Cell* c0;
         S32 x0, x1, z0, z1;
         S32 cellOffset = rect.p0.y * heightField.cellPitch + rect.p0.x;
 
-        Cluster& clus = GetCluster((F32)x, (F32)z);
+        Cluster& clus = GetCluster(static_cast<F32>(x), static_cast<F32>(z));
 
         F32 duu = doTile ? 1.0f : 1.0f / wid;
         F32 dvv = doTile ? 1.0f : 1.0f / hgt;
@@ -370,9 +389,10 @@ namespace Terrain
                 c0 = &heightField.cellList[offset];
                 for (x0 = x; x0 <= xend; x0 += meterStride)
                 {
-                    if (x0 >= 0 && x0 < (S32)heightField.meterWidth && z0 >= 0 && z0 < (S32)heightField.meterHeight)
+                    if (x0 >= 0 && x0 < static_cast<S32>(heightField.meterWidth) && z0 >= 0 && z0 < static_cast<S32>(
+                        heightField.meterHeight))
                     {
-                        RenderCellNormal(*c0, (F32)x0, (F32)z0);
+                        RenderCellNormal(*c0, static_cast<F32>(x0), static_cast<F32>(z0));
                     }
 
                     c0 += 1;
@@ -389,7 +409,9 @@ namespace Terrain
         Color invColor = color;
         if (doFade)
         {
-            invColor = lum > 128 ? Color((U32)0, (U32)0, (U32)0, color.a) : Color((U32)255, (U32)255, (U32)255, color.a);
+            invColor = lum > 128
+                           ? Color(static_cast<U32>(0), static_cast<U32>(0), static_cast<U32>(0), color.a)
+                           : Color(static_cast<U32>(255), static_cast<U32>(255), static_cast<U32>(255), color.a);
         }
         Matrix mat(Quaternion(rotation, Matrix::I.up));
 
@@ -415,8 +437,8 @@ namespace Terrain
 
                 for (x0 = x; x0 < xend; x0 += meterStride, dv++, uv.u -= duu, c += 1, vcount++)
                 {
-                    dv->vv.x = (F32)x0;
-                    dv->vv.z = (F32)z0;
+                    dv->vv.x = static_cast<F32>(x0);
+                    dv->vv.z = static_cast<F32>(z0);
                     dv->vv.y = c->height;
                     dv->diffuse = color;
                     dv->specular = 0xff000000;
@@ -441,16 +463,17 @@ namespace Terrain
 
                     Vid::TransformFromModel(*dv);
 
-                    if (x0 >= 0 && x0 < (S32)heightField.meterWidth && z0 >= 0 && z0 < (S32)heightField.meterHeight)
+                    if (x0 >= 0 && x0 < static_cast<S32>(heightField.meterWidth) && z0 >= 0 && z0 < static_cast<S32>(
+                        heightField.meterHeight))
                     {
                         // 0*\--*3
                         //  | \ |
                         // 1*--\*2
                         //
-                        iv[0] = (U16)(vcount);
-                        iv[1] = (U16)(vcount + wid1);
-                        iv[2] = (U16)(vcount + wid1 + 1);
-                        iv[5] = (U16)(vcount + 1);
+                        iv[0] = static_cast<U16>(vcount);
+                        iv[1] = static_cast<U16>(vcount + wid1);
+                        iv[2] = static_cast<U16>(vcount + wid1 + 1);
+                        iv[5] = static_cast<U16>(vcount + 1);
 
                         iv[3] = iv[0];
                         iv[4] = iv[2];
@@ -459,8 +482,8 @@ namespace Terrain
                     }
                 }
 
-                dv->vv.x = (F32)x0;
-                dv->vv.z = (F32)z0;
+                dv->vv.x = static_cast<F32>(x0);
+                dv->vv.z = static_cast<F32>(z0);
                 dv->vv.y = c->height;
                 //        dv->diffuse  = color;
                 dv->diffuse = invColor;
@@ -495,8 +518,8 @@ namespace Terrain
             uv.u = doTile ? F32(wid) : 1;
             for (x0 = x; x0 <= xend; x0 += meterStride, dv++, uv.u -= duu, c += 1)
             {
-                dv->vv.x = (F32)x0;
-                dv->vv.z = (F32)z0;
+                dv->vv.x = static_cast<F32>(x0);
+                dv->vv.z = static_cast<F32>(z0);
                 dv->vv.y = c->height;
                 //        dv->diffuse  = color;
                 dv->diffuse = invColor;
@@ -601,26 +624,29 @@ namespace Terrain
             }
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw a single cell; used for current 'click' location display
     //
     void RenderCell(Cell& cell, Color color, Bitmap* tex) // = NULL
     {
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF
+        );
 
         Vid::SetWorldTransform(Matrix::I);
-        Vid::SetTranBucketZMax(Vid::sortBRUSH0);
+        SetTranBucketZMax(Vid::sortBRUSH0);
         Vid::SetBucketMaterial(Vid::defMaterial);
         Vid::SetBucketTexture(tex ? tex : texList[cell.texture]);
 
-        U32 offset = (U32)(&cell - heightField.cellList);
+        U32 offset = static_cast<U32>(&cell - heightField.cellList);
 
-        U32 z0 = (offset / heightField.cellPitch) - (S32)OffsetZ();
-        U32 x0 = (offset - z0 * heightField.cellPitch) * heightField.meterPerCell - (S32)OffsetX();
+        U32 z0 = (offset / heightField.cellPitch) - static_cast<S32>(OffsetZ());
+        U32 x0 = (offset - z0 * heightField.cellPitch) * heightField.meterPerCell - static_cast<S32>(OffsetX());
         z0 *= heightField.meterPerCell;
         U32 z1 = z0 + heightField.meterPerCell;
         U32 x1 = x0 + heightField.meterPerCell;
@@ -629,10 +655,11 @@ namespace Terrain
         Cell* c2 = c1 + 1;
         Cell* c3 = c2 - heightField.cellPitch;
 
-        Cluster& clus = GetCluster((F32)x0, (F32)z0);
+        Cluster& clus = GetCluster(static_cast<F32>(x0), static_cast<F32>(z0));
 
         RenderCell(clus, cell, *c1, *c2, *c3, x0, z0, x1, z1, color, clipALL);
     }
+
     //----------------------------------------------------------------------------
 
     Bool GetVisibleWaterRect(Area<S32>& rect)
@@ -641,6 +668,7 @@ namespace Terrain
 
         return waterInView;
     }
+
     //----------------------------------------------------------------------------
 
     Bool GetVisibleClusterRect(Area<S32>& rect)
@@ -653,10 +681,10 @@ namespace Terrain
         rect.p1.y += Utils::FtoL(OffsetZ());
 
         // convert it to cluster coords 
-        rect.p0.x = Utils::FtoL((F32)rect.p0.x * clusPerMeter);
-        rect.p1.x = Utils::FtoL((F32)rect.p1.x * clusPerMeter);
-        rect.p0.y = Utils::FtoL((F32)rect.p0.y * clusPerMeter);
-        rect.p1.y = Utils::FtoL((F32)rect.p1.y * clusPerMeter);
+        rect.p0.x = Utils::FtoL(static_cast<F32>(rect.p0.x) * clusPerMeter);
+        rect.p1.x = Utils::FtoL(static_cast<F32>(rect.p1.x) * clusPerMeter);
+        rect.p0.y = Utils::FtoL(static_cast<F32>(rect.p0.y) * clusPerMeter);
+        rect.p1.y = Utils::FtoL(static_cast<F32>(rect.p1.y) * clusPerMeter);
 
         // increase bounds by one along each edge to be sure everything gets drawn
         rect.p0.x--;
@@ -666,7 +694,8 @@ namespace Terrain
 
         return TRUE;
     }
-    //----------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------
 }
+
 //----------------------------------------------------------------------------

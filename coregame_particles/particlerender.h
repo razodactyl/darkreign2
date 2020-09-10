@@ -52,7 +52,9 @@ public:
     void Setup(FScope* fScope);
 
     // particle rendering metaclass destructor
-    virtual ~ParticleRenderClass() {}
+    virtual ~ParticleRenderClass()
+    {
+    }
 
     // Configure the class
     virtual Bool Configure(FScope* fScope);
@@ -62,7 +64,6 @@ public:
 
     // build a new particle renderer
     virtual ParticleRender* Build(Particle* particle, void* data = NULL);
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,7 +113,6 @@ public:
     virtual U32 Visible(Vector* p0 = NULL, Vector* p1 = NULL, F32 radius = 0);
 
     Bitmap* TexAnim(F32 dt);
-
 };
 
 #endif

@@ -52,7 +52,6 @@ public:
     virtual ~MeshPlaneBuild();
 
     virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
-
 };
 
 #endif

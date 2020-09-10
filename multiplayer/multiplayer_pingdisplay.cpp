@@ -6,7 +6,6 @@
 //
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Includes
@@ -21,14 +20,12 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace PingDisplay
     {
-
         const U32 pingClamp = 3000;
         const U32 minLineValue = 32;
         const U32 maxLineValue = 800;
@@ -147,11 +144,6 @@ namespace MultiPlayer
                     alphaScale
                 );
             }
-
         }
-
     }
-
 }
-
-

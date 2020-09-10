@@ -159,11 +159,11 @@ namespace Studio
                 listBox->DeleteAllItems();
 
                 static char* blends[] = {
-                  "add",
-                  "decal",
-                  "glow",
-                  "modulate",
-                  NULL
+                    "add",
+                    "decal",
+                    "glow",
+                    "modulate",
+                    NULL
                 };
 
                 for (char** b = blends; *b; b++)
@@ -221,274 +221,274 @@ namespace Studio
         {
             switch (crc)
             {
-            case 0x27546BF9: // "Brush::LeftMouseClick"
-            {
-                // Block this event
-                return;
-            }
-            case 0xFEA6C563: // "Brush::LeftMouseCaptureStart"
-            {
-                if (Common::Input::GetModifierKey(1))
+                case 0x27546BF9: // "Brush::LeftMouseClick"
                 {
-                    // modifier active
-                    captureModifier = CM_ON;
-
-                    bInfo.saveStyle = bInfo.style;
-                    //            SaveMousePosition(e);
+                    // Block this event
+                    return;
                 }
-                // Always pass system events down
-                break;
-            }
-
-            case 0x252BA28C: // "Brush::LeftMouseCaptureEnd"
-            {
-                // Were brush points setup this cycle
-                if (changed && brushSetup && !Common::Input::GetModifierKey(3))
+                case 0xFEA6C563: // "Brush::LeftMouseCaptureStart"
                 {
-                    // Add history item
-                    History::Terrain* history = new History::Terrain();
-                    History::Base::AddItem(history);
-                    history->Add(brushPoint0, brushPoint1);
-
-                    Point<S32> a = brushPoint0;
-                    Point<S32> b = brushPoint1;
-
-                    // Ensure sorted points
-                    if (a.x > b.x) { Swap(a.x, b.x); }
-                    if (a.z > b.z) { Swap(a.z, b.z); }
-
-                    Point<S32> size(b.x - a.x + 1, b.z - a.z + 1);
-                    bInfo.overlayIndex = Terrain::AddOverlay(size, bInfo.style, bInfo.blend);
-                    Terrain::ApplyOverlay(a.x, a.z, bInfo.overlayIndex, bInfo.textureIndex);
-
-                    changed = FALSE;
-                }
-
-                if (captureModifier)
-                {
-                    RestoreMousePosition();
-                }
-
-                // clear modifier capture
-                captureModifier = CM_OFF;
-
-                FillLists(FALSE);
-
-                // Always pass system events down
-                break;
-            }
-
-            case 0xFA75C2F5: // "Input::MouseMove"
-            {
-                ASSERT(e);
-
-                if (captureModifier)
-                {
-                    // Get mouse delta
-                    S32 dx = DeltaX();
-                    if (dx < 0)
+                    if (Common::Input::GetModifierKey(1))
                     {
-                        // its circular, keep it positive
-                        dx %= 360;
-                        dx += 360;
+                        // modifier active
+                        captureModifier = CM_ON;
+
+                        bInfo.saveStyle = bInfo.style;
+                        //            SaveMousePosition(e);
                     }
-                    bInfo.style = (bInfo.saveStyle + dx);
+                    // Always pass system events down
+                    break;
+                }
 
-                    // make it a multiple of 4 degrees
-                    bInfo.style >>= 2;
-                    bInfo.style <<= 2;
+                case 0x252BA28C: // "Brush::LeftMouseCaptureEnd"
+                {
+                    // Were brush points setup this cycle
+                    if (changed && brushSetup && !Common::Input::GetModifierKey(3))
+                    {
+                        // Add history item
+                        History::Terrain* history = new History::Terrain();
+                        History::Base::AddItem(history);
+                        history->Add(brushPoint0, brushPoint1);
 
-                    bInfo.style %= 360;
+                        Point<S32> a = brushPoint0;
+                        Point<S32> b = brushPoint1;
+
+                        // Ensure sorted points
+                        if (a.x > b.x) { Swap(a.x, b.x); }
+                        if (a.z > b.z) { Swap(a.z, b.z); }
+
+                        Point<S32> size(b.x - a.x + 1, b.z - a.z + 1);
+                        bInfo.overlayIndex = Terrain::AddOverlay(size, bInfo.style, bInfo.blend);
+                        Terrain::ApplyOverlay(a.x, a.z, bInfo.overlayIndex, bInfo.textureIndex);
+
+                        changed = FALSE;
+                    }
+
+                    if (captureModifier)
+                    {
+                        RestoreMousePosition();
+                    }
+
+                    // clear modifier capture
+                    captureModifier = CM_OFF;
+
+                    FillLists(FALSE);
+
+                    // Always pass system events down
+                    break;
+                }
+
+                case 0xFA75C2F5: // "Input::MouseMove"
+                {
+                    ASSERT(e);
+
+                    if (captureModifier)
+                    {
+                        // Get mouse delta
+                        S32 dx = DeltaX();
+                        if (dx < 0)
+                        {
+                            // its circular, keep it positive
+                            dx %= 360;
+                            dx += 360;
+                        }
+                        bInfo.style = (bInfo.saveStyle + dx);
+
+                        // make it a multiple of 4 degrees
+                        bInfo.style >>= 2;
+                        bInfo.style <<= 2;
+
+                        bInfo.style %= 360;
+
+                        // Block this event
+                        return;
+                    }
+
+                    // Always pass system events down
+                    break;
+                }
+
+                case 0x0FE20111: // "Brush::Apply"
+                {
+                    // Do not update if key held or not over terrain
+                    if (captureModifier)
+                    {
+                        captureApply = CM_OFF;
+                        return;
+                    }
+                    if (!(data.cInfo.gameWindow && data.cInfo.mTerrain.cell))
+                    {
+                        return;
+                    }
+
+                    // Were brush points setup this cycle
+                    if (brushSetup && Common::Input::GetModifierKey(3))
+                    {
+                        // Add history
+                        History::Terrain* history = History::Terrain::GetItem();
+                        history->Add(brushPoint0, brushPoint1);
+                        Point<S32> a = brushPoint0;
+                        Point<S32> b = brushPoint1;
+
+                        // Ensure sorted points
+                        if (a.x > b.x) { Swap(a.x, b.x); }
+                        if (a.z > b.z) { Swap(a.z, b.z); }
+
+                        Point<S32> size(b.x - a.x + 1, b.z - a.z + 1);
+                        Terrain::RemoveOverlay(a.x, a.z, size);
+                    }
+                    else
+                    {
+                        changed = TRUE;
+                    }
+                    // Block this event
+                    return;
+                }
+
+                case 0xC9295036: // "Command::MissionSaved"
+                case 0xE6863C47: // "System::InitSimulation"
+                {
+                    FillLists();
+                    // Always pass system events down
+                    break;
+                }
+
+                case 0x985B3F49: // "Command::Select"
+                {
+                    // Is mouse over the terrain
+                    if (data.cInfo.gameWindow && data.cInfo.mTerrain.cell)
+                    {
+                        // Get the cell at this location
+                        ::Cell& cell = *Terrain::GetCell
+                        (
+                            data.cInfo.mTerrain.cellX, data.cInfo.mTerrain.cellZ
+                        );
+                        if (cell.flags & ::Cell::cellOVERLAY)
+                        {
+                            // set the brush from the cell
+                            //
+                            Terrain::Overlay& overlay = Terrain::overlays[cell.overlay];
+
+                            GameIdent buff;
+                            overlay.GetName(buff);
+                            varOverlay->SetStringValue(buff.str);
+
+                            sprintf(buff.str, "%3d", cell.texture1);
+                            varTexture->SetStringValue(buff.str);
+
+                            Effects::Blend::GetString(overlay.blend, buff);
+                            varBlend->SetStringValue(buff.str);
+                        }
+                    }
+                    // Block this event
+                    return;
+                }
+
+                case 0x14BFCAFA: // "Command::Up"
+                {
+                    bInfo.style = 0;
 
                     // Block this event
                     return;
                 }
 
-                // Always pass system events down
-                break;
-            }
+                case 0x0EDB94AC: // "Command::Down"
+                {
+                    // rotate to 180 degrees
+                    //
+                    bInfo.style = 180;
 
-            case 0x0FE20111: // "Brush::Apply"
-            {
-                // Do not update if key held or not over terrain
-                if (captureModifier)
-                {
-                    captureApply = CM_OFF;
-                    return;
-                }
-                if (!(data.cInfo.gameWindow && data.cInfo.mTerrain.cell))
-                {
+                    // Block this event
                     return;
                 }
 
-                // Were brush points setup this cycle
-                if (brushSetup && Common::Input::GetModifierKey(3))
+                case 0x5B9666F9: // "Command::Left"
                 {
-                    // Add history
-                    History::Terrain* history = History::Terrain::GetItem();
-                    history->Add(brushPoint0, brushPoint1);
-                    Point<S32> a = brushPoint0;
-                    Point<S32> b = brushPoint1;
+                    // rotate to 270 degrees
+                    //
+                    bInfo.style = 270;
 
-                    // Ensure sorted points
-                    if (a.x > b.x) { Swap(a.x, b.x); }
-                    if (a.z > b.z) { Swap(a.z, b.z); }
-
-                    Point<S32> size(b.x - a.x + 1, b.z - a.z + 1);
-                    Terrain::RemoveOverlay(a.x, a.z, size);
+                    // Block this event
+                    return;
                 }
-                else
+
+                case 0xACD276E5: // "Command::Right"
                 {
-                    changed = TRUE;
+                    // rotate to 90 degrees
+                    //
+                    bInfo.style = 90;
+
+                    // Block this event
+                    return;
                 }
-                // Block this event
-                return;
-            }
 
-            case 0xC9295036: // "Command::MissionSaved"
-            case 0xE6863C47: // "System::InitSimulation"
-            {
-                FillLists();
-                // Always pass system events down
-                break;
-            }
-
-            case 0x985B3F49: // "Command::Select"
-            {
-                // Is mouse over the terrain
-                if (data.cInfo.gameWindow && data.cInfo.mTerrain.cell)
+                case 0xDA2656D6: // "Command::Execute"
                 {
-                    // Get the cell at this location
-                    ::Cell& cell = *Terrain::GetCell
-                    (
-                        data.cInfo.mTerrain.cellX, data.cInfo.mTerrain.cellZ
-                    );
-                    if (cell.flags & ::Cell::cellOVERLAY)
+                    // Block this event
+                    return;
+                }
+
+                case 0xC3C52EA3: // "System::PreDraw"
+                {
+                    // Are the points valid
+                    if (brushSetup)
                     {
-                        // set the brush from the cell
-                        //
-                        Terrain::Overlay& overlay = Terrain::overlays[cell.overlay];
+                        F32 r, g, b, a = 1;
 
-                        GameIdent buff;
-                        overlay.GetName(buff);
-                        varOverlay->SetStringValue(buff.str);
+                        Bool mod = Common::Input::GetModifierKey(3) && !(Common::Input::GetModifierKey(1) || Common::Input::GetModifierKey(2));
 
-                        sprintf(buff.str, "%3d", cell.texture1);
-                        varTexture->SetStringValue(buff.str);
+                        // Are we resizing the brush
+                        if (Common::Input::GetModifierKey(2) || captureResize == CM_ON)
+                        {
+                            r = 1.0F;
+                            g = b = 0;
+                            a = Common::Input::GetModifierKey(3) ? .5f : 1;
+                        }
+                        else if (mod)
+                        {
+                            r = g = 0;
+                            b = 1.0f;
+                        }
+                        else
+                        {
+                            r = b = Common::Input::GetModifierKey(1) || captureModifier == CM_ON ? 0 : 1.0f;
+                            g = 1.0f;
+                        }
 
-                        Effects::Blend::GetString(overlay.blend, buff);
-                        varBlend->SetStringValue(buff.str);
+                        // Draw the brush
+                        Terrain::RenderCellRect
+                        (
+                            clipRect, Color(r, g, b, a),
+                            TRUE, FALSE, mod, mod ? NULL : Terrain::overlayList[bInfo.textureIndex],
+                            mod ? 0 : F32(bInfo.style) / 180.0f * PI
+                        );
                     }
+                    // Always pass system events down
+                    break;
                 }
-                // Block this event
-                return;
-            }
 
-            case 0x14BFCAFA: // "Command::Up"
-            {
-                bInfo.style = 0;
-
-                // Block this event
-                return;
-            }
-
-            case 0x0EDB94AC: // "Command::Down"
-            {
-                // rotate to 180 degrees
-                //
-                bInfo.style = 180;
-
-                // Block this event
-                return;
-            }
-
-            case 0x5B9666F9: // "Command::Left"
-            {
-                // rotate to 270 degrees
-                //
-                bInfo.style = 270;
-
-                // Block this event
-                return;
-            }
-
-            case 0xACD276E5: // "Command::Right"
-            {
-                // rotate to 90 degrees
-                //
-                bInfo.style = 90;
-
-                // Block this event
-                return;
-            }
-
-            case 0xDA2656D6: // "Command::Execute"
-            {
-                // Block this event
-                return;
-            }
-
-            case 0xC3C52EA3: // "System::PreDraw"
-            {
-                // Are the points valid
-                if (brushSetup)
-                {
-                    F32 r, g, b, a = 1;
-
-                    Bool mod = Common::Input::GetModifierKey(3) && !(Common::Input::GetModifierKey(1) || Common::Input::GetModifierKey(2));
-
-                    // Are we resizing the brush
-                    if (Common::Input::GetModifierKey(2) || captureResize == CM_ON)
+                    /*
+                    case 0x8B9FFA39: // "System::PostDraw"
                     {
-                        r = 1.0F;
-                        g = b = 0;
-                        a = Common::Input::GetModifierKey(3) ? .5f : 1;
+                      // Is the cursor over the terrain
+                      if (brushSetup && data.cInfo.gameWindow && data.cInfo.mTerrain.cell)
+                      {
+                        Font *font = FontSys::GetFont(0xF81D1051); // "System"
+                      
+                        if (font)
+                        {
+                          IFace::RenderF32
+                          (
+                            data.cInfo.mTerrain.pos.y, 2, font, Color(1.0F, 1.0F, 1.0F),
+                            data.cInfo.mouse.x + 20, data.cInfo.mouse.y - 20
+                          );
+                        }
+                      }
+            
+                      // Always pass system events down
+                      break;
                     }
-                    else if (mod)
-                    {
-                        r = g = 0;
-                        b = 1.0f;
-                    }
-                    else
-                    {
-                        r = b = Common::Input::GetModifierKey(1) || captureModifier == CM_ON ? 0 : 1.0f;
-                        g = 1.0f;
-                    }
-
-                    // Draw the brush
-                    Terrain::RenderCellRect
-                    (
-                        clipRect, Color(r, g, b, a),
-                        TRUE, FALSE, mod, mod ? NULL : Terrain::overlayList[bInfo.textureIndex],
-                        mod ? 0 : F32(bInfo.style) / 180.0f * PI
-                    );
-                }
-                // Always pass system events down
-                break;
-            }
-
-            /*
-            case 0x8B9FFA39: // "System::PostDraw"
-            {
-              // Is the cursor over the terrain
-              if (brushSetup && data.cInfo.gameWindow && data.cInfo.mTerrain.cell)
-              {
-                Font *font = FontSys::GetFont(0xF81D1051); // "System"
-
-                if (font)
-                {
-                  IFace::RenderF32
-                  (
-                    data.cInfo.mTerrain.pos.y, 2, font, Color(1.0F, 1.0F, 1.0F),
-                    data.cInfo.mouse.x + 20, data.cInfo.mouse.y - 20
-                  );
-                }
-              }
-
-              // Always pass system events down
-              break;
-            }
-            */
+                    */
             }
 
             // Not blocked at this level

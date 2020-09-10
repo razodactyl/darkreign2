@@ -38,14 +38,12 @@
 //
 namespace Client
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // Namespace Display
     //
     namespace Display
     {
-
         // Multiplayer markers
         NBinTree<PlayerMarker> markers(&PlayerMarker::node);
 
@@ -73,7 +71,7 @@ namespace Client
         static void RenderSpecialized()
         {
             // Is there a unit under the cursor
-            UnitObj* over = data.cInfo.gameWnd.Alive() ? data.cInfo.o.unit.GetPointer() : NULL;
+            UnitObj* over = data.cInfo.gameWnd.Alive() ? data.cInfo.o.unit.GetPointer() : nullptr;
 
             // Can we see this units special info
             if (over && Team::TestDisplayRelation(over, Relation::ALLY))
@@ -129,33 +127,33 @@ namespace Client
             else
             {
                 // Act as if not selected
-                unit = NULL;
+                unit = nullptr;
             }
 
             if
-                (
+            (
                     // Rally unit has been deselected
-                    (!unit && rallyUnitId)
+                (!unit && rallyUnitId)
 
-                    ||
+                ||
+
+                (
+                    // Have a rally point unit
+                    unit
+
+                    &&
 
                     (
-                        // Have a rally point unit
-                        unit
+                        // Different to last one
+                        (unit->Id() != rallyUnitId)
 
-                        &&
+                        ||
 
-                        (
-                            // Different to last one
-                            (unit->Id() != rallyUnitId)
-
-                            ||
-
-                            // Rally point location has changed
-                            (rallyUnitId && (dstPoint != rallyPoint))
-                            )
-                        )
+                        // Rally point location has changed
+                        (rallyUnitId && (dstPoint != rallyPoint))
                     )
+                )
+            )
             {
                 // Dispose of any current particle
                 if (rallyParticle.Alive())
@@ -225,22 +223,30 @@ namespace Client
             // Are we placing a footprint
             if (i.gameWnd.Alive() && (i.pEvent == PE_CONSTRUCT || i.pEvent == PE_NOCONSTRUCT))
             {
-                ASSERT(data.constructType.Alive())
-                    ASSERT(i.t.cell)
+                ASSERT(data.constructType.Alive());
+                ASSERT(i.t.cell);
 
-                    // Does object have a footprint
-                    FootPrint::Type* foot = data.constructType->GetFootPrintType();
+                // Does object have a footprint
+                FootPrint::Type* foot = data.constructType->GetFootPrintType();
 
                 // Equality check because type was changed on console during dev
                 if (foot && (foot == &data.placeFoot.GetType()))
                 {
                     if (deform)
                     {
-                        Common::Display::FootPrintPlacementDeform(data.placeFoot, placeDeform, TRUE, &data.placeLocation, data.clientAlpha.GetValue());
+                        FootPrintPlacementDeform
+                        (
+                            data.placeFoot, placeDeform, TRUE, &data.placeLocation,
+                            data.clientAlpha.GetValue()
+                        );
                     }
                     else
                     {
-                        Common::Display::FootPrintPlacement(data.placeFoot, TRUE, &data.placeLocation, data.clientAlpha.GetValue());
+                        Common::Display::FootPrintPlacement
+                        (
+                            data.placeFoot, TRUE, &data.placeLocation,
+                            data.clientAlpha.GetValue()
+                        );
                     }
                 }
 
@@ -308,7 +314,7 @@ namespace Client
         {
             Matrix m = Matrix::I;
 
-            for (NBinTree<PlayerMarker>::Iterator i(&markers); *i; i++)
+            for (NBinTree<PlayerMarker>::Iterator i(&markers); *i; ++i)
             {
                 PlayerMarker* p = *i;
 
@@ -342,7 +348,7 @@ namespace Client
             /*
             // Get the camera matrix
             const Matrix &m = Vid::CurCamera().WorldMatrix();
-
+      
             // Update the 3D listener position
             Sound::Digital::UpdateListener
             (
@@ -407,12 +413,12 @@ namespace Client
             // Display debug information
 #ifdef DEVELOPMENT
 
-            Debug::Render();
+        Debug::Render();
 
 #endif
 
             // Render interface
-            if (!IFace::GetFlag(IFace::DISABLE_DRAW))
+            if (!GetFlag(IFace::DISABLE_DRAW))
             {
                 IFace::InitRender();
 
@@ -445,17 +451,17 @@ namespace Client
 
                     if (GameTime::IsFallingBehind())
                     {
-                        Client::HUD::RenderStatusIcon(0x267B119C, screenRect); // "FallingBehind"
+                        HUD::RenderStatusIcon(0x267B119C, screenRect); // "FallingBehind"
                     }
 
                     if (GameTime::IsDroppingFrames())
                     {
-                        Client::HUD::RenderStatusIcon(0xF144EDC2, screenRect); // "DroppingFrames"
+                        HUD::RenderStatusIcon(0xF144EDC2, screenRect); // "DroppingFrames"
                     }
 
                     if (GameTime::IsStalled())
                     {
-                        Client::HUD::RenderStatusIcon(0x540B86C8, screenRect); // "NetworkLag"
+                        HUD::RenderStatusIcon(0x540B86C8, screenRect); // "NetworkLag"
                     }
                 }
 
@@ -471,7 +477,7 @@ namespace Client
         //
         void PostRender()
         {
-            Common::Display::PostFootPrintPlacementDeform(placeDeform);
+            PostFootPrintPlacementDeform(placeDeform);
         }
 
 
@@ -483,13 +489,13 @@ namespace Client
         void Init()
         {
             // Clear the region reaper
-            data.paintRegion = NULL;
+            data.paintRegion = nullptr;
 
             // Clear local data
             placeDeform.Init();
             rallyUnitId = 0;
-            rallyParticle = NULL;
-            selectionSkin = NULL;
+            rallyParticle = nullptr;
+            selectionSkin = nullptr;
         }
 
 
@@ -500,7 +506,7 @@ namespace Client
         //
         void Done()
         {
-            selectionSkin = NULL;
+            selectionSkin = nullptr;
             markers.DisposeAll();
         }
 
@@ -510,16 +516,18 @@ namespace Client
         //
         void SetPlayerMarker(const Player* player, S32 cx, S32 cz)
         {
-            ASSERT(player)
-                ASSERT(WorldCtrl::CellOnMap(cx, cz))
+            ASSERT(player);
+            ASSERT(WorldCtrl::CellOnMap(cx, cz));
 
-                PlayerMarker* marker;
+            PlayerMarker* marker;
 
-            if ((marker = markers.Find(player->GetId())) == NULL)
+            if ((marker = markers.Find(player->GetId())) == nullptr)
             {
                 marker = new PlayerMarker;
                 marker->player = player;
-                marker->canSee = Team::TestRelation(Team::GetDisplayTeam(), player->GetTeam(), Relation::ALLY) ? TRUE : FALSE;
+                marker->canSee = Team::TestRelation(Team::GetDisplayTeam(), player->GetTeam(), Relation::ALLY)
+                                     ? TRUE
+                                     : FALSE;
 
                 markers.Add(player->GetId(), marker);
             }
@@ -536,7 +544,7 @@ namespace Client
         {
             PlayerMarker* marker;
 
-            if ((marker = markers.Find(player->GetId())) != NULL)
+            if ((marker = markers.Find(player->GetId())) != nullptr)
             {
                 markers.Dispose(marker);
             }

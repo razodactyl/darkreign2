@@ -19,7 +19,11 @@
 
 // Constructor
 //
-MeshResource::MeshResource(MeshResourceType* _type, MeshEnt* _ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+MeshResource::MeshResource
+(
+    MeshResourceType* _type, MeshEnt* _ent, F32 _lifeTime,
+    U32 _flags
+) // = Effects::flagDESTROY | Effects::flagLOOP
     : MeshGlow(_type, _ent, _lifeTime, _flags)
 {
     _flags |= _type->data.animFlags;
@@ -32,6 +36,7 @@ MeshResource::MeshResource(MeshResourceType* _type, MeshEnt* _ent, F32 _lifeTime
     }
     scaleAnim.Setup(_lifeTime, &_type->scaleKeys, &_type->data, _flags);
 }
+
 //----------------------------------------------------------------------------
 
 // Destuctor
@@ -39,6 +44,7 @@ MeshResource::MeshResource(MeshResourceType* _type, MeshEnt* _ent, F32 _lifeTime
 MeshResource::~MeshResource()
 {
 }
+
 //----------------------------------------------------------------------------
 
 // Simulation function
@@ -58,16 +64,16 @@ Bool MeshResource::Simulate(F32 dt, MeshFX::CallBackData* cbd) // = NULL
 
     /*
     Effects::Data & data = type->data;
-
+  
     F32 scale = scaleAnim.Current().scale;
-
+  
     List<MeshEnt>::Iterator i(&ents);
     for (!i; *i; i++)
     {
       MeshEnt &ent = *(*i);
-
-      ent.SetSimTargetScale(
-        Vector(
+  
+      ent.SetSimTargetScale( 
+        Vector( 
           data.noX ? 1.0f : scale,
           data.noY ? 1.0f : scale,
           data.noZ ? 1.0f : scale)
@@ -79,5 +85,5 @@ Bool MeshResource::Simulate(F32 dt, MeshFX::CallBackData* cbd) // = NULL
 
     return TRUE;
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

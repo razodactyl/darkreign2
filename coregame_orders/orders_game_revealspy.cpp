@@ -26,57 +26,55 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 RevealSpy::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class RevealSpy
-    //
-
-
-    //
-    // Generate
-    //
-    void RevealSpy::Generate(Player &player, U32 id)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 RevealSpy::orderId;
 
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.id = id;
 
-      Add(data, sizeof (Data), player.IsRoute());
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class RevealSpy
+        //
+
+
+        //
+        // Generate
+        //
+        void RevealSpy::Generate(Player& player, U32 id)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.id = id;
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 RevealSpy::Execute(const U8* data, Player&)
+        {
+            const Data* d = (Data*)data;
+
+            // Convert ID into a pointer
+            if (UnitObj* unit = Resolver::Object<UnitObj, SpyObjType>(d->id))
+            {
+                // Notify the object that it's being attacked (this demorphs spies)
+                unit->SendEvent(Task::Event(0xF874D787)); // "AttackTarget"
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 RevealSpy::Execute(const U8 *data, Player &)
-    {
-      const Data *d = (Data *) data;
-
-      // Convert ID into a pointer
-      if (UnitObj *unit = Resolver::Object<UnitObj, SpyObjType>(d->id))
-      {
-        // Notify the object that it's being attacked (this demorphs spies)
-        unit->SendEvent(Task::Event(0xF874D787)); // "AttackTarget"
-      }
-
-      return (sizeof (Data));
-    }
-  }
 }

@@ -26,7 +26,7 @@ void Cell::ClearData()
     fog = 0;
 
 #ifdef DOTERRMRM
-    parent1 = parent2 = NULL;
+  parent1 = parent2 = NULL;
 #endif
 
     flags = cellLOD | cellVISIBLE;
@@ -35,6 +35,7 @@ void Cell::ClearData()
     color = 0xffffffff;
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 // clear cluster's values
@@ -47,6 +48,7 @@ void Cluster::ClearData()
     shroudCount = 25;
     waterIndex = 255;
 }
+
 //----------------------------------------------------------------------------
 
 // clear heightfield's values
@@ -58,10 +60,11 @@ void HeightField::ClearData()
     cellHeight = 0;
     cellMax = 0;
     meterPerCell = 0;
-    cellList = NULL;
+    cellList = nullptr;
 
     offsetX = offsetZ = 0.0f;
 }
+
 //----------------------------------------------------------------------------
 
 // destroy a heightfield
@@ -70,10 +73,11 @@ void HeightField::Release()
 {
     if (cellList)
     {
-        delete[] cellList;
+        delete [] cellList;
     }
-    cellList = NULL;
+    cellList = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 // return a offset in cellList based on 'x, z' coord in meters
@@ -85,8 +89,9 @@ U32 HeightField::CellOffset(F32 x, F32 z)
     {
         return cellMax;
     }
-    return (U32)(cz * cellPitch + cx);
+    return static_cast<U32>(cz * cellPitch + cx);
 }
+
 //----------------------------------------------------------------------------
 
 F32 HeightField::GetCellHeight(U32 offset)
@@ -101,6 +106,7 @@ F32 HeightField::GetCellHeight(U32 offset)
     }
     return F32_MAX;
 }
+
 //----------------------------------------------------------------------------
 
 F32 HeightField::SetCellHeight(U32 offset, F32 h)
@@ -116,6 +122,7 @@ F32 HeightField::SetCellHeight(U32 offset, F32 h)
     }
     return retValue;
 }
+
 //----------------------------------------------------------------------------
 
 Bool HeightField::GetCellVisible(U32 offset)
@@ -126,6 +133,7 @@ Bool HeightField::GetCellVisible(U32 offset)
     }
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool HeightField::SetCellVisible(U32 offset, Bool vis)
@@ -137,6 +145,7 @@ Bool HeightField::SetCellVisible(U32 offset, Bool vis)
     }
     return retValue;
 }
+
 //----------------------------------------------------------------------------
 
 Color HeightField::GetCellColor(U32 offset)
@@ -152,6 +161,7 @@ Color HeightField::GetCellColor(U32 offset)
 
     return 0xffffffff;
 }
+
 //----------------------------------------------------------------------------
 
 Color HeightField::SetCellColor(U32 offset, Color c)
@@ -168,6 +178,7 @@ Color HeightField::SetCellColor(U32 offset, Color c)
 
     return retValue;
 }
+
 //----------------------------------------------------------------------------
 
 // return heights that define the cell indexed by offset
@@ -184,6 +195,7 @@ void HeightField::CellHeights(U32 offset, F32* heights)
     cell -= cellPitch;
     heights[3] = cell->height;
 }
+
 //----------------------------------------------------------------------------
 
 // calculate the actual normal for a cell
@@ -191,7 +203,7 @@ void HeightField::CellHeights(U32 offset, F32* heights)
 //
 void HeightField::CalcCellNormal(U32 offset, Vector& norm)
 {
-    F32 h[4], mpc = (F32)meterPerCell;
+    F32 h[4], mpc = static_cast<F32>(meterPerCell);
     CellHeights(offset, h);
     Vector v1, v2, v3;
     v1.Set(mpc, h[3] - h[0], 0.0f);
@@ -223,6 +235,7 @@ void HeightField::CalcCellNormal(U32 offset, Vector& norm)
 
     norm.Normalize();
 }
+
 //----------------------------------------------------------------------------
 
 // set the cell's normal index into the standard Terrain normal list
@@ -238,6 +251,7 @@ U32 HeightField::CalcCellNormal(U32 offset)
 
     return Terrain::FindNormal(norm);
 }
+
 //----------------------------------------------------------------------------
 
 // allocate a heightfield
@@ -260,7 +274,7 @@ Bool HeightField::Setup(U32 wid, U32 hgt, U32 csize, F32 _offsetX, F32 _offsetZ,
     cellMax = cellPitch * hgt - 1;
 
     meterPerCell = csize;
-    cellPerMeter = 1.0f / (F32)meterPerCell;
+    cellPerMeter = 1.0f / static_cast<F32>(meterPerCell);
 
     meterWidth = cellWidth * meterPerCell;
     meterHeight = cellHeight * meterPerCell;
@@ -287,6 +301,7 @@ Bool HeightField::Setup(U32 wid, U32 hgt, U32 csize, F32 _offsetX, F32 _offsetZ,
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 // allocate and build a heightfield of brushtype 'type'
@@ -301,6 +316,7 @@ Bool HeightField::Setup(U32 wid, U32 hgt, U32 csize, BrushType type, F32 scale, 
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 // build a heightfield of brushtype 'type'
@@ -315,7 +331,7 @@ void HeightField::Make(BrushType type, F32 scale, Bitmap* custom) // = 1.0f, = N
         if (custom)
         {
             Area<S32> rect(cellWidth, cellHeight);
-            ImportBitmap((char*)custom->Data(), custom->Width(), custom->Height(), scale, rect);
+            ImportBitmap(static_cast<char*>(custom->Data()), custom->Width(), custom->Height(), scale, rect);
         }
     }
     else if (type == PLASMA)
@@ -325,15 +341,15 @@ void HeightField::Make(BrushType type, F32 scale, Bitmap* custom) // = 1.0f, = N
         {
           Editor::editMap.Create( 50, 50, FALSE);
         }
-        if (!PLASMA_gen( (U8 *) Editor::editMap.p1.ympData,
-         (short) Editor::editMap.bmpWidth, (short) Editor::editMap.bmpHeight,
+        if (!PLASMA_gen( (U8 *) Editor::editMap.p1.ympData, 
+         (short) Editor::editMap.bmpWidth, (short) Editor::editMap.bmpHeight, 
          (U8) Editor::plasmaGrain, Editor::plasmaKey))
         {
           ERR_FATAL( ("can't make a plasma brush") );
         }
         Area<S32> rect;
         rect.Set( cellWidth, cellHeight);
-        ImportBitmap( (char *)Editor::editMap.bmpData,
+        ImportBitmap( (char *)Editor::editMap.bmpData, 
           Editor::editMap.bmpWidth, Editor::editMap.bmpHeight, scale, rect);
         */
         return;
@@ -343,7 +359,7 @@ void HeightField::Make(BrushType type, F32 scale, Bitmap* custom) // = 1.0f, = N
         return;
     }
 
-    F32 radius = (F32)(cellPitch * meterPerCell) * 0.5f;
+    F32 radius = static_cast<F32>(cellPitch * meterPerCell) * 0.5f;
     F32 cx = meterWidth * 0.5f;
     F32 cz = meterHeight * 0.5f;
 
@@ -351,35 +367,36 @@ void HeightField::Make(BrushType type, F32 scale, Bitmap* custom) // = 1.0f, = N
     Cell* cell = cellList;
     for (z = 0; z < cellHeight; z++)
     {
-        F32 mz = (F32)z * (F32)meterPerCell;
+        F32 mz = static_cast<F32>(z) * static_cast<F32>(meterPerCell);
         for (x = 0; x < cellPitch; x++, cell++)
         {
             switch (type)
             {
-            case FLAT:
-                cell->height = scale;
+                case FLAT:
+                    cell->height = scale;
+                    break;
+                case BELL:
+                {
+                    F32 mx = static_cast<F32>(x) * static_cast<F32>(meterPerCell);
+                    F32 dx = mx - cx;
+                    F32 dz = mz - cz;
+                    F32 rad = static_cast<F32>(sqrt(dx * dx + dz * dz));
+                    if (rad > radius)
+                    {
+                        rad = 0.0f;
+                    }
+                    else
+                    {
+                        rad = static_cast<F32>(cos(static_cast<F32>(PIBY2) * rad / radius)) * scale;
+                    }
+                    cell->height = rad;
+                }
                 break;
-            case BELL:
-            {
-                F32 mx = (F32)x * (F32)meterPerCell;
-                F32 dx = mx - cx;
-                F32 dz = mz - cz;
-                F32 rad = (F32)sqrt(dx * dx + dz * dz);
-                if (rad > radius)
-                {
-                    rad = 0.0f;
-                }
-                else
-                {
-                    rad = (F32)cos((F32)PIBY2 * rad / radius) * scale;
-                }
-                cell->height = rad;
-            }
-            break;
             }
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 // perform a heightfield to heightfield paste operation
@@ -393,27 +410,27 @@ void HeightField::Paste(Area<S32>& dstRect, HeightField& buf, Area<S32>& bufRect
     U32 hgt = dstRect.Height();
 
     // in meters
-    F32 sdx = (F32)bufRect.Width() * buf.meterPerCell / (F32)wid;
-    F32 sdz = (F32)bufRect.Height() * buf.meterPerCell / (F32)hgt;
-    F32 sz = (F32)bufRect.p0.y * buf.meterPerCell;
+    F32 sdx = static_cast<F32>(bufRect.Width()) * buf.meterPerCell / static_cast<F32>(wid);
+    F32 sdz = static_cast<F32>(bufRect.Height()) * buf.meterPerCell / static_cast<F32>(hgt);
+    F32 sz = static_cast<F32>(bufRect.p0.y) * buf.meterPerCell;
 
     S32 z, x;  // cells
     for (z = dstRect.p0.y; z < dstRect.p1.y; z++, sz += sdz)
     {
-        F32 sx = (F32)bufRect.p0.x * buf.meterPerCell;
+        F32 sx = static_cast<F32>(bufRect.p0.x) * buf.meterPerCell;
         x = dstRect.p0.x;
         U32 offset = z * cellPitch + x;
         for (; x < dstRect.p1.x; x++, sx += sdx, offset++)
         {
-            if (x < 0 || x >(S32) cellWidth || z < 0 || z >(S32) cellHeight)
+            if (x < 0 || x > static_cast<S32>(cellWidth) || z < 0 || z > static_cast<S32>(cellHeight))
             {
                 continue;
             }
 
             Cell& cell = cellList[offset];
-            if (flags & HeightField::EDITSMOOTH)
+            if (flags & EDITSMOOTH)
             {
-                if (x < 1 || x >= (S32)cellWidth - 1 || z < 1 || z >= (S32)cellHeight - 1)
+                if (x < 1 || x >= static_cast<S32>(cellWidth) - 1 || z < 1 || z >= static_cast<S32>(cellHeight) - 1)
                 {
                     continue;
                 }
@@ -429,9 +446,9 @@ void HeightField::Paste(Area<S32>& dstRect, HeightField& buf, Area<S32>& bufRect
                 cell.height += h;
             }
 #if 1
-            else if (flags & HeightField::EDITHEIGHTS)
+            else if (flags & EDITHEIGHTS)
             {
-                if (flags & HeightField::EDITADD)
+                if (flags & EDITADD)
                 {
                     cell.height += buf.FindFloor(sx, sz) * scale;
                 }
@@ -441,25 +458,26 @@ void HeightField::Paste(Area<S32>& dstRect, HeightField& buf, Area<S32>& bufRect
                 }
             }
 #else
-            else if (flags & HeightField::EDITHEIGHTS)
-            {
-                if (flags & HeightField::EDITADD)
-                {
-                    // add heights to the current height
-                    atHeight = cell.height;
-                }
-                F32 y = atHeight + buf.FindFloor(sx, sz) * scale;
-                //if (y < 0.0f)
-                //{
-                  // clamp terrain to 0 meters or above
-                //  y = 0.0f;
-                //}
-                cell.height = y;
-            }
+      else if (flags & HeightField::EDITHEIGHTS)
+      {
+        if (flags & HeightField::EDITADD)
+        {
+          // add heights to the current height
+          atHeight = cell.height;
+        }
+        F32 y = atHeight + buf.FindFloor( sx, sz) * scale;
+        //if (y < 0.0f)
+            //{
+            // clamp terrain to 0 meters or above
+            //  y = 0.0f;
+        //}
+        cell.height = y;
+      }
 #endif
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 // calculate the height at the location 'x, z' in meters
@@ -470,7 +488,7 @@ F32 HeightField::FindFloor(F32 x, F32 z, Vector* surfNormal) // = NULL
     z += offsetZ;
 
 #if DEVELOPMENT
-    ASSERT(x >= 0.0f && x < (F32)meterWidth&& z >= 0.0f && z < (F32)meterHeight);
+	ASSERT( x >= 0.0f && x < (F32) meterWidth && z >= 0.0f && z < (F32)meterHeight);
 
 #else
     // clamp coords
@@ -479,7 +497,7 @@ F32 HeightField::FindFloor(F32 x, F32 z, Vector* surfNormal) // = NULL
     {
         x = 0;
     }
-    else if (x >= (F32)meterWidth)
+    else if (x >= static_cast<F32>(meterWidth))
     {
         x = meterWidth - .1f;
     }
@@ -487,7 +505,7 @@ F32 HeightField::FindFloor(F32 x, F32 z, Vector* surfNormal) // = NULL
     {
         z = 0;
     }
-    else if (z >= (F32)meterHeight)
+    else if (z >= static_cast<F32>(meterHeight))
     {
         z = meterHeight - .1f;
     }
@@ -498,15 +516,16 @@ F32 HeightField::FindFloor(F32 x, F32 z, Vector* surfNormal) // = NULL
     S32 cx = Utils::FtoL(x * cellPerMeter);
     S32 cz = Utils::FtoL(z * cellPerMeter);
 
-    U32 offset = (U32)(cz * cellPitch + cx);
+    U32 offset = static_cast<U32>(cz * cellPitch + cx);
     F32 heights[4];
     CellHeights(offset, heights);
 
-    F32 dx = x - ((F32)cx * (F32)meterPerCell);
-    F32 dz = z - ((F32)cz * (F32)meterPerCell);
+    F32 dx = x - (static_cast<F32>(cx) * static_cast<F32>(meterPerCell));
+    F32 dz = z - (static_cast<F32>(cz) * static_cast<F32>(meterPerCell));
 
     return FindFloor(heights, dx, dz, surfNormal);
 }
+
 //----------------------------------------------------------------------------
 
 // find the height (y) corresponding to the 'dx dz' coord in meters
@@ -520,12 +539,12 @@ F32 HeightField::FindFloor(F32* heights, F32 dx, F32 dz, Vector* surfNormal) // 
     //  | \ |
     // 1*--\*2
     //
-  //	dx = 1.0f / (dx12 * dz02 - dx02 * dz12);
-  //  DyDx = (dy12 * dz02 - dy02 * dz12) *  dx;
-  //	DyDz = (dy12 * dx02 - dy02 * dx12) * -dx;
+    //	dx = 1.0f / (dx12 * dz02 - dx02 * dz12);
+    //  DyDx = (dy12 * dz02 - dy02 * dz12) *  dx;
+    //	DyDz = (dy12 * dx02 - dy02 * dx12) * -dx;
 
     F32 dy12, dy02, dydx, dydz;
-    if (dz + meterPerCell - dx < (F32)meterPerCell)
+    if (dz + meterPerCell - dx < static_cast<F32>(meterPerCell))
     {
         // top tri
         // 0<---2
@@ -539,8 +558,15 @@ F32 HeightField::FindFloor(F32* heights, F32 dx, F32 dz, Vector* surfNormal) // 
 
         if (surfNormal)
         {
-            *surfNormal = Cross(Vector((F32)meterPerCell, heights[2] - heights[0], (F32)meterPerCell),
-                Vector((F32)meterPerCell, heights[3] - heights[0], 0.0f));
+            *surfNormal = Cross
+            (
+                Vector
+                (
+                    static_cast<F32>(meterPerCell), heights[2] - heights[0],
+                    static_cast<F32>(meterPerCell)
+                ),
+                Vector(static_cast<F32>(meterPerCell), heights[3] - heights[0], 0.0f)
+            );
 
             surfNormal->Normalize();
         }
@@ -559,8 +585,15 @@ F32 HeightField::FindFloor(F32* heights, F32 dx, F32 dz, Vector* surfNormal) // 
 
         if (surfNormal)
         {
-            *surfNormal = Cross(Vector(0.0f, heights[1] - heights[0], (F32)meterPerCell),
-                Vector((F32)meterPerCell, heights[2] - heights[0], (F32)meterPerCell));
+            *surfNormal = Cross
+            (
+                Vector(0.0f, heights[1] - heights[0], static_cast<F32>(meterPerCell)),
+                Vector
+                (
+                    static_cast<F32>(meterPerCell), heights[2] - heights[0],
+                    static_cast<F32>(meterPerCell)
+                )
+            );
 
             surfNormal->Normalize();
         }
@@ -570,6 +603,7 @@ F32 HeightField::FindFloor(F32* heights, F32 dx, F32 dz, Vector* surfNormal) // 
 
     return y + heights[0];
 }
+
 //----------------------------------------------------------------------------
 
 // import a buffer of greyscale values as a heightfield
@@ -579,21 +613,22 @@ Bool HeightField::ImportBitmap(char* buffer, U32 bwid, U32 bhgt, F32 scale, Area
     U32 wid = rect.Width();
     U32 hgt = rect.Height();
 
-    F32 dbx = (F32)bwid / (F32)wid;
-    F32 dbz = (F32)bhgt / (F32)hgt;
+    F32 dbx = static_cast<F32>(bwid) / static_cast<F32>(wid);
+    F32 dbz = static_cast<F32>(bhgt) / static_cast<F32>(hgt);
     F32 bz = 0.0f;
 
     S32 cx, cz, offset = rect.p0.y * cellPitch + rect.p0.x;
     for (cz = rect.p0.y; cz < rect.p1.y; cz++, bz += dbz)
     {
-        F32 boff = bz * (F32)bwid;
+        F32 boff = bz * static_cast<F32>(bwid);
         for (cx = rect.p0.x; cx < rect.p1.x; cx++, offset++, boff += dbx)
         {
-            F32 h = ((U8)buffer[(U32)boff]) * scale;
+            F32 h = static_cast<U8>(buffer[static_cast<U32>(boff)]) * scale;
             cellList[offset].height = h;
         }
     }
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------

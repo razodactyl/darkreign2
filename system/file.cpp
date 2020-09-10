@@ -40,7 +40,6 @@
 #define LOG_FILE(x)
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // File Implementations
@@ -56,24 +55,24 @@ static U32 virtualMemAlignShift = 0;
 //
 static U32 AlignMapPointer(U32 i)
 {
-  if (!alignmentSetup)
-  {
-    SYSTEM_INFO sysInfo;
-    GetSystemInfo(&sysInfo);
-
-    // Calculate bit shift amount
-    for (U32 n = sysInfo.dwAllocationGranularity; n >>= 1;)
+    if (!alignmentSetup)
     {
-      virtualMemAlignShift++;
+        SYSTEM_INFO sysInfo;
+        GetSystemInfo(&sysInfo);
+
+        // Calculate bit shift amount
+        for (U32 n = sysInfo.dwAllocationGranularity; n >>= 1;)
+        {
+            virtualMemAlignShift++;
+        }
+        alignmentSetup = TRUE;
     }
-    alignmentSetup = TRUE;
-  }
 
-  // Truncate down to the specified alignment
-  i >>= virtualMemAlignShift;
-  i <<= virtualMemAlignShift;
+    // Truncate down to the specified alignment
+    i >>= virtualMemAlignShift;
+    i <<= virtualMemAlignShift;
 
-  return (i);
+    return (i);
 }
 
 
@@ -81,9 +80,9 @@ static U32 AlignMapPointer(U32 i)
 // File: (constructor)
 //
 File::File()
-: handle(NULL),
-  mapHandle(NULL),
-  mapCount(0)
+    : handle(nullptr),
+      mapHandle(nullptr),
+      mapCount(0)
 {
 }
 
@@ -93,96 +92,90 @@ File::File()
 //
 File::~File()
 {
-  // Close the file
-  Close();
+    // Close the file
+    Close();
 }
 
 
 //
 // Open: (method)
 //
-Bool File::Open(const char *dir, const char *fname, U32 _mode)
+Bool File::Open(const char* dir, const char* fname, U32 _mode)
 {
-  FilePath  path;
+    FilePath path;
 
-  Dir::PathMake(path, dir, fname);
-  return (Open(path.str, _mode));
+    Dir::PathMake(path, dir, fname);
+    return (Open(path.str, _mode));
 }
 
 
 //
 // Open: (method)
 //
-Bool File::Open(const char *path, U32 _mode)
+Bool File::Open(const char* path, U32 _mode)
 {
-  ASSERT(!IsOpen())
+    ASSERT(!IsOpen());
 
-  U32 accessMode = 0;
-  U32 createMode = 0;
-  U32 shareMode = FILE_SHARE_READ;
+    U32 accessMode = 0;
+    U32 createMode = 0;
+    U32 shareMode = FILE_SHARE_READ;
 
-  #ifdef CHECKMAPPINGS
+#ifdef CHECKMAPPINGS
 
     fileName = path;
 
-  #endif
+#endif
 
-  // Save mode
-  mode = _mode;
+    // Save mode
+    mode = _mode;
 
-  // READ / WRITE ACCESS ?
-  if ((mode & READ) && (mode & WRITE))
-  {
-    accessMode = GENERIC_READ | GENERIC_WRITE;
-  }
-  else
+    // READ / WRITE ACCESS ?
+    if ((mode & READ) && (mode & WRITE))
+    {
+        accessMode = GENERIC_READ | GENERIC_WRITE;
+    }
+    else if (mode & READ)
+    {
+        accessMode = GENERIC_READ;
+    }
+    else if (mode & WRITE)
+    {
+        accessMode = GENERIC_WRITE;
+    }
 
-  if (mode & READ)
-  {
-    accessMode = GENERIC_READ;
-  }
-  else
+    // APPEND ?
+    if (mode & APPEND)
+    {
+        accessMode = GENERIC_READ | GENERIC_WRITE;
+    }
 
-  if (mode & WRITE)
-  {
-    accessMode = GENERIC_WRITE;
-  }
+    // Create mode
+    if (mode & CREATE)
+    {
+        createMode = CREATE_ALWAYS;
+    }
+    else if (mode & APPEND)
+    {
+        createMode = OPEN_ALWAYS;
+    }
+    else
 
-  // APPEND ?
-  if (mode & APPEND)
-  {
-    accessMode = GENERIC_READ | GENERIC_WRITE;
-  }
+    {
+        createMode = OPEN_EXISTING;
+    }
 
-  // Create mode
-  if (mode & CREATE)
-  {
-    createMode = CREATE_ALWAYS;
-  }
-  else 
-    
-  if (mode & APPEND)
-  {
-    createMode = OPEN_ALWAYS;
-  }
-  else
+    // Open the file
+    handle = CreateFile(path, accessMode, shareMode, nullptr, createMode, 0, nullptr);
 
-  {
-    createMode = OPEN_EXISTING;
-  }
+    // Was the file created successfully ?
+    if (handle == INVALID_HANDLE_VALUE)
+    {
+        handle = nullptr;
+        LOG_ERR(("Error occured opening %s", path))
+        return (FALSE);
+    }
 
-  // Open the file
-  handle = CreateFile(path, accessMode, shareMode, NULL, createMode, 0, NULL);
-
-  // Was the file created successfully ?
-  if (handle == INVALID_HANDLE_VALUE)
-  {
-    handle = NULL;
-    LOG_ERR(("Error occured opening %s", path))
-    return (FALSE);
-  }
-
-  return (TRUE);
+    return (TRUE);
 }
 
 
@@ -191,43 +184,43 @@ Bool File::Open(const char *path, U32 _mode)
 //
 void File::Close()
 {
-  if (IsOpen())
-  {
-    if (mapCount)
+    if (IsOpen())
     {
-      FileSys::DataFile::LogOpen();
-
-      #ifdef CHECKMAPPINGS
-
-        LOG_ERR(("Open Mappings for %s : %d", fileName.str, openMappings.GetCount()))
-
-        for (BinTree<FileName>::Iterator i(&openMappings); *i; i++)
+        if (mapCount)
         {
-          LOG_ERR((" - [%s]", (*i)->str))
+            FileSys::DataFile::LogOpen();
+
+#ifdef CHECKMAPPINGS
+
+            LOG_ERR(("Open Mappings for %s : %d", fileName.str, openMappings.GetCount()))
+
+            for (BinTree<FileName>::Iterator i(&openMappings); *i; ++i)
+            {
+                LOG_ERR((" - [%s]", (*i)->str))
+            }
+            openMappings.DisposeAll();
+
+            ERR_FATAL(("File [%s] closed with open mappings [%d]", fileName.str, mapCount));
+
+#else
+
+            ERR_FATAL(("File closed with open mappings [%d]", mapCount));
+
+#endif
         }
-        openMappings.DisposeAll();
 
-        ERR_FATAL(("File [%s] closed with open mappings [%d]", fileName.str, mapCount));
+        // Close file mapping
+        if (mapHandle)
+        {
+            CloseHandle(mapHandle);
+            mapHandle = nullptr;
+        }
 
-      #else
-
-        ERR_FATAL(("File closed with open mappings [%d]", mapCount));
-
-      #endif
+        // Close the file
+        CloseHandle(handle);
     }
 
-    // Close file mapping
-    if (mapHandle)
-    {
-      CloseHandle(mapHandle);
-      mapHandle = NULL;
-    }
-
-    // Close the file
-    CloseHandle(handle);
-  }
-
-  handle = NULL;
+    handle = nullptr;
 }
 
 
@@ -236,7 +229,7 @@ void File::Close()
 //
 Bool File::IsOpen()
 {
-  return ((handle == NULL) ? FALSE : TRUE);
+    return ((handle == nullptr) ? FALSE : TRUE);
 }
 
 
@@ -245,7 +238,7 @@ Bool File::IsOpen()
 //
 Bool File::IsMapped()
 {
-  return ((mapHandle == NULL) ? FALSE : TRUE);
+    return ((mapHandle == nullptr) ? FALSE : TRUE);
 }
 
 
@@ -255,23 +248,23 @@ Bool File::IsMapped()
 // Returns the number of bytes read
 // Note that this is not the number of objects if size > 1
 //
-U32 File::Read(void *buffer, U32 count, U32 size)
+U32 File::Read(void* buffer, U32 count, U32 size)
 {
-  ASSERT(IsOpen())
-  //ASSERT(!IsMapped())
+    ASSERT(IsOpen());
+    //ASSERT(!IsMapped());
 
-  U32 total = count * size;
-  U32 actual;
+    U32 total = count * size;
+    U32 actual;
 
-  if (!ReadFile(handle, buffer, total, &actual, NULL))
-  {
-    if (!(mode & NOERR) && (actual != total))
+    if (!ReadFile(handle, buffer, total, &actual, nullptr))
     {
-      ReadError(total);
+        if (!(mode & NOERR) && (actual != total))
+        {
+            ReadError(total);
+        }
     }
-  }
 
-  return (actual);
+    return (actual);
 }
 
 
@@ -280,17 +273,17 @@ U32 File::Read(void *buffer, U32 count, U32 size)
 //
 Bool File::WriteU8(U8 data)
 {
-  if (Write(&data, sizeof (U8)) == sizeof (U8))
-  {
-    return TRUE;
-  }
+    if (Write(&data, sizeof(U8)) == sizeof(U8))
+    {
+        return TRUE;
+    }
 
-  if (!(mode & NOERR))
-  {
-    WriteError(sizeof(data));
-  }
+    if (!(mode & NOERR))
+    {
+        WriteError(sizeof(data));
+    }
 
-  return FALSE;
+    return FALSE;
 }
 
 
@@ -299,17 +292,17 @@ Bool File::WriteU8(U8 data)
 // 
 Bool File::WriteU16(U16 data)
 {
-  if (Write(&data, sizeof (U16)) == sizeof (U16))
-  {
-    return TRUE;
-  }
+    if (Write(&data, sizeof(U16)) == sizeof(U16))
+    {
+        return TRUE;
+    }
 
-  if (!(mode & NOERR))
-  {
-    WriteError(sizeof(data));
-  }
+    if (!(mode & NOERR))
+    {
+        WriteError(sizeof(data));
+    }
 
-  return FALSE;
+    return FALSE;
 }
 
 
@@ -318,80 +311,80 @@ Bool File::WriteU16(U16 data)
 //
 Bool File::WriteU32(U32 data)
 {
-  if (Write(&data, sizeof (U32)) == sizeof (U32))
-  {
-    return TRUE;
-  }
-  
-  if (!(mode & NOERR))
-  {
-    WriteError(sizeof(data));
-  }
+    if (Write(&data, sizeof(U32)) == sizeof(U32))
+    {
+        return TRUE;
+    }
 
-  return FALSE;
+    if (!(mode & NOERR))
+    {
+        WriteError(sizeof(data));
+    }
+
+    return FALSE;
 }
 
 
 //
 // Write a string
 //
-Bool CDECL File::WriteString(const char *format, ...)
+Bool CDECL File::WriteString(const char* format, ...)
 {
-  char buff[512];
-  va_list args;
-  va_start(args, format);
-  vsprintf(buff, format, args);
-  va_end(args);
+    char buff[512];
+    va_list args;
+    va_start(args, format);
+    vsprintf(buff, format, args);
+    va_end(args);
 
-  U32 length = Utils::Strlen(buff);
+    U32 length = Utils::Strlen(buff);
 
-  if (length)
-  {
-    if (Write(buff, length) == length)
+    if (length)
     {
-      return (TRUE);
+        if (Write(buff, length) == length)
+        {
+            return (TRUE);
+        }
+
+        if (!(mode & NOERR))
+        {
+            WriteError(length);
+        }
     }
 
-    if (!(mode & NOERR))
-    {
-      WriteError(length);
-    }
-  }
-
-  return (FALSE);
+    return (FALSE);
 }
 
 
 //
 // Write: (method)
 //
-U32 File::Write(const void *src, U32 count, U32 size)
+U32 File::Write(const void* src, U32 count, U32 size)
 {
-  ASSERT(IsOpen())
-  ASSERT(!IsMapped())
+    ASSERT(IsOpen());
+    ASSERT(!IsMapped());
 
-  U32 total = count * size;
-  U32 actual;
+    U32 total = count * size;
+    U32 actual;
 
-  if (mode & APPEND)
-  {
-    Seek(File::Seek::END, 0);
-  }
-
-  if (!WriteFile(handle, src, total, &actual, NULL))
-  {
-    if (!(mode & NOERR) && (actual != total))
+    if (mode & APPEND)
     {
-      WriteError(total);
+        Seek(END, 0);
     }
-  }
 
-  if (mode & FLUSH)
-  {
-    Flush();
-  }
+    if (!WriteFile(handle, src, total, &actual, nullptr))
+    {
+        if (!(mode & NOERR) && (actual != total))
+        {
+            WriteError(total);
+        }
+    }
 
-  return (actual);
+    if (mode & FLUSH)
+    {
+        Flush();
+    }
+
+    return (actual);
 }
 
 
@@ -400,15 +393,15 @@ U32 File::Write(const void *src, U32 count, U32 size)
 //
 Bool File::Seek(U32 pos, S32 offset)
 {
-  ASSERT(IsOpen())
-  ASSERT(pos == SET || pos == CUR || pos == END)
+    ASSERT(IsOpen());
+    ASSERT(pos == SET || pos == CUR || pos == END);
 
-  if (SetFilePointer(handle, offset, NULL, pos) == 0xFFFFFFFF)
-  {
-    return (FALSE);
-  }
+    if (SetFilePointer(handle, offset, nullptr, pos) == 0xFFFFFFFF)
+    {
+        return (FALSE);
+    }
 
-  return (TRUE);
+    return (TRUE);
 }
 
 
@@ -417,9 +410,9 @@ Bool File::Seek(U32 pos, S32 offset)
 //
 U32 File::Tell()
 {
-  ASSERT(IsOpen())
+    ASSERT(IsOpen());
 
-  return (SetFilePointer(handle, 0, NULL, FILE_CURRENT));
+    return (SetFilePointer(handle, 0, nullptr, FILE_CURRENT));
 }
 
 
@@ -428,15 +421,15 @@ U32 File::Tell()
 //
 Bool File::Flush()
 {
-  ASSERT(IsOpen())
-  ASSERT(!IsMapped())
+    ASSERT(IsOpen());
+    ASSERT(!IsMapped());
 
-  if (!FlushFileBuffers(handle))
-  {
-    return (FALSE);
-  }
+    if (!FlushFileBuffers(handle))
+    {
+        return (FALSE);
+    }
 
-  return (TRUE);
+    return (TRUE);
 }
 
 
@@ -445,9 +438,9 @@ Bool File::Flush()
 //
 U32 File::GetSize()
 {
-  ASSERT(IsOpen())
+    ASSERT(IsOpen());
 
-  return (GetFileSize(handle, NULL));
+    return (GetFileSize(handle, nullptr));
 }
 
 
@@ -456,96 +449,108 @@ U32 File::GetSize()
 //
 // Map all or part of file into memory, return a pointer to the memory
 //
-void *File::MapMemory(const char *mapFileName, U32 flags, U32 offset, U32 length, void **realPointer)
+void* File::MapMemory(const char* mapFileName, U32 flags, U32 offset, U32 length, void** realPointer)
 {
-  ASSERT(IsOpen())
+    ASSERT(IsOpen());
 
-  // Create a file mapping if it does not exist yet
-  if (mapHandle == NULL)
-  {
-    ASSERT(mapCount == 0)
-
-    // Create the file mapping
-    U32 fileMapFlag = (flags & MAP_WRITE) ? PAGE_READWRITE : PAGE_READONLY;
-    U32 size = GetSize();
-
-    mapHandle = CreateFileMapping(handle, NULL, fileMapFlag, 0, size, NULL);
-
-    // Could the file be mapped
-    if (mapHandle == NULL)
+    // Create a file mapping if it does not exist yet
+    if (mapHandle == nullptr)
     {
-      #ifdef CHECKMAPPINGS
+        ASSERT(mapCount == 0);
 
-        ERR_FATAL(("Could not create file mapping [%s] : %s", fileName.str, Debug::LastError()))
+        // Create the file mapping
+        U32 fileMapFlag = (flags & MAP_WRITE) ? PAGE_READWRITE : PAGE_READONLY;
+        U32 size = GetSize();
 
-      #else
+        mapHandle = CreateFileMapping(handle, nullptr, fileMapFlag, 0, size, nullptr);
 
-        ERR_FATAL(("Could not create file mapping : %s", Debug::LastError()))
+        // Could the file be mapped
+        if (mapHandle == nullptr)
+        {
+#ifdef CHECKMAPPINGS
 
-      #endif
+            ERR_FATAL(("Could not create file mapping [%s] : %s", fileName.str, Debug::LastError()))
+
+#else
+
+            ERR_FATAL(("Could not create file mapping : %s", Debug::LastError()))
+
+#endif
+        }
+
+        LOG_FILE(("CreateFileMapping: 0x%.8X %d %d", handle, fileMapFlag, size))
     }
 
-    LOG_FILE(("CreateFileMapping: 0x%.8X %d %d", handle, fileMapFlag, size))
-  }
+    // Map the specified part of this file
+    U32 mapViewFlag = (flags & MAP_WRITE) ? FILE_MAP_WRITE : FILE_MAP_READ;
 
-  // Map the specified part of this file
-  U32 mapViewFlag = (flags & MAP_WRITE) ? FILE_MAP_WRITE : FILE_MAP_READ;
+    // Need to align the pointer to the system's aligning boundary
+    U32 newOfs = AlignMapPointer(offset);
+    U32 change = offset - newOfs;
+    U32 newLen = length + change;
 
-  // Need to align the pointer to the system's aligning boundary
-  U32 newOfs = AlignMapPointer(offset);
-  U32 change = offset - newOfs;
-  U32 newLen = length + change;
+    ASSERT(newOfs <= offset);
 
-  ASSERT(newOfs <= offset)
+    U8* ptr = static_cast<U8*>(MapViewOfFile(mapHandle, mapViewFlag, 0, newOfs, newLen));
 
-  U8 *ptr = (U8 *)MapViewOfFile(mapHandle, mapViewFlag, 0, newOfs, newLen);
-
-  // Could we get a view of the mapping ?
-  if (ptr == NULL)
-  {
-    #ifdef CHECKMAPPINGS
-
-      ERR_FATAL(("Could not create a view of the mapping [%s] : %s [pos=%d(%d),size=%d(%d)]", fileName.str, Debug::LastError(), offset, newOfs, length, newLen))
-
-    #else
-
-      ERR_MESSAGE(("The system requires more memory or swap file space.  Check to see that your hard drive is not full, or adjust your virtual memory settings.\n\nCould not create a view of a file mapping : %s", Debug::LastError()));
-      
-      //ERR_FATAL(("Could not create a view of the mapping : %s [pos=%d(%d),size=%d(%d)]", Debug::LastError(), offset, newOfs, length, newLen))
-
-    #endif
-  }
-
-  // Increment mapping reference count
-  mapCount++;
-
-  #ifdef CHECKMAPPINGS
-
-    FilePath *prevMap;
-    
-    if ((prevMap = openMappings.Find(U32(ptr))) != NULL)
+    // Could we get a view of the mapping ?
+    if (ptr == nullptr)
     {
-      ERR_FATAL(("%s: mapping address [0x%.8X] for %s already in use by [%s]", fileName.str, ptr, mapFileName, prevMap->str))
+#ifdef CHECKMAPPINGS
+
+        ERR_FATAL
+        (
+            ("Could not create a view of the mapping [%s] : %s [pos=%d(%d),size=%d(%d)]", fileName.str, Debug::LastError
+                (), offset, newOfs, length, newLen)
+        )
+
+#else
+
+        ERR_MESSAGE(("The system requires more memory or swap file space.  Check to see that your hard drive is not full, or adjust your virtual memory settings.\n\nCould not create a view of a file mapping : %s", Debug::LastError()));
+
+        //ERR_FATAL(("Could not create a view of the mapping : %s [pos=%d(%d),size=%d(%d)]", Debug::LastError(), offset, newOfs, length, newLen))
+
+#endif
+    }
+
+    // Increment mapping reference count
+    mapCount++;
+
+#ifdef CHECKMAPPINGS
+
+    FilePath* prevMap;
+
+    if ((prevMap = openMappings.Find(U32(ptr))) != nullptr)
+    {
+        ERR_FATAL
+        (
+            ("%s: mapping address [0x%.8X] for %s already in use by [%s]", fileName.str, ptr, mapFileName, prevMap->str
+            )
+        )
     }
 
     openMappings.Add(U32(ptr), new FileName(mapFileName));
 
-  #else
+#else
 
     mapFileName;
 
-  #endif
+#endif
 
-  LOG_FILE(("MapViewOfFile: 0x%.8X [ref=%d] %d [pos=%d(%d),size=%d(%d)]", handle, mapCount, mapViewFlag, offset, newOfs, length, newLen))
+    LOG_FILE
+    (
+        ("MapViewOfFile: 0x%.8X [ref=%d] %d [pos=%d(%d),size=%d(%d)]", handle, mapCount, mapViewFlag, offset, newOfs,
+            length, newLen)
+    )
 
-  // Setup actual pointer
-  if (realPointer)
-  {
-    *realPointer = ptr;
-  }
+    // Setup actual pointer
+    if (realPointer)
+    {
+        *realPointer = ptr;
+    }
 
-  // Return pointer to start of data
-  return (ptr + change);
+    // Return pointer to start of data
+    return (ptr + change);
 }
 
 
@@ -554,345 +559,342 @@ void *File::MapMemory(const char *mapFileName, U32 flags, U32 offset, U32 length
 //
 // Close a previously opened memory map
 //
-void File::UnmapMemory(void *data)
+void File::UnmapMemory(void* data)
 {
-  ASSERT(IsOpen())
-  ASSERT(data)
-  ASSERT(mapCount > 0)
+    ASSERT(IsOpen());
+    ASSERT(data);
+    ASSERT(mapCount > 0);
 
-  // Unmap just this view of the file
-  if (!UnmapViewOfFile(data))
-  {
-    #ifdef CHECKMAPPINGS
+    // Unmap just this view of the file
+    if (!UnmapViewOfFile(data))
+    {
+#ifdef CHECKMAPPINGS
 
-      ERR_FATAL(("Could not unmap view of file [%s] : %s [data=0x%.8X]", fileName.str, Debug::LastError(), data))
+        ERR_FATAL(("Could not unmap view of file [%s] : %s [data=0x%.8X]", fileName.str, Debug::LastError(), data))
 
-    #else
+#else
 
-      ERR_FATAL(("Could not unmap view of file : %s [data=0x%.8X]", Debug::LastError(), data))
+        ERR_FATAL(("Could not unmap view of file : %s [data=0x%.8X]", Debug::LastError(), data))
 
-    #endif
-  }
+#endif
+    }
 
-  // Decrement mapping reference count;
-  mapCount--;
+    // Decrement mapping reference count;
+    mapCount--;
 
-  #ifdef CHECKMAPPINGS
+#ifdef CHECKMAPPINGS
 
     if (!openMappings.Find(U32(data)))
     {
-      ERR_FATAL(("%s: mapping address 0x%.8X not found", fileName.str, data))
+        ERR_FATAL(("%s: mapping address 0x%.8X not found", fileName.str, data))
     }
 
     openMappings.Dispose(U32(data));
 
-  #endif
+#endif
 
-  LOG_FILE(("UnmapMemory: 0x%.8X [ref=%d]", handle, mapCount))
+    LOG_FILE(("UnmapMemory: 0x%.8X [ref=%d]", handle, mapCount))
 }
 
 
 //
 // Unique: (method)
 //
-Bool File::Unique(const char *tplate, FileName &fname)
+Bool File::Unique(const char* tplate, FileName& fname)
 {
-  char temp[FILENAME_MAX];
-  
-  Utils::Strmcpy(temp, tplate, FILENAME_MAX);
-  if (_mktemp(temp) == NULL)
-  {
-    return (FALSE);
-  }
-  else
-  {
+    char temp[FILENAME_MAX];
+
+    Utils::Strmcpy(temp, tplate, FILENAME_MAX);
+    if (_mktemp(temp) == nullptr)
+    {
+        return (FALSE);
+    }
     fname = temp;
     return (TRUE);
-  }
 }
 
 
 //
 // Exists: (method)
 //
-Bool File::Exists(const char *dir, const char *fname)
+Bool File::Exists(const char* dir, const char* fname)
 {
-  FilePath  path;
+    FilePath path;
 
-  Dir::PathMake(path, dir, fname);
-  return (Exists(path.str));
+    Dir::PathMake(path, dir, fname);
+    return (Exists(path.str));
 }
 
 
 //
 // Exists: (method)
 //
-Bool File::Exists(const char *path)
+Bool File::Exists(const char* path)
 {
-  return (_access(path, 0) == -1 ? FALSE : TRUE);
+    return (_access(path, 0) == -1 ? FALSE : TRUE);
 }
 
 
 //
 // Unlink: (method)
 //
-Bool File::Unlink(const char *dir, const char *fname)
+Bool File::Unlink(const char* dir, const char* fname)
 {
-  FilePath  path;
+    FilePath path;
 
-  Dir::PathMake(path, dir, fname);
-  return (Unlink(path.str));
+    Dir::PathMake(path, dir, fname);
+    return (Unlink(path.str));
 }
 
 
 //
 // Unlink: (method)
 //
-Bool File::Unlink(const char *path)
+Bool File::Unlink(const char* path)
 {
-  return (_unlink(path) == -1 ? FALSE : TRUE);
+    return (_unlink(path) == -1 ? FALSE : TRUE);
 }
 
 
 //
 // Rename: (method)
 //
-Bool File::Rename(const char *dir, const char *fname, const char *newname)
+Bool File::Rename(const char* dir, const char* fname, const char* newname)
 {
-  FilePath path;
-  FilePath newpath;
+    FilePath path;
+    FilePath newpath;
 
-  Dir::PathMake(path, dir, fname);
-  Dir::PathMake(newpath, dir, newname);
-  return (Rename(path.str, newpath.str));
+    Dir::PathMake(path, dir, fname);
+    Dir::PathMake(newpath, dir, newname);
+    return (Rename(path.str, newpath.str));
 }
 
 
 //
 // Rename: (method)
 //
-Bool File::Rename(const char *path, const char *newpath)
+Bool File::Rename(const char* path, const char* newpath)
 {
-  return (rename(path, newpath) == -1 ? FALSE : TRUE);
+    return (rename(path, newpath) == -1 ? FALSE : TRUE);
 }
 
 
 //
 // Copy: (method)
 //
-Bool File::Copy(const char *src, const char *dst, Bool overwrite, Bool progress)
+Bool File::Copy(const char* src, const char* dst, Bool overwrite, Bool progress)
 {
-  // Setup the operation data
-  SHFILEOPSTRUCT data;
-  data.hwnd = NULL;
-  data.wFunc = FO_COPY;
-  data.pFrom = src;
-  data.pTo = dst;
-  data.fFlags = 
-    FILEOP_FLAGS
-    (
-      (overwrite ? 0 : FOF_NOCONFIRMATION) | 
-      FOF_NOERRORUI | 
-      FOF_SILENT | 
-      FOF_RENAMEONCOLLISION | 
-      (progress ? FOF_SIMPLEPROGRESS : FOF_SILENT)
-    );
-  data.fAnyOperationsAborted = FALSE;
-  data.hNameMappings = NULL;
-  data.lpszProgressTitle = NULL;
+    // Setup the operation data
+    SHFILEOPSTRUCT data;
+    data.hwnd = nullptr;
+    data.wFunc = FO_COPY;
+    data.pFrom = src;
+    data.pTo = dst;
+    data.fFlags =
+        FILEOP_FLAGS
+        (
+            (overwrite ? 0 : FOF_NOCONFIRMATION) |
+            FOF_NOERRORUI |
+            FOF_SILENT |
+            FOF_RENAMEONCOLLISION |
+            (progress ? FOF_SIMPLEPROGRESS : FOF_SILENT)
+        );
+    data.fAnyOperationsAborted = FALSE;
+    data.hNameMappings = nullptr;
+    data.lpszProgressTitle = nullptr;
 
-  return (!SHFileOperation(&data));
+    return (!SHFileOperation(&data));
 }
 
 
 //
 // Remove: (method)
 //
-Bool File::Remove(const char *path)
+Bool File::Remove(const char* path)
 {
-  // Get length of the path
-  U32 len = Utils::Strlen(path);
+    // Get length of the path
+    U32 len = Utils::Strlen(path);
 
-  // Ensure the buffer is big enough
-  if (len < PATHNAME_MAX - 1)
-  {
-    // Copy to the buffer
-    char buf[PATHNAME_MAX];
-    Utils::Memcpy(buf, path, len + 1);
+    // Ensure the buffer is big enough
+    if (len < PATHNAME_MAX - 1)
+    {
+        // Copy to the buffer
+        char buf[PATHNAME_MAX];
+        Utils::Memcpy(buf, path, len + 1);
 
-    // Add second null termination
-    buf[len + 1] = '\0';
+        // Add second null termination
+        buf[len + 1] = '\0';
 
-    // Setup the operation data
-    SHFILEOPSTRUCT data;
-    data.hwnd = NULL;
-    data.wFunc = FO_DELETE;
-    data.pFrom = buf;
-    data.pTo = NULL;
-    data.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
-    data.fAnyOperationsAborted = FALSE;
-    data.hNameMappings = NULL;
-    data.lpszProgressTitle = NULL;
+        // Setup the operation data
+        SHFILEOPSTRUCT data;
+        data.hwnd = nullptr;
+        data.wFunc = FO_DELETE;
+        data.pFrom = buf;
+        data.pTo = nullptr;
+        data.fFlags = FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
+        data.fAnyOperationsAborted = FALSE;
+        data.hNameMappings = nullptr;
+        data.lpszProgressTitle = nullptr;
 
-    return (!SHFileOperation(&data));
-  }
+        return (!SHFileOperation(&data));
+    }
 
-  return (FALSE);
-}
-
-
-//
-// GetAttrib: (method)
-//
-Bool File::GetAttrib(const char *dir, const char *fname, U32 &attrib)
-{
-  FilePath  path;
-
-  Dir::PathMake(path, dir, fname);
-  return (GetAttrib(path.str, attrib));
-}
-
-
-//
-// GetAttrib: (method)
-//
-Bool File::GetAttrib(const char *path, U32 &attrib)
-{
-  U32 att;
-  
-  att = GetFileAttributes(path);
-
-  if (att == (U32) -1)
-  {
     return (FALSE);
-  }
+}
 
-  attrib = NORMAL;
 
-  if (att & FILE_ATTRIBUTE_ARCHIVE)
-  {
-    attrib |= ARCHIVE;
-  }
-    
-  if (att & FILE_ATTRIBUTE_COMPRESSED)
-  {
-    // Ignored at this time
-  }
-  
-  if (att & FILE_ATTRIBUTE_DIRECTORY)
-  {
-    attrib |= SUBDIR;
-  }
-  
-  if (att & FILE_ATTRIBUTE_HIDDEN)
-  {
-    attrib |= HIDDEN;
-  }
-  
-  if (att & FILE_ATTRIBUTE_NORMAL)
-  {
-    attrib |= NORMAL;
-  }
+//
+// GetAttrib: (method)
+//
+Bool File::GetAttrib(const char* dir, const char* fname, U32& attrib)
+{
+    FilePath path;
 
-  if (att & FILE_ATTRIBUTE_OFFLINE)
-  {
-    // Ignored at this time
-  }
+    Dir::PathMake(path, dir, fname);
+    return (GetAttrib(path.str, attrib));
+}
 
-  if (att & FILE_ATTRIBUTE_READONLY)
-  {
-    attrib |= READONLY;
-  }
 
-  if (att & FILE_ATTRIBUTE_SYSTEM)
-  {
-    attrib |= SYSTEM;
-  }
+//
+// GetAttrib: (method)
+//
+Bool File::GetAttrib(const char* path, U32& attrib)
+{
+    U32 att;
 
-  if (att & FILE_ATTRIBUTE_TEMPORARY)
-  {
-    // Ignored at this time
-  }
+    att = GetFileAttributes(path);
 
-  return (TRUE);
+    if (att == static_cast<U32>(-1))
+    {
+        return (FALSE);
+    }
+
+    attrib = NORMAL;
+
+    if (att & FILE_ATTRIBUTE_ARCHIVE)
+    {
+        attrib |= ARCHIVE;
+    }
+
+    if (att & FILE_ATTRIBUTE_COMPRESSED)
+    {
+        // Ignored at this time
+    }
+
+    if (att & FILE_ATTRIBUTE_DIRECTORY)
+    {
+        attrib |= SUBDIR;
+    }
+
+    if (att & FILE_ATTRIBUTE_HIDDEN)
+    {
+        attrib |= HIDDEN;
+    }
+
+    if (att & FILE_ATTRIBUTE_NORMAL)
+    {
+        attrib |= NORMAL;
+    }
+
+    if (att & FILE_ATTRIBUTE_OFFLINE)
+    {
+        // Ignored at this time
+    }
+
+    if (att & FILE_ATTRIBUTE_READONLY)
+    {
+        attrib |= READONLY;
+    }
+
+    if (att & FILE_ATTRIBUTE_SYSTEM)
+    {
+        attrib |= SYSTEM;
+    }
+
+    if (att & FILE_ATTRIBUTE_TEMPORARY)
+    {
+        // Ignored at this time
+    }
+
+    return (TRUE);
 }
 
 
 //
 // SetAttrib: (method)
 //
-Bool File::SetAttrib(const char *dir, const char *fname, U32 attrib)
+Bool File::SetAttrib(const char* dir, const char* fname, U32 attrib)
 {
-  FilePath path;
+    FilePath path;
 
-  Dir::PathMake(path, dir, fname);
-  return (SetAttrib(path.str, attrib));
+    Dir::PathMake(path, dir, fname);
+    return (SetAttrib(path.str, attrib));
 }
 
 
 //
 // SetAttrib: (method)
 //
-Bool File::SetAttrib(const char *path, U32 attrib)
+Bool File::SetAttrib(const char* path, U32 attrib)
 {
-  U32 att;
+    U32 att;
 
-  att = 0;
+    att = 0;
 
-  if (attrib & NORMAL)
-  {
-    att |= FILE_ATTRIBUTE_NORMAL;
-  }
+    if (attrib & NORMAL)
+    {
+        att |= FILE_ATTRIBUTE_NORMAL;
+    }
 
-  if (attrib & READONLY)
-  {
-    att |= FILE_ATTRIBUTE_READONLY;
-  }
+    if (attrib & READONLY)
+    {
+        att |= FILE_ATTRIBUTE_READONLY;
+    }
 
-  if (attrib & HIDDEN)
-  {
-    att |= FILE_ATTRIBUTE_HIDDEN;
-  }
+    if (attrib & HIDDEN)
+    {
+        att |= FILE_ATTRIBUTE_HIDDEN;
+    }
 
-  if (attrib & SYSTEM)
-  {
-    att |= FILE_ATTRIBUTE_SYSTEM;
-  }
+    if (attrib & SYSTEM)
+    {
+        att |= FILE_ATTRIBUTE_SYSTEM;
+    }
 
-  if (attrib & SUBDIR)
-  {
-    att |= FILE_ATTRIBUTE_DIRECTORY;
-  }
+    if (attrib & SUBDIR)
+    {
+        att |= FILE_ATTRIBUTE_DIRECTORY;
+    }
 
-  if (attrib & ARCHIVE)
-  {
-    att |= FILE_ATTRIBUTE_ARCHIVE;
-  }
+    if (attrib & ARCHIVE)
+    {
+        att |= FILE_ATTRIBUTE_ARCHIVE;
+    }
 
-  return (SetFileAttributes(path, att) ? TRUE : FALSE);
+    return (SetFileAttributes(path, att) ? TRUE : FALSE);
 }
 
 
 //
 // Crc: (method)
 //
-U32 File::Crc(const char *dir, const char *fname, U32 crc)
+U32 File::Crc(const char* dir, const char* fname, U32 crc)
 {
-  FilePath  path;
+    FilePath path;
 
-  Dir::PathMake(path, dir, fname);
-  return (Crc(path.str), crc);
+    Dir::PathMake(path, dir, fname);
+    return (Crc(path.str), crc);
 }
 
 
 //
 // Crc: (method)
 //
-U32 File::Crc(const char *path, U32 crc)
+U32 File::Crc(const char* path, U32 crc)
 {
-  FileMap fileMap(path, FileMap::READ);
-  crc = Crc::Calc(fileMap.GetPtr(), fileMap.GetSize(), crc);
-  return (crc);
+    FileMap fileMap(path, FileMap::READ);
+    crc = Crc::Calc(fileMap.GetPtr(), fileMap.GetSize(), crc);
+    return (crc);
 }
 
 
@@ -901,15 +903,15 @@ U32 File::Crc(const char *path, U32 crc)
 //
 void File::ReadError(U32 bytes)
 {
-  #ifdef CHECKMAPPINGS
+#ifdef CHECKMAPPINGS
 
     ERR_FATAL(("Error reading %u bytes from %s", bytes, fileName.str));
 
-  #else
+#else
 
     ERR_FATAL(("Error reading %u bytes", bytes));
 
-  #endif
+#endif
 }
 
 
@@ -918,15 +920,15 @@ void File::ReadError(U32 bytes)
 //
 void File::WriteError(U32 bytes)
 {
-  #ifdef CHECKMAPPINGS
+#ifdef CHECKMAPPINGS
 
     ERR_FATAL(("Error writing %u bytes from %s", bytes, fileName.str));
 
-  #else
+#else
 
     ERR_FATAL(("Error writing %u bytes", bytes));
 
-  #endif
+#endif
 }
 
 
@@ -938,54 +940,54 @@ void File::WriteError(U32 bytes)
 //
 // PathAbsolute: (method)
 //
-Bool Dir::PathAbsolute(FilePath &absolute, const char *relative)
+Bool Dir::PathAbsolute(FilePath& absolute, const char* relative)
 {
-  char temp_abs[PATHNAME_MAX];
-  char *p = _fullpath(temp_abs, relative, PATHNAME_MAX);
-  absolute = temp_abs;
-  return ((p == NULL) ? FALSE : TRUE);
+    char temp_abs[PATHNAME_MAX];
+    char* p = _fullpath(temp_abs, relative, PATHNAME_MAX);
+    absolute = temp_abs;
+    return ((p == nullptr) ? FALSE : TRUE);
 }
 
 
 //
 // PathExpand: (method)
 //
-void Dir::PathExpand(const char *path, FileDrive &drive, FileDir &dir, FileName &fname, FileExt &ext)
+void Dir::PathExpand(const char* path, FileDrive& drive, FileDir& dir, FileName& fname, FileExt& ext)
 {
-  char temp_drive[DRIVENAME_MAX];
-  char temp_dir[DIRNAME_MAX];
-  char temp_fname[FILENAME_MAX];
-  char temp_ext[EXTNAME_MAX];
+    char temp_drive[DRIVENAME_MAX];
+    char temp_dir[DIRNAME_MAX];
+    char temp_fname[FILENAME_MAX];
+    char temp_ext[EXTNAME_MAX];
 
-  _splitpath(path, temp_drive, temp_dir, temp_fname, temp_ext);
-  drive = temp_drive;
-  dir   = temp_dir;
-  fname = temp_fname;
-  ext   = temp_ext;
+    _splitpath(path, temp_drive, temp_dir, temp_fname, temp_ext);
+    drive = temp_drive;
+    dir = temp_dir;
+    fname = temp_fname;
+    ext = temp_ext;
 }
 
 
 //
 // PathMake: (method)
 //
-void Dir::PathMake(FilePath &path, const char *drive, const char *dir, const char *fname, const char *ext)
+void Dir::PathMake(FilePath& path, const char* drive, const char* dir, const char* fname, const char* ext)
 {
-  char temp_path[PATHNAME_MAX];
+    char temp_path[PATHNAME_MAX];
 
-  _makepath(temp_path, drive, dir, fname, ext);
-  path = temp_path;
+    _makepath(temp_path, drive, dir, fname, ext);
+    path = temp_path;
 }
 
 
 //
 // PathMake: (method)
 //
-void Dir::PathMake(FilePath &path, const char *dir, const char *fname)
+void Dir::PathMake(FilePath& path, const char* dir, const char* fname)
 {
-  char temp_path[PATHNAME_MAX];
+    char temp_path[PATHNAME_MAX];
 
-  _makepath(temp_path, NULL, dir, fname, NULL);
-  path = temp_path;
+    _makepath(temp_path, nullptr, dir, fname, nullptr);
+    path = temp_path;
 }
 
 
@@ -994,217 +996,215 @@ void Dir::PathMake(FilePath &path, const char *dir, const char *fname)
 //
 // Always return a pathname without trailing slash, so C:\ becomes C:
 //
-Bool Dir::GetCurrent(const int drive, FileDir &dir)
+Bool Dir::GetCurrent(const int drive, FileDir& dir)
 {
-  char temp_dir[DIRNAME_MAX] = "";
-  char *r = _getdcwd(drive, temp_dir, DIRNAME_MAX);
+    char temp_dir[DIRNAME_MAX] = "";
+    char* r = _getdcwd(drive, temp_dir, DIRNAME_MAX);
 
-  // Trim trailing slash
-  U32 len = Utils::Strlen(temp_dir);
-  if (temp_dir[len-1] == '/' || temp_dir[len-1] == '\\')
-  {
-    temp_dir[len-1] = 0;
-  }
+    // Trim trailing slash
+    U32 len = Utils::Strlen(temp_dir);
+    if (temp_dir[len - 1] == '/' || temp_dir[len - 1] == '\\')
+    {
+        temp_dir[len - 1] = 0;
+    }
 
-  dir = temp_dir;
-  return ((r == NULL) ? FALSE : TRUE);
+    dir = temp_dir;
+    return ((r == nullptr) ? FALSE : TRUE);
 }
 
 
 //
 // GetCurrent: (method)
 //
-Bool Dir::GetCurrent(FileDir &dir)
+Bool Dir::GetCurrent(FileDir& dir)
 {
-  char temp_dir[DIRNAME_MAX] = "";
-  char *r = _getcwd(temp_dir, DIRNAME_MAX);
+    char temp_dir[DIRNAME_MAX] = "";
+    char* r = _getcwd(temp_dir, DIRNAME_MAX);
 
-  // Trim trailing slash
-  U32 len = Utils::Strlen(temp_dir);
-  if (temp_dir[len-1] == '/' || temp_dir[len-1] == '\\')
-  {
-    temp_dir[len-1] = 0;
-  }
-  
-  dir = temp_dir;
-  return ((r == NULL) ? FALSE : TRUE);
+    // Trim trailing slash
+    U32 len = Utils::Strlen(temp_dir);
+    if (temp_dir[len - 1] == '/' || temp_dir[len - 1] == '\\')
+    {
+        temp_dir[len - 1] = 0;
+    }
+
+    dir = temp_dir;
+    return ((r == nullptr) ? FALSE : TRUE);
 }
 
 
 //
 // SetCurrent: (method)
 //
-Bool Dir::SetCurrent(const char *dir)
+Bool Dir::SetCurrent(const char* dir)
 {
-  return (_chdir(dir) == -1 ? FALSE : TRUE);
+    return (_chdir(dir) == -1 ? FALSE : TRUE);
 }
 
 
 //
 // FindFirst: (method)
 //
-Bool Dir::FindFirst(Find &find, const char *dir, const char *fname, U32 attrib)
+Bool Dir::FindFirst(Find& find, const char* dir, const char* fname, U32 attrib)
 {
-  FilePath  path;
+    FilePath path;
 
-  PathMake(path, dir, fname);
-  return (FindFirst(find, path.str, attrib));
+    PathMake(path, dir, fname);
+    return (FindFirst(find, path.str, attrib));
 }
 
 
 //
 // FindFirst: (method)
 //
-Bool Dir::FindFirst(Find &find, const char *path, U32 attrib)
+Bool Dir::FindFirst(Find& find, const char* path, U32 attrib)
 {
-  find.findattrib = attrib;
-  find.handle = _findfirst(path, &find.finddata);
+    find.findattrib = attrib;
+    find.handle = _findfirst(path, &find.finddata);
 
-  // No files, or some other error
-  if (find.handle == -1)
-  {
-    return (FALSE);
-  }
+    // No files, or some other error
+    if (find.handle == -1)
+    {
+        return (FALSE);
+    }
 
-  // Does this file have ALL of the requested attributes
-  if ((find.findattrib & find.finddata.attrib) == find.findattrib)
-  {
-    // Found one
-    return (TRUE);
-  }
-  else
-  {
+    // Does this file have ALL of the requested attributes
+    if ((find.findattrib & find.finddata.attrib) == find.findattrib)
+    {
+        // Found one
+        return (TRUE);
+    }
     // Continue search
     return (FindNext(find));
-  }
 }
 
 
 //
 // FindNext: (method)
 //
-Bool Dir::FindNext(Find &find)
+Bool Dir::FindNext(Find& find)
 {
-  for (;;)
-  {  
-    // No files, or some other error
-    if (_findnext(find.handle, &find.finddata) == -1)
+    for (;;)
     {
-      return (FALSE);
-    }
+        // No files, or some other error
+        if (_findnext(find.handle, &find.finddata) == -1)
+        {
+            return (FALSE);
+        }
 
-    // Does this file have ALL of the requested attributes
-    if ((find.findattrib & find.finddata.attrib) == find.findattrib)
-    {
-      // Found one
-      return (TRUE);
+        // Does this file have ALL of the requested attributes
+        if ((find.findattrib & find.finddata.attrib) == find.findattrib)
+        {
+            // Found one
+            return (TRUE);
+        }
     }
-  } 
 }
 
 
 //
 // FindClose: (method)
 //
-Bool Dir::FindClose(Find &find)
+Bool Dir::FindClose(Find& find)
 {
-  _findclose(find.handle);
-  return (TRUE);
+    _findclose(find.handle);
+    return (TRUE);
 }
 
 //
 // FindPath: (method)
 // check subdirs for 'path' and return the full path to it in 'dst'
 //
-Bool Dir::FindPath( char *dst, U32 dstlen, const char *path)
+Bool Dir::FindPath(char* dst, U32 dstlen, const char* path)
 {
-  Dir::Find find;
+    Find find;
 
-  // Add each file
-  char buffer[257];
-  buffer[256] = 0x00;
-  Utils::Strncpy( buffer, path, 256);
+    // Add each file
+    char buffer[257];
+    buffer[256] = 0x00;
+    Utils::Strncpy(buffer, path, 256);
 
-  // get pointer to just the path part of 'path'
-  static char *nopath = ".";
-  char *pathonly = nopath;
+    // get pointer to just the path part of 'path'
+    static char* nopath = ".";
+    char* pathonly = nopath;
 
-  U32 pathlen = 1;
-  // get pointer to just the filename part of 'path'
-  char *filename = Utils::ChopPath( buffer);
-  U32 filelen = Utils::Strlen( filename);
+    U32 pathlen = 1;
+    // get pointer to just the filename part of 'path'
+    char* filename = Utils::FindName(buffer);
+    U32 filelen = Utils::Strlen(filename);
 
-  if (filename != buffer)
-  {
-    pathlen = filename - buffer - 1;
-    pathonly = buffer;
-    *(filename - 1) = '\0';
-  }
-
-  // check this path for filename
-  if (Dir::FindFirst(find, pathonly, filename))
-  {
-    // Finish find operation
-    Dir::FindClose(find);
-
-    Utils::Strmcpy(dst, path, dstlen);
-    return TRUE;
-  }  
-  // Finish find operation
-  Dir::FindClose(find);
-
-  // check subdirs for filename
-  if (Dir::FindFirst(find, pathonly, "*."))
-  {
-    do
+    if (filename != buffer)
     {
-      U32 len = strlen( find.finddata.name);
-      if (!((len == 1 || len == 2) && *find.finddata.name == '.') && len + pathlen + 1 + filelen + 1 < PATHNAME_MAX)
-      {
-        char subbuffer[PATHNAME_MAX + 1];
-        strcpy( subbuffer, pathonly);
-        strcpy( subbuffer + pathlen, "\\");
-        strcpy( subbuffer + pathlen + 1, find.finddata.name);
-        strcpy( subbuffer + pathlen + 1 + len, "\\");
-        strcpy( subbuffer + pathlen + 1 + len + 1, filename);
+        pathlen = filename - buffer - 1;
+        pathonly = buffer;
+        *(filename - 1) = '\0';
+    }
 
-        if (FindPath( dst, dstlen, subbuffer))
-        {
-          Dir::FindClose(find);
-          return TRUE;
-        }
-      }
-    } 
-    while (Dir::FindNext(find));
+    // check this path for filename
+    if (FindFirst(find, pathonly, filename))
+    {
+        // Finish find operation
+        FindClose(find);
 
+        Utils::Strmcpy(dst, path, dstlen);
+        return TRUE;
+    }
     // Finish find operation
-    Dir::FindClose(find);
-  }  
-  return FALSE;
+    FindClose(find);
+
+    // check subdirs for filename
+    if (FindFirst(find, pathonly, "*."))
+    {
+        do
+        {
+            U32 len = strlen(find.finddata.name);
+            if (!((len == 1 || len == 2) && *find.finddata.name == '.') && len + pathlen + 1 + filelen + 1 <
+                PATHNAME_MAX)
+            {
+                char subbuffer[PATHNAME_MAX + 1];
+                strcpy(subbuffer, pathonly);
+                strcpy(subbuffer + pathlen, "\\");
+                strcpy(subbuffer + pathlen + 1, find.finddata.name);
+                strcpy(subbuffer + pathlen + 1 + len, "\\");
+                strcpy(subbuffer + pathlen + 1 + len + 1, filename);
+
+                if (FindPath(dst, dstlen, subbuffer))
+                {
+                    FindClose(find);
+                    return TRUE;
+                }
+            }
+        }
+        while (FindNext(find));
+
+        // Finish find operation
+        FindClose(find);
+    }
+    return FALSE;
 }
 
 //
 // Make: (method)
 //
-Bool Dir::Make(const char *dir)
+Bool Dir::Make(const char* dir)
 {
-  if (_mkdir(dir))
-  {
-    switch (errno)
+    if (_mkdir(dir))
     {
-      case EACCES:
-        LOG_WARN(("Path already exists (%s)", dir))
-        return (FALSE);
-        break;
+        switch (errno)
+        {
+            case EACCES:
+            LOG_WARN(("Path already exists (%s)", dir))
+                return (FALSE);
+                break;
 
-      case ENOENT:
-        LOG_WARN(("Path not found (%s)", dir))
-        return (FALSE);
-        break;
+            case ENOENT:
+            LOG_WARN(("Path not found (%s)", dir))
+                return (FALSE);
+                break;
+        }
     }
-  }
 
-  return (TRUE);
+    return (TRUE);
 }
 
 
@@ -1213,69 +1213,73 @@ Bool Dir::Make(const char *dir)
 //
 // Creates each directory within 'path', FALSE on error
 //
-Bool Dir::MakeFull(const char *dir)
+Bool Dir::MakeFull(const char* dir)
 {
-  char buf[PATHNAME_MAX];
-  const char *ptr, *walk = dir;
+    char buf[PATHNAME_MAX];
+    const char *ptr, *walk = dir;
 
-  do 
-  {
-    // have we found a '\' character
-    if ((ptr = Utils::Strchr(walk, '\\')) != 0)
+    do
     {
-      // copy portion infront of that char
-      const char *s = dir;
-	  char *d = buf;
-      for (; s != ptr; s++, d++) 
-      { 
-        *d = *s; 
-      }
-      *d = '\0';
-      walk = ptr + 1;
-    }
-    else
-    {
-      // take entire directory
-      Utils::Strcpy(buf, dir);
-    }
+        // have we found a '\' character
+        if ((ptr = Utils::Strchr(walk, '\\')) != nullptr)
+        {
+            // copy portion infront of that char
+            const char* s = dir;
+            char* d = buf;
+            for (; s != ptr; s++, d++)
+            {
+                *d = *s;
+            }
+            *d = '\0';
+            walk = ptr + 1;
+        }
+        else
+        {
+            // take entire directory
+            Utils::Strcpy(buf, dir);
+        }
 
-    // does it exist already
-    if (!File::Exists(buf))
-    {
-      // create it
-      if (!Make(buf))
-      {
-        return (FALSE);
-      }
+        // does it exist already
+        if (!File::Exists(buf))
+        {
+            // create it
+            if (!Make(buf))
+            {
+                return (FALSE);
+            }
+        }
     }
-  }
-  while (ptr);
+    while (ptr);
 
-  return (TRUE);
+    return (TRUE);
 }
 
 
 //
 // Remove: (method)
 //
-Bool Dir::Remove(const char *dir)
+Bool Dir::Remove(const char* dir)
 {
-  if (_rmdir(dir))
-  {
-    switch (errno)
+    if (_rmdir(dir))
     {
-      case ENOTEMPTY:
-        LOG_ERR(("Given path is not a directory,\ndirectory is not empty\nor directory is either current working directory or root directory."))
-        return (FALSE);
-        break;
+        switch (errno)
+        {
+            case ENOTEMPTY:
+            LOG_ERR
+                (
+                    ("Given path is not a directory,\ndirectory is not empty\nor directory is either current working directory or root directory."
+                    )
+                )
+                return (FALSE);
+                break;
 
-      case ENOENT:
-        LOG_ERR(("Path is invalid."))
-        return (FALSE);
-        break;
+            case ENOENT:
+            LOG_ERR(("Path is invalid."))
+                return (FALSE);
+                break;
+        }
     }
-  }
-  return (TRUE);
+    return (TRUE);
 }
 
 
@@ -1285,96 +1289,97 @@ Bool Dir::Remove(const char *dir)
 
 struct DirFile
 {
-  FilePath path;
-  Bool dir;
-  NList<DirFile>::Node node;
+    FilePath path;
+    Bool dir;
+    NList<DirFile>::Node node;
 
-  DirFile(const char *path, Bool dir)
-  : path(path), 
-    dir(dir)
-  {
-  }
-
+    DirFile(const char* path, Bool dir)
+        : path(path),
+          dir(dir)
+    {
+    }
 };
 
-U32 Dir::Crc(const char *dir)
+U32 Dir::Crc(const char* dir)
 {
-  LOGFMTOFF
+    LOGFMTOFF
 
-  LOG_DIAG(("Crcing Directory %s", dir))
+    LOG_DIAG(("Crcing Directory %s", dir))
 
-  U32 crc = 0;
+    U32 crc = 0;
 
-  NList<DirFile> files(&DirFile::node);
-  files.Append(new DirFile(dir, TRUE));
+    NList<DirFile> files(&DirFile::node);
+    files.Append(new DirFile(dir, TRUE));
 
-  // Iterate through the files and generate the CRC
+    // Iterate through the files and generate the CRC
 
-  // If a directory is encountered then enumerate the files 
-  // within the directory and append them to the list
+    // If a directory is encountered then enumerate the files 
+    // within the directory and append them to the list
 
-  DirFile *file;
+    DirFile* file;
 
-  while (files.GetCount())
-  {
-    NList<DirFile>::Iterator f(&files);
-    while ((file = f++) != NULL)
+    while (files.GetCount())
     {
-      if (file->dir)
-      {
-        FilePath path = file->path.str;
-        Utils::Strcat(path.str, "\\*.*");
-
-        // Use a tree to guarentee the files are sorted
-        BinTree<DirFile> dir;
-
-        // Its a directory, get the files within the directory
-        Find find;
-        if (FindFirst(find, path.str))
+        NList<DirFile>::Iterator f(&files);
+        while ((file = f++) != nullptr)
         {
-          do
-          {
-            // If the last character is a '.' then ignore
-            if (find.finddata.name[Utils::Strlen(find.finddata.name) - 1] != '.')
+            if (file->dir)
             {
-              FilePath path = file->path.str;
-              Utils::Strcat(path.str, "\\");
-              Utils::Strcat(path.str, find.finddata.name);
+                FilePath path = file->path.str;
+                Utils::Strcat(path.str, "\\*.*");
 
-              dir.Add(
-                Crc::CalcStr(find.finddata.name), 
-                new DirFile(path.str, find.finddata.attrib & _A_SUBDIR));
+                // Use a tree to guarentee the files are sorted
+                BinTree<DirFile> dir;
+
+                // Its a directory, get the files within the directory
+                Find find;
+                if (FindFirst(find, path.str))
+                {
+                    do
+                    {
+                        // If the last character is a '.' then ignore
+                        if (find.finddata.name[Utils::Strlen(find.finddata.name) - 1] != '.')
+                        {
+                            FilePath path = file->path.str;
+                            Utils::Strcat(path.str, "\\");
+                            Utils::Strcat(path.str, find.finddata.name);
+
+                            dir.Add
+                            (
+                                Crc::CalcStr(find.finddata.name),
+                                new DirFile(path.str, find.finddata.attrib & _A_SUBDIR)
+                            );
+                        }
+                    }
+                    while (FindNext(find));
+                }
+                FindClose(find);
+
+                // Append the new files using the tree order
+                for (BinTree<DirFile>::Iterator d(&dir); *d; ++d)
+                {
+                    files.Append(*d);
+                }
+
+                // Kill the tree
+                dir.UnlinkAll();
             }
-          }
-          while (FindNext(find));
+            else
+            {
+                // Its a file, get its CRC
+                crc = File::Crc(file->path.str, crc);
+
+                LOG_DIAG(("[%08X] %s", crc, file->path.str))
+            }
+            files.Dispose(file);
         }
-        FindClose(find);
-
-        // Append the new files using the tree order
-        for (BinTree<DirFile>::Iterator d(&dir); *d; d++)
-        {
-          files.Append(*d);
-        }
-
-        // Kill the tree
-        dir.UnlinkAll();
-      }
-      else
-      {
-        // Its a file, get its CRC
-        crc = File::Crc(file->path.str, crc);
-
-        LOG_DIAG(("[%08X] %s", crc, file->path.str))
-      }
-      files.Dispose(file);
     }
-  }
 
-  LOG_DIAG(("[%08X]", crc))
+    LOG_DIAG(("[%08X]", crc))
 
-  LOGFMTON
+    LOGFMTON
 
-  return (crc);
+    return (crc);
 }
 
 
@@ -1389,53 +1394,53 @@ U32 Dir::Crc(const char *dir)
 //
 // Find a drive with the given type and volume (zero based)
 //
-Bool Drive::FindDriveByVolume(Type type, const char *label, int &d)
+Bool Drive::FindDriveByVolume(Type type, const char* label, int& d)
 {
-  // Get the logical drives
-  U32 logical = GetLogicalDrives();
+    // Get the logical drives
+    U32 logical = GetLogicalDrives();
 
-  // Generate root dir string
-  char root[4] = " :\\";
+    // Generate root dir string
+    char root[4] = " :\\";
 
-  // Step through each drive letter
-	for (U32 drive = 0; drive < 26; ++drive)
-	{
-    // Does this system have this drive
-		if (logical & (1 << drive))
-		{
-      // Are we interested in this type
-      if (GetType(drive) == type)
-      {
-        char volume[64];
-        char systemName[64];
-        U32 maxComponentLen;
-        U32 flags;
-
-        // Setup the root dir
-        root[0] = char(drive + 'A');
-
-        // Get the volume name
-        if (GetVolumeInformation(root, volume, 64, NULL, &maxComponentLen, &flags, systemName, 64))
+    // Step through each drive letter
+    for (U32 drive = 0; drive < 26; ++drive)
+    {
+        // Does this system have this drive
+        if (logical & (1 << drive))
         {
-          // Is it a match
-          if (!Utils::Stricmp(volume, label))
-          {
-            // Set the drive index
-            d = drive;
+            // Are we interested in this type
+            if (GetType(drive) == type)
+            {
+                char volume[64];
+                char systemName[64];
+                U32 maxComponentLen;
+                U32 flags;
 
-            // Success
-            return (TRUE);
-          }
-        }
-        else
-        {
-          LOG_DIAG(("Unable to get volume information for drive [%s]", root));
-        }
-      }
-		}
-	}
+                // Setup the root dir
+                root[0] = static_cast<char>(drive + 'A');
 
-  return (FALSE); 
+                // Get the volume name
+                if (GetVolumeInformation(root, volume, 64, nullptr, &maxComponentLen, &flags, systemName, 64))
+                {
+                    // Is it a match
+                    if (!Utils::Stricmp(volume, label))
+                    {
+                        // Set the drive index
+                        d = drive;
+
+                        // Success
+                        return (TRUE);
+                    }
+                }
+                else
+                {
+                    LOG_DIAG(("Unable to get volume information for drive [%s]", root));
+                }
+            }
+        }
+    }
+
+    return (FALSE);
 }
 
 
@@ -1446,51 +1451,51 @@ Bool Drive::FindDriveByVolume(Type type, const char *label, int &d)
 //
 Drive::Type Drive::GetType(const int drive)
 {
-  U32  type;
-  char drivestr[4];
+    U32 type;
+    char drivestr[4];
 
-  drivestr[0] = (char) (drive + 'A');
-  drivestr[1] = ':';
-  drivestr[2] = '\\';
-  drivestr[3] = '\0';
-  
-  type = GetDriveType(drivestr);
+    drivestr[0] = static_cast<char>(drive + 'A');
+    drivestr[1] = ':';
+    drivestr[2] = '\\';
+    drivestr[3] = '\0';
 
-  switch (type)
-  {
-    case 0:
-      return (UNKNOWN);
-      break;
+    type = GetDriveType(drivestr);
 
-    case 1:
-      return (NONEXIST);
-      break;
+    switch (type)
+    {
+        case 0:
+            return (UNKNOWN);
+            break;
 
-    case DRIVE_REMOVABLE:
-      return (REMOVABLE);
-      break;
+        case 1:
+            return (NONEXIST);
+            break;
 
-    case DRIVE_FIXED:
-      return (FIXED);
-      break;
+        case DRIVE_REMOVABLE:
+            return (REMOVABLE);
+            break;
 
-    case DRIVE_REMOTE:
-      return (NETWORK);
-      break;
+        case DRIVE_FIXED:
+            return (FIXED);
+            break;
 
-    case DRIVE_CDROM:
-      return (CDROM);
-      break;
+        case DRIVE_REMOTE:
+            return (NETWORK);
+            break;
 
-    case DRIVE_RAMDISK:
-      return (RAMDISK);
-      break;
+        case DRIVE_CDROM:
+            return (CDROM);
+            break;
 
-    default:
-      LOG_WARN(("GetDriveType returned unknown value %d", type))
-      return (UNKNOWN);
-      break;
-  }
+        case DRIVE_RAMDISK:
+            return (RAMDISK);
+            break;
+
+        default:
+        LOG_WARN(("GetDriveType returned unknown value %d", type))
+            return (UNKNOWN);
+            break;
+    }
 }
 
 
@@ -1501,7 +1506,7 @@ Drive::Type Drive::GetType(const int drive)
 //
 int Drive::GetCurrent()
 {
-  return (_getdrive() - 1);
+    return (_getdrive() - 1);
 }
 
 
@@ -1512,5 +1517,5 @@ int Drive::GetCurrent()
 //
 Bool Drive::SetCurrent(const int drive)
 {
-  return (_chdrive(drive + 1) ? FALSE : TRUE);
+    return (_chdrive(drive + 1) ? FALSE : TRUE);
 }

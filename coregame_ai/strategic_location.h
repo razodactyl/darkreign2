@@ -25,56 +25,53 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declarations
-  //
-  class Object;
-  class Script;
-
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Location
-  //
-  class Location
-  {
-  public:
-
+    /////////////////////////////////////////////////////////////////////////////
+    //
     // Forward Declarations
-    class Base;
-    class Offset;
+    //
+    class Object;
+    class Script;
 
-  private:
 
-    // Base part of the location
-    Base *base;
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Location
+    //
+    class Location
+    {
+    public:
 
-    // Offset to the base part of the location
-    Offset *offset;
+        // Forward Declarations
+        class Base;
+        class Offset;
 
-  private:
+    private:
 
-    // Constructor
-    Location(Base *base, Offset *offset);
+        // Base part of the location
+        Base* base;
 
-  public:
+        // Offset to the base part of the location
+        Offset* offset;
 
-    // Destructor
-    ~Location();
+    private:
 
-    // Get the vector position of the location
-    Vector GetVector(Object *object = NULL, Script *script = NULL);
+        // Constructor
+        Location(Base* base, Offset* offset);
 
-    // Get the map location of the location
-    Point<F32> GetPoint(Object *object = NULL, Script *script = NULL);
+    public:
 
-    // Create a location from the given fscope
-    static Location * Create(FScope *fScope, Script *script); // = NULL);
+        // Destructor
+        ~Location();
 
-  };
+        // Get the vector position of the location
+        Vector GetVector(Object* object = NULL, Script* script = NULL);
 
+        // Get the map location of the location
+        Point<F32> GetPoint(Object* object = NULL, Script* script = NULL);
+
+        // Create a location from the given fscope
+        static Location* Create(FScope* fScope, Script* script); // = NULL);
+    };
 }
 
 

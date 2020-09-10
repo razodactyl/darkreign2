@@ -23,10 +23,8 @@
 //
 namespace TaskUtil
 {
-
-  // Find an unexplored point
-  void FindUnexplored(Vector &location, const Point<S32> &cell, U8 tractionType, Team *team);
-
+    // Find an unexplored point
+    void FindUnexplored(Vector& location, const Point<S32>& cell, U8 tractionType, Team* team);
 }
 
 #endif

@@ -23,9 +23,11 @@
 //
 // Template Point
 //
-template <class TYPE> struct Point
+template <class TYPE>
+struct Point
 {
     TYPE x;
+
     union
     {
         TYPE y;
@@ -33,8 +35,13 @@ template <class TYPE> struct Point
     };
 
     // Constructor
-    Point() { };
-    Point(TYPE x, TYPE y) : x(x), y(y) { }
+    Point()
+    {
+    };
+
+    Point(TYPE x, TYPE y) : x(x), y(y)
+    {
+    }
 
     // Addition operator
     Point& operator+=(const Point& rhs)
@@ -43,6 +50,7 @@ template <class TYPE> struct Point
         y += rhs.y;
         return (*this);
     }
+
     Point operator+(const Point& rhs) const
     {
         Point tmp(*this);
@@ -57,6 +65,7 @@ template <class TYPE> struct Point
         y -= rhs.y;
         return (*this);
     }
+
     Point operator-(const Point& rhs) const
     {
         Point tmp(*this);
@@ -71,6 +80,7 @@ template <class TYPE> struct Point
         y += rhs;
         return (*this);
     }
+
     Point operator+(const TYPE& rhs) const
     {
         Point tmp(*this);
@@ -85,6 +95,7 @@ template <class TYPE> struct Point
         y -= rhs;
         return (*this);
     }
+
     Point operator-(const TYPE& rhs) const
     {
         Point tmp(*this);
@@ -99,6 +110,7 @@ template <class TYPE> struct Point
         y *= rhs;
         return (*this);
     }
+
     Point operator*(const TYPE& rhs) const
     {
         Point tmp(*this);
@@ -113,6 +125,7 @@ template <class TYPE> struct Point
         y /= rhs;
         return (*this);
     }
+
     Point operator/(const TYPE& rhs) const
     {
         Point tmp(*this);
@@ -125,22 +138,27 @@ template <class TYPE> struct Point
     {
         return (p1.x == p2.x && p1.y == p2.y);
     }
+
     friend Bool operator!=(const Point<TYPE>& p1, const Point<TYPE>& p2)
     {
         return (p1.x != p2.x || p1.y != p2.y);
     }
+
     friend Bool operator>(const Point<TYPE>& p1, const Point<TYPE>& p2)
     {
         return (p1.x > p2.x && p1.y > p2.y);
     }
+
     friend Bool operator>=(const Point<TYPE>& p1, const Point<TYPE>& p2)
     {
         return (p1.x >= p2.x && p1.y >= p2.y);
     }
+
     friend Bool operator<(const Point<TYPE>& p1, const Point<TYPE>& p2)
     {
-        return (p1.x < p2.x&& p1.y < p2.y);
+        return (p1.x < p2.x && p1.y < p2.y);
     }
+
     friend Bool operator<=(const Point<TYPE>& p1, const Point<TYPE>& p2)
     {
         return (p1.x <= p2.x && p1.y <= p2.y);
@@ -164,7 +182,7 @@ template <class TYPE> struct Point
     // Get the magnitude
     TYPE GetMagnitude() const
     {
-        return ((TYPE)sqrt(GetMagnitude2()));
+        return static_cast<TYPE>(sqrt(GetMagnitude2()));
     }
 
     // Get the magnitude squared
@@ -214,7 +232,6 @@ template <class TYPE> struct Point
         }
         return TRUE;
     }
-
 };
 
 
@@ -222,47 +239,71 @@ template <class TYPE> struct Point
 //
 // Template Area
 //
-template <class TYPE> struct Area
+template <class TYPE>
+struct Area
 {
     Point<TYPE> p0;
     Point<TYPE> p1;
 
     // Constructor
-    Area() { };
-    Area(Point<TYPE> p0, Point<TYPE> p1) : p0(p0), p1(p1) { }
-    Area(TYPE x0, TYPE y0, TYPE x1, TYPE y1) : p0(x0, y0), p1(x1, y1) {}
-    Area(Point<TYPE> p0, TYPE x1, TYPE y1) : p0(p0), p1(x1, y1) {}
-    Area(TYPE x0, TYPE y0, Point<TYPE> p1) : p0(x0, y0), p1(p1) {}
-    Area(TYPE x1, TYPE y1) : p0(0, 0), p1(x1, y1) {}
+    Area()
+    {
+    };
 
-    // Dimensions
+    Area(Point<TYPE> p0, Point<TYPE> p1) : p0(p0), p1(p1)
+    {
+    }
+
+    Area(TYPE x0, TYPE y0, TYPE x1, TYPE y1) : p0(x0, y0), p1(x1, y1)
+    {
+    }
+
+    Area(Point<TYPE> p0, TYPE x1, TYPE y1) : p0(p0), p1(x1, y1)
+    {
+    }
+
+    Area(TYPE x0, TYPE y0, Point<TYPE> p1) : p0(x0, y0), p1(p1)
+    {
+    }
+
+    Area(TYPE x1, TYPE y1) : p0(0, 0), p1(x1, y1)
+    {
+    }
+
+    // Dimenstions
     TYPE Width() const
     {
         return (p1.x - p0.x);
     }
+
     TYPE Height() const
     {
         return (p1.y - p0.y);
     }
+
     TYPE HalfHeight() const
     {
         return Height() / 2;
     }
+
     TYPE HalfWidth() const
     {
         return Width() / 2;
     }
+
     TYPE MidX() const
     {
         return p0.x + HalfWidth();
     }
+
     TYPE MidY() const
     {
         return p0.y + HalfHeight();
     }
+
     F32 AspectYX() const
     {
-        return (F32)Height() / (F32)Width();
+        return static_cast<F32>(Height()) / static_cast<F32>(Width());
     }
 
     // Addition operator
@@ -272,6 +313,7 @@ template <class TYPE> struct Area
         p1 += rhs.p1;
         return (*this);
     }
+
     Area operator+(const Area& rhs) const
     {
         Area tmp(*this);
@@ -286,6 +328,7 @@ template <class TYPE> struct Area
         p1 -= rhs.p1;
         return (*this);
     }
+
     Area operator-(const Area& rhs) const
     {
         Area tmp(*this);
@@ -300,6 +343,7 @@ template <class TYPE> struct Area
         p1 += rhs;
         return (*this);
     }
+
     Area operator+(const Point<TYPE>& rhs) const
     {
         Area tmp(*this);
@@ -314,6 +358,7 @@ template <class TYPE> struct Area
         p1 -= rhs;
         return (*this);
     }
+
     Area operator-(const Point<TYPE>& rhs) const
     {
         Area tmp(*this);
@@ -328,6 +373,7 @@ template <class TYPE> struct Area
         p1 += rhs;
         return (*this);
     }
+
     Area operator+(const TYPE& rhs) const
     {
         Area tmp(*this);
@@ -342,6 +388,7 @@ template <class TYPE> struct Area
         p1 -= rhs;
         return (*this);
     }
+
     Area operator-(const TYPE& rhs) const
     {
         Area tmp(*this);
@@ -356,6 +403,7 @@ template <class TYPE> struct Area
         p1 *= rhs;
         return (*this);
     }
+
     Area operator*(const TYPE& rhs) const
     {
         Area tmp(*this);
@@ -370,6 +418,7 @@ template <class TYPE> struct Area
         p1 /= rhs;
         return (*this);
     }
+
     Area operator/(const TYPE& rhs) const
     {
         Area tmp(*this);
@@ -458,6 +507,7 @@ template <class TYPE> struct Area
         p0 = _p0;
         p1 = _p1;
     }
+
     void Set(TYPE x0, TYPE y0, TYPE x1, TYPE y1)
     {
         p0.x = x0;
@@ -465,6 +515,7 @@ template <class TYPE> struct Area
         p1.x = x1;
         p1.y = y1;
     }
+
     void Set(TYPE w, TYPE h)
     {
         p0.x = 0;
@@ -480,6 +531,7 @@ template <class TYPE> struct Area
         p1.x = p0.x + w;
         p1.y = p0.y + h;
     }
+
     void SetSize(TYPE w, TYPE h)
     {
         p1.x = p0.x + w;
@@ -488,15 +540,15 @@ template <class TYPE> struct Area
 
     // windows conversion
     // 
-    operator RECT& ()
+    operator RECT&()
     {
-        return *((RECT*)this);
-    }
-    operator RECT* ()
-    {
-        return (RECT*)this;
+        return *static_cast<RECT*>(this);
     }
 
+    operator RECT*()
+    {
+        return reinterpret_cast<RECT*>(this);
+    }
 };
 
 #endif

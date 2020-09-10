@@ -63,7 +63,9 @@ namespace ParticleSystem
         FScope* fScope;
 
         // Default constructor
-        DerivedClass() : fScope(NULL) {}
+        DerivedClass() : fScope(nullptr)
+        {
+        }
 
         // Destructor
         ~DerivedClass()
@@ -73,7 +75,6 @@ namespace ParticleSystem
                 delete fScope;
             }
         }
-
     };
 
     // List of all derived particle classes
@@ -170,17 +171,17 @@ namespace ParticleSystem
     //
     void CloseMission()
     {
-        ASSERT(sysInit)
+        ASSERT(sysInit);
 
-            //    simulators.DisposeAll();
-            //    renderSim.DisposeAll();
-            //    renderInt.DisposeAll();
+        //  simulators.DisposeAll();
+        //  renderSim.DisposeAll();
+        //  renderInt.DisposeAll();
 
-                // Dispose of particles
-            for (NList<Particle>::Iterator i(&simulators); *i;)
-            {
-                delete (i++);
-            }
+        // Dispose of particles
+        for (NList<Particle>::Iterator i(&simulators); *i;)
+        {
+            delete (i++);
+        }
 
         // Dispose of renderers
         NList<ParticleRender>::Iterator j(&renderSim);
@@ -202,33 +203,33 @@ namespace ParticleSystem
     //
     static ParticleClass* CreateSimulateClass(GameIdent& classId)
     {
-        ParticleClass* p = NULL;
+        ParticleClass* p = nullptr;
 
         switch (classId.crc)
         {
-        case 0xE3DB018F: // "Smoke"
-            p = new SmokeSimulateClass;
-            break;
+            case 0xE3DB018F: // "Smoke"
+                p = new SmokeSimulateClass;
+                break;
 
-        case 0xE7504E38: // "Ember"
-            p = new EmberSimulateClass;
-            break;
+            case 0xE7504E38: // "Ember"
+                p = new EmberSimulateClass;
+                break;
 
-        case 0x7BDC6C08: // "Chunk"
-            p = new ChunkSimulateClass;
-            break;
+            case 0x7BDC6C08: // "Chunk"
+                p = new ChunkSimulateClass;
+                break;
 
-        case 0x13D4B6D6: // "Particle"
-            p = new ParticleClass;
-            break;
+            case 0x13D4B6D6: // "Particle"
+                p = new ParticleClass;
+                break;
 
-        case 0xB0E7F4D5: // "Stain"
-            p = new BloodSimulateClass;
-            break;
+            case 0xB0E7F4D5: // "Stain"
+                p = new BloodSimulateClass;
+                break;
 
-        case 0xD9152A7F: // "Dust"
-            p = new DustSimulateClass;
-            break;
+            case 0xD9152A7F: // "Dust"
+                p = new DustSimulateClass;
+                break;
         }
 
         return p;
@@ -240,57 +241,57 @@ namespace ParticleSystem
     //
     static ParticleRenderClass* CreateRenderClass(GameIdent& classId)
     {
-        ParticleRenderClass* p = NULL;
+        ParticleRenderClass* p = nullptr;
 
         switch (classId.crc)
         {
-        case 0xDD21EFC9: // "Sprite"
-            p = new SpriteRenderClass;
-            break;
+            case 0xDD21EFC9: // "Sprite"
+                p = new SpriteRenderClass;
+                break;
 
-        case 0x09C72CDE: // "Geometry"
-            p = new GeometryRenderClass;
-            break;
+            case 0x09C72CDE: // "Geometry"
+                p = new GeometryRenderClass;
+                break;
 
-        case 0x0A23AA56: // "GeometryScale"
-            p = new GeometryScaleRenderClass;
-            break;
+            case 0x0A23AA56: // "GeometryScale"
+                p = new GeometryScaleRenderClass;
+                break;
 
-        case 0x82698073: // "Trail"
-            p = new TrailRenderClass;
-            break;
+            case 0x82698073: // "Trail"
+                p = new TrailRenderClass;
+                break;
 
-        case 0xDA0BA8B0: // "Beam"
-            p = new BeamRenderWeaponClass;
-            break;
+            case 0xDA0BA8B0: // "Beam"
+                p = new BeamRenderWeaponClass;
+                break;
 
-        case 0xCC14C288: // "BeamPlain"
-            p = new BeamRenderPlainClass;
-            break;
+            case 0xCC14C288: // "BeamPlain"
+                p = new BeamRenderPlainClass;
+                break;
 
-        case 0x17267313: // "BeamBase"
-            p = new BeamRenderBaseClass;
-            break;
+            case 0x17267313: // "BeamBase"
+                p = new BeamRenderBaseClass;
+                break;
 
-        case 0x8123AC3D: // "BeamRunner"
-            p = new BeamRenderRunnerClass;
-            break;
+            case 0x8123AC3D: // "BeamRunner"
+                p = new BeamRenderRunnerClass;
+                break;
 
-        case 0x04DC14BB: // "BeamShroud"
-            p = new BeamRenderShroudClass;
-            break;
+            case 0x04DC14BB: // "BeamShroud"
+                p = new BeamRenderShroudClass;
+                break;
 
-        case 0xB0E7F4D5: // "Stain"
-            p = new AirGroundSpriteRenderClass;
-            break;
+            case 0xB0E7F4D5: // "Stain"
+                p = new AirGroundSpriteRenderClass;
+                break;
 
-        case 0xE16208B1: // "GroundSprite"
-            p = new GroundSpriteRenderClass;
-            break;
+            case 0xE16208B1: // "GroundSprite"
+                p = new GroundSpriteRenderClass;
+                break;
 
-        case 0xB03BF3A7: // "WaterSprite"
-            p = new WaterSpriteRenderClass;
-            break;
+            case 0xB03BF3A7: // "WaterSprite"
+                p = new WaterSpriteRenderClass;
+                break;
         }
 
         return p;
@@ -312,45 +313,42 @@ namespace ParticleSystem
         GameIdent simClass = fScope->NextArgString();
 
         // Create the Particle Simulator type
-        ParticleClass* newParticle = NULL;
+        ParticleClass* newParticle = nullptr;
 
         if (particleTypes.Exists(typeId.crc))
         {
-            ERR_CONFIG(("Particle type '%s' already defined, ignoring definition", typeId.str))
-                return (FALSE);
+            ERR_CONFIG(("Particle type '%s' already defined, ignoring definition", typeId.str));
+            return (FALSE);
+        }
+        if ((newParticle = CreateSimulateClass(simClass)) != nullptr)
+        {
+            // Configure the type
+            newParticle->Setup(fScope);
+
+            // Add it to list of derived types
+            DerivedClass* newDerived = new DerivedClass;
+
+            newDerived->ident = typeId;
+            newDerived->parent = simClass;
+            newDerived->fScope = fScope->Dup();
+
+            derivedParticles.Add(typeId.crc, newDerived);
         }
         else
         {
-            if ((newParticle = CreateSimulateClass(simClass)) != NULL)
+            // Find the base class
+            DerivedClass* derived = derivedParticles.Find(simClass.crc);
+
+            if (derived)
             {
-                // Configure the type
+                // FIXME: doesnt handle multiple levels of inheritance
+                newParticle = CreateSimulateClass(derived->parent);
+                newParticle->Setup(derived->fScope);
                 newParticle->Setup(fScope);
-
-                // Add it to list of derived types
-                DerivedClass* newDerived = new DerivedClass;
-
-                newDerived->ident = typeId;
-                newDerived->parent = simClass;
-                newDerived->fScope = fScope->Dup();
-
-                derivedParticles.Add(typeId.crc, newDerived);
             }
             else
             {
-                // Find the base class
-                DerivedClass* derived = derivedParticles.Find(simClass.crc);
-
-                if (derived)
-                {
-                    // FIXME: doesnt handle multiple levels of inheritance
-                    newParticle = CreateSimulateClass(derived->parent);
-                    newParticle->Setup(derived->fScope);
-                    newParticle->Setup(fScope);
-                }
-                else
-                {
-                    ERR_CONFIG(("Simulate base class [%s] does not exist", simClass.str));
-                }
+                ERR_CONFIG(("Simulate base class [%s] does not exist", simClass.str));
             }
         }
 
@@ -362,7 +360,7 @@ namespace ParticleSystem
         // Add to list
         particleTypes.Add(newParticle->typeId.crc, newParticle);
 
-        //LOG_DIAG(("Registered Particle Simulator [%s]", newParticle->typeId.str));
+        // LOG_DIAG(("Registered Particle Simulator [%s]", newParticle->typeId.str));
 
         // Success
         return (TRUE);
@@ -385,14 +383,14 @@ namespace ParticleSystem
 
         if (renderTypes.Exists(typeId.crc))
         {
-            ERR_CONFIG(("Particle render type '%s' already defined, ignoring definition", typeId.str))
-                return (FALSE);
+            ERR_CONFIG(("Particle render type '%s' already defined, ignoring definition", typeId.str));
+            return (FALSE);
         }
 
         // Create the renderer type
-        ParticleRenderClass* newRender = NULL;
+        ParticleRenderClass* newRender = nullptr;
 
-        if ((newRender = CreateRenderClass(rendClass)) != NULL)
+        if ((newRender = CreateRenderClass(rendClass)) != nullptr)
         {
             // Configure the Render type
             newRender->Setup(fScope);
@@ -432,7 +430,7 @@ namespace ParticleSystem
         // Add to list
         renderTypes.Add(newRender->typeId.crc, newRender);
 
-        //LOG_DIAG(("Registered Particle Renderer [%s]", newRender->typeId.str));
+        // LOG_DIAG(("Registered Particle Renderer [%s]", newRender->typeId.str));
 
         // Success
         return (TRUE);
@@ -450,23 +448,25 @@ namespace ParticleSystem
                 // Always create under fog
                 return (TRUE);
             }
-            else if (!build && p->showUnderFog)
+            if (!build && p->showUnderFog)
             {
                 return (TRUE);
             }
-            else if (cineractiveMode)
+            if (cineractiveMode)
             {
                 if (GameTime::GetFastMode() && !GameTime::GetDisplayMode())
                 {
                     // Don't create particle if in fast forward mode
                     return (FALSE);
                 }
-                else if (!p1)
+                if (!p1)
                 {
                     // Create if within viewing frustrum
-                    Point<S32> cell(
+                    Point<S32> cell
+                    (
                         Utils::FastFtoL(p0.x),
-                        Utils::FastFtoL(p0.z));
+                        Utils::FastFtoL(p0.z)
+                    );
                     Area<S32> rect;
                     Vid::CurCamera().GetVisibleRect(rect);
 
@@ -476,16 +476,20 @@ namespace ParticleSystem
                 }
                 return TRUE;
             }
-            else if (!Team::GetDisplayTeam()
-                || Sight::Visible(
-                    WorldCtrl::MetresToCellX(p0.x),
-                    WorldCtrl::MetresToCellZ(p0.z),
-                    Team::GetDisplayTeam())
+            if (!Team::GetDisplayTeam()
+                || Sight::Visible
+                (
+                WorldCtrl::MetresToCellX(p0.x),
+                WorldCtrl::MetresToCellZ(p0.z),
+                Team::GetDisplayTeam()
+                )
                 || (p1 && WorldCtrl::MetreOnMap(p1->x, p1->z)
-                    && Sight::Visible(
-                        WorldCtrl::MetresToCellX(p1->x),
-                        WorldCtrl::MetresToCellZ(p1->z),
-                        Team::GetDisplayTeam())))
+                && Sight::Visible
+                (
+                WorldCtrl::MetresToCellX(p1->x),
+                WorldCtrl::MetresToCellZ(p1->z),
+                Team::GetDisplayTeam()
+                )))
             {
                 // Create if display team can see cell
                 return (TRUE);
@@ -498,7 +502,11 @@ namespace ParticleSystem
     //
     // Construct a new particle instance
     //
-    Particle* New(ParticleClass* p, const Matrix& matrix, const Vector& veloc, const Vector& omega, const Vector& length, F32 timer, void* data) // = NULL)
+    Particle* New
+    (
+        ParticleClass* p, const Matrix& matrix, const Vector& veloc, const Vector& omega,
+        const Vector& length, F32 timer, void* data
+    ) // = NULL)
     {
         ASSERT(p);
 
@@ -506,7 +514,7 @@ namespace ParticleSystem
         {
             return (p->Build(matrix, veloc, omega, length, timer, data));
         }
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -518,14 +526,14 @@ namespace ParticleSystem
         GameGod::Loader::SubSystem("#game.loader.particles", 1 + renderTypes.GetCount());
 
         // Post load simulator classes
-        for (BinTree<ParticleClass>::Iterator i(&particleTypes); *i; i++)
+        for (BinTree<ParticleClass>::Iterator i(&particleTypes); *i; ++i)
         {
             (*i)->PostLoad();
         }
         GameGod::Loader::Advance();
 
         // Post load renderer classes
-        for (BinTree<ParticleRenderClass>::Iterator j(&renderTypes); *j; j++)
+        for (BinTree<ParticleRenderClass>::Iterator j(&renderTypes); *j; ++j)
         {
             GameGod::Loader::Advance();
             (*j)->PostLoad();
@@ -727,7 +735,7 @@ namespace ParticleSystem
         v.b *= 255.0f;
         v.a *= 255.0f;
 
-        if ((fScope = parent->GetFunction(name)) != NULL)
+        if ((fScope = parent->GetFunction(name)) != nullptr)
         {
             v.r = F32(fScope->NextArgInteger());
             v.g = F32(fScope->NextArgInteger());
@@ -772,7 +780,11 @@ namespace ParticleSystem
     //
     // Build a rotation matrix
     //
-    Matrix BuildPositionRotationMatrix(const F32 pitch, const F32 yaw, const F32 roll, const F32 x, const F32 y, const F32 z)
+    Matrix BuildPositionRotationMatrix
+    (
+        const F32 pitch, const F32 yaw, const F32 roll, const F32 x, const F32 y,
+        const F32 z
+    )
     {
         // compute sine and cosine of each angle
         F32 rSin, rCos, pSin, pCos, ySin, yCos;
@@ -866,33 +878,33 @@ namespace ParticleSystem
 
         switch (pathCrc)
         {
-        case 0xB6ED91C4: // "coregame.particle.listtypes"
-        {
-            char* s = NULL;
-            Console::GetArgString(1, (const char*&)s);
-
-            U32 len = 0;
-            if (s)
+            case 0xB6ED91C4: // "coregame.particle.listtypes"
             {
-                len = strlen(s);
-            }
+                char* s = nullptr;
+                Console::GetArgString(1, (const char*&)s);
 
-            // Registered particle simulator types
-            CON_DIAG(("[Particle Simulators]"))
+                U32 len = 0;
+                if (s)
+                {
+                    len = strlen(s);
+                }
+
+                // Registered particle simulator types
+                CON_DIAG(("[Particle Simulators]"));
 
                 BinTree<ParticleClass>::Iterator i(&particleTypes);
-            for (!i; *i; i++)
-            {
-                if (!s || !Utils::Strnicmp((*i)->typeId.str, s, len))
+                for (!i; *i; ++i)
                 {
-                    CON_DIAG(((*i)->typeId.str))
+                    if (!s || !Utils::Strnicmp((*i)->typeId.str, s, len))
+                    {
+                        CON_DIAG(((*i)->typeId.str))
+                    }
                 }
-            }
 
-            // Registered particle renderer types
-            CON_DIAG(("[Particle Renderers]"))
+                // Registered particle renderer types
+                CON_DIAG(("[Particle Renderers]"));
 
-                for (BinTree<ParticleRenderClass>::Iterator j(&renderTypes); *j; j++)
+                for (BinTree<ParticleRenderClass>::Iterator j(&renderTypes); *j; ++j)
                 {
                     if (!s || !Utils::Strnicmp((*j)->typeId.str, s, len))
                     {
@@ -900,76 +912,75 @@ namespace ParticleSystem
                     }
                 }
 
-            break;
-        }
-
-        case 0x9EB59E4C: // "coregame.particle.create"
-        {
-            const char* s;
-
-            if (!Console::GetArgString(1, s))
-            {
                 break;
             }
 
-            Vector pos;
-
-            if (TerrainData::ScreenToTerrain(Input::MousePos().x, Input::MousePos().y, pos) && WorldCtrl::MetreOnMap(pos.x, pos.z))
+            case 0x9EB59E4C: // "coregame.particle.create"
             {
-                // above the ground
-                pos.y += 5.0F;
+                const char* s;
 
-                //
-                ParticleClass* p = FindType(Crc::CalcStr(s));
-
-                if (p)
+                if (!Console::GetArgString(1, s))
                 {
-                    Vector omg(0.0f, 0.0f, 0.0f);
-                    Vector vel(0.0F, 2.0F, 0.0F);
-
-                    Matrix m;
-                    m.ClearData();
-                    m.posit = pos;
-
-                    Particle* particle = New(p, m, vel, omg, Vector(50, 0, 50), 0.0F);
-
-                    if (particle)
-                    {
-                        lastParticle.Setup(particle);
-                    }
+                    break;
                 }
-            }
-            break;
-        }
 
-        case 0x85B9299D: // "coregame.particle.delete"
-        {
-            if (lastParticle.Alive())
-            {
-                Particle* p = lastParticle.GetData();
-
-                lastParticle.Clear();
-                delete p;
-            }
-            break;
-        }
-
-        case 0x9EA8BAB3: // "coregame.particle.track"
-        {
-            if (lastParticle.Alive())
-            {
                 Vector pos;
 
                 if (TerrainData::ScreenToTerrain(Input::MousePos().x, Input::MousePos().y, pos) && WorldCtrl::MetreOnMap(pos.x, pos.z))
                 {
                     // above the ground
-                    pos.y += 1.0F;
-                    lastParticle->Update(lastParticle->matrix, pos - lastParticle->matrix.posit);
+                    pos.y += 5.0F;
+
+                    //
+                    ParticleClass* p = FindType(Crc::CalcStr(s));
+
+                    if (p)
+                    {
+                        Vector omg(0.0f, 0.0f, 0.0f);
+                        Vector vel(0.0F, 2.0F, 0.0F);
+
+                        Matrix m;
+                        m.ClearData();
+                        m.posit = pos;
+
+                        Particle* particle = New(p, m, vel, omg, Vector(50, 0, 50), 0.0F);
+
+                        if (particle)
+                        {
+                            lastParticle.Setup(particle);
+                        }
+                    }
                 }
+                break;
             }
-            break;
-        }
+
+            case 0x85B9299D: // "coregame.particle.delete"
+            {
+                if (lastParticle.Alive())
+                {
+                    Particle* p = lastParticle.GetData();
+
+                    lastParticle.Clear();
+                    delete p;
+                }
+                break;
+            }
+
+            case 0x9EA8BAB3: // "coregame.particle.track"
+            {
+                if (lastParticle.Alive())
+                {
+                    Vector pos;
+
+                    if (TerrainData::ScreenToTerrain(Input::MousePos().x, Input::MousePos().y, pos) && WorldCtrl::MetreOnMap(pos.x, pos.z))
+                    {
+                        // above the ground
+                        pos.y += 1.0F;
+                        lastParticle->Update(lastParticle->matrix, pos - lastParticle->matrix.posit);
+                    }
+                }
+                break;
+            }
         }
     }
-
 }

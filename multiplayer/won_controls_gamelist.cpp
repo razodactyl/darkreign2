@@ -26,14 +26,12 @@
 //
 namespace Won
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Definitions
@@ -58,14 +56,14 @@ namespace Won
         //
         GameList::GameList(IControl* parent)
             : ICListBox(parent),
-            offsetName(20),
-            widthName(80),
-            offsetHost(100),
-            widthHost(80),
-            offsetUsers(160),
-            offsetLocked(0),
-            offsetPing(200),
-            widthPing(20)
+              offsetName(20),
+              widthName(80),
+              offsetHost(100),
+              widthHost(80),
+              offsetUsers(160),
+              offsetLocked(0),
+              offsetPing(200),
+              widthPing(20)
         {
             // Setup the poll interval
             pollInterval = 1000;
@@ -80,45 +78,45 @@ namespace Won
         {
             switch (fScope->NameCrc())
             {
-            case 0xD6ABAE33: // "OffsetName"
-                offsetName = StdLoad::TypeU32(fScope);
-                break;
+                case 0xD6ABAE33: // "OffsetName"
+                    offsetName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x4F76FDA5: // "WidthName"
-                widthName = StdLoad::TypeU32(fScope);
-                break;
+                case 0x4F76FDA5: // "WidthName"
+                    widthName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x2B4DE4E5: // "OffsetHost"
-                offsetHost = StdLoad::TypeU32(fScope);
-                break;
+                case 0x2B4DE4E5: // "OffsetHost"
+                    offsetHost = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0xB290B773: // "WidthHost"
-                widthHost = StdLoad::TypeU32(fScope);
-                break;
+                case 0xB290B773: // "WidthHost"
+                    widthHost = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x87CA6B98: // "OffsetUsers"
-                offsetUsers = StdLoad::TypeU32(fScope);
-                break;
+                case 0x87CA6B98: // "OffsetUsers"
+                    offsetUsers = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x026FBE4B: // "OffsetLocked"
-                offsetLocked = StdLoad::TypeU32(fScope);
-                break;
+                case 0x026FBE4B: // "OffsetLocked"
+                    offsetLocked = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x6D167FC3: // "OffsetPing"
-                offsetPing = StdLoad::TypeU32(fScope);
-                break;
+                case 0x6D167FC3: // "OffsetPing"
+                    offsetPing = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0xF4CB2C55: // "WidthPing"
-                widthPing = StdLoad::TypeU32(fScope);
-                break;
+                case 0xF4CB2C55: // "WidthPing"
+                    widthPing = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x82ACDEED: // "IconLocked"
-                IFace::FScopeToTextureInfo(fScope, iconLocked);
-                break;
+                case 0x82ACDEED: // "IconLocked"
+                    IFace::FScopeToTextureInfo(fScope, iconLocked);
+                    break;
 
-            default:
-                ICListBox::Setup(fScope);
-                break;
+                default:
+                    ICListBox::Setup(fScope);
+                    break;
             }
         }
 
@@ -178,9 +176,9 @@ namespace Won
         //
         GameList::Item::Item(GameList& gameList, const WonIface::Game& game, IControl* parent)
             : gameList(gameList),
-            ICStatic(parent),
-            ping(Clock::Time::Ms()),
-            old(FALSE)
+              ICStatic(parent),
+              ping(Clock::Time::Ms()),
+              old(FALSE)
         {
             host = Utils::Unicode2Ansi(game.hostUsername.str);
             Utils::Memcpy(&session, game.data, sizeof(StyxNet::Session));
@@ -230,11 +228,13 @@ namespace Won
                         // Add launch ready icon
                         IFace::RenderRectangle
                         (
-                            ClipRect(
+                            ClipRect
+                            (
                                 pi.client.p0.x + gameList.offsetLocked,
                                 midY - (icon->pixels.Height() >> 1),
                                 pi.client.p0.x + gameList.offsetLocked + icon->pixels.Width(),
-                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()),
+                                midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()
+                            ),
                             Color(1.0f, 1.0f, 1.0f),
                             icon,
                             pi.alphaScale
@@ -252,7 +252,8 @@ namespace Won
                 );
 
                 ch = Utils::Ansi2Unicode(session.name.str);
-                pi.font->Draw(
+                pi.font->Draw
+                (
                     pi.client.p0.x + gameList.offsetName,
                     pi.client.p0.y + yoffs,
                     ch,
@@ -271,7 +272,8 @@ namespace Won
                 );
 
                 ch = Utils::Ansi2Unicode(host.str);
-                pi.font->Draw(
+                pi.font->Draw
+                (
                     pi.client.p0.x + gameList.offsetHost,
                     pi.client.p0.y + yoffs,
                     ch,
@@ -284,7 +286,8 @@ namespace Won
                 CH buff[20];
                 Utils::Sprintf(buff, 20, (CH*)L"%d/%d", session.numUsers, session.maxUsers);
                 ch = buff;
-                pi.font->Draw(
+                pi.font->Draw
+                (
                     pi.client.p0.x + gameList.offsetUsers,
                     pi.client.p0.y + yoffs,
                     ch,

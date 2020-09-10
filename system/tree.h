@@ -31,7 +31,8 @@
 // A binary search tree
 // Makes use of a KEY key for sorting and finding
 //
-template <class DATA, class KEY = U32> class BinTree
+template <class DATA, class KEY = U32>
+class BinTree
 {
 private:
 
@@ -59,15 +60,14 @@ private:
         //
         // Node (constructor)
         //
-        Node(KEY key, DATA* data, Node* left = NULL, Node* right = NULL, Node* parent = NULL)
+        Node(KEY key, DATA* data, Node* left = nullptr, Node* right = nullptr, Node* parent = nullptr)
             : key(key),
-            data(data),
-            left(left),
-            right(right),
-            parent(parent)
+              data(data),
+              left(left),
+              right(right),
+              parent(parent)
         {
         };
-
     };
 
 protected:
@@ -92,7 +92,7 @@ protected:
 
         if (!current)
         {
-            return (NULL);
+            return (nullptr);
         }
 
         while (current->key != key)
@@ -181,18 +181,18 @@ protected:
     {
         VALIDATE(node)
 
-            // If there is a node to the left, test it, go to it
-            if (node->left)
-            {
-                ASSERT(node->left->parent == node)
-                    ValidateRecurse(node->left);
-            }
+        // If there is a node to the left, test it, go to it
+        if (node->left)
+        {
+            ASSERT(node->left->parent == node);
+            ValidateRecurse(node->left);
+        }
 
         // If there is a node to the right, test it, go to it
         if (node->right)
         {
-            ASSERT(node->right->parent == node)
-                ValidateRecurse(node->right);
+            ASSERT(node->right->parent == node);
+            ValidateRecurse(node->right);
         }
     }
 
@@ -298,7 +298,9 @@ public:
         //
         // NULL Constructor
         //
-        Iterator() : tree(NULL), current(NULL) { }
+        Iterator() : tree(nullptr), current(nullptr)
+        {
+        }
 
 
         //
@@ -309,16 +311,16 @@ public:
         Iterator(const BinTree<DATA, KEY>* tree, Bool start = TRUE)
             : tree(tree)
         {
-            ASSERT(tree)
+            ASSERT(tree);
 
-                if (start)
-                {
-                    GoToStart();
-                }
-                else
-                {
-                    GoToEnd();
-                }
+            if (start)
+            {
+                GoToStart();
+            }
+            else
+            {
+                GoToEnd();
+            }
         }
 
 
@@ -329,8 +331,8 @@ public:
         //
         void SetTree(const BinTree<DATA, KEY>* _tree, Bool start = TRUE)
         {
-            ASSERT(_tree)
-                tree = _tree;
+            ASSERT(_tree);
+            tree = _tree;
 
             if (start)
             {
@@ -350,8 +352,8 @@ public:
         //
         void GoToStart()
         {
-            ASSERT(tree)
-                current = tree->root;
+            ASSERT(tree);
+            current = tree->root;
             if (current)
             {
                 while (current->left)
@@ -369,8 +371,8 @@ public:
         //
         void GoToEnd()
         {
-            ASSERT(tree)
-                current = tree->root;
+            ASSERT(tree);
+            current = tree->root;
             if (current)
             {
                 while (current->right)
@@ -410,8 +412,8 @@ public:
         //
         KEY GetKey()
         {
-            ASSERT(IsValid())
-                return (current->key);
+            ASSERT(IsValid());
+            return (current->key);
         }
 
 
@@ -490,7 +492,6 @@ public:
             // Return the data
             return (current ? current->data : NULL);
         }
-
     };
 
 
@@ -499,7 +500,9 @@ public:
     //
     // Null Constructor
     //
-    BinTree() : root(NULL), count(0) { }
+    BinTree() : root(nullptr), count(0)
+    {
+    }
 
 
     //
@@ -542,7 +545,7 @@ public:
             }
             return (node->data);
         }
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -563,7 +566,7 @@ public:
             }
             return (node->data);
         }
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -584,7 +587,7 @@ public:
     // Adds the following key and its associated data to the tree
     // so long as the key does not already exist in the tree
     //
-    void AddNoDup(KEY key, DATA* data = NULL)
+    void AddNoDup(KEY key, DATA* data = nullptr)
     {
         if (!Exists(key))
         {
@@ -599,7 +602,7 @@ public:
     // Adds the following key and its associated data to the tree
     // Returns TRUE if there was another item with the same key
     //
-    Bool Add(KEY key, DATA* data = NULL)
+    Bool Add(KEY key, DATA* data = nullptr)
     {
         Node* node = FindPriv(key);
 
@@ -628,24 +631,23 @@ public:
                 // There was another node with the same key
                 return (TRUE);
             }
+            // Does this key need to be added to the left or the right
+            if (key < node->key)
+            {
+                // Make sure there is nothing on the left
+                ASSERT(!node->left);
+
+                // Add it to the left
+                node->left = new Node(key, data, NULL, NULL, node);
+            }
             else
-                // Does this key need to be added to the left or the right
-                if (key < node->key)
-                {
-                    // Make sure there is nothing on the left
-                    ASSERT(!node->left)
+            {
+                // Make sure there is nothing on the right
+                ASSERT(!node->right);
 
-                        // Add it to the left
-                        node->left = new Node(key, data, NULL, NULL, node);
-                }
-                else
-                {
-                    // Make sure there is nothing on the right
-                    ASSERT(!node->right)
-
-                        // Add it to the right
-                        node->right = new Node(key, data, NULL, NULL, node);
-                }
+                // Add it to the right
+                node->right = new Node(key, data, NULL, NULL, node);
+            }
         }
 
         // No identical key found
@@ -765,7 +767,7 @@ public:
             return (ptr);
         }
 
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -840,7 +842,7 @@ public:
         {
             return (node->data);
         }
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -901,4 +903,3 @@ public:
 };
 
 #endif
-

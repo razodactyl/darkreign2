@@ -21,6 +21,7 @@ U32 MeshEnt::BoundsTest()
     //  return clipFlagCache = Vid::CurCamera().BoundsTestSphere( WorldMatrixRender(), animStateR.bounds, &viewOrigin);
     return clipFlagCache = Vid::CurCamera().BoundsTest(WorldMatrixRender(), animStateR.bounds, &viewOrigin);
 }
+
 //----------------------------------------------------------------------------
 
 // non animating meshes can render more quickly than animating ones
@@ -70,6 +71,7 @@ void MeshEnt::SetupRenderProc()
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 // setup mrm state and controlFlags based on distance from camera
@@ -114,15 +116,15 @@ void MeshEnt::SetFeatureLOD()
         }
 
 #ifdef DEVELOPMENT
-        FaceGroup* b, * be = buckys.data + buckys.count;
-        U32 fCount = 0;
-        for (b = buckys.data; b < be; b++)
-        {
-            FaceGroup& bucky = *b;
+    FaceGroup * b, * be = buckys.data + buckys.count;
+    U32 fCount = 0;
+    for (b = buckys.data; b < be; b++)
+    {
+      FaceGroup & bucky = *b;
 
-            fCount += bucky.faceCount;
-        }
-        ASSERT(fCount == faceCount);
+      fCount += bucky.faceCount;
+    }
+    ASSERT( fCount == faceCount);
 #endif
     }
 
@@ -171,7 +173,7 @@ void MeshEnt::SetFeatureLOD()
     if (root.hasTread)
     {
         // advance tread offsetf for each state
-        TreadState* s, * e = treads.data + treads.count;
+        TreadState *s, *e = treads.data + treads.count;
         F32* d = root.vOffsets.data;
         for (s = treads.data; s < e; s++, d++)
         {
@@ -196,6 +198,7 @@ void MeshEnt::SetFeatureLOD()
     // shadow
     shadowType = root.shadowType;
 }
+
 //----------------------------------------------------------------------------
 
 // render this ent but not child ents
@@ -254,6 +257,7 @@ void MeshEnt::RenderSingle(Color tColor, U32 _controlFlags) // = 0xffffffff, = c
     //
     clipFlagCache &= ~clipPLANE0;
 }
+
 //----------------------------------------------------------------------------
 
 extern Clock::CycleWatch timer, timer2;
@@ -300,7 +304,7 @@ void MeshEnt::Render(Array<FamilyState>& stateArray, Color tColor, U32 clipFlags
 
     //#define DOLOCALRENDER
 #ifdef DOLOCALRENDER
-    MeshObj::Render(statesR, tColor, clipFlagCache);
+  MeshObj::Render( statesR, tColor, clipFlagCache);
 #else
     FamilyNode::Render(statesR, tColor, clipFlagCache);
 #endif
@@ -331,7 +335,7 @@ void MeshEnt::Render(Array<FamilyState>& stateArray, Color tColor, U32 clipFlags
       {
         timer.Stop();
       }
-
+    
       MeshRoot & root = RootPriv();
       MSWRITEVtl(22, (22,  2, "%s: render : %s", root.xsiName.str, timer.Report() ) );
       MSWRITEVtl(23, (22,  2, "%s: render2: %s", root.xsiName.str, timer2.Report() ) );
@@ -341,11 +345,13 @@ void MeshEnt::Render(Array<FamilyState>& stateArray, Color tColor, U32 clipFlags
     //
     clipFlagCache &= ~clipPLANE0;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderNone()
 {
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderAnimVtl()
@@ -370,6 +376,7 @@ void MeshEnt::RenderAnimVtl()
 
     root.RenderLightAnimVtl(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderNoAnimVtl()
@@ -386,6 +393,7 @@ void MeshEnt::RenderNoAnimVtl()
 
     RootPriv().RenderLightNoAnimVtl(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderNoLightAnimVtl()
@@ -400,6 +408,7 @@ void MeshEnt::RenderNoLightAnimVtl()
 
     RootPriv().RenderColorAnimVtl(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderNoLightNoAnimVtl()
@@ -411,6 +420,7 @@ void MeshEnt::RenderNoLightNoAnimVtl()
 
     RootPriv().RenderColorNoAnimVtl(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderQuickLightNoAnimVtl()
@@ -432,6 +442,7 @@ void MeshEnt::RenderQuickLightNoAnimVtl()
 
     RootPriv().RenderColorNoAnimVtl(buckys, vertCount, statesR, color, clipFlagCache, controlFlags);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderQuickLightAnimVtl()
@@ -457,6 +468,7 @@ void MeshEnt::RenderQuickLightAnimVtl()
 
     RootPriv().RenderColorAnimVtl(buckys, vertCount, statesR, color, clipFlagCache, controlFlags);
 }
+
 //----------------------------------------------------------------------------
 
 // copy TLverts directly out of the bucket cache into another for the secondary texture
@@ -509,7 +521,7 @@ void MeshEnt::RenderOverlayVtl()
 
         // copy the vertex data
         //
-        VertexTL* sv, * ev = bucky.vert + bucky.vCount;
+        VertexTL *sv, *ev = bucky.vert + bucky.vCount;
         for (sv = bucky.vert; sv < ev; sv++, vmem++)
         {
             *vmem = *sv;
@@ -526,7 +538,7 @@ void MeshEnt::RenderOverlayVtl()
         //
         U16 offset = (U16)bucky.offset;
 
-        U16* si, * ei = bucky.index + bucky.iCount;
+        U16 *si, *ei = bucky.index + bucky.iCount;
         for (si = bucky.index; si < ei; si++, imem++)
         {
             *imem = (U16)(*si - offset);       // FIXME build in new offset
@@ -539,6 +551,7 @@ void MeshEnt::RenderOverlayVtl()
 #endif
     }
 }
+
 //----------------------------------------------------------------------------
 
 // build a live shadow texture
@@ -577,6 +590,7 @@ void MeshEnt::RenderShadowTexture(const Matrix** lightA, U32 lCount, Color color
     dirtyShadow = FALSE;
     shadowTime = Main::thisTime + CLOCKS_PER_SEC * 30;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderEnvMapVtl(Color color, Bitmap* tex, U32 blend, U16 sort, Bool envmap, Bool smooth, F32 rotate) // = 0xffffffff, NULL, RS_BLEND_DEF, sortEFFECT0, TRUE, FALSE, 0
@@ -588,10 +602,12 @@ void MeshEnt::RenderEnvMapVtl(Color color, Bitmap* tex, U32 blend, U16 sort, Boo
     v -= OriginRender();
     Vid::Math::viewMatrix.Rotate(Vid::Math::modelViewVector, v);
 
-    color.Modulate(
+    color.Modulate
+    (
         Vid::Light::sunColor.r * U8toNormF32,
         Vid::Light::sunColor.g * U8toNormF32,
-        Vid::Light::sunColor.b * U8toNormF32);
+        Vid::Light::sunColor.b * U8toNormF32
+    );
 
     if (envmap)
     {
@@ -603,6 +619,7 @@ void MeshEnt::RenderEnvMapVtl(Color color, Bitmap* tex, U32 blend, U16 sort, Boo
 
     RootPriv().RenderEnvMapVtl(buckys, vertCount, statesR, color, clipFlagCache, controlFlags, tex, blend, sort, envmap, smooth, rotate);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::Render(const Matrix& world)
@@ -611,6 +628,7 @@ void MeshEnt::Render(const Matrix& world)
 
     Render();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderColor(const Matrix& world, Color _color)
@@ -619,6 +637,7 @@ void MeshEnt::RenderColor(const Matrix& world, Color _color)
 
     RenderColor(_color);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::Render()
@@ -628,6 +647,7 @@ void MeshEnt::Render()
         Render(statesR, baseColor, clipFlagCache);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderColor(Color _color)
@@ -637,6 +657,7 @@ void MeshEnt::RenderColor(Color _color)
         Render(statesR, _color, clipFlagCache);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderColor(Array<FamilyState>& stateArray, Color color, U32 clipFlags, U32 _controlFlags) // = clipALL, = controlDEF
@@ -660,7 +681,7 @@ void MeshEnt::RenderColor(Array<FamilyState>& stateArray, Color color, U32 clipF
 
     //#define DOLOCALRENDER
 #ifdef DOLOCALRENDER
-    MeshObj::Render(stateArray, clipFlagCache);
+  MeshObj::Render( stateArray, clipFlagCache);
 #else
     FamilyNode::Render(stateArray, clipFlagCache);
 #endif
@@ -670,18 +691,21 @@ void MeshEnt::RenderColor(Array<FamilyState>& stateArray, Color color, U32 clipF
         RenderBounds(Color(88l, 0l, 0l, 88l));
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderBoundingSphere(Color color, Bitmap* texture) // = NULL
 {
     ObjectBoundsRender().RenderSphere(statesR[0].WorldMatrix(), color, texture);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderBoundingBox(Color color, Bitmap* texture) // = NULL
 {
     ObjectBoundsRender().RenderBox(statesR[0].WorldMatrix(), color, texture);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderHardPoints(Color color)
@@ -701,7 +725,7 @@ void MeshEnt::RenderHardPoints(Color color)
     scale.up.y = s;
     scale.front.z = s;
 
-    FamilyState* src0, * es = &states0[statesR.count];
+    FamilyState *src0, *es = &states0[statesR.count];
     for (src0 = &states0[1]; src0 < es; src0++)
     {
         if (!Utils::Strnicmp(src0->GetName(), "hp-", 3)
@@ -714,6 +738,7 @@ void MeshEnt::RenderHardPoints(Color color)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderOrigin(Color color, MeshObj* childMesh, Color color1) // = NULL, 0xffffffff
@@ -744,6 +769,7 @@ void MeshEnt::RenderOrigin(Color color, MeshObj* childMesh, Color color1) // = N
         root->RenderColor(matrix, color1);
     }
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshEnt::MrmUpdate()
@@ -763,6 +789,7 @@ U32 MeshEnt::MrmUpdate()
 
     return vertCount;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::MRMSetVertCount(U32 count)
@@ -770,6 +797,7 @@ void MeshEnt::MRMSetVertCount(U32 count)
     nextVertCount = count;
     MrmUpdate();
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshEnt::MRMSetFull()
@@ -780,11 +808,12 @@ U32 MeshEnt::MRMSetFull()
 
     return vertCount;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderChildren()
 {
-    FamilyState* src0, * es = &states0[statesR.count];
+    FamilyState *src0, *es = &states0[statesR.count];
     for (src0 = &states0[1]; src0 < es; src0++)
     {
         FamilyNode& node = src0->GetNode();
@@ -794,4 +823,5 @@ void MeshEnt::RenderChildren()
         }
     }
 }
+
 //----------------------------------------------------------------------------

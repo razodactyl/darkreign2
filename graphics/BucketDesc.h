@@ -18,6 +18,7 @@
 #define DEF_VERTEX_TYPE				FVF_TLVERTEX
 #define DEF_TEXTURE_COUNT			0
 #define DEF_FULL_BUCKET_RATIO	0.90f
+
 //-----------------------------------------------------------------------------
 
 class Bucket : public PrimitiveDesc
@@ -27,33 +28,35 @@ public:
     friend class BucketMan;
     friend class TranBucketMan;
 
-    void* vMem, * vMemCur;
-    U16* iMem, * iMemCur;
+    void *vMem, *vMemCur;
+    U16 *iMem, *iMemCur;
 
     char* memEnd;
 
-    U32										vCount, iCount, memSize;
-    U32										vCountLock, iCountLock;
-    U32										vCountLeft, iCountLeft;
-    U32										vCountMax, iCountMax;
-    U32                   vCountFull, iCountFull;
+    U32 vCount, iCount, memSize;
+    U32 vCountLock, iCountLock;
+    U32 vCountLeft, iCountLeft;
+    U32 vCountMax, iCountMax;
+    U32 vCountFull, iCountFull;
 
-    U32                   oversize : 1;
+    U32 oversize : 1;
 
     BucketMan* manager;
 
     void* id;
-    U32                   offset;
+    U32 offset;
 
-    inline Bool HasRoomFor(U32 _vCount, U32 _iCount)
+    Bool HasRoomFor(U32 _vCount, U32 _iCount)
     {
         return _vCount <= vCountLeft && _iCount <= iCountLeft;
     }
-    inline Bool HasRoomForWhenFlushed(U32 _vCount, U32 _iCount)
+
+    Bool HasRoomForWhenFlushed(U32 _vCount, U32 _iCount)
     {
         return _vCount <= vCountMax && _iCount <= iCountMax;
     }
-    inline Bool	IsFull()
+
+    Bool IsFull()
     {
         return vCount > vCountFull || iCount > iCountFull ? TRUE : FALSE;
     }
@@ -67,47 +70,56 @@ public:
     void UnlockPrimitiveMemManager(U32 _vCount);
 
 public:
-    NList<Bucket>::Node    listNode;         // node for BucketManager
+    NList<Bucket>::Node listNode;         // node for BucketManager
 
     Bucket(BucketMan* man);
-    ~Bucket() {};
 
-    void						      ClearData();
-    void						      Reset();
-    void						      ResetMem();
-    void						      ResetCounts();
+    ~Bucket()
+    {
+    };
 
-    void                  Sort();
+    void ClearData();
+    void Reset();
+    void ResetMem();
+    void ResetCounts();
 
-    inline void* GetLockedVertexMem()
+    void Sort();
+
+    void* GetLockedVertexMem()
     {
         ASSERT(IsVertexMemLocked());
         return vMemCur;
     }
-    inline U16* GetLockedIndexMem()
+
+    U16* GetLockedIndexMem()
     {
         ASSERT(IsIndexMemLocked());
         return iMemCur;
     }
-    inline Bool	IsVertexMemLocked()
+
+    Bool IsVertexMemLocked()
     {
-        return ((Bool)vCountLock != 0);
+        return (static_cast<Bool>(vCountLock) != 0);
     }
-    inline Bool	IsIndexMemLocked()
+
+    Bool IsIndexMemLocked()
     {
-        return ((Bool)iCountLock != 0);
+        return (static_cast<Bool>(iCountLock) != 0);
     }
-    inline Bool	IsPrimitiveMemLocked()
+
+    Bool IsPrimitiveMemLocked()
     {
         return (IsVertexMemLocked() || IsIndexMemLocked());
     }
-    inline Bool	IsLocked()
+
+    Bool IsLocked()
     {
         return IsVertexMemLocked();
     }
 
     friend int _cdecl ComparePrimitives(const void* e1, const void* e2);
 };
+
 //-----------------------------------------------------------------------------
 
 // description of how to lock memory for a group of polys
@@ -118,26 +130,27 @@ struct BucketDesc
     Bitmap* texture0;
     Bitmap* texture1;
 
-    U32           flags0;
-    U32           flags1;
+    U32 flags0;
+    U32 flags1;
 
-    U32           teamColor : 1;
-    U32           envMap : 1;
-    U32           overlay : 1;
+    U32 teamColor : 1;
+    U32 envMap : 1;
+    U32 overlay : 1;
 
-    ColorF32      diff;             // temp lighting; F32's
+    ColorF32 diff;             // temp lighting; F32's
 
-    U32           vertCount;        // max possible
-    U32           indexCount;       // max possible
+    U32 vertCount;        // max possible
+    U32 indexCount;       // max possible
 
     void ClearData()
     {
-        material = NULL;
-        texture0 = texture1 = NULL;
+        material = nullptr;
+        texture0 = texture1 = nullptr;
 
         teamColor = envMap = overlay = FALSE;
     }
 };
+
 //-----------------------------------------------------------------------------
 
 // data for an actual bucket memory lock for a group of polys
@@ -146,27 +159,27 @@ struct BucketLock : BucketDesc
 {
     // initial color values (ambient)
     // 
-    ColorF32      diffInitF32;
-    Color         diffInitC;
+    ColorF32 diffInitF32;
+    Color diffInitC;
 
     // offset to subtract when copying indices
     //
-    U32           offset;
+    U32 offset;
 
     // live rendered data for MeshEffects reuse
     //
     Bucket* bucket;
     VertexTL* vert;     // pointer into bucket
-    U32           vCount;
+    U32 vCount;
     U16* index;
-    U32           iCount;
+    U32 iCount;
 
     void* data;
 
     typedef void (BucketLock::* LIGHTPROC)(VertexTL& dst, const Vector& src, const Vector& norm, Color color) const;
-    LIGHTPROC     lightProc;
+    LIGHTPROC lightProc;
 
-    inline void Light(VertexTL& dst, const Vector& src, const Vector& norm, Color color) const
+    void Light(VertexTL& dst, const Vector& src, const Vector& norm, Color color) const
     {
         (this->*lightProc)(dst, src, norm, color);
     }
@@ -182,12 +195,14 @@ struct BucketLock : BucketDesc
 
     VertexTL* VertexTLMem()
     {
-        return ((VertexTL*)vert);
+        return static_cast<VertexTL*>(vert);
     }
-    VertexTL  GetVertexTL(U32 index)
+
+    VertexTL GetVertexTL(U32 index)
     {
         return VertexTLMem()[index];
     }
+
     VertexTL& CurrVertexTL()
     {
         return VertexTLMem()[vCount];
@@ -197,10 +212,12 @@ struct BucketLock : BucketDesc
     {
         return ((VertexL*)vert);
     }
+
     VertexL& GetVertexL(U32 index)
     {
         return VertexLMem()[index];
     }
+
     VertexL& CurrVertexL()
     {
         return VertexLMem()[vCount];
@@ -210,10 +227,12 @@ struct BucketLock : BucketDesc
     {
         return ((Vertex*)vert);
     }
+
     Vertex& GetVertex(U32 index)
     {
         return VertexMem()[index];
     }
+
     Vertex& CurrVertex()
     {
         return VertexMem()[vCount];
@@ -223,10 +242,12 @@ struct BucketLock : BucketDesc
     {
         return ((VertexT2*)vert);
     }
+
     VertexT2& GetVertexT2(U32 index)
     {
         return VertexT2Mem()[index];
     }
+
     VertexT2& CurrVertexT2()
     {
         return VertexT2Mem()[vCount];
@@ -236,10 +257,12 @@ struct BucketLock : BucketDesc
     {
         return ((VertexC*)vert);
     }
+
     VertexC& GetCVertex(U32 index)
     {
         return CVertexMem()[index];
     }
+
     VertexC& CurrCVertex()
     {
         return CVertexMem()[vCount];
@@ -249,10 +272,12 @@ struct BucketLock : BucketDesc
     {
         return ((VertexT2C*)vert);
     }
+
     VertexT2C& GetVertexT2C(U32 index)
     {
         return VertexT2CMem()[index];
     }
+
     VertexT2C& CurrVertexT2C()
     {
         return VertexT2CMem()[vCount];
@@ -269,15 +294,16 @@ struct BucketLock : BucketDesc
         iCount++;
     }
 };
+
 //-----------------------------------------------------------------------------
 
 // faces grouped by material
 //
 struct FaceGroup : BucketLock
 {
-    Array<FaceObj>     faces;
+    Array<FaceObj> faces;
 
-    GeoCache           geo;
+    GeoCache geo;
 
     U32 faceCount;
 
@@ -294,6 +320,7 @@ struct FaceGroup : BucketLock
         geo.Release();
     }
 };
+
 //----------------------------------------------------------------------------
 
 #endif // __BUCKETDESC_H

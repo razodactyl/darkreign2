@@ -24,63 +24,61 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Defect
+    // NameSpace Squad
     //
-
-    U32 Defect::orderId;
-
-
-    //
-    // Generate
-    //
-    void Defect::Generate(Player &player, U32 squad, U32 team)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Defect
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
-
-      // Pack the squad
-      data.squad = squad;
-
-      // Pack the team
-      data.team = team;
-
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
-    }
+        U32 Defect::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Defect::Execute(const U8 *data, Player &)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        // Resolve the team
-        Team * team = Team::Id2Team(d->team);
-
-        for (SquadObj::UnitList::Iterator i(&squadObj->GetList()); *i; i++)
+        //
+        // Generate
+        //
+        void Defect::Generate(Player& player, U32 squad, U32 team)
         {
-          (**i)->SetTeam(team);
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Pack the squad
+            data.squad = squad;
+
+            // Pack the team
+            data.team = team;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
-  
-      return (sizeof (Data));
+
+
+        //
+        // Execute
+        //
+        U32 Defect::Execute(const U8* data, Player&)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                // Resolve the team
+                Team* team = Team::Id2Team(d->team);
+
+                for (SquadObj::UnitList::Iterator i(&squadObj->GetList()); *i; i++)
+                {
+                    (**i)->SetTeam(team);
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

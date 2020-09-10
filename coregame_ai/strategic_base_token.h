@@ -27,225 +27,222 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward declarations
+    //
+    class Placement;
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward declarations
-  //
-  class Placement;
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Base::Token
-  //
-  class Base::Token
-  {
-  private:
-
-    // The id from the manager
-    U32 id;
-
-    // Type of this token
-    UnitObjType *type;
-
-    // Base this token belongs to
-    Base *base;
-
-    // Orderer which created this token
-    Orderer *orderer;
-
-    // Placement which is finding locations for this token
-    Placement *placement;
-
-    // The location to use
-    Vector location;
-    WorldCtrl::CompassDir dir;
-
-    // Object which is constructing this token
-    UnitObjPtr constructor;
-
-    // Constructor id
-    U32 constructorId;
-
-    // If this token is for a resource then this is the resource
-    Reaper<Resource> resource;
-
-    // If this token is for a water body then this is the water
-    Reaper<Water> water;
-
-    // If this toek is for a script then this is the script
-    Reaper<Script> script;
-
-    // State of the token
-    enum State
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Base::Token
+    //
+    class Base::Token
     {
-      // Tokens which are on order 
-      ONORDER,
+    private:
 
-      // Token is waiting for a constructor
-      WAITING,
+        // The id from the manager
+        U32 id;
 
-      // Token is searching for someone to build
-      SEARCHING,
+        // Type of this token
+        UnitObjType* type;
 
-      // Token is constructing from a facility
-      FACILITYCONSTRUCTING,
+        // Base this token belongs to
+        Base* base;
 
-      // Token is locating the point of construction
-      LOCATING,
+        // Orderer which created this token
+        Orderer* orderer;
 
-      // Token is constructing
-      CONSTRUCTING,
+        // Placement which is finding locations for this token
+        Placement* placement;
 
-      // Token is upgrading
-      UPGRADING,
+        // The location to use
+        Vector location;
+        WorldCtrl::CompassDir dir;
 
-      // None state should only be used by the destructor
-      NONE,
+        // Object which is constructing this token
+        UnitObjPtr constructor;
 
-      MAX_STATE
-    } state;
+        // Constructor id
+        U32 constructorId;
 
-    // Token priority
-    U32 priority;
+        // If this token is for a resource then this is the resource
+        Reaper<Resource> resource;
 
-    // Node for using this token in lists
-    NList<Token>::Node nodeList;
+        // If this token is for a water body then this is the water
+        Reaper<Water> water;
 
-    // Node for using this token in trees
-    NBinTree<Token>::Node nodeBase;
+        // If this toek is for a script then this is the script
+        Reaper<Script> script;
 
-    // Node for all tokens in a base
-    NList<Token>::Node nodeBaseAll;
+        // State of the token
+        enum State
+        {
+            // Tokens which are on order 
+            ONORDER,
 
-    // Node for using this token in the base manager
-    NBinTree<Token>::Node nodeManager;
+            // Token is waiting for a constructor
+            WAITING,
 
-    // Node for all tokens in a manager
-    NList<Token>::Node nodeManagerAll;
+            // Token is searching for someone to build
+            SEARCHING,
 
-    // Names of the states
-    static const char * stateNames[];
+            // Token is constructing from a facility
+            FACILITYCONSTRUCTING,
 
-  public:
+            // Token is locating the point of construction
+            LOCATING,
 
-    // Constructor
-    Token(Base &base, UnitObjType &type, Orderer &orderer, Resource *resource, Water *water, Script *script);
+            // Token is constructing
+            CONSTRUCTING,
 
-    // Loading constructor
-    Token(FScope *scope, Manager &manager);
+            // Token is upgrading
+            UPGRADING,
 
-    // Destructor
-    ~Token();
+            // None state should only be used by the destructor
+            NONE,
 
-    // Save state data
-    void SaveState(FScope *scope);
+            MAX_STATE
+        } state;
 
-    // Check to see if there's an availabe constructor
-    void CheckConstructor(const UnitObjList &buildings, const UnitObjList &constructors);
+        // Token priority
+        U32 priority;
 
-    // Orphan this token
-    void Orphan();
+        // Node for using this token in lists
+        NList<Token>::Node nodeList;
 
-    // The token has been accepted
-    void Accepted();
+        // Node for using this token in trees
+        NBinTree<Token>::Node nodeBase;
 
-    // The token has been returned
-    void Returned();
+        // Node for all tokens in a base
+        NList<Token>::Node nodeBaseAll;
 
-    // Set the location
-    void SetLocation(const Vector &location, WorldCtrl::CompassDir dir);
+        // Node for using this token in the base manager
+        NBinTree<Token>::Node nodeManager;
 
-    // No location found
-    void NoLocation();
+        // Node for all tokens in a manager
+        NList<Token>::Node nodeManagerAll;
 
-    // Set the constructor
-    void SetConstructor(UnitObj *constructor);
+        // Names of the states
+        static const char* stateNames[];
 
-    // Return constructor
-    void ReturnConstructor();
+    public:
 
-    // Handle notifications
-    void Notify(Notification &notification);
+        // Constructor
+        Token(Base& base, UnitObjType& type, Orderer& orderer, Resource* resource, Water* water, Script* script);
 
-    // GetState
-    const char * GetState();
+        // Loading constructor
+        Token(FScope* scope, Manager& manager);
 
-  private:
+        // Destructor
+        ~Token();
 
-    // Perform a state change
-    void SetState(State newState);
+        // Save state data
+        void SaveState(FScope* scope);
 
-    // Deal with a freshly constructed unit
-    void NewUnit(UnitObj *unit);
+        // Check to see if there's an availabe constructor
+        void CheckConstructor(const UnitObjList& buildings, const UnitObjList& constructors);
 
-  public:
+        // Orphan this token
+        void Orphan();
 
-    // Get the id of this token
-    U32 GetId()
-    {
-      return (id);
-    }
+        // The token has been accepted
+        void Accepted();
 
-    // Get the type of this token
-    UnitObjType & GetType()
-    {
-      ASSERT(type)
-      return (*type);
-    }
+        // The token has been returned
+        void Returned();
 
-    // Get the base this token belongs to
-    Base & GetBase()
-    {
-      ASSERT(base)
-      return (*base);
-    }
+        // Set the location
+        void SetLocation(const Vector& location, WorldCtrl::CompassDir dir);
 
-    // Get the orderer from this token
-    Orderer * GetOrderer()
-    {
-      return (orderer);
-    }
+        // No location found
+        void NoLocation();
 
-    // Set the orderer for this token
-    void SetOrderer(Orderer *o)
-    {
-      ASSERT(!orderer)
-      orderer = o;
-    }
+        // Set the constructor
+        void SetConstructor(UnitObj* constructor);
 
-    // Get priority
-    U32 GetPriority()
-    {
-      return (priority);
-    }
+        // Return constructor
+        void ReturnConstructor();
 
-    // Get the constructor associated with this token
-    UnitObj * GetConstructor()
-    {
-      return (constructor.GetPointer());
-    }
+        // Handle notifications
+        void Notify(Notification& notification);
 
-    // Get the resource associated with this token
-    Resource * GetResource()
-    {
-      return (resource.GetPointer());
-    }
+        // GetState
+        const char* GetState();
 
-    // Get the water associated with this token
-    Water * GetWater()
-    {
-      return (water.GetPointer());
-    }
+    private:
 
-  public:
+        // Perform a state change
+        void SetState(State newState);
 
-    friend class Base;
-    friend class Orderer;
-    friend class Manager;
+        // Deal with a freshly constructed unit
+        void NewUnit(UnitObj* unit);
 
-  };
+    public:
 
+        // Get the id of this token
+        U32 GetId()
+        {
+            return (id);
+        }
+
+        // Get the type of this token
+        UnitObjType& GetType()
+        {
+            ASSERT(type);
+            return (*type);
+        }
+
+        // Get the base this token belongs to
+        Base& GetBase()
+        {
+            ASSERT(base);
+            return (*base);
+        }
+
+        // Get the orderer from this token
+        Orderer* GetOrderer()
+        {
+            return (orderer);
+        }
+
+        // Set the orderer for this token
+        void SetOrderer(Orderer* o)
+        {
+            ASSERT(!orderer);
+            orderer = o;
+        }
+
+        // Get priority
+        U32 GetPriority()
+        {
+            return (priority);
+        }
+
+        // Get the constructor associated with this token
+        UnitObj* GetConstructor()
+        {
+            return (constructor.GetPointer());
+        }
+
+        // Get the resource associated with this token
+        Resource* GetResource()
+        {
+            return (resource.GetPointer());
+        }
+
+        // Get the water associated with this token
+        Water* GetWater()
+        {
+            return (water.GetPointer());
+        }
+
+    public:
+
+        friend class Base;
+        friend class Orderer;
+        friend class Manager;
+    };
 }
 
 #endif

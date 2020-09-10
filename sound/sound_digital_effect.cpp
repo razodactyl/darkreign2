@@ -115,9 +115,9 @@ namespace Sound
 
                 // Start the effect playing
                 return
-                    (
-                        Output::Play2D(this, record, ConvertVolume(vol), owner, priority, loopCount, pan)
-                        );
+                (
+                    Output::Play2D(this, record, ConvertVolume(vol), owner, priority, loopCount, pan)
+                );
             }
 
             return (FALSE);
@@ -134,9 +134,9 @@ namespace Sound
             if (Valid())
             {
                 return
-                    (
-                        Output::UpdateEffect2D(this, pan, priority, ConvertVolume(vol))
-                        );
+                (
+                    Output::UpdateEffect2D(this, pan, priority, ConvertVolume(vol))
+                );
             }
 
             return (FALSE);
@@ -158,9 +158,9 @@ namespace Sound
             {
                 // Start the effect playing
                 return
-                    (
-                        Output::Play3D(this, record, ConvertVolume(vol), owner, priority, loopCount, x, y, z, min, max)
-                        );
+                (
+                    Output::Play3D(this, record, ConvertVolume(vol), owner, priority, loopCount, x, y, z, min, max)
+                );
             }
 
             return (FALSE);
@@ -180,9 +180,9 @@ namespace Sound
             if (Valid())
             {
                 return
-                    (
-                        Output::UpdateEffect3D(this, x, y, z, dx, dy, dz, priority, ConvertVolume(vol))
-                        );
+                (
+                    Output::UpdateEffect3D(this, x, y, z, dx, dy, dz, priority, ConvertVolume(vol))
+                );
             }
 
             return (FALSE);
@@ -240,4 +240,3 @@ namespace Sound
         }
     }
 }
-

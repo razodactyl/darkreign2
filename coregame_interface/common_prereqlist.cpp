@@ -25,7 +25,6 @@
 //
 namespace Common
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class PrereqList
@@ -36,8 +35,8 @@ namespace Common
     //
     PrereqList::PrereqList(IControl* parent)
         : IControl(parent),
-        team(NULL),
-        type(NULL)
+          team(NULL),
+          type(NULL)
     {
         // Default control style
         controlStyle |= STYLE_FADEIN;
@@ -65,17 +64,17 @@ namespace Common
     {
         switch (fScope->NameCrc())
         {
-        case 0x4BB73281: // "CostKey"
-            costKey = StdLoad::TypeString(fScope);
-            break;
+            case 0x4BB73281: // "CostKey"
+                costKey = StdLoad::TypeString(fScope);
+                break;
 
-        case 0x44FC1D1A: // "TimeKey"
-            timeKey = StdLoad::TypeString(fScope);
-            break;
+            case 0x44FC1D1A: // "TimeKey"
+                timeKey = StdLoad::TypeString(fScope);
+                break;
 
-            // Pass it to the previous level in the hierarchy
-        default:
-            IControl::Setup(fScope);
+                // Pass it to the previous level in the hierarchy
+            default:
+                IControl::Setup(fScope);
         }
     }
 
@@ -302,7 +301,6 @@ namespace Common
                 bottom = y;
 
                 y += height + 3;
-
             }
 
             x += left ? -30 : 30;
@@ -341,10 +339,10 @@ namespace Common
             // Only add it if we ...
             // Don't Have It
             if
-                (
-                    !Prereq::HaveType(team, type) ||
-                    (first && constructor->MissingUpgrade(type))
-                    )
+            (
+                !Prereq::HaveType(team, type) ||
+                (first && constructor->MissingUpgrade(type))
+            )
             {
                 Bool found = FALSE;
 
@@ -392,5 +390,4 @@ namespace Common
 
         return (count);
     }
-
 }

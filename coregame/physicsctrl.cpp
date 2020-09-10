@@ -24,73 +24,72 @@
 
 namespace PhysicsCtrl
 {
+    // Has the system been started
+    static Bool sysInit = FALSE;
 
-  // Has the system been started
-  static Bool sysInit = FALSE;
+    // Gravity amount
+    F32 gravity;
 
-  // Gravity amount
-  F32 gravity;
-
-  // Console Command handler
-  void CmdHandler(U32 pathCrc);
-
-
-  //
-  // Initialise the physics system
-  //
-  void Init()
-  {
-    ASSERT(!sysInit);
-
-    // Set defaults for physics system
-    SetGravity(PhysicsConst::EARTHGRAVITY);
-
-    // Initialise collision system
-    CollisionCtrl::Init();
-
-    sysInit = TRUE;
-  }
+    // Console Command handler
+    void CmdHandler(U32 pathCrc);
 
 
-  //
-  // Shut down the physics system
-  //
-  void Done()
-  {
-    ASSERT(sysInit);
+    //
+    // Initialise the physics system
+    //
+    void Init()
+    {
+        ASSERT(!sysInit);
 
-    // Shutdown collision system
-    CollisionCtrl::Done();
+        // Set defaults for physics system
+        SetGravity(PhysicsConst::EARTHGRAVITY);
 
-    sysInit = FALSE;
-  }
+        // Initialise collision system
+        CollisionCtrl::Init();
 
-
-  //
-  // Set the gravity
-  //
-  void SetGravity(F32 down)
-  {
-    gravity = down;
-  }
+        sysInit = TRUE;
+    }
 
 
-  //
-  // Load configuration
-  //
-  void LoadConfig(FScope *fScope)
-  {
-    // Load gravity
-    SetGravity(StdLoad::TypeF32(fScope, "Gravity", PhysicsConst::EARTHGRAVITY));
-  }
+    //
+    // Shut down the physics system
+    //
+    void Done()
+    {
+        ASSERT(sysInit);
+
+        // Shutdown collision system
+        CollisionCtrl::Done();
+
+        sysInit = FALSE;
+    }
 
 
-  //
-  // Save configuration
-  //
-  void SaveConfig(FScope *fScope)
-  {
-    // Save gravity
-    StdSave::TypeF32(fScope, "Gravity", gravity);
-  }
+    //
+    // Set the gravity
+    //
+    void SetGravity(F32 down)
+    {
+        gravity = down;
+    }
+
+
+    //
+    // Load configuration
+    //
+    void LoadConfig(FScope* fScope)
+    {
+        // Load gravity
+        SetGravity(StdLoad::TypeF32(fScope, "Gravity", PhysicsConst::EARTHGRAVITY));
+    }
+
+
+    //
+    // Save configuration
+    //
+    void SaveConfig(FScope* fScope)
+    {
+        // Save gravity
+        StdSave::TypeF32(fScope, "Gravity", gravity);
+    }
 }

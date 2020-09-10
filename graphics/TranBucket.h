@@ -15,22 +15,25 @@ class TranBucketMan : public BucketMan
 {
 private:
 
-    F32											scaleZ;
-    F32											maxBucketCount;
-    F32											maxZ;
-    F32											minZ;
+    F32 scaleZ;
+    F32 maxBucketCount;
+    F32 maxZ;
+    F32 minZ;
 
-    void							      UpdateScaleZ();
+    void UpdateScaleZ();
 
 public:
 
-    Bool                    doSort;
+    Bool doSort;
 
     TranBucketMan()
     {
         ClearData();
     }
-    ~TranBucketMan() {};
+
+    ~TranBucketMan()
+    {
+    };
 
     void ClearData();
     void SetZ(F32 _z);
@@ -39,6 +42,7 @@ public:
     {
         SetTag(U16(_z * (maxBucketCount - 1)));
     }
+
     inline void SetZSort(U16 tag1)
     {
         SetTag1(tag1);

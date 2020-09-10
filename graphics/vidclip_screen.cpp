@@ -11,6 +11,7 @@
 #include "vidclip.h"
 #include "vidclip_priv.h"
 #include "statistics.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -23,7 +24,7 @@ namespace Vid
         {
             U8 ClipRect(const Vector& pos, Point<F32>* rect)
             {
-                Point<F32>* p0, * p1;
+                Point<F32> *p0, *p1;
                 U8 edge = 1, clipF = 0;
                 for (p0 = rect, p1 = rect + 3; p1 >= rect; p0++, p1--, edge << 1)
                 {
@@ -40,11 +41,16 @@ namespace Vid
                 }
                 return clipF;
             }
+
             //-----------------------------------------------------------------------------
 
             // clip indexed tris to buffer
             //
-            void ToBuffer(VertexTL* dstV, U16* dstI, VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount, U32 clipFlags, VertexTL* rect) // = clipALL, NULL
+            void ToBuffer
+            (
+                VertexTL* dstV, U16* dstI, VertexTL* srcV, U32& vCount, const U16* srcI, U32& iCount,
+                U32 clipFlags, VertexTL* rect
+            ) // = clipALL, NULL
             {
                 clipFlags;
 
@@ -71,17 +77,17 @@ namespace Vid
                 if (!rect)
                 {
                     rect = tempP;
-                    rect[0].vv.x = (F32)Vid::viewRect.p0.x;
-                    rect[0].vv.y = (F32)Vid::viewRect.p0.y;
+                    rect[0].vv.x = static_cast<F32>(viewRect.p0.x);
+                    rect[0].vv.y = static_cast<F32>(viewRect.p0.y);
                     rect[0].vv.z = 0;
-                    rect[1].vv.x = (F32)Vid::viewRect.p1.x;
-                    rect[1].vv.y = (F32)Vid::viewRect.p0.y;
+                    rect[1].vv.x = static_cast<F32>(viewRect.p1.x);
+                    rect[1].vv.y = static_cast<F32>(viewRect.p0.y);
                     rect[1].vv.z = 0;
-                    rect[2].vv.x = (F32)Vid::viewRect.p1.x;
-                    rect[2].vv.y = (F32)Vid::viewRect.p1.y;
+                    rect[2].vv.x = static_cast<F32>(viewRect.p1.x);
+                    rect[2].vv.y = static_cast<F32>(viewRect.p1.y);
                     rect[2].vv.z = 0;
-                    rect[3].vv.x = (F32)Vid::viewRect.p0.x;
-                    rect[3].vv.y = (F32)Vid::viewRect.p1.y;
+                    rect[3].vv.x = static_cast<F32>(viewRect.p0.x);
+                    rect[3].vv.y = static_cast<F32>(viewRect.p1.y);
                     rect[3].vv.z = 0;
                 }
                 Plane planes[4];
@@ -94,7 +100,7 @@ namespace Vid
 
                 // setup vert clip flags
                 //
-                U8* c, * ce = clipFlagA + vCount;
+                U8 *c, *ce = clipFlagA + vCount;
                 const VertexTL* s = srcV;
                 for (c = clipFlagA; c < ce; c++, s++)
                 {
@@ -106,7 +112,7 @@ namespace Vid
 
                 // initialize
                 //
-                Utils::Memset((void*)idx, 0xff, vCount * sizeof(U16));
+                Utils::Memset(static_cast<void*>(idx), 0xff, vCount * sizeof(U16));
                 U32 iCountIn = iCount;
                 vCount = iCount = 0;
                 clipDst = clipPool0;
@@ -129,31 +135,39 @@ namespace Vid
                         {
                             // initialize the vertex pointer pools
                             //
-                            VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                            VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                             SetupPool(vp0, vp1);
 
                             inPoolCount = 3;
-                            inPool[0] = (VertexTL*)&srcV[i0];
-                            inPool[1] = (VertexTL*)&srcV[i1];
-                            inPool[2] = (VertexTL*)&srcV[i2];
+                            inPool[0] = static_cast<VertexTL*>(&srcV[i0]);
+                            inPool[1] = static_cast<VertexTL*>(&srcV[i1]);
+                            inPool[2] = static_cast<VertexTL*>(&srcV[i2]);
 
                             // clip to all planes
                             //
-                            for (const Plane* p = planes, *ep = planes + 4; p < ep; p++)
+                            for (const Plane *p = planes, *ep = planes + 4; p < ep; p++)
                             {
                                 ASSERT(inPoolCount < MAXCLIPCOUNT);
 
                                 // start with last vertex in the list
-                              //
-                                VertexTL** start0V = inPool + (inPoolCount - 1), ** startV = start0V;
+                                //
+                                VertexTL **start0V = inPool + (inPoolCount - 1), **startV = start0V;
 
                                 if (!startV)
                                 {
-                                    ERR_FATAL(("!startV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes, k, iCountIn, iCount, vCount, inPool));
+                                    ERR_FATAL
+                                    (
+                                        ("!startV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes,
+                                            k, iCountIn, iCount, vCount, inPool)
+                                    );
                                 }
-                                else if (!*startV)
+                                if (!*startV)
                                 {
-                                    ERR_FATAL(("!*startV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes, k, iCountIn, iCount, vCount, inPool));
+                                    ERR_FATAL
+                                    (
+                                        ("!*startV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes,
+                                            k, iCountIn, iCount, vCount, inPool)
+                                    );
                                 }
 
                                 F32 startD = p->Evalue((*startV)->vv);
@@ -162,11 +176,19 @@ namespace Vid
                                 {
                                     if (!endV)
                                     {
-                                        ERR_FATAL(("!endV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes, k, iCountIn, iCount, vCount, inPool));
+                                        ERR_FATAL
+                                        (
+                                            ("!endV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes
+                                                , k, iCountIn, iCount, vCount, inPool)
+                                        );
                                     }
-                                    else if (!*endV)
+                                    if (!*endV)
                                     {
-                                        ERR_FATAL(("!*endV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p - planes, k, iCountIn, iCount, vCount, inPool));
+                                        ERR_FATAL
+                                        (
+                                            ("!*endV: plane%d; k%d; iCountIn%d; iCount%d; vCount%d; inPool%d", p -
+                                                planes, k, iCountIn, iCount, vCount, inPool)
+                                        );
                                     }
 
                                     F32 endD = p->Evalue((*endV)->vv);
@@ -178,7 +200,7 @@ namespace Vid
                                         if (startD >= 0.0f)
                                         {
                                             // start is in
-                                    // compute intersection with clipping plane and interpolate new vert
+                                            // compute intersection with clipping plane and interpolate new vert
 
                                             *outDst = clipDst++;
                                             (*outDst)->Interpolate(**startV, **endV, startD / (startD - endD));
@@ -194,7 +216,7 @@ namespace Vid
                                         if (startD < 0.0f)
                                         {
                                             // start is out
-                                    // compute intersection with clipping plane and interpolate new vert
+                                            // compute intersection with clipping plane and interpolate new vert
 
                                             *outDst = clipDst++;
                                             (*outDst)->Interpolate(**endV, **startV, endD / (endD - startD));
@@ -218,8 +240,8 @@ namespace Vid
                             }
 
                             // now 'out' contains a pointers to vertices that form a triangle fan with vCount number of vertices
-                          // convert 'out' to an indexed tri list in 'out_vertices'
-                          //
+                            // convert 'out' to an indexed tri list in 'out_vertices'
+                            //
                             if (inPoolCount >= 3)
                             {
                                 // copy the first two vertices
@@ -233,24 +255,24 @@ namespace Vid
                                 {
                                     dstV[vCount + i] = *inPool[i];
 
-                                    dstI[iCount + 0] = (U16)(vCount + 0);
-                                    dstI[iCount + 1] = (U16)(vCount + i - 1);
-                                    dstI[iCount + 2] = (U16)(vCount + i);
+                                    dstI[iCount + 0] = static_cast<U16>(vCount + 0);
+                                    dstI[iCount + 1] = static_cast<U16>(vCount + i - 1);
+                                    dstI[iCount + 2] = static_cast<U16>(vCount + i);
                                     iCount += 3;
                                 }
                                 vCount += inPoolCount;
                             }
                         }
 
-                        // if or_cf == 0 then whole triangle is in the frustum --> just copy it to out_vertices
-                        //
+                            // if or_cf == 0 then whole triangle is in the frustum --> just copy it to out_vertices
+                            //
                         else
                         {
                             if (idx[i0] == 0xffff)
                             {
                                 dstV[vCount] = srcV[i0];
 
-                                idx[i0] = (U16)vCount;
+                                idx[i0] = static_cast<U16>(vCount);
                                 vCount++;
                             }
 
@@ -258,7 +280,7 @@ namespace Vid
                             {
                                 dstV[vCount] = srcV[i1];
 
-                                idx[i1] = (U16)vCount;
+                                idx[i1] = static_cast<U16>(vCount);
                                 vCount++;
                             }
 
@@ -266,7 +288,7 @@ namespace Vid
                             {
                                 dstV[vCount] = srcV[i2];
 
-                                idx[i2] = (U16)vCount;
+                                idx[i2] = static_cast<U16>(vCount);
                                 vCount++;
                             }
 
@@ -281,6 +303,7 @@ namespace Vid
 
                 ASSERT(vCount <= renderState.maxVerts && iCount <= renderState.maxIndices);
             }
+
             //-----------------------------------------------------------------------------
         }
     };

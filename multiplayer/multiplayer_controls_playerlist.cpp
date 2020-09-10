@@ -43,14 +43,12 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class PlayerList
@@ -68,21 +66,21 @@ namespace MultiPlayer
         //
         PlayerList::PlayerList(IControl* parent)
             : ICListBox(parent),
-            offsetName(20),
-            offsetSide(0),
-            offsetDifficulty(180),
-            offsetPing(120),
-            widthPing(32),
-            widthTeam(100),
-            widthName(100),
-            offsetLaunchReady(180),
-            offsetHaveMission(200),
-            teamItemCfg(NULL),
-            playerItemCfg(NULL),
-            aiPlayerItemCfg(NULL),
-            groupItemCfg(NULL),
-            dirty(TRUE),
-            basic(FALSE)
+              offsetName(20),
+              offsetSide(0),
+              offsetDifficulty(180),
+              offsetPing(120),
+              widthPing(32),
+              widthTeam(100),
+              widthName(100),
+              offsetLaunchReady(180),
+              offsetHaveMission(200),
+              teamItemCfg(NULL),
+              playerItemCfg(NULL),
+              aiPlayerItemCfg(NULL),
+              groupItemCfg(NULL),
+              dirty(TRUE),
+              basic(FALSE)
         {
             // No selection for this list
             //listBoxStyle |= STYLE_NOSELECTION;
@@ -115,7 +113,6 @@ namespace MultiPlayer
             {
                 delete groupItemCfg;
             }
-
         }
 
 
@@ -130,12 +127,12 @@ namespace MultiPlayer
             {
                 switch (e.subType)
                 {
-                case IFace::DISPLAYMODECHANGED:
-                {
-                    // Reactivate child controls
-                    dirty = TRUE;
-                    break;
-                }
+                    case IFace::DISPLAYMODECHANGED:
+                    {
+                        // Reactivate child controls
+                        dirty = TRUE;
+                        break;
+                    }
                 }
             }
             return (ICListBox::HandleEvent(e));
@@ -219,13 +216,13 @@ namespace MultiPlayer
 
                             // Notify control if we are the captain
                             if
-                                (
+                            (
                                     // Owner of this team
-                                    (Network::GetCurrentPlayer().GetId() == (*tri)->team->ownerId)
-                                    ||
-                                    // Host and this team is AI
-                                    ((*tri)->team->ai && Cmd::isHost)
-                                    )
+                                (Network::GetCurrentPlayer().GetId() == (*tri)->team->ownerId)
+                                ||
+                                // Host and this team is AI
+                                ((*tri)->team->ai && Cmd::isHost)
+                            )
                             {
                                 SendNotify(newCtrl, PlayerListNotify::Captain);
                             }
@@ -237,10 +234,10 @@ namespace MultiPlayer
                             if (Data::Get(&playerInfo, Network::GetCurrentPlayer().GetId()))
                             {
                                 if
-                                    (
-                                        Data::Get(&team, playerInfo->teamId) &&
-                                        Network::GetCurrentPlayer().GetId() == team->ownerId
-                                        )
+                                (
+                                    Data::Get(&team, playerInfo->teamId) &&
+                                    Network::GetCurrentPlayer().GetId() == team->ownerId
+                                )
                                 {
                                     if (team->groupId == (*tri)->team->groupId)
                                     {
@@ -324,7 +321,6 @@ namespace MultiPlayer
                                     }
                                 }
                             }
-
                         }
 
                         // Add AI player control
@@ -425,95 +421,93 @@ namespace MultiPlayer
         {
             switch (fScope->NameCrc())
             {
-            case 0x44349763: // "IconLaunchReadyOff"
-                IFace::FScopeToTextureInfo(fScope, iconLaunchReady[0]);
-                break;
+                case 0x44349763: // "IconLaunchReadyOff"
+                    IFace::FScopeToTextureInfo(fScope, iconLaunchReady[0]);
+                    break;
 
-            case 0x780F14EF: // "IconLaunchReadyOn"
-                IFace::FScopeToTextureInfo(fScope, iconLaunchReady[1]);
-                break;
+                case 0x780F14EF: // "IconLaunchReadyOn"
+                    IFace::FScopeToTextureInfo(fScope, iconLaunchReady[1]);
+                    break;
 
-            case 0xD34E076D: // "IconHaveMissionOff"
-                IFace::FScopeToTextureInfo(fScope, iconHaveMission[0]);
-                break;
+                case 0xD34E076D: // "IconHaveMissionOff"
+                    IFace::FScopeToTextureInfo(fScope, iconHaveMission[0]);
+                    break;
 
-            case 0xD8694129: // "IconHaveMissionOn"
-                IFace::FScopeToTextureInfo(fScope, iconHaveMission[1]);
-                break;
+                case 0xD8694129: // "IconHaveMissionOn"
+                    IFace::FScopeToTextureInfo(fScope, iconHaveMission[1]);
+                    break;
 
-            case 0xD6ABAE33: // "OffsetName"
-                offsetName = StdLoad::TypeU32(fScope);
-                break;
+                case 0xD6ABAE33: // "OffsetName"
+                    offsetName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x2E592B9E: // "OffsetSide"
-                offsetSide = StdLoad::TypeU32(fScope);
-                break;
+                case 0x2E592B9E: // "OffsetSide"
+                    offsetSide = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x6D167FC3: // "OffsetPing"
-                offsetPing = StdLoad::TypeU32(fScope);
-                break;
+                case 0x6D167FC3: // "OffsetPing"
+                    offsetPing = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0xF4CB2C55: // "WidthPing"
-                widthPing = StdLoad::TypeU32(fScope);
-                break;
+                case 0xF4CB2C55: // "WidthPing"
+                    widthPing = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x13945D8A: // "WidthTeam"
-                widthTeam = StdLoad::TypeU32(fScope);
-                break;
+                case 0x13945D8A: // "WidthTeam"
+                    widthTeam = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x4F76FDA5: // "WidthName"
-                widthName = StdLoad::TypeU32(fScope);
-                break;
+                case 0x4F76FDA5: // "WidthName"
+                    widthName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x962837AD: // "OffsetDifficulty"
-                offsetDifficulty = StdLoad::TypeU32(fScope);
-                break;
+                case 0x962837AD: // "OffsetDifficulty"
+                    offsetDifficulty = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0xAF52591A: // "OffsetLaunchReady"
-                offsetLaunchReady = StdLoad::TypeU32(fScope);
-                break;
+                case 0xAF52591A: // "OffsetLaunchReady"
+                    offsetLaunchReady = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x7BE8FD77: // "OffsetHaveMission"
-                offsetHaveMission = StdLoad::TypeU32(fScope);
-                break;
+                case 0x7BE8FD77: // "OffsetHaveMission"
+                    offsetHaveMission = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0x9C2B9399: // "TeamItemConfig"
-                if (!teamItemCfg)
-                {
-                    teamItemCfg = fScope->Dup();
-                }
-                break;
+                case 0x9C2B9399: // "TeamItemConfig"
+                    if (!teamItemCfg)
+                    {
+                        teamItemCfg = fScope->Dup();
+                    }
+                    break;
 
-            case 0x3DF1C886: // "PlayerItemConfig"
-                if (!playerItemCfg)
-                {
-                    playerItemCfg = fScope->Dup();
-                }
-                break;
+                case 0x3DF1C886: // "PlayerItemConfig"
+                    if (!playerItemCfg)
+                    {
+                        playerItemCfg = fScope->Dup();
+                    }
+                    break;
 
-            case 0xBC2DB202: // "AIPlayerItemConfig"
-                if (!aiPlayerItemCfg)
-                {
-                    aiPlayerItemCfg = fScope->Dup();
-                }
-                break;
+                case 0xBC2DB202: // "AIPlayerItemConfig"
+                    if (!aiPlayerItemCfg)
+                    {
+                        aiPlayerItemCfg = fScope->Dup();
+                    }
+                    break;
 
-            case 0xD4A203F3: // "GroupItemConfig"
-                if (!groupItemCfg)
-                {
-                    groupItemCfg = fScope->Dup();
-                }
-                break;
+                case 0xD4A203F3: // "GroupItemConfig"
+                    if (!groupItemCfg)
+                    {
+                        groupItemCfg = fScope->Dup();
+                    }
+                    break;
 
-            case 0x024271E8: // "Basic"
-                basic = StdLoad::TypeU32(fScope, Range<U32>::flag);
-                break;
+                case 0x024271E8: // "Basic"
+                    basic = StdLoad::TypeU32(fScope, Range<U32>::flag);
+                    break;
 
-            default:
-                ICListBox::Setup(fScope);
-                break;
-
-
+                default:
+                    ICListBox::Setup(fScope);
+                    break;
             }
         }
 
@@ -532,7 +526,6 @@ namespace MultiPlayer
         }
 
 
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class PlayerList::PlayerItem
@@ -544,13 +537,13 @@ namespace MultiPlayer
         //
         PlayerList::PlayerItem::PlayerItem(PlayerList& playerList, IControl* parent, U32 networkId, U32 teamId)
             : playerList(playerList),
-            ICStatic(parent),
-            networkId(networkId),
-            teamId(teamId),
-            tipReady(NULL),
-            tipNotReady(NULL),
-            tipHasMap(NULL),
-            tipDoesntHaveMap(NULL)
+              ICStatic(parent),
+              networkId(networkId),
+              teamId(teamId),
+              tipReady(NULL),
+              tipNotReady(NULL),
+              tipHasMap(NULL),
+              tipDoesntHaveMap(NULL)
         {
             controlStyle &= ~STYLE_INERT;
         }
@@ -628,7 +621,8 @@ namespace MultiPlayer
 
                         // Add Player name
                         ch = Utils::Ansi2Unicode(networkPlayer->GetName());
-                        pi.font->Draw(
+                        pi.font->Draw
+                        (
                             pi.client.p0.x + playerList.offsetName,
                             pi.client.p0.y + yoffs,
                             ch,
@@ -652,11 +646,13 @@ namespace MultiPlayer
                                     // Add launch ready icon
                                     IFace::RenderRectangle
                                     (
-                                        ClipRect(
+                                        ClipRect
+                                        (
                                             pi.client.p0.x + playerList.offsetLaunchReady,
                                             midY - (icon->pixels.Height() >> 1),
                                             pi.client.p0.x + playerList.offsetLaunchReady + icon->pixels.Width(),
-                                            midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()),
+                                            midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()
+                                        ),
                                         Color(1.0f, 1.0f, 1.0f),
                                         icon,
                                         pi.alphaScale
@@ -679,11 +675,13 @@ namespace MultiPlayer
                                                 // Add the have map icon
                                                 IFace::RenderRectangle
                                                 (
-                                                    ClipRect(
+                                                    ClipRect
+                                                    (
                                                         pi.client.p0.x + playerList.offsetHaveMission,
                                                         midY - (icon->pixels.Height() >> 1),
                                                         pi.client.p0.x + playerList.offsetHaveMission + icon->pixels.Width(),
-                                                        midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()),
+                                                        midY - (icon->pixels.Height() >> 1) + icon->pixels.Height()
+                                                    ),
                                                     Color(1.0f, 1.0f, 1.0f),
                                                     icon,
                                                     pi.alphaScale
@@ -715,15 +713,15 @@ namespace MultiPlayer
                                 }
 
                                 /*
-                                // Add Ping
+                                // Add Ping 
                                 CH buf[30];
                                 ch = buf;
                                 Utils::Sprintf(buf, 30, L"%d", playerPing->pingSmooth);
                                 pi.font->Draw(
                                   pi.client.p0.x + playerList.offsetPing + 100,
-                                  pi.client.p0.y + yoffs,
-                                  ch,
-                                  Utils::Strlen(ch),
+                                  pi.client.p0.y + yoffs, 
+                                  ch, 
+                                  Utils::Strlen(ch), 
                                   pi.colors->fg[ColorIndex()],
                                   &pi.client
                                 );
@@ -745,94 +743,94 @@ namespace MultiPlayer
             {
                 switch (e.subType)
                 {
-                case IFace::NOTIFY:
-                {
-                    // Do specific handling
-                    switch (e.iface.p1)
+                    case IFace::NOTIFY:
                     {
-                    case PlayerListMsg::Player::Kick:
-                    {
-                        Network::Player* p = Network::GetPlayers().Find(networkId);
-
-                        if (p)
+                        // Do specific handling
+                        switch (e.iface.p1)
                         {
-                            char buf[200];
-                            Utils::Sprintf(buf, 200, "kicked '%s' from the game", p->GetName());
-                            Data::Send(Commands::MessageQuote, Utils::Strlen(buf) + 1, (const U8*)buf, FALSE);
-                            Network::client->KickUser(networkId);
+                            case PlayerListMsg::Player::Kick:
+                            {
+                                Network::Player* p = Network::GetPlayers().Find(networkId);
+
+                                if (p)
+                                {
+                                    char buf[200];
+                                    Utils::Sprintf(buf, 200, "kicked '%s' from the game", p->GetName());
+                                    Data::Send(Commands::MessageQuote, Utils::Strlen(buf) + 1, (const U8*)buf, FALSE);
+                                    Network::client->KickUser(networkId);
+                                }
+                                break;
+                            }
+
+                            case PlayerListMsg::Player::SendMap:
+                            {
+                                if (PrivData::haveMission)
+                                {
+                                    const Mission* mission;
+                                    if (Data::Get(&mission))
+                                    {
+                                        if (const Missions::Mission* info = Missions::FindMission(mission->mission, mission->missionFolder))
+                                        {
+                                            if (const char* name = info->GetPackedFileName())
+                                            {
+                                                // Make an offer on the current mission
+                                                Transfer::MakeOffer(networkId, Transfer::Type::Mission, name);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // You don't have the mission or the mission is not transportable
+                                SendNotify(this, 0xC52B9C66); // "MultiPlayerList::Message::CantSendMap"
+                                break;
+                            }
                         }
                         break;
                     }
 
-                    case PlayerListMsg::Player::SendMap:
+                    case IFace::DISPLAYTIP:
                     {
-                        if (PrivData::haveMission)
+                        const PlayerInfo* playerInfo;
+                        if (Data::Get(&playerInfo, networkId))
                         {
+                            Point<S32> mouse = Input::MousePos();
+                            mouse = ScreenToClient(mouse);
+
+                            // Is the mouse in the map area ?
                             const Mission* mission;
                             if (Data::Get(&mission))
                             {
-                                if (const Missions::Mission* info = Missions::FindMission(mission->mission, mission->missionFolder))
+                                if (mission->mission != Settings::Mission::NoMission)
                                 {
-                                    if (const char* name = info->GetPackedFileName())
-                                    {
-                                        // Make an offer on the current mission
-                                        Transfer::MakeOffer(networkId, Transfer::Type::Mission, name);
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-
-                        // You don't have the mission or the mission is not transportable
-                        SendNotify(this, 0xC52B9C66); // "MultiPlayerList::Message::CantSendMap"
-                        break;
-                    }
-                    }
-                    break;
-                }
-
-                case IFace::DISPLAYTIP:
-                {
-                    const PlayerInfo* playerInfo;
-                    if (Data::Get(&playerInfo, networkId))
-                    {
-                        Point<S32> mouse = Input::MousePos();
-                        mouse = ScreenToClient(mouse);
-
-                        // Is the mouse in the map area ?
-                        const Mission* mission;
-                        if (Data::Get(&mission))
-                        {
-                            if (mission->mission != Settings::Mission::NoMission)
-                            {
-                                TextureInfo* icon = &playerList.iconHaveMission[playerInfo->haveMission];
-                                if
+                                    TextureInfo* icon = &playerList.iconHaveMission[playerInfo->haveMission];
+                                    if
                                     (
                                         icon->texture &&
                                         mouse.x >= playerList.offsetHaveMission &&
                                         mouse.x < playerList.offsetHaveMission + icon->pixels.Width()
-                                        )
-                                {
-                                    ActivateTip(playerInfo->haveMission ? tipHasMap : tipDoesntHaveMap);
-                                    break;
+                                    )
+                                    {
+                                        ActivateTip(playerInfo->haveMission ? tipHasMap : tipDoesntHaveMap);
+                                        break;
+                                    }
                                 }
                             }
-                        }
 
-                        // Is the mouse in the ready to go area ?
-                        TextureInfo* icon = &playerList.iconLaunchReady[playerInfo->launchReady];
-                        if
+                            // Is the mouse in the ready to go area ?
+                            TextureInfo* icon = &playerList.iconLaunchReady[playerInfo->launchReady];
+                            if
                             (
                                 icon->texture &&
                                 mouse.x >= playerList.offsetLaunchReady &&
                                 mouse.x < playerList.offsetLaunchReady + icon->pixels.Width()
-                                )
-                        {
-                            ActivateTip(playerInfo->launchReady ? tipReady : tipNotReady);
+                            )
+                            {
+                                ActivateTip(playerInfo->launchReady ? tipReady : tipNotReady);
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
                 }
             }
 
@@ -847,24 +845,24 @@ namespace MultiPlayer
         {
             switch (fScope->NameCrc())
             {
-            case 0xFBEE7B81: // "TipReady"
-                tipReady = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
-                break;
+                case 0xFBEE7B81: // "TipReady"
+                    tipReady = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
+                    break;
 
-            case 0xE8FCFCAA: // "TipNotReady"
-                tipNotReady = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
-                break;
+                case 0xE8FCFCAA: // "TipNotReady"
+                    tipNotReady = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
+                    break;
 
-            case 0xBA64C7C4: // "TipHasMap"
-                tipHasMap = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
-                break;
+                case 0xBA64C7C4: // "TipHasMap"
+                    tipHasMap = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
+                    break;
 
-            case 0xEA4CA09A: // "TipDoesntHaveMap"
-                tipDoesntHaveMap = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
-                break;
+                case 0xEA4CA09A: // "TipDoesntHaveMap"
+                    tipDoesntHaveMap = Utils::Strdup(TRANSLATE((StdLoad::TypeString(fScope))));
+                    break;
 
-            default:
-                ICStatic::Setup(fScope);
+                default:
+                    ICStatic::Setup(fScope);
             }
         }
 
@@ -919,7 +917,8 @@ namespace MultiPlayer
                     U32 yoffs = (pi.client.Height() - pi.font->Height()) / 2;
 
                     // Add Player name
-                    pi.font->Draw(
+                    pi.font->Draw
+                    (
                         pi.client.p0.x + playerList.offsetName,
                         pi.client.p0.y + yoffs,
                         ch,
@@ -941,19 +940,19 @@ namespace MultiPlayer
             {
                 switch (e.subType)
                 {
-                case IFace::NOTIFY:
-                {
-                    // Do specific handling
-                    switch (e.iface.p1)
+                    case IFace::NOTIFY:
                     {
-                    case PlayerListMsg::AI::Delete:
-                    {
-                        Host::DeleteAITeam(teamId);
+                        // Do specific handling
+                        switch (e.iface.p1)
+                        {
+                            case PlayerListMsg::AI::Delete:
+                            {
+                                Host::DeleteAITeam(teamId);
+                                break;
+                            }
+                        }
                         break;
                     }
-                    }
-                    break;
-                }
                 }
             }
 
@@ -1021,7 +1020,8 @@ namespace MultiPlayer
                 if ((side = Sides::GetSides().Find(team->side.crc)) != NULL)
                 {
                     ch = TRANSLATE((side->GetDescription().str));
-                    pi.font->Draw(
+                    pi.font->Draw
+                    (
                         pi.client.p0.x + playerList.offsetSide,
                         pi.client.p0.y + yoffs,
                         ch,
@@ -1035,7 +1035,8 @@ namespace MultiPlayer
                     if (team->side.crc == 0xB8586215) // "Random"
                     {
                         ch = TRANSLATE(("#game.sides.random"));
-                        pi.font->Draw(
+                        pi.font->Draw
+                        (
                             pi.client.p0.x + playerList.offsetSide,
                             pi.client.p0.y + yoffs,
                             ch,
@@ -1056,7 +1057,8 @@ namespace MultiPlayer
                         if (setting)
                         {
                             ch = TRANSLATE((setting->GetDescription().str));
-                            pi.font->Draw(
+                            pi.font->Draw
+                            (
                                 pi.client.p0.x + playerList.offsetDifficulty,
                                 pi.client.p0.y + yoffs,
                                 ch,
@@ -1080,65 +1082,65 @@ namespace MultiPlayer
             {
                 switch (e.subType)
                 {
-                case IFace::NOTIFY:
-                {
-                    // Do specific handling
-                    switch (e.iface.p1)
+                    case IFace::NOTIFY:
                     {
-                    case PlayerListMsg::Team::Ally:
-                    {
-                        // Send a command to ally
-                        Commands::Data::JoinGroup data;
-                        data.groupId = GetGroupId();
-                        Data::Send(Commands::JoinGroup, data, TRUE);
-                        return (TRUE);
-                    }
+                        // Do specific handling
+                        switch (e.iface.p1)
+                        {
+                            case PlayerListMsg::Team::Ally:
+                            {
+                                // Send a command to ally
+                                Commands::Data::JoinGroup data;
+                                data.groupId = GetGroupId();
+                                Data::Send(Commands::JoinGroup, data, TRUE);
+                                return (TRUE);
+                            }
 
-                    case PlayerListMsg::Team::UnAlly:
-                    {
-                        // Leave the group
-                        Data::Send(Commands::LeaveGroup, 0, NULL, TRUE);
-                        return (TRUE);
-                    }
+                            case PlayerListMsg::Team::UnAlly:
+                            {
+                                // Leave the group
+                                Data::Send(Commands::LeaveGroup, 0, NULL, TRUE);
+                                return (TRUE);
+                            }
 
-                    case PlayerListMsg::Team::CoOp:
-                    {
-                        // Send a command to coop
-                        Commands::Data::JoinTeam data;
-                        data.teamId = GetTeamId();
-                        Data::Send(Commands::JoinTeam, data, TRUE);
-                        return (TRUE);
-                    }
+                            case PlayerListMsg::Team::CoOp:
+                            {
+                                // Send a command to coop
+                                Commands::Data::JoinTeam data;
+                                data.teamId = GetTeamId();
+                                Data::Send(Commands::JoinTeam, data, TRUE);
+                                return (TRUE);
+                            }
 
-                    case PlayerListMsg::Team::UnCoOp:
-                    {
-                        // Send a command to uncoop
-                        Data::Send(Commands::LeaveTeam, 0, NULL, TRUE);
-                        return (TRUE);
-                    }
+                            case PlayerListMsg::Team::UnCoOp:
+                            {
+                                // Send a command to uncoop
+                                Data::Send(Commands::LeaveTeam, 0, NULL, TRUE);
+                                return (TRUE);
+                            }
 
-                    case PlayerListMsg::Team::AllyWith:
-                    {
-                        AllyWithButton* button = IFace::Promote<AllyWithButton>(static_cast<IControl*>(e.iface.from), TRUE);
+                            case PlayerListMsg::Team::AllyWith:
+                            {
+                                AllyWithButton* button = IFace::Promote<AllyWithButton>(static_cast<IControl*>(e.iface.from), TRUE);
 
-                        Commands::Data::JoinGroupAI data;
-                        data.teamId = GetTeamId();
-                        data.groupId = button->group;
-                        Data::Send(Commands::JoinGroupAI, data, TRUE);
-                        return (TRUE);
-                    }
+                                Commands::Data::JoinGroupAI data;
+                                data.teamId = GetTeamId();
+                                data.groupId = button->group;
+                                Data::Send(Commands::JoinGroupAI, data, TRUE);
+                                return (TRUE);
+                            }
 
-                    case PlayerListMsg::Team::UnAllyWith:
-                    {
-                        // Leave the group
-                        Commands::Data::LeaveGroupAI data;
-                        data.teamId = GetTeamId();
-                        Data::Send(Commands::LeaveGroupAI, data, TRUE);
-                        return (TRUE);
+                            case PlayerListMsg::Team::UnAllyWith:
+                            {
+                                // Leave the group
+                                Commands::Data::LeaveGroupAI data;
+                                data.teamId = GetTeamId();
+                                Data::Send(Commands::LeaveGroupAI, data, TRUE);
+                                return (TRUE);
+                            }
+                        }
+                        break;
                     }
-                    }
-                    break;
-                }
                 }
             }
 
@@ -1167,7 +1169,6 @@ namespace MultiPlayer
 
             // Draw a filled rectangle
             IFace::RenderRectangle(rect, pi.colors->fg[ColorIndex()]);
-
         }
 
 
@@ -1204,7 +1205,5 @@ namespace MultiPlayer
         {
             IFace::RenderGradient(pi.client, color, 150);
         }
-
     }
-
 }

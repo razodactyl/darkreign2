@@ -18,39 +18,39 @@
 
 namespace FileSys
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class FileSrcStream - Allows streams to search other streams
-  //
-  class FileSrcStream : public FileSrc
-  {
-  protected:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class FileSrcStream - Allows streams to search other streams
+    //
+    class FileSrcStream : public FileSrc
+    {
+    protected:
 
-    // Name of the stream we're pointing at
-    FileSysIdent targetName;
+        // Name of the stream we're pointing at
+        FileSysIdent targetName;
 
-    // Target reaper
-    ResourceStreamPtr target;
+        // Target reaper
+        ResourceStreamPtr target;
 
-  public:
-  
-    // Constructor
-    FileSrcStream(const char *targetName);
+    public:
 
-    // True if targetPtr is alive (will attempt to setup if not)
-    Bool HaveTarget();
+        // Constructor
+        FileSrcStream(const char* targetName);
 
-    // True if this stream refers to 'crc'
-    Bool HasStreamReference(U32 crc);
+        // True if targetPtr is alive (will attempt to setup if not)
+        Bool HaveTarget();
 
-    // Required overriding methods
-    void BuildIndex();
-    Bool Exists(U32 crc);
-    FastFind* GetFastFind(const char *name, ResourceStream *stream);
-    DataFile* Open(const char *name);
-    const char * Path();
-    void LogSource(U32 indent);
-  };
+        // True if this stream refers to 'crc'
+        Bool HasStreamReference(U32 crc) override;
+
+        // Required overriding methods
+        void BuildIndex() override;
+        Bool Exists(U32 crc) override;
+        FastFind* GetFastFind(const char* name, ResourceStream* stream) override;
+        DataFile* Open(const char* name) override;
+        const char* Path() override;
+        void LogSource(U32 indent) override;
+    };
 }
 
 #endif

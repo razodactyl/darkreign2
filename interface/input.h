@@ -25,9 +25,8 @@
 //
 namespace Input
 {
-
     // Logging
-    LOGEXTERN;
+    LOGEXTERN
 
     // Event system id
     extern U16 eventId;

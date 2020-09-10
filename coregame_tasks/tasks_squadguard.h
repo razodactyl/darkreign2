@@ -27,47 +27,45 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class SquadGuard
+    //
+    class SquadGuard : public GameTask<SquadObjType, SquadObj>
+    {
+        TASK_CLASS(SquadGuard)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class SquadGuard
-  //
-  class SquadGuard : public GameTask<SquadObjType, SquadObj>
-  {
-    TASK_CLASS(SquadGuard)
+    private:
 
-  private:
+        // Target which is being guarded
+        Target target;
 
-    // Target which is being guarded
-    Target target;
+    public:
 
-  public:
+        // Constructor
+        SquadGuard(GameObj* subject);
+        SquadGuard(GameObj* subject, const Target& target);
+        ~SquadGuard();
 
-    // Constructor
-    SquadGuard(GameObj *subject);
-    SquadGuard(GameObj *subject, const Target &target);
-    ~SquadGuard();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateGuarding();
-
-  };
+        // State machine procedures
+        void StateInit();
+        void StateGuarding();
+    };
 }
 
 #endif

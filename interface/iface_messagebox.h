@@ -27,7 +27,7 @@
 //
 class MsgBoxWindow : public ICWindow
 {
-    PROMOTE_LINK(MsgBoxWindow, ICWindow, 0x372401F1); // "MsgBoxWindow"
+PROMOTE_LINK(MsgBoxWindow, ICWindow, 0x372401F1); // "MsgBoxWindow"
 
 protected:
 
@@ -53,11 +53,8 @@ public:
 //
 namespace IFace
 {
-
     // Display a modal message box
     IControl* MsgBox(const CH* title, const CH* string, U32 flags, MBEvent* btn1, MBEvent* btn2 = NULL, MBEvent* btn3 = NULL);
-
 }
 
 #endif
-

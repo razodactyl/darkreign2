@@ -25,7 +25,7 @@
 //
 MsgBoxWindow::MsgBoxWindow(IControl* parent)
     : ICWindow(parent),
-    eventList(&MBEvent::listNode)
+      eventList(&MBEvent::listNode)
 {
 }
 
@@ -58,30 +58,30 @@ U32 MsgBoxWindow::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
-            // A child control is notifying us of an event
-        case IFace::NOTIFY:
-        {
-            U32 id = e.iface.p1;
-
-            // If this is a button in the item list then send its desired event
-            MBEvent* event;
-
-            if ((event = eventList.Find(id)) != NULL)
+                // A child control is notifying us of an event
+            case IFace::NOTIFY:
             {
-                // Process the event
-                event->Process();
+                U32 id = e.iface.p1;
 
-                // Deactivate window
-                Deactivate();
+                // If this is a button in the item list then send its desired event
+                MBEvent* event;
 
-                // Mark window for deletion
-                MarkForDeletion();
+                if ((event = eventList.Find(id)) != NULL)
+                {
+                    // Process the event
+                    event->Process();
 
-                // Handled
-                return (TRUE);
+                    // Deactivate window
+                    Deactivate();
+
+                    // Mark window for deletion
+                    MarkForDeletion();
+
+                    // Handled
+                    return (TRUE);
+                }
+                break;
             }
-            break;
-        }
         }
     }
 
@@ -96,7 +96,6 @@ U32 MsgBoxWindow::HandleEvent(Event& e)
 //
 namespace IFace
 {
-
     // Message box constants
     const U32 MAX_LINES = 20;
     const S32 BTN_SPACE = 5;
@@ -145,33 +144,33 @@ namespace IFace
 
             switch (*s)
             {
-            case L'\r':
-            {
-                s++;
-
-                if (*s == L'\n')
+                case L'\r':
                 {
-                    *(s - 1) = *s = 0;
-                    newLine = TRUE;
-                }
-                break;
-            }
+                    s++;
 
-            case L'\\':
-            {
-                s++;
-
-                switch (*s)
-                {
-                case L'n':
-                {
-                    *(s - 1) = *s = 0;
-                    newLine = TRUE;
+                    if (*s == L'\n')
+                    {
+                        *(s - 1) = *s = 0;
+                        newLine = TRUE;
+                    }
                     break;
                 }
+
+                case L'\\':
+                {
+                    s++;
+
+                    switch (*s)
+                    {
+                        case L'n':
+                        {
+                            *(s - 1) = *s = 0;
+                            newLine = TRUE;
+                            break;
+                        }
+                    }
+                    break;
                 }
-                break;
-            }
             }
         }
 
@@ -250,8 +249,8 @@ namespace IFace
 
         // Add buttons
         {
-            MBEvent* events[3] = { btn1, btn2, btn3 };
-            IControl* buttons[3] = { NULL, NULL, NULL };
+            MBEvent* events[3] = {btn1, btn2, btn3};
+            IControl* buttons[3] = {NULL, NULL, NULL};
             S32 x = (windowWidth - buttonWidth) / 2;
 
             for (U32 b = 0; events[b] && (b < 3); b++)

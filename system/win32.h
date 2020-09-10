@@ -12,13 +12,13 @@
 #define __WIN32_H
 
 #ifndef STRICT
-  #define STRICT
+#define STRICT
 #endif
 #ifndef WIN32_LEAN_AND_MEAN
-  #define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #endif
 #ifndef WIN32_EXTRA_LEAN
-  #define WIN32_EXTRA_LEAN
+#define WIN32_EXTRA_LEAN
 #endif
 
 // Ensure that including windows doesn't include "winsock.h"

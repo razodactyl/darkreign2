@@ -24,20 +24,24 @@ Bitmap* BucketMan::texture;
 
 #define DOLASTBUCKET
 
-//#define DEF_BUCKET_COUNT 32
-//#define DEF_BUCKET_SIZE 64000
-#define DEF_BUCKET_COUNT 444
-#define DEF_BUCKET_SIZE 16000
+//#define DEF_BUCKET_COUNT				    32
+//#define DEF_BUCKET_SIZE             64000
+#define DEF_BUCKET_COUNT				    444
+#define DEF_BUCKET_SIZE             16000
 
-#define DEF_TRAN_BUCKET_COUNT 200
-#define DEF_TRAN_BUCKET_SIZE 16000
+#define DEF_TRAN_BUCKET_COUNT		    200
+#define DEF_TRAN_BUCKET_SIZE        16000
 //-----------------------------------------------------------------------------
 
 void Vid::InitBuckets()
 {
-    InitBuckets(DEF_BUCKET_COUNT, DEF_BUCKET_SIZE, DEF_BUCKET_RATIO, TRUE,
-        DEF_TRAN_BUCKET_COUNT, DEF_TRAN_BUCKET_SIZE, DEF_BUCKET_RATIO);
+    InitBuckets
+    (
+        DEF_BUCKET_COUNT, DEF_BUCKET_SIZE, DEF_BUCKET_RATIO, TRUE,
+        DEF_TRAN_BUCKET_COUNT, DEF_TRAN_BUCKET_SIZE, DEF_BUCKET_RATIO
+    );
 }
+
 //-----------------------------------------------------------------------------
 
 void Vid::InitBuckets(U32 count, U32 size, F32 ratio, Bool flush, U32 tcount, U32 tsize, F32 tratio)
@@ -47,11 +51,14 @@ void Vid::InitBuckets(U32 count, U32 size, F32 ratio, Bool flush, U32 tcount, U3
     bucket.Init(count, size, ratio, flush);
     tranbucket.Init(tcount, tsize, tratio, FALSE);
 
-    SetBucketPrimitiveDesc(
+    SetBucketPrimitiveDesc
+    (
         PT_TRIANGLELIST,
         FVF_TLVERTEX,
-        DP_DONOTUPDATEEXTENTS | RS_BLEND_DEF);
+        DP_DONOTUPDATEEXTENTS | RS_BLEND_DEF
+    );
 }
+
 //-----------------------------------------------------------------------------
 
 void Vid::DoneBuckets()
@@ -59,12 +66,13 @@ void Vid::DoneBuckets()
     bucket.DisposeAll();
     tranbucket.DisposeAll();
 }
+
 //-----------------------------------------------------------------------------
 
 void BucketMan::ClearData()
 {
-    currentBucket = NULL;
-    lastUsedBucket = NULL;
+    currentBucket = nullptr;
+    lastUsedBucket = nullptr;
     primitive.ClearData();
 
     sizeofBucket = 0;
@@ -72,25 +80,28 @@ void BucketMan::ClearData()
     flushWhenFull = TRUE;
 
     memSize = curSize = lastSize = 0;
-    memBlock = curMem = lastMem = NULL;
+    memBlock = curMem = lastMem = nullptr;
 
     bucketList.SetNodeMember(&Bucket::listNode);
 
     forceTranslucent = FALSE;
-    texture = NULL;
+    texture = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::SetPrimitiveDesc(const PrimitiveDesc& prim)
 {
     primitive.SetPrimitiveDesc(prim);
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::SetPrimitiveDesc(Bucket& bucket, const PrimitiveDesc& prim)
 {
     bucket.SetPrimitiveDesc(prim);
 }
+
 //----------------------------------------------------------------------------
 
 Bool BucketMan::CompareRenderState(const PrimitiveDesc& other) const
@@ -116,9 +127,10 @@ Bool BucketMan::CompareRenderState(const PrimitiveDesc& other) const
     }
     return FALSE;
 }
+
 //-----------------------------------------------------------------------------
 
-void BucketMan::AddNewBucket(Bucket* new_bucket, U8 placement) // = DO_PREPEND);
+void BucketMan::AddNewBucket(Bucket* new_bucket, U8 placement) //  = DO_PREPEND);
 {
     ASSERT(new_bucket);
 
@@ -132,6 +144,7 @@ void BucketMan::AddNewBucket(Bucket* new_bucket, U8 placement) // = DO_PREPEND);
         bucketList.Prepend(new_bucket);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::DisposeAll()
@@ -139,15 +152,16 @@ void BucketMan::DisposeAll()
     if (memBlock)
     {
         Debug::Memory::Aligning::AligningFree(memBlock);
-        memBlock = NULL;
+        memBlock = nullptr;
     }
 
     bucketList.DisposeAll();
 
-    currentBucket = NULL;
-    lastUsedBucket = NULL;
+    currentBucket = nullptr;
+    lastUsedBucket = nullptr;
     primitive.ClearData();
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::Init(U32 _count, U32 _size, F32 _ratio, Bool _flushWhenFull)
@@ -157,7 +171,7 @@ void BucketMan::Init(U32 _count, U32 _size, F32 _ratio, Bool _flushWhenFull)
     if (_count == bucketCount
         && _size == sizeofBucket
         && _ratio == memRatio
-        && _flushWhenFull == (Bool)flushWhenFull)
+        && _flushWhenFull == static_cast<Bool>(flushWhenFull))
     {
         return;
     }
@@ -172,11 +186,11 @@ void BucketMan::Init(U32 _count, U32 _size, F32 _ratio, Bool _flushWhenFull)
     if (memBlock)
     {
         Debug::Memory::Aligning::AligningFree(memBlock);
-        memBlock = NULL;
+        memBlock = nullptr;
     }
 
     memSize = (_count + 5) * _size;
-    memBlock = (char*)Debug::Memory::Aligning::AligningAlloc(memSize, 4);
+    memBlock = static_cast<char*>(Debug::Memory::Aligning::AligningAlloc(memSize, 4));
     ASSERT(memBlock);
 
     U32 i;
@@ -201,9 +215,10 @@ void BucketMan::Init(U32 _count, U32 _size, F32 _ratio, Bool _flushWhenFull)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
-#define FULLBUCKETRATIO (2.0f / 3.0f)
+#define FULLBUCKETRATIO   (2.0f / 3.0f)
 
 Bool BucketMan::GetMem(Bucket& bucket, U32 _vCount, U32 _iCount)
 {
@@ -237,7 +252,7 @@ Bool BucketMan::GetMem(Bucket& bucket, U32 _vCount, U32 _iCount)
         U32 bsize = curSize >= sizeofBucket + 10 ? sizeofBucket : curSize;
 
         U32 extra = bsize - size;
-        U32 vs = (U32)Utils::FtoLDown(((F32)extra) * memRatio);
+        U32 vs = static_cast<U32>(Utils::FtoLDown(static_cast<F32>(extra) * memRatio));
         vSize += vs;
         iSize += extra - vs;
         size = vSize + iSize;
@@ -248,15 +263,15 @@ Bool BucketMan::GetMem(Bucket& bucket, U32 _vCount, U32 _iCount)
         bucket.vCountLeft = bucket.vCountMax = vSize / sizeof(VertexTL);
 #endif
         bucket.iCountLeft = bucket.iCountMax = iSize >> 1;
-        bucket.vCountFull = (U32)Utils::FtoLDown((F32)bucket.vCountMax * FULLBUCKETRATIO);
-        bucket.iCountFull = (U32)Utils::FtoLDown((F32)bucket.iCountMax * FULLBUCKETRATIO);
+        bucket.vCountFull = static_cast<U32>(Utils::FtoLDown(static_cast<F32>(bucket.vCountMax) * FULLBUCKETRATIO));
+        bucket.iCountFull = static_cast<U32>(Utils::FtoLDown(static_cast<F32>(bucket.iCountMax) * FULLBUCKETRATIO));
     }
     else
     {
         bucket.vCountLeft = bucket.vCountMax = _vCount;
         bucket.iCountLeft = bucket.iCountMax = _iCount;
-        bucket.vCountFull = (U32)Utils::FtoLDown((F32)bucket.vCountMax * FULLBUCKETRATIO);
-        bucket.iCountFull = (U32)Utils::FtoLDown((F32)bucket.iCountMax * FULLBUCKETRATIO);
+        bucket.vCountFull = static_cast<U32>(Utils::FtoLDown(static_cast<F32>(bucket.vCountMax) * FULLBUCKETRATIO));
+        bucket.iCountFull = static_cast<U32>(Utils::FtoLDown(static_cast<F32>(bucket.iCountMax) * FULLBUCKETRATIO));
 
         bucket.oversize = TRUE;
     }
@@ -280,6 +295,7 @@ Bool BucketMan::GetMem(Bucket& bucket, U32 _vCount, U32 _iCount)
 
     return TRUE;
 }
+
 //-----------------------------------------------------------------------------
 
 void BucketMan::SetCurrentBucket(Bucket* bucket)
@@ -289,7 +305,7 @@ void BucketMan::SetCurrentBucket(Bucket* bucket)
     currentBucket = bucket;
 
 #ifdef DOLASTBUCKET
-    if (lastUsedBucket == NULL)
+    if (lastUsedBucket == nullptr)
     {
         Bucket* head = bucketList.GetHead();
 
@@ -309,9 +325,14 @@ void BucketMan::SetCurrentBucket(Bucket* bucket)
     lastUsedBucket = bucket;
 #endif
 }
+
 //-----------------------------------------------------------------------------
 
-Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, U32 iCount, const void* id) // = 0xcdcdcdcd
+Bucket* BucketMan::LockIndexedPrimitiveMem
+(
+    void** vMem, U32 vCount, U16** iMem, U32 iCount,
+    const void* id
+) // = 0xcdcdcdcd
 {
     ASSERT(!(primitive.flags & RS_NOINDEXED));
     ASSERT(vMem && iMem);
@@ -319,7 +340,7 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
     // pad to multiples of 4 for Katmai
     vCount += 3;
 
-    Bucket* bucket = NULL;
+    Bucket* bucket = nullptr;
 
     // see if the current bucket has a matching primitive description
     if (currentBucket && !currentBucket->IsLocked() && CompareRenderState(*currentBucket))
@@ -328,7 +349,7 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
         {
             if (!GetMem(*currentBucket, vCount, iCount))
             {
-                return NULL;
+                return nullptr;
             }
             bucket = currentBucket;
         }
@@ -359,9 +380,8 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
 
                     if (!GetMem(*bucket, vCount, iCount))
                     {
-                        return NULL;
+                        return nullptr;
                     }
-
                 }
                 else if (currentBucket->HasRoomForWhenFlushed(vCount, iCount))
                 {
@@ -382,12 +402,12 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
     }
 
     NList<Bucket>::Iterator li(&bucketList);
-    Bucket* buck = NULL, * empty = NULL;
+    Bucket *buck = nullptr, *empty = nullptr;
     if (!bucket)
     {
         // look for a bucket that has a matching primitive description
 
-        for (!li; *li; li++)
+        for (!li; *li; ++li)
         {
             buck = *li;
 
@@ -395,7 +415,7 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
             {
                 continue;
             }
-            else if (!buck->vMem)
+            if (!buck->vMem)
             {
                 empty = buck;
 #ifdef DOLASTBUCKET
@@ -405,20 +425,20 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
 #endif
             }
             /*
-            else if (!buck->vMem)
-            {
-            bucket = buck;
-            bucket->SetPrimitiveDescTag( primitive);
+                else if (!buck->vMem)
+                {
+                    bucket = buck;
+              bucket->SetPrimitiveDescTag( primitive);
 
-            if (!GetMem( *bucket, vCount, iCount))
-            {
-            return NULL;
-            }
-            break;
-            }
+              if (!GetMem( *bucket, vCount, iCount))
+              {
+                return NULL;
+              }
+                    break;
+                }
             else
-            */
-            // else if buck->vCount == 0 FIXME
+      */
+            // else if buck->vCount == 0      FIXME
             if (CompareRenderState(*buck))
             {
                 if (buck->HasRoomFor(vCount, iCount))
@@ -433,7 +453,7 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
 #endif
                     break;
                 }
-                else if (buck->IsFull() && buck->id != id)
+                if (buck->IsFull() && buck->id != id)
                 {
                     if (flushWhenFull)
                     {
@@ -449,11 +469,11 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
 
                             if (!GetMem(*bucket, vCount, iCount))
                             {
-                                return NULL;
+                                return nullptr;
                             }
                             break;
                         }
-                        else if (buck->HasRoomForWhenFlushed(vCount, iCount))
+                        if (buck->HasRoomForWhenFlushed(vCount, iCount))
                         {
                             bucket = buck;
                             FlushBucket(*bucket);
@@ -487,15 +507,18 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
             ASSERT(bucket);
             AddNewBucket(bucket);
 
-            LOG_DIAG(("%sBucketMan::Lock: Adding a bucket %d",
-                this == &Vid::bucket ? "" : "Tran", bucketList.GetCount()));
+            LOG_DIAG
+            (
+                ("%sBucketMan::Lock:  Adding a bucket %d",
+                    this == &Vid::bucket ? "" : "Tran", bucketList.GetCount())
+            );
         }
         bucket->SetPrimitiveDescTag(primitive);
         SetCurrentBucket(bucket);
 
         if (!GetMem(*bucket, vCount, iCount))
         {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -517,6 +540,7 @@ Bucket* BucketMan::LockIndexedPrimitiveMem(void** vMem, U32 vCount, U16** iMem, 
 
     return bucket;
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::UnlockIndexedPrimitiveMem(Bucket& bucket, U32 vCount, U32 iCount, Bool doOffset) // = TRUE)
@@ -525,7 +549,7 @@ void BucketMan::UnlockIndexedPrimitiveMem(Bucket& bucket, U32 vCount, U32 iCount
 
     if (!bucket.vCount || !bucket.iCount)
     {
-        if ((char*)bucket.vMem + bucket.memSize == curMem)
+        if (static_cast<char*>(bucket.vMem) + bucket.memSize == curMem)
         {
             // last chunk allocated; restore memory to pool
             curMem -= bucket.memSize;
@@ -545,12 +569,14 @@ void BucketMan::UnlockIndexedPrimitiveMem(Bucket& bucket, U32 vCount, U32 iCount
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 void Bucket::UnlockIndexedPrimitiveMemManager(U32 _vCount, U32 _iCount, Bool doOffset) // = TRUE)
 {
     manager->UnlockIndexedPrimitiveMem(*this, _vCount, _iCount, doOffset);
 }
+
 //-----------------------------------------------------------------------------
 
 Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // = 0xcdcdcdcd
@@ -561,7 +587,7 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
     vCount += 3;
     U32 iCount = 0;
 
-    Bucket* bucket = NULL;
+    Bucket* bucket = nullptr;
 
     // see if the current bucket has a matching primitive description
     if (currentBucket && !currentBucket->IsLocked() && CompareRenderState(*currentBucket))
@@ -570,7 +596,7 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
         {
             if (!GetMem(*currentBucket, vCount, iCount))
             {
-                return NULL;
+                return nullptr;
             }
             bucket = currentBucket;
         }
@@ -578,11 +604,10 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
         {
             bucket = currentBucket;
 
-            if ((void*)(bucket->iMemCur + iCount) > (void*)bucket->memEnd)
+            if (static_cast<void*>(bucket->iMemCur + iCount) > static_cast<void*>(bucket->memEnd))
             {
                 ASSERT((void*)(bucket->iMemCur + iCount) <= (void*)bucket->memEnd);
             }
-
         }
         else if (currentBucket->IsFull() && currentBucket->id != id)
         {
@@ -600,20 +625,18 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
 
                     if (!GetMem(*bucket, vCount, iCount))
                     {
-                        return NULL;
+                        return nullptr;
                     }
-
                 }
                 else if (currentBucket->HasRoomForWhenFlushed(vCount, iCount))
                 {
                     bucket = currentBucket;
                     FlushBucket(*bucket);
 
-                    if ((void*)(bucket->iMemCur + iCount) > (void*)bucket->memEnd)
+                    if (static_cast<void*>(bucket->iMemCur + iCount) > static_cast<void*>(bucket->memEnd))
                     {
                         ASSERT((void*)(bucket->iMemCur + iCount) <= (void*)bucket->memEnd);
                     }
-
                 }
             }
             // get bucket below
@@ -621,14 +644,14 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
         // get a bucket below
     }
 
-    Bucket* buck = NULL, * empty = NULL;
+    Bucket *buck = nullptr, *empty = nullptr;
     if (!bucket)
     {
         // look for a bucket that has a matching primitive description
         //
         NList<Bucket>::Iterator li(&bucketList);
 
-        for (!li; *li; li++)
+        for (!li; *li; ++li)
         {
             buck = *li;
 
@@ -636,7 +659,7 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
             {
                 continue;
             }
-            else if (!buck->vMem)
+            if (!buck->vMem)
             {
                 empty = buck;
 #ifdef DOLASTBUCKET
@@ -646,20 +669,20 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
 #endif
             }
             /*
-            else if (!buck->vMem)
-            {
-            bucket = buck;
-            bucket->SetPrimitiveDescTag( primitive);
+                else if (!buck->vMem)
+                {
+                    bucket = buck;
+              bucket->SetPrimitiveDescTag( primitive);
 
-            if (!GetMem( *bucket, vCount, iCount))
-            {
-            return NULL;
-            }
-            break;
-            }
+              if (!GetMem( *bucket, vCount, iCount))
+              {
+                return NULL;
+              }
+                    break;
+                }
             else
-            */
-            // else if buck->vCount == 0 FIXME
+      */
+            // else if buck->vCount == 0      FIXME
             if (CompareRenderState(*buck))
             {
                 if (buck->HasRoomFor(vCount, iCount))
@@ -670,7 +693,7 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
 
                     break;
                 }
-                else if (buck->IsFull() && buck->id != id)
+                if (buck->IsFull() && buck->id != id)
                 {
                     if (flushWhenFull)
                     {
@@ -686,16 +709,16 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
 
                             if (!GetMem(*bucket, vCount, iCount))
                             {
-                                return NULL;
+                                return nullptr;
                             }
                             break;
                         }
-                        else if (buck->HasRoomForWhenFlushed(vCount, iCount))
+                        if (buck->HasRoomForWhenFlushed(vCount, iCount))
                         {
                             bucket = buck;
                             FlushBucket(*bucket);
 
-                            if ((void*)(bucket->iMemCur + iCount) > (void*)bucket->memEnd)
+                            if (static_cast<void*>(bucket->iMemCur + iCount) > static_cast<void*>(bucket->memEnd))
                             {
                                 ASSERT((void*)(bucket->iMemCur + iCount) <= (void*)bucket->memEnd);
                             }
@@ -723,15 +746,18 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
             ASSERT(bucket);
             AddNewBucket(bucket);
 
-            LOG_DIAG(("%sBucketMan::Lock: Adding a bucket %d",
-                this == &Vid::bucket ? "" : "Tran", bucketList.GetCount()));
+            LOG_DIAG
+            (
+                ("%sBucketMan::Lock:  Adding a bucket %d",
+                    this == &Vid::bucket ? "" : "Tran", bucketList.GetCount())
+            );
         }
         bucket->SetPrimitiveDescTag(primitive);
         SetCurrentBucket(bucket);
 
         if (!GetMem(*bucket, vCount, iCount))
         {
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -744,6 +770,7 @@ Bucket* BucketMan::LockPrimitiveMem(void** vMem, U32 vCount, const void* id) // 
 
     return bucket;
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::UnlockPrimitiveMem(Bucket& bucket, U32 vCount)
@@ -752,7 +779,7 @@ void BucketMan::UnlockPrimitiveMem(Bucket& bucket, U32 vCount)
 
     if (!bucket.vCount)
     {
-        if ((char*)bucket.vMem + bucket.memSize == curMem)
+        if (static_cast<char*>(bucket.vMem) + bucket.memSize == curMem)
         {
             // last chunk allocated; restore memory to pool
             curMem -= bucket.memSize;
@@ -772,12 +799,14 @@ void BucketMan::UnlockPrimitiveMem(Bucket& bucket, U32 vCount)
     }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 void Bucket::UnlockPrimitiveMemManager(U32 _vCount)
 {
     manager->UnlockPrimitiveMem(*this, _vCount);
 }
+
 //-----------------------------------------------------------------------------
 
 void BucketMan::FlushBucket(Bucket& bucket, Bool doDraw) // = TRUE)
@@ -791,7 +820,7 @@ void BucketMan::FlushBucket(Bucket& bucket, Bool doDraw) // = TRUE)
 #ifndef DODXLEANANDGRUMPY
     if (Vid::renderState.status.dxTL)
     {
-        // direct x material
+        // direct x material  
         Vid::SetMaterial(bucket.material);
     }
 #endif
@@ -809,24 +838,28 @@ void BucketMan::FlushBucket(Bucket& bucket, Bool doDraw) // = TRUE)
 
     if (bucket.flags & RS_NOINDEXED)
     {
-        Vid::DrawPrimitive(
+        Vid::DrawPrimitive
+        (
             bucket.primitive_type,
             bucket.vertex_type,
             bucket.vMem, bucket.vCount,
-            bucket.flags);
+            bucket.flags
+        );
     }
     else
     {
-        Vid::DrawIndexedPrimitive(
+        Vid::DrawIndexedPrimitive
+        (
             bucket.primitive_type,
             bucket.vertex_type,
             bucket.vMem, bucket.vCount,
             bucket.iMem, bucket.iCount,
-            bucket.flags);
-
+            bucket.flags
+        );
     }
     bucket.ResetCounts();
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::Flush(Bool doDraw) // = TRUE)
@@ -837,17 +870,17 @@ void BucketMan::Flush(Bool doDraw) // = TRUE)
         if (bucket->vCount)
         {
             /*
-            U32 alpha = Vid::renderState.status.alpha;
+                  U32 alpha = Vid::renderState.status.alpha;
 
-            TextureStage & stage0 = bucket->textureStages[0];
-            if (stage0.texture && stage0.texture->IsTranslucent())
-            {
-            Vid::SetAlphaState( TRUE);
-            }
+                  TextureStage & stage0 = bucket->textureStages[0];
+                  if (stage0.texture && stage0.texture->IsTranslucent())
+                  {
+                    Vid::SetAlphaState( TRUE);
+                  }
             */
             FlushBucket(*bucket, doDraw);
 
-            // Vid::SetAlphaState( alpha);
+            //      Vid::SetAlphaState( alpha);
         }
         bucket->Reset();
 
@@ -857,21 +890,21 @@ void BucketMan::Flush(Bool doDraw) // = TRUE)
             break;
         }
 #endif
-
     }
 
     curMem = memBlock;
     curSize = memSize;
 
-    currentBucket = NULL;
-    lastUsedBucket = NULL;
+    currentBucket = nullptr;
+    lastUsedBucket = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 void BucketMan::FlushTex(const Bitmap* texture, Bool doDraw) // = TRUE)
 {
     NList<Bucket>::Iterator li(&bucketList);
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Bucket* bucket = *li;
 
@@ -882,6 +915,7 @@ void BucketMan::FlushTex(const Bitmap* texture, Bool doDraw) // = TRUE)
         bucket->Reset();
     }
 
-    currentBucket = NULL;
+    currentBucket = nullptr;
 }
+
 //----------------------------------------------------------------------------

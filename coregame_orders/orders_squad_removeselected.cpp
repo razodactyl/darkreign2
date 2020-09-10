@@ -23,55 +23,53 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class RemoveSelected
+    // NameSpace Squad
     //
-
-    U32 RemoveSelected::orderId;
-
-
-    //
-    // Generate
-    //
-    void RemoveSelected::Generate(Player &player)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class RemoveSelected
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
-
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
-    }
+        U32 RemoveSelected::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 RemoveSelected::Execute(const U8 *, Player &player)
-    {
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      {
-        // Get this unit
-        UnitObj *unit = **i;
-
-        // Remove from its squad
-        if (unit->GetSquad())
+        //
+        // Generate
+        //
+        void RemoveSelected::Generate(Player& player)
         {
-          unit->ClearSquad();
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
-     
-      return (sizeof (Data));
+
+
+        //
+        // Execute
+        //
+        U32 RemoveSelected::Execute(const U8*, Player& player)
+        {
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                // Get this unit
+                UnitObj* unit = **i;
+
+                // Remove from its squad
+                if (unit->GetSquad())
+                {
+                    unit->ClearSquad();
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

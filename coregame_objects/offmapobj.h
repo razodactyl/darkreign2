@@ -17,7 +17,7 @@
 //
 #include "offmapobjdec.h"
 #include "unitobj.h"
-  
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -37,28 +37,28 @@ typedef Reaper<OffMapObj> OffMapObjPtr;
 //
 class OffMapObjType : public UnitObjType
 {
-  PROMOTE_LINK(OffMapObjType, UnitObjType, 0xD1FE616C); // "OffMapObjType"
+PROMOTE_LINK(OffMapObjType, UnitObjType, 0xD1FE616C); // "OffMapObjType"
 
-  // Should the traction type be enforced for launching
-  Bool checkTraction;
+    // Should the traction type be enforced for launching
+    Bool checkTraction;
 
 public:
 
-  // Constructor and destructor
-  OffMapObjType(const char *typeName, FScope *fScope);
-  ~OffMapObjType();
+    // Constructor and destructor
+    OffMapObjType(const char* typeName, FScope* fScope);
+    ~OffMapObjType();
 
-  // Called after all types are loaded
-  void PostLoad();
+    // Called after all types are loaded
+    void PostLoad();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 
-  // Get the check traction flag
-  Bool GetCheckTraction()
-  {
-    return (checkTraction);
-  }
+    // Get the check traction flag
+    Bool GetCheckTraction()
+    {
+        return (checkTraction);
+    }
 };
 
 
@@ -71,58 +71,58 @@ class OffMapObj : public UnitObj
 {
 protected:
 
-  // Has this object been executed yet
-  Bool executed;
+    // Has this object been executed yet
+    Bool executed;
 
-  // Facility that is holding this object
-  UnitObjPtr facility;
+    // Facility that is holding this object
+    UnitObjPtr facility;
 
 public:
-  
-  // Constructor and destructor
-  OffMapObj(OffMapObjType *objType, U32 id);
-  ~OffMapObj();
 
-  // Called to before deleting the object
-  void PreDelete();
+    // Constructor and destructor
+    OffMapObj(OffMapObjType* objType, U32 id);
+    ~OffMapObj();
 
-  // Load and save state configuration
-  void LoadState(FScope *fScope);
-  virtual void SaveState(FScope *fScope, MeshEnt * theMesh = NULL);
+    // Called to before deleting the object
+    void PreDelete();
 
-  // Called after all objects are loaded
-  void PostLoad();
+    // Load and save state configuration
+    void LoadState(FScope* fScope);
+    virtual void SaveState(FScope* fScope, MeshEnt* theMesh = NULL);
 
-  // Setup the facility
-  void SetFacility(UnitObj *unit);
+    // Called after all objects are loaded
+    void PostLoad();
 
-  // Check execution position
-  virtual Bool Check(const Vector &pos);
+    // Setup the facility
+    void SetFacility(UnitObj* unit);
 
-  // Execute an operation (TRUE if accepted)
-  virtual Bool Execute(U32 operation, const Vector &pos);
+    // Check execution position
+    virtual Bool Check(const Vector& pos);
 
-  // Called when the object has been executed and can be deleted (returns TRUE)
-  Bool Done();
+    // Execute an operation (TRUE if accepted)
+    virtual Bool Execute(U32 operation, const Vector& pos);
 
-  // Get pointer to type
-  OffMapObjType * OffMapType()
-  {
-    // This is a safe cast
-    return ((OffMapObjType *)type);
-  }
+    // Called when the object has been executed and can be deleted (returns TRUE)
+    Bool Done();
 
-  // Return the assigned facility, or NULL
-  UnitObj * GetFacility()
-  {
-    return (facility.GetPointer());
-  }
+    // Get pointer to type
+    OffMapObjType* OffMapType()
+    {
+        // This is a safe cast
+        return ((OffMapObjType*)type);
+    }
 
-  // Has this object been executed yet
-  Bool Executed()
-  {
-    return (executed);
-  }
+    // Return the assigned facility, or NULL
+    UnitObj* GetFacility()
+    {
+        return (facility.GetPointer());
+    }
+
+    // Has this object been executed yet
+    Bool Executed()
+    {
+        return (executed);
+    }
 };
 
 #endif

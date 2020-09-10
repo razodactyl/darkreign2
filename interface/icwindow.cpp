@@ -38,9 +38,9 @@ static const char* CloseBtnCtlName = "[Close]";
 //
 ICWindow::ICWindow(IControl* parent)
     : IControl(parent),
-    windowStyle(0),
-    titleBarConfig(NULL),
-    closeBtnConfig(NULL)
+      windowStyle(0),
+      titleBarConfig(NULL),
+      closeBtnConfig(NULL)
 {
     // Default control style
     controlStyle |= STYLE_DROPSHADOW;
@@ -163,12 +163,10 @@ ClipRect ICWindow::GetAdjustmentRect()
         {
             r.Set(0, IFace::GetMetric(IFace::TITLE_HEIGHT), 0, 0);
         }
-        else
-
-            if (windowStyle & STYLE_THINTITLEBAR)
-            {
-                r.Set(0, IFace::GetMetric(IFace::THIN_TITLE_HEIGHT), 0, 0);
-            }
+        else if (windowStyle & STYLE_THINTITLEBAR)
+        {
+            r.Set(0, IFace::GetMetric(IFace::THIN_TITLE_HEIGHT), 0, 0);
+        }
     }
 
     return (r + IControl::GetAdjustmentRect());
@@ -184,24 +182,24 @@ void ICWindow::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0xC09E206D: // "TitleBarConfig"
-    {
-        titleBarConfig = IFace::FindRegData(fScope->NextArgString());
-        break;
-    }
+        case 0xC09E206D: // "TitleBarConfig"
+        {
+            titleBarConfig = IFace::FindRegData(fScope->NextArgString());
+            break;
+        }
 
-    case 0x06B57762: // "CloseButtonConfig"
-    {
-        closeBtnConfig = IFace::FindRegData(fScope->NextArgString());
-        break;
-    }
+        case 0x06B57762: // "CloseButtonConfig"
+        {
+            closeBtnConfig = IFace::FindRegData(fScope->NextArgString());
+            break;
+        }
 
-    default:
-    {
-        // Pass it to the previous level in the hierarchy
-        IControl::Setup(fScope);
-        break;
-    }
+        default:
+        {
+            // Pass it to the previous level in the hierarchy
+            IControl::Setup(fScope);
+            break;
+        }
     }
 }
 
@@ -233,115 +231,113 @@ U32 ICWindow::HandleEvent(Event& e)
         // Input events
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDOWN:
             {
-                if (InWindow(Point<S32>(e.input.mouseX, e.input.mouseY)))
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    // Raise window
-                    SendNotify(this, ICWindowMsg::Raise, FALSE);
+                    if (InWindow(Point<S32>(e.input.mouseX, e.input.mouseY)))
+                    {
+                        // Raise window
+                        SendNotify(this, ICWindowMsg::Raise, FALSE);
 
-                    // Handled
-                    return (TRUE);
+                        // Handled
+                        return (TRUE);
+                    }
                 }
+                break;
             }
-            break;
-        }
 
-        case Input::KEYDOWN:
-        case Input::KEYREPEAT:
-        {
-            switch (e.input.code)
+            case Input::KEYDOWN:
+            case Input::KEYREPEAT:
             {
-            case DIK_TAB:
-            {
-                // If nothing has the focus then activate the first tab stop control
-                if (IFace::GetFocus() == NULL)
+                switch (e.input.code)
                 {
-                    SetTabStop(NULL, TRUE);
+                    case DIK_TAB:
+                    {
+                        // If nothing has the focus then activate the first tab stop control
+                        if (IFace::GetFocus() == NULL)
+                        {
+                            SetTabStop(NULL, TRUE);
 
-                    // Handled
-                    return (TRUE);
+                            // Handled
+                            return (TRUE);
+                        }
+
+                        // Not handled
+                        break;
+                    }
+
+                    case DIK_ESCAPE:
+                    {
+                        // If modal then issue the Window::Close notification
+                        if ((controlStyle & STYLE_MODAL) && !(windowStyle & STYLE_NOSYSBUTTONS))
+                        {
+                            // Close window
+                            SendNotify(this, ICWindowMsg::Close, FALSE);
+
+                            // Handled
+                            return (TRUE);
+                        }
+
+                        // Not handled
+                        break;
+                    }
                 }
 
                 // Not handled
                 break;
             }
-
-            case DIK_ESCAPE:
-            {
-                // If modal then issue the Window::Close notification
-                if ((controlStyle & STYLE_MODAL) && !(windowStyle & STYLE_NOSYSBUTTONS))
-                {
-                    // Close window
-                    SendNotify(this, ICWindowMsg::Close, FALSE);
-
-                    // Handled
-                    return (TRUE);
-                }
-
-                // Not handled
-                break;
-            }
-            }
-
-            // Not handled
-            break;
-        }
         }
     }
-    else
-
-        if (e.type == IFace::EventID())
+    else if (e.type == IFace::EventID())
+    {
+        switch (e.subType)
         {
-            switch (e.subType)
-            {
                 // Notification events
             case IFace::NOTIFY:
             {
                 switch (e.iface.p1)
                 {
-                case ICWindowMsg::Raise:
-                {
-                    // Raise the window
-                    SetZPos(0);
+                    case ICWindowMsg::Raise:
+                    {
+                        // Raise the window
+                        SetZPos(0);
 
-                    // Handled
-                    return (TRUE);
-                }
+                        // Handled
+                        return (TRUE);
+                    }
 
-                case ICWindowMsg::Close:
-                {
-                    // Close window
-                    Deactivate();
+                    case ICWindowMsg::Close:
+                    {
+                        // Close window
+                        Deactivate();
 
-                    // Handled
-                    return (TRUE);
-                }
+                        // Handled
+                        return (TRUE);
+                    }
 
-                case ICWindowMsg::Maximize:
-                case ICWindowMsg::Minimize:
-                {
-                    // Not implemented
-                    break;
-                }
+                    case ICWindowMsg::Maximize:
+                    case ICWindowMsg::Minimize:
+                    {
+                        // Not implemented
+                        break;
+                    }
 
-                case ICWindowMsg::Destroy:
-                {
-                    // Mark for deletion
-                    MarkForDeletion();
+                    case ICWindowMsg::Destroy:
+                    {
+                        // Mark for deletion
+                        MarkForDeletion();
 
-                    // Handled
-                    return (TRUE);
-                }
+                        // Handled
+                        return (TRUE);
+                    }
                 }
 
                 // Not handled
                 break;
             }
-            }
         }
+    }
 
     // This event can't be handled by this control, so pass it to the parent class
     return (IControl::HandleEvent(e));
@@ -393,44 +389,44 @@ Bool ICWindow::SetStyleItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0x5984D56F: // "TitleBar"
-        style = STYLE_TITLEBAR | STYLE_CLOSEBUTTON;
-        break;
+        case 0x5984D56F: // "TitleBar"
+            style = STYLE_TITLEBAR | STYLE_CLOSEBUTTON;
+            break;
 
-    case 0xC03EC808: // "ThinTitleBar"
-        style = STYLE_TITLEBAR | STYLE_THINTITLEBAR | STYLE_CLOSEBUTTON;
-        break;
+        case 0xC03EC808: // "ThinTitleBar"
+            style = STYLE_TITLEBAR | STYLE_THINTITLEBAR | STYLE_CLOSEBUTTON;
+            break;
 
-    case 0x4DA2A66E: // "CloseButton"
-        style = STYLE_CLOSEBUTTON;
-        break;
+        case 0x4DA2A66E: // "CloseButton"
+            style = STYLE_CLOSEBUTTON;
+            break;
 
-    case 0x24F45607: // "MaxButton"
-        style = STYLE_MAXBUTTON;
-        break;
+        case 0x24F45607: // "MaxButton"
+            style = STYLE_MAXBUTTON;
+            break;
 
-    case 0xB1381124: // "MinButton"
-        style = STYLE_MINBUTTON;
-        break;
+        case 0xB1381124: // "MinButton"
+            style = STYLE_MINBUTTON;
+            break;
 
-    case 0xD2558D4B: // "HelpButton"
-        style = STYLE_HELPBUTTON;
-        break;
+        case 0xD2558D4B: // "HelpButton"
+            style = STYLE_HELPBUTTON;
+            break;
 
-    case 0xFF5F1F2A: // "NoSysButtons"
-        style = STYLE_NOSYSBUTTONS;
-        break;
+        case 0xFF5F1F2A: // "NoSysButtons"
+            style = STYLE_NOSYSBUTTONS;
+            break;
 
-    case 0x5AA830EF: // "AdjustWindow"
-        style = STYLE_ADJUSTWINDOW;
-        break;
+        case 0x5AA830EF: // "AdjustWindow"
+            style = STYLE_ADJUSTWINDOW;
+            break;
 
-    case 0xAD6CFFC7: // "Immovable"
-        style = STYLE_IMMOVABLE;
-        break;
+        case 0xAD6CFFC7: // "Immovable"
+            style = STYLE_IMMOVABLE;
+            break;
 
-    default:
-        return IControl::SetStyleItem(s, toggle);
+        default:
+            return IControl::SetStyleItem(s, toggle);
     }
 
     // Toggle the style
@@ -476,66 +472,66 @@ U32 ICWindowTitle::HandleEvent(Event& e)
         // Input events
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        case Input::MOUSEBUTTONDBLCLK:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDOWN:
+            case Input::MOUSEBUTTONDBLCLK:
             {
-                // Don't move window if it has immovable style
-                ICWindow* parentWnd = IFace::Promote<ICWindow>(parent);
-
-                if (parentWnd && !(parentWnd->GetWinStyle() & ICWindow::STYLE_IMMOVABLE))
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    // Take mouse capture
-                    GetMouseCapture();
+                    // Don't move window if it has immovable style
+                    ICWindow* parentWnd = IFace::Promote<ICWindow>(parent);
 
-                    // Raise window
-                    SendNotify(parent, ICWindowMsg::Raise, FALSE);
+                    if (parentWnd && !(parentWnd->GetWinStyle() & ICWindow::STYLE_IMMOVABLE))
+                    {
+                        // Take mouse capture
+                        GetMouseCapture();
 
-                    // Start dragging
-                    dragPos = Point<S32>(e.input.mouseX, e.input.mouseY);
+                        // Raise window
+                        SendNotify(parent, ICWindowMsg::Raise, FALSE);
+
+                        // Start dragging
+                        dragPos = Point<S32>(e.input.mouseX, e.input.mouseY);
+                    }
                 }
+                break;
             }
-            break;
-        }
 
-        case Input::MOUSEBUTTONUP:
-        case Input::MOUSEBUTTONDBLCLKUP:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONUP:
+            case Input::MOUSEBUTTONDBLCLKUP:
             {
-                // Release mouse capture
+                if (e.input.code == Input::LeftButtonCode())
+                {
+                    // Release mouse capture
+                    if (HasMouseCapture())
+                    {
+                        ReleaseMouseCapture();
+                    }
+
+                    // Handled
+                    return (TRUE);
+                }
+
+                // Not handled
+                break;
+            }
+
+            case Input::MOUSEMOVE:
+            {
                 if (HasMouseCapture())
                 {
-                    ReleaseMouseCapture();
+                    ASSERT(parent);
+
+                    // Track the mouse
+                    Point<S32> mouse = Point<S32>(e.input.mouseX, e.input.mouseY);
+                    Point<S32> newPos = parent->GetPos() + mouse - dragPos;
+
+                    parent->MoveTo(newPos);
+                    dragPos = mouse;
+
+                    // Don't allow button to process this
+                    return (TRUE);
                 }
-
-                // Handled
-                return (TRUE);
+                break;
             }
-
-            // Not handled
-            break;
-        }
-
-        case Input::MOUSEMOVE:
-        {
-            if (HasMouseCapture())
-            {
-                ASSERT(parent);
-
-                // Track the mouse
-                Point<S32> mouse = Point<S32>(e.input.mouseX, e.input.mouseY);
-                Point<S32> newPos = parent->GetPos() + mouse - dragPos;
-
-                parent->MoveTo(newPos);
-                dragPos = mouse;
-
-                // Don't allow button to process this
-                return (TRUE);
-            }
-            break;
-        }
         }
     }
 

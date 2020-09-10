@@ -24,140 +24,136 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class PropertyList
+    // NameSpace Controls
     //
-
-
-    //
-    // PropertyList::PropertyList
-    //
-    // Constructor
-    //
-    PropertyList::PropertyList(IControl *parent)
-    : ICListBox(parent)
+    namespace Controls
     {
-    }
-
-    struct SetPropertyData
-    {
-      ICListBox *listBox;
-      const PropertyFilter *propertyFilter;
-    };
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PropertyList
+        //
 
 
-    //
-    // Activate
-    //
-    Bool PropertyList::Activate()
-    {
-      if (ICListBox::Activate())
-      {
-        ClearSelected(FALSE);
-
-        SetPropertyData data;
-        data.listBox = this;
-
-        // Get the current set of properties and select those items
-        if (Data::Get(&data.propertyFilter))
+        //
+        // PropertyList::PropertyList
+        //
+        // Constructor
+        //
+        PropertyList::PropertyList(IControl* parent)
+            : ICListBox(parent)
         {
-          // Get all of the selected items and build up the current property list
-          EnumNonSelected(SetPropertiesCallback, &data);
         }
-        return (TRUE);
-      }
-      return (FALSE);
-    }
 
-
-    //
-    // HandleEvent
-    //
-    U32 PropertyList::HandleEvent(Event &e)
-    {
-      if (e.type == IFace::EventID())
-      {
-        switch (e.subType)
+        struct SetPropertyData
         {
-          case IFace::NOTIFY:
-          {
-            // Do specific handling
-            switch (e.iface.p1)
+            ICListBox* listBox;
+            const PropertyFilter* propertyFilter;
+        };
+
+
+        //
+        // Activate
+        //
+        Bool PropertyList::Activate()
+        {
+            if (ICListBox::Activate())
             {
-              case PropertyListMsg::Download:
-                // We should only try to send if we're the host, it'll get ignored anyhow though
-                if (Cmd::isHost)
+                ClearSelected(FALSE);
+
+                SetPropertyData data;
+                data.listBox = this;
+
+                // Get the current set of properties and select those items
+                if (Data::Get(&data.propertyFilter))
                 {
-                  PropertyFilter propertyFilter;
-                  propertyFilter.numFilters = 0;
-                  Utils::Memset(propertyFilter.filters, 0x00, maxFilters * sizeof (CRC));
-
-                  // Get all of the selected items and build up the current property list
-                  EnumSelected(GetPropertiesCallback, &propertyFilter);
-
-                  // Send off the new property filters
-                  Data::Store(propertyFilter);
-
-                  // Invalidate host readyness
-                  Host::InvalidateLaunchReadyness();
+                    // Get all of the selected items and build up the current property list
+                    EnumNonSelected(SetPropertiesCallback, &data);
                 }
                 return (TRUE);
             }
-          }
+            return (FALSE);
         }
-      }
-      return (ICListBox::HandleEvent(e));
-    }
 
 
-    //
-    // SetPropertiesCallback
-    //
-    void PropertyList::SetPropertiesCallback(const char *key, const CH *, void *context)
-    {
-      SetPropertyData *data = reinterpret_cast<SetPropertyData *>(context);
-
-      U32 property = Crc::CalcStr(key);
-
-      for (U32 p = 0; p < data->propertyFilter->numFilters; p++)
-      {
-        if (property == data->propertyFilter->filters[p])
+        //
+        // HandleEvent
+        //
+        U32 PropertyList::HandleEvent(Event& e)
         {
-          // Select this one!
-          data->listBox->SetSelectedItem(key, FALSE, FALSE);
-          return;
+            if (e.type == IFace::EventID())
+            {
+                switch (e.subType)
+                {
+                    case IFace::NOTIFY:
+                    {
+                        // Do specific handling
+                        switch (e.iface.p1)
+                        {
+                            case PropertyListMsg::Download:
+                                // We should only try to send if we're the host, it'll get ignored anyhow though
+                                if (Cmd::isHost)
+                                {
+                                    PropertyFilter propertyFilter;
+                                    propertyFilter.numFilters = 0;
+                                    Utils::Memset(propertyFilter.filters, 0x00, maxFilters * sizeof(CRC));
+
+                                    // Get all of the selected items and build up the current property list
+                                    EnumSelected(GetPropertiesCallback, &propertyFilter);
+
+                                    // Send off the new property filters
+                                    Data::Store(propertyFilter);
+
+                                    // Invalidate host readyness
+                                    Host::InvalidateLaunchReadyness();
+                                }
+                                return (TRUE);
+                        }
+                    }
+                }
+            }
+            return (ICListBox::HandleEvent(e));
         }
-      }
+
+
+        //
+        // SetPropertiesCallback
+        //
+        void PropertyList::SetPropertiesCallback(const char* key, const CH*, void* context)
+        {
+            SetPropertyData* data = reinterpret_cast<SetPropertyData*>(context);
+
+            U32 property = Crc::CalcStr(key);
+
+            for (U32 p = 0; p < data->propertyFilter->numFilters; p++)
+            {
+                if (property == data->propertyFilter->filters[p])
+                {
+                    // Select this one!
+                    data->listBox->SetSelectedItem(key, FALSE, FALSE);
+                    return;
+                }
+            }
+        }
+
+
+        //
+        // GetPropertiesCallback
+        //
+        void PropertyList::GetPropertiesCallback(const char* key, const CH*, void* context)
+        {
+            PropertyFilter* propertyFilter = reinterpret_cast<PropertyFilter*>(context);
+
+            if (propertyFilter->numFilters < maxFilters)
+            {
+                // Add to the array of filtered properties
+                propertyFilter->filters[(propertyFilter->numFilters)++] = Crc::CalcStr(key);
+            }
+            else
+            {
+                LOG_DIAG(("Ignored property '%s' since we have too many", key))
+            }
+        }
     }
-
-    
-    //
-    // GetPropertiesCallback
-    //
-    void PropertyList::GetPropertiesCallback(const char *key, const CH *, void *context)
-    {
-      PropertyFilter *propertyFilter = reinterpret_cast<PropertyFilter *>(context);
-
-      if (propertyFilter->numFilters < maxFilters)
-      {
-        // Add to the array of filtered properties
-        propertyFilter->filters[(propertyFilter->numFilters)++] = Crc::CalcStr(key);
-      }
-      else
-      {
-        LOG_DIAG(("Ignored property '%s' since we have too many", key))
-      }
-    }
-
-  }
-
 }

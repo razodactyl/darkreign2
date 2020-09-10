@@ -19,6 +19,7 @@
 #define MAXREADINDICES    (Vid::renderState.maxIndices * 3)
 #define MAXREADTRIS       (Vid::renderState.maxTris    * 3)
 #define MAXREADBUCKYS     64
+
 //----------------------------------------------------------------------------
 
 enum XFileToken
@@ -59,66 +60,67 @@ enum XFileToken
 struct X_KEYWORDS
 {
     char* Token_Name;
-    XFileToken                  token;
+    XFileToken token;
 };
 
 static X_KEYWORDS XKeyTable[] =
 {
-    { "}",                      _CLOSE_BRACE                },
-    { "{",                      _OPEN_BRACE                 },
-    { "Header",                 _HEADER                     },
-    { "template",               _TEMPLATE                   },
-    { "Frame",                  _FRAME                      },
-    { "Mesh",                   _MESH                       },
-    { "MeshMaterialList",       _MESHMATERIALLIST           },
-    { "Material",               _MATERIAL                   },
-    { "TextureFilename",        _TEXTUREFILENAME            },
-    { "MeshNormals",            _MESHNORMALS                },
-    { "MeshTextureCoords",      _MESHTEXTURECOORDS          },
-    { "FrameTransformMatrix",   _FRAMETRANSFORMATIONMATRIX  },
-    { "AnimationSet",           _ANIMATIONSET               },
-    { "Animation",              _ANIMATION                  },
-    { "AnimationKey",           _ANIMATIONKEY               },
-    { "Transition_Key_Frames",  _TRANSITION_ANIMATIONKEY    },
+    {"}", _CLOSE_BRACE},
+    {"{", _OPEN_BRACE},
+    {"Header", _HEADER},
+    {"template", _TEMPLATE},
+    {"Frame", _FRAME},
+    {"Mesh", _MESH},
+    {"MeshMaterialList", _MESHMATERIALLIST},
+    {"Material", _MATERIAL},
+    {"TextureFilename", _TEXTUREFILENAME},
+    {"MeshNormals", _MESHNORMALS},
+    {"MeshTextureCoords", _MESHTEXTURECOORDS},
+    {"FrameTransformMatrix", _FRAMETRANSFORMATIONMATRIX},
+    {"AnimationSet", _ANIMATIONSET},
+    {"Animation", _ANIMATION},
+    {"AnimationKey", _ANIMATIONKEY},
+    {"Transition_Key_Frames", _TRANSITION_ANIMATIONKEY},
 
     // xsi stuff revision 0
-    { "CoordinateSystem",       _XSICOORDINATESYSTEM        },
-    { "XSIMaterial",            _XSIMATERIAL                },
-    { "XSIMeshTextureCoords",   _XSITEXTURECOORDS           },
-    { "XSIMeshVertexColors",    _XSIMESHCOLORS              },
-    { "XSIMeshNormals",         _MESHNORMALS                },
-    { "XSIAnimationKey",        _ANIMATIONKEY               },
+    {"CoordinateSystem", _XSICOORDINATESYSTEM},
+    {"XSIMaterial", _XSIMATERIAL},
+    {"XSIMeshTextureCoords", _XSITEXTURECOORDS},
+    {"XSIMeshVertexColors", _XSIMESHCOLORS},
+    {"XSIMeshNormals", _MESHNORMALS},
+    {"XSIAnimationKey", _ANIMATIONKEY},
 
     // xsi stuff revision 1
-    { "SI_CoordinateSystem",    _XSICOORDINATESYSTEM        },
-    { "SI_Material",            _XSIMATERIAL                },
-    { "SI_Texture2D",           _SI_TEXTURE2D               },
-  { "SI_MeshTextureCoords",   _XSITEXTURECOORDS           },
-    { "SI_MeshVertexColors",    _XSIMESHCOLORS              },
-    { "SI_MeshNormals",         _SI_MESHNORMALS             },
-    { "SI_AnimationKey",        _ANIMATIONKEY               },
-    { "SI_AnimationParamKey",   _SI_ANIMATIONPARAMKEY       },
+    {"SI_CoordinateSystem", _XSICOORDINATESYSTEM},
+    {"SI_Material", _XSIMATERIAL},
+    {"SI_Texture2D", _SI_TEXTURE2D},
+    {"SI_MeshTextureCoords", _XSITEXTURECOORDS},
+    {"SI_MeshVertexColors", _XSIMESHCOLORS},
+    {"SI_MeshNormals", _SI_MESHNORMALS},
+    {"SI_AnimationKey", _ANIMATIONKEY},
+    {"SI_AnimationParamKey", _SI_ANIMATIONPARAMKEY},
 
-    { "SI_FrameBasePoseMatrix", _SI_BASEPOSEMATRIX          },
-    { "SI_EnvelopeList",        _SI_ENVELOPELIST            },
-    { "SI_Envelope",            _SI_ENVELOPE                },
+    {"SI_FrameBasePoseMatrix", _SI_BASEPOSEMATRIX},
+    {"SI_EnvelopeList", _SI_ENVELOPELIST},
+    {"SI_Envelope", _SI_ENVELOPE},
 
-    {  NULL,                    _END_OF_FILE},
+    {nullptr, _END_OF_FILE},
 };
 
-static LexFile <XFileToken> XFileLex((void*)XKeyTable);
+static LexFile<XFileToken> XFileLex(static_cast<void*>(XKeyTable));
+
 //----------------------------------------------------------------------------
 
 // temp mesh data loading structure
 //
 struct MeshFeature
 {
-    U32             objCount, objCountLast;
+    U32 objCount, objCountLast;
 
-    U32             triCount, triCountLast;
+    U32 triCount, triCountLast;
     U16* tris;
 
-    U32             faceCount, faceCountLast;
+    U32 faceCount, faceCountLast;
     U16* faceIndex;
     U16* faceTris;
 
@@ -131,11 +133,12 @@ struct MeshFeature
         faceIndex = new U16[MAXREADTRIS];
         faceTris = new U16[MAXREADTRIS];
     }
+
     ~MeshFeature()
     {
-        delete[] tris;
-        delete[] faceIndex;
-        delete[] faceTris;
+        delete [] tris;
+        delete [] faceIndex;
+        delete [] faceTris;
     }
 
     void SaveCounts()
@@ -144,6 +147,7 @@ struct MeshFeature
         triCountLast = triCount;
         faceCountLast = faceCount;
     }
+
     void RestoreCounts()
     {
         objCount = objCountLast;
@@ -160,9 +164,10 @@ struct VectFeature : public MeshFeature
     {
         vects = new Vector[MAXREADVERTS];
     }
+
     ~VectFeature()
     {
-        delete[] vects;
+        delete [] vects;
     }
 };
 
@@ -174,9 +179,10 @@ struct ColorFeature : public MeshFeature
     {
         colors = new Color[MAXREADVERTS];
     }
+
     ~ColorFeature()
     {
-        delete[] colors;
+        delete [] colors;
     }
 };
 
@@ -188,9 +194,10 @@ struct TextFeature : public MeshFeature
     {
         uvs = new UVPair[MAXREADVERTS];
     }
+
     ~TextFeature()
     {
-        delete[] uvs;
+        delete [] uvs;
     }
 };
 
@@ -203,19 +210,18 @@ struct MatFeature : public MeshFeature
 
     MatFeature()
     {
-
-        textures[0][0] = NULL;
+        textures[0][0] = nullptr;
     }
-
 };
+
 //----------------------------------------------------------------------------
 
 static Bool sFlipZ = TRUE;
 static Bool sFlipX = TRUE;
 static Bool sIsXSI = FALSE;
-static F32  sScaleFactor;
-static char* sCurrFileName = NULL;
-static char* istreambuf = NULL;
+static F32 sScaleFactor;
+static char* sCurrFileName = nullptr;
+static char* istreambuf = nullptr;
 static int sMatList[MAXMATERIALS + 1];
 
 const char* XFILEVERSION = "xof 0302txt ";
@@ -234,19 +240,19 @@ static istrstream* Open(const char* fileName, XFileToken& token)
     if (!file)
     {
         //LOG_ERR(("MeshMan::Open: can't open file %s", fileName));
-        return NULL;
+        return nullptr;
     }
 
     // get the file size
     U32 size = file->Size();
 
     // allocate a string buffer
-    istreambuf = new char[size + 1];
+    istreambuf = new char [size + 1];
     file->Read(istreambuf, size);
     istreambuf[size] = '\0';
 
     // finished with the file
-    FileSys::Close(file);
+    Close(file);
 
     // create a string stream
     istrstream* iss = new istrstream(istreambuf, size + 1);
@@ -271,7 +277,7 @@ static istrstream* Open(const char* fileName, XFileToken& token)
             delete istreambuf;
             delete iss;
             LOG_ERR(("MeshMan::Open: bad xfile %s", fileName));
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -305,13 +311,14 @@ static istrstream* Open(const char* fileName, XFileToken& token)
             delete istreambuf;
             delete iss;
             LOG_ERR(("MeshMan::Open: no geometry in %s", fileName));
-            return NULL;
+            return nullptr;
         }
-
-    } while (token != _MATERIAL && token != _FRAME);
+    }
+    while (token != _MATERIAL && token != _FRAME);
 
     return iss;
 }
+
 //----------------------------------------------------------------------------
 
 static Material::Wrap* ReadMaterial(istrstream* iss, Bitmap** texture, Bool readXSI)
@@ -345,12 +352,14 @@ static Material::Wrap* ReadMaterial(istrstream* iss, Bitmap** texture, Bool read
     *iss >> emissive.r >> c >> emissive.g >> c >> emissive.b >> c >> c;
 
     Bool teamColor = diffuse.r != diffuse.g
-        || diffuse.r != diffuse.b
-        || diffuse.g != diffuse.b ? TRUE : FALSE;
+                     || diffuse.r != diffuse.b
+                     || diffuse.g != diffuse.b
+                         ? TRUE
+                         : FALSE;
 
     Bool envMap = specular.r != 0 || specular.g != 0 || specular.b != 0 ? TRUE : FALSE;
     Bool overlay = FALSE;
-    U32  blend = RS_BLEND_DEF;
+    U32 blend = RS_BLEND_DEF;
 
     if (Vid::Var::doGenericMat)
     {
@@ -365,12 +374,11 @@ static Material::Wrap* ReadMaterial(istrstream* iss, Bitmap** texture, Bool read
     if (emissive.r != 0 || emissive.g != 0 || emissive.b != 0)
     {
 #if 0
-        blend = RS_BLEND_DECAL;
+    blend = RS_BLEND_DECAL;
 #else
         if (emissive.r >= 3.0f)
         {
             blend = RS_BLEND_GLOW;
-
         }
         else if (emissive.r >= 2.0f)
         {
@@ -385,8 +393,8 @@ static Material::Wrap* ReadMaterial(istrstream* iss, Bitmap** texture, Bool read
 
     // clear out 2 slots
     //
-    *texture = NULL;
-    *(texture + 1) = NULL;
+    *texture = nullptr;
+    *(texture + 1) = nullptr;
 
     char texName[MAX_BUFFLEN];
     *texName = '\0';
@@ -429,7 +437,7 @@ static Material::Wrap* ReadMaterial(istrstream* iss, Bitmap** texture, Bool read
 
             if (texCount < MAXOVERLAYS + 1)
             {
-                strcpy(texName, Utils::ChopPath(tname));
+                strcpy(texName, Utils::FindName(tname));
                 char* dot = Utils::FindExt(tname);
                 if (!dot)
                 {
@@ -463,23 +471,25 @@ static Material::Wrap* ReadMaterial(istrstream* iss, Bitmap** texture, Bool read
 
             // material close brace
             token = XFileLex.GetToken(iss);
-
-        } while (token == _SI_TEXTURE2D);
+        }
+        while (token == _SI_TEXTURE2D);
     }
 
     // terminating NULL
     //
-    *texture = NULL;
+    *texture = nullptr;
 
     // find the material and set it up
-    Material::Wrap* wrap = Material::Manager::FindCreateWrap(
+    Material::Wrap* wrap = Material::Manager::FindCreateWrap
+    (
         diffuse, specular, power, white, white,
-        blend, teamColor, envMap, overlay);
+        blend, teamColor, envMap, overlay
+    );
 
     if (!wrap)
     {
         LOG_ERR(("MeshMan::ReadMaterial: out of memory reading %s", sCurrFileName));
-        return NULL;
+        return nullptr;
     }
 
     wrap->SetDiffuse(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
@@ -490,6 +500,7 @@ static Material::Wrap* ReadMaterial(istrstream* iss, Bitmap** texture, Bool read
 
     return wrap;
 }
+
 //----------------------------------------------------------------------------
 
 static void ReadFaces(istrstream* iss, MeshFeature& feature, Bool readTexXSI)
@@ -558,8 +569,8 @@ static void ReadFaces(istrstream* iss, MeshFeature& feature, Bool readTexXSI)
             }
 
             // save face index and triangle count
-            feature.faceIndex[i + feature.faceCount] = (U16)fcount;
-            feature.faceTris[i + feature.faceCount] = (U16)(indexCount - 2);
+            feature.faceIndex[i + feature.faceCount] = static_cast<U16>(fcount);
+            feature.faceTris[i + feature.faceCount] = static_cast<U16>(indexCount - 2);
 
             U32 icount = fcount * 3;
             for (j = 2; j < indexCount; j++, fcount++)
@@ -570,12 +581,12 @@ static void ReadFaces(istrstream* iss, MeshFeature& feature, Bool readTexXSI)
                     ERR_FATAL(("Too many tris in: %s", sCurrFileName));
                 }
 
-                ASSERT(index[0] < feature.objCount && index[j - 1] < feature.objCount && index[j] < feature.objCount);
+                ASSERT(index[0] < feature.objCount && index[j-1] < feature.objCount && index[j] < feature.objCount);
 
                 // add a new triangle
-                feature.tris[icount++] = (U16)index[0];
-                feature.tris[icount++] = (U16)index[j - 1];
-                feature.tris[icount++] = (U16)index[j];
+                feature.tris[icount++] = static_cast<U16>(index[0]);
+                feature.tris[icount++] = static_cast<U16>(index[j - 1]);
+                feature.tris[icount++] = static_cast<U16>(index[j]);
             }
         }
 
@@ -586,6 +597,7 @@ static void ReadFaces(istrstream* iss, MeshFeature& feature, Bool readTexXSI)
     feature.triCount = fcount;
     feature.faceCount += facecount;
 }
+
 //----------------------------------------------------------------------------
 
 static void ReadVertices(istrstream* iss, VectFeature& feature)
@@ -605,7 +617,7 @@ static void ReadVertices(istrstream* iss, VectFeature& feature)
 
     Vector* vects = feature.vects;
     U32 i;
-    for (i = 0; i < count; i++)
+    for (i = 0; i < count; i ++)
     {
         U32 j = i + feature.objCount;
 
@@ -626,6 +638,7 @@ static void ReadVertices(istrstream* iss, VectFeature& feature)
 
     ReadFaces(iss, feature, FALSE);
 }
+
 //----------------------------------------------------------------------------
 
 static void ReadSINormals(istrstream* iss, VectFeature& feature)
@@ -664,6 +677,7 @@ static void ReadSINormals(istrstream* iss, VectFeature& feature)
 
     ReadFaces(iss, feature, TRUE);
 }
+
 //----------------------------------------------------------------------------
 
 static void ReadColors(istrstream* iss, ColorFeature& feature)
@@ -696,6 +710,7 @@ static void ReadColors(istrstream* iss, ColorFeature& feature)
 
     ReadFaces(iss, feature, TRUE);
 }
+
 //----------------------------------------------------------------------------
 
 static void ReadTexCoords(istrstream* iss, TextFeature& feature, Bool readXSI)
@@ -719,7 +734,7 @@ static void ReadTexCoords(istrstream* iss, TextFeature& feature, Bool readXSI)
     if (readXSI)
     {
         F32 Max_V = 0.0f;
-        for (i = 0; i < count; i++)
+        for (i = 0; i < count; i ++)
         {
             U32 j = i + feature.objCount;
 
@@ -733,8 +748,8 @@ static void ReadTexCoords(istrstream* iss, TextFeature& feature, Bool readXSI)
 
         // invert uvs for pics:  FIXME
         //    
-        Max_V = (F32)ceil(Max_V);
-        for (i = 0; i < count; i++)
+        Max_V = static_cast<F32>(ceil(Max_V));
+        for (i = 0; i < count; i ++)
         {
             U32 j = i + feature.objCount;
 
@@ -747,7 +762,7 @@ static void ReadTexCoords(istrstream* iss, TextFeature& feature, Bool readXSI)
     }
     else
     {
-        for (i = 0; i < count; i++)
+        for (i = 0; i < count; i ++)
         {
             U32 j = i + feature.objCount;
 
@@ -758,6 +773,7 @@ static void ReadTexCoords(istrstream* iss, TextFeature& feature, Bool readXSI)
     // open brace
     token = XFileLex.GetToken(iss);
 }
+
 //----------------------------------------------------------------------------
 
 static void ReadMaterialList(istrstream* iss, MatFeature& feature)
@@ -779,7 +795,7 @@ static void ReadMaterialList(istrstream* iss, MatFeature& feature)
         *iss >> index >> c;
 
         index += feature.objCount;
-        feature.tris[(i + feature.triCount) * 3] = (U16)index;
+        feature.tris[(i + feature.triCount) * 3] = static_cast<U16>(index);
     }
     // get the last semicolon   JDC!!!
     //*iss >> c;
@@ -796,10 +812,10 @@ static void ReadMaterialList(istrstream* iss, MatFeature& feature)
             feature.materials[count] = ReadMaterial(iss, &(feature.textures[count][0]), sIsXSI);
 
 #if 0
-            LOG_DIAG(("%d: tex0 : %s  tex1 : %s", count,
-                feature.textures[count][0] ? feature.textures[count][0]->GetName() : "null",
-                feature.textures[count][1] ? feature.textures[count][1]->GetName() : "null"
-                ));
+      LOG_DIAG(("%d: tex0 : %s  tex1 : %s", count, 
+        feature.textures[count][0] ? feature.textures[count][0]->GetName() : "null",
+        feature.textures[count][1] ? feature.textures[count][1]->GetName() : "null"
+        ));
 #endif
 
             // read the next _MATERIAL token or close brace
@@ -816,9 +832,9 @@ static void ReadMaterialList(istrstream* iss, MatFeature& feature)
             NameString buffer;
             XFileLex.GetString(iss, buffer.str);
 
-            feature.materials[count] = NULL;  // Material::Manager::FindCreateWrap( buffer.str);  FIXME
-            feature.textures[count][0] = NULL;
-            feature.textures[count][1] = NULL;
+            feature.materials[count] = nullptr;  // Material::Manager::FindCreateWrap( buffer.str);  FIXME
+            feature.textures[count][0] = nullptr;
+            feature.textures[count][1] = nullptr;
             if (feature.materials[count])
             {
                 //				feature.textures[count][0] = feature.materials[count]->GetTexture();    FIXME
@@ -834,9 +850,10 @@ static void ReadMaterialList(istrstream* iss, MatFeature& feature)
     feature.triCount += faceCount;
     feature.objCount += matCount;
 }
+
 //----------------------------------------------------------------------------
 static MeshRoot* sRoot;
-static VectFeature* vertfeat, * normfeat;
+static VectFeature *vertfeat, *normfeat;
 static TextFeature* textfeat;
 static ColorFeature* colorfeat;
 static MatFeature* matfeat;
@@ -884,34 +901,34 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
     {
         switch (token)
         {
-        case _MESHMATERIALLIST:
-            ReadMaterialList(iss, *matfeat);
-            break;
-        case _MESHNORMALS:
-            ReadVertices(iss, *normfeat);
-            // close brace
-            token = XFileLex.GetToken(iss);
-            break;
+            case _MESHMATERIALLIST:
+                ReadMaterialList(iss, *matfeat);
+                break;
+            case _MESHNORMALS:
+                ReadVertices(iss, *normfeat);
+                // close brace
+                token = XFileLex.GetToken(iss);
+                break;
 
-        case _SI_MESHNORMALS:
-            ReadSINormals(iss, *normfeat);
-            // close brace
-            token = XFileLex.GetToken(iss);
-            break;
+            case _SI_MESHNORMALS:
+                ReadSINormals(iss, *normfeat);
+                // close brace
+                token = XFileLex.GetToken(iss);
+                break;
 
-        case _MESHTEXTURECOORDS:
-            ReadTexCoords(iss, *textfeat, FALSE);
-            textfeat->triCount = vertfeat->triCount;
-            memcpy(textfeat->tris, vertfeat->tris, vertfeat->triCount * 3 * sizeof(U16));
-            break;
-        case _XSITEXTURECOORDS:
-            ReadTexCoords(iss, *textfeat, TRUE);
-            //token = XFileLex.GetToken(iss);
-            break;
-        case _XSIMESHCOLORS:
-            ReadColors(iss, *colorfeat);
-            token = XFileLex.GetToken(iss);
-            break;
+            case _MESHTEXTURECOORDS:
+                ReadTexCoords(iss, *textfeat, FALSE);
+                textfeat->triCount = vertfeat->triCount;
+                memcpy(textfeat->tris, vertfeat->tris, vertfeat->triCount * 3 * sizeof(U16));
+                break;
+            case _XSITEXTURECOORDS:
+                ReadTexCoords(iss, *textfeat, TRUE);
+                //token = XFileLex.GetToken(iss);
+                break;
+            case _XSIMESHCOLORS:
+                ReadColors(iss, *colorfeat);
+                token = XFileLex.GetToken(iss);
+                break;
         }
     }
     // check for a null object (all verts equal)
@@ -940,18 +957,18 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
     {
         vertfeat->vects[i] *= sScaleFactor;
         verttostate[i].count = 1;
-        verttostate[i].index[0] = (U16)meshStateCount;
+        verttostate[i].index[0] = static_cast<U16>(meshStateCount);
         verttostate[i].weight[0] = 1.0f;
     }
 
     for (i = textfeat->objCountLast; i < textfeat->objCount; i++)
     {
-        texttostate[i] = (U16)meshStateCount;
+        texttostate[i] = static_cast<U16>(meshStateCount);
     }
 
     //  Bool local->geometry = (mesh && mesh->RenderFlags() & RS_HIDDEN) || isShadowPlane;
 
-        // force identical tricounts
+    // force identical tricounts
     if (normfeat->triCount < vertfeat->triCount)
     {
         for (i = normfeat->triCount; i < vertfeat->triCount; i++)
@@ -975,7 +992,7 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
         for (i = colorfeat->triCount; i < vertfeat->triCount; i++)
         {
             colorfeat->tris[i * 3 + 1] = colorfeat->tris[i * 3 + 1] = colorfeat->tris[i * 3 + 2] =
-                (U16)colorfeat->objCount;
+                static_cast<U16>(colorfeat->objCount);
         }
         colorfeat->objCount++;
         colorfeat->triCount = vertfeat->triCount;
@@ -1052,7 +1069,7 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
 
                     if (test)
                     {
-                        indices[j] = (U16)vertexCount;
+                        indices[j] = static_cast<U16>(vertexCount);
                     }
                 }
                 vertices[vertexCount] = vertices[i];
@@ -1060,7 +1077,7 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
                 {
                     colors[vertexCount] = colors[i];
                 }
-                indices[i] = (U16)vertexCount;
+                indices[i] = static_cast<U16>(vertexCount);
                 vertexCount++;
             }
         }
@@ -1073,9 +1090,9 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
             colorfeat->RestoreCounts();
             matfeat->RestoreCounts();
 
-            delete[] vertices;
-            delete[] colors;
-            delete[] indices;
+            delete [] vertices;
+            delete [] colors;
+            delete [] indices;
 
             return TRUE;
         }
@@ -1093,7 +1110,7 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
         {
             U32 vIndex = indices[i];
 
-            mesh->local->indices[i] = (U16)vIndex;
+            mesh->local->indices[i] = static_cast<U16>(vIndex);
             mesh->local->vertices[vIndex] = vertices[vIndex].vv;
             if (hasColors)
             {
@@ -1107,10 +1124,10 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
         }
         // one material per mesh for now
         mesh->local->groups.Alloc(1);
-        mesh->local->groups[0].vertCount = (U16)mesh->local->vertices.count;
-        mesh->local->groups[0].indexCount = (U16)mesh->local->indices.count;
-        mesh->local->groups[0].planeIndex = (U16)0;
-        mesh->local->groups[0].stateIndex = (U16)meshStateCount;
+        mesh->local->groups[0].vertCount = static_cast<U16>(mesh->local->vertices.count);
+        mesh->local->groups[0].indexCount = static_cast<U16>(mesh->local->indices.count);
+        mesh->local->groups[0].planeIndex = static_cast<U16>(0);
+        mesh->local->groups[0].stateIndex = static_cast<U16>(meshStateCount);
 
         Material::Wrap* wrap = matfeat->materials[matfeat->tris[matfeat->triCountLast * 3 + 0]];
         mesh->local->groups[0].material = wrap->material;
@@ -1122,9 +1139,9 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
         colorfeat->RestoreCounts();
         matfeat->RestoreCounts();
 
-        delete[] vertices;
-        delete[] colors;
-        delete[] indices;
+        delete [] vertices;
+        delete [] colors;
+        delete [] indices;
 
         if (isShadowPlane)
         {
@@ -1135,15 +1152,21 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
             //
             if (vCount < 4)
             {
-                WARN_CON_DIAG(("Shadow layer %s : Invalid vert count (%d) in %s",
-                    buffer, vCount, sCurrFileName));
+                WARN_CON_DIAG
+                (
+                    ("Shadow layer %s : Invalid vert count (%d) in %s",
+                        buffer, vCount, sCurrFileName)
+                );
             }
 
             // If there are any colors, must be same number as verts
             if (cCount && cCount != vCount)
             {
-                WARN_CON_DIAG(("Shadow layer %s: Invalid color count (%d/%d) in %s",
-                    buffer, vCount, cCount, sCurrFileName));
+                WARN_CON_DIAG
+                (
+                    ("Shadow layer %s: Invalid color count (%d/%d) in %s",
+                        buffer, vCount, cCount, sCurrFileName)
+                );
             }
 
             Vector* verts = &mesh->local->vertices[0];
@@ -1173,28 +1196,35 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
 #if 1
                 S32 modx = Utils::FtoL(v.x);
                 S32 modz = Utils::FtoL(v.z);
-                if ((F32)modx != v.x || (F32)modz != v.z)
+                if (static_cast<F32>(modx) != v.x || static_cast<F32>(modz) != v.z)
                 {
-                    WARN_CON_DIAG(("Shadow layer %s : Invalid vert pos (%f,%f,%f) in %s",
-                        buffer, v.x, v.y, v.z, sCurrFileName));
+                    WARN_CON_DIAG
+                    (
+                        ("Shadow layer %s : Invalid vert pos (%f,%f,%f) in %s",
+                            buffer, v.x, v.y, v.z, sCurrFileName)
+                    );
                 }
 #endif
-
             }
 
             // Get the difference between max and min verts
             Vector delta = max - min;
 
             // Save sizes in verts
-            Point<S32> size(
-                (S32)((delta.x + 4.0f) / 8.0f) + 1,
-                (S32)((delta.z + 4.0f) / 8.0f) + 1);
+            Point<S32> size
+            (
+                static_cast<S32>((delta.x + 4.0f) / 8.0f) + 1,
+                static_cast<S32>((delta.z + 4.0f) / 8.0f) + 1
+            );
 
             // Ensure at least one cell wide
             if (size.x < 2 || size.z < 2)
             {
-                WARN_CON_DIAG(("Shadow layer %s : Invalid extents (%d, %d) in %s",
-                    buffer, size.x, size.z, sCurrFileName));
+                WARN_CON_DIAG
+                (
+                    ("Shadow layer %s : Invalid extents (%d, %d) in %s",
+                        buffer, size.x, size.z, sCurrFileName)
+                );
             }
         }
     }
@@ -1215,10 +1245,11 @@ static Bool ReadMesh(istrstream* iss, XFileToken& token, Mesh* mesh)
         ERR_FATAL(("vertfeat->faceCount != normfeat->triCount: %s", sCurrFileName));
     }
 
-    meshvertindex[meshStateCount] = (U16)vertfeat->objCountLast;
+    meshvertindex[meshStateCount] = static_cast<U16>(vertfeat->objCountLast);
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 static void ReadMatrix(istrstream* iss, Matrix& m)
@@ -1275,6 +1306,7 @@ static void ReadMatrix(istrstream* iss, Matrix& m)
     // close brace
     token = XFileLex.GetToken(iss);
 }
+
 //----------------------------------------------------------------------------
 
 static Bool ReadMeshGroup(istrstream* iss, XFileToken& token, Mesh* mesh, FamilyState* meshStates, Mesh* parent, Bool isPrimary = TRUE)
@@ -1342,7 +1374,7 @@ static Bool ReadMeshGroup(istrstream* iss, XFileToken& token, Mesh* mesh, Family
     if (token == _FRAME)
     {
         // child frame
-        Mesh* newMesh = NULL;
+        Mesh* newMesh = nullptr;
         if (mesh)
         {
             newMesh = new Mesh;
@@ -1356,8 +1388,8 @@ static Bool ReadMeshGroup(istrstream* iss, XFileToken& token, Mesh* mesh, Family
         if (token == _FRAME)
         {
             // sibling frame
-            Mesh* newMesh = NULL;
-            Mesh* curPar = NULL;
+            Mesh* newMesh = nullptr;
+            Mesh* curPar = nullptr;
             if (mesh)
             {
                 if (!mesh->Parent())
@@ -1373,6 +1405,7 @@ static Bool ReadMeshGroup(istrstream* iss, XFileToken& token, Mesh* mesh, Family
     }
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 static U32 ReadRotations(istrstream* iss, AnimKey* keys, U32& count)
@@ -1419,7 +1452,7 @@ static U32 ReadRotations(istrstream* iss, AnimKey* keys, U32& count)
         keys[i].type = animQUATERNION;
 
         // record animation frame
-        keys[i].frame = (F32)frame;
+        keys[i].frame = static_cast<F32>(frame);
 
         // force rotations beyond 180 degrees to take the correct anim path
         if (i > 0)
@@ -1434,6 +1467,7 @@ static U32 ReadRotations(istrstream* iss, AnimKey* keys, U32& count)
 
     return count;
 }
+
 //----------------------------------------------------------------------------
 
 static U32 ReadPositions(istrstream* iss, AnimKey* keys, U32& count)
@@ -1494,11 +1528,12 @@ static U32 ReadPositions(istrstream* iss, AnimKey* keys, U32& count)
         keys[i].type = animPOSITION;
 
         // record animation number
-        keys[i].frame = (F32)frame;
+        keys[i].frame = static_cast<F32>(frame);
     }
 
     return count;
 }
+
 //----------------------------------------------------------------------------
 
 static U32 ReadScales(istrstream* iss, AnimKey* keys, U32& count)
@@ -1531,11 +1566,12 @@ static U32 ReadScales(istrstream* iss, AnimKey* keys, U32& count)
         keys[i].type = animSCALE;
 
         // record animation frame
-        keys[i].frame = (F32)frame;
+        keys[i].frame = static_cast<F32>(frame);
     }
 
     return count;
 }
+
 //----------------------------------------------------------------------------
 
 static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
@@ -1552,7 +1588,7 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
     AnimKey scaleKeys[MAXKEYFRAMES];
     U32 posCount, rotCount, scaleCount;
 
-    Animation* anim = NULL;
+    Animation* anim = nullptr;
     do
     {
         if (!anim)
@@ -1581,16 +1617,16 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
         }
 
 #if 0
-        // strip off any renderstate name stuff
-        char* s;
-        for (s = namep; s[0] != '\0'; s++)
-        {
-            if (s[0] == '_' && s[1] == '_')
-            {
-                s[0] = '\0';
-                break;
-            }
-        }
+    // strip off any renderstate name stuff
+	  char *s;
+    for (s = namep; s[0] != '\0'; s++)
+    {
+      if (s[0] == '_' && s[1] == '_')
+      {
+        s[0] = '\0';
+        break;
+      }
+    }
 #endif
 
         // close brace of the frame name
@@ -1605,17 +1641,17 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
             *iss >> type >> c;
             switch (type)
             {
-            case 0:     // rotation (quaternion)
-                ReadRotations(iss, rotKeys, rotCount);
-                break;
+                case 0:     // rotation (quaternion)
+                    ReadRotations(iss, rotKeys, rotCount);
+                    break;
 
-            case 1:     // scale (vector)
-                ReadScales(iss, scaleKeys, scaleCount);
-                break;
+                case 1:     // scale (vector)
+                    ReadScales(iss, scaleKeys, scaleCount);
+                    break;
 
-            case 2:     // position (vector)
-                ReadPositions(iss, posKeys, posCount);
-                break;
+                case 2:     // position (vector)
+                    ReadPositions(iss, posKeys, posCount);
+                    break;
             }
             // _ANIMATIONKEY close brace
             token = XFileLex.GetToken(iss);
@@ -1643,15 +1679,15 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
         }
 
         // setup anim to node index
-        Mesh* meshnode = (Mesh*)root.FindMesh(namep);
+        Mesh* meshnode = static_cast<Mesh*>(root.FindMesh(namep));
         if (meshnode)
         {
             anim->index = meshnode->GetIndex();
 
             //      LOG_DIAG( ("MeshRoot::FindRead: anim: %s", namep) );
 
-                        // setup node's matrix to reflect the first key
-                        //    AnimKey &state = mesh.states[anim->index];
+            // setup node's matrix to reflect the first key
+            //    AnimKey &state = mesh.states[anim->index];
             AnimKey& state = animList.states[anim->index];
 
             state.frame = 0.0f;
@@ -1690,17 +1726,20 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
                     // scale keys need a valid quat
                     scaleKeys[0].quaternion = state.quaternion;
                     scaleKeys[0].type |= animQUATERNION;
-                    ASSERT(!(state.quaternion.s == 0.0f
-                        && state.quaternion.v.x == 0.0f
-                        && state.quaternion.v.y == 0.0f
-                        && state.quaternion.v.y == 0.0f));
+                    ASSERT
+                    (
+                        !(state.quaternion.s == 0.0f
+                            && state.quaternion.v.x == 0.0f
+                            && state.quaternion.v.y == 0.0f
+                            && state.quaternion.v.y == 0.0f)
+                    );
                 }
             }
 #endif
             //			if (!mesh.animCycles.GetCount())
             {
                 // if this is the default cycle then setup the node's stateArray
-//				root.states[anim->index] = state;
+                //				root.states[anim->index] = state;
                 meshnode->SetObjectMatrix(state.quaternion, state.position);
             }
 
@@ -1713,8 +1752,11 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
 
             if ((rotKeys || rotCount) && !Utils::Strnicmp(meshnode->GetName(), "cp-", 3))
             {
-                LOG_CON_DIAG(("Control point %s in %s has conflictin animation.",
-                    meshnode->GetName(), sCurrFileName));
+                LOG_CON_DIAG
+                (
+                    ("Control point %s in %s has conflictin animation.",
+                        meshnode->GetName(), sCurrFileName)
+                );
             }
         }
         else
@@ -1726,11 +1768,11 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
         if (anim->maxFrame != 0)
         {
             animList.Append(anim);
-            anim = NULL;
+            anim = nullptr;
         }
         token = XFileLex.GetToken(iss);
-
-    } while (token == _ANIMATION);
+    }
+    while (token == _ANIMATION);
 
     if (anim && anim->maxFrame == 0)
     {
@@ -1743,6 +1785,7 @@ static Bool ReadAnimList(istrstream* iss, AnimList& animList, MeshRoot& root)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 static AnimList* ReadAnim(istrstream* iss, XFileToken& token, MeshRoot& mesh, Bool useEmpty = FALSE)
@@ -1753,7 +1796,7 @@ static AnimList* ReadAnim(istrstream* iss, XFileToken& token, MeshRoot& mesh, Bo
     }
     if (token != _ANIMATIONSET && !useEmpty)
     {
-        return NULL;
+        return nullptr;
     }
     AnimList* animList = new AnimList;
 
@@ -1768,7 +1811,7 @@ static AnimList* ReadAnim(istrstream* iss, XFileToken& token, MeshRoot& mesh, Bo
     if ((animList->GetCount() == 0 && !useEmpty))
     {
         delete animList;
-        animList = NULL;
+        animList = nullptr;
     }
     else
     {
@@ -1778,11 +1821,12 @@ static AnimList* ReadAnim(istrstream* iss, XFileToken& token, MeshRoot& mesh, Bo
         {
             // if nobody has any animations get rid of the base group
             delete animList;
-            animList = NULL;
+            animList = nullptr;
         }
     }
     return animList;
 }
+
 //----------------------------------------------------------------------------
 U32 oldVertexCount;
 
@@ -1923,7 +1967,7 @@ Bool ReadEnvelopes(istrstream* iss, XFileToken& token, MeshRoot& root)
                 vertindex[index].weight[0] -= weight;
 
                 // add new weight component
-                vertindex[index].index[wc] = (U16)meshnode2->GetIndex();
+                vertindex[index].index[wc] = static_cast<U16>(meshnode2->GetIndex());
                 vertindex[index].weight[wc] = weight;
 
                 // increment the weight count
@@ -2007,7 +2051,7 @@ Bool ReadEnvelopes(istrstream* iss, XFileToken& token, MeshRoot& root)
         }
     }
 
-    delete[] vertindex;
+    delete [] vertindex;
 
     // close brace
     token = XFileLex.GetToken(iss);
@@ -2016,6 +2060,7 @@ Bool ReadEnvelopes(istrstream* iss, XFileToken& token, MeshRoot& root)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 // compare function for sorting faces via qsort
@@ -2046,6 +2091,7 @@ static int _cdecl CompareFaces(const void* e1, const void* e2)
 
     return 0;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::FindRead(const char* meshName, F32 scale, Bool mrmGen, const char* fileName) // = NULL
@@ -2057,14 +2103,14 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, F32 scale, Bool mrmGen, 
     }
 
     // save changable mesh load control values
-    F32  scal = Vid::Var::scaleFactor;
+    F32 scal = Vid::Var::scaleFactor;
     Bool mgen = Vid::Var::doMrmGen;
 
     // set load controls
     Vid::Var::scaleFactor = scale;
     Vid::Var::doMrmGen = mrmGen;
 
-    MeshRoot* root = NULL;
+    MeshRoot* root = nullptr;
 #if 1
 #pragma message("God file loading enabled")
 
@@ -2086,6 +2132,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, F32 scale, Bool mrmGen, 
 
     return root;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) // = NULL
@@ -2121,7 +2168,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     }
     else
     {
-        Mesh::Manager::MakeName(buff, name.str, Vid::Var::scaleFactor);
+        MakeName(buff, name.str, Vid::Var::scaleFactor);
     }
 
     // check if it's already loaded
@@ -2145,7 +2192,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     istrstream* iss = Open(meshName, token);
     if (!iss)
     {
-        return NULL;
+        return nullptr;
     }
 
     // setup temp mesh data pointers
@@ -2212,12 +2259,12 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     // geometry
     switch (token)
     {
-    case _MESH:
-        ReadMesh(iss, token, root);
-        break;
-    case _FRAME:
-        ReadMeshGroup(iss, token, root, meshStates, NULL);
-        break;
+        case _MESH:
+            ReadMesh(iss, token, root);
+            break;
+        case _FRAME:
+            ReadMeshGroup(iss, token, root, meshStates, nullptr);
+            break;
     }
 
     // validate tri data
@@ -2240,7 +2287,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     root->read->baseMats.Alloc(meshStateCount);
 
     // create root space to state space transforms
-  //
+    //
     for (i = 0; i < meshStateCount; i++)
     {
         root->states[i].SetState(root->states[i]);
@@ -2267,18 +2314,21 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     // intialize index mapper
     for (i = 0; i < vertfeat->objCount; i++)
     {
-        mapNewToOldIndex[i] = (U16)i;
+        mapNewToOldIndex[i] = static_cast<U16>(i);
     }
 
     oldVertexCount = vertfeat->objCount;
 
     // report unoptimized counts
     LOG_DIAG(("Mesh::Manager::FindRead: %s", buff.str));
-    LOG_DIAG(("verts %d, norms %d, uvs %d, faces %d",
-        vertfeat->objCount,
-        normfeat->objCount,
-        textfeat->objCount,
-        vertfeat->triCount));
+    LOG_DIAG
+    (
+        ("verts %d, norms %d, uvs %d, faces %d",
+            vertfeat->objCount,
+            normfeat->objCount,
+            textfeat->objCount,
+            vertfeat->triCount)
+    );
 
     U16* mapper = new U16[MAXREADVERTS];
 
@@ -2294,7 +2344,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         {
             if (mapper[i] == 0xffff)
             {
-                mapper[i] = (U16)i;
+                mapper[i] = static_cast<U16>(i);
                 counter++;
 
                 for (j = i + 1; j < vertfeat->objCount; j++)
@@ -2304,7 +2354,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                         (fabs(vertfeat->vects[i].y - vertfeat->vects[j].y) <= Vid::Var::vertexThresh) &&
                         (fabs(vertfeat->vects[i].z - vertfeat->vects[j].z) <= Vid::Var::vertexThresh))
                     {
-                        mapper[j] = (U16)i;
+                        mapper[j] = static_cast<U16>(i);
                         hit = TRUE;
                     }
                 }
@@ -2318,14 +2368,14 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                 if (mapper[i] == i)
                 {
                     vertfeat->vects[count2] = vertfeat->vects[i];
-                    mapper[i] = (U16)count2;
-                    mapNewToOldIndex[count2] = (U16)i;
+                    mapper[i] = static_cast<U16>(count2);
+                    mapNewToOldIndex[count2] = static_cast<U16>(i);
                     count2++;
                 }
                 else
                 {
                     mapper[i] = mapper[mapper[i]];
-                    mapNewToOldIndex[mapper[i]] = (U16)i;
+                    mapNewToOldIndex[mapper[i]] = static_cast<U16>(i);
                 }
             }
             vertfeat->objCount = counter;
@@ -2348,7 +2398,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         {
             if (mapper[i] == 0xffff)
             {
-                mapper[i] = (U16)i;
+                mapper[i] = static_cast<U16>(i);
                 counter++;
 
                 for (j = i + 1; j < normfeat->objCount; j++)
@@ -2357,7 +2407,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                         (fabs(vects[i].y - vects[j].y) <= Vid::Var::normalThresh) &&
                         (fabs(vects[i].z - vects[j].z) <= Vid::Var::normalThresh))
                     {
-                        mapper[j] = (U16)i;
+                        mapper[j] = static_cast<U16>(i);
                         hit = TRUE;
                     }
                 }
@@ -2371,7 +2421,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                 if (mapper[i] == i)
                 {
                     normfeat->vects[count2] = vects[i];
-                    mapper[i] = (U16)count2;
+                    mapper[i] = static_cast<U16>(count2);
                     count2++;
                 }
                 else
@@ -2383,7 +2433,6 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
 
             for (i = 0; i < normfeat->triCount * 3; i++)
             {
-
                 U32 index = normfeat->tris[i];
 
                 ASSERT(mapper[index] < counter);
@@ -2400,7 +2449,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         {
             if (mapper[i] == 0xffff)
             {
-                mapper[i] = (U16)i;
+                mapper[i] = static_cast<U16>(i);
                 counter++;
 
                 for (j = i + 1; j < textfeat->objCount; j++)
@@ -2408,9 +2457,9 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                     if ((fabs(textfeat->uvs[i].u - textfeat->uvs[j].u) <= Vid::Var::tcoordThresh)
                         && (fabs(textfeat->uvs[i].v - textfeat->uvs[j].v) <= Vid::Var::tcoordThresh)
                         && (texttostate[i] == texttostate[j] || (!meshStates[texttostate[i]].IsTread() && !meshStates[texttostate[j]].IsTread()))
-                        )
+                    )
                     {
-                        mapper[j] = (U16)i;
+                        mapper[j] = static_cast<U16>(i);
                         hit = TRUE;
                     }
                 }
@@ -2425,7 +2474,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                 if (mapper[i] == i)
                 {
                     textfeat->uvs[count2] = textfeat->uvs[i];
-                    mapper[i] = (U16)count2;
+                    mapper[i] = static_cast<U16>(count2);
                     count2++;
                 }
                 else
@@ -2451,14 +2500,14 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         {
             if (mapper[i] == 0xffff)
             {
-                mapper[i] = (U16)i;
+                mapper[i] = static_cast<U16>(i);
                 counter++;
 
                 for (j = i + 1; j < colorfeat->objCount; j++)
                 {
                     if (colorfeat->colors[i] == colorfeat->colors[j])
                     {
-                        mapper[j] = (U16)i;
+                        mapper[j] = static_cast<U16>(i);
                         hit = TRUE;
                     }
                 }
@@ -2473,7 +2522,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                 if (mapper[i] == i)
                 {
                     colorfeat->colors[count2] = colorfeat->colors[i];
-                    mapper[i] = (U16)count2;
+                    mapper[i] = static_cast<U16>(count2);
                     count2++;
                 }
                 else
@@ -2499,40 +2548,40 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         for (i = 0; i < vertfeat->triCount; i++)
         {
 #if 0
-            if (vertfeat->vects[vertfeat->tris[i * 3 + 0]] == vertfeat->vects[vertfeat->tris[i * 3 + 1]]
-                && vertfeat->vects[vertfeat->tris[i * 3 + 0]] == vertfeat->vects[vertfeat->tris[i * 3 + 2]])
-            {
-                Utils::Memcpy(&vertfeat->tris[i * 3 + 0], &vertfeat->tris[(i + 1) * 3 + 0], (vertfeat->triCount - i) * 3 * sizeof(U16));
-                Utils::Memcpy(&normfeat->tris[i * 3 + 0], &normfeat->tris[(i + 1) * 3 + 0], (normfeat->triCount - i) * 3 * sizeof(U16));
-                Utils::Memcpy(&textfeat->tris[i * 3 + 0], &textfeat->tris[(i + 1) * 3 + 0], (textfeat->triCount - i) * 3 * sizeof(U16));
-                Utils::Memcpy(&colorfeat->tris[i * 3 + 0], &colorfeat->tris[(i + 1) * 3 + 0], (colorfeat->triCount - i) * 3 * sizeof(U16));
+      if (vertfeat->vects[vertfeat->tris[i * 3 + 0]] == vertfeat->vects[vertfeat->tris[i * 3 + 1]] 
+       && vertfeat->vects[vertfeat->tris[i * 3 + 0]] == vertfeat->vects[vertfeat->tris[i * 3 + 2]])
+      {
+			  Utils::Memcpy(  &vertfeat->tris[i * 3 + 0],  &vertfeat->tris[(i + 1) * 3 + 0],  (vertfeat->triCount - i)  * 3 * sizeof(U16));
+			  Utils::Memcpy(  &normfeat->tris[i * 3 + 0],  &normfeat->tris[(i + 1) * 3 + 0],  (normfeat->triCount - i)  * 3 * sizeof(U16));
+			  Utils::Memcpy(  &textfeat->tris[i * 3 + 0],  &textfeat->tris[(i + 1) * 3 + 0],  (textfeat->triCount - i)  * 3 * sizeof(U16));
+			  Utils::Memcpy( &colorfeat->tris[i * 3 + 0], &colorfeat->tris[(i + 1) * 3 + 0], (colorfeat->triCount - i)  * 3 * sizeof(U16));
+      
+			  vertfeat->triCount--;
+			  normfeat->triCount--;
+			  textfeat->triCount--;
+			  colorfeat->triCount--;
 
-                vertfeat->triCount--;
-                normfeat->triCount--;
-                textfeat->triCount--;
-                colorfeat->triCount--;
-
-                U32 k;
-                for (k = 0; k < matfeat->triCount; k++)
-                {
-                    if (vertfeat->faceIndex[k] == i)
-                    {
-                        matfeat->triCount--;
-                        k--;
-                    }
-                    if (vertfeat->faceIndex[k] >= i)
-                    {
-                        vertfeat->faceIndex[k]--;
-                    }
-                }
-
-                i--;
-                if (!hit)
-                {
-                    hit = TRUE;
-                }
-                continue;
-            }
+			  U32 k;
+			  for (k = 0; k < matfeat->triCount; k++)
+			  {
+				  if (vertfeat->faceIndex[k] == i)
+				  {
+					  matfeat->triCount--;
+					  k--;
+				  }
+				  if (vertfeat->faceIndex[k] >= i)
+				  {
+					  vertfeat->faceIndex[k]--;
+				  }
+			  }
+			  
+			  i--;
+			  if (!hit)
+			  {
+				  hit = TRUE;
+			  }
+        continue;
+      }
 #endif
             for (j = i + 1; j < vertfeat->triCount; j++)
             {
@@ -2560,48 +2609,48 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                     }
 
 #if 0
-                    U32 k;
-                    S32 mi = -1, mj = -1;
-                    for (k = 0; k < matfeat->triCount; k++)
-                    {
-                        if (vertfeat->faceIndex[k] == i)
-                        {
-                            mi = k;
-                        }
-                        if (vertfeat->faceIndex[k] == j)
-                        {
-                            mj = j;
-                        }
-                    }
+          U32 k;
+          S32 mi = -1, mj = -1;
+          for (k = 0; k < matfeat->triCount; k++)
+          {
+            if (vertfeat->faceIndex[k] == i)
+            {
+              mi = k;
+            }
+            if (vertfeat->faceIndex[k] == j)
+            {
+              mj = j;
+            }
+          }
 
-                    Utils::Memcpy(&vertfeat->tris[j * 3 + 0], &vertfeat->tris[(j + 1) * 3 + 0], (vertfeat->triCount - j) * 3 * sizeof(U16));
-                    Utils::Memcpy(&normfeat->tris[j * 3 + 0], &normfeat->tris[(j + 1) * 3 + 0], (normfeat->triCount - j) * 3 * sizeof(U16));
-                    Utils::Memcpy(&textfeat->tris[j * 3 + 0], &textfeat->tris[(j + 1) * 3 + 0], (textfeat->triCount - j) * 3 * sizeof(U16));
+				  Utils::Memcpy( &vertfeat->tris[j * 3 + 0],  &vertfeat->tris[(j + 1) * 3 + 0],  (vertfeat->triCount - j)  * 3 * sizeof(U16));
+				  Utils::Memcpy( &normfeat->tris[j * 3 + 0],  &normfeat->tris[(j + 1) * 3 + 0],  (normfeat->triCount - j)  * 3 * sizeof(U16));
+				  Utils::Memcpy( &textfeat->tris[j * 3 + 0],  &textfeat->tris[(j + 1) * 3 + 0],  (textfeat->triCount - j)  * 3 * sizeof(U16));
 
-                    if (colorfeat->triCount)
-                    {
-                        Utils::Memcpy(&colorfeat->tris[j * 3 + 0], &colorfeat->tris[(j + 1) * 3 + 0], (colorfeat->triCount - j) * 3 * sizeof(U16));
-                        colorfeat->triCount--;
-                    }
+          if (colorfeat->triCount)
+          {
+  				  Utils::Memcpy( &colorfeat->tris[j * 3 + 0], &colorfeat->tris[(j + 1) * 3 + 0], (colorfeat->triCount - j) * 3 * sizeof(U16));
+				    colorfeat->triCount--;
+          }
+        
+				  vertfeat->triCount--;
+				  normfeat->triCount--;
+				  textfeat->triCount--;
 
-                    vertfeat->triCount--;
-                    normfeat->triCount--;
-                    textfeat->triCount--;
-
-                    for (k = 0; k < matfeat->triCount; k++)
-                    {
-                        if (vertfeat->faceIndex[k] == j)
-                        {
-                            matfeat->triCount--;
-                            k--;
-                        }
-                        if (vertfeat->faceIndex[k] >= j)
-                        {
-                            vertfeat->faceIndex[k]--;
-                        }
-                    }
-
-                    j--;
+				  for (k = 0; k < matfeat->triCount; k++)
+				  {
+					  if (vertfeat->faceIndex[k] == j)
+					  {
+						  matfeat->triCount--;
+						  k--;
+					  }
+					  if (vertfeat->faceIndex[k] >= j)
+					  {
+						  vertfeat->faceIndex[k]--;
+					  }
+				  }
+				  
+				  j--;
 #endif
                 }
             }
@@ -2612,7 +2661,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     if (!Vid::Var::doBasePose)
     {
         // setup initial state matrices (previous matrices were for base pose)
-    //
+        //
         Bool hit = FALSE;
         for (i = 1; i < meshStateCount; i++)
         {
@@ -2625,7 +2674,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         root->hasAnim = hit;
 
         // set world matrices relative to 0,0,0
-    //
+        //
         root->SetWorldAll(Matrix::I);
     }
 
@@ -2667,7 +2716,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                 {
                     for (k = 0; k < vertfeat->faceTris[i]; k++, face++)
                     {
-                        face->buckyIndex = (U8)j;
+                        face->buckyIndex = static_cast<U8>(j);
                     }
                     break;
                 }
@@ -2709,7 +2758,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
 
             for (k = 0; k < vertfeat->faceTris[i]; k++, face++)
             {
-                face->buckyIndex = (U8)j;
+                face->buckyIndex = static_cast<U8>(j);
             }
             buckycount++;
 
@@ -2733,7 +2782,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         if (face.buckyIndex == 0xffff)
         {
             // blank face
-            face.buckyIndex = (U8)buckycount;
+            face.buckyIndex = static_cast<U8>(buckycount);
             doExtraBucketLock = TRUE;
         }
         else
@@ -2771,7 +2820,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
 
         // add the default material for blank faces
         buckys[buckycount].material = Vid::defMaterial;
-        buckys[buckycount].texture0 = NULL;
+        buckys[buckycount].texture0 = nullptr;
         buckycount++;
     }
     root->buckys.Setup(buckycount, buckys);
@@ -2789,7 +2838,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     }
 
     // animation
-    AnimList* animList = NULL;
+    AnimList* animList = nullptr;
 
     if (!Vid::Var::doBasePose)
     {
@@ -2830,7 +2879,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
         delete mapper;
 
         LOG_ERR(("MeshMan::Load: error reading %s", meshName));
-        return NULL;
+        return nullptr;
     }
 
     // must be done before SetupRoot
@@ -2902,7 +2951,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
 
     if (domrmgen && root->uvs.count)
     {
-        AnimList* animList = NULL;
+        AnimList* animList = nullptr;
         if (Vid::Var::doFrogPose)
         {
             // attempt to load frog pose anim data for mrmgen
@@ -2927,7 +2976,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
                 }
                 if (c <= buff1.str)
                 {
-                    c = buff1.str + +Utils::Strlen(buff1.str);
+                    c = buff1.str + + Utils::Strlen(buff1.str);
                 }
             }
             Utils::Strcpy(c, "-frog.xsi");
@@ -2966,7 +3015,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
             {
                 root->SetupStates(animList->states);
                 //        animList->SetFrame( 0.0f, root->states);
-                        // set world matrices relative to 0,0,0
+                // set world matrices relative to 0,0,0
                 root->SetWorldAll(Matrix::I);
             }
         }
@@ -2978,15 +3027,18 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     root->Setup();
 
     // setup up face plane equations
-  //
+    //
     root->SetupPlanes();
     root->CalcBoundingSphere();
 
-    LOG_DIAG(("verts %d, norms %d, uvs %d, faces %d",
-        root->vertices.count,
-        root->normals.count,
-        root->uvs.count,
-        root->faces.count));
+    LOG_DIAG
+    (
+        ("verts %d, norms %d, uvs %d, faces %d",
+            root->vertices.count,
+            root->normals.count,
+            root->uvs.count,
+            root->faces.count)
+    );
 
     delete mapNewToOldIndex;
     delete verttostate;
@@ -3002,7 +3054,7 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     if (!SetupRoot(*root, buff.str))
     {
         delete root;
-        root = NULL;
+        root = nullptr;
     }
     root->Check(MAXBUCKYS, *Vid::Var::checkMaxVerts, *Vid::Var::checkMaxTris * 3);
     root->shadowRadius = root->ObjectBounds().Radius();
@@ -3011,17 +3063,18 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
 
     return root;
 }
+
 //----------------------------------------------------------------------------
 
 AnimList* Mesh::Manager::ReadAnimCycle(const char* fileName, MeshRoot& root, const char* cycleName)
 {
 #ifdef DONOANIMS
-    return NULL;
+  return NULL;
 #endif
 
     if (Vid::Var::doBasePose)
     {
-        return NULL;
+        return nullptr;
     }
 
     // check if its already loaded
@@ -3038,7 +3091,7 @@ AnimList* Mesh::Manager::ReadAnimCycle(const char* fileName, MeshRoot& root, con
     istrstream* iss = Open(fileName, token);
     if (!iss)
     {
-        return FALSE;
+        return nullptr;
     }
 
     if (!root.FindAnimCycle(DEFCYCLENAME))
@@ -3085,12 +3138,12 @@ AnimList* Mesh::Manager::ReadAnimCycle(const char* fileName, MeshRoot& root, con
     // geometry
     switch (token)
     {
-    case _MESH:
-        ReadMesh(iss, token, NULL);
-        break;
-    case _FRAME:
-        ReadMeshGroup(iss, token, NULL, meshStates, NULL);
-        break;
+        case _MESH:
+            ReadMesh(iss, token, nullptr);
+            break;
+        case _FRAME:
+            ReadMeshGroup(iss, token, nullptr, meshStates, nullptr);
+            break;
     }
 
     // validate tri data
@@ -3111,7 +3164,7 @@ AnimList* Mesh::Manager::ReadAnimCycle(const char* fileName, MeshRoot& root, con
         WARN_CON_DIAG(("ReadAnimCycle: anim's hierarchy differs from base: %s", sCurrFileName));
         delete istreambuf;
         delete iss;
-        return NULL;
+        return nullptr;
     }
 
     // eliminate root position and rotation offsets
@@ -3145,4 +3198,5 @@ AnimList* Mesh::Manager::ReadAnimCycle(const char* fileName, MeshRoot& root, con
 
     return animList;
 }
+
 //----------------------------------------------------------------------------

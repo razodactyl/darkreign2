@@ -23,7 +23,6 @@
 //
 namespace Common
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class PrereqTree
@@ -34,8 +33,8 @@ namespace Common
     //
     PrereqTree::PrereqTree(IControl* parent)
         : IControl(parent),
-        team(NULL),
-        type(NULL)
+          team(NULL),
+          type(NULL)
     {
         // Default control style
         controlStyle |= STYLE_FADEIN;
@@ -166,5 +165,4 @@ namespace Common
             }
         }
     }
-
 }

@@ -19,27 +19,25 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Placement::Cluster
-  //
-
-
-  //
-  // Constructor
-  //
-  Placement::Cluster::Cluster(const Manager::ClusterInfo &info)
-  : info(info)
-  {
-  }
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Placement::Cluster
+    //
 
 
-  //
-  // Destructor
-  //
-  Placement::Cluster::~Cluster()
-  {
-  }
+    //
+    // Constructor
+    //
+    Placement::Cluster::Cluster(const Manager::ClusterInfo& info)
+        : info(info)
+    {
+    }
 
+
+    //
+    // Destructor
+    //
+    Placement::Cluster::~Cluster()
+    {
+    }
 }

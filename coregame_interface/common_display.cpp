@@ -72,7 +72,6 @@ namespace Common
                 : value(value)
             {
             }
-
         };
 
         // Markers
@@ -128,7 +127,7 @@ namespace Common
             );
 
             Vid::SetBucketMaterial(Vid::defMaterial);
-            Vid::SetBucketTexture(NULL, color.a < 255 ? TRUE : FALSE);
+            Vid::SetBucketTexture(nullptr, color.a < 255 ? TRUE : FALSE);
             Vid::SetTranBucketZ(0.0f);
 
             VertexTL* vertmem;
@@ -136,14 +135,14 @@ namespace Common
 
             if (Vid::LockIndexedPrimitiveMem((void**)&vertmem, 4, &indexmem, 6))
             {
-                vertmem[0].vv.x = (F32)rect.p0.x;
-                vertmem[0].vv.y = (F32)rect.p0.y;
-                vertmem[1].vv.x = (F32)rect.p1.x;
-                vertmem[1].vv.y = (F32)rect.p0.y;
-                vertmem[2].vv.x = (F32)rect.p1.x;
-                vertmem[2].vv.y = (F32)rect.p1.y;
-                vertmem[3].vv.x = (F32)rect.p0.x;
-                vertmem[3].vv.y = (F32)rect.p1.y;
+                vertmem[0].vv.x = static_cast<F32>(rect.p0.x);
+                vertmem[0].vv.y = static_cast<F32>(rect.p0.y);
+                vertmem[1].vv.x = static_cast<F32>(rect.p1.x);
+                vertmem[1].vv.y = static_cast<F32>(rect.p0.y);
+                vertmem[2].vv.x = static_cast<F32>(rect.p1.x);
+                vertmem[2].vv.y = static_cast<F32>(rect.p1.y);
+                vertmem[3].vv.x = static_cast<F32>(rect.p0.x);
+                vertmem[3].vv.y = static_cast<F32>(rect.p1.y);
 
                 // Assign a color to each vertex
                 vertmem[0].diffuse = color;
@@ -172,13 +171,13 @@ namespace Common
         //
         void ObjectGroundSprite(MapObj* obj, Color color, Bitmap* texture)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
-                // Should we use default texture
-                if (!texture)
-                {
-                    texture = textures.Find(0x1483BCF7); // "HealthBar"
-                }
+            // Should we use default texture
+            if (!texture)
+            {
+                texture = textures.Find(0x1483BCF7); // "HealthBar"
+            }
 
             TerrainData::RenderGroundSpriteWithWater
             (
@@ -222,7 +221,7 @@ namespace Common
             }
 
             // Display the object
-            ObjectGroundSprite(obj, Color((U32)255 - green, green, (U32)0, alpha), texture);
+            ObjectGroundSprite(obj, Color(static_cast<U32>(255) - green, green, static_cast<U32>(0), alpha), texture);
 
             // If this is a linked object draw a path to the object to which it is linked
             TransportObj* transportObj = Promote::Object<TransportObjType, TransportObj>(obj);
@@ -305,7 +304,7 @@ namespace Common
             if (WorldCtrl::MetreOnMap(x, z))
             {
                 // Calculate the x, y, z position of the centre of the supplied cell
-                Matrix  m;
+                Matrix m;
                 m.ClearData();
 
                 m.posit.x = x;
@@ -336,7 +335,7 @@ namespace Common
         //
         void MarkPosition(const Matrix& matrix, Color color)
         {
-            Common::Display::Mesh(0x92098DF3, matrix, color); // "TerrainMarker"    
+            Mesh(0x92098DF3, matrix, color); // "TerrainMarker"    
         }
 
 
@@ -347,10 +346,12 @@ namespace Common
         //
         void MarkCell(U32 cx, U32 cz, Color color)
         {
-            MarkPosition(
-                WorldCtrl::MetreMapXMin() + (((F32)cx) + 0.5f) * WorldCtrl::CellSize(),
-                WorldCtrl::MetreMapZMin() + (((F32)cz) + 0.5f) * WorldCtrl::CellSize(),
-                color);
+            MarkPosition
+            (
+                WorldCtrl::MetreMapXMin() + (static_cast<F32>(cx) + 0.5f) * WorldCtrl::CellSize(),
+                WorldCtrl::MetreMapZMin() + (static_cast<F32>(cz) + 0.5f) * WorldCtrl::CellSize(),
+                color
+            );
         }
 
 
@@ -391,8 +392,8 @@ namespace Common
             F32 height = area.Height();
 
             // Work out how may points will be used vertically and horizontally
-            U32 horizPoints = (U32)(width / 5.0f);
-            U32 vertPoints = (U32)(height / 5.0f);
+            U32 horizPoints = static_cast<U32>(width / 5.0f);
+            U32 vertPoints = static_cast<U32>(height / 5.0f);
 
             if (horizPoints && vertPoints)
             {
@@ -400,8 +401,8 @@ namespace Common
                 vertPoints = Min<U32>(vertPoints, MAXPOINTS);
 
                 // Work out the point separation
-                F32 horizSep = width / (F32)horizPoints;
-                F32 vertSep = height / (F32)vertPoints;
+                F32 horizSep = width / static_cast<F32>(horizPoints);
+                F32 vertSep = height / static_cast<F32>(vertPoints);
 
                 // Draw Lines
                 F32 x = area.p0.x;
@@ -454,7 +455,7 @@ namespace Common
             const F32 dh = 2;
             F32 height = TerrainData::FindFloorWithWater(point.x, point.y) + dh;
 
-            Vector* p, * pe = points + maxPoints - 1;
+            Vector *p, *pe = points + maxPoints - 1;
             F32 count = 0;
             for (p = points; p < pe; p++, count++)
             {
@@ -481,27 +482,30 @@ namespace Common
             Vector camPos;
             Vid::TransformFromWorld(camPos, Vector(point.x, height, point.y));
 
-            Vid::RenderBeam(TRUE,
+            RenderBeam
+            (
+                TRUE,
                 points, maxPoints, 1, camPos.z,
                 texture, color, RS_BLEND_ADD, Vid::sortEFFECT0,
-                0, .02f, FALSE);
+                0, .02f, FALSE
+            );
 
             Vid::Heap::Restore(heapSize);
 #else
-            U32 points;
-            U32 maxPoints = U32(radius * 0.3f);
+      U32 points;
+      U32 maxPoints = U32(radius * 0.3f);
 
-            F32 baseAngle = F32(fmod(F32(Clock::Time::Ms()) * 0.0001f, PI2));
+      F32 baseAngle = F32(fmod(F32(Clock::Time::Ms()) * 0.0001f, PI2));
 
-            for (points = 0; points < maxPoints; points++)
-            {
-                F32 angle = F32(points) * PI2 / F32(maxPoints) - PI + baseAngle;
+      for (points = 0; points < maxPoints; points++)
+      {
+        F32 angle = F32(points) * PI2 / F32(maxPoints) - PI + baseAngle;
 
-                F32 x = point.x + F32(cos(angle)) * radius;
-                F32 y = point.y + F32(sin(angle)) * radius;
+        F32 x = point.x + F32(cos(angle)) * radius;
+        F32 y = point.y + F32(sin(angle)) * radius;
 
-                MarkPosition(x, y, color);
-            }
+        MarkPosition(x, y, color);
+      }
 #endif
         }
 
@@ -598,7 +602,7 @@ namespace Common
         //
         void RenderMarkers()
         {
-            for (NBinTree<Marker>::Iterator m(&markers); *m; m++)
+            for (NBinTree<Marker>::Iterator m(&markers); *m; ++m)
             {
                 U32 key = m.GetKey();
 
@@ -606,8 +610,8 @@ namespace Common
                 S32 z = key & 0xFFFF;
 
                 Vector v;
-                v.x = WorldCtrl::MetreMapXMin() + (((F32)x) + 0.5f) * WorldCtrl::CellSize();
-                v.z = WorldCtrl::MetreMapZMin() + (((F32)z) + 0.5f) * WorldCtrl::CellSize();
+                v.x = WorldCtrl::MetreMapXMin() + (static_cast<F32>(x) + 0.5f) * WorldCtrl::CellSize();
+                v.z = WorldCtrl::MetreMapZMin() + (static_cast<F32>(z) + 0.5f) * WorldCtrl::CellSize();
                 v.y = TerrainData::FindFloorWithWater(v.x, v.z);
 
                 F32 value = (*m)->value;
@@ -684,9 +688,7 @@ namespace Common
                 (
                     placement,
                     matrix,
-                    allok ?
-                    Color(0.5f, 0.5f, 0.5f, alpha) :
-                    Color(1.0f, 0.0f, 0.0f, alpha)
+                    allok ? Color(0.5f, 0.5f, 0.5f, alpha) : Color(1.0f, 0.0f, 0.0f, alpha)
                 );
             }
         }
@@ -697,12 +699,16 @@ namespace Common
         //
         // Display a footprint placement grid with terrain deformation
         //
-        void FootPrintPlacementDeform(FootPrint::Placement& placement, PlacementDeform& deform, Bool mesh, Matrix* matrix, F32 alpha)
+        void FootPrintPlacementDeform
+        (
+            FootPrint::Placement& placement, PlacementDeform& deform, Bool mesh,
+            Matrix* matrix, F32 alpha
+        )
         {
-            ASSERT(!deform.count)
+            ASSERT(!deform.count);
 
-                // Scale the alpha down
-                alpha = alpha * 0.5f + 0.25f;
+            // Scale the alpha down
+            alpha = alpha * 0.5f + 0.25f;
 
             const FootPrint::Placement::Thumped& thump = placement.GetThumped();
             Bool allok = TRUE;
@@ -731,7 +737,7 @@ namespace Common
                         Vector v[4];
 
                         // Hide the terrain cell?
-                        ::Cell* terrainCell = Terrain::GetCell(cell.map.x, cell.map.z);
+                        Cell* terrainCell = Terrain::GetCell(cell.map.x, cell.map.z);
 
                         // Toggle cell display
                         if (deform.count < PlacementDeform::MAX_PTS)
@@ -760,12 +766,16 @@ namespace Common
                             FVF_TLVERTEX, DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | RS_BLEND_DEF
                         );
                         Vid::SetBucketMaterial(Vid::defMaterial);
-                        Vid::SetBucketTexture(NULL, TRUE);
+                        Vid::SetBucketTexture(nullptr, TRUE);
 
                         Color clrOk = Color(128L, 128L, 255L);
                         Color clrBad = Color(128L, 0L, 64L);
 
-                        Vid::ProjectClip(v, NULL, ok ? clrOk : clrBad, RGBA_MAKE(0x7F, 0x7F, 0x7F, 0xFF), 4, Vid::rectIndices, 6, FALSE);
+                        Vid::ProjectClip
+                        (
+                            v, nullptr, ok ? clrOk : clrBad, RGBA_MAKE(0x7F, 0x7F, 0x7F, 0xFF), 4,
+                            Vid::rectIndices, 6, FALSE
+                        );
                     }
                 }
             }
@@ -777,9 +787,7 @@ namespace Common
                 (
                     placement,
                     matrix,
-                    allok ?
-                    Color(0.5f, 0.5f, 0.5f, alpha) :
-                    Color(1.0f, 0.0f, 0.0f, alpha)
+                    allok ? Color(0.5f, 0.5f, 0.5f, alpha) : Color(1.0f, 0.0f, 0.0f, alpha)
                 );
             }
         }
@@ -792,13 +800,13 @@ namespace Common
         //
         void PostFootPrintPlacementDeform(PlacementDeform& deform)
         {
-            ASSERT(deform.count < PlacementDeform::MAX_PTS)
+            ASSERT(deform.count < PlacementDeform::MAX_PTS);
 
-                for (U32 i = 0; i < deform.count; i++)
-                {
-                    ::Cell* terrainCell = Terrain::GetCell(deform.points[i].x, deform.points[i].z);
-                    terrainCell->SetVisible(TRUE);
-                }
+            for (U32 i = 0; i < deform.count; i++)
+            {
+                Cell* terrainCell = Terrain::GetCell(deform.points[i].x, deform.points[i].z);
+                terrainCell->SetVisible(TRUE);
+            }
 
             deform.count = 0;
         }
@@ -811,9 +819,9 @@ namespace Common
         //
         void FootPrintPlacementMesh(FootPrint::Placement& placement, Matrix* matrix, const Color& color)
         {
-            ASSERT(matrix)
+            ASSERT(matrix);
 
-                MeshRoot* root = placement.GetType().GetMapType().GetMeshRoot();
+            MeshRoot* root = placement.GetType().GetMapType().GetMeshRoot();
 
             if (root)
             {
@@ -887,7 +895,7 @@ namespace Common
             Vector pt0, pt1, first;
             pt1.ClearData();
 
-            for (TrailObj::WayPointList::Iterator i(&list); *i; i++)
+            for (TrailObj::WayPointList::Iterator i(&list); *i; ++i)
             {
                 // Get the point
                 const TrailObj::WayPoint& w = **i;
@@ -933,36 +941,36 @@ namespace Common
         void RenderDebug()
         {
 #ifdef DEVELOPMENT
-            if (Common::Debug::data.claiming)
-            {
-                Claim::RenderDebug();
-            }
+      if (Common::Debug::data.claiming)
+      {
+        Claim::RenderDebug();
+      }
 
-            if (Common::Debug::data.thumpMutex)
-            {
-                BitArray2d* p = FootPrint::GetThumpMutex();
-                Color clr(255L, 128L, 128L);
+      if (Common::Debug::data.thumpMutex)
+      {
+        BitArray2d *p = FootPrint::GetThumpMutex();
+        Color clr(255L, 128L, 128L);
 
-                for (U32 z = 0; z < WorldCtrl::CellMapZ(); z++)
-                {
-                    for (U32 x = 0; x < WorldCtrl::CellMapX(); x++)
-                    {
-                        if (p->Get2(x, z))
-                        {
-                            MarkCell(x, z, clr);
-                        }
-                    }
-                }
-            }
-
-            if (Vid::Var::mirrorDebug)
+        for (U32 z = 0; z < WorldCtrl::CellMapZ(); z++)
+        {
+          for (U32 x = 0; x < WorldCtrl::CellMapX(); x++)
+          {
+            if (p->Get2(x, z))
             {
-                Terrain::WaterRegion* wr, * we = Terrain::waterList.data + Terrain::waterCount;
-                for (wr = Terrain::waterList.data; wr < we; wr++)
-                {
-                    Vid::RenderRectangle(wr->mRect, 0x55ff0000);
-                }
+              MarkCell(x, z, clr);
             }
+          }
+        }
+      }
+
+      if (Vid::Var::mirrorDebug)
+      {
+        Terrain::WaterRegion * wr, * we = Terrain::waterList.data + Terrain::waterCount; 
+        for (wr = Terrain::waterList.data; wr < we; wr++)
+        {
+          Vid::RenderRectangle( wr->mRect, 0x55ff0000);
+        }
+      }
 #endif
 
             RenderMarkers();
@@ -975,7 +983,7 @@ namespace Common
               {
                 // If its an explosion then do an explosion render debug
                 ExplosionObj *explosion = Promote::Object<ExplosionObjType, ExplosionObj>(*mi);
-
+      
                 if (explosion)
                 {
                   explosion->RenderDebug();
@@ -1010,11 +1018,11 @@ namespace Common
             VarSys::RegisterHandler("common.display", CmdHandler);
 
             // Display vars
-            VarSys::CreateInteger("common.display.clear", 0, VarSys::DEFAULT, &Display::clear);
-            VarSys::CreateInteger("common.display.bright", 0, VarSys::DEFAULT, &Display::bright);
+            VarSys::CreateInteger("common.display.clear", 0, VarSys::DEFAULT, &clear);
+            VarSys::CreateInteger("common.display.bright", 0, VarSys::DEFAULT, &bright);
 
             // Clear data
-            trailParticle = NULL;
+            trailParticle = nullptr;
 
             initializedSim = FALSE;
             initialized = TRUE;
@@ -1053,7 +1061,10 @@ namespace Common
             ASSERT(!initializedSim);
 
             // Load bitmap resources
-            textures.Add(0x1483BCF7, Bitmap::Manager::FindCreate(Bitmap::reduceNONE, "engine_healthbar.tga")); // "HealthBar"
+            textures.Add
+            (
+                0x1483BCF7, Bitmap::Manager::FindCreate(Bitmap::reduceNONE, "engine_healthbar.tga")
+            ); // "HealthBar"
 
             // Load mesh resources
             MeshRoot* root;

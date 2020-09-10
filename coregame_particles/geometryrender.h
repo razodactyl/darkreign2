@@ -26,26 +26,26 @@ class GeometryRenderClass : public ParticleRenderClass
 {
 public:
 
-  KeyList<ColorKey> colorKeys;
+    KeyList<ColorKey> colorKeys;
 
-  U32 noRotate        : 1;
-  U32 hasShadow       : 1;
+    U32 noRotate : 1;
+    U32 hasShadow : 1;
 
 public:
-	// geometry renderer class constructor
-	GeometryRenderClass();
+    // geometry renderer class constructor
+    GeometryRenderClass();
 
-	// particle rendering metaclass destructor
-	virtual ~GeometryRenderClass();
+    // particle rendering metaclass destructor
+    virtual ~GeometryRenderClass();
 
-  // Configure the class
-  virtual Bool Configure(FScope *fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-  // Postload
-  virtual void PostLoad();
+    // Postload
+    virtual void PostLoad();
 
-	// build a new geometry renderer
-	virtual ParticleRender *Build(Particle *particle, void *data = NULL);
+    // build a new geometry renderer
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,23 +55,23 @@ public:
 class GeometryScaleRenderClass : public GeometryRenderClass
 {
 public:
-  KeyList<ScaleKey> scaleKeys;
+    KeyList<ScaleKey> scaleKeys;
 
 public:
-	// geometry renderer class constructor
-	GeometryScaleRenderClass();
+    // geometry renderer class constructor
+    GeometryScaleRenderClass();
 
-	// particle rendering metaclass destructor
-	virtual ~GeometryScaleRenderClass();
+    // particle rendering metaclass destructor
+    virtual ~GeometryScaleRenderClass();
 
-  // Configure the class
-  virtual Bool Configure(FScope *fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-  // Postload
-  virtual void PostLoad();
+    // Postload
+    virtual void PostLoad();
 
-	// build a new geometry renderer
-	virtual ParticleRender *Build(Particle *particle, void *data = NULL);
+    // build a new geometry renderer
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 
@@ -82,24 +82,24 @@ public:
 class GeometryRender : public ParticleRender
 {
 public:
-	// geometry data
-	MeshEnt *       ent;
-  Matrix          matrix;
+    // geometry data
+    MeshEnt* ent;
+    Matrix matrix;
 
-  KeyAnim<ColorKey> colorAnim;
+    KeyAnim<ColorKey> colorAnim;
 
 public:
-	// geometry renderer constructor
-	GeometryRender(GeometryRenderClass *proto, Particle *particle, void *data = NULL);
+    // geometry renderer constructor
+    GeometryRender(GeometryRenderClass* proto, Particle* particle, void* data = NULL);
 
-	// geometry renderer destructor
-	virtual ~GeometryRender();
+    // geometry renderer destructor
+    virtual ~GeometryRender();
 
-	// apply geometry renderer
-	virtual void Render();
+    // apply geometry renderer
+    virtual void Render();
 
-	// simulate geometry renderer (animate)
-	virtual void Simulate( F32 dt);
+    // simulate geometry renderer (animate)
+    virtual void Simulate(F32 dt);
 };
 
 
@@ -110,17 +110,17 @@ public:
 class GeometryScaleRender : public GeometryRender
 {
 public:
-  KeyAnim<ScaleKey> scaleAnim;
+    KeyAnim<ScaleKey> scaleAnim;
 
 public:
-	// geometry renderer constructor
-	GeometryScaleRender(GeometryScaleRenderClass *proto, Particle *particle, void *data = NULL);
+    // geometry renderer constructor
+    GeometryScaleRender(GeometryScaleRenderClass* proto, Particle* particle, void* data = NULL);
 
-	// apply geometry renderer
-	virtual void Render();
+    // apply geometry renderer
+    virtual void Render();
 
-	// simulate geometry renderer (animate)
-	virtual void Simulate( F32 dt);
+    // simulate geometry renderer (animate)
+    virtual void Simulate(F32 dt);
 };
 
 

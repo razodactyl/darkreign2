@@ -12,6 +12,7 @@
 
 #include "vid_decl.h"
 #include "vidclip.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -34,6 +35,7 @@ namespace Vid
         {
             return endMem - memBlock;
         }
+
         //-----------------------------------------------------------------------------
 
         inline Bool Check()
@@ -41,6 +43,7 @@ namespace Vid
             ASSERT(Vid::Heap::current == Vid::Heap::memBlock);
             return Vid::Heap::current == Vid::Heap::memBlock;
         }
+
         //-----------------------------------------------------------------------------
 
         inline char* Request(U32 size)
@@ -57,6 +60,7 @@ namespace Vid
 
             return last;
         }
+
         //-----------------------------------------------------------------------------
 
         inline void Restore(U32 size)
@@ -65,6 +69,7 @@ namespace Vid
 
             ASSERT(current >= memBlock);
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVector(Vector** vector, U32 size)
@@ -75,6 +80,7 @@ namespace Vid
 
             return size;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertex(VertexTL** vertex, U32 size)
@@ -85,6 +91,7 @@ namespace Vid
 
             return size;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertex(Vector** vector, U32 size0, VertexTL** vertex, U32 size1)
@@ -96,6 +103,7 @@ namespace Vid
 
             return size1;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertex(VertexTL** vertex)
@@ -106,6 +114,7 @@ namespace Vid
 
             return size;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqU16(U16** idx, U32 size)
@@ -116,6 +125,7 @@ namespace Vid
 
             return size;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqU16(U16** idx0, U32 size0, U16** idx1, U32 size1)
@@ -127,6 +137,7 @@ namespace Vid
 
             return size1;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqU16(U16** idx0, U32 size0, U16** idx1, U32 size1, U16** idx2, U32 size2)
@@ -139,12 +150,14 @@ namespace Vid
 
             return size2;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqU16(U16** idx0, U16** idx1, U16** idx2)
         {
             return ReqU16(idx0, renderState.maxVerts, idx1, renderState.maxVerts, idx2, renderState.maxVerts);
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertexI(VertexI** vertex, U32 sizeV, U16** idx0, U32 size0)
@@ -156,6 +169,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertexI2(VertexI2** vertex, U32 sizeV, U16** idx0, U32 size0)
@@ -167,6 +181,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertexC(VertexC** vertex, U32 sizeV, U16** idx0, U32 size0)
@@ -178,6 +193,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertexV(Vertex** vertex, U32 sizeV, U16** idx0, U32 size0)
@@ -189,6 +205,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertex(VertexTL** vertex, U32 sizeV, U16** idx0, U32 size0)
@@ -200,6 +217,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertex(VertexTL** vertex, U16** idx0, U16** idx1, U32 size1, U16** idx2, U32 size2)
@@ -215,6 +233,7 @@ namespace Vid
 
             return size2;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVertex(VertexTL** vertex, U16** idx0)
@@ -227,6 +246,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVector(Vector** vector, U32 sizeV, U8** idx0, U32 size0)
@@ -238,6 +258,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVector(Vector** vector, U32 sizeV, U16** idx0, U32 size0)
@@ -250,6 +271,7 @@ namespace Vid
 
             return size0;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVector(Vector** vector, U32 sizeV, U16** idx0, U32 size0, U16** idx1, U32 size1)
@@ -263,6 +285,7 @@ namespace Vid
 
             return size1;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqVector(Vector** vector, U32 sizeV, U16** idx0, U32 size0, U16** idx1, U32 size1, U16** idx2, U32 size2)
@@ -277,6 +300,7 @@ namespace Vid
 
             return size2;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqMesh(Vector** vector, U32 sizeV, U16** idx0, U32 size0, U16** idx1, U32 size1, U16** idx2, U32 size2)
@@ -296,6 +320,7 @@ namespace Vid
 
             return size2;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqMesh(Vector** vector, U32 sizeV, U16** idx0, U32 size0, U16** idx1, U32 size1)
@@ -314,6 +339,7 @@ namespace Vid
 
             return size1;
         }
+
         //-----------------------------------------------------------------------------
 
         inline U32 ReqMesh(Vector** vector, U32 sizeV)
@@ -329,10 +355,11 @@ namespace Vid
 
             return hs;
         }
+
         //-----------------------------------------------------------------------------
     }
 };
+
 //----------------------------------------------------------------------------
 
 #endif		// __VIDHEAP_H
-

@@ -25,16 +25,15 @@
 //
 class KeyViewer : public ICWindow
 {
-  PROMOTE_LINK(KeyViewer, ICWindow, 0x66FD3C39) // "KeyViewer"
+PROMOTE_LINK(KeyViewer, ICWindow, 0x66FD3C39) // "KeyViewer"
 
 public:
 
-  // Constructor
-  KeyViewer(IControl *parent);
+    // Constructor
+    KeyViewer(IControl* parent);
 
-  // Event handler
-  U32 HandleEvent(Event &e);
-
+    // Event handler
+    U32 HandleEvent(Event& e);
 };
 
 #endif

@@ -33,14 +33,13 @@
 //
 namespace Studio
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class LightColor
     //
     class LightColor : public ICStatic
     {
-        PROMOTE_LINK(LightColor, ICStatic, 0xE6E5C3AE) // "LightColor"
+    PROMOTE_LINK(LightColor, ICStatic, 0xE6E5C3AE) // "LightColor"
 
     public:
 
@@ -56,8 +55,7 @@ namespace Studio
     protected:
 
         // Redraw self
-        void DrawSelf(PaintInfo& pi);
-
+        void DrawSelf(PaintInfo& pi) override;
     };
 
 
@@ -71,11 +69,11 @@ namespace Studio
     //
     LightEditor::LightEditor(IControl* parent)
         : ICWindow(parent),
-        mode(STOPPED),
-        preview(0, 0),
-        previewHeight(100),
-        current(0, 0),
-        currentHeight(50)
+          mode(STOPPED),
+          preview(0, 0),
+          previewHeight(100),
+          current(0, 0),
+          currentHeight(50)
     {
         // Set the poll interval to 20x per second
         SetPollInterval(50);
@@ -97,25 +95,25 @@ namespace Studio
     {
         switch (fScope->NameCrc())
         {
-        case 0xD6AC7759: // "Preview"
-            StdLoad::TypePoint<S32>(fScope, preview);
-            break;
+            case 0xD6AC7759: // "Preview"
+                StdLoad::TypePoint<S32>(fScope, preview);
+                break;
 
-        case 0xC4C26FC5: // "PreviewHeight"
-            previewHeight = StdLoad::TypeU32(fScope);
-            break;
+            case 0xC4C26FC5: // "PreviewHeight"
+                previewHeight = StdLoad::TypeU32(fScope);
+                break;
 
-        case 0x587C9FAF: // "Current"
-            StdLoad::TypePoint<S32>(fScope, current);
-            break;
+            case 0x587C9FAF: // "Current"
+                StdLoad::TypePoint<S32>(fScope, current);
+                break;
 
-        case 0xB6F2B859: // "CurrentHeight"
-            currentHeight = StdLoad::TypeU32(fScope);
-            break;
+            case 0xB6F2B859: // "CurrentHeight"
+                currentHeight = StdLoad::TypeU32(fScope);
+                break;
 
-        default:
-            ICWindow::Setup(fScope);
-            break;
+            default:
+                ICWindow::Setup(fScope);
+                break;
         }
     }
 
@@ -130,242 +128,247 @@ namespace Studio
         {
             switch (e.subType)
             {
-            case IFace::NOTIFY:
-            {
-                // Do specific handling
-                switch (e.iface.p1)
+                case IFace::NOTIFY:
                 {
-                    // Add a new light color and copy the values from the currently selected item
-                case LightEditorMsg::Copy:
-                {
-                    // Get the list box
-                    ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
-
-                    // Get the currently selected color
-                    IControl* ctrl = listBox->GetSelectedItem();
-                    if (!ctrl)
+                    // Do specific handling
+                    switch (e.iface.p1)
                     {
-                        break;
+                            // Add a new light color and copy the values from the currently selected item
+                        case LightEditorMsg::Copy:
+                        {
+                            // Get the list box
+                            ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
+
+                            // Get the currently selected color
+                            IControl* ctrl = listBox->GetSelectedItem();
+                            if (!ctrl)
+                            {
+                                break;
+                            }
+                            LightColor* currentColor = IFace::Promote<LightColor>(ctrl, TRUE);
+
+                            // Create a new light color
+                            Environment::Light::LightColor* color = new Environment::Light::LightColor
+                            (
+                                *(currentColor->lightColor)
+                            );
+
+                            // Add it to the environment light system
+                            AddColor(color);
+
+                            // Add it to the list
+                            char buf[10];
+                            Utils::Sprintf(buf, 10, "%.3f", color->fraction);
+                            LightColor* lightColor = new LightColor(color, listBox);
+                            listBox->AddItem(buf, lightColor);
+                            listBox->Sort();
+
+                            // Select it
+                            listBox->SetSelectedItem(lightColor);
+
+                            goto Edit;
+
+                            break;
+                        }
+
+                            // Add a new light color to the list
+                        case LightEditorMsg::Add:
+                        {
+                            // Create a new light color
+                            Environment::Light::LightColor* color = new Environment::Light::LightColor
+                            (
+                                Environment::Light::DefaultColor()
+                            );
+
+                            // Add it to the environment light system
+                            AddColor(color);
+
+                            // Add it to the list
+                            char buf[10];
+                            Utils::Sprintf(buf, 10, "%.3f", color->fraction);
+                            ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
+                            LightColor* lightColor = new LightColor(color, listBox);
+                            listBox->AddItem(buf, lightColor);
+                            listBox->Sort();
+
+                            // Select it
+                            listBox->SetSelectedItem(lightColor);
+
+                            // Fall through into edit
+                        }
+
+                        case LightEditorMsg::Edit:
+                        Edit:
+                            {
+                                // Get the list box
+                                ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
+
+                                // Get the currently selected color
+                                IControl* ctrl = listBox->GetSelectedItem();
+                                if (!ctrl)
+                                {
+                                    break;
+                                }
+                                LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
+
+                                // Find the light editor
+                                ICWindow* editor = IFace::Find<ICWindow>("LightEditor", nullptr, TRUE);
+
+                                // Upload all of the color values
+                                VarSys::VarItem* var;
+                                var = VarSys::FindVarItem(editor->DynVarName("fraction"));
+                                if (var)
+                                {
+                                    var->SetFloat(color->lightColor->fraction);
+                                }
+                                var = VarSys::FindVarItem(editor->DynVarName("ambient"));
+                                if (var)
+                                {
+                                    var->SetInteger(color->lightColor->ambient);
+                                }
+                                var = VarSys::FindVarItem(editor->DynVarName("sun"));
+                                if (var)
+                                {
+                                    var->SetInteger(color->lightColor->sun);
+                                }
+                                var = VarSys::FindVarItem(editor->DynVarName("fog"));
+                                if (var)
+                                {
+                                    var->SetInteger(color->lightColor->fog);
+                                }
+
+                                // Activate it
+                                IFace::Activate(editor);
+
+                                break;
+                            }
+
+                            // Grab the color from the editor
+                        case LightEditorMsg::Grab:
+                        {
+                            // Get the list box
+                            ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
+
+                            // Get the currently selected color
+                            IControl* ctrl = listBox->GetSelectedItem();
+                            if (!ctrl)
+                            {
+                                break;
+                            }
+                            LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
+
+                            // Find the light editor
+                            ICWindow* editor = IFace::Find<ICWindow>("LightEditor", nullptr, TRUE);
+
+                            // Download all of the color values
+                            VarSys::VarItem* var;
+                            var = VarSys::FindVarItem(editor->DynVarName("fraction"));
+                            if (var)
+                            {
+                                color->lightColor->fraction = var->Float();
+                            }
+                            var = VarSys::FindVarItem(editor->DynVarName("ambient"));
+                            if (var)
+                            {
+                                color->lightColor->ambient = var->Integer();
+                            }
+                            var = VarSys::FindVarItem(editor->DynVarName("sun"));
+                            if (var)
+                            {
+                                color->lightColor->sun = var->Integer();
+                            }
+                            var = VarSys::FindVarItem(editor->DynVarName("fog"));
+                            if (var)
+                            {
+                                color->lightColor->fog = var->Integer();
+                            }
+
+                            // Add it to the environment light system
+                            RemoveColor(color->lightColor);
+                            AddColor(color->lightColor);
+
+                            // Change the key of this item and resort the list
+                            char buf[10];
+                            Utils::Sprintf(buf, 10, "%.3f", color->lightColor->fraction);
+                            color->SetName(buf);
+                            listBox->Sort();
+
+                            break;
+                        }
+
+                        case LightEditorMsg::Delete:
+                        {
+                            // Get the list box
+                            ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
+
+                            // Get the currently selected color
+                            IControl* ctrl = listBox->GetSelectedItem();
+                            if (!ctrl)
+                            {
+                                break;
+                            }
+                            LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
+
+                            // Remove the color from the light system
+                            RemoveColor(color->lightColor);
+
+                            // Delete the light color
+                            delete color->lightColor;
+
+                            // Remove this control
+                            color->MarkForDeletion();
+
+                            break;
+                        }
+
+                        case LightEditorMsg::Smooth:
+                        {
+                            // Get the list box
+                            ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
+
+                            // Get the currently selected color
+                            IControl* ctrl = listBox->GetSelectedItem();
+                            if (!ctrl)
+                            {
+                                break;
+                            }
+                            LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
+
+                            // Remove the color from the light system
+                            RemoveColor(color->lightColor);
+
+                            // Fill in this color as if it wasn't here
+                            FillInColor(*color->lightColor);
+
+                            // Readd the color
+                            AddColor(color->lightColor);
+
+                            break;
+                        }
+
+                        case LightEditorMsg::Stop:
+                            mode = STOPPED;
+                            break;
+
+                        case LightEditorMsg::Play:
+                            mode = PLAYING;
+                            break;
+
+                        case LightEditorMsg::FastForward:
+                            mode = FASTFORWARDING;
+                            break;
+
+                        case LightEditorMsg::Reverse:
+                            mode = REVERSING;
+                            break;
+
+                        default:
+                            ICWindow::HandleEvent(e);
+                            break;
                     }
-                    LightColor* currentColor = IFace::Promote<LightColor>(ctrl, TRUE);
 
-                    // Create a new light color
-                    Environment::Light::LightColor* color = new Environment::Light::LightColor(*(currentColor->lightColor));
-
-                    // Add it to the environment light system
-                    Environment::Light::AddColor(color);
-
-                    // Add it to the list
-                    char buf[10];
-                    Utils::Sprintf(buf, 10, "%.3f", color->fraction);
-                    LightColor* lightColor = new LightColor(color, listBox);
-                    listBox->AddItem(buf, lightColor);
-                    listBox->Sort();
-
-                    // Select it
-                    listBox->SetSelectedItem(lightColor);
-
-                    goto Edit;
-
-                    break;
+                    return (TRUE);
                 }
-
-                // Add a new light color to the list
-                case LightEditorMsg::Add:
-                {
-                    // Create a new light color
-                    Environment::Light::LightColor* color = new Environment::Light::LightColor(Environment::Light::DefaultColor());
-
-                    // Add it to the environment light system
-                    Environment::Light::AddColor(color);
-
-                    // Add it to the list
-                    char buf[10];
-                    Utils::Sprintf(buf, 10, "%.3f", color->fraction);
-                    ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
-                    LightColor* lightColor = new LightColor(color, listBox);
-                    listBox->AddItem(buf, lightColor);
-                    listBox->Sort();
-
-                    // Select it
-                    listBox->SetSelectedItem(lightColor);
-
-                    // Fall through into edit
-                }
-
-                case LightEditorMsg::Edit:
-                Edit:
-                {
-
-                    // Get the list box
-                    ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
-
-                    // Get the currently selected color
-                    IControl* ctrl = listBox->GetSelectedItem();
-                    if (!ctrl)
-                    {
-                        break;
-                    }
-                    LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
-
-                    // Find the light editor
-                    ICWindow* editor = IFace::Find<ICWindow>("LightEditor", NULL, TRUE);
-
-                    // Upload all of the color values
-                    VarSys::VarItem* var;
-                    var = VarSys::FindVarItem(editor->DynVarName("fraction"));
-                    if (var)
-                    {
-                        var->SetFloat(color->lightColor->fraction);
-                    }
-                    var = VarSys::FindVarItem(editor->DynVarName("ambient"));
-                    if (var)
-                    {
-                        var->SetInteger(color->lightColor->ambient);
-                    }
-                    var = VarSys::FindVarItem(editor->DynVarName("sun"));
-                    if (var)
-                    {
-                        var->SetInteger(color->lightColor->sun);
-                    }
-                    var = VarSys::FindVarItem(editor->DynVarName("fog"));
-                    if (var)
-                    {
-                        var->SetInteger(color->lightColor->fog);
-                    }
-
-                    // Activate it
-                    IFace::Activate(editor);
-
-                    break;
-                }
-
-                // Grab the color from the editor
-                case LightEditorMsg::Grab:
-                {
-                    // Get the list box
-                    ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
-
-                    // Get the currently selected color
-                    IControl* ctrl = listBox->GetSelectedItem();
-                    if (!ctrl)
-                    {
-                        break;
-                    }
-                    LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
-
-                    // Find the light editor
-                    ICWindow* editor = IFace::Find<ICWindow>("LightEditor", NULL, TRUE);
-
-                    // Download all of the color values
-                    VarSys::VarItem* var;
-                    var = VarSys::FindVarItem(editor->DynVarName("fraction"));
-                    if (var)
-                    {
-                        color->lightColor->fraction = var->Float();
-                    }
-                    var = VarSys::FindVarItem(editor->DynVarName("ambient"));
-                    if (var)
-                    {
-                        color->lightColor->ambient = var->Integer();
-                    }
-                    var = VarSys::FindVarItem(editor->DynVarName("sun"));
-                    if (var)
-                    {
-                        color->lightColor->sun = var->Integer();
-                    }
-                    var = VarSys::FindVarItem(editor->DynVarName("fog"));
-                    if (var)
-                    {
-                        color->lightColor->fog = var->Integer();
-                    }
-
-                    // Add it to the environment light system
-                    Environment::Light::RemoveColor(color->lightColor);
-                    Environment::Light::AddColor(color->lightColor);
-
-                    // Change the key of this item and resort the list
-                    char buf[10];
-                    Utils::Sprintf(buf, 10, "%.3f", color->lightColor->fraction);
-                    color->SetName(buf);
-                    listBox->Sort();
-
-                    break;
-                }
-
-                case LightEditorMsg::Delete:
-                {
-                    // Get the list box
-                    ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
-
-                    // Get the currently selected color
-                    IControl* ctrl = listBox->GetSelectedItem();
-                    if (!ctrl)
-                    {
-                        break;
-                    }
-                    LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
-
-                    // Remove the color from the light system
-                    Environment::Light::RemoveColor(color->lightColor);
-
-                    // Delete the light color
-                    delete color->lightColor;
-
-                    // Remove this control
-                    color->MarkForDeletion();
-
-                    break;
-                }
-
-                case LightEditorMsg::Smooth:
-                {
-                    // Get the list box
-                    ICListBox* listBox = IFace::Find<ICListBox>("Colors", this, TRUE);
-
-                    // Get the currently selected color
-                    IControl* ctrl = listBox->GetSelectedItem();
-                    if (!ctrl)
-                    {
-                        break;
-                    }
-                    LightColor* color = IFace::Promote<LightColor>(ctrl, TRUE);
-
-                    // Remove the color from the light system
-                    Environment::Light::RemoveColor(color->lightColor);
-
-                    // Fill in this color as if it wasn't here
-                    Environment::Light::FillInColor(*color->lightColor);
-
-                    // Readd the color
-                    Environment::Light::AddColor(color->lightColor);
-
-                    break;
-                }
-
-                case LightEditorMsg::Stop:
-                    mode = STOPPED;
-                    break;
-
-                case LightEditorMsg::Play:
-                    mode = PLAYING;
-                    break;
-
-                case LightEditorMsg::FastForward:
-                    mode = FASTFORWARDING;
-                    break;
-
-                case LightEditorMsg::Reverse:
-                    mode = REVERSING;
-                    break;
-
-                default:
-                    ICWindow::HandleEvent(e);
-                    break;
-                }
-
-                return (TRUE);
-            }
             }
         }
 
@@ -391,9 +394,21 @@ namespace Studio
         ClipRect fog(preview.x + 75, preview.y, preview.x + 105, preview.y + previewHeight);
 
         // Render the drop shadows
-        IFace::RenderShadow(ambient + pi.client.p0, ambient + pi.client.p0 + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(sun + pi.client.p0, sun + pi.client.p0 + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(fog + pi.client.p0, fog + pi.client.p0 + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
+        IFace::RenderShadow
+        (
+            ambient + pi.client.p0, ambient + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            sun + pi.client.p0, sun + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            fog + pi.client.p0, fog + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
 
         // Get the colors from the environment light stuff
         Environment::Light::LightColor* colors = Environment::Light::GetColors();
@@ -414,7 +429,7 @@ namespace Studio
 
             // Set the first color to be the color when fraction is zero
             color1.fraction = 0.0f;
-            Environment::Light::FillInColor(color1);
+            FillInColor(color1);
 
             // Go through all of the colors
             do
@@ -423,63 +438,88 @@ namespace Studio
                 color2 = *colors;
 
                 // Render ambient
-                IFace::RenderGradient(
-                    ClipRect(
+                IFace::RenderGradient
+                (
+                    ClipRect
+                    (
                         pi.client.p0 + ambient.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                        pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))),
+                        pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))
+                    ),
                     color1.ambient,
-                    color2.ambient);
+                    color2.ambient
+                );
 
                 // Render sun
-                IFace::RenderGradient(
-                    ClipRect(
+                IFace::RenderGradient
+                (
+                    ClipRect
+                    (
                         pi.client.p0 + sun.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                        pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))),
+                        pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))
+                    ),
                     color1.sun,
-                    color2.sun);
+                    color2.sun
+                );
 
                 // Render fog
-                IFace::RenderGradient(
-                    ClipRect(
+                IFace::RenderGradient
+                (
+                    ClipRect
+                    (
                         pi.client.p0 + fog.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                        pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))),
+                        pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))
+                    ),
                     color1.fog,
-                    color2.fog);
+                    color2.fog
+                );
 
                 // Shuffle color2 to color1
                 color1 = color2;
 
                 // Go to the next color
                 colors = colors->next;
-            } while (colors != firstColor);
+            }
+            while (colors != firstColor);
 
             // Set the last color to be the color when fraction is one
             color2.fraction = 1.0f;
-            Environment::Light::FillInColor(color2);
+            FillInColor(color2);
 
             // Render ambient
-            IFace::RenderGradient(
-                ClipRect(
+            IFace::RenderGradient
+            (
+                ClipRect
+                (
                     pi.client.p0 + ambient.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                    pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))),
+                    pi.client.p0 + ambient.p0 + Point<S32>(ambient.Width(), S32(previewHeight * color2.fraction))
+                ),
                 color1.ambient,
-                color2.ambient);
+                color2.ambient
+            );
 
             // Render sun
-            IFace::RenderGradient(
-                ClipRect(
+            IFace::RenderGradient
+            (
+                ClipRect
+                (
                     pi.client.p0 + sun.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                    pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))),
+                    pi.client.p0 + sun.p0 + Point<S32>(sun.Width(), S32(previewHeight * color2.fraction))
+                ),
                 color1.sun,
-                color2.sun);
+                color2.sun
+            );
 
             // Render fog
-            IFace::RenderGradient(
-                ClipRect(
+            IFace::RenderGradient
+            (
+                ClipRect
+                (
                     pi.client.p0 + fog.p0 + Point<S32>(0, S32(previewHeight * color1.fraction)),
-                    pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))),
+                    pi.client.p0 + fog.p0 + Point<S32>(fog.Width(), S32(previewHeight * color2.fraction))
+                ),
                 color1.fog,
-                color2.fog);
+                color2.fog
+            );
         }
         else
         {
@@ -491,13 +531,17 @@ namespace Studio
         }
 
         // Draw the current position
-        IFace::RenderRectangle(
-            ClipRect(
+        IFace::RenderRectangle
+        (
+            ClipRect
+            (
                 pi.client.p0.x + preview.x,
                 pi.client.p0.y + preview.y + S32(previewHeight * Environment::Light::GetStartTimeVar()),
                 pi.client.p0.x + preview.x + 110,
-                pi.client.p0.y + preview.y + S32(previewHeight * Environment::Light::GetStartTimeVar()) + 1),
-            Color(1.0f, 1.0f, 1.0f));
+                pi.client.p0.y + preview.y + S32(previewHeight * Environment::Light::GetStartTimeVar()) + 1
+            ),
+            Color(1.0f, 1.0f, 1.0f)
+        );
 
         // Draw the current colors
         ambient = ClipRect(current.x + 5, current.y, current.x + 35, current.y + currentHeight);
@@ -505,13 +549,25 @@ namespace Studio
         fog = ClipRect(current.x + 75, current.y, current.x + 105, current.y + currentHeight);
 
         // Render the drop shadows
-        IFace::RenderShadow(ambient + pi.client.p0, ambient + pi.client.p0 + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(sun + pi.client.p0, sun + pi.client.p0 + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
-        IFace::RenderShadow(fog + pi.client.p0, fog + pi.client.p0 + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
+        IFace::RenderShadow
+        (
+            ambient + pi.client.p0, ambient + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            sun + pi.client.p0, sun + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
+        IFace::RenderShadow
+        (
+            fog + pi.client.p0, fog + pi.client.p0 + GetMetric(IFace::DROPSHADOW_UP),
+            Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0
+        );
 
         Environment::Light::LightColor color;
         color.fraction = Environment::Light::GetStartTimeVar();
-        Environment::Light::FillInColor(color);
+        FillInColor(color);
 
         // Render the colors
         IFace::RenderRectangle(ambient + pi.client.p0, color.ambient);
@@ -561,45 +617,43 @@ namespace Studio
     {
         switch (mode)
         {
-        case STOPPED:
-            break;
+            case STOPPED:
+                break;
 
-        case PLAYING:
-            if (Environment::Light::GetStartTimeVar() > 0.99f)
-            {
-                Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.01f - 1.0f;
-            }
-            else
-            {
-                Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.01f;
-            }
-            break;
+            case PLAYING:
+                if (Environment::Light::GetStartTimeVar() > 0.99f)
+                {
+                    Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.01f - 1.0f;
+                }
+                else
+                {
+                    Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.01f;
+                }
+                break;
 
-        case FASTFORWARDING:
-            if (Environment::Light::GetStartTimeVar() > 0.98f)
-            {
-                Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.02f - 1.0f;
-            }
-            else
-            {
-                Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.02f;
-            }
-            break;
+            case FASTFORWARDING:
+                if (Environment::Light::GetStartTimeVar() > 0.98f)
+                {
+                    Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.02f - 1.0f;
+                }
+                else
+                {
+                    Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() + 0.02f;
+                }
+                break;
 
-        case REVERSING:
-            if (Environment::Light::GetStartTimeVar() < 0.02f)
-            {
-                Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() - 0.02f + 1.0f;
-            }
-            else
-            {
-                Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() - 0.02f;
-            }
-            break;
-
+            case REVERSING:
+                if (Environment::Light::GetStartTimeVar() < 0.02f)
+                {
+                    Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() - 0.02f + 1.0f;
+                }
+                else
+                {
+                    Environment::Light::GetStartTimeVar() = Environment::Light::GetStartTimeVar() - 0.02f;
+                }
+                break;
         }
     }
-
 
 
     //
@@ -626,7 +680,8 @@ namespace Studio
 
                 listBox->AddItem(buf, new LightColor(ptr, listBox));
                 ptr = ptr->next;
-            } while (ptr != colors);
+            }
+            while (ptr != colors);
         }
 
         // Sort the list
@@ -653,7 +708,7 @@ namespace Studio
     //
     LightColor::LightColor(Environment::Light::LightColor* lightColor, IControl* parent)
         : ICStatic(parent),
-        lightColor(lightColor)
+          lightColor(lightColor)
     {
     }
 
@@ -671,9 +726,9 @@ namespace Studio
     //
     void LightColor::DrawSelf(PaintInfo& pi)
     {
-        ASSERT(lightColor)
+        ASSERT(lightColor);
 
-            DrawCtrlBackground(pi, GetTexture());
+        DrawCtrlBackground(pi, GetTexture());
         DrawCtrlFrame(pi);
 
         // Draw the fraction
@@ -683,7 +738,8 @@ namespace Studio
             CH buf[30];
             Utils::Sprintf(buf, 30, (const CH*)L"%.3f", lightColor->fraction);
 
-            pi.font->Draw(
+            pi.font->Draw
+            (
                 pi.client.p0.x + 2,
                 pi.client.p0.y + yoffs,
                 buf,
@@ -694,21 +750,22 @@ namespace Studio
         }
 
         // Draw the ambient color
-        ClipRect c(
+        ClipRect c
+        (
             pi.client.p0.x + 40, pi.client.p0.y + 3,
-            pi.client.p0.x + 70, pi.client.p1.y - 3);
-        IFace::RenderShadow(c, c + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
+            pi.client.p0.x + 70, pi.client.p1.y - 3
+        );
+        IFace::RenderShadow(c, c + GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
         IFace::RenderRectangle(c, lightColor->ambient);
 
         // Draw the sun color
         c += Point<S32>(35, 0);
-        IFace::RenderShadow(c, c + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
+        IFace::RenderShadow(c, c + GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
         IFace::RenderRectangle(c, lightColor->sun);
 
         // Draw the fog color
         c += Point<S32>(35, 0);
-        IFace::RenderShadow(c, c + IFace::GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
+        IFace::RenderShadow(c, c + GetMetric(IFace::DROPSHADOW_UP), Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
         IFace::RenderRectangle(c, lightColor->fog);
     }
-
 }

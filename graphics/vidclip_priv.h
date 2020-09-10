@@ -44,7 +44,7 @@ namespace Vid
         extern VertexTL* clipPool2;
         extern VertexTL* clipDst;
 
-        extern U32          inPoolCount;
+        extern U32 inPoolCount;
         extern VertexTL** inPool;
         extern VertexTL** outPool;
         extern VertexTL** outDst;
@@ -56,7 +56,7 @@ namespace Vid
         extern U8* clipFlagA;
         extern U8* faceCountV;
 
-        extern U32          tempMemSize;
+        extern U32 tempMemSize;
         //-----------------------------------------------------------------------------
 
         void SetClipFlags(VertexTL* srcV, U32 vCount);
@@ -84,12 +84,14 @@ namespace Vid
 
             return tempMemSize;
         }
+
         //-----------------------------------------------------------------------------
 
         inline void RestoreTempMem()
         {
             Vid::Heap::Restore(tempMemSize);
         }
+
         //-----------------------------------------------------------------------------
 
         inline void SetupPool(VertexTL** vPtrs0, VertexTL** vPtrs1)
@@ -98,6 +100,7 @@ namespace Vid
             outPool = vPtrs1;
             outDst = outPool;
         }
+
         //-----------------------------------------------------------------------------
 
         inline void SwapPool()
@@ -112,6 +115,7 @@ namespace Vid
 
             ASSERT(inPoolCount < MAXCLIPCOUNT);
         }
+
         //-----------------------------------------------------------------------------
 
         inline F32 Distance(U32 plane, const VertexTL& v)
@@ -129,13 +133,13 @@ namespace Vid
             // switch (plane)
             //  case PLANE_MIN_X:
             //    distance = v.rhw + v.vv.x;
-                //  case PLANE_MAX_X:
-                  //    distance = v.rhw - v.vv.x;
+            //  case PLANE_MAX_X:
+            //    distance = v.rhw - v.vv.x;
 
             return plane == PLANE_MIN_Z ? v.vv.z : (v.rhw + val_F32); // calculate the distance
         }
-        //-----------------------------------------------------------------------------
 
+        //-----------------------------------------------------------------------------
     };
 };
 

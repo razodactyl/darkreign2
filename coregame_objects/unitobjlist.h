@@ -26,37 +26,31 @@
 //
 namespace UnitObjListUtil
 {
-
-  //
-  // PurgeNonTeamOffMap
-  //
-  // Purge non team, off map and dead objects from a unitobjlist
-  //
-  template <class DATA, class NODE> Bool PurgeNonTeamOffMap(ReaperList<DATA, NODE> &list, const Team *team)
-  {
-    Bool found = FALSE;
-    NODE *node;
-    ReaperList<DATA, NODE>::Iterator i(&list);
-
-    // Step through each reaper
-    while ((node = i++) != NULL)
+    //
+    // PurgeNonTeamOffMap
+    //
+    // Purge non team, off map and dead objects from a unitobjlist
+    //
+    template <class DATA, class NODE>
+    Bool PurgeNonTeamOffMap(ReaperList<DATA, NODE>& list, const Team* team)
     {
-      // Do we need to filter out this object
-      if (!node->Alive() || !node->GetData()->OnMap() || (team && (team != node->GetData()->GetTeam())))
-      {
-        list.Dispose(node);
-        found = TRUE;
-      }
+        Bool found = FALSE;
+        NODE* node;
+        ReaperList<DATA, NODE>::Iterator i(&list);
+
+        // Step through each reaper
+        while ((node = i++) != NULL)
+        {
+            // Do we need to filter out this object
+            if (!node->Alive() || !node->GetData()->OnMap() || (team && (team != node->GetData()->GetTeam())))
+            {
+                list.Dispose(node);
+                found = TRUE;
+            }
+        }
+        return (found);
     }
-    return (found);
-  }
-
 }
-
-
-
-
-
 
 
 #endif

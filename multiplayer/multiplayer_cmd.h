@@ -24,35 +24,31 @@
 //
 namespace MultiPlayer
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Cmd
+    //
+    namespace Cmd
+    {
+        // Initialization and shutdown
+        void Init();
+        void Done();
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Cmd
-  //
-  namespace Cmd
-  {
+        // Reset after leaving a session
+        void Reset();
 
-    // Initialization and shutdown
-    void Init();
-    void Done();
+        // Upload options
+        void UploadOptions(const Options* options);
 
-    // Reset after leaving a session
-    void Reset();
+        // Upload filtering
+        void UploadFiltering(Bool on);
 
-    // Upload options
-    void UploadOptions(const Options *options);
+        // Upload map infomation
+        void UploadMapInfo(const char* folder, const char* mission, U32 size, U32 teams);
 
-    // Upload filtering
-    void UploadFiltering(Bool on);
-
-    // Upload map infomation
-    void UploadMapInfo(const char *folder, const char *mission, U32 size, U32 teams);
-
-    // Extract the player name from a string
-    Bool ExtractPlayerName(const char *str, U32 len, const char **playerName, const char **rest);
-
-  }
-
+        // Extract the player name from a string
+        Bool ExtractPlayerName(const char* str, U32 len, const char** playerName, const char** rest);
+    }
 }
 
 

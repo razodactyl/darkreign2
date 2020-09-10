@@ -23,56 +23,54 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 DumpSync::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class DumpSync
-    //
-
-    //
-    // Generate
-    //
-    void DumpSync::Generate(U32 gameCycle, Player &player)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 DumpSync::orderId;
 
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.gameCycle = gameCycle;
 
-      Add(data, sizeof (Data));
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class DumpSync
+        //
+
+        //
+        // Generate
+        //
+        void DumpSync::Generate(U32 gameCycle, Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.gameCycle = gameCycle;
+
+            Add(data, sizeof(Data));
+        }
+
+
+        //
+        // Execute
+        //
+        U32 DumpSync::Execute(const U8* data, Player&)
+        {
+            const Data* d = (Data*)data;
+
+            LOG_DIAG(("Dumping Sync : cycle %d", d->gameCycle))
+
+            // Dump Sync Strings
+            Sync::Dump();
+
+            Main::runCodes.Set("QUIT");
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 DumpSync::Execute(const U8 *data, Player &)
-    {
-      const Data *d = (Data *) data;
-
-      LOG_DIAG(("Dumping Sync : cycle %d", d->gameCycle))
-
-      // Dump Sync Strings
-      Sync::Dump();
-
-      Main::runCodes.Set("QUIT");
- 
-      return (sizeof (Data));
-    }
-  }
 }

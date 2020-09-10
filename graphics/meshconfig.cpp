@@ -17,12 +17,14 @@ void MeshConfig::ClearData()
     mrmMin = 7;
     meshRoot = NULL;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshConfig::Release()
 {
     animations.DisposeAll();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshConfig::Configure(FScope* fScope)
@@ -67,11 +69,12 @@ void MeshConfig::Configure(FScope* fScope)
     // Clear mesh root
     meshRoot = NULL;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshConfig::ConfigureAnim(FScope* pScope)
 {
-    FScope* sScope, * fScope = pScope->GetFunction("GodFile", FALSE);
+    FScope *sScope, *fScope = pScope->GetFunction("GodFile", FALSE);
 
     if (fScope)
     {
@@ -101,54 +104,55 @@ void MeshConfig::ConfigureAnim(FScope* pScope)
         {
             switch (ssScope->NameCrc())
             {
-            case 0x9F1D54D0: // "Add"
-            {
-                Animation* anim = new Animation;
-                anim->name = ssScope->NextArgString();
-                switch (Crc::CalcStr(ssScope->NextArgString()))
+                case 0x9F1D54D0: // "Add"
                 {
-                case 0xFC38C807: // "Loop"
-                    anim->type = animLOOP;
-                    break;
+                    Animation* anim = new Animation;
+                    anim->name = ssScope->NextArgString();
+                    switch (Crc::CalcStr(ssScope->NextArgString()))
+                    {
+                        case 0xFC38C807: // "Loop"
+                            anim->type = animLOOP;
+                            break;
 
-                case 0xBD222994: // "2Way"
-                    anim->type = anim2WAY;
-                    break;
+                        case 0xBD222994: // "2Way"
+                            anim->type = anim2WAY;
+                            break;
 
-                case 0xDD559BFA: // "1Way"
-                    anim->type = anim1WAY;
-                    break;
+                        case 0xDD559BFA: // "1Way"
+                            anim->type = anim1WAY;
+                            break;
 
-                case 0x838CB20C: // "Control"
-                    anim->type = animCONTROL;
-                    break;
+                        case 0x838CB20C: // "Control"
+                            anim->type = animCONTROL;
+                            break;
 
-                default:
-                    ERR_CONFIG(("Unknown animation type"));
+                        default:
+                        ERR_CONFIG(("Unknown animation type"));
+                            break;
+                    }
+                    // Animation speed
+                    anim->animSpeed = StdLoad::TypeF32(ssScope, "AnimSpeed", 22.0f);
+                    anim->moveSpeed = StdLoad::TypeF32(ssScope, "MoveSpeed", 0.0f);
+
+                    if (anim->animSpeed == 0.0f || anim->moveSpeed == 0.0f)
+                    {
+                        anim->framesPerMeter = 0.0f;
+                    }
+                    else
+                    {
+                        anim->framesPerMeter = anim->animSpeed / anim->moveSpeed;
+                    }
+
+                    anim->controlFrame = StdLoad::TypeF32(ssScope, "ControlFrame", 0.0f);
+
+                    animations.Append(anim);
                     break;
                 }
-                // Animation speed
-                anim->animSpeed = StdLoad::TypeF32(ssScope, "AnimSpeed", 22.0f);
-                anim->moveSpeed = StdLoad::TypeF32(ssScope, "MoveSpeed", 0.0f);
-
-                if (anim->animSpeed == 0.0f || anim->moveSpeed == 0.0f)
-                {
-                    anim->framesPerMeter = 0.0f;
-                }
-                else
-                {
-                    anim->framesPerMeter = anim->animSpeed / anim->moveSpeed;
-                }
-
-                anim->controlFrame = StdLoad::TypeF32(ssScope, "ControlFrame", 0.0f);
-
-                animations.Append(anim);
-                break;
-            }
             }
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 // checks for a god file
@@ -160,14 +164,15 @@ void MeshConfig::PostLoad()
     PostConfig();
 
 #if 0
-    if (!isNullMesh && !meshRoot->doLoadGod)
-    {
-        meshRoot->SaveScale(name.str);
+  if (!isNullMesh && !meshRoot->doLoadGod)
+  {
+    meshRoot->SaveScale( name.str);
 
-        meshRoot->doLoadGod = TRUE;   // its optimized now
-    }
+    meshRoot->doLoadGod = TRUE;   // its optimized now
+  }
 #endif
 }
+
 //----------------------------------------------------------------------------
 
 // doesn't check for a god file
@@ -183,6 +188,7 @@ void MeshConfig::PostLoadXSI()
 
     PostConfig(FALSE);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshConfig::PostConfig(Bool optimize) // = TRUE
@@ -293,24 +299,25 @@ void MeshConfig::PostConfig(Bool optimize) // = TRUE
     meshRoot->quickLight = quickLight;
 
 #if 0
-    else
+  else
+  {
+    // FIXME
+    AnimList *animList = meshRoot->FindAnimCycle( DEFCYCLENAME);
+    if (animList)
     {
-        // FIXME
-        AnimList* animList = meshRoot->FindAnimCycle(DEFCYCLENAME);
-        if (animList)
-        {
-            idleSpeed = animList->animSpeed;
-        }
-        animList = meshRoot->FindAnimCycle("Move");
-        if (animList)
-        {
-            animSpeed = animList->animSpeed;
-        }
+      idleSpeed = animList->animSpeed;
     }
+    animList = meshRoot->FindAnimCycle( "Move");
+    if (animList)
+    {
+      animSpeed = animList->animSpeed;
+    }
+  }
 #endif
 
     meshRoot->fileName = fileName.str;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshConfig::Optimize()
@@ -324,6 +331,7 @@ void MeshConfig::Optimize()
         meshRoot->Chunkify();
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshConfig::Setup(MeshRoot& root)
@@ -370,7 +378,6 @@ void MeshConfig::Setup(MeshRoot& root)
     NBinTree<AnimList>::Iterator li(&root.animCycles);
     for (!li; *li; li++)
     {
-
         AnimList* animCycle = (*li);
 
         Animation* anim = new Animation;
@@ -385,6 +392,7 @@ void MeshConfig::Setup(MeshRoot& root)
         animations.Append(anim);
     }
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* MeshConfig::Load(const char* _fileName)
@@ -418,6 +426,7 @@ MeshRoot* MeshConfig::Load(const char* _fileName)
 
     return meshRoot;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* MeshConfig::LoadXSI(const char* _fileName)
@@ -451,6 +460,7 @@ MeshRoot* MeshConfig::LoadXSI(const char* _fileName)
 
     return meshRoot;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshConfig::Save(const char* _fileName)
@@ -458,7 +468,7 @@ Bool MeshConfig::Save(const char* _fileName)
     PTree tree;
 
     // Add the top level scope
-    FScope* sScope, * fScope = tree.GetGlobalScope()->AddFunction("Mesh");
+    FScope *sScope, *fScope = tree.GetGlobalScope()->AddFunction("Mesh");
 
     // Get name of god file, or make it a null object
     if (isNullMesh)
@@ -515,18 +525,18 @@ Bool MeshConfig::Save(const char* _fileName)
             ssScope->AddArgString(anim->name.str);
             switch (anim->type)
             {
-            case animLOOP:
-                ssScope->AddArgString("Loop");
-                break;
-            case anim2WAY:
-                ssScope->AddArgString("2Way");
-                break;
-            case anim1WAY:
-                ssScope->AddArgString("1Way");
-                break;
-            case animCONTROL:
-                ssScope->AddArgString("Control");
-                break;
+                case animLOOP:
+                    ssScope->AddArgString("Loop");
+                    break;
+                case anim2WAY:
+                    ssScope->AddArgString("2Way");
+                    break;
+                case anim1WAY:
+                    ssScope->AddArgString("1Way");
+                    break;
+                case animCONTROL:
+                    ssScope->AddArgString("Control");
+                    break;
             }
             StdSave::TypeF32(ssScope, "AnimSpeed", anim->animSpeed);
             StdSave::TypeF32(ssScope, "MoveSpeed", anim->moveSpeed);
@@ -549,6 +559,7 @@ Bool MeshConfig::Save(const char* _fileName)
 
     return (tree.WriteTreeText(path.str));
 }
+
 //----------------------------------------------------------------------------
 
 MeshConfig::Animation* MeshConfig::FindAnim(const char* name)
@@ -564,4 +575,5 @@ MeshConfig::Animation* MeshConfig::FindAnim(const char* name)
     }
     return NULL;
 }
+
 //----------------------------------------------------------------------------

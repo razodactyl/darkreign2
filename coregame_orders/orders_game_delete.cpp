@@ -21,53 +21,50 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 Delete::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Delete
-    //
-
-    //
-    // Generate
-    //
-    void Delete::Generate(Player &player)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 Delete::orderId;
 
-      // Setup data structure
-      data.Setup(orderId, player);
 
-      Add(data, sizeof (Data), player.IsRoute());
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Delete
+        //
+
+        //
+        // Generate
+        //
+        void Delete::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Delete::Execute(const U8*, Player& player)
+        {
+            // Tell each object to SelfDestruct
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                GameObjCtrl::MarkForDeletion(**i);
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Delete::Execute(const U8 *, Player &player)
-    {
-      // Tell each object to SelfDestruct
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      {
-        GameObjCtrl::MarkForDeletion(**i);
-      }
-
-      return (sizeof (Data));
-    }
-  }
 }
-
-

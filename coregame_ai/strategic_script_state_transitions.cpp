@@ -21,368 +21,358 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace ScriptTransitions
-  //
-  namespace ScriptTransitions
-  {
-
     /////////////////////////////////////////////////////////////////////////////
     //
-    // Class End
+    // NameSpace ScriptTransitions
     //
-    class End : public Script::State::Transition
+    namespace ScriptTransitions
     {
-    public:
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class End
+        //
+        class End : public Script::State::Transition
+        {
+        public:
 
-      // Constructor
-      End(FScope *fScope);
+            // Constructor
+            End(FScope* fScope);
 
-      // Perform the transition
-      void Perform(Script &script);
-
-    };
-
-
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class GotoState
-    //
-    class GotoState : public Script::State::Transition
-    {
-    private:
-
-      // State to goto
-      GameIdent state;
-
-    public:
-
-      // Constructor and Destructor
-      GotoState(FScope *fScope);
-
-      // Perform the transition
-      void Perform(Script &script);
-
-    };
+            // Perform the transition
+            void Perform(Script& script);
+        };
 
 
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class GotoRandomState
-    //
-    class GotoRandomState : public Script::State::Transition
-    {
-    private:
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class GotoState
+        //
+        class GotoState : public Script::State::Transition
+        {
+        private:
 
-      // States to goto
-      GameIdentListWeighted states;
+            // State to goto
+            GameIdent state;
 
-    public:
+        public:
 
-      // Constructor and Destructor
-      GotoRandomState(FScope *fScope);
-      ~GotoRandomState();
+            // Constructor and Destructor
+            GotoState(FScope* fScope);
 
-      // Perform the transition
-      void Perform(Script &script);
-
-    };
+            // Perform the transition
+            void Perform(Script& script);
+        };
 
 
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class CallState
-    //
-    class CallState : public Script::State::Transition
-    {
-    private:
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class GotoRandomState
+        //
+        class GotoRandomState : public Script::State::Transition
+        {
+        private:
 
-      // State to call
-      GameIdent state;
+            // States to goto
+            GameIdentListWeighted states;
 
-    public:
+        public:
 
-      // Constructor and Destructor
-      CallState(FScope *fScope);
+            // Constructor and Destructor
+            GotoRandomState(FScope* fScope);
+            ~GotoRandomState();
 
-      // Perform the transition
-      void Perform(Script &script);
-
-    };
-
-
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class CallRandomState
-    //
-    class CallRandomState : public Script::State::Transition
-    {
-    private:
-
-      // States to call
-      GameIdentListWeighted states;
-
-    public:
-
-      // Constructor and Destructor
-      CallRandomState(FScope *fScope);
-      ~CallRandomState();
-
-      // Perform the transition
-      void Perform(Script &script);
-
-    };
+            // Perform the transition
+            void Perform(Script& script);
+        };
 
 
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class ReturnState
-    //
-    class ReturnState : public Script::State::Transition
-    {
-    public:
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class CallState
+        //
+        class CallState : public Script::State::Transition
+        {
+        private:
 
-      // Constructor and Destructor
-      ReturnState(FScope *fScope);
+            // State to call
+            GameIdent state;
 
-      // Perform the transition
-      void Perform(Script &script);
+        public:
 
-    };
+            // Constructor and Destructor
+            CallState(FScope* fScope);
 
-  }
-
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Script::State::Transition
-  //
+            // Perform the transition
+            void Perform(Script& script);
+        };
 
 
-  //
-  // Create
-  //
-  // Create a transition from the given scope
-  //
-  Script::State::Transition * Script::State::Transition::Create(FScope *fScope)
-  {
-    FScope *sScope;
-    sScope = fScope->NextFunction();
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class CallRandomState
+        //
+        class CallRandomState : public Script::State::Transition
+        {
+        private:
 
-    if (sScope)
-    {
-      switch (sScope->NameCrc())
-      {
-        case 0xB2C53B91: // "End"
-          return new ScriptTransitions::End(sScope);
+            // States to call
+            GameIdentListWeighted states;
 
-        case 0xCDF555B0: // "GotoState"
-          return new ScriptTransitions::GotoState(sScope);
+        public:
 
-        case 0xCC5F38AA: // "GotoRandomState"
-          return new ScriptTransitions::GotoRandomState(sScope);
+            // Constructor and Destructor
+            CallRandomState(FScope* fScope);
+            ~CallRandomState();
 
-        case 0xB90E4B66: // "CallState"
-          return new ScriptTransitions::CallState(sScope);
-
-        case 0xF25B6891: // "CallRandomState"
-          return new ScriptTransitions::CallRandomState(sScope);
-
-        case 0x09CA610D: // "ReturnState"
-          return new ScriptTransitions::ReturnState(sScope);
-
-        default:
-          sScope->ScopeError("Unknown transition type '%s'", sScope->NameStr());
-      }
-    }
-    else
-    {
-      fScope->ScopeError("Expected a transition");
-    }
-  }
+            // Perform the transition
+            void Perform(Script& script);
+        };
 
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace ScriptTransitions
-  //
-  namespace ScriptTransitions
-  {
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class ReturnState
+        //
+        class ReturnState : public Script::State::Transition
+        {
+        public:
 
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class End
-    //
+            // Constructor and Destructor
+            ReturnState(FScope* fScope);
 
-    //
-    // Constructor
-    //
-    End::End(FScope *fScope)
-    {
-      FSCOPE_DIRTY(fScope)
-    }
-
-
-    //
-    // Perform the transition
-    //
-    void End::Perform(Script &script)
-    {
-      script.End();
+            // Perform the transition
+            void Perform(Script& script);
+        };
     }
 
 
     /////////////////////////////////////////////////////////////////////////////
     //
-    // Class GotoState
+    // Class Script::State::Transition
     //
 
 
     //
-    // Constructor
+    // Create
     //
-    GotoState::GotoState(FScope *fScope)
+    // Create a transition from the given scope
+    //
+    Script::State::Transition* Script::State::Transition::Create(FScope* fScope)
     {
-      state = StdLoad::TypeString(fScope);
-    }
+        FScope* sScope;
+        sScope = fScope->NextFunction();
 
+        if (sScope)
+        {
+            switch (sScope->NameCrc())
+            {
+                case 0xB2C53B91: // "End"
+                    return new ScriptTransitions::End(sScope);
 
-    //
-    // Perform the transition
-    //
-    void GotoState::Perform(Script &script)
-    {
-      script.GotoState(state);
-    }
+                case 0xCDF555B0: // "GotoState"
+                    return new ScriptTransitions::GotoState(sScope);
 
+                case 0xCC5F38AA: // "GotoRandomState"
+                    return new ScriptTransitions::GotoRandomState(sScope);
 
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class GotoRandomState
-    //
+                case 0xB90E4B66: // "CallState"
+                    return new ScriptTransitions::CallState(sScope);
 
+                case 0xF25B6891: // "CallRandomState"
+                    return new ScriptTransitions::CallRandomState(sScope);
 
-    //
-    // Constructor
-    //
-    GotoRandomState::GotoRandomState(FScope *fScope)
-    {
-      // Load the states
-      states.Load(fScope);
+                case 0x09CA610D: // "ReturnState"
+                    return new ScriptTransitions::ReturnState(sScope);
 
-      // There's got to be at least 1 state in there
-      if (!states.GetCount())
-      {
-        fScope->ScopeError("At least one state is required in GotoRandomState");
-      }
-    }
-
-
-    //
-    // Destructor
-    //
-    GotoRandomState::~GotoRandomState()
-    {
-      states.DisposeAll();
-    }
-
-
-    //
-    // Perform the transition
-    //
-    void GotoRandomState::Perform(Script &script)
-    {
-      // Pick a random state
-      script.GotoState(states.RandomSync());
+                default:
+                    sScope->ScopeError("Unknown transition type '%s'", sScope->NameStr());
+            }
+        }
+        else
+        {
+            fScope->ScopeError("Expected a transition");
+        }
     }
 
 
     /////////////////////////////////////////////////////////////////////////////
     //
-    // Class CallState
+    // NameSpace ScriptTransitions
     //
-
-
-    //
-    // Constructor
-    //
-    CallState::CallState(FScope *fScope)
+    namespace ScriptTransitions
     {
-      state = StdLoad::TypeString(fScope);
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class End
+        //
+
+        //
+        // Constructor
+        //
+        End::End(FScope* fScope)
+        {
+            FSCOPE_DIRTY(fScope)
+        }
+
+
+        //
+        // Perform the transition
+        //
+        void End::Perform(Script& script)
+        {
+            script.End();
+        }
+
+
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class GotoState
+        //
+
+
+        //
+        // Constructor
+        //
+        GotoState::GotoState(FScope* fScope)
+        {
+            state = StdLoad::TypeString(fScope);
+        }
+
+
+        //
+        // Perform the transition
+        //
+        void GotoState::Perform(Script& script)
+        {
+            script.GotoState(state);
+        }
+
+
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class GotoRandomState
+        //
+
+
+        //
+        // Constructor
+        //
+        GotoRandomState::GotoRandomState(FScope* fScope)
+        {
+            // Load the states
+            states.Load(fScope);
+
+            // There's got to be at least 1 state in there
+            if (!states.GetCount())
+            {
+                fScope->ScopeError("At least one state is required in GotoRandomState");
+            }
+        }
+
+
+        //
+        // Destructor
+        //
+        GotoRandomState::~GotoRandomState()
+        {
+            states.DisposeAll();
+        }
+
+
+        //
+        // Perform the transition
+        //
+        void GotoRandomState::Perform(Script& script)
+        {
+            // Pick a random state
+            script.GotoState(states.RandomSync());
+        }
+
+
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class CallState
+        //
+
+
+        //
+        // Constructor
+        //
+        CallState::CallState(FScope* fScope)
+        {
+            state = StdLoad::TypeString(fScope);
+        }
+
+
+        //
+        // Perform the transition
+        //
+        void CallState::Perform(Script& script)
+        {
+            script.CallState(state);
+        }
+
+
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class CallRandomState
+        //
+
+
+        //
+        // Constructor
+        //
+        CallRandomState::CallRandomState(FScope* fScope)
+        {
+            // Load the states
+            states.Load(fScope);
+
+            // There's got to be at least 1 state in there
+            if (!states.GetCount())
+            {
+                fScope->ScopeError("At least one state is required in CallRandomState");
+            }
+        }
+
+
+        //
+        // Destructor
+        //
+        CallRandomState::~CallRandomState()
+        {
+            states.DisposeAll();
+        }
+
+
+        //
+        // Perform the transition
+        //
+        void CallRandomState::Perform(Script& script)
+        {
+            // Pick a random state
+            script.CallState(states.RandomSync());
+        }
+
+
+        /////////////////////////////////////////////////////////////////////////////
+        //
+        // Class ReturnState
+        //
+
+        //
+        // Constructor
+        //
+        ReturnState::ReturnState(FScope*)
+        {
+        }
+
+
+        //
+        // Perform the transition
+        //
+        void ReturnState::Perform(Script& script)
+        {
+            script.ReturnState();
+        }
     }
-
-
-    //
-    // Perform the transition
-    //
-    void CallState::Perform(Script &script)
-    {
-      script.CallState(state);
-    }
-
-
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class CallRandomState
-    //
-
-
-    //
-    // Constructor
-    //
-    CallRandomState::CallRandomState(FScope *fScope)
-    {
-      // Load the states
-      states.Load(fScope);
-
-      // There's got to be at least 1 state in there
-      if (!states.GetCount())
-      {
-        fScope->ScopeError("At least one state is required in CallRandomState");
-      }
-    }
-
-
-    //
-    // Destructor
-    //
-    CallRandomState::~CallRandomState()
-    {
-      states.DisposeAll();
-    }
-
-
-    //
-    // Perform the transition
-    //
-    void CallRandomState::Perform(Script &script)
-    {
-      // Pick a random state
-      script.CallState(states.RandomSync());
-    }
-
-
-    /////////////////////////////////////////////////////////////////////////////
-    //
-    // Class ReturnState
-    //
-
-    //
-    // Constructor
-    //
-    ReturnState::ReturnState(FScope *)
-    {
-    }
-
-
-    //
-    // Perform the transition
-    //
-    void ReturnState::Perform(Script &script)
-    {
-      script.ReturnState();
-    }
-  }
 }

@@ -42,6 +42,9 @@
     <ClInclude Include="Identity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="httplib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

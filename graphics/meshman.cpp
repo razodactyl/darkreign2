@@ -27,17 +27,17 @@ U8 startVar;
 
 // static Mesh data
 //
-NBinTree<MeshRoot>   Mesh::Manager::rootTree;
-NList<MeshEnt>       Mesh::Manager::entList;
-Bool                 Mesh::Manager::sysInit = FALSE;
+NBinTree<MeshRoot> Mesh::Manager::rootTree;
+NList<MeshEnt> Mesh::Manager::entList;
+Bool Mesh::Manager::sysInit = FALSE;
 MeshRoot* Mesh::Manager::nullRoot;
 Bitmap* Mesh::Manager::envMap;
 
-U32                  Mesh::Manager::vertCount;
-U32                  Mesh::Manager::vertCountMRM;
-U32                  Mesh::Manager::objCountMRM;
+U32 Mesh::Manager::vertCount;
+U32 Mesh::Manager::vertCountMRM;
+U32 Mesh::Manager::objCountMRM;
 
-Bool                 Mesh::Manager::readErrors;     // were there xsi read errors?
+Bool Mesh::Manager::readErrors;     // were there xsi read errors?
 
 // currently selected objects
 //
@@ -47,7 +47,7 @@ MeshEnt* Mesh::Manager::selEnt;
 MeshObj* Mesh::Manager::curChild;
 MeshObj* Mesh::Manager::selChild;
 
-Clock::CycleWatch    timer, timer2;
+Clock::CycleWatch timer, timer2;
 
 U8 endVar;
 //----------------------------------------------------------------------------
@@ -58,13 +58,14 @@ static IControl* CreateHandler(U32 crc, IControl* parent, U32)
 
     switch (crc)
     {
-    case 0xE70705BB: // "MeshOptions"
-        ctrl = new MeshOptions(parent);
-        break;
+        case 0xE70705BB: // "MeshOptions"
+            ctrl = new MeshOptions(parent);
+            break;
     }
 
     return (ctrl);
 }
+
 //----------------------------------------------------------------------------
 
 Bool Mesh::Manager::Init()
@@ -80,6 +81,7 @@ Bool Mesh::Manager::Init()
 
     return sysInit = TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool Mesh::Manager::InitResources()
@@ -106,6 +108,7 @@ Bool Mesh::Manager::InitResources()
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool Mesh::Manager::InitIFace()
@@ -116,6 +119,7 @@ Bool Mesh::Manager::InitIFace()
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::DisposeAll()
@@ -144,6 +148,7 @@ void Mesh::Manager::DisposeAll()
 
     envMap = NULL;
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::Done()
@@ -161,6 +166,7 @@ void Mesh::Manager::Done()
       LOG_DIAG( (""));
     */
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::DoneIFace()
@@ -168,12 +174,14 @@ void Mesh::Manager::DoneIFace()
     MeshOptions::Done();
     IFace::UnregisterControlClass("MeshOptions");
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::ResetCounts()
 {
     vertCount = vertCountMRM = objCountMRM = 0;
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::UpdateMRMFactor()
@@ -217,34 +225,34 @@ void Mesh::Manager::UpdateMRMFactor()
     }
 
 #else
-    S32 elap = S32(Main::elapLast);
+  S32 elap = S32(Main::elapLast);
 
-    static F32 error0 = 0.0f;
-    F32 target, error;
-    S32 dms;
-    if (elap > Vid::renderState.mrmLow)
-    {
-        // too slow
-        dms = elap - S32(Vid::renderState.mrmLow);
-        target = F32(dms) * 0.4f;
-        error = error0 + (target - error0) * Vid::renderState.mrmAutoConstant1;
-    }
-    else if (elap < Vid::renderState.mrmHigh)
-    {
-        // too fast
-        dms = elap - S32(Vid::renderState.mrmHigh);
-        target = F32(dms) * 0.4f;
-        error = error0 + (target - error0) * Vid::renderState.mrmAutoConstant1;
-    }
-    else
-    {
-        // in bounds; slowly adjust to mrmElapFrame
-        dms = elap - S32(Vid::renderState.mrmLow);
-        target = F32(dms) * 0.4f;
-        error = error0 + (target - error0) * Vid::renderState.status.mrmAutoConstant2 * target * 0.5f;
-        //    error = error0 + (target - error0) * *Vid::renderState.status.mrmAutoConstant2;
-    }
-    //  F32 error = error0 + (target - error0) * (abs(dms) > *Vid::renderState.status.mrmAutoCutoff ? Vid::renderState.mrmAutoConstant1 : *Vid::renderState.status.mrmAutoConstant2 * target);
+  static F32 error0 = 0.0f;
+  F32 target, error;
+  S32 dms;
+  if (elap > Vid::renderState.mrmLow)
+  {
+    // too slow
+    dms = elap - S32(Vid::renderState.mrmLow);
+    target = F32(dms) * 0.4f;
+    error = error0 + (target - error0) * Vid::renderState.mrmAutoConstant1;
+  }
+  else if (elap < Vid::renderState.mrmHigh)
+  {
+    // too fast
+    dms = elap - S32(Vid::renderState.mrmHigh);
+    target = F32(dms) * 0.4f;
+    error = error0 + (target - error0) * Vid::renderState.mrmAutoConstant1;
+  }
+  else
+  {
+    // in bounds; slowly adjust to mrmElapFrame
+    dms = elap - S32(Vid::renderState.mrmLow);
+    target = F32(dms) * 0.4f;
+    error = error0 + (target - error0) * Vid::renderState.status.mrmAutoConstant2 * target * 0.5f;
+//    error = error0 + (target - error0) * *Vid::renderState.status.mrmAutoConstant2;
+  }
+//  F32 error = error0 + (target - error0) * (abs(dms) > *Vid::renderState.status.mrmAutoCutoff ? Vid::renderState.mrmAutoConstant1 : *Vid::renderState.status.mrmAutoConstant2 * target);
 #endif
 
     error0 = error;
@@ -265,6 +273,7 @@ void Mesh::Manager::UpdateMRMFactor()
 
     //  LOG_DIAG( ("elap: %d, dms: %d, error: %f, target: %f", elap, dms, error, target) );
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::OnModeChange()
@@ -274,6 +283,7 @@ void Mesh::Manager::OnModeChange()
         SetupRenderProcList();
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::MakeName(BuffString& buff, const char* meshName, F32 scale) // = 1.0f)
@@ -289,6 +299,7 @@ void Mesh::Manager::MakeName(BuffString& buff, const char* meshName, F32 scale) 
     char* str = buff.str + Utils::Strlen(buff.str);
     sprintf(str, " %4.4f", scale);
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::Find(const char* meshName)
@@ -307,6 +318,7 @@ MeshRoot* Mesh::Manager::Find(const char* meshName)
 
     return root;
 }
+
 //----------------------------------------------------------------------------
 
 // add it to the search tree
@@ -327,6 +339,7 @@ Bool Mesh::Manager::SetupRoot(MeshRoot& root, const char* rootName) // = NULL
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::RenderList()
@@ -349,6 +362,7 @@ void Mesh::Manager::RenderList()
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::SimulateList(F32 dt)
@@ -364,6 +378,7 @@ void Mesh::Manager::SimulateList(F32 dt)
         (*li)->SimulateSim(dt);
     }
 }
+
 //----------------------------------------------------------------------------
 
 // restore all meshes to max vertex count
@@ -376,6 +391,7 @@ void Mesh::Manager::FullResList()
         meshent.MRMSetFull();
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::SetupRenderProcList()
@@ -386,12 +402,14 @@ void Mesh::Manager::SetupRenderProcList()
         meshent.SetupRenderProc();
     }
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::FindExists(const char* meshName)
 {
     return rootTree.Find(Crc::CalcStr(meshName));
 }
+
 //----------------------------------------------------------------------------
 
 MeshEnt* Mesh::Manager::Create(const MeshRoot* root)
@@ -400,6 +418,7 @@ MeshEnt* Mesh::Manager::Create(const MeshRoot* root)
 
     return meshEnt;
 }
+
 //----------------------------------------------------------------------------
 
 // Returns NULL if 'meshName' could not be found
@@ -410,12 +429,13 @@ MeshEnt* Mesh::Manager::Create(const char* meshName)
 
     return (root ? Create(root) : NULL);
 }
+
 //----------------------------------------------------------------------------
 
 MeshEnt* Mesh::Manager::PickAtScreenPos(S32 x, S32 y, MeshObj** child) // = NULL
 {
     Vector pos;
-    const MeshObj* mobj, * closeObj = NULL;
+    const MeshObj *mobj, *closeObj = NULL;
     MeshEnt* closeEnt = NULL;
     F32 t;
 
@@ -454,6 +474,7 @@ MeshEnt* Mesh::Manager::PickAtScreenPos(S32 x, S32 y, MeshObj** child) // = NULL
     }
     return closeEnt;
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Manager::SetupPerf()
@@ -465,6 +486,7 @@ void Mesh::Manager::SetupPerf()
     Vid::renderState.status.shadowType = perf <= .8f ? Vid::renderState.status.shadowType <= .5 ? MeshRoot::shadowOVAL : MeshRoot::shadowGENERIC : MeshRoot::shadowSEMILIVE;
     Vid::renderState.status.showShadows = perf <= .25f ? FALSE : TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::MakeMesh(U32 vCount, U32 nCount, U32 uvCount, U32 fCount, Bitmap* texture)
@@ -506,6 +528,7 @@ MeshRoot* Mesh::Manager::MakeMesh(U32 vCount, U32 nCount, U32 uvCount, U32 fCoun
 
     return root;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::MakeGlobe(F32 radius, U32 bands, Bitmap* texture)
@@ -733,7 +756,7 @@ MeshRoot* Mesh::Manager::MakeGlobe(F32 radius, U32 bands, Bitmap* texture)
     }
 
     // bottom band
-//	LastBandStartIndex = BandsX2 * (bands - 2) + 1;
+    //	LastBandStartIndex = BandsX2 * (bands - 2) + 1;
     LastBandStartIndex = (BandsX2 + 1) * (bands - 2) + 1;
     r1 = (F32)(bands - 1) / (F32)bands;
     r2 = 1.0f;
@@ -780,12 +803,12 @@ MeshRoot* Mesh::Manager::MakeGlobe(F32 radius, U32 bands, Bitmap* texture)
             uvs[faces[faceCount].verts[2]].v = 1.0f;
         }
     }
-    delete[] rads;
+    delete [] rads;
 
     root->Setup();
 
     // setup up face plane equations
-  //
+    //
     root->SetupPlanes();
 
     if (!SetupRoot(*root, root->GetName()))
@@ -795,6 +818,7 @@ MeshRoot* Mesh::Manager::MakeGlobe(F32 radius, U32 bands, Bitmap* texture)
     }
     return root;
 }
+
 //----------------------------------------------------------------------------
 U32 remem, recount, rgeo, ranim, rmrm;
 
@@ -824,53 +848,72 @@ U32 Mesh::Manager::Report(MeshRoot& root, Bool all) // = FALSE
 
     if (all)
     {
-        CON_DIAG(("%-36s:           f%4ld v%4ld n%4ld u%4ld c%4ld m%3ld a%2ld",
-            root.fileName.str,
-            root.faces.count,
-            root.vertices.count,
-            root.normals.count,
-            root.uvs.count,
-            root.colors.count,
-            root.states.count,
-            root.animCycles.GetCount()
-            ));
-        LOG_DIAG(("%-36s:           f%4ld v%4ld n%4ld u%4ld c%4ld m%3ld a%2ld",
-            root.fileName.str,
-            root.faces.count,
-            root.vertices.count,
-            root.normals.count,
-            root.uvs.count,
-            root.colors.count,
-            root.states.count,
-            root.animCycles.GetCount()
-            ));
-        CON_DIAG(("%-36s: %9ld   g%6ld a%6ld m%6ld c%6ld", "  mem total",
-            mem, geo, anim, mrm, root.GetMemChunks()
-            ));
-        LOG_DIAG(("%-36s: %9ld   g%6ld a%6ld m%6ld c%6ld", "  mem total",
-            mem, geo, anim, mrm, root.GetMemChunks()
-            ));
+        CON_DIAG
+        (
+            ("%-36s:           f%4ld v%4ld n%4ld u%4ld c%4ld m%3ld a%2ld",
+                root.fileName.str,
+                root.faces.count,
+                root.vertices.count,
+                root.normals.count,
+                root.uvs.count,
+                root.colors.count,
+                root.states.count,
+                root.animCycles.GetCount()
+            )
+        );
+        LOG_DIAG
+        (
+            ("%-36s:           f%4ld v%4ld n%4ld u%4ld c%4ld m%3ld a%2ld",
+                root.fileName.str,
+                root.faces.count,
+                root.vertices.count,
+                root.normals.count,
+                root.uvs.count,
+                root.colors.count,
+                root.states.count,
+                root.animCycles.GetCount()
+            )
+        );
+        CON_DIAG
+        (
+            ("%-36s: %9ld   g%6ld a%6ld m%6ld c%6ld", "  mem total",
+                mem, geo, anim, mrm, root.GetMemChunks()
+            )
+        );
+        LOG_DIAG
+        (
+            ("%-36s: %9ld   g%6ld a%6ld m%6ld c%6ld", "  mem total",
+                mem, geo, anim, mrm, root.GetMemChunks()
+            )
+        );
 
         CON_DIAG((" %4d %-30s: %9ld", count, "instances", emem));
         LOG_DIAG((" %4d %-30s: %9ld", count, "instances", emem));
     }
     else
     {
-        CON_DIAG(("%-36s: %9ld   f%4ld v%4ld i%4ld",
-            root.fileName.str, mem + emem,
-            root.faces.count,
-            root.vertices.count,
-            count
-            ));
-        LOG_DIAG(("%-36s: %9ld   f%4ld v%4ld i%4ld",
-            root.fileName.str, mem + emem,
-            root.faces.count,
-            root.vertices.count,
-            count
-            ));
+        CON_DIAG
+        (
+            ("%-36s: %9ld   f%4ld v%4ld i%4ld",
+                root.fileName.str, mem + emem,
+                root.faces.count,
+                root.vertices.count,
+                count
+            )
+        );
+        LOG_DIAG
+        (
+            ("%-36s: %9ld   f%4ld v%4ld i%4ld",
+                root.fileName.str, mem + emem,
+                root.faces.count,
+                root.vertices.count,
+                count
+            )
+        );
     }
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Mesh::Manager::ReportList(const char* name) // = NULL 
@@ -900,15 +943,21 @@ U32 Mesh::Manager::ReportList(const char* name) // = NULL
     }
     if (hit)
     {
-        CON_DIAG(("%4ld %-31s: %9ld   g%6ld a%6ld m%6ld", count, "mesh types", mem,
-            rgeo, ranim, rmrm
-            ));
-        LOG_DIAG(("%4ld %-31s: %9ld   g%6ld a%6ld m%6ld", count, "mesh types", mem,
-            rgeo, ranim, rmrm
-            ));
+        CON_DIAG
+        (
+            ("%4ld %-31s: %9ld   g%6ld a%6ld m%6ld", count, "mesh types", mem,
+                rgeo, ranim, rmrm
+            )
+        );
+        LOG_DIAG
+        (
+            ("%4ld %-31s: %9ld   g%6ld a%6ld m%6ld", count, "mesh types", mem,
+                rgeo, ranim, rmrm
+            )
+        );
 
-        CON_DIAG(("%4ld %-31s: %9ld", recount, "mesh instances", remem));
-        LOG_DIAG(("%4ld %-31s: %9ld", recount, "mesh instances", remem));
+        CON_DIAG(("%4ld %-31s: %9ld", recount, "mesh instances", remem ));
+        LOG_DIAG(("%4ld %-31s: %9ld", recount, "mesh instances", remem ));
     }
     else
     {
@@ -917,6 +966,7 @@ U32 Mesh::Manager::ReportList(const char* name) // = NULL
 
     return mem + remem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Mesh::Manager::Report()
@@ -942,12 +992,13 @@ U32 Mesh::Manager::Report()
 
     U32 mem = memT + memE + endVar - startVar;   // namespace
 
-    CON_DIAG(("%4d %-31s: %9d", countT, "mesh types", memT));
-    LOG_DIAG(("%4d %-31s: %9d", countT, "mesh types", memT));
+    CON_DIAG(("%4d %-31s: %9d", countT, "mesh types", memT ));
+    LOG_DIAG(("%4d %-31s: %9d", countT, "mesh types", memT ));
 
-    CON_DIAG(("%4d %-31s: %9d", countE, "mesh instances", memE));
-    LOG_DIAG(("%4d %-31s: %9d", countE, "mesh instances", memE));
+    CON_DIAG(("%4d %-31s: %9d", countE, "mesh instances", memE ));
+    LOG_DIAG(("%4d %-31s: %9d", countE, "mesh instances", memE ));
 
     return mem;
 }
+
 //----------------------------------------------------------------------------

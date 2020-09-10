@@ -292,6 +292,51 @@ namespace Sound
         // Returns the current redbook volume
         F32 Volume();
     }
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Vorbis - System dealing with .ogg audio
+    //
+    namespace Vorbis
+    {
+        // Set the volume label to look for first
+        void SetVolumeLabel(const char* volume);
+
+        // Control whether redbook audio enabled
+        Bool GetEnabled();
+        void SetEnabled(Bool flag);
+
+        // Sync with enabled state by claiming or releasing driver
+        void SyncEnabled();
+
+        // Claim and release a redbook driver
+        Bool Claim();
+        Bool Release();
+
+        // Do we currently have a redbook driver
+        Bool Claimed();
+
+        // Stop any current track
+        void Stop();
+
+        // Play a redbook track (request is wrapped, so returns track number started)
+        U32 Play(U32 newTrack);
+
+        // Set the minimum cd audio track allowed (for skipping data tracks)
+        void SetMinTrack(U32 newMinTrack);
+
+        // The number of tracks on the current audio device
+        U32 TrackCount();
+
+        // The current audio track
+        U32 CurrentTrack();
+
+        // Sets the current redbook audio volume
+        void SetVolume(F32 volume);
+
+        // Returns the current sample volume
+        F32 Volume();
+    }
 }
 
 #endif

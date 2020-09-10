@@ -13,11 +13,11 @@
 #include "console.h"
 #include "statistics.h"
 #include "terrain_priv.h"
+
 //----------------------------------------------------------------------------
 
 namespace Terrain
 {
-
     // skip backface culling
     //
     void RenderClusterWaterQuick(Cluster& clus, S32 x0, S32 z0, S32 x1, S32 z1, F32 y, U32 clipFlags)
@@ -171,6 +171,7 @@ namespace Terrain
             }
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw a single cluster
@@ -207,7 +208,7 @@ namespace Terrain
 
         // transform verts
         //
-        Vector verts[25], * v;
+        Vector verts[25], *v;
         VertexTL tempmem[25];
         VertexTL* dvv = tempmem;
         for (v = verts, z0 = z; z0 <= zend; z0 += meterStrideZ, c0 += cellStrideWidth)
@@ -221,13 +222,16 @@ namespace Terrain
 
 #ifdef DOTERRAINCOLOR
                 Color col = c->color;
-                dvv->diffuse.ModulateInline(normLights[c->normal],
+                dvv->diffuse.ModulateInline
+                (
+                    normLights[c->normal],
                     (F32)col.r * U8toNormF32,
                     (F32)col.g * U8toNormF32,
                     (F32)col.b * U8toNormF32,
-                    (F32)col.a * U8toNormF32);
+                    (F32)col.a * U8toNormF32
+                );
 #else
-                dvv->diffuse = normLights[c->normal];
+        dvv->diffuse = normLights[c->normal]; 
 #endif
                 dvv->specular = 0xff000000;
 
@@ -320,7 +324,6 @@ namespace Terrain
                     Utils::Memcpy(indexmem, Vid::rectIndices, 12);
 
                     Vid::UnlockIndexedPrimitiveMem(4, 6);
-
                 }
             }
         }
@@ -378,6 +381,7 @@ namespace Terrain
         }
         BucketMan::forceTranslucent = FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     // draw the terrain
@@ -398,11 +402,13 @@ namespace Terrain
             lowWaterCount = 0;
         }
 
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
             //      DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF ,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF | renderFlags);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF | renderFlags
+        );
 
         Vid::SetWorldTransform(Matrix::I);
         Vid::SetBucketMaterial(Vid::defMaterial);
@@ -436,7 +442,7 @@ namespace Terrain
         {
             rect.p0.x = 0;
         }
-        if (rect.p1.x > (S32) clusWidth)
+        if (rect.p1.x > (S32)clusWidth)
         {
             rect.p1.x = clusWidth;
         }
@@ -444,7 +450,7 @@ namespace Terrain
         {
             rect.p0.y = 0;
         }
-        if (rect.p1.y > (S32) clusHeight)
+        if (rect.p1.y > (S32)clusHeight)
         {
             rect.p1.y = clusHeight;
         }
@@ -515,6 +521,7 @@ namespace Terrain
         Statistics::terrainTris = Statistics::tempTris;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     // skip backface culling
@@ -526,24 +533,24 @@ namespace Terrain
         // one quad covers the whole cluster with water
         //
 
-    /*
-        F32 wave0 = 0, wave1 = 0;
-        if (*Vid::Var::Terrain::waveActive)
-        {
-          // alternate wave0, wave1 in a checkerboard over the entire terrain grid
-          //
-          if ((S32(x0 * clusPerMeter) + (S32(z0 * clusPerMeter) % 2)) % 2)
-          {
-            wave0 = waterWave1;
-            wave1 = waterWave0;
-          }
-          else
-          {
-            wave0 = waterWave0;
-            wave1 = waterWave1;
-          }
-        }
-    */
+        /*
+            F32 wave0 = 0, wave1 = 0;
+            if (*Vid::Var::Terrain::waveActive)
+            {
+              // alternate wave0, wave1 in a checkerboard over the entire terrain grid
+              //
+              if ((S32(x0 * clusPerMeter) + (S32(z0 * clusPerMeter) % 2)) % 2)
+              {
+                wave0 = waterWave1;
+                wave1 = waterWave0;
+              }
+              else
+              {
+                wave0 = waterWave0;
+                wave1 = waterWave1;
+              }
+            }
+        */
         VertexTL vertmem[4];
 
         if (clipFlags == clipNONE)
@@ -576,11 +583,13 @@ namespace Terrain
                 vertmem[i].uv = waterUVList0[i];
             }
 
-            Vid::DrawIndexedPrimitive(
+            Vid::DrawIndexedPrimitive
+            (
                 PT_TRIANGLELIST,
                 FVF_TLVERTEX,
                 vertmem, 4, Vid::rectIndices, 6,
-                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+            );
 
 #ifdef DOSTATISTICS
             Statistics::tempTris += 2;
@@ -595,11 +604,13 @@ namespace Terrain
                     vertmem[i].diffuse.a = U8(a);
                     vertmem[i].uv = waterUVList1[i];
                 }
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     vertmem, 4, Vid::rectIndices, 6,
-                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                );
 
 
 #ifdef DOSTATISTICS
@@ -649,11 +660,13 @@ namespace Terrain
 
             if (icount)
             {
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     vertmem, vcount, indexmem, icount,
-                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                );
 
 #ifdef DOSTATISTICS
                 icount /= 3;
@@ -676,11 +689,13 @@ namespace Terrain
 
                     if (icount)
                     {
-                        Vid::DrawIndexedPrimitive(
+                        Vid::DrawIndexedPrimitive
+                        (
                             PT_TRIANGLELIST,
                             FVF_TLVERTEX,
                             vertmem, vcount, indexmem, icount,
-                            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                        );
 
 #ifdef DOSTATISTICS
                         icount /= 3;
@@ -693,6 +708,7 @@ namespace Terrain
             Vid::Heap::Restore(heapSize);
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw just the water
@@ -722,7 +738,7 @@ namespace Terrain
         {
             rect.p0.x = 0;
         }
-        if (rect.p1.x > (S32) clusWidth)
+        if (rect.p1.x > (S32)clusWidth)
         {
             rect.p1.x = clusWidth;
         }
@@ -730,7 +746,7 @@ namespace Terrain
         {
             rect.p0.y = 0;
         }
-        if (rect.p1.y > (S32) clusHeight)
+        if (rect.p1.y > (S32)clusHeight)
         {
             rect.p1.y = clusHeight;
         }
@@ -790,7 +806,8 @@ namespace Terrain
 
         Vid::SetAlphaState(alpha);
     }
-    //----------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------
 }
+
 //----------------------------------------------------------------------------

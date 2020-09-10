@@ -25,112 +25,107 @@
 //
 namespace Win32
 {
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace DNS
-  //
-  namespace DNS
-  {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
-    // Forward Declations
+    // NameSpace DNS
     //
-    struct Lookup;
-    class Host;
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    //
-    // Definitions
-    //
-    typedef void (*Callback)(const Host *host, void *context);
-
-    
-    ////////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Host
-    //
-    class Host
+    namespace DNS
     {
-    public:
-
-      // Tree nodes
-      NBinTree<Host>::Node nodeName;
-      NBinTree<Host>::Node nodeAddress;
-
-    private:
-
-      // The host name
-      char *name;
-
-      // Name aliases
-      List<char> aliases;
-
-      // Addresses
-      List<Socket::Address> addresses;
-
-    public:
-
-      // Construct from a lookup structure
-      Host(const Lookup &lookup);
-
-      // Destructor
-      ~Host();
-
-    public:
-
-      // Get the host name
-      const char *GetName()
-      {
-        return (name);
-      }
-
-      // Get the list of aliases
-      const List<char> & GetAliases()
-      {
-        return (aliases);
-      }
-
-      // Get the first address
-      const Socket::Address * GetAddress() const
-      {
-        return (addresses.GetHead());
-      }
-
-      // Get the list of addresses
-      const List<Socket::Address> & GetAddresses() const
-      {
-        return (addresses);
-      }
-
-    };
+        ////////////////////////////////////////////////////////////////////////////////
+        //
+        // Forward Declations
+        //
+        struct Lookup;
+        class Host;
 
 
-    // Initialize DNS system
-    void Init();
+        ////////////////////////////////////////////////////////////////////////////////
+        //
+        // Definitions
+        //
+        typedef void (*Callback)(const Host* host, void* context);
 
-    // Shutdown DNS system
-    void Done();
 
-    // Setup host system with a window handle
-    void Setup(HWND hwnd, U32 msg);
+        ////////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Host
+        //
+        class Host
+        {
+        public:
 
-    // Window proc which is hooked into the setup window handle
-    void WindowProc(U32 id, UINT msg, WPARAM wParam, LPARAM lParam);
+            // Tree nodes
+            NBinTree<Host>::Node nodeName;
+            NBinTree<Host>::Node nodeAddress;
 
-    // Get host by name (return TRUE if host is valid or pending, and FALSE if not found)
-    Bool GetByName(const char *name, Host *&host, Callback callback = NULL, void *context = NULL);
+        private:
 
-    // Get host by address (return TRUE if host is valid or pending, and FALSE if not found)
-    Bool GetByAddress(const Socket::Address &address, Host *&host, Callback callback = NULL, void *context = NULL);
+            // The host name
+            char* name;
 
-    // Abort an asynchronouse name lookup
-    void AbortByNameCallback(Callback callback);
+            // Name aliases
+            List<char> aliases;
 
-  }
+            // Addresses
+            List<Socket::Address> addresses;
 
+        public:
+
+            // Construct from a lookup structure
+            Host(const Lookup& lookup);
+
+            // Destructor
+            ~Host();
+
+        public:
+
+            // Get the host name
+            const char* GetName()
+            {
+                return (name);
+            }
+
+            // Get the list of aliases
+            const List<char>& GetAliases()
+            {
+                return (aliases);
+            }
+
+            // Get the first address
+            const Socket::Address* GetAddress() const
+            {
+                return (addresses.GetHead());
+            }
+
+            // Get the list of addresses
+            const List<Socket::Address>& GetAddresses() const
+            {
+                return (addresses);
+            }
+        };
+
+
+        // Initialize DNS system
+        void Init();
+
+        // Shutdown DNS system
+        void Done();
+
+        // Setup host system with a window handle
+        void Setup(HWND hwnd, U32 msg);
+
+        // Window proc which is hooked into the setup window handle
+        void WindowProc(U32 id, UINT msg, WPARAM wParam, LPARAM lParam);
+
+        // Get host by name (return TRUE if host is valid or pending, and FALSE if not found)
+        Bool GetByName(const char* name, Host*& host, Callback callback = nullptr, void* context = nullptr);
+
+        // Get host by address (return TRUE if host is valid or pending, and FALSE if not found)
+        Bool GetByAddress(const Socket::Address& address, Host*& host, Callback callback = nullptr, void* context = nullptr);
+
+        // Abort an asynchronouse name lookup
+        void AbortByNameCallback(Callback callback);
+    }
 }
 
 #endif

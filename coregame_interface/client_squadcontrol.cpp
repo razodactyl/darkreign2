@@ -52,10 +52,10 @@ namespace Client
     //
     SquadControl::SquadControl(IControl* parent)
         : IControl(parent),
-        clientId(-1)
+          clientId(-1)
     {
         // Default Control style
-    //    controlStyle |= (STYLE_DROPSHADOW | STYLE_VGRADIENT | STYLE_TABSTOP);
+        //    controlStyle |= (STYLE_DROPSHADOW | STYLE_VGRADIENT | STYLE_TABSTOP);
 
         down = FALSE;
         controlState |= STATE_DISABLED;
@@ -113,25 +113,25 @@ namespace Client
     {
         switch (fScope->NameCrc())
         {
-        case 0x229F9961: // "Number"
-            StdLoad::TypePoint(fScope, number);
-            break;
+            case 0x229F9961: // "Number"
+                StdLoad::TypePoint(fScope, number);
+                break;
 
-        case 0x1300F4AE: // "Count"
-            StdLoad::TypePoint(fScope, count);
-            break;
+            case 0x1300F4AE: // "Count"
+                StdLoad::TypePoint(fScope, count);
+                break;
 
-        case 0xD567B431: // "Health"
-            StdLoad::TypeArea(fScope, health);
-            break;
+            case 0xD567B431: // "Health"
+                StdLoad::TypeArea(fScope, health);
+                break;
 
-        case 0x484589F5: // "ClientId"
-            clientId = StdLoad::TypeU32(fScope);
-            break;
+            case 0x484589F5: // "ClientId"
+                clientId = StdLoad::TypeU32(fScope);
+                break;
 
-        default:
-            IControl::Setup(fScope);
-            break;
+            default:
+                IControl::Setup(fScope);
+                break;
         }
     }
 
@@ -141,7 +141,7 @@ namespace Client
     //
     // Pass any events to the registered handler
     //
-    U32 SquadControl::HandleEvent(::Event& e)
+    U32 SquadControl::HandleEvent(Event& e)
     {
         if (squad.Alive())
         {
@@ -149,35 +149,38 @@ namespace Client
             {
                 switch (e.subType)
                 {
-                case IFace::NOTIFY:
-                    // Handle other notifications
-                    switch (e.iface.p1)
-                    {
-                    case 0xCE182B49: // "SquadControl::Create"
-                        Events::UpdateSelectedLists();
-                        Orders::Squad::Empty::Generate(GetPlayer(), squad.Id());
-                        Orders::Squad::AddSelected::Generate(GetPlayer(), squad.Id());
-                        return (TRUE);
+                    case IFace::NOTIFY:
+                        // Handle other notifications
+                        switch (e.iface.p1)
+                        {
+                            case 0xCE182B49: // "SquadControl::Create"
+                                Events::UpdateSelectedLists();
+                                Orders::Squad::Empty::Generate(GetPlayer(), squad.Id());
+                                Orders::Squad::AddSelected::Generate(GetPlayer(), squad.Id());
+                                return (TRUE);
 
-                    case 0x4377E47A: // "SquadControl::Add"
-                        Events::UpdateSelectedLists();
-                        Orders::Squad::AddSelected::Generate(GetPlayer(), squad.Id());
-                        return (TRUE);
+                            case 0x4377E47A: // "SquadControl::Add"
+                                Events::UpdateSelectedLists();
+                                Orders::Squad::AddSelected::Generate(GetPlayer(), squad.Id());
+                                return (TRUE);
 
-                    case 0x4DC35769: // "SquadControl::Select"
-                    case 0x3DA14CCE: // "SquadControl::JumpTo"
-                      // Reset all of the squad controls
-                        reset->SetIntegerValue(!reset->GetIntegerValue());
+                            case 0x4DC35769: // "SquadControl::Select"
+                            case 0x3DA14CCE: // "SquadControl::JumpTo"
+                                // Reset all of the squad controls
+                                reset->SetIntegerValue(!reset->GetIntegerValue());
 
-                        // Set the state of this control
-                        SetState(TRUE);
+                                // Set the state of this control
+                                SetState(TRUE);
 
-                        // Select the squad
-                        Events::SelectSquad(squad, (e.iface.p1 == 0x3DA14CCE) ? TRUE : FALSE); // "SquadControl::JumpTo"
-                        Events::UpdatePreviousSelected(FALSE);
-                        return (TRUE);
-                    }
-                    break;
+                                // Select the squad
+                                Events::SelectSquad
+                                (
+                                    squad, (e.iface.p1 == 0x3DA14CCE) ? TRUE : FALSE
+                                ); // "SquadControl::JumpTo"
+                                Events::UpdatePreviousSelected(FALSE);
+                                return (TRUE);
+                        }
+                        break;
                 }
             }
             else if (e.type == Input::EventID())
@@ -185,20 +188,18 @@ namespace Client
                 // Input events
                 switch (e.subType)
                 {
-                case Input::MOUSEBUTTONDOWN:
-                case Input::MOUSEBUTTONDBLCLK:
-                {
-                    if (e.input.code == Input::LeftButtonCode())
+                    case Input::MOUSEBUTTONDOWN:
+                    case Input::MOUSEBUTTONDBLCLK:
                     {
-                        if (down)
+                        if (e.input.code == Input::LeftButtonCode())
                         {
-                            // Move the camera to the the squad
-                            Events::SelectSquad(squad, TRUE);
-                            Events::UpdatePreviousSelected(FALSE);
-                            return (TRUE);
-                        }
-                        else
-                        {
+                            if (down)
+                            {
+                                // Move the camera to the the squad
+                                Events::SelectSquad(squad, TRUE);
+                                Events::UpdatePreviousSelected(FALSE);
+                                return (TRUE);
+                            }
                             // Reset all of the squad controls
                             reset->SetIntegerValue(!reset->GetIntegerValue());
 
@@ -210,19 +211,17 @@ namespace Client
                             Events::UpdatePreviousSelected(FALSE);
                             return (TRUE);
                         }
+
+                        break;
                     }
 
-                    break;
-                }
-
-                default:
-                    return (IControl::HandleEvent(e));
-                    break;
+                    default:
+                        return (IControl::HandleEvent(e));
+                        break;
                 }
             }
             else
             {
-
             }
         }
 
@@ -276,12 +275,12 @@ namespace Client
             static U32 slots[MAXSLOTS];
 
             // Clear the slots
-            Utils::Memset(slots, 0x00, sizeof(slots));
+            Utils::Memset(slots, 0x00, sizeof (slots));
             U32 numSlots = 0;
 
             // All of the units which don't fit get amalgamated into an average health
 
-            for (SquadObj::UnitList::Iterator u(&squad->GetList()); *u; u++)
+            for (SquadObj::UnitList::Iterator u(&squad->GetList()); *u; ++u)
             {
                 if ((*u)->Alive())
                 {
@@ -293,16 +292,14 @@ namespace Client
                     {
                         pct = 256 + unit->GetArmour() * 255 / unit->UnitType()->GetArmour();
                     }
+                    else if (unit->GetHitPoints())
+                    {
+                        pct = unit->GetHitPoints() * 255 / unit->UnitType()->GetHitPoints();
+                    }
                     else
-
-                        if (unit->GetHitPoints())
-                        {
-                            pct = unit->GetHitPoints() * 255 / unit->UnitType()->GetHitPoints();
-                        }
-                        else
-                        {
-                            pct = 0;
-                        }
+                    {
+                        pct = 0;
+                    }
 
                     U32 slot = 0;
                     while (slot < numSlots)
@@ -362,7 +359,7 @@ namespace Client
                     }
                     else
                     {
-                        IFace::RenderTriangle(triangle, Color((U32)255 - avg, avg, (U32)0));
+                        IFace::RenderTriangle(triangle, Color(static_cast<U32>(255) - avg, avg, static_cast<U32>(0)));
                     }
                     break;
                 }
@@ -375,7 +372,11 @@ namespace Client
                 }
                 else
                 {
-                    IFace::RenderRectangle(h + pi.client.p0, Color((U32)255 - pct, pct, (U32)0));
+                    IFace::RenderRectangle
+                    (
+                        h + pi.client.p0,
+                        Color(static_cast<U32>(255) - pct, pct, static_cast<U32>(0))
+                    );
                 }
 
                 h += Point<S32>(0, 3);
@@ -402,7 +403,7 @@ namespace Client
         clientRects[0] = paintInfo.client;
 
         // Down client area is moved down by size of dropshadow
-        clientRects[1] = paintInfo.client + (IFace::GetMetric(IFace::DROPSHADOW_UP) - IFace::GetMetric(IFace::DROPSHADOW_DOWN));
+        clientRects[1] = paintInfo.client + (GetMetric(IFace::DROPSHADOW_UP) - GetMetric(IFace::DROPSHADOW_DOWN));
     }
 
 
@@ -416,10 +417,10 @@ namespace Client
         // Now activate the control
         if (IControl::Activate())
         {
-            ASSERT(Player::GetCurrentPlayer())
+            ASSERT(Player::GetCurrentPlayer());
 
-                // Activate vars
-                ActivateVar(reset, VarSys::VI_INTEGER);
+            // Activate vars
+            ActivateVar(reset, VarSys::VI_INTEGER);
 
             // Issue an order to have a squad created for this squad control
             if (!SaveGame::LoadActive() && !squad.Alive())
@@ -430,10 +431,7 @@ namespace Client
 
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -498,42 +496,42 @@ namespace Client
 
         switch (message)
         {
-        case 0x8AA808B7: // "Squad::Created"
-        {
-            // Using the Id find the control which created this squad
-            IControl* ic = IFace::RootWindow()->Find(param1, TRUE);
-
-            if (ic)
+            case 0x8AA808B7: // "Squad::Created"
             {
-                // Promote to a SquadControl
-                SquadControl* sc = IFace::Promote<SquadControl>(ic);
+                // Using the Id find the control which created this squad
+                IControl* ic = IFace::RootWindow()->Find(param1, TRUE);
 
-                if (sc)
+                if (ic)
                 {
-                    // Set the squad in the control
-                    sc->squad = squad;
-                    sc->controlState &= ~STATE_DISABLED;
-                    return (TRUE);
-                }
-            }
-            break;
-        }
+                    // Promote to a SquadControl
+                    SquadControl* sc = IFace::Promote<SquadControl>(ic);
 
-        case 0x2EC81EFB: // "Squad::UnitsAdded"
-        {
-            // Select the squad if the player who added the units is the client player
-            if (Player::GetCurrentPlayer() && Player::GetCurrentPlayer()->GetId() == param1)
+                    if (sc)
+                    {
+                        // Set the squad in the control
+                        sc->squad = squad;
+                        sc->controlState &= ~STATE_DISABLED;
+                        return (TRUE);
+                    }
+                }
+                break;
+            }
+
+            case 0x2EC81EFB: // "Squad::UnitsAdded"
             {
-                // Select the squad
-                SquadControl* sc = MapSquadToControl(squad->Id());
-
-                if (sc)
+                // Select the squad if the player who added the units is the client player
+                if (Player::GetCurrentPlayer() && Player::GetCurrentPlayer()->GetId() == param1)
                 {
-                    sc->SendNotify(sc, 0x4DC35769, FALSE); // "SquadControl::Select"
+                    // Select the squad
+                    SquadControl* sc = MapSquadToControl(squad->Id());
+
+                    if (sc)
+                    {
+                        sc->SendNotify(sc, 0x4DC35769, FALSE); // "SquadControl::Select"
+                    }
                 }
+                break;
             }
-            break;
-        }
         }
         return (FALSE);
     }
@@ -546,7 +544,7 @@ namespace Client
     //
     Bool SquadControl::MapSquadToClient(U32 squadId, U32& clientId)
     {
-        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; i++)
+        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; ++i)
         {
             SquadControl* sc = *i;
 
@@ -556,11 +554,8 @@ namespace Client
                 {
                     return (FALSE);
                 }
-                else
-                {
-                    clientId = sc->clientId;
-                    return (TRUE);
-                }
+                clientId = sc->clientId;
+                return (TRUE);
             }
         }
         return (FALSE);
@@ -574,7 +569,7 @@ namespace Client
     //
     SquadControl* SquadControl::MapSquadToControl(U32 squadId)
     {
-        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; i++)
+        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; ++i)
         {
             SquadControl* sc = *i;
 
@@ -583,7 +578,7 @@ namespace Client
                 return (sc);
             }
         }
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -594,7 +589,7 @@ namespace Client
     //
     void SquadControl::Save(FScope* scope)
     {
-        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; i++)
+        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; ++i)
         {
             (*i)->SaveState(scope->AddFunction((*i)->Name()));
         }
@@ -608,7 +603,7 @@ namespace Client
     //
     void SquadControl::Load(FScope* scope)
     {
-        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; i++)
+        for (NList<SquadControl>::Iterator i(&allSquadControls); *i; ++i)
         {
             if (FScope* sScope = scope->GetFunction((*i)->Name(), FALSE))
             {

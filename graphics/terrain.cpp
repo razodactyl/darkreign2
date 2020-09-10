@@ -32,112 +32,119 @@ const char* GRIDTEXTURENAME = "engine_terrain_grid.tga";
 const char* EDITTEXTURENAME = "engine_terrain_edit.tga";
 const char* SHADOWTEXTURENAME = "engine_shadow.pic";
 
-const U32             waterAlphaHigh = 133;
-const U32             waterAlphaMin = 255;
+const U32 waterAlphaHigh = 133;
+const U32 waterAlphaMin = 255;
+
 //----------------------------------------------------------------------------
 
 namespace Terrain
 {
     // externals
     //
-    U32             sysInit;
-    U32             mapInit;
+    U32 sysInit;
+    U32 mapInit;
 
-    S32             fogFactorsS32[8] = { 0, 64, 96, 127, 159, 180, 223, 255 };
-    F32             fogFactorsF32[8] = { 0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.75f, 0.875f, 1.0f };
+    S32 fogFactorsS32[8] = {0, 64, 96, 127, 159, 180, 223, 255};
+    F32 fogFactorsF32[8] = {0.0f, 0.125f, 0.25f, 0.375f, 0.5f, 0.75f, 0.875f, 1.0f};
 
-    HeightField     heightField;
-    HeightField     randomField;
+    HeightField heightField;
+    HeightField randomField;
 
-    F32             maxZ;
+    F32 maxZ;
 
-    F32             terrAverageHeight;
-    F32             terrMinHeight;
-    F32             terrMaxHeight;
-
-
-    F32             invMeterWidth = 1.0f;
-    F32             invMeterHeight = 1.0f;
-
-    void         (*renderFunc)();
-    void         (*renderMirrorMaskFunc)(WaterRegion* waterR);
+    F32 terrAverageHeight;
+    F32 terrMinHeight;
+    F32 terrMaxHeight;
 
 
-    F32             moveSpeed;
+    F32 invMeterWidth = 1.0f;
+    F32 invMeterHeight = 1.0f;
+
+    void (*renderFunc)();
+    void (*renderMirrorMaskFunc)(WaterRegion* waterR);
+
+
+    F32 moveSpeed;
 
     Bitmap* shadowTex;
-    F32             texAnim;
+    F32 texAnim;
 
     // locals
     //
-    U32             clusWidth, clusHeight, clusCount;
-    U32             meterPerClus, cellPerClus; // in one dimension
-    U32             cellPerClusShift;
-    F32             clusPerMeter;
+    U32 clusWidth, clusHeight, clusCount;
+    U32 meterPerClus, cellPerClus; // in one dimension
+    U32 cellPerClusShift;
+    F32 clusPerMeter;
     Cluster* clusList;
 
     Material* waterMaterial;
     Material* mirrorMaterial;
-    Bitmap* waterTex, * defTex, * editTex;
+    Bitmap *waterTex, *defTex, *editTex;
     Bitmap* texList[TEXTURECOUNT];
     Bitmap** texAnimList[TEXTURECOUNT];
     Bitmap* overlayList[TEXTURECOUNT];
-    U32             texCount, overlayCount, texAnimCount;
-    U32             renderFlags;
+    U32 texCount, overlayCount, texAnimCount;
+    U32 renderFlags;
 
-    Array<Overlay>  overlays;
+    Array<Overlay> overlays;
 
-    F32             maxFogDepth;
-    F32             maxFarPlane;
+    F32 maxFogDepth;
+    F32 maxFarPlane;
 
     // cell normal array
     //
-    U32             normCount;
-    Vector          normList[NORMALCOUNT];
+    U32 normCount;
+    Vector normList[NORMALCOUNT];
 
     // calculated normal lighting array
     //
-    Color           normLights[NORMALCOUNT];
+    Color normLights[NORMALCOUNT];
 
     // meshviewer animation
     //
-    F32             movePos;
+    F32 movePos;
 
     Array<WaterRegion> waterList;
     WaterRegion* bigWater;
-    U32             waterCount;
-    Bool            waterInView;
-    Color           waterColorMirror;
-    F32             lowWaterHeight;
-    U32             lowWaterCount;
-    Bool            lowWaterFirst;
-    Area<S32>       waterRect;
-    Vector          waterNorms[25] = { Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0), Vector(0,1.0f,0) };
-    Bool            waterLayer2;
-    Bool            waterIsAlpha;
+    U32 waterCount;
+    Bool waterInView;
+    Color waterColorMirror;
+    F32 lowWaterHeight;
+    U32 lowWaterCount;
+    Bool lowWaterFirst;
+    Area<S32> waterRect;
+    Vector waterNorms[25] = {
+        Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0),
+        Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0),
+        Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0),
+        Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0),
+        Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0), Vector(0, 1.0f, 0)
+    };
+    Bool waterLayer2;
+    Bool waterIsAlpha;
 
     // water animation
     //
-    F32             waterPos0, waterPos1;
-    F32             waterWave0, waterWave1;
-    F32             waveAngle;
+    F32 waterPos0, waterPos1;
+    F32 waterWave0, waterWave1;
+    F32 waveAngle;
 
-    UVPair          baseUVList0[4] =
+    UVPair baseUVList0[4] =
     {
-      UVPair(0.0f, 0.0f),
-      UVPair(0.0f, 1.0f),
-      UVPair(1.0f, 1.0f),
-      UVPair(1.0f, 0.0f),
+        UVPair(0.0f, 0.0f),
+        UVPair(0.0f, 1.0f),
+        UVPair(1.0f, 1.0f),
+        UVPair(1.0f, 0.0f),
     };
-    UVPair          baseUVList1[4] =
+    UVPair baseUVList1[4] =
     {
-      UVPair(0.22f, 0.0f),
-      UVPair(0.22f, 1.0f),
-      UVPair(1.22f, 1.0f),
-      UVPair(1.22f, 0.0f),
+        UVPair(0.22f, 0.0f),
+        UVPair(0.22f, 1.0f),
+        UVPair(1.22f, 1.0f),
+        UVPair(1.22f, 0.0f),
     };
-    UVPair          waterUVList0[25];
-    UVPair          waterUVList1[25];
+    UVPair waterUVList0[25];
+    UVPair waterUVList1[25];
 
     // cell uv array
     // 4 pairs * 4 rotations * 3 flips 
@@ -212,7 +219,7 @@ namespace Terrain
         void Done();
         void Simulate(F32 dt);
         void Render();
-        U32  GetMem();
+        U32 GetMem();
     }
 
     U32 endVar;     // just for GetMem to calc sizeof Terrain namespace
@@ -234,6 +241,7 @@ namespace Terrain
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetWater(Bool on) // = TRUE
@@ -244,6 +252,7 @@ namespace Terrain
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetShroud(Bool on) // = TRUE
@@ -254,14 +263,16 @@ namespace Terrain
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool WaterInView(F32& height)
     {
-        height = lowWaterHeight / (F32)lowWaterCount;
+        height = lowWaterHeight / static_cast<F32>(lowWaterCount);
 
         return waterInView;
     }
+
     //----------------------------------------------------------------------------
 
     void SetRenderFunc()
@@ -282,120 +293,124 @@ namespace Terrain
             renderMirrorMaskFunc = RenderMirrorMaskVtl;
         }
     }
+
     //----------------------------------------------------------------------------
 
     void CmdHandler(U32 pathCrc)
     {
         switch (pathCrc)
         {
-        case 0xB3264AC9: // "terrain.light.quick"
-        case 0x6E1D576F: // "terrain.light.lightmap"
-            SetRenderFunc();
-            break;
-        case 0x9C14C472: // "terrain.shadefactor"
-        {
-            // rebuild the terrain normal list
-            Terrain::BuildNormals();
-            break;
-        }
-        case 0x34A5BC9B: // "terrain.shadefactorinc"
-        {
+            case 0xB3264AC9: // "terrain.light.quick"
+            case 0x6E1D576F: // "terrain.light.lightmap"
+                SetRenderFunc();
+                break;
+            case 0x9C14C472: // "terrain.shadefactor"
+            {
+                // rebuild the terrain normal list
+                BuildNormals();
+                break;
+            }
+            case 0x34A5BC9B: // "terrain.shadefactorinc"
+            {
 #define SHADEINC      0.01f
 
-            F32 shade = *Vid::Var::Terrain::shadefactor + SHADEINC;
-            if (shade > 1.0f)
-            {
-                shade = 0.0f;
-            }
-            Vid::Var::Terrain::shadefactor = shade;
-            break;
-        }
-        case 0x0CF9BADE: // "terrain.toggle.shroud"
-        {
-            Vid::Var::Terrain::shroud = !*Vid::Var::Terrain::shroud;
-            break;
-        }
-        case 0x662A9CB3: // "terrain.toggle.water"
-        {
-            Vid::Var::Terrain::water = !*Vid::Var::Terrain::water;
-            break;
-        }
-
-        case 0x2ADBAF27: // "terrain.textures.report"
-            Report(TRUE);
-            break;
-        case 0xA2D15B0C: // "terrain.report"
-            Report();
-            break;
-
-        case 0x9F550DBF: // "terrain.textures.purge"
-            PurgeTextures();
-            break;
-
-        case 0x77C0B9B1: // "terrain.water.alphatopfactor"
-        {
-            Color c = *Vid::Var::Terrain::waterColorBottom;
-            c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
-            Vid::Var::Terrain::waterColorTop = c;
-            break;
-        }
-        case 0x5BEE10F2: // "terrain.water.alphabot"
-        {
-            Color c = *Vid::Var::Terrain::waterColorBottom;
-            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);
-            Vid::Var::Terrain::waterColorBottom = c;
-
-            waterMaterial->SetDiffuse(c);
-
-            c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
-            Vid::Var::Terrain::waterColorTop = c;
-            break;
-        }
-        case 0x0CEB006D: // "terrain.water.mirroralpha"
-            waterColorMirror = *Vid::Var::Terrain::waterColorBottom;
-            waterColorMirror.a = U8(*Vid::Var::Terrain::waterAlphaMirror);
-
-            mirrorMaterial->SetDiffuse(waterColorMirror);
-            break;
-
-        case 0x6A2205FC: // "terrain.shroud.fog"
-        case 0xDF6981B8: // "terrain.shroud.invisible"
-        {
-            NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
-            while (MeshEnt* ent = li++)
-            {
-                if (*Vid::Var::Terrain::invisibleShroud)
+                F32 shade = *Vid::Var::Terrain::shadefactor + SHADEINC;
+                if (shade > 1.0f)
                 {
-                    ent->baseColor.Set(U32(255), U32(255), U32(255), ent->baseColor.a);
+                    shade = 0.0f;
                 }
-                else
-                {
-                    ent->extraFog = 0;
-                }
+                Vid::Var::Terrain::shadefactor = shade;
+                break;
             }
-            break;
-        }
-        case 0x48F02BBA: // "terrain.shroud.rate"
-            Vid::Var::Terrain::shroudRate = Min<S32>(255, Vid::Var::Terrain::shroudRate * *Vid::Var::Terrain::shroudUpdate);
-            break;
-
-        case 0xB56030F2: // "terrain.render.render"
-        {
-            static U32 counter = 0;
-            char* s = "terrain.bmp";
-            GameIdent gi;
-            if (!Console::GetArgString(1, (const char*&)s))
+            case 0x0CF9BADE: // "terrain.toggle.shroud"
             {
-                sprintf(gi.str, "terrain%d.bmp", counter);
-                counter++;
-                s = gi.str;
+                Vid::Var::Terrain::shroud = !*Vid::Var::Terrain::shroud;
+                break;
             }
-            Terrain::RenderTerrainMap(s, 1024, *Vid::Var::Terrain::renderColor, *Vid::Var::Terrain::renderOverlay);
-            break;
-        }
+            case 0x662A9CB3: // "terrain.toggle.water"
+            {
+                Vid::Var::Terrain::water = !*Vid::Var::Terrain::water;
+                break;
+            }
 
+            case 0x2ADBAF27: // "terrain.textures.report"
+                Report(TRUE);
+                break;
+            case 0xA2D15B0C: // "terrain.report"
+                Report();
+                break;
+
+            case 0x9F550DBF: // "terrain.textures.purge"
+                PurgeTextures();
+                break;
+
+            case 0x77C0B9B1: // "terrain.water.alphatopfactor"
+            {
+                Color c = *Vid::Var::Terrain::waterColorBottom;
+                c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
+                Vid::Var::Terrain::waterColorTop = c;
+                break;
+            }
+            case 0x5BEE10F2: // "terrain.water.alphabot"
+            {
+                Color c = *Vid::Var::Terrain::waterColorBottom;
+                c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);
+                Vid::Var::Terrain::waterColorBottom = c;
+
+                waterMaterial->SetDiffuse(c);
+
+                c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
+                Vid::Var::Terrain::waterColorTop = c;
+                break;
+            }
+            case 0x0CEB006D: // "terrain.water.mirroralpha"
+                waterColorMirror = *Vid::Var::Terrain::waterColorBottom;
+                waterColorMirror.a = U8(*Vid::Var::Terrain::waterAlphaMirror);
+
+                mirrorMaterial->SetDiffuse(waterColorMirror);
+                break;
+
+            case 0x6A2205FC: // "terrain.shroud.fog"
+            case 0xDF6981B8: // "terrain.shroud.invisible"
+            {
+                NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
+                while (MeshEnt* ent = li++)
+                {
+                    if (*Vid::Var::Terrain::invisibleShroud)
+                    {
+                        ent->baseColor.Set(U32(255), U32(255), U32(255), ent->baseColor.a);
+                    }
+                    else
+                    {
+                        ent->extraFog = 0;
+                    }
+                }
+                break;
+            }
+            case 0x48F02BBA: // "terrain.shroud.rate"
+                Vid::Var::Terrain::shroudRate = Min<S32>
+                (
+                    255, Vid::Var::Terrain::shroudRate * *Vid::Var::Terrain::shroudUpdate
+                );
+                break;
+
+            case 0xB56030F2: // "terrain.render.render"
+            {
+                static U32 counter = 0;
+                char* s = "terrain.bmp";
+                GameIdent gi;
+                if (!Console::GetArgString(1, (const char*&)s))
+                {
+                    sprintf(gi.str, "terrain%d.bmp", counter);
+                    counter++;
+                    s = gi.str;
+                }
+                RenderTerrainMap(s, 1024, *Vid::Var::Terrain::renderColor, *Vid::Var::Terrain::renderOverlay);
+                break;
+            }
         }
     }
+
     //----------------------------------------------------------------------------
 
     // clear terrain's values
@@ -431,18 +446,43 @@ namespace Terrain
         VarSys::SetFloatRange("terrain.shadingfactor", 0.0f, 1.0f);
 
         VarSys::CreateInteger("terrain.water.active", 1, VarSys::DEFAULT, &Vid::Var::Terrain::water);
-        VarSys::CreateFloat("terrain.water.speed", 0.01f, VarSys::DEFAULT, &Vid::Var::Terrain::waterSpeed)->SetFloatRange(0.0f, 0.1f);
-        VarSys::CreateFloat("terrain.water.alphatopfactor", 0.887f, VarSys::NOTIFY, &Vid::Var::Terrain::waterAlphaTopFactor)->SetFloatRange(0.0f, 1.0f);
-        VarSys::CreateInteger("terrain.water.alphabot", waterAlphaHigh, VarSys::NOTIFY, &Vid::Var::Terrain::waterAlphaBottom)->SetIntegerRange(0, 255);
-        VarSys::CreateInteger("terrain.water.colorbot", Color(U32(255), U32(255), U32(255), waterAlphaHigh), VarSys::DEFAULT, &Vid::Var::Terrain::waterColorBottom);
-        VarSys::CreateInteger("terrain.water.colortop", Color(U32(255), U32(255), U32(255), U32((F32)waterAlphaHigh * *Vid::Var::Terrain::waterAlphaTopFactor)), VarSys::DEFAULT, &Vid::Var::Terrain::waterColorTop);
-        VarSys::CreateInteger("terrain.water.mirroralpha", 88, VarSys::NOTIFY, &Vid::Var::Terrain::waterAlphaMirror)->SetIntegerRange(0, 255);
+        VarSys::CreateFloat("terrain.water.speed", 0.01f, VarSys::DEFAULT, &Vid::Var::Terrain::waterSpeed)->
+            SetFloatRange(0.0f, 0.1f);
+        VarSys::CreateFloat
+        (
+            "terrain.water.alphatopfactor", 0.887f, VarSys::NOTIFY,
+            &Vid::Var::Terrain::waterAlphaTopFactor
+        )->SetFloatRange(0.0f, 1.0f);
+        VarSys::CreateInteger
+        (
+            "terrain.water.alphabot", waterAlphaHigh, VarSys::NOTIFY,
+            &Vid::Var::Terrain::waterAlphaBottom
+        )->SetIntegerRange(0, 255);
+        VarSys::CreateInteger
+        (
+            "terrain.water.colorbot", Color(U32(255), U32(255), U32(255), waterAlphaHigh),
+            VarSys::DEFAULT, &Vid::Var::Terrain::waterColorBottom
+        );
+        VarSys::CreateInteger
+        (
+            "terrain.water.colortop",
+            Color
+            (
+                U32(255), U32(255), U32(255),
+                U32(static_cast<F32>(waterAlphaHigh) * *Vid::Var::Terrain::waterAlphaTopFactor)
+            ),
+            VarSys::DEFAULT, &Vid::Var::Terrain::waterColorTop
+        );
+        VarSys::CreateInteger("terrain.water.mirroralpha", 88, VarSys::NOTIFY, &Vid::Var::Terrain::waterAlphaMirror)->
+            SetIntegerRange(0, 255);
         waterColorMirror = *Vid::Var::Terrain::waterColorBottom;
         waterColorMirror.a = U8(*Vid::Var::Terrain::waterAlphaMirror);
 
         VarSys::CreateInteger("terrain.wave.active", 1, VarSys::DEFAULT, &Vid::Var::Terrain::waveActive);
-        VarSys::CreateFloat("terrain.wave.speed", 0.72f, VarSys::DEFAULT, &Vid::Var::Terrain::waveSpeed)->SetFloatRange(0.01f, 2.0f);
-        VarSys::CreateFloat("terrain.wave.height", 0.37f, VarSys::DEFAULT, &Vid::Var::Terrain::waveHeight)->SetFloatRange(0.0f, 2.0f);
+        VarSys::CreateFloat("terrain.wave.speed", 0.72f, VarSys::DEFAULT, &Vid::Var::Terrain::waveSpeed)->
+            SetFloatRange(0.01f, 2.0f);
+        VarSys::CreateFloat("terrain.wave.height", 0.37f, VarSys::DEFAULT, &Vid::Var::Terrain::waveHeight)->
+            SetFloatRange(0.0f, 2.0f);
 
         VarSys::CreateInteger("terrain.offmap.active", 1, VarSys::DEFAULT, &Vid::Var::Terrain::varOffMap);
         VarSys::CreateFloat("terrain.offmap.height", 10, VarSys::DEFAULT, &Vid::Var::Terrain::varOffMapHeight);
@@ -460,19 +500,27 @@ namespace Terrain
         VarSys::SetFloatRange("terrain.lod.distfactor", 0.0f, 1.0f);
         VarSys::CreateFloat("terrain.lod.dist", 0, VarSys::DEFAULT, &Vid::Var::Terrain::lodDist);
 
-        VarSys::CreateFloat("terrain.perf.adjust", 0.32f, VarSys::DEFAULT, &Vid::Var::Terrain::perfAdjust)->SetFloatRange(0, 1);
-        VarSys::CreateFloat("terrain.perf.minfar", 180.0f, VarSys::DEFAULT, &Vid::Var::Terrain::minFarPlane)->SetFloatRange(0, 500);
-        VarSys::CreateFloat("terrain.perf.far", 350.0f, VarSys::DEFAULT, &Vid::Var::Terrain::standardFarPlane)->SetFloatRange(0, 600);
-        VarSys::CreateInteger("terrain.perf.clustercells", 0, VarSys::NOTIFY, &Vid::Var::Terrain::clusterCells)->SetIntegerRange(0, 1);
+        VarSys::CreateFloat("terrain.perf.adjust", 0.32f, VarSys::DEFAULT, &Vid::Var::Terrain::perfAdjust)->
+            SetFloatRange(0, 1);
+        VarSys::CreateFloat("terrain.perf.minfar", 180.0f, VarSys::DEFAULT, &Vid::Var::Terrain::minFarPlane)->
+            SetFloatRange(0, 500);
+        VarSys::CreateFloat("terrain.perf.far", 350.0f, VarSys::DEFAULT, &Vid::Var::Terrain::standardFarPlane)->
+            SetFloatRange(0, 600);
+        VarSys::CreateInteger("terrain.perf.clustercells", 0, VarSys::NOTIFY, &Vid::Var::Terrain::clusterCells)->
+            SetIntegerRange(0, 1);
 
         VarSys::CreateInteger("terrain.shroud.active", 1, VarSys::NOEDIT, &Vid::Var::Terrain::shroud);
         VarSys::CreateInteger("terrain.shroud.invisible", 0, VarSys::NOTIFY, &Vid::Var::Terrain::invisibleShroud);
         VarSys::CreateInteger("terrain.shroud.soft", 0, VarSys::DEFAULT, &Vid::Var::Terrain::softShroud);
-        VarSys::CreateInteger("terrain.shroud.update", 1, VarSys::NOTIFY, &Vid::Var::Terrain::shroudUpdate)->SetIntegerRange(1, 10);
-        VarSys::CreateInteger("terrain.shroud.rate", 10, VarSys::NOTIFY, &Vid::Var::Terrain::shroudRate)->SetIntegerRange(0, 255);
-        VarSys::CreateInteger("terrain.shroud.fogvalue", 2, VarSys::NOTIFY, &Vid::Var::Terrain::shroudFog)->SetIntegerRange(0, 7);
+        VarSys::CreateInteger("terrain.shroud.update", 1, VarSys::NOTIFY, &Vid::Var::Terrain::shroudUpdate)->
+            SetIntegerRange(1, 10);
+        VarSys::CreateInteger("terrain.shroud.rate", 10, VarSys::NOTIFY, &Vid::Var::Terrain::shroudRate)->
+            SetIntegerRange(0, 255);
+        VarSys::CreateInteger("terrain.shroud.fogvalue", 2, VarSys::NOTIFY, &Vid::Var::Terrain::shroudFog)->
+            SetIntegerRange(0, 7);
 
-        VarSys::CreateFloat("terrain.textures.animrate", 1, VarSys::DEFAULT, &Vid::Var::Terrain::varAnimRate)->SetFloatRange(0, 4);
+        VarSys::CreateFloat("terrain.textures.animrate", 1, VarSys::DEFAULT, &Vid::Var::Terrain::varAnimRate)->
+            SetFloatRange(0, 4);
 
         VarSys::CreateInteger("terrain.render.color", 1, VarSys::NOTIFY, &Vid::Var::Terrain::renderColor);
         VarSys::CreateInteger("terrain.render.overlay", 1, VarSys::NOTIFY, &Vid::Var::Terrain::renderOverlay);
@@ -495,11 +543,11 @@ namespace Terrain
         heightField.ClearData();
 
         cellPerClusShift = CELLPERCLUSTERSHIFT;
-        clusList = NULL;
+        clusList = nullptr;
 
-        waterTex = NULL;
-        defTex = NULL;
-        editTex = NULL;
+        waterTex = nullptr;
+        defTex = nullptr;
+        editTex = nullptr;
         texCount = texAnimCount = overlayCount = 0;
 
         normCount = 0;
@@ -536,6 +584,7 @@ namespace Terrain
 
         return sysInit = TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // release terrain memory
@@ -556,7 +605,7 @@ namespace Terrain
             }
             delete[] clusList;
         }
-        clusList = NULL;
+        clusList = nullptr;
 
         // get rid of overlay memory (arrays don't call destructors)
         //
@@ -573,6 +622,7 @@ namespace Terrain
 
         mapInit = FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     // close the terrain system
@@ -602,12 +652,14 @@ namespace Terrain
 
         sysInit = FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     F32 FindFloor(F32 x, F32 z, Vector* surfNormal) // = NULL)
     {
         return heightField.FindFloor(x, z, surfNormal);
     }
+
     //----------------------------------------------------------------------------
 
     F32 FindFloorWithWater(F32 x, F32 z, Vector* surfNormal) // = NULL)
@@ -627,6 +679,7 @@ namespace Terrain
         }
         return h1;
     }
+
     //----------------------------------------------------------------------------
 
     // doesn't check for valid cell coords
@@ -635,6 +688,7 @@ namespace Terrain
     {
         return heightField.cellList[cz * heightField.cellPitch + cx].height;
     }
+
     //----------------------------------------------------------------------------
 
     extern F32 globalWaterHeight;
@@ -648,7 +702,7 @@ namespace Terrain
         {
             cx = 0;
         }
-        else if (cx >= (S32)clusWidth)
+        else if (cx >= static_cast<S32>(clusWidth))
         {
             cx = clusWidth - 1;
         }
@@ -656,7 +710,7 @@ namespace Terrain
         {
             cz = 0;
         }
-        else if (cz >= (S32)clusHeight)
+        else if (cz >= static_cast<S32>(clusHeight))
         {
             cz = clusHeight - 1;
         }
@@ -669,6 +723,7 @@ namespace Terrain
         }
         return globalWaterHeight;
     }
+
     //----------------------------------------------------------------------------
 
     Bool GetWater(S32 cx, S32 cz, F32* height) // = NULL
@@ -680,7 +735,7 @@ namespace Terrain
         {
             cx = 0;
         }
-        else if (cx >= (S32)clusWidth)
+        else if (cx >= static_cast<S32>(clusWidth))
         {
             cx = clusWidth - 1;
         }
@@ -688,7 +743,7 @@ namespace Terrain
         {
             cz = 0;
         }
-        else if (cz >= (S32)clusHeight)
+        else if (cz >= static_cast<S32>(clusHeight))
         {
             cz = clusHeight - 1;
         }
@@ -706,9 +761,10 @@ namespace Terrain
         }
         return FALSE;
     }
+
     //----------------------------------------------------------------------------
 
-    F32  GetHeightWithWater(S32 cx, S32 cz)
+    F32 GetHeightWithWater(S32 cx, S32 cz)
     {
         F32 h0, h1 = GetHeight(cx, cz);
         if (GetWater(cx, cz, &h0) && h0 > h1)
@@ -717,12 +773,17 @@ namespace Terrain
         }
         return h1;
     }
+
     //----------------------------------------------------------------------------
 
     // perform a heightfield to terrain paste operation
     // recalc data important to terrain
     //
-    void Paste(Area<S32>& dstRect, HeightField& buf, Area<S32>& bufRect, F32 scale, U32 flags, F32 atHeight) // = EDITHEIGHTS
+    void Paste
+    (
+        Area<S32>& dstRect, HeightField& buf, Area<S32>& bufRect, F32 scale, U32 flags,
+        F32 atHeight
+    ) // = EDITHEIGHTS
     {
         heightField.Paste(dstRect, buf, bufRect, scale, flags, atHeight);
 
@@ -742,6 +803,7 @@ namespace Terrain
 
         CalcCellRect(dstRect);
     }
+
     //----------------------------------------------------------------------------
 
     //
@@ -757,9 +819,10 @@ namespace Terrain
         z += OffsetZ();
 
         // Get the cluster this position is within
-        cx = (U32)Utils::FtoL(x * clusPerMeter);
-        cz = (U32)Utils::FtoL(z * clusPerMeter);
+        cx = static_cast<U32>(Utils::FtoL(x * clusPerMeter));
+        cz = static_cast<U32>(Utils::FtoL(z * clusPerMeter));
     }
+
     //----------------------------------------------------------------------------
 
     //
@@ -783,7 +846,7 @@ namespace Terrain
         {
             cx = 0;
         }
-        else if (cx >= (S32)clusWidth)
+        else if (cx >= static_cast<S32>(clusWidth))
         {
             cx = clusWidth - 1;
         }
@@ -791,7 +854,7 @@ namespace Terrain
         {
             cz = 0;
         }
-        else if (cz >= (S32)clusHeight)
+        else if (cz >= static_cast<S32>(clusHeight))
         {
             cz = clusHeight - 1;
         }
@@ -800,6 +863,7 @@ namespace Terrain
         //
         return (clusList[cz * clusWidth + cx]);
     }
+
     //----------------------------------------------------------------------------
 
     //
@@ -809,11 +873,12 @@ namespace Terrain
     //
     Cluster& GetCluster(U32 cx, U32 cz)
     {
-        ASSERT(cx < clusWidth)
-            ASSERT(cz < clusHeight)
+        ASSERT(cx < clusWidth);
+        ASSERT(cz < clusHeight);
 
-            return (clusList[cz * clusWidth + cx]);
+        return (clusList[cz * clusWidth + cx]);
     }
+
     //----------------------------------------------------------------------------
 
     //
@@ -843,6 +908,7 @@ namespace Terrain
 
         return (FALSE);
     }
+
     //----------------------------------------------------------------------------
 
 
@@ -850,6 +916,7 @@ namespace Terrain
     {
         Vid::Var::Terrain::baseTexName = name;
     }
+
     //----------------------------------------------------------------------------
 
     S32 AddTexture(const char* name)
@@ -884,6 +951,7 @@ namespace Terrain
 
         return i;
     }
+
     //----------------------------------------------------------------------------
 
     // allocate and initialize a terrain 
@@ -916,8 +984,8 @@ namespace Terrain
         cellPerClus = 1 << cellPerClusShift;
 
         // clamp to precision
-        wid = Min<U32>(wid, ((U32)sqrt(U32_MAX) - 2));
-        hgt = Min<U32>(hgt, ((U32)sqrt(U32_MAX) - 2));
+        wid = Min<U32>(wid, (static_cast<U32>(sqrt(U32_MAX)) - 2));
+        hgt = Min<U32>(hgt, (static_cast<U32>(sqrt(U32_MAX)) - 2));
 
         // make sure that wid and hgt contain an integer number of clusters
         wid = wid / cellPerClus * cellPerClus;
@@ -929,7 +997,7 @@ namespace Terrain
         clusWidth = heightField.cellWidth / cellPerClus;
         clusHeight = heightField.cellHeight / cellPerClus;
         meterPerClus = heightField.meterPerCell * cellPerClus;
-        clusPerMeter = 1.0f / (F32)meterPerClus;
+        clusPerMeter = 1.0f / static_cast<F32>(meterPerClus);
         clusCount = clusWidth * clusHeight;
 
         invMeterWidth = 1.0f / F32(MeterWidth());
@@ -1014,6 +1082,7 @@ namespace Terrain
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     void SetupPerf()
@@ -1025,8 +1094,13 @@ namespace Terrain
 
         // setup performance related parameters
         //
-        // F32 farp = Max<F32>(*Vid::Var::Terrain::minFarPlane, maxFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState.perfs[1]) * *Vid::Var::Terrain::perfAdjust));
-        F32 farp = Max<F32>(*Vid::Var::Terrain::minFarPlane, *Vid::Var::Terrain::standardFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState.perfs[1]) * *Vid::Var::Terrain::perfAdjust));
+        //    F32 farp = Max<F32>( *Vid::Var::Terrain::minFarPlane, maxFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState.perfs[1]) * *Vid::Var::Terrain::perfAdjust));
+        F32 farp = Max<F32>
+        (
+            *Vid::Var::Terrain::minFarPlane,
+            *Vid::Var::Terrain::standardFarPlane * (Vid::renderState.perfs[1] + (1.0f - Vid::renderState
+                .perfs[1]) * *Vid::Var::Terrain::perfAdjust)
+        );
 
         if (*Vid::Var::farOverride != 0)
         {
@@ -1039,42 +1113,42 @@ namespace Terrain
 
         Color c = *Vid::Var::Terrain::waterColorBottom;
 
-        Vid::renderState.status.mirEnvironment = FALSE;             // rain
+        Vid::renderState.status.mirEnvironment = FALSE;    // rain
 
         if (Vid::renderState.perfs[1] <= 0.25f)
         {
-            Vid::renderState.status.mirTerrain = TRUE;              // only terrain mirrored
+            Vid::renderState.status.mirTerrain = TRUE;     // only terrain mirrored
             Vid::renderState.status.mirObjects = FALSE;
             Vid::renderState.status.mirParticles = FALSE;
 
             Vid::renderState.texMinimapSize = 32;
 
-            c.a = waterAlphaMin;                                    // opaque water
-            Vid::Var::Terrain::shroudUpdate = 3;                    // update shroud every 3 frames
+            c.a = waterAlphaMin;                      // opaque water
+            Vid::Var::Terrain::shroudUpdate = 3;                         // update shroud every 3 frames
             Vid::Var::Terrain::overlay = FALSE;
         }
         else if (Vid::renderState.perfs[1] <= 0.5f)
         {
-            Vid::renderState.status.mirTerrain = TRUE;              // terrain and objects
+            Vid::renderState.status.mirTerrain = TRUE;     // terrain and objects
             Vid::renderState.status.mirObjects = TRUE;
             Vid::renderState.status.mirParticles = FALSE;
 
             Vid::renderState.texMinimapSize = 64;
 
-            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom * 1.2f);  // one translucent water layer
-            Vid::Var::Terrain::shroudUpdate = 2;                    // update shroud every 2 frames
+            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom * 1.2f);                      // one translucent water layer
+            Vid::Var::Terrain::shroudUpdate = 2;                         // update shroud every 2 frames
             Vid::Var::Terrain::overlay = TRUE;
         }
         else
         {
-            Vid::renderState.status.mirTerrain = TRUE;              // terrain, objects, and particles
+            Vid::renderState.status.mirTerrain = TRUE;     // terrain, objects, and particles
             Vid::renderState.status.mirObjects = TRUE;
             Vid::renderState.status.mirParticles = TRUE;
 
             Vid::renderState.texMinimapSize = 64;
 
-            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);         // 2 translucent water layers
-            Vid::Var::Terrain::shroudUpdate = 1;                    // update shroud every frame
+            c.a = U8(*Vid::Var::Terrain::waterAlphaBottom);                     // 2 translucent water layers
+            Vid::Var::Terrain::shroudUpdate = 1;                         // update shroud every frame
             Vid::Var::Terrain::overlay = TRUE;
         }
         Vid::Var::Terrain::waterColorBottom = c;
@@ -1084,10 +1158,11 @@ namespace Terrain
         c.a = U8(F32(c.a) * *Vid::Var::Terrain::waterAlphaTopFactor);
         Vid::Var::Terrain::waterColorTop = c;
 
-        // waterLayer2  = waterTex && (Vid::renderState.perfs[1] > 0.5f);
+        //    waterLayer2  = waterTex && (Vid::renderState.perfs[1] > 0.5f);
         waterLayer2 = FALSE;
         waterIsAlpha = waterTex && (waterTex->IsTranslucent() || c.a < 255);
     }
+
     //----------------------------------------------------------------------------
 
     // return the offset of the cluster at location 'x, z' in meters
@@ -1103,23 +1178,24 @@ namespace Terrain
         {
             cx = 0;
         }
-        else if (cx >= (S32)heightField.meterWidth)
+        else if (cx >= static_cast<S32>(heightField.meterWidth))
         {
-            cx = (S32)heightField.meterWidth - 1;
+            cx = static_cast<S32>(heightField.meterWidth) - 1;
         }
         if (cz < 0)
         {
             cz = 0;
         }
-        else if (cz >= (S32)heightField.meterHeight)
+        else if (cz >= static_cast<S32>(heightField.meterHeight))
         {
-            cz = (S32)heightField.meterWidth - 1;
+            cz = static_cast<S32>(heightField.meterWidth) - 1;
         }
-        cx = (S32)((F32)cx * clusPerMeter);
-        cz = (S32)((F32)cz * clusPerMeter);
+        cx = static_cast<S32>(static_cast<F32>(cx) * clusPerMeter);
+        cz = static_cast<S32>(static_cast<F32>(cz) * clusPerMeter);
 
-        return (U32)(cz * clusWidth + cx);
+        return static_cast<U32>(cz * clusWidth + cx);
     }
+
     //----------------------------------------------------------------------------
 
     // recalculate a cluster's bounds
@@ -1133,8 +1209,8 @@ namespace Terrain
         Vector points[30];   // > 5 * 5 + 4 (cells per cluster)   // FIXME: bigger clusters!
         x *= meterPerClus;
         z *= meterPerClus;
-        x -= (S32)OffsetX();
-        z -= (S32)OffsetZ();
+        x -= static_cast<S32>(OffsetX());
+        z -= static_cast<S32>(OffsetZ());
 
         //    U32 halfMeters = meterPerClus >> 1;
         //    Vector o( (F32) (x + halfMeters), 0.0, (F32) (z + halfMeters));
@@ -1158,8 +1234,8 @@ namespace Terrain
 
             for (ix = x; ix <= xend; ix += heightField.meterPerCell, p++, c++)
             {
-                p->x = (F32)ix;
-                p->z = (F32)z;
+                p->x = static_cast<F32>(ix);
+                p->z = static_cast<F32>(z);
                 p->y = c->height;
 
                 //        o.y += p->y;
@@ -1182,24 +1258,24 @@ namespace Terrain
         }
         else
         {
-            p->x = (F32)xstr;
-            p->z = (F32)zstr;
+            p->x = static_cast<F32>(xstr);
+            p->z = static_cast<F32>(zstr);
             p->y = clus.waterHeight;
             p++;
-            p->x = (F32)xstr;
-            p->z = (F32)zend;
+            p->x = static_cast<F32>(xstr);
+            p->z = static_cast<F32>(zend);
             p->y = clus.waterHeight;
             p++;
-            p->x = (F32)xend;
-            p->z = (F32)zend;
+            p->x = static_cast<F32>(xend);
+            p->z = static_cast<F32>(zend);
             p->y = clus.waterHeight;
             p++;
-            p->x = (F32)xend;
-            p->z = (F32)zstr;
+            p->x = static_cast<F32>(xend);
+            p->z = static_cast<F32>(zstr);
             p->y = clus.waterHeight;
             p++;
 
-            WaterRegion* w, * we = waterList.data + waterCount, * whit = NULL;
+            WaterRegion *w, *we = waterList.data + waterCount, *whit = nullptr;
             for (w = waterList.data; w < we; w++)
             {
                 if (w->height != clus.waterHeight)
@@ -1245,27 +1321,27 @@ namespace Terrain
         }
 
         static U16 indexlist[] = {
-          0, 5, 6, 0, 6, 1,
-          1, 6, 7, 1, 7, 2,
-          2, 7, 8, 2, 8, 3,
-          3, 8, 9, 3, 0, 4,
+            0, 5, 6, 0, 6, 1,
+            1, 6, 7, 1, 7, 2,
+            2, 7, 8, 2, 8, 3,
+            3, 8, 9, 3, 0, 4,
 
-          5, 10, 11, 5, 11, 6,
-          6, 11, 12, 6, 12, 7,
-          7, 12, 13, 7, 13, 8,
-          8, 13, 14, 8, 14, 9,
+            5, 10, 11, 5, 11, 6,
+            6, 11, 12, 6, 12, 7,
+            7, 12, 13, 7, 13, 8,
+            8, 13, 14, 8, 14, 9,
 
-          10, 15, 16, 10, 16, 11,
-          11, 16, 17, 11, 17, 12,
-          12, 17, 18, 12, 18, 13,
-          13, 18, 19, 13, 19, 14,
+            10, 15, 16, 10, 16, 11,
+            11, 16, 17, 11, 17, 12,
+            12, 17, 18, 12, 18, 13,
+            13, 18, 19, 13, 19, 14,
 
-          15, 20, 21, 15, 21, 16,
-          16, 21, 22, 16, 22, 17,
-          17, 22, 23, 17, 23, 18,
-          18, 23, 24, 18, 24, 19,
+            15, 20, 21, 15, 21, 16,
+            16, 21, 22, 16, 22, 17,
+            17, 22, 23, 17, 23, 18,
+            18, 23, 24, 18, 24, 19,
 
-          25, 26, 27, 25, 27, 28,
+            25, 26, 27, 25, 27, 28,
         };
 
         if (clus.status.water && clus.waterHeight < lowWaterHeight)
@@ -1277,6 +1353,7 @@ namespace Terrain
 
         clus.bounds.Set(sphere);
     }
+
     //----------------------------------------------------------------------------
 
     // compare function for sorting water
@@ -1311,6 +1388,7 @@ namespace Terrain
 
         return 0;
     }
+
     //----------------------------------------------------------------------------
 
     // recalculate all the terrain's clusters' bounding spheres
@@ -1326,7 +1404,11 @@ namespace Terrain
             }
         }
 
-        qsort((void*)waterList.data, (size_t)(size_t)waterCount, sizeof(WaterRegion), CompareWaterRegions);
+        qsort
+        (
+            static_cast<void*>(waterList.data), static_cast<size_t>(static_cast<size_t>(waterCount)),
+            sizeof(WaterRegion), CompareWaterRegions
+        );
 
 #if 0
         F32 area = 0;
@@ -1343,6 +1425,7 @@ namespace Terrain
         }
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     // recalculate all the terrain's volitile data
@@ -1353,6 +1436,7 @@ namespace Terrain
         CalcSpheres();
         CalcNormals();
     }
+
     //----------------------------------------------------------------------------
 
     // recalculate normals and affected clusters' bounding spheres
@@ -1367,7 +1451,7 @@ namespace Terrain
         {
             drect.p0.x = 1;
         }
-        if (drect.p1.x >= (S32)(heightField.cellWidth - 1))
+        if (drect.p1.x >= static_cast<S32>(heightField.cellWidth - 1))
         {
             drect.p1.x = heightField.cellWidth - 2;
         }
@@ -1375,7 +1459,7 @@ namespace Terrain
         {
             drect.p0.y = 1;
         }
-        if (drect.p1.y >= (S32)(heightField.cellHeight - 1))
+        if (drect.p1.y >= static_cast<S32>(heightField.cellHeight - 1))
         {
             drect.p1.y = heightField.cellHeight - 2;
         }
@@ -1393,7 +1477,7 @@ namespace Terrain
                 cell.normal = (U8)heightField.CalcCellNormalQuick(offset);
 #endif
 #ifdef DODYNAMICNORMALS2
-                cell.normal = (U8)heightField.CalcCellNormal(offset);
+                cell.normal = static_cast<U8>(heightField.CalcCellNormal(offset));
 #endif
 
                 if (cell.height < terrMinHeight)
@@ -1423,21 +1507,21 @@ namespace Terrain
             drect.p0.y = 0;
         }
 
-        if (drect.p1.x < (S32)(clusWidth - 1))
+        if (drect.p1.x < static_cast<S32>(clusWidth - 1))
         {
             drect.p1.x += 1;
         }
-        else if (drect.p1.x > (S32) clusWidth)
+        else if (drect.p1.x > static_cast<S32>(clusWidth))
         {
-            drect.p1.x = (S32)clusWidth;
+            drect.p1.x = static_cast<S32>(clusWidth);
         }
-        if (drect.p1.y < (S32)(clusHeight - 1))
+        if (drect.p1.y < static_cast<S32>(clusHeight - 1))
         {
             drect.p1.y += 1;
         }
-        else if (drect.p1.y > (S32) clusHeight)
+        else if (drect.p1.y > static_cast<S32>(clusHeight))
         {
-            drect.p1.y = (S32)clusHeight;
+            drect.p1.y = static_cast<S32>(clusHeight);
         }
 
         for (z = drect.p0.y; z < drect.p1.y; z++)
@@ -1449,7 +1533,11 @@ namespace Terrain
                 CalcClusSphere(x, z);
             }
         }
-        qsort((void*)waterList.data, (size_t)waterCount, sizeof(WaterRegion), CompareWaterRegions);
+        qsort
+        (
+            static_cast<void*>(waterList.data), static_cast<size_t>(waterCount), sizeof(WaterRegion),
+            CompareWaterRegions
+        );
 
 #if 0
         F32 area = 0;
@@ -1466,11 +1554,16 @@ namespace Terrain
         }
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     // import a buffer of greyscale values as a heightfield
     //
-    Bool ImportBitmap(char* buffer, U32 bwid, U32 bhgt, F32 scale, Area<S32>& rect, U32 csize, U32 flags) // = CELLSIZE, = 0
+    Bool ImportBitmap
+    (
+        char* buffer, U32 bwid, U32 bhgt, F32 scale, Area<S32>& rect, U32 csize,
+        U32 flags
+    ) // = CELLSIZE, = 0
     {
         U32 wid = rect.Width();
         U32 hgt = rect.Height();
@@ -1489,6 +1582,7 @@ namespace Terrain
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
     const char* TERRAINKEY = "terraindata";
     static U32 saveVersion = 17;
@@ -1534,7 +1628,7 @@ namespace Terrain
 
                 if (mapOvr[cell.overlay] == 0xff)
                 {
-                    mapOvr[cell.overlay] = (U8)oCount;
+                    mapOvr[cell.overlay] = static_cast<U8>(oCount);
                     oCount++;
                 }
             }
@@ -1654,7 +1748,7 @@ namespace Terrain
         bfile.WriteToBlock(&wave, sizeof(wave));    // version 11
 
         Color c = *Vid::Var::Terrain::waterColorBottom;
-        c.a = (U8)*Vid::Var::Terrain::waterAlphaBottom;
+        c.a = static_cast<U8>(*Vid::Var::Terrain::waterAlphaBottom);
         bfile.WriteToBlock(&c, sizeof(c));    // version 11
 
         wave = *Vid::Var::Terrain::waterAlphaTopFactor;
@@ -1683,6 +1777,7 @@ namespace Terrain
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // load Dark Reign 2 terrain data
@@ -1720,7 +1815,7 @@ namespace Terrain
             U32 slen;
             bfile.ReadFromBlock(&slen, sizeof(slen));
             bfile.ReadFromBlock(name, slen);
-            mapper[i] = (U8)AddTexture(name);
+            mapper[i] = static_cast<U8>(AddTexture(name));
         }
 
         if (version >= 12)
@@ -1966,6 +2061,7 @@ namespace Terrain
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // do any terrain animation
@@ -1981,7 +2077,7 @@ namespace Terrain
         {
             texAnim -= .1f;
 
-            Bitmap*** at, *** et = texAnimList + texAnimCount;
+            Bitmap ***at, ***et = texAnimList + texAnimCount;
             for (at = texAnimList; at < et; at++)
             {
                 (**at) = (**at)->GetNext();
@@ -2008,7 +2104,7 @@ namespace Terrain
         }
 #else
         // water motion
-        //
+    //
         F32 wVel0 = waterPos0 + Vid::Var::Terrain::waterSpeed * dt;
         F32 wVel1 = waterPos1 - Vid::Var::Terrain::waterSpeed * dt;
 
@@ -2041,10 +2137,11 @@ namespace Terrain
         // wave motion
         //
         waveAngle += *Vid::Var::Terrain::waveSpeed * dt;
-        waveAngle = (F32)fmod(waveAngle, 2 * PI);
-        waterWave0 = (F32)cos(waveAngle) * *Vid::Var::Terrain::waveHeight;
+        waveAngle = static_cast<F32>(fmod(waveAngle, 2 * PI));
+        waterWave0 = static_cast<F32>(cos(waveAngle)) * *Vid::Var::Terrain::waveHeight;
         waterWave1 = -waterWave0;
     }
+
     //----------------------------------------------------------------------------
 
     // do any terrain animation
@@ -2060,7 +2157,7 @@ namespace Terrain
         {
             texAnim -= .1f;
 
-            Bitmap*** at, *** et = texAnimList + texAnimCount;
+            Bitmap ***at, ***et = texAnimList + texAnimCount;
             for (at = texAnimList; at < et; at++)
             {
                 (**at) = (**at)->GetNext();
@@ -2088,7 +2185,7 @@ namespace Terrain
         }
 #else
         // water motion
-        //
+    //
         F32 wVel0 = waterPos0 + Vid::Var::Terrain::waterSpeed * dt;
         F32 wVel1 = waterPos1 - Vid::Var::Terrain::waterSpeed * dt;
 
@@ -2110,7 +2207,7 @@ namespace Terrain
 #endif
 
         F32 move = movePos - moveSpeed / MeterPerCell() * dt;
-        move = (F32)fmod(move, 1.0f);
+        move = static_cast<F32>(fmod(move, 1.0f));
         movePos = move;
 
         for (i = 0; i < 4; i++)
@@ -2118,6 +2215,7 @@ namespace Terrain
             cellUVList[i].v = baseUVList0[i].v - move;
         }
     }
+
     //----------------------------------------------------------------------------
 
     // return the amount of memory used by a terrain !!!! FIXME
@@ -2133,6 +2231,7 @@ namespace Terrain
 
         return memory;
     }
+
     //----------------------------------------------------------------------------
 
     // recalculate the lighting values for the standard normals via sunlight 
@@ -2141,17 +2240,18 @@ namespace Terrain
     {
         Vid::Light::sun->Light(normLights, normList, normCount);
     }
+
     //----------------------------------------------------------------------------
 
     //const U32 NORMCOUNTX      = 9;   // number of normals around the x axis
     const S32 NORMCOUNTX = 17;     // number of normals around the x axis
     const S32 NORMHALFX = NORMCOUNTX / 2;
     const S32 NORMQUARTX = NORMCOUNTX / 4;
-    const F32 NORMINTERVALX = 1.0f / (F32)NORMHALFX;
-    const F32 DANGX = (F32)PIBY2 * NORMINTERVALX;
+    const F32 NORMINTERVALX = 1.0f / static_cast<F32>(NORMHALFX);
+    const F32 DANGX = static_cast<F32>(PIBY2) * NORMINTERVALX;
 
     const S32 NORMCOUNTY = 8;  // 8 intervals around the y axis
-    const F32 DANGY = (F32)PI2 / (F32)NORMCOUNTY;
+    const F32 DANGY = static_cast<F32>(PI2) / static_cast<F32>(NORMCOUNTY);
 
     // for quick normal recalculation
     static F32 invdx;
@@ -2177,7 +2277,7 @@ namespace Terrain
             // loop around the circle
             Quaternion qx;
             qx.Set(ax, Matrix::I.Right());
-            for (ay = 0.0f; ay < (F32)PI2; ay += DANGY, normCount++)
+            for (ay = 0.0f; ay < static_cast<F32>(PI2); ay += DANGY, normCount++)
             {
                 Quaternion qy = qx;
                 qy.Rotate(ay, Matrix::I.Up());
@@ -2271,6 +2371,7 @@ namespace Terrain
         }
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     // find the appropriate index into the standard Terrain normal list
@@ -2285,9 +2386,9 @@ namespace Terrain
         U32 i, normIndex = 0;
         for (i = 0; i < count; i++)
         {
-            F32 diff = (F32)fabs(normal.x - norms[i].x);
-            diff += (F32)fabs(normal.y - norms[i].y);
-            diff += (F32)fabs(normal.z - norms[i].z);
+            F32 diff = static_cast<F32>(fabs(normal.x - norms[i].x));
+            diff += static_cast<F32>(fabs(normal.y - norms[i].y));
+            diff += static_cast<F32>(fabs(normal.z - norms[i].z));
 
             if (diff < maxdiff)
             {
@@ -2297,6 +2398,7 @@ namespace Terrain
         }
         return normIndex;
     }
+
     //----------------------------------------------------------------------------
 
     // set the cell's normal index into the standard Terrain normal list
@@ -2327,22 +2429,22 @@ namespace Terrain
             {
                 if (slope <= 1.0f)
                 {
-                    index[i] = (U32)(slope * NORMQUARTX);
+                    index[i] = static_cast<U32>(slope * NORMQUARTX);
                 }
                 else
                 {
-                    index[i] = NORMHALFX - (U32)(1.0f / slope * NORMQUARTX);
+                    index[i] = NORMHALFX - static_cast<U32>(1.0f / slope * NORMQUARTX);
                 }
             }
             else
             {
                 if (slope >= -1.0f)
                 {
-                    index[i] = (U32)(slope * NORMQUARTX);
+                    index[i] = static_cast<U32>(slope * NORMQUARTX);
                 }
                 else
                 {
-                    index[i] = -NORMHALFX - (U32)(1.0f / slope * NORMQUARTX);
+                    index[i] = -NORMHALFX - static_cast<U32>(1.0f / slope * NORMQUARTX);
                 }
             }
             slope = (h0 - h[i][1]) * invdx;
@@ -2350,22 +2452,22 @@ namespace Terrain
             {
                 if (slope <= 1.0f)
                 {
-                    index[i] += (U32)(slope * NORMQUARTX);
+                    index[i] += static_cast<U32>(slope * NORMQUARTX);
                 }
                 else
                 {
-                    index[i] += NORMHALFX - (U32)(1.0f / slope * NORMQUARTX);
+                    index[i] += NORMHALFX - static_cast<U32>(1.0f / slope * NORMQUARTX);
                 }
             }
             else
             {
                 if (slope >= -1.0f)
                 {
-                    index[i] += (U32)(slope * NORMQUARTX);
+                    index[i] += static_cast<U32>(slope * NORMQUARTX);
                 }
                 else
                 {
-                    index[i] += -NORMHALFX - (U32)(1.0f / slope * NORMQUARTX);
+                    index[i] += -NORMHALFX - static_cast<U32>(1.0f / slope * NORMQUARTX);
                 }
             }
             index[i] >>= 1;
@@ -2374,6 +2476,7 @@ namespace Terrain
 
         return normMapper[index[0]][index[1]][index[2]][index[3]];
     }
+
     //----------------------------------------------------------------------------
 
     // recalculate all the cells' normal indices in terrain
@@ -2401,9 +2504,9 @@ namespace Terrain
                     U32 i;
                     for (i = 0; i < normCount; i++)
                     {
-                        F32 diff = (F32)fabs(norm.x - normList[i].x);
-                        diff += (F32)fabs(norm.y - normList[i].y);
-                        diff += (F32)fabs(norm.z - normList[i].z);
+                        F32 diff = static_cast<F32>(fabs(norm.x - normList[i].x));
+                        diff += static_cast<F32>(fabs(norm.y - normList[i].y));
+                        diff += static_cast<F32>(fabs(norm.z - normList[i].z));
 
                         if (diff < maxdiff)
                         {
@@ -2412,7 +2515,7 @@ namespace Terrain
                         }
                     }
                 }
-                heightField.cellList[offset].normal = (U8)normIndex;
+                heightField.cellList[offset].normal = static_cast<U8>(normIndex);
 
                 F32 h = heightField.cellList[offset].height;
 
@@ -2432,8 +2535,9 @@ namespace Terrain
         {
             terrMaxHeight = terrMinHeight + 100.0f;
         }
-        terrAverageHeight /= (F32)(heightField.cellMax + 1);
+        terrAverageHeight /= static_cast<F32>(heightField.cellMax + 1);
     }
+
     //----------------------------------------------------------------------------
 
     // recalculate all the cells' normal indices in terrain
@@ -2458,6 +2562,7 @@ namespace Terrain
         }
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     void PurgeTextures()
@@ -2471,6 +2576,7 @@ namespace Terrain
             c->texture = 0;
         }
     }
+
     //----------------------------------------------------------------------------
 
     // FIXME: if the camera is always on the map then don't clip
@@ -2549,7 +2655,7 @@ namespace Terrain
             F32 x = 1.0f / front.x * (wid - pos.x);
             pos.z += front.z * x;
             pos.y += front.y * x;
-            pos.x = (F32)wid;
+            pos.x = static_cast<F32>(wid);
             if (pos.z < 0.0f)
             {
                 if (front.z <= 0.0f)
@@ -2641,7 +2747,7 @@ namespace Terrain
             F32 z = 1.0f / front.z * (hgt - pos.z);
             pos.x += front.x * z;
             pos.y += front.y * z;
-            pos.z = (F32)hgt;
+            pos.z = static_cast<F32>(hgt);
             if (pos.x < 0.0f)
             {
                 if (front.x <= 0.0f)
@@ -2687,7 +2793,11 @@ namespace Terrain
     // returns NULL if it reaches the edge of the terrain without an intersection
     // checks and corrects for starting pos off map
     //
-    Bool Intersect(Vector& pos, Vector front, F32 stepScale, const FINDFLOORPROCPTR findFloorProc, F32 range) // = 1.0f, FindFloor, F32_MAX
+    Bool Intersect
+    (
+        Vector& pos, Vector front, F32 stepScale, const FINDFLOORPROCPTR findFloorProc,
+        F32 range
+    ) // = 1.0f, FindFloor, F32_MAX
     {
         range;
 
@@ -2696,7 +2806,7 @@ namespace Terrain
             return FALSE;
         }
         // check if pos is already below the terrain
-        F32 y = (*findFloorProc)(pos.x, pos.z, NULL);
+        F32 y = (*findFloorProc)(pos.x, pos.z, nullptr);
         if (pos.y < y)
         {
             return FALSE;
@@ -2732,14 +2842,18 @@ namespace Terrain
                 pos.y = y;
                 return FALSE;
             }
-            y = (*findFloorProc)(pos.x, pos.z, NULL);
+            y = (*findFloorProc)(pos.x, pos.z, nullptr);
         }
 
-        LOG_ERR(("Terrain::Intersect: overflow! start: %4.2f %4.2f %4.2f ; end: %4.2f %4.2f %4.2f ; step %4.2f %4.2f %4.2f",
-            startPos.x, startPos.y, startPos.z, pos.x, pos.y, pos.z, front.x, front.y, front.z));
+        LOG_ERR
+        (
+            ("Terrain::Intersect: overflow! start: %4.2f %4.2f %4.2f ; end: %4.2f %4.2f %4.2f ; step %4.2f %4.2f %4.2f",
+                startPos.x, startPos.y, startPos.z, pos.x, pos.y, pos.z, front.x, front.y, front.z)
+        );
 
         return FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     // calculate the world position corresponding to the screen position 'sx, sy'
@@ -2752,6 +2866,7 @@ namespace Terrain
 
         return Intersect(pos, front, 1.0f, findFloorProc);
     }
+
     //----------------------------------------------------------------------------
 
 
@@ -2772,7 +2887,11 @@ namespace Terrain
             return -1;
         }
 
-        overlayList[overlayCount] = Bitmap::Manager::FindCreate(Bitmap::reduceHIGH, name, Vid::Var::terrMipCount, bitmapTEXTURE, 1, FALSE, FALSE);
+        overlayList[overlayCount] = Bitmap::Manager::FindCreate
+        (
+            Bitmap::reduceHIGH, name, Vid::Var::terrMipCount,
+            bitmapTEXTURE, 1, FALSE, FALSE
+        );
 
         if (!overlayList[overlayCount])
         {
@@ -2781,7 +2900,7 @@ namespace Terrain
 
             return -1;
         }
-        else if (overlayList[overlayCount]->IsAnimating())
+        if (overlayList[overlayCount]->IsAnimating())
         {
             texAnimList[texAnimCount] = &(overlayList[overlayCount]);
             texAnimCount++;
@@ -2791,6 +2910,7 @@ namespace Terrain
 
         return i;
     }
+
     //----------------------------------------------------------------------------
 
     S32 AddOverlay(Point<S32> _size, U32 _style, U32 _blend) // = RS_BLEND_MODULATE
@@ -2851,6 +2971,7 @@ namespace Terrain
 
         return i;
     }
+
     //----------------------------------------------------------------------------
 
     void ApplyOverlay(S32 cx, S32 cz, U32 overlayIndex, U32 textureIndex)
@@ -2864,7 +2985,7 @@ namespace Terrain
         {
             for (S32 x = cx; x < ex; x++, count++)
             {
-                if (!Terrain::CellOnMap(x, cz))
+                if (!CellOnMap(x, cz))
                 {
                     continue;
                 }
@@ -2877,6 +2998,7 @@ namespace Terrain
             }
         }
     }
+
     //----------------------------------------------------------------------------
 
     void RemoveOverlay(S32 cx, S32 cz, Point<S32> size)
@@ -2886,7 +3008,7 @@ namespace Terrain
         {
             for (S32 x = cx; x < ex; x++, count++)
             {
-                if (!Terrain::CellOnMap(x, cz))
+                if (!CellOnMap(x, cz))
                 {
                     continue;
                 }
@@ -2900,6 +3022,7 @@ namespace Terrain
             }
         }
     }
+
     //----------------------------------------------------------------------------
 
     U32 Report(Bool all) // = FALSE
@@ -2923,8 +3046,10 @@ namespace Terrain
 
         return mem;
     }
+
     //----------------------------------------------------------------------------
 }
+
 //----------------------------------------------------------------------------
 
 
@@ -2970,5 +3095,5 @@ S32 Cell::SetFog(S32 _fog)
     */
     return fog = _fog;
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

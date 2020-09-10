@@ -25,17 +25,19 @@
 class BloodSimulateClass : public ParticleClass
 {
 public:
-	// blood simulator class constructor
-	BloodSimulateClass();
+    // blood simulator class constructor
+    BloodSimulateClass();
 
-	// build a new blood simulator
-	virtual Particle *Build(
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
+    // build a new blood simulator
+    virtual Particle* Build
+    (
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 };
 
 
@@ -46,24 +48,26 @@ public:
 class BloodSimulate : public Particle
 {
 public:
-	Vector vel;
-  
+    Vector vel;
+
 public:
-	// blood simulator constructor
-	BloodSimulate(
-    BloodSimulateClass *proto, 
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
+    // blood simulator constructor
+    BloodSimulate
+    (
+        BloodSimulateClass* proto,
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 
-	// blood simulator destructor
-	virtual ~BloodSimulate();
+    // blood simulator destructor
+    virtual ~BloodSimulate();
 
-	// apply blood simulator
-	virtual Bool Simulate( F32 dt);
+    // apply blood simulator
+    virtual Bool Simulate(F32 dt);
 };
 
 #endif

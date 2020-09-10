@@ -43,38 +43,38 @@ namespace Environment
 
         switch (pathCrc)
         {
-        case 0x964EB57B: // "environment.report"
-        {
-            // report fogcolor
-            U32 r = (U32)(Vid::renderState.fogColorF32.r * 255.0f);
-            U32 g = (U32)(Vid::renderState.fogColorF32.g * 255.0f);
-            U32 b = (U32)(Vid::renderState.fogColorF32.b * 255.0f);
-            CON_DIAG(("fog       = %d %d %d", r, g, b));
+            case 0x964EB57B: // "environment.report"
+            {
+                // report fogcolor
+                U32 r = static_cast<U32>(Vid::renderState.fogColorF32.r * 255.0f);
+                U32 g = static_cast<U32>(Vid::renderState.fogColorF32.g * 255.0f);
+                U32 b = static_cast<U32>(Vid::renderState.fogColorF32.b * 255.0f);
+                CON_DIAG(("fog       = %d %d %d", r, g, b));
 
-            // ambient
-            r = (U32)(Vid::renderState.ambientColor.r * 255.0f);
-            g = (U32)(Vid::renderState.ambientColor.g * 255.0f);
-            b = (U32)(Vid::renderState.ambientColor.b * 255.0f);
-            CON_DIAG(("ambient  = %d %d %d", r, g, b));
+                // ambient
+                r = static_cast<U32>(Vid::renderState.ambientColor.r * 255.0f);
+                g = static_cast<U32>(Vid::renderState.ambientColor.g * 255.0f);
+                b = static_cast<U32>(Vid::renderState.ambientColor.b * 255.0f);
+                CON_DIAG(("ambient  = %d %d %d", r, g, b));
 
-            // light
-            r = (U32)Vid::Light::sunColor.r;
-            g = (U32)Vid::Light::sunColor.g;
-            b = (U32)Vid::Light::sunColor.b;
-            CON_DIAG(("light     = %d %d %d", r, g, b));
+                // light
+                r = static_cast<U32>(Vid::Light::sunColor.r);
+                g = static_cast<U32>(Vid::Light::sunColor.g);
+                b = static_cast<U32>(Vid::Light::sunColor.b);
+                CON_DIAG(("light     = %d %d %d", r, g, b));
 
-            // light angle
-            F32 angle = Vid::Light::sun->WorldMatrix().Front().Dot(Matrix::I.Right());
-            angle = (angle + 1.0f) * 90.0f;
-            CON_DIAG(("angle     = %3.0f %s", angle, Environment::Light::IsDay() ? "day" : "night"));
+                // light angle
+                F32 angle = Vid::Light::sun->WorldMatrix().Front().Dot(Matrix::I.Right());
+                angle = (angle + 1.0f) * 90.0f;
+                CON_DIAG(("angle     = %3.0f %s", angle, Environment::Light::IsDay() ? "day" : "night"));
 
-            // farplane
-            CON_DIAG(("farplane = %4.0f", Vid::CurCamera().FarPlane()));
+                // farplane
+                CON_DIAG(("farplane = %4.0f", Vid::CurCamera().FarPlane()));
 
-            // fogdepth
-            CON_DIAG(("fogdist   = %4.0f", Vid::renderState.fogMin));
-            break;
-        }
+                // fogdepth
+                CON_DIAG(("fogdist   = %4.0f", Vid::renderState.fogMin));
+                break;
+            }
         }
     }
 
@@ -137,16 +137,15 @@ namespace Environment
     {
         ASSERT(initialized);
 
-        PERF_S(("Light::Process"));
+        PERF_S(("Light::Process"))
         Light::Process();
-        PERF_E(("Light::Process"));
+        PERF_E(("Light::Process"))
 
         // must be after Light::Process for lightning to work
         //
-        PERF_S(("Rain::Process"));
+        PERF_S(("Rain::Process"))
         Rain::Process();
-        PERF_E(("Rain::Process"));
-
+        PERF_E(("Rain::Process"))
     }
 
     //

@@ -27,72 +27,70 @@
 //
 namespace SoundFX
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declarations
-  //
-  class Object;
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Struct CallBackData
-  //
-  struct CallBackData
-  {
-    // Volume
-    F32 volume;
-
-    // Constructor
-    CallBackData();
-  };
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward Declarations
+    //
+    class Object;
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Type
-  //
-  class Type
-  {
-  private:
-
-    // Wave file
-    GameIdent file;
-
-    // Priority of the sound effect
-    F32 priority;
-
-    // Distance where sound is maxed
-    F32 maxDistance;
-
-    // Distance where sond is minimum
-    F32 minDistance;
-
-    // Flags
-    U8 useOwner   : 1,  // Use owner (to prevent talking out of both sides of mouth)
-       alwaysHear : 1,  // Hear the sound regardless of wether its out of sight
-       loop       : 1;  // Loop the sound around and around and around and around
-
-  public:
-
-    // Constructor and Destructor
-    Type(FScope *fScope)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Struct CallBackData
+    //
+    struct CallBackData
     {
-      Setup( fScope);
-    }
-    ~Type();
+        // Volume
+        F32 volume;
 
-    void Setup(FScope *fScope);
+        // Constructor
+        CallBackData();
+    };
 
-    // Post Load
-    void PostLoad(MapObjType *mapObjType);
 
-    // Friends
-    friend class Object;
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Type
+    //
+    class Type
+    {
+    private:
 
-  };
+        // Wave file
+        GameIdent file;
 
+        // Priority of the sound effect
+        F32 priority;
+
+        // Distance where sound is maxed
+        F32 maxDistance;
+
+        // Distance where sond is minimum
+        F32 minDistance;
+
+        // Flags
+        U8 useOwner : 1,  // Use owner (to prevent talking out of both sides of mouth)
+            alwaysHear : 1,  // Hear the sound regardless of wether its out of sight
+            loop : 1;  // Loop the sound around and around and around and around
+
+    public:
+
+        // Constructor and Destructor
+        Type(FScope* fScope)
+        {
+            Setup(fScope);
+        }
+
+        ~Type();
+
+        void Setup(FScope* fScope);
+
+        // Post Load
+        void PostLoad(MapObjType* mapObjType);
+
+        // Friends
+        friend class Object;
+    };
 }
 
 

@@ -25,55 +25,50 @@
 //
 namespace Won
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class GameInfo
+    // NameSpace Controls
     //
-    class GameInfo : public ICWindow
+    namespace Controls
     {
-    private:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class GameInfo
+        //
+        class GameInfo : public ICWindow
+        {
+        private:
 
-      // Ping graph rectangle
-      Area<S32> pingGraph;
+            // Ping graph rectangle
+            Area<S32> pingGraph;
 
-      // Game list item we are displaying info for
-      Reaper<GameList::Item> itemPtr;
+            // Game list item we are displaying info for
+            Reaper<GameList::Item> itemPtr;
 
-      // Name CRC of the control
-      U32 itemNameCrc;
+            // Name CRC of the control
+            U32 itemNameCrc;
 
-      // List of games
-      IControlPtr containerPtr;
+            // List of games
+            IControlPtr containerPtr;
 
-    public:
+        public:
 
-      // Constructor
-      GameInfo(IControl *parent);
+            // Constructor
+            GameInfo(IControl* parent);
 
-      // Destructor
-      ~GameInfo();
+            // Destructor
+            ~GameInfo();
 
-      // Activate
-      Bool Activate();
+            // Activate
+            Bool Activate();
 
-      // Setup
-      void Setup(FScope *fScope);
+            // Setup
+            void Setup(FScope* fScope);
 
-      // Draw self
-      void DrawSelf(PaintInfo &pi);
-
-    };
-
-  }
-
+            // Draw self
+            void DrawSelf(PaintInfo& pi);
+        };
+    }
 }
 
 

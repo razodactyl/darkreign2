@@ -58,7 +58,11 @@ Bool OptimizeKeys(AnimKey* src, U32& srcCount, AnimKeyEnum type)
                 {
                     if (i < S32(srcCount - 2))
                     {
-                        Utils::Memcpy((void*)&k2, (void*)&k3, (srcCount - i - 1) * sizeof(AnimKey));
+                        Utils::Memcpy
+                        (
+                            static_cast<void*>(&k2), static_cast<void*>(&k3),
+                            (srcCount - i - 1) * sizeof(AnimKey)
+                        );
                         i--;
                     }
                     srcCount--;
@@ -80,11 +84,10 @@ Bool OptimizeKeys(AnimKey* src, U32& srcCount, AnimKeyEnum type)
                 {
                     if (i < S32(srcCount - 2))
                     {
-                        Utils::Memcpy((void*)&k2, (void*)&k3, (srcCount - i - 1) * sizeof(AnimKey));
+                        Utils::Memcpy(static_cast<void*>(&k2), static_cast<void*>(&k3), (srcCount - i - 1) * sizeof(AnimKey));
                         i--;
                     }
                     srcCount--;
-                    continue;
                 }
             }
             ASSERT(k1.quaternion.Dot(k2.quaternion) >= 0);
@@ -108,7 +111,11 @@ Bool OptimizeKeys(AnimKey* src, U32& srcCount, AnimKeyEnum type)
                 {
                     if (i < S32(srcCount - 2))
                     {
-                        Utils::Memcpy((void*)&k2, (void*)&k3, (srcCount - i - 1) * sizeof(AnimKey));
+                        Utils::Memcpy
+                        (
+                            static_cast<void*>(&k2), static_cast<void*>(&k3),
+                            (srcCount - i - 1) * sizeof(AnimKey)
+                        );
                         i--;
                     }
                     srcCount--;
@@ -122,6 +129,7 @@ Bool OptimizeKeys(AnimKey* src, U32& srcCount, AnimKeyEnum type)
     }
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
@@ -137,7 +145,7 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
 
     // build a new combined key list in dst
     U32 i, j;
-    for (i = j = 0; i < srcCount; )
+    for (i = j = 0; i < srcCount;)
     {
         if (j >= dstCount)
         {
@@ -213,10 +221,13 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
 
     if (lastKey->type & animSCALE)
     {
-        ASSERT(!(lastKey->quaternion.s == 0.0f
-            && lastKey->quaternion.v.x == 0.0f
-            && lastKey->quaternion.v.y == 0.0f
-            && lastKey->quaternion.v.y == 0.0f));
+        ASSERT
+        (
+            !(lastKey->quaternion.s == 0.0f
+                && lastKey->quaternion.v.x == 0.0f
+                && lastKey->quaternion.v.y == 0.0f
+                && lastKey->quaternion.v.y == 0.0f)
+        );
     }
 
     AnimKey* rot0 = lastKey;
@@ -227,7 +238,7 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
         if (!(thisKey->type & animQUATERNION) && (lastKey->type & animQUATERNION))
         {
             // interpolate thisKey's ROT key
-            AnimKey* thisRot = NULL;
+            AnimKey* thisRot = nullptr;
             // find the next rot
             for (i = j + 1; i < dstCount; i++)
             {
@@ -259,7 +270,7 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
         if (!(thisKey->type & animPOSITION) && (lastKey->type & animPOSITION))
         {
             // interpolate thisKey's POS key
-            AnimKey* thisPos = NULL;
+            AnimKey* thisPos = nullptr;
             // find the next rot
             for (i = j + 1; i < dstCount; i++)
             {
@@ -289,7 +300,7 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
         if (!(thisKey->type & animSCALE) && (lastKey->type & animSCALE))
         {
             // interpolate thisKey's SCALE key
-            AnimKey* thisScale = NULL;
+            AnimKey* thisScale = nullptr;
             // find the next scale
             for (i = j + 1; i < dstCount; i++)
             {
@@ -323,7 +334,7 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
                 // scale keys need a valid quaternion
 
                 // interpolate thisKey's ROT key
-                AnimKey* thisRot = NULL;
+                AnimKey* thisRot = nullptr;
                 // find the next rot
                 for (i = j + 1; i < dstCount; i++)
                 {
@@ -353,10 +364,13 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
                 rot0 = thisKey;
             }
 
-            ASSERT(!(thisKey->quaternion.s == 0.0f
-                && thisKey->quaternion.v.x == 0.0f
-                && thisKey->quaternion.v.y == 0.0f
-                && thisKey->quaternion.v.y == 0.0f));
+            ASSERT
+            (
+                !(thisKey->quaternion.s == 0.0f
+                    && thisKey->quaternion.v.x == 0.0f
+                    && thisKey->quaternion.v.y == 0.0f
+                    && thisKey->quaternion.v.y == 0.0f)
+            );
         }
 
         lastKey = thisKey;
@@ -364,6 +378,7 @@ Bool CombineKeys(AnimKey* dst, U32& dstCount, const AnimKey* src, U32 srcCount)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool Animation::SetKeys(const AnimKey* inKeys, U32 count)
@@ -434,6 +449,7 @@ Bool Animation::SetKeys(const AnimKey* inKeys, U32 count)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void Animation::SetFrame(F32 frame, AnimKey& state) const
@@ -455,6 +471,7 @@ void Animation::SetFrame(F32 frame, AnimKey& state) const
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetupStates(const Array<FamilyState>& stateArray)
@@ -467,14 +484,15 @@ void AnimList::SetupStates(const Array<FamilyState>& stateArray)
         states[i] = stateArray[i];
     }
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetupMaxFrame()
 {
-    List<Animation>::Iterator li(this);
+    Iterator li(this);
 
     maxFrame = 1;
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Animation& anim = *(*li);
 
@@ -483,7 +501,7 @@ void AnimList::SetupMaxFrame()
             maxFrame = anim.maxFrame;
         }
     }
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Animation& anim = *(*li);
 
@@ -491,38 +509,41 @@ void AnimList::SetupMaxFrame()
     }
     endFrame = maxFrame - 1.0f;
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetFrameOverlay(F32 frame, Array<FamilyState>& stateArray) const
 {
-    List<Animation>::Iterator li(this);
+    Iterator li(this);
 
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Animation& anim = *(*li);
         anim.SetFrameOverlay(frame, stateArray, controlFrame);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetFrameOverlay(F32 frame, Array<AnimKey>& keyArray) const
 {
-    List<Animation>::Iterator li(this);
+    Iterator li(this);
 
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Animation& anim = *(*li);
         anim.SetFrameOverlay(frame, keyArray, controlFrame);
     }
 }
+
 //----------------------------------------------------------------------------
 U32 statQuatErrorIndex;
 
 void AnimList::SetFrame(F32 frame, Array<FamilyState>& stateArray) const
 {
-    List<Animation>::Iterator li(this);
+    Iterator li(this);
 
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Animation& anim = *(*li);
 
@@ -531,13 +552,14 @@ void AnimList::SetFrame(F32 frame, Array<FamilyState>& stateArray) const
         statQuatErrorIndex = anim.index;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetFrameObject(F32 frame, Array<FamilyState>& stateArray) const
 {
-    List<Animation>::Iterator li(this);
+    Iterator li(this);
 
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Animation& anim = *(*li);
 
@@ -546,13 +568,14 @@ void AnimList::SetFrameObject(F32 frame, Array<FamilyState>& stateArray) const
         statQuatErrorIndex = anim.index;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetFrame(F32 frame, Array<AnimKey>& keyArray) const
 {
-    List<Animation>::Iterator li(this);
+    Iterator li(this);
 
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Animation& anim = *(*li);
 
@@ -561,6 +584,7 @@ void AnimList::SetFrame(F32 frame, Array<AnimKey>& keyArray) const
         statQuatErrorIndex = anim.index;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetBlend(F32 frame, AnimKey* keys0, AnimKey* keys1, Array<FamilyState>& stateArray) const
@@ -578,6 +602,7 @@ void AnimList::SetBlend(F32 frame, AnimKey* keys0, AnimKey* keys1, Array<FamilyS
         Animation::Set(frame, keys0[i], keys1[i], stateArray[i]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void AnimList::SetBlend(F32 frame, AnimKey* keys0, AnimKey* keys1, Array<AnimKey>& keyArray) const
@@ -595,6 +620,7 @@ void AnimList::SetBlend(F32 frame, AnimKey* keys0, AnimKey* keys1, Array<AnimKey
         Animation::Set(frame, keys0[i], keys1[i], keyArray[i]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 U32 Animation::GetMem() const
@@ -604,6 +630,7 @@ U32 Animation::GetMem() const
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 AnimList::GetMem() const
@@ -612,8 +639,8 @@ U32 AnimList::GetMem() const
 
     mem += states.size;
 
-    List<Animation>::Iterator li(this);
-    for (!li; *li; li++)
+    Iterator li(this);
+    for (!li; *li; ++li)
     {
         Animation* anim = (*li);
 
@@ -621,14 +648,15 @@ U32 AnimList::GetMem() const
     }
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 AnimCycles::GetMem() const
 {
     U32 mem = sizeof(*this);
 
-    NBinTree<AnimList>::Iterator li(this);
-    for (!li; *li; li++)
+    Iterator li(this);
+    for (!li; *li; ++li)
     {
         AnimList* animList = (*li);
 
@@ -636,6 +664,7 @@ U32 AnimCycles::GetMem() const
     }
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 Bool statQuatError = FALSE;
@@ -658,9 +687,20 @@ void Animation::Set(F32 frame, const AnimKey& lastKey, const AnimKey& thisKey, A
         if (q.Dot(q) <= 0)
         {
             LOG_WARN(("Quat::Set q.Dot(q) <= 0: %f %f %f %f", q.s, q.v.x, q.v.y, q.v.z));
-            LOG_WARN(("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v.y, lastKey.quaternion.v.z));
-            LOG_WARN(("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v.y, thisKey.quaternion.v.z));
-            LOG_WARN(("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame));
+            LOG_WARN
+            (
+                ("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v.y,
+                    lastKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
+                ("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v.y,
+                    thisKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
+                ("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame)
+            );
 
             statQuatError = TRUE;
 
@@ -686,9 +726,20 @@ void Animation::Set(F32 frame, const AnimKey& lastKey, const AnimKey& thisKey, A
         if (q.Dot(q) <= 0)
         {
             LOG_WARN(("Quat::Set q.Dot(q) <= 0: %f %f %f %f", q.s, q.v.x, q.v.y, q.v.z));
-            LOG_WARN(("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v.y, lastKey.quaternion.v.z));
-            LOG_WARN(("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v.y, thisKey.quaternion.v.z));
-            LOG_WARN(("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame));
+            LOG_WARN
+            (
+                ("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v.y,
+                    lastKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
+                ("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v.y,
+                    thisKey.quaternion.v.z)
+            );
+            LOG_WARN
+            (
+                ("dfdk: %f; lastKey.frame %f; thisKey.frame %f; frame %f", dfdk, lastKey.frame, thisKey.frame, frame)
+            );
 
             statQuatError = TRUE;
 
@@ -712,6 +763,7 @@ void Animation::Set(F32 frame, const AnimKey& lastKey, const AnimKey& thisKey, A
         //    state.type |= animPOSITION;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Animation::SetFrameOverlay(F32 frame, AnimKey& state, F32 controlFrame) const
@@ -773,26 +825,39 @@ void Animation::SetFrameOverlay(F32 frame, AnimKey& state, F32 controlFrame) con
                 if (q.Dot(q) <= 0)
                 {
                     LOG_WARN(("Quat::Set q.Dot(q) <= 0: %f %f %f %f", q.s, q.v.x, q.v.y, q.v.z));
-                    LOG_WARN(("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v.y, lastKey.quaternion.v.z));
-                    LOG_WARN(("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v.y, thisKey.quaternion.v.z));
-                    LOG_WARN(("dfdk: %f; lastKey.frame %f; thisKey.frame; frame", dfdk, lastKey.frame, thisKey.frame, frame));
+                    LOG_WARN
+                    (
+                        ("lastKey.quat: %f %f %f %f", lastKey.quaternion.s, lastKey.quaternion.v.x, lastKey.quaternion.v
+                            .y, lastKey.quaternion.v.z)
+                    );
+                    LOG_WARN
+                    (
+                        ("thisKey.quat: %f %f %f %f", thisKey.quaternion.s, thisKey.quaternion.v.x, thisKey.quaternion.v
+                            .y, thisKey.quaternion.v.z)
+                    );
+                    LOG_WARN
+                    (
+                        ("dfdk: %f; lastKey.frame %f; thisKey.frame; frame", dfdk, lastKey.frame, thisKey.frame, frame
+                        )
+                    );
 
                     statQuatError = TRUE;
                 }
 #else
-                ASSERT(q.Dot(q) > 0);
+                ASSERT(q.Dot(q); > 0);
 #endif
 
                 // blend in the quat
                 //
-        //        q -= conq;
-        //        q = state.quaternion * q;
-        //        q.Set( PI * 0.11f, Matrix::I.right);
-        //        q = state.quaternion * q;
+                //        q -= conq;
+                //        q = state.quaternion * q;
+                //        q.Set( PI * 0.11f, Matrix::I.right);
+                //        q = state.quaternion * q;
                 state.Set(q);
             }
             break;
         }
     }
 }
+
 //----------------------------------------------------------------------------

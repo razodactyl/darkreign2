@@ -22,7 +22,6 @@
 #include "material.h"
 
 
-
 //
 // Forward declarations
 //
@@ -36,7 +35,6 @@ class ParticleRender;
 //
 namespace ParticleSystem
 {
-
     // Add a simulator to the system
     void AddSimulator(Particle* p);
 

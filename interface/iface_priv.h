@@ -35,7 +35,6 @@ class ICClass;
 //
 namespace IFace
 {
-
     // Constant data
     const char DYNAMICDATA_SCOPE[] = "iface.dyndata";
 
@@ -78,7 +77,6 @@ namespace IFace
 
     // The caret has moved - stops it flashing while moving
     void CaretMoved();
-
 }
 
 #endif

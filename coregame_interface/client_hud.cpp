@@ -33,7 +33,6 @@
 //
 namespace Client
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // Namespace HUD
@@ -44,11 +43,11 @@ namespace Client
         const char* SCOPE_NAME = "ConfigureHUD";
 
         // 90, 180, 270, 0 degrees
-        static const F32 COS[4] = { 0.0F, -1.0F,  0.0F, 1.0F };
-        static const F32 SIN[4] = { 1.0F,  0.0F, -1.0F, 0.0F };
+        static const F32 COS[4] = {0.0F, -1.0F, 0.0F, 1.0F};
+        static const F32 SIN[4] = {1.0F, 0.0F, -1.0F, 0.0F};
 
         // Name of each corner function
-        static const char* CORNER_STR[4] = { "Corner1", "Corner2", "Corner3", "Corner4" };
+        static const char* CORNER_STR[4] = {"Corner1", "Corner2", "Corner3", "Corner4"};
 
         // System initialised?
         static Bool sysInit = FALSE;
@@ -183,14 +182,16 @@ namespace Client
             NBinTree<TextItem>::Node node;
 
             // Constructor
-            TextItem() : font(NULL), color(255L, 255L, 255L) {}
+            TextItem() : font(nullptr), color(255L, 255L, 255L)
+            {
+            }
 
             // Render
             void Render(const CH* str, const ClipRect& screenRc, F32 alphaScale = 1.0F)
             {
-                ASSERT(font)
+                ASSERT(font);
 
-                    U32 len = Utils::Strlen(str);
+                U32 len = Utils::Strlen(str);
                 ClipRect rc(0, 0, font->Width(str, len) + 1, font->Height() + 1);
                 pos.Adjust(rc, screenRc);
                 font->Draw(rc.p0.x, rc.p0.y, str, len, color, &rc, alphaScale, 1);
@@ -298,9 +299,9 @@ namespace Client
             Main::RegisterRootScope(SCOPE_NAME, Configure);
 
             // Clear data
-            constructItem = NULL;
-            playerMarker = NULL;
-            mouseOver = NULL;
+            constructItem = nullptr;
+            playerMarker = nullptr;
+            mouseOver = nullptr;
 
             enabled = TRUE;
             sysInit = TRUE;
@@ -431,10 +432,10 @@ namespace Client
             }
 
 #ifdef DEVELOPMENT
-            if (!mapObj->Mesh().mesh)
-            {
-                ERR_FATAL(("HUD::DisplayUnit: %s has no root", mapObj->TypeName()));
-            }
+      if (!mapObj->Mesh().mesh)
+      {
+        ERR_FATAL(("HUD::DisplayUnit: %s has no root", mapObj->TypeName()));
+      }
 #endif
 
             // Project object's sphere into screen space
@@ -478,34 +479,37 @@ namespace Client
                 return;
             }
 
-            Reticle* reticle = NULL;
+            Reticle* reticle = nullptr;
 
             // Work out the relation of this unit to the display team
-            Relation relation = Team::GetRelation(Team::GetDisplayTeam(), unitObj ? unitObj->GetTeam() : NULL);
+            Relation relation = Team::GetRelation(Team::GetDisplayTeam(), unitObj ? unitObj->GetTeam() : nullptr);
 
             // If unit is not on our team, use relationship to determine reticle
             if (unitObj && (unitObj->GetTeam() != Team::GetDisplayTeam()))
             {
                 switch (relation)
                 {
-                case Relation::ENEMY:
-                    reticle = profile->enemy;
-                    break;
+                    case Relation::ENEMY:
+                        reticle = profile->enemy;
+                        break;
 
-                case Relation::ALLY:
-                    reticle = profile->ally;
-                    break;
+                    case Relation::ALLY:
+                        reticle = profile->ally;
+                        break;
 
-                case Relation::NEUTRAL:
-                    reticle = profile->neutral;
-                    break;
+                    case Relation::NEUTRAL:
+                        reticle = profile->neutral;
+                        break;
                 }
             }
             else
             {
                 // Unit is on our team, use mode to determine reticle
-                reticle = (flags & DU_SELECTED) ? profile->selected :
-                    (flags & DU_TEAMMATE) ? profile->teamMate : profile->self;
+                reticle = (flags & DU_SELECTED)
+                              ? profile->selected
+                              : (flags & DU_TEAMMATE)
+                              ? profile->teamMate
+                              : profile->self;
             }
 
             // If no profile found, nothing to display
@@ -530,7 +534,11 @@ namespace Client
                     ofs[0].Set(hudRect.p0.x, hudRect.p0.y);
                     ofs[1].Set(hudRect.p1.x - reticle->corner[1].pixels.Width(), hudRect.p0.y);
                     ofs[2].Set(hudRect.p0.x, hudRect.p1.y - reticle->corner[2].pixels.Height());
-                    ofs[3].Set(hudRect.p1.x - reticle->corner[3].pixels.Width(), hudRect.p1.y - reticle->corner[3].pixels.Height());
+                    ofs[3].Set
+                    (
+                        hudRect.p1.x - reticle->corner[3].pixels.Width(),
+                        hudRect.p1.y - reticle->corner[3].pixels.Height()
+                    );
 
                     for (i = 0; i < 4; i++)
                     {
@@ -538,7 +546,11 @@ namespace Client
 
                         if (ti.texture)
                         {
-                            IFace::RenderRectangle(ClipRect(ofs[i], ofs[i] + ti.pixels.p1 - ti.pixels.p0), reticle->color, &ti, alphaScale);
+                            IFace::RenderRectangle
+                            (
+                                ClipRect(ofs[i], ofs[i] + ti.pixels.p1 - ti.pixels.p0),
+                                reticle->color, &ti, alphaScale
+                            );
                         }
                     }
                 }
@@ -550,7 +562,11 @@ namespace Client
                     ofs[0].Set(hudRect.p0.x, hudRect.p0.y);
                     ofs[1].Set(hudRect.p1.x - damage->corner[1].pixels.Width(), hudRect.p0.y);
                     ofs[2].Set(hudRect.p0.x, hudRect.p1.y - damage->corner[2].pixels.Height());
-                    ofs[3].Set(hudRect.p1.x - damage->corner[3].pixels.Width(), hudRect.p1.y - damage->corner[3].pixels.Height());
+                    ofs[3].Set
+                    (
+                        hudRect.p1.x - damage->corner[3].pixels.Width(),
+                        hudRect.p1.y - damage->corner[3].pixels.Height()
+                    );
 
                     // Render damage indicators
                     for (i = 0; i < 4; i++)
@@ -563,10 +579,7 @@ namespace Client
                         {
                             break;
                         }
-                        else
-                        {
-                            c.a = U8(Utils::FtoL(F32(c.a) * F32(fadeTime - age) * fadeTimeInv));
-                        }
+                        c.a = U8(Utils::FtoL(F32(c.a) * F32(fadeTime - age) * fadeTimeInv));
 
                         if (ti.texture)
                         {
@@ -601,7 +614,14 @@ namespace Client
                                 {
                                     if (UnitObjType* upgrade = unitObj->GetNextUpgrade())
                                     {
-                                        profile->info->Render(TRANSLATE(("#game.client.hud.upgrade", 1, upgrade->GetResourceCost())), hudRect, alphaScale);
+                                        profile->info->Render
+                                        (
+                                            TRANSLATE
+                                            (
+                                                ("#game.client.hud.upgrade", 1, upgrade->GetResourceCost())
+                                            ),
+                                            hudRect, alphaScale
+                                        );
                                     }
                                 }
                                 else
@@ -609,7 +629,10 @@ namespace Client
                                     // Is there an efficiency issue
                                     if (unitObj->GetEfficiency() < 0.98F)
                                     {
-                                        profile->info->Render(TRANSLATE(("#game.client.hud.efficiency")), hudRect, alphaScale);
+                                        profile->info->Render
+                                        (
+                                            TRANSLATE(("#game.client.hud.efficiency")), hudRect, alphaScale
+                                        );
                                     }
                                     else
                                     {
@@ -637,7 +660,11 @@ namespace Client
                         // Is this a resource object
                         if (ResourceObj* resource = Promote::Object<ResourceObjType, ResourceObj>(mapObj))
                         {
-                            profile->info->Render(TRANSLATE(("#game.client.hud.resource", 1, resource->GetResource())), hudRect, alphaScale);
+                            profile->info->Render
+                            (
+                                TRANSLATE(("#game.client.hud.resource", 1, resource->GetResource())), hudRect,
+                                alphaScale
+                            );
                         }
                 }
 
@@ -695,7 +722,11 @@ namespace Client
                                     if (delay > 10.0F)
                                     {
                                         // "Unit::Ammunition"
-                                        RenderBar(reticle, bar, unitObj->GetWeapon()->GetDelayPercent(), GetColorEntry(0x96E5AD55), alphaScale);
+                                        RenderBar
+                                        (
+                                            reticle, bar, unitObj->GetWeapon()->GetDelayPercent(),
+                                            GetColorEntry(0x96E5AD55), alphaScale
+                                        );
                                     }
                                 }
                             }
@@ -753,7 +784,7 @@ namespace Client
                         {
                             U32 clientId;
 
-                            if (Client::SquadControl::MapSquadToClient(squad->Id(), clientId))
+                            if (SquadControl::MapSquadToClient(squad->Id(), clientId))
                             {
                                 CH buf[33];
                                 profile->squad->Render(Utils::ItoA(clientId, buf, 10), hudRect, alphaScale);
@@ -771,20 +802,28 @@ namespace Client
                 // Development
                 if ((flags & DU_DEBUG) && Common::Debug::data.hud)
                 {
-                    Team* team = unitObj ? unitObj->GetTeam() : NULL;
+                    Team* team = unitObj ? unitObj->GetTeam() : nullptr;
 
                     // Id
                     if (profile->id && profile->id->font)
                     {
                         CH buf[32];
-                        Utils::Sprintf(buf, 32, (const CH*)L"o%d s%d", mapObj->Id(), unitObj ? (unitObj->GetSquad() ? unitObj->GetSquad()->Id() : 0) : 0);
+                        Utils::Sprintf
+                        (
+                            buf, 32, (const CH*)L"o%d s%d", mapObj->Id(),
+                            unitObj ? (unitObj->GetSquad() ? unitObj->GetSquad()->Id() : 0) : 0
+                        );
                         profile->id->Render(buf, hudRect, alphaScale);
                     }
 
                     // Team Name
                     if (profile->teamName && profile->teamName->font)
                     {
-                        profile->teamName->Render(Utils::Ansi2Unicode(team ? team->GetName() : "[None]"), hudRect, alphaScale);
+                        profile->teamName->Render
+                        (
+                            Utils::Ansi2Unicode(team ? team->GetName() : "[None]"), hudRect,
+                            alphaScale
+                        );
                     }
 
                     // Task
@@ -793,7 +832,11 @@ namespace Client
                     if (task && profile->task && profile->task->font)
                     {
                         char buf[64];
-                        Utils::Sprintf(buf, 64, "%s %s %.0f", task->GetName(), task->Info(), GameTime::TimeSinceCycle(task->GetInvoked()));
+                        Utils::Sprintf
+                        (
+                            buf, 64, "%s %s %.0f", task->GetName(), task->Info(),
+                            GameTime::TimeSinceCycle(task->GetInvoked())
+                        );
                         profile->task->Render(Utils::Ansi2Unicode(buf), hudRect, alphaScale);
                     }
                 }
@@ -811,7 +854,7 @@ namespace Client
                 return;
             }
 
-            PERF_S(("HUD"));
+            PERF_S(("HUD"))
 
             ASSERT(Team::GetDisplayTeam());
 
@@ -831,7 +874,7 @@ namespace Client
 
             // Selected objects
             UnitObjList::Iterator i(&data.sList);
-            for (; *i; i++)
+            for (; *i; ++i)
             {
                 if (UnitObj* u = (*i)->GetPointer())
                 {
@@ -845,19 +888,19 @@ namespace Client
                 MapObj* object = data.cInfo.o.map;
 
                 if
-                    (
+                (
                         // Is this a unit
-                        (
-                            data.cInfo.o.unit.Alive() &&
-                            data.cInfo.o.unit->UnitType()->IsSelectable() &&
-                            data.cInfo.o.unit->TestHaveSeen(Team::GetDisplayTeam()->GetId())
-                            )
+                    (
+                        data.cInfo.o.unit.Alive() &&
+                        data.cInfo.o.unit->UnitType()->IsSelectable() &&
+                        data.cInfo.o.unit->TestHaveSeen(Team::GetDisplayTeam()->GetId())
+                    )
 
-                        ||
+                    ||
 
-                        // Is this a resource
-                        Promote::Type<ResourceObjType>(object->GameType())
-                        )
+                    // Is this a resource
+                    Promote::Type<ResourceObjType>(object->GameType())
+                )
                 {
                     // Trigger mouse over changed hook
                     if (mouseOver.Dead() || (mouseOver->Id() != object->Id()))
@@ -883,7 +926,7 @@ namespace Client
             }
             else
             {
-                MouseOverChanged(NULL);
+                MouseOverChanged(nullptr);
             }
 
             // Units selected by team mates
@@ -894,10 +937,11 @@ namespace Client
                     Player* player = Player::Id2Player(j);
 
                     // Do we have a player who is not the client's player whose team is the same as the client's player ?
-                    if (player && (player != Player::GetCurrentPlayer()) && (player->GetTeam() == Team::GetDisplayTeam() && (player->GetType() != Player::AI)))
+                    if (player && (player != Player::GetCurrentPlayer()) && (player->GetTeam() == Team::GetDisplayTeam()
+                        && (player->GetType() != Player::AI)))
                     {
                         // Draw the objects this player has selected
-                        for (i.SetList(&player->GetSelectedList()); *i; i++)
+                        for (i.SetList(&player->GetSelectedList()); *i; ++i)
                         {
                             if (UnitObj* u = (*i)->GetPointer())
                             {
@@ -913,7 +957,7 @@ namespace Client
             MapObjOuchList::Iterator ouch(&list);
             MapObjOuchListNode* node;
 
-            while ((node = ouch++) != NULL)
+            while ((node = ouch++) != nullptr)
             {
                 if (node->Alive())
                 {
@@ -939,16 +983,16 @@ namespace Client
 
             // Construction object
             if
-                (
+            (
                     // Game window is alive
-                    data.cInfo.gameWnd.Alive() &&
+                data.cInfo.gameWnd.Alive() &&
 
-                    // In a construction mode
-                    (data.cInfo.pEvent == PE_CONSTRUCT || data.cInfo.pEvent == PE_NOCONSTRUCT) &&
+                // In a construction mode
+                (data.cInfo.pEvent == PE_CONSTRUCT || data.cInfo.pEvent == PE_NOCONSTRUCT) &&
 
-                    // The text item is configured
-                    constructItem && constructItem->font
-                    )
+                // The text item is configured
+                constructItem && constructItem->font
+            )
             {
                 if (data.constructType.Alive())
                 {
@@ -959,7 +1003,7 @@ namespace Client
             // Player markers - note metre pos is set up in RenderPlayerMarkers
             if (playerMarker && playerMarker->font)
             {
-                for (NBinTree<Display::PlayerMarker>::Iterator marker(&Display::markers); *marker; marker++)
+                for (NBinTree<Display::PlayerMarker>::Iterator marker(&Display::markers); *marker; ++marker)
                 {
                     Display::PlayerMarker* pm = *marker;
 
@@ -982,12 +1026,12 @@ namespace Client
                 }
             }
 
-            PERF_E(("HUD"));
+            PERF_E(("HUD"))
         }
 
 
         //
-        // Enable or disable the HUD
+        // Enable or disable the HUG
         //
         void Enable(Bool f)
         {
@@ -1012,35 +1056,35 @@ namespace Client
         {
             FScope* sScope;
 
-            while ((sScope = fScope->NextFunction()) != NULL)
+            while ((sScope = fScope->NextFunction()) != nullptr)
             {
                 switch (sScope->NameCrc())
                 {
-                case 0x9F1D54D0: // "Add"
-                {
-                    // Get the entry identifier
-                    const char* ident = StdLoad::TypeString(sScope);
-
-                    // And the crc
-                    U32 crc = Crc::CalcStr(ident);
-
-                    // Ignore if already defined
-                    if (!colorEntries.Find(crc))
+                    case 0x9F1D54D0: // "Add"
                     {
-                        // Create the new color
-                        Color* c = new Color;
+                        // Get the entry identifier
+                        const char* ident = StdLoad::TypeString(sScope);
 
-                        // Load from the config
-                        StdLoad::TypeColor(sScope, *c);
+                        // And the crc
+                        U32 crc = Crc::CalcStr(ident);
 
-                        // Add it to the tree
-                        colorEntries.Add(crc, c);
+                        // Ignore if already defined
+                        if (!colorEntries.Find(crc))
+                        {
+                            // Create the new color
+                            Color* c = new Color;
+
+                            // Load from the config
+                            StdLoad::TypeColor(sScope, *c);
+
+                            // Add it to the tree
+                            colorEntries.Add(crc, c);
+                        }
+                        else
+                        {
+                            LOG_ERR(("Color entry [%s] already defined", ident))
+                        }
                     }
-                    else
-                    {
-                        LOG_ERR(("Color entry [%s] already defined", ident))
-                    }
-                }
                 }
             }
         }
@@ -1058,7 +1102,7 @@ namespace Client
             if (reticles.Find(nameCrc))
             {
                 LOG_ERR(("Reticle [%s] already defined", name))
-                    return;
+                return;
             }
 
             // Find the optional template
@@ -1069,7 +1113,7 @@ namespace Client
                 U32 templtCrc = Crc::CalcStr(templt);
                 Reticle* ret;
 
-                if ((ret = reticles.Find(templtCrc)) != NULL)
+                if ((ret = reticles.Find(templtCrc)) != nullptr)
                 {
                     *r = *ret;
                 }
@@ -1084,7 +1128,7 @@ namespace Client
             {
                 FScope* sScope;
 
-                if ((sScope = fScope->GetFunction(CORNER_STR[i], FALSE)) != NULL)
+                if ((sScope = fScope->GetFunction(CORNER_STR[i], FALSE)) != nullptr)
                 {
                     IFace::FScopeToTextureInfo(sScope, r->corner[i]);
                 }
@@ -1099,7 +1143,7 @@ namespace Client
             // Load bar definitions
             FScope* sScope;
 
-            if ((sScope = fScope->GetFunction("Bar", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("Bar", FALSE)) != nullptr)
             {
                 StdLoad::TypeColor(sScope, "Color", r->barColor, r->barColor);
                 IFace::FScopeToTextureInfo(sScope->GetFunction("Background"), r->barBg);
@@ -1109,19 +1153,19 @@ namespace Client
             }
 
             // Bar positions
-            if ((sScope = fScope->GetFunction("HealthBarPosition", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("HealthBarPosition", FALSE)) != nullptr)
             {
                 r->healthBarPos.Read(sScope);
             }
-            if ((sScope = fScope->GetFunction("TaskBarPosition", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("TaskBarPosition", FALSE)) != nullptr)
             {
                 r->taskBarPos.Read(sScope);
             }
-            if ((sScope = fScope->GetFunction("AmmoBarPosition", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("AmmoBarPosition", FALSE)) != nullptr)
             {
                 r->ammoBarPos.Read(sScope);
             }
-            if ((sScope = fScope->GetFunction("CargoBarPosition", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("CargoBarPosition", FALSE)) != nullptr)
             {
                 r->cargoBarPos.Read(sScope);
             }
@@ -1189,7 +1233,7 @@ namespace Client
             {
                 FScope* sScope;
 
-                if ((sScope = fScope->GetFunction(CORNER_STR[i], FALSE)) != NULL)
+                if ((sScope = fScope->GetFunction(CORNER_STR[i], FALSE)) != nullptr)
                 {
                     IFace::FScopeToTextureInfo(sScope, b->corner[i]);
                 }
@@ -1226,7 +1270,7 @@ namespace Client
             StdLoad::TypeColor(fScope, "Color", p->color, p->color);
 
             // Load alignment
-            if ((sScope = fScope->GetFunction("Position", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("Position", FALSE)) != nullptr)
             {
                 p->pos.Read(sScope);
             }
@@ -1243,31 +1287,31 @@ namespace Client
         {
             FScope* sScope;
 
-            while ((sScope = fScope->NextFunction()) != NULL)
+            while ((sScope = fScope->NextFunction()) != nullptr)
             {
                 switch (sScope->NameCrc())
                 {
-                case 0x9F1D54D0: // "Add"
-                {
-                    const char* name = StdLoad::TypeString(sScope);
-                    U32 id = Crc::CalcStr(name);
-
-                    if (statusIcons.Find(id))
+                    case 0x9F1D54D0: // "Add"
                     {
-                        LOG_ERR(("StatusIcon %s already defined", name))
-                    }
-                    else
-                    {
-                        StatusIcon* newIcon = new StatusIcon;
+                        const char* name = StdLoad::TypeString(sScope);
+                        U32 id = Crc::CalcStr(name);
 
-                        IFace::FScopeToTextureInfo(sScope->GetFunction("Image"), newIcon->tex);
-                        StdLoad::TypeColor(sScope, "Color", newIcon->color);
-                        newIcon->pos.Read(sScope->GetFunction("Pos"));
+                        if (statusIcons.Find(id))
+                        {
+                            LOG_ERR(("StatusIcon %s already defined", name))
+                        }
+                        else
+                        {
+                            StatusIcon* newIcon = new StatusIcon;
 
-                        statusIcons.Add(id, newIcon);
+                            IFace::FScopeToTextureInfo(sScope->GetFunction("Image"), newIcon->tex);
+                            StdLoad::TypeColor(sScope, "Color", newIcon->color);
+                            newIcon->pos.Read(sScope->GetFunction("Pos"));
+
+                            statusIcons.Add(id, newIcon);
+                        }
+                        break;
                     }
-                    break;
-                }
                 }
             }
         }
@@ -1283,73 +1327,73 @@ namespace Client
             if (!sysInit)
             {
                 LOG_ERR(("ConfigureHUD:  HUD system not initialised yet"))
-                    return;
+                return;
             }
 
-            while ((sScope = fScope->NextFunction()) != NULL)
+            while ((sScope = fScope->NextFunction()) != nullptr)
             {
                 switch (sScope->NameCrc())
                 {
-                case 0x34F52409: // "ConfigureColorEntries"
-                {
-                    ConfigureColorEntries(sScope);
-                    break;
-                }
+                    case 0x34F52409: // "ConfigureColorEntries"
+                    {
+                        ConfigureColorEntries(sScope);
+                        break;
+                    }
 
-                case 0x7A6B4921: // "ConfigureReticle"
-                {
-                    ConfigureReticle(sScope);
-                    break;
-                }
+                    case 0x7A6B4921: // "ConfigureReticle"
+                    {
+                        ConfigureReticle(sScope);
+                        break;
+                    }
 
-                case 0x514A3B8E: // "CreateReticleProfile"
-                {
-                    CreateReticleProfile(sScope);
-                    break;
-                }
+                    case 0x514A3B8E: // "CreateReticleProfile"
+                    {
+                        CreateReticleProfile(sScope);
+                        break;
+                    }
 
-                case 0xEBA257D6: // "ConfigureDamageBlip"
-                {
-                    ConfigureDamageBlip(sScope);
-                    break;
-                }
+                    case 0xEBA257D6: // "ConfigureDamageBlip"
+                    {
+                        ConfigureDamageBlip(sScope);
+                        break;
+                    }
 
-                case 0x1D70928A: // "ConfigureTextItem"
-                {
-                    ConfigureTextItem(sScope);
-                    break;
-                }
+                    case 0x1D70928A: // "ConfigureTextItem"
+                    {
+                        ConfigureTextItem(sScope);
+                        break;
+                    }
 
-                case 0x1C80BC9B: // "ConfigureConstruction"
-                {
-                    constructItem = textItems.Find(StdLoad::TypeStringCrc(sScope));
-                    break;
-                }
+                    case 0x1C80BC9B: // "ConfigureConstruction"
+                    {
+                        constructItem = textItems.Find(StdLoad::TypeStringCrc(sScope));
+                        break;
+                    }
 
-                case 0x09E9F145: // "ConfigurePlayerMarker"
-                {
-                    playerMarker = textItems.Find(StdLoad::TypeStringCrc(sScope));
-                    break;
-                }
+                    case 0x09E9F145: // "ConfigurePlayerMarker"
+                    {
+                        playerMarker = textItems.Find(StdLoad::TypeStringCrc(sScope));
+                        break;
+                    }
 
-                case 0x346CD541: // "FadeTime"
-                {
-                    fadeTime = StdLoad::TypeU32(sScope, 500, Range<U32>(100, 2000));
-                    fadeTimeInv = 1.0F / F32(fadeTime);
-                    break;
-                }
+                    case 0x346CD541: // "FadeTime"
+                    {
+                        fadeTime = StdLoad::TypeU32(sScope, 500, Range<U32>(100, 2000));
+                        fadeTimeInv = 1.0F / F32(fadeTime);
+                        break;
+                    }
 
-                case 0x6AD93521: // "SelectionSkin"
-                {
-                    Display::selectionSkin = IFace::FindTextureSkin(StdLoad::TypeStringCrc(sScope));
-                    break;
-                }
+                    case 0x6AD93521: // "SelectionSkin"
+                    {
+                        Display::selectionSkin = IFace::FindTextureSkin(StdLoad::TypeStringCrc(sScope));
+                        break;
+                    }
 
-                case 0xB47EC0AF: // "ConfigureStatusIcons"
-                {
-                    ConfigureStatusIcons(sScope);
-                    break;
-                }
+                    case 0xB47EC0AF: // "ConfigureStatusIcons"
+                    {
+                        ConfigureStatusIcons(sScope);
+                        break;
+                    }
                 }
             }
         }
@@ -1380,55 +1424,55 @@ namespace Client
             SetScale(f.x, f.y);
 
             // Read geometry
-            if ((sScope = fScope->GetFunction("Align", FALSE)) != NULL)
+            if ((sScope = fScope->GetFunction("Align", FALSE)) != nullptr)
             {
                 VNode* vNode;
 
-                while ((vNode = sScope->NextArgument(VNode::AT_STRING, FALSE)) != NULL)
+                while ((vNode = sScope->NextArgument(VNode::AT_STRING, FALSE)) != nullptr)
                 {
                     const char* str = vNode->GetString();
 
                     switch (Crc::CalcStr(str))
                     {
-                    case 0xBA190163: // "Left"
-                        flags |= LEFT;
-                        break;
+                        case 0xBA190163: // "Left"
+                            flags |= LEFT;
+                            break;
 
-                    case 0xE2DDD72B: // "Right"
-                        flags |= RIGHT;
-                        break;
+                        case 0xE2DDD72B: // "Right"
+                            flags |= RIGHT;
+                            break;
 
-                    case 0x239B3316: // "Top"
-                        flags |= TOP;
-                        break;
+                        case 0x239B3316: // "Top"
+                            flags |= TOP;
+                            break;
 
-                    case 0x5270B6BD: // "Bottom"
-                        flags |= BOTTOM;
-                        break;
+                        case 0x5270B6BD: // "Bottom"
+                            flags |= BOTTOM;
+                            break;
 
-                    case 0x2F6D7F50: // "Width"
-                        flags |= WIDTH;
-                        break;
+                        case 0x2F6D7F50: // "Width"
+                            flags |= WIDTH;
+                            break;
 
-                    case 0x86010476: // "Height"
-                        flags |= HEIGHT;
-                        break;
+                        case 0x86010476: // "Height"
+                            flags |= HEIGHT;
+                            break;
 
-                    case 0x5F178928: // "HInternal"
-                        flags |= HINTERNAL;
-                        break;
+                        case 0x5F178928: // "HInternal"
+                            flags |= HINTERNAL;
+                            break;
 
-                    case 0xEC9157FA: // "VInternal"
-                        flags |= VINTERNAL;
-                        break;
+                        case 0xEC9157FA: // "VInternal"
+                            flags |= VINTERNAL;
+                            break;
 
-                    case 0xFBEAFA4C: // "HScale"
-                        flags |= HSCALE;
-                        break;
+                        case 0xFBEAFA4C: // "HScale"
+                            flags |= HSCALE;
+                            break;
 
-                    case 0xCE1B74AB: // "VScale"
-                        flags |= VSCALE;
-                        break;
+                        case 0xCE1B74AB: // "VScale"
+                            flags |= VSCALE;
+                            break;
                     }
                 }
             }
@@ -1472,15 +1516,14 @@ namespace Client
             {
                 newPos.x = -(flags & HINTERNAL ? 0 : newSize.x) + pos.x;
             }
+            else if (flags & RIGHT)
+            {
+                newPos.x = relativeTo.Width() + pos.x - (flags & HINTERNAL ? newSize.x : 0);
+            }
             else
-                if (flags & RIGHT)
-                {
-                    newPos.x = relativeTo.Width() + pos.x - (flags & HINTERNAL ? newSize.x : 0);
-                }
-                else
-                {
-                    newPos.x = (relativeTo.Width() - newSize.x) / 2 + pos.x;
-                }
+            {
+                newPos.x = (relativeTo.Width() - newSize.x) / 2 + pos.x;
+            }
             newPos.x += relativeTo.p0.x;
 
             // Vertical
@@ -1488,15 +1531,14 @@ namespace Client
             {
                 newPos.y = -(flags & VINTERNAL ? 0 : newSize.y) + pos.y;
             }
+            else if (flags & BOTTOM)
+            {
+                newPos.y = relativeTo.Height() + pos.y - (flags & VINTERNAL ? newSize.y : 0);
+            }
             else
-                if (flags & BOTTOM)
-                {
-                    newPos.y = relativeTo.Height() + pos.y - (flags & VINTERNAL ? newSize.y : 0);
-                }
-                else
-                {
-                    newPos.y = (relativeTo.Height() - newSize.y) / 2 + pos.y;
-                }
+            {
+                newPos.y = (relativeTo.Height() - newSize.y) / 2 + pos.y;
+            }
             newPos.y += relativeTo.p0.y;
 
             // Fill out return struct

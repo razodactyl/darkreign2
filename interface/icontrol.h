@@ -35,7 +35,7 @@ class IControl;
 // Type definitions
 //
 typedef Reaper<IControl> IControlPtr;
-typedef StrCrc<64>       IControlName;
+typedef StrCrc<64> IControlName;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ namespace IControlNotify
 //
 class IControl
 {
-    PROMOTE_BASE(IControl, 0x05313784); // "IControl"
+PROMOTE_BASE(IControl, 0x05313784); // "IControl"
 
 protected:
 
@@ -113,7 +113,7 @@ public:
         STYLE_TABSTOP = 0x00002000,
 
         // Don't automatically activate when parent is activated
-        STYLE_NOAUTOACTIVATE = 0x00008000,
+        STYLE_NOAUTOACTIVATE= 0x00008000,
 
         // Fade in on activation
         STYLE_FADEIN = 0x00010000,
@@ -290,7 +290,7 @@ protected:
     IControl* parent;
 
     // Optional irregular region
-    Array<Point<S32> >* region;
+    Array<Point<S32>>* region;
 
     // Display information
     PaintInfo paintInfo;
@@ -361,7 +361,9 @@ protected:
 
         // Constructor
         EventTranslation(U32 id, U32 param1, U32 param2, U32 param3, IControl* ctrl)
-            : id(id), param1(param1), param2(param2), param3(param3), ctrl(ctrl) {}
+            : id(id), param1(param1), param2(param2), param3(param3), ctrl(ctrl)
+        {
+        }
     };
 
     NBinTree<EventTranslation> translations;
@@ -425,10 +427,14 @@ protected:
     virtual void DrawChildren(PaintInfo& pi);
 
     // Draws the text of the object
-    virtual void DrawCtrlText(const PaintInfo& pi, const CH* str = NULL, Color* clr = NULL, const Point<S32>& indent = Point<S32>(0, 0));
+    virtual void DrawCtrlText
+    (
+        const PaintInfo& pi, const CH* str = nullptr, Color* clr = nullptr,
+        const Point<S32>& indent = Point<S32>(0, 0)
+    );
 
     // Redraws the control's background image
-    virtual void DrawCtrlBackground(const PaintInfo& pi, const TextureInfo* tex = NULL);
+    virtual void DrawCtrlBackground(const PaintInfo& pi, const TextureInfo* tex = nullptr);
 
     // Draws frame around control
     virtual void DrawCtrlFrame(const PaintInfo& pi);
@@ -446,10 +452,10 @@ protected:
     virtual void Notify(IFaceVar* var);
 
     // Configure an iface var
-    void ConfigureVar(IFaceVar*& var, FScope* fScope);
+    void ConfigureVar(IFaceVar* & var, FScope* fScope);
 
     // Configure an iface var
-    void ConfigureVar(IFaceVar*& var, const char* name);
+    void ConfigureVar(IFaceVar* & var, const char* name);
 
     // Automatically resize geometry
     virtual void AutoSize();
@@ -513,7 +519,7 @@ public:
     void DisposeChildren();
 
     // Enumerate list of children
-    void EnumChildren(Bool(*proc)(IControl*, U32), U32 context);
+    void EnumChildren(Bool (*proc)(IControl*, U32), U32 context);
 
     // Number of children
     U32 ChildCount();
@@ -616,7 +622,7 @@ public:
     // Get the context
     IControl* GetContext()
     {
-        return (context.Alive() ? context : NULL);
+        return (context.Alive() ? context : nullptr);
     }
 
     //
@@ -638,8 +644,8 @@ public:
     // Set the font directly
     void SetFont(Font* font)
     {
-        ASSERT(font)
-            paintInfo.font = font;
+        ASSERT(font);
+        paintInfo.font = font;
     }
 
     // Set text justification via a JUSTIFY_* flag
@@ -725,7 +731,11 @@ public:
     Bool SendNotify(IControl* ctrl, U32 event, Bool translate = TRUE, U32 param1 = 0, U32 param2 = 0, U32 param3 = 0);
 
     // Sends a notification to all children
-    Bool NotifyAllChildren(U32 event, Bool translate = TRUE, U32 param1 = 0, U32 param2 = 0, U32 param3 = 0, Bool propagate = TRUE);
+    Bool NotifyAllChildren
+    (
+        U32 event, Bool translate = TRUE, U32 param1 = 0, U32 param2 = 0, U32 param3 = 0,
+        Bool propagate = TRUE
+    );
 
     // Handle input and interface events
     virtual U32 HandleEvent(Event& e);
@@ -884,7 +894,7 @@ public:
     void SetVarAlias(const char* alias);
 
     // Construct a name of a dynamic variable
-    const char* DynVarName(const char* var = NULL);
+    const char* DynVarName(const char* var = nullptr);
 
     // Find a var name
     const char* FindVarName(const char* var);

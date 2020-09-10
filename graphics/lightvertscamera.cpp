@@ -11,12 +11,12 @@
 #include "light_priv.h"
 #include "mesh.h"
 #include "perfstats.h"
+
 //-----------------------------------------------------------------------------
 namespace Vid
 {
     namespace Light
     {
-
         void SetupLightsCamera()
         {
             PERF_X_S("light");
@@ -25,63 +25,64 @@ namespace Vid
             while (Obj* light = li++)
             {
 #ifdef DOSPECULAR
-                light->doSpecular = Vid::renderState.status.specular && (light->d3d.dwFlags & D3DLIGHT_NO_SPECULAR) != D3DLIGHT_NO_SPECULAR ? TRUE : FALSE;
+		    light->doSpecular = Vid::renderState.status.specular && (light->d3d.dwFlags & D3DLIGHT_NO_SPECULAR) != D3DLIGHT_NO_SPECULAR ? TRUE : FALSE;
 #endif
 
                 switch (light->GetType())
                 {
-                case lightPOINT:
-                {
-                    // calculate the light's view space position
-                    Vid::Math::viewMatrix.Transform(light->position, light->WorldMatrix().Position());
+                    case lightPOINT:
+                    {
+                        // calculate the light's view space position
+                        Vid::Math::viewMatrix.Transform(light->position, light->WorldMatrix().Position());
 
 #ifdef DOSPECULAR
-                    light->direction = light->position;
-                    light->direction.Normalize();
-
-                    // calculate the halfVector vector using the D3D method
-                    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
-                    light->halfVector.Normalize();
+				    light->direction = light->position;
+				    light->direction.Normalize();
+				    
+				    // calculate the halfVector vector using the D3D method
+				    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
+				    light->halfVector.Normalize();
 #endif
-                    break;
-                }
-                case lightSPOT:
-                {
-                    // calculate the light's view space position
-                    Vid::Math::viewMatrix.Transform(light->position, light->WorldMatrix().Position());
+                        break;
+                    }
+                    case lightSPOT:
+                    {
+                        // calculate the light's view space position
+                        Vid::Math::viewMatrix.Transform(light->position, light->WorldMatrix().Position());
 
-#ifdef DOSPECULAR        
-                    light->direction = light->position;
-                    light->direction.Normalize();
-
-                    // calculate the halfVector vector using the D3D method
-                    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
-                    light->halfVector.Normalize();
+#ifdef DOSPECULAR
+            light->direction = light->position;
+				    light->direction.Normalize();
+			    
+				    // calculate the halfVector vector using the D3D method
+				    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
+				    light->halfVector.Normalize();
 #endif
 
-                    Vid::Math::viewMatrix.Rotate(light->direction, light->WorldMatrix().Front());
-                    // align with normals
-                    light->direction *= -1.0f;
-                    break;
-                }
+                        Vid::Math::viewMatrix.Rotate(light->direction, light->WorldMatrix().Front());
+                        // align with normals
+                        light->direction *= -1.0f;
+                        break;
+                    }
 
-                case lightDIRECTION:
-                {
-                    Vid::Math::viewMatrix.Rotate(light->direction, light->WorldMatrix().Front());
-                    // align with normals
-                    light->direction *= -1.0f;
+                    case lightDIRECTION:
+                    {
+                        Vid::Math::viewMatrix.Rotate(light->direction, light->WorldMatrix().Front());
+                        // align with normals
+                        light->direction *= -1.0f;
 
-#ifdef DOSPECULAR        
-                    // calculate the halfVector vector using the D3D method
-                    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
-                    light->halfVector.Normalize();
+#ifdef DOSPECULAR
+				    // calculate the halfVector vector using the D3D method
+				    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
+				    light->halfVector.Normalize();
 #endif
-                    break;
-                }
+                        break;
+                    }
                 }
             }
             PERF_X_E("light");
         }
+
         //-----------------------------------------------------------------------------
 
         void LightCamera(const Vector& vert, const Vector& norm, const ColorF32 diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -95,19 +96,20 @@ namespace Vid
             {
                 switch (light->GetType())
                 {
-                case lightPOINT:
-                    light->PointLightCamera(vert, norm, diffIn, material, diff, spec);
-                    break;
-                case lightSPOT:
-                    light->SpotLightCamera(vert, norm, diffIn, material, diff, spec);
-                    break;
-                case lightDIRECTION:
-                    light->DirectLightCamera(vert, norm, diffIn, material, diff, spec);
-                    break;
+                    case lightPOINT:
+                        light->PointLightCamera(vert, norm, diffIn, material, diff, spec);
+                        break;
+                    case lightSPOT:
+                        light->SpotLightCamera(vert, norm, diffIn, material, diff, spec);
+                        break;
+                    case lightDIRECTION:
+                        light->DirectLightCamera(vert, norm, diffIn, material, diff, spec);
+                        break;
                 }
             }
             PERF_X_E("light");
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::PointLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -116,7 +118,7 @@ namespace Vid
             material;
 
 #ifdef DOSPECULAR
-            Bool dospec = material.GetStatus().specular && doSpecular;
+      Bool dospec = material.GetStatus().specular && doSpecular;
 #endif
 
             // calculate distance from the light to the vertex 
@@ -163,33 +165,33 @@ namespace Vid
                 }
 
 #ifdef DOSPECULAR
-                if (dospec)
-                {
-                    // calculate the partial specular reflection factor
-                    F32 spec_reflect = norm.Dot(halfVector);
+		    if ( dospec )
+		    {
+			    // calculate the partial specular reflection factor
+			    F32 spec_reflect = norm.Dot(halfVector);
+			    
+  		    if ( spec_reflect > SPECULAR_THRESHOLD )
+			    {
+    //				spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
+            // apply the material's power factor to the nearest power of 2
+            U32 e, ee = material.PowerCount();
+            for (e = 1; e < ee; e *= 2 )
+            {
+              spec_reflect = spec_reflect * spec_reflect; 
+            }
 
-                    if (spec_reflect > SPECULAR_THRESHOLD)
-                    {
-                        //				spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
-                                // apply the material's power factor to the nearest power of 2
-                        U32 e, ee = material.PowerCount();
-                        for (e = 1; e < ee; e *= 2)
-                        {
-                            spec_reflect = spec_reflect * spec_reflect;
-                        }
+             // calculate the diffuse component of the vertex
+				    // if vertex color capabilities are added this must be changed
+            spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
+            spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
+            spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
+			    }
 
-                        // calculate the diffuse component of the vertex
-                               // if vertex color capabilities are added this must be changed
-                        spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
-                        spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
-                        spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
-                    }
-
-                } // if dospec
+		    } // if dospec
 #endif
-
             } // if dist < range
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SpotLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -198,7 +200,7 @@ namespace Vid
             material;
 
 #ifdef DOSPECULAR
-            Bool dospec = material.GetStatus().specular && doSpecular;
+      Bool dospec = material.GetStatus().specular && doSpecular;
 #endif
 
             // calculate distance from the light to the vertex 
@@ -259,33 +261,32 @@ namespace Vid
                     }
 
 #ifdef DOSPECULAR
-                    if (dospec)
-                    {
-                        // calculate the partial specular reflection factor
-                        F32 spec_reflect = norm.Dot(halfVector);
+			    if ( dospec )
+			    {
+				    // calculate the partial specular reflection factor
+				    F32 spec_reflect = norm.Dot(halfVector);
+				    
+				    if ( spec_reflect > SPECULAR_THRESHOLD )
+				    {
+    //					spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
+              // apply the material's power factor to the nearest power of 2
+              U32 e, ee = material.PowerCount();
+              for (e = 1; e < ee; e *= 2 )
+              {
+                spec_reflect = spec_reflect * spec_reflect; 
+              }
+					    spec_reflect *= intensity;
 
-                        if (spec_reflect > SPECULAR_THRESHOLD)
-                        {
-                            //					spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
-                                      // apply the material's power factor to the nearest power of 2
-                            U32 e, ee = material.PowerCount();
-                            for (e = 1; e < ee; e *= 2)
-                            {
-                                spec_reflect = spec_reflect * spec_reflect;
-                            }
-                            spec_reflect *= intensity;
-
-                            spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
-                            spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
-                            spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
-                        }
-                    }
+              spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
+              spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
+              spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
+				    }
+			    }
 #endif
-
                 } // if
-
             } // if
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::DirectLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -295,7 +296,7 @@ namespace Vid
             material;
 
 #ifdef DOSPECULAR
-            Bool dospec = material.GetStatus().specular && doSpecular;
+      Bool dospec = material.GetStatus().specular && doSpecular;
 #endif
 
             F32 diffuse_reflect = norm.Dot(direction); // -1.0f <= diffuse_reflect <= 1.0f
@@ -309,30 +310,31 @@ namespace Vid
             }
 
 #ifdef DOSPECULAR
-            if (dospec)
-            {
-                // calculate the partial specular reflection factor
-                F32 spec_reflect = norm.Dot(halfVector);
+	    if (dospec)
+	    {
+		    // calculate the partial specular reflection factor
+		    F32 spec_reflect = norm.Dot(halfVector);
 
-                if (spec_reflect > SPECULAR_THRESHOLD)
-                {
-                    //			spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
-                          // apply the material's power factor to the nearest power of 2
-                    U32 e, ee = material.PowerCount();
-                    for (e = 1; e < ee; e *= 2)
-                    {
-                        spec_reflect = spec_reflect * spec_reflect;
-                    }
+		    if ( spec_reflect > SPECULAR_THRESHOLD )
+		    {
+    //			spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
+          // apply the material's power factor to the nearest power of 2
+          U32 e, ee = material.PowerCount();
+          for (e = 1; e < ee; e *= 2 )
+          {
+            spec_reflect = spec_reflect * spec_reflect; 
+          }
 
-                    // calculate the diffuse component of the vertex
-                        // if vertex color capabilities are added this must be changed
-                    spec.r += d3d.dcvDiffuse.r * spec_reflect * material.GetDesc().specular.r;
-                    spec.g += d3d.dcvDiffuse.g * spec_reflect * material.GetDesc().specular.g;
-                    spec.b += d3d.dcvDiffuse.b * spec_reflect * material.GetDesc().specular.b;
-                }
-            }
+  		    // calculate the diffuse component of the vertex
+			    // if vertex color capabilities are added this must be changed
+          spec.r += d3d.dcvDiffuse.r * spec_reflect * material.GetDesc().specular.r;
+          spec.g += d3d.dcvDiffuse.g * spec_reflect * material.GetDesc().specular.g;
+          spec.b += d3d.dcvDiffuse.b * spec_reflect * material.GetDesc().specular.b;
+		    }
+	    }
 #endif
         }
+
         //----------------------------------------------------------------------------
     };
 };

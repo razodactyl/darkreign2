@@ -47,8 +47,7 @@
 #pragma pack(pop, _save_mrmgen_h_)
 
 #ifdef __cplusplus
-extern "C" 
-{
+extern "C" {
 #endif
 
 #ifdef _WIN32
@@ -84,12 +83,12 @@ DEFINE_GUID(IID_IMRMGEN2, 0x5bc10bc1, 0x6846, 0x11d2, 0xa1, 0x31, 0x0, 0xa0, 0xc
 
 typedef struct MRMResults_TAG
 {
-	int				iResultsTag;	/* MRMGen's Internal tag identifying results. Don't modify!	*/
-	IMESH			*pIMesh;		/* Ptr to the re-ordered IMesh								*/
-	MRMUpdates		*pMrmUpdates;	/* Ptr to the generated MRMUpdate records					*/
-	unsigned long	*pVertexMap;	/* Ptr to a vertex re-map array.	(For tool developers)	*/
-	unsigned long	*pFaceMap;		/* Ptr to a face re-map array.	(For tool developers)		*/
-	unsigned long	undefIndexValue;/* Value of undefined indices in th re-map arrays.			*/
+    int iResultsTag;	/* MRMGen's Internal tag identifying results. Don't modify!	*/
+    IMESH* pIMesh;		/* Ptr to the re-ordered IMesh								*/
+    MRMUpdates* pMrmUpdates;	/* Ptr to the generated MRMUpdate records					*/
+    unsigned long* pVertexMap;	/* Ptr to a vertex re-map array.	(For tool developers)	*/
+    unsigned long* pFaceMap;		/* Ptr to a face re-map array.	(For tool developers)		*/
+    unsigned long undefIndexValue;/* Value of undefined indices in th re-map arrays.			*/
 } MRMResults;
 
 
@@ -99,21 +98,23 @@ typedef struct MRMResults_TAG
  * FreeGenerateMemory().																	
  */
 #define INTERFACE IMRMGen2
-DECLARE_INTERFACE_( IMRMGen2, IUnknown )
+DECLARE_INTERFACE_(IMRMGen2, IUnknown)
 {
     /* IUnknown methods */
-    STDMETHOD(QueryInterface)		(THIS_ REFIID riid, LPVOID FAR * ppvObj)	PURE;
-    STDMETHOD_(ULONG,AddRef)		(THIS)										PURE;  
-    STDMETHOD_(ULONG,Release)		(THIS)										PURE;
-      
-	/* MRMGen2 methods: */
-	STDMETHOD(Kill)					(THIS_ )									PURE;
-	STDMETHOD(GenerateMRM)			(THIS_ IMESH *pIMesh, MRMGenParams *pParams, 
-											MRMResults **pMrmResults)			PURE;
-	STDMETHOD(FreeMRMResults)		(THIS_ MRMResults *pMrmResults)				PURE;
+    STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
+    STDMETHOD_(ULONG, AddRef)(THIS) PURE;
+    STDMETHOD_(ULONG, Release)(THIS) PURE;
+
+    /* MRMGen2 methods: */
+    STDMETHOD(Kill)(THIS_ ) PURE;
+    STDMETHOD(GenerateMRM)
+    (
+        THIS_ IMESH* pIMesh, MRMGenParams* pParams,
+        MRMResults** pMrmResults
+    ) PURE;
+    STDMETHOD(FreeMRMResults)(THIS_ MRMResults* pMrmResults) PURE;
 };
 #endif
-
 
 
 #ifdef _WIN32
@@ -124,35 +125,31 @@ DECLARE_INTERFACE_( IMRMGen2, IUnknown )
  * new MRMGen2 interface instead.
  */
 #define INTERFACE IMRMGen
-DECLARE_INTERFACE_( IMRMGen, IUnknown )
+DECLARE_INTERFACE_(IMRMGen, IUnknown)
 {
     /* IUnknown methods */
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
-    STDMETHOD_(ULONG,AddRef) (THIS)  PURE;  
-    STDMETHOD_(ULONG,Release) (THIS) PURE;
-      
-	/* MRMGEN Methods */
+    STDMETHOD(QueryInterface)(THIS_ REFIID riid, LPVOID FAR * ppvObj) PURE;
+    STDMETHOD_(ULONG, AddRef)(THIS) PURE;
+    STDMETHOD_(ULONG, Release)(THIS) PURE;
 
-    /* I/O methods */   
-	STDMETHOD(Load)					(THIS_ IMESH *imesh, MRMGenParams *params)				PURE;
-	STDMETHOD(Generate)				(THIS_ )												PURE;
-	STDMETHOD(Kill)					(THIS_ )												PURE;
-	STDMETHOD(GetResults)			(THIS_ int *resultsTag, IMESH **im, MRMUpdates **mu)	PURE;
-	
-	STDMETHOD(FreeLoadMemory)		(THIS_) PURE;
-	STDMETHOD(FreeGenerateMemory)	(THIS_)	PURE;   
-	STDMETHOD(FreeResultsMemory)	(THIS_ int resultsTag)	PURE;
+    /* MRMGEN Methods */
+
+    /* I/O methods */
+    STDMETHOD(Load)(THIS_ IMESH* imesh, MRMGenParams* params) PURE;
+    STDMETHOD(Generate)(THIS_ ) PURE;
+    STDMETHOD(Kill)(THIS_ ) PURE;
+    STDMETHOD(GetResults)(THIS_ int* resultsTag, IMESH** im, MRMUpdates** mu) PURE;
+
+    STDMETHOD(FreeLoadMemory)(THIS_) PURE;
+    STDMETHOD(FreeGenerateMemory)(THIS_) PURE;
+    STDMETHOD(FreeResultsMemory)(THIS_ int resultsTag) PURE;
 };
 #endif
-
-
 
 
 #ifdef __cplusplus
 };
 #endif // extern "C"
-
-
 
 
 #endif

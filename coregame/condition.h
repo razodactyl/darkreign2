@@ -33,46 +33,53 @@ class Condition
 {
 private:
 
-  // Alternate team for the condition
-  Team *team;
+    // Alternate team for the condition
+    Team* team;
 
 public:
 
-  // Condition
-  Condition(FScope *fScope);
+    // Condition
+    Condition(FScope* fScope);
 
-  // ~Condition
-  virtual ~Condition();
+    // ~Condition
+    virtual ~Condition();
 
-  // Reset the condition
-  virtual void Reset() { }
+    // Reset the condition
+    virtual void Reset()
+    {
+    }
 
-  // Test to see if the condition it TRUE
-  virtual Bool Test(class Team *team) = 0;
+    // Test to see if the condition it TRUE
+    virtual Bool Test(class Team* team) = 0;
 
-  // Save and load
-  virtual void Save(FScope *) { }
-  virtual void Load(FScope *) { }
-  virtual void PostLoad();
+    // Save and load
+    virtual void Save(FScope*)
+    {
+    }
+
+    virtual void Load(FScope*)
+    {
+    }
+
+    virtual void PostLoad();
 
 public:
 
-  Team * GetTeam()
-  {
-    return (team);
-  }
+    Team* GetTeam()
+    {
+        return (team);
+    }
 
 public:
 
-  // Create a condition
-  static Condition * Create(FScope *);
+    // Create a condition
+    static Condition* Create(FScope*);
 
-  // Return the name of the condition type
-  virtual const char * GetTypeName()
-  {
-    ERR_FATAL(("Type name for condition has not been specified"));
-  }
-
+    // Return the name of the condition type
+    virtual const char* GetTypeName()
+    {
+        ERR_FATAL(("Type name for condition has not been specified"));
+    }
 };
 
 #endif

@@ -11,13 +11,13 @@
 #include "light_priv.h"
 #include "mesh.h"
 #include "perfstats.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
 {
     namespace Light
     {
-
         void SetupLightsModel()
         {
             PERF_X_S("light");
@@ -25,71 +25,72 @@ namespace Vid
             NList<Obj>::Iterator li(&activeList);
             while (Obj* light = li++)
             {
-#ifdef DOSPECULAR        
-                light->doSpecular = Vid::renderState.status.specular && (light->d3d.dwFlags & D3DLIGHT_NO_SPECULAR) != D3DLIGHT_NO_SPECULAR ? TRUE : FALSE;
+#ifdef DOSPECULAR
+        light->doSpecular = Vid::renderState.status.specular && (light->d3d.dwFlags & D3DLIGHT_NO_SPECULAR) != D3DLIGHT_NO_SPECULAR ? TRUE : FALSE;
 #endif
 
                 switch (light->GetType())
                 {
-                case lightPOINT:
-                {
-                    // calculate the light's model space position and direction
-                    Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
+                    case lightPOINT:
+                    {
+                        // calculate the light's model space position and direction
+                        Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
 
 #ifdef DOSPECULAR
-                    light->direction = light->position;
-                    light->direction.Normalize();
+            light->direction = light->position;
+            light->direction.Normalize();
 
-                    // calculate the halfway vector using the D3D method
-                    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
-                    light->halfVector.Normalize();
+	          // calculate the halfway vector using the D3D method
+	          light->halfVector = (Vid::Math::modelViewNorm + light->direction);
+  	        light->halfVector.Normalize();
 #endif
+                        break;
+                    }
+
+                    case lightSPOT:
+                    {
+                        // calculate the model space position and direction
+                        Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
+
+#ifdef DOSPECULAR
+            light->direction = light->position;
+            light->direction.Normalize();
+
+    	    // calculate the halfway vector using the D3D method
+      	    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
+	          light->halfVector.Normalize();
+#endif
+                        Vid::Math::worldMatrixInv.Rotate(light->direction, light->WorldMatrix().Front());
+                        // align with normals
+                        light->direction *= -1.0f;
+                    }
                     break;
-                }
 
-                case lightSPOT:
-                {
-                    // calculate the model space position and direction
-                    Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
-
-#ifdef DOSPECULAR
-                    light->direction = light->position;
-                    light->direction.Normalize();
-
-                    // calculate the halfway vector using the D3D method
-                    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
-                    light->halfVector.Normalize();
-#endif
-                    Vid::Math::worldMatrixInv.Rotate(light->direction, light->WorldMatrix().Front());
-                    // align with normals
-                    light->direction *= -1.0f;
-                }
-                break;
-
-                case lightDIRECTION:
-                {
-                    // calculate the vector to the light in model space
-                    Vid::Math::worldMatrixInv.Rotate(light->direction, light->WorldMatrix().Front());
-                    // align with normals
-                    light->direction *= -1.0f;
+                    case lightDIRECTION:
+                    {
+                        // calculate the vector to the light in model space
+                        Vid::Math::worldMatrixInv.Rotate(light->direction, light->WorldMatrix().Front());
+                        // align with normals
+                        light->direction *= -1.0f;
 
 #ifdef DOSPECULAR
-                    // calculate the halfVector vector using the D3D method
-                    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
-                    light->halfVector.Normalize();
+          // calculate the halfVector vector using the D3D method
+      	    light->halfVector = (Vid::Math::modelViewNorm + light->direction);
+      	    light->halfVector.Normalize();
 #endif
-                    break;
-                }
+                        break;
+                    }
                 }
 #ifdef __DO_XMM_BUILD
-                if (Vid::isStatus.xmm)
-                {
-                    SetupLightModelXmm(*light);
-                }
+        if (Vid::isStatus.xmm)
+        {
+          SetupLightModelXmm(*light);
+        }
 #endif
             }
             PERF_X_E("light");
         }
+
         //-----------------------------------------------------------------------------
 
         void LightModel(const Vector& vert, const Vector& norm, const ColorF32 diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -103,19 +104,20 @@ namespace Vid
             {
                 switch (light->GetType())
                 {
-                case lightPOINT:
-                    light->PointLightModel(vert, norm, diffIn, material, diff, spec);
-                    break;
-                case lightSPOT:
-                    light->SpotLightModel(vert, norm, diffIn, material, diff, spec);
-                    break;
-                case lightDIRECTION:
-                    light->DirectLightModel(vert, norm, diffIn, material, diff, spec);
-                    break;
+                    case lightPOINT:
+                        light->PointLightModel(vert, norm, diffIn, material, diff, spec);
+                        break;
+                    case lightSPOT:
+                        light->SpotLightModel(vert, norm, diffIn, material, diff, spec);
+                        break;
+                    case lightDIRECTION:
+                        light->DirectLightModel(vert, norm, diffIn, material, diff, spec);
+                        break;
                 }
             }
             PERF_X_E("light");
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::PointLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -123,8 +125,8 @@ namespace Vid
             spec;
             material;
 
-#ifdef DOSPECULAR        
-            Bool dospec = material.GetStatus().specular && doSpecular;
+#ifdef DOSPECULAR
+      Bool dospec = material.GetStatus().specular && doSpecular;
 #endif
 
             // calculate distance from the vertex to the light
@@ -171,34 +173,33 @@ namespace Vid
                     }
 
 #ifdef DOSPECULAR
-                    if (dospec)
-                    {
-                        // calculate the partial specular reflection factor
-                        F32 spec_reflect = norm.Dot(halfVector);
+			    if (dospec)
+			    {
+				    // calculate the partial specular reflection factor
+				    F32 spec_reflect = norm.Dot(halfVector);
+				    
+				    if ( spec_reflect > SPECULAR_THRESHOLD )
+				    {
+    //					spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
+              // apply the material's power factor to the nearest power of 2
+              U32 e, ee = material.PowerCount();
+              for (e = 1; e < ee; e *= 2 )
+              {
+                spec_reflect = spec_reflect * spec_reflect; 
+              }
 
-                        if (spec_reflect > SPECULAR_THRESHOLD)
-                        {
-                            //					spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
-                                      // apply the material's power factor to the nearest power of 2
-                            U32 e, ee = material.PowerCount();
-                            for (e = 1; e < ee; e *= 2)
-                            {
-                                spec_reflect = spec_reflect * spec_reflect;
-                            }
-
-                            // calculate the diffuse component of the vertex
-                                      // if vertex color capabilities are added this must be changed
-                            spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
-                            spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
-                            spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
-                        }
-                    }
+              // calculate the diffuse component of the vertex
+					    // if vertex color capabilities are added this must be changed
+              spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
+              spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
+              spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
+				    }
+			    }
 #endif
-
                 } // if
-
             } // if
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SpotLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -207,7 +208,7 @@ namespace Vid
             material;
 
 #ifdef DOSPECULAR
-            Bool dospec = material.GetStatus().specular && doSpecular;
+      Bool dospec = material.GetStatus().specular && doSpecular;
 #endif
 
             // calculate distance from the light to the vertex 
@@ -270,36 +271,34 @@ namespace Vid
                         }
 
 #ifdef DOSPECULAR
-                        if (dospec)
-                        {
-                            // calculate the partial specular reflection factor
-                            F32 spec_reflect = norm.Dot(halfVector);
+				    if ( dospec )
+				    {
+					    // calculate the partial specular reflection factor
+					    F32 spec_reflect = norm.Dot(halfVector);
+					    
+  				    if ( spec_reflect > SPECULAR_THRESHOLD )
+					    {
+    //  					spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
+                // apply the material's power factor to the nearest power of 2
+                U32 e, ee = material.PowerCount();
+                for (e = 1; e < ee; e *= 2 )
+                {
+                  spec_reflect = spec_reflect * spec_reflect; 
+                }
 
-                            if (spec_reflect > SPECULAR_THRESHOLD)
-                            {
-                                //  					spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
-                                            // apply the material's power factor to the nearest power of 2
-                                U32 e, ee = material.PowerCount();
-                                for (e = 1; e < ee; e *= 2)
-                                {
-                                    spec_reflect = spec_reflect * spec_reflect;
-                                }
+						    spec_reflect *= intensity;
 
-                                spec_reflect *= intensity;
-
-                                spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
-                                spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
-                                spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
-                            }
-                        }
+                spec.r += atten.r * spec_reflect * material.GetDesc().specular.r;
+                spec.g += atten.g * spec_reflect * material.GetDesc().specular.g;
+                spec.b += atten.b * spec_reflect * material.GetDesc().specular.b;
+					    }
+				    }
 #endif
-
                     } // if
-
                 } // if
-
             } // if
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::DirectLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec)
@@ -309,7 +308,7 @@ namespace Vid
             material;
 
 #ifdef DOSPECULAR
-            Bool dospec = material.GetStatus().specular && doSpecular;
+      Bool dospec = material.GetStatus().specular && doSpecular;
 #endif
 
             F32 diffuse_reflect = norm.Dot(direction); // -1.0f <= diffuse_reflect <= 1.0f
@@ -323,30 +322,31 @@ namespace Vid
             }
 
 #ifdef DOSPECULAR
-            if (dospec)
-            {
-                // calculate the partial specular reflection factor
-                F32 spec_reflect = norm.Dot(halfVector);
+	    if (dospec)
+	    {
+		    // calculate the partial specular reflection factor
+		    F32 spec_reflect = norm.Dot(halfVector);
 
-                if (spec_reflect > SPECULAR_THRESHOLD)
-                {
-                    //			spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
-                          // apply the material's power factor to the nearest power of 2
-                    U32 e, ee = material.PowerCount();
-                    for (e = 1; e < ee; e *= 2)
-                    {
-                        spec_reflect = spec_reflect * spec_reflect;
-                    }
+  	    if ( spec_reflect > SPECULAR_THRESHOLD )
+		    {
+    //			spec_reflect = (F32) pow((double) spec_reflect, (double) material.GetDesc().dvPower); // -1.0f <= spec_reflect <= 1.0f
+          // apply the material's power factor to the nearest power of 2
+          U32 e, ee = material.PowerCount();
+          for (e = 1; e < ee; e *= 2 )
+          {
+            spec_reflect = spec_reflect * spec_reflect; 
+          }
 
-                    // calculate the diffuse component of the vertex
-                        // if vertex color capabilities are added this must be changed
-                    spec.r += d3d.dcvDiffuse.r * spec_reflect * material.GetDesc().specular.r;
-                    spec.g += d3d.dcvDiffuse.g * spec_reflect * material.GetDesc().specular.g;
-                    spec.b += d3d.dcvDiffuse.b * spec_reflect * material.GetDesc().specular.b;
-                }
-            }
+  		    // calculate the diffuse component of the vertex
+			    // if vertex color capabilities are added this must be changed
+          spec.r += d3d.dcvDiffuse.r * spec_reflect * material.GetDesc().specular.r;
+          spec.g += d3d.dcvDiffuse.g * spec_reflect * material.GetDesc().specular.g;
+          spec.b += d3d.dcvDiffuse.b * spec_reflect * material.GetDesc().specular.b;
+		    }
+	    }
 #endif
         }
+
         //----------------------------------------------------------------------------
 
         void SetupLightsModelQuick()
@@ -356,29 +356,30 @@ namespace Vid
             {
                 switch (light->GetType())
                 {
-                case lightPOINT:
-                    // calculate the light's model space position and direction
-                    Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
+                    case lightPOINT:
+                        // calculate the light's model space position and direction
+                        Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
+                        break;
+
+                    case lightSPOT:
+                    {
+                        // calculate the model space position and direction
+                        Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
+
+                        light->direction = light->position;
+                        light->direction.Normalize();
+                    }
                     break;
-
-                case lightSPOT:
-                {
-                    // calculate the model space position and direction
-                    Vid::Math::worldMatrixInv.Transform(light->position, light->WorldMatrix().Position());
-
-                    light->direction = light->position;
-                    light->direction.Normalize();
-                }
-                break;
                 }
 #ifdef __DO_XMM_BUILD
-                if (Vid::isStatus.xmm)
-                {
-                    SetupLightModelXmm(*light);
-                }
+        if (Vid::isStatus.xmm)
+        {
+          SetupLightModelXmm(*light);
+        }
 #endif
             }
         }
+
         //-----------------------------------------------------------------------------
 
         void LightModelQuick(const Vector& vert, ColorF32& diff)
@@ -388,21 +389,22 @@ namespace Vid
             {
                 switch (light->GetType())
                 {
-                case lightPOINT:
-                    light->PointLightModel(vert, diff);
-                    break;
-                case lightSPOT:
-                    light->SpotLightModel(vert, diff);
-                    break;
-                case lightDIRECTION:
-                    // calculate the diffuse component for the vertex
-                    diff.r += light->R();
-                    diff.g += light->G();
-                    diff.b += light->B();
-                    break;
+                    case lightPOINT:
+                        light->PointLightModel(vert, diff);
+                        break;
+                    case lightSPOT:
+                        light->SpotLightModel(vert, diff);
+                        break;
+                    case lightDIRECTION:
+                        // calculate the diffuse component for the vertex
+                        diff.r += light->R();
+                        diff.g += light->G();
+                        diff.b += light->B();
+                        break;
                 }
             }
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::PointLightModel(const Vector& vert, ColorF32& diff)
@@ -442,11 +444,10 @@ namespace Vid
                     diff.r += atten.r;
                     diff.g += atten.g;
                     diff.b += atten.b;
-
                 } // if
-
             } // if
         }
+
         //----------------------------------------------------------------------------
 
         void Obj::SpotLightModel(const Vector& vert, ColorF32& diff)
@@ -500,13 +501,11 @@ namespace Vid
                         diff.r += atten.r;
                         diff.g += atten.g;
                         diff.b += atten.b;
-
                     } // if
-
                 } // if
-
             } // if
         }
+
         //----------------------------------------------------------------------------
     };
 };

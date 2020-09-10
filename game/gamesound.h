@@ -25,18 +25,18 @@
 //
 namespace GameSound
 {
-  // Initialize and shutdown system
-  void Init();
-  void Done();
+    // Initialize and shutdown system
+    void Init();
+    void Done();
 
-  // Get the track player
-  TrackPlayer & GetPlayer();
+    // Get the track player
+    TrackPlayer& GetPlayer();
 
-  // Reset gamesound state
-  void Reset();
+    // Reset gamesound state
+    void Reset();
 
-  // Polling for sound events
-  void Poll();
+    // Polling for sound events
+    void Poll();
 };
 
 #endif

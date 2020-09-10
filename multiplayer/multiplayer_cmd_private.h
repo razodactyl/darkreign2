@@ -26,67 +26,64 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Cmd
-  //
-  namespace Cmd
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Struct JoinInformation
+    // NameSpace Cmd
     //
-    struct JoinInformation
+    namespace Cmd
     {
-      Win32::Socket::Address address;
-      SessionName session;
-      U32 flags;
-      U32 password;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Struct JoinInformation
+        //
+        struct JoinInformation
+        {
+            Win32::Socket::Address address;
+            SessionName session;
+            U32 flags;
+            U32 password;
 
-      JoinInformation(const Win32::Socket::Address &address, const SessionName &session, U32 flags)
-      : address(address),
-        session(session),
-        flags(flags),
-        password(0)
-      {
-      }
-    };
+            JoinInformation(const Win32::Socket::Address& address, const SessionName& session, U32 flags)
+                : address(address),
+                  session(session),
+                  flags(flags),
+                  password(0)
+            {
+            }
+        };
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Struct HostInformation
-    //
-    struct HostInformation
-    {
-      Win32::Socket::Address address;
-      Ident session;
-      U32 password;
-      U32 maxUsers;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Struct HostInformation
+        //
+        struct HostInformation
+        {
+            Win32::Socket::Address address;
+            Ident session;
+            U32 password;
+            U32 maxUsers;
 
-      HostInformation(const Win32::Socket::Address &address, const Ident &session, U32 password, U32 maxUsers)
-      : address(address),
-        session(session),
-        password(password),
-        maxUsers(maxUsers)
-      {
-      }
-    };
+            HostInformation(const Win32::Socket::Address& address, const Ident& session, U32 password, U32 maxUsers)
+                : address(address),
+                  session(session),
+                  password(password),
+                  maxUsers(maxUsers)
+            {
+            }
+        };
 
-    // Interface vars
-    extern VarInteger isHost;
-    extern VarInteger online;
-    extern VarInteger inWon;
-    extern VarInteger isLobby;
-    extern VarInteger isLocked;
-    extern VarInteger fillInterface;
-    extern Bool updatingLock;
+        // Interface vars
+        extern VarInteger isHost;
+        extern VarInteger online;
+        extern VarInteger inWon;
+        extern VarInteger isLobby;
+        extern VarInteger isLocked;
+        extern VarInteger fillInterface;
+        extern Bool updatingLock;
 
-    extern JoinInformation *joinInfo;
-    extern HostInformation *hostInfo;
-
-  }
+        extern JoinInformation* joinInfo;
+        extern HostInformation* hostInfo;
+    }
 }
 
 

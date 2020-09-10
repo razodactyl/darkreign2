@@ -34,7 +34,8 @@ using std::ostream;
 // The crc is based on the lower case version of the string, but the original
 // case is preserved in the string copy.
 //
-template <U32 STR_SIZE, class BASE = char> class StrCrc
+template <U32 STR_SIZE, class BASE = char>
+class StrCrc
 {
 public:
 

@@ -21,6 +21,8 @@
 
 
 #define ACCELERATION
+#undef ACCELERATION // Undef `ACCELERATION` - it interferes with some players making fullscreen unplayable.
+
 //#define LOGGING
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,16 +32,16 @@
 namespace Input
 {
     // Logging
-    LOGDEFLOCAL("Input");
+    LOGDEFLOCAL("Input")
 
-    // Attempt a DirectInput operation, cause an error if it fails
+        // Attempt a DirectInput operation, cause an error if it fails
 #define DITRYERR(expr) {Input::dierr=expr;if (Input::dierr!=DI_OK) {ERR_FATAL(("Direct Input Error at %s [%s]", #expr, Input::ErrMsg()));}}
 
     // Attempt a DirectInput operation, log an error message if it fails
 #define DITRYMSG(expr) {Input::dierr=expr;if (Input::dierr!=DI_OK) {LOG_DIAG((Input::ErrMsg()));}}
 
     // Buffer sizes
-    const U32 KEYBUFSIZE = 32;
+        const U32 KEYBUFSIZE = 32;
     const U32 MOUSEBUFSIZE = 128;
 
     // Mouse buttons
@@ -61,9 +63,9 @@ namespace Input
     static HWND hWnd;
 
     // Directinput data
-    static LPDIRECTINPUT8 di = NULL;
-    static LPDIRECTINPUTDEVICE8 diMouse = NULL;
-    static LPDIRECTINPUTDEVICE8 diKeybd = NULL;
+    static LPDIRECTINPUT8 di = nullptr;
+    static LPDIRECTINPUTDEVICE8 diMouse = nullptr;
+    static LPDIRECTINPUTDEVICE8 diKeybd = nullptr;
     static HRESULT dierr;
 
     // Keyboard data
@@ -153,8 +155,8 @@ namespace Input
         //
         void Begin(U32 _code, U32 _ch)
         {
-            code = (U16)_code;
-            ch = (U16)_ch;
+            code = static_cast<U16>(_code);
+            ch = static_cast<U16>(_ch);
 
             start = Clock::Time::Ms();
             isRepeat = FALSE;
@@ -178,7 +180,7 @@ namespace Input
             if ((currTime - start) > (isRepeat ? speed : delay))
             {
                 isRepeat = TRUE;
-                PostEvent((U16)(Printable(ch) ? KEYCHAR : KEYREPEAT), code, ch, Input::customState, Input::mousePos);
+                PostEvent(static_cast<U16>(Printable(ch) ? KEYCHAR : KEYREPEAT), code, ch, customState, mousePos);
 
                 start = currTime;
             }
@@ -219,7 +221,7 @@ namespace Input
     //
     static void KeybdAcquire(Bool acquire)
     {
-        if (diKeybd == NULL)
+        if (diKeybd == nullptr)
         {
             LOG_ERR(("KeybdAcquire: keybd==NULL"));
             return;
@@ -245,7 +247,7 @@ namespace Input
     //
     static void MouseAcquire(Bool acquire)
     {
-        if (diMouse == NULL)
+        if (diMouse == nullptr)
         {
             LOG_ERR(("MouseAcquire: mouse==NULL"));
             return;
@@ -254,7 +256,11 @@ namespace Input
         if (acquire)
         {
             diMouse->Unacquire();
-            DITRYMSG(diMouse->SetCooperativeLevel(hWnd, (Vid::isStatus.fullScreen ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) | DISCL_FOREGROUND));
+            DITRYMSG
+            (
+                diMouse->SetCooperativeLevel(hWnd, (Vid::isStatus.fullScreen ? DISCL_EXCLUSIVE : DISCL_NONEXCLUSIVE) |
+                DISCL_FOREGROUND)
+            );
             diMouse->Acquire();
         }
         else
@@ -277,7 +283,7 @@ namespace Input
         Bool success = TRUE;
 
         // Get keyboard key state
-        dierr = diKeybd->GetDeviceState(sizeof(keyState), (LPVOID)keyState);
+        dierr = diKeybd->GetDeviceState(sizeof(keyState), static_cast<LPVOID>(keyState));
 
         if (FAILED(dierr))
         {
@@ -289,7 +295,7 @@ namespace Input
         }
 
         // Get mouse state
-        dierr = diMouse->GetDeviceState(sizeof(mouseState), (LPVOID)(&mouseState));
+        dierr = diMouse->GetDeviceState(sizeof(mouseState), static_cast<LPVOID>(&mouseState));
 
         if (FAILED(dierr))
         {
@@ -367,7 +373,7 @@ namespace Input
     //
     static Bool ReadKeybdEvents()
     {
-        if (diKeybd == NULL)
+        if (diKeybd == nullptr)
         {
             LOG_ERR(("Keyboard device not initialised"));
             return FALSE;
@@ -512,101 +518,102 @@ namespace Input
             // Process the event
             switch (od.dwOfs)
             {
-            case DIMOFS_BUTTON0:
-            case DIMOFS_BUTTON1:
-            case DIMOFS_BUTTON2:
-            case DIMOFS_BUTTON3:
-            {
-                int btn = od.dwOfs - DIMOFS_BUTTON0;
-
-                if (btn < 0 || btn > 3)
+                case DIMOFS_BUTTON0:
+                case DIMOFS_BUTTON1:
+                case DIMOFS_BUTTON2:
+                case DIMOFS_BUTTON3:
                 {
-                    break;
-                }
+                    int btn = od.dwOfs - DIMOFS_BUTTON0;
 
-                if (od.dwData & 0x80)
-                {
-                    // Mouse button went down
-                    if (
-                        (!dblClick[btn].wasDbl)
-                        && (od.dwTimeStamp - dblClick[btn].time <= dblClickTime)
-                        && (abs(dblClick[btn].pos.x - mousePos.x) < dblClickThreshold.x)
-                        && (abs(dblClick[btn].pos.y - mousePos.y) < dblClickThreshold.y)
-                        )
+                    if (btn < 0 || btn > 3)
                     {
-                        // Mark this button as having just double clicked so the 
-                        // next click will not generate a double click event.
-                        dblClick[btn].wasDbl = TRUE;
+                        break;
+                    }
 
-                        // Create a double click event
-                        PostEvent(MOUSEBUTTONDBLCLK, btn, 0, customState, mousePos);
+                    if (od.dwData & 0x80)
+                    {
+                        // Mouse button went down
+                        if
+                            (
+                            (!dblClick[btn].wasDbl) &&
+                            (od.dwTimeStamp - dblClick[btn].time <= dblClickTime) &&
+                            (abs(dblClick[btn].pos.x - mousePos.x) < dblClickThreshold.x) &&
+                            (abs(dblClick[btn].pos.y - mousePos.y) < dblClickThreshold.y)
+                            )
+                        {
+                            // Mark this button as having just double clicked so the 
+                            // next click will not generate a double click event.
+                            dblClick[btn].wasDbl = TRUE;
+
+                            // Create a double click event
+                            PostEvent(MOUSEBUTTONDBLCLK, btn, 0, customState, mousePos);
+                        }
+                        else
+                        {
+                            // Set the time and position of this click for 
+                            // double-click simulation purposes
+                            dblClick[btn].time = od.dwTimeStamp;
+                            dblClick[btn].wasDbl = FALSE;
+                            dblClick[btn].pos = mousePos;
+
+                            // Create a click event
+                            PostEvent(MOUSEBUTTONDOWN, btn, 0, customState, mousePos);
+                        }
                     }
                     else
                     {
-                        // Set the time and position of this click for 
-                        // double-click simulation purposes
-                        dblClick[btn].time = od.dwTimeStamp;
-                        dblClick[btn].wasDbl = FALSE;
-                        dblClick[btn].pos = mousePos;
+                        // Mouse button went up
+                        U16 subType = dblClick[btn].wasDbl ? U16(MOUSEBUTTONDBLCLKUP) : U16(MOUSEBUTTONUP);
 
-                        // Create a click event
-                        PostEvent(MOUSEBUTTONDOWN, btn, 0, customState, mousePos);
+                        PostEvent(subType, btn, 0, customState, mousePos);
                     }
+                    break;
                 }
-                else
-                {
-                    // Mouse button went up
-                    U16 subType = dblClick[btn].wasDbl ? U16(MOUSEBUTTONDBLCLKUP) : U16(MOUSEBUTTONUP);
 
-                    PostEvent(subType, btn, 0, customState, mousePos);
-                }
-                break;
-            }
-
-            case DIMOFS_X:
-            {
-                if (Vid::isStatus.fullScreen)
+                case DIMOFS_X:
                 {
-                    // Update internal position values
-                    mouseDelta.x += S32(od.dwData);
+                    if (Vid::isStatus.fullScreen)
+                    {
+                        // Update internal position values
+                        mouseDelta.x += S32(od.dwData);
 
 #ifndef ACCELERATION
 
-                    // Set new mouse position
-                    SetMousePos(mousePos.x + od.dwData, mousePos.y);
+                        // Set new mouse position
+                        SetMousePos(mousePos.x + od.dwData, mousePos.y);
 
 #endif
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case DIMOFS_Y:
-            {
-                if (Vid::isStatus.fullScreen)
+                case DIMOFS_Y:
                 {
-                    // Update internal position values
-                    mouseDelta.y += S32(od.dwData);
+                    if (Vid::isStatus.fullScreen)
+                    {
+                        // Update internal position values
+                        mouseDelta.y += S32(od.dwData);
 
 #ifndef ACCELERATION
 
-                    // Set new mouse position
-                    SetMousePos(mousePos.x, mousePos.y + od.dwData);
+                        // Set new mouse position
+                        SetMousePos(mousePos.x, mousePos.y + od.dwData);
 
 #endif
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case DIMOFS_Z:
-            {
-                // Create a movement on z-axis event
-                PostEvent(MOUSEAXIS, 0, od.dwData, customState, mousePos);
-                break;
-            }
+                case DIMOFS_Z:
+                {
+                    // Create a movement on z-axis event
+                    PostEvent(MOUSEAXIS, 0, od.dwData, customState, mousePos);
+                    break;
+                }
 
-            default:
-                LOG_DIAG(("Unknown %d", od.dwOfs));
-                break;
+                default:
+                    LOG_DIAG(("Unknown %d", od.dwOfs));
+                    break;
             }
         }
 
@@ -633,30 +640,6 @@ namespace Input
         return (TRUE);
     }
 
-    // JONATHAN
-    void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-    {
-        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-            //PostEvent(MOUSEBUTTONDOWN, 0, 0, customState, mousePos);
-        }
-
-
-
-        /*double xpos, ypos;
-        glfwGetCursorPos(Main::GetGameWindowGLFW(), &xpos, &ypos);
-        mousePos.x = xpos;
-        mousePos.y = ypos;
-        PostEvent(MOUSEMOVE, 0, 0, customState, mousePos);
-
-        int mouseLeftState = glfwGetMouseButton(Main::GetGameWindowGLFW(), GLFW_MOUSE_BUTTON_LEFT);
-        int mouseRightState = glfwGetMouseButton(Main::GetGameWindowGLFW(), GLFW_MOUSE_BUTTON_RIGHT);
-        if (mouseLeftState == GLFW_PRESS || mouseRightState == GLFW_PRESS) {
-            PostEvent(MOUSEBUTTONDOWN, (mouseLeftState == GLFW_PRESS) ? 0 : 1, 0, customState, mousePos);
-        }
-        if (mouseLeftState == GLFW_RELEASE || mouseRightState == GLFW_RELEASE) {
-            PostEvent(MOUSEBUTTONUP, (mouseLeftState == GLFW_RELEASE) ? 0 : 1, 0, customState, mousePos);
-        }*/
-    }
 
     //
     // Set parameters for Input system, and initialise the mouse and keyboard
@@ -668,10 +651,6 @@ namespace Input
         // Initialise data members
         hInst = inst;
         hWnd = window;
-
-        // JONATHAN
-        //glfwSetMouseButtonCallback(Main::GetGameWindowGLFW(), mouse_button_callback);
-        //glfwSetCursorPosCallback(Main::GetGameWindowGLFW(), cursor_position_callback);
 
         customState = 0;
         showCursor = 1;
@@ -807,20 +786,20 @@ namespace Input
                 diMouse->Unacquire();
                 diMouse->SetCooperativeLevel(hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
                 diMouse->Release();
-                diMouse = NULL;
+                diMouse = nullptr;
             }
             if (diKeybd)
             {
                 diKeybd->Unacquire();
                 diKeybd->Release();
-                diKeybd = NULL;
+                diKeybd = nullptr;
             }
 
             // Release DirectInput
             if (di)
             {
                 DITRYMSG(di->Release());
-                di = NULL;
+                di = nullptr;
             }
 
             // Done
@@ -828,10 +807,11 @@ namespace Input
         }
         else
         {
-            //      LOG_ERR(("Input not initialised"));
+            // LOG_ERR(("Input not initialised"));
         }
         LOG_DIAG(("Leaving Input::Done"));
     }
+
 
     //
     // Read buffered events and current state of input devices
@@ -841,9 +821,6 @@ namespace Input
         ASSERT(sysInit);
 
         PERF_S("Input::ReadEvents");
-
-        // JONATHAN
-        //glfwWaitEvents();
 
         // Get keyboard/mouse state first so that customState will be 
         // correct for upcoming events 
@@ -871,7 +848,7 @@ namespace Input
         {
             e->type = eventId;
             e->subType = subType;
-            e->param1 = ((U16)ch << 16) + (U16)code;
+            e->param1 = (static_cast<U16>(ch) << 16) + static_cast<U16>(code);
             e->param2 = keyState;
             e->param3 = mousePos.x;
             e->param4 = mousePos.y;
@@ -882,21 +859,20 @@ namespace Input
 
             switch (subType)
             {
-            case KEYDOWN: s = "KEYDOWN"; break;
-            case KEYUP: s = "KEYUP"; break;
-            case KEYREPEAT: s = "KEYREPEAT"; break;
-            case KEYCHAR: s = "KEYCHAR"; break;
-            case MOUSEBUTTONDOWN: s = "MBDOWN"; break;
-            case MOUSEBUTTONUP: s = "MBUP"; break;
-            case MOUSEBUTTONDBLCLK: s = "MBDBLCLK"; break;
-            case MOUSEBUTTONDBLCLKUP: s = "MBDBLUP"; break;
-            case MOUSEMOVE: s = "MOUSEMOVE"; break;
-            case MOUSEAXIS: s = "MOUSEAXIS"; break;
+                case KEYDOWN: s = "KEYDOWN"; break;
+                case KEYUP: s = "KEYUP"; break;
+                case KEYREPEAT: s = "KEYREPEAT"; break;
+                case KEYCHAR: s = "KEYCHAR"; break;
+                case MOUSEBUTTONDOWN: s = "MBDOWN"; break;
+                case MOUSEBUTTONUP: s = "MBUP"; break;
+                case MOUSEBUTTONDBLCLK: s = "MBDBLCLK"; break;
+                case MOUSEBUTTONDBLCLKUP: s = "MBDBLUP"; break;
+                case MOUSEMOVE: s = "MOUSEMOVE"; break;
+                case MOUSEAXIS: s = "MOUSEAXIS"; break;
             }
 
             LOG_DIAG(("Event %.2X ch:%c[%.2X] code:%.2X  %s", subType, Printable(ch) ? ch : ' ', (U32)ch, code, s));
 #endif
-
         }
     }
 
@@ -909,8 +885,6 @@ namespace Input
         EventSys::FlushEvents(eventId);
         KeyRepeat::Cancel(0);
     }
-
-
 
 
     //
@@ -950,8 +924,8 @@ namespace Input
                 SetMousePos(x / 2, y / 2);
 
                 // Recalculate mouse acceleration
-                accel.x = (x << 16) / 800;
-                accel.y = (y << 16) / 600;
+                accel.x = (x << 16) / 1024;
+                accel.y = (y << 16) / 768;
             }
         }
     }
@@ -1037,31 +1011,31 @@ namespace Input
 #else
         switch (dierr & 0xFFFF)
         {
-        case DI_OK:                        return "DI_OK : The operation completed successfully.";
-            //case DI_NOTATTACHED :
-            //case DI_BUFFEROVERFLOW :
-        case DI_PROPNOEFFECT:              return "DI_NOTATTACHED, DI_BUFFEROVERFLOW, DI_PROPNOEFFECT : The device exists but is not currently attached, OR The device buffer overflowed; some input was lost, OR The change in device properties had no effect.";
-        case DI_POLLEDDEVICE:              return "DI_POLLEDDEVICE : The device is a polled device.  As a result, device buffering will not collect any data and event notifications will not be signalled until GetDeviceState is called.";
-        case DIERR_OLDDIRECTINPUTVERSION:  return "DIERR_OLDDIRECTINPUTVERSION : The application requires a newer version of DirectInput.";
-        case DIERR_BETADIRECTINPUTVERSION: return "DIERR_BETADIRECTINPUTVERSION : The application was written for an unsupported prerelease version of DirectInput.";
-        case DIERR_BADDRIVERVER:           return "DIERR_BADDRIVERVER : The object could not be created due to an incompatible driver version or mismatched or incomplete driver components.";
-        case DIERR_DEVICENOTREG:           return "DIERR_DEVICENOTREG : The device or device instance is not registered with DirectInput.";
-        case DIERR_OBJECTNOTFOUND:         return "DIERR_OBJECTNOTFOUND : The requested object does not exist.";
-        case DIERR_INVALIDPARAM:           return "DIERR_INVALIDPARAM : An invalid parameter was passed to the returning function, or the object was not in a state that admitted the function to be called.";
-        case DIERR_NOINTERFACE:            return "DIERR_NOINTERFACE : The specified interface is not supported by the object";
-        case DIERR_GENERIC:                return "DIERR_NOINTERFACE : An undetermined error occured inside the DInput subsystem";
-        case DIERR_OUTOFMEMORY:            return "DIERR_OUTOFMEMORY : The DInput subsystem couldn't allocate sufficient memory to complete the caller's request.";
-        case DIERR_UNSUPPORTED:            return "DIERR_OUTOFMEMORY : The function called is not supported at this time";
-        case DIERR_NOTINITIALIZED:         return "DIERR_OUTOFMEMORY : This object has not been initialized";
-        case DIERR_ALREADYINITIALIZED:     return "DIERR_ALREADYINITIALIZED : This object is already initialized";
-        case DIERR_NOAGGREGATION:          return "DIERR_NOAGGREGATION : This object does not support aggregation";
-        case DIERR_INPUTLOST:              return "DIERR_INPUTLOST : Access to the input device has been lost.  It must be re-acquired.";
-        case DIERR_ACQUIRED:               return "DIERR_ACQUIRED : The operation cannot be performed while the device is acquired.";
-        case DIERR_NOTACQUIRED:            return "DIERR_NOTACQUIRED : The operation cannot be performed unless the device is acquired.";
-            //case DIERR_OTHERAPPHASPRIO :
-            //case DIERR_READONLY :
-        case DIERR_HANDLEEXISTS:           return "DIERR_OTHERAPPHASPRIO, DIERR_READONLY, DIERR_HANDLEEXISTS Another app has a higher priority level, preventing this call from succeeding, OR The device already has an event notification associated with it, OR The specified property cannot be changed.";
-        case E_PENDING:                    return "E_PENDING : Data is not yet available.";
+            case DI_OK:                        return "DI_OK : The operation completed successfully.";
+                //case DI_NOTATTACHED :
+                //case DI_BUFFEROVERFLOW :
+            case DI_PROPNOEFFECT:              return "DI_NOTATTACHED, DI_BUFFEROVERFLOW, DI_PROPNOEFFECT : The device exists but is not currently attached, OR The device buffer overflowed; some input was lost, OR The change in device properties had no effect.";
+            case DI_POLLEDDEVICE:              return "DI_POLLEDDEVICE : The device is a polled device.  As a result, device buffering will not collect any data and event notifications will not be signalled until GetDeviceState is called.";
+            case DIERR_OLDDIRECTINPUTVERSION:  return "DIERR_OLDDIRECTINPUTVERSION : The application requires a newer version of DirectInput.";
+            case DIERR_BETADIRECTINPUTVERSION: return "DIERR_BETADIRECTINPUTVERSION : The application was written for an unsupported prerelease version of DirectInput.";
+            case DIERR_BADDRIVERVER:           return "DIERR_BADDRIVERVER : The object could not be created due to an incompatible driver version or mismatched or incomplete driver components.";
+            case DIERR_DEVICENOTREG:           return "DIERR_DEVICENOTREG : The device or device instance is not registered with DirectInput.";
+            case DIERR_OBJECTNOTFOUND:         return "DIERR_OBJECTNOTFOUND : The requested object does not exist.";
+            case DIERR_INVALIDPARAM:           return "DIERR_INVALIDPARAM : An invalid parameter was passed to the returning function, or the object was not in a state that admitted the function to be called.";
+            case DIERR_NOINTERFACE:            return "DIERR_NOINTERFACE : The specified interface is not supported by the object";
+            case DIERR_GENERIC:                return "DIERR_NOINTERFACE : An undetermined error occured inside the DInput subsystem";
+            case DIERR_OUTOFMEMORY:            return "DIERR_OUTOFMEMORY : The DInput subsystem couldn't allocate sufficient memory to complete the caller's request.";
+            case DIERR_UNSUPPORTED:            return "DIERR_OUTOFMEMORY : The function called is not supported at this time";
+            case DIERR_NOTINITIALIZED:         return "DIERR_OUTOFMEMORY : This object has not been initialized";
+            case DIERR_ALREADYINITIALIZED:     return "DIERR_ALREADYINITIALIZED : This object is already initialized";
+            case DIERR_NOAGGREGATION:          return "DIERR_NOAGGREGATION : This object does not support aggregation";
+            case DIERR_INPUTLOST:              return "DIERR_INPUTLOST : Access to the input device has been lost.  It must be re-acquired.";
+            case DIERR_ACQUIRED:               return "DIERR_ACQUIRED : The operation cannot be performed while the device is acquired.";
+            case DIERR_NOTACQUIRED:            return "DIERR_NOTACQUIRED : The operation cannot be performed unless the device is acquired.";
+                //case DIERR_OTHERAPPHASPRIO :
+                //case DIERR_READONLY :
+            case DIERR_HANDLEEXISTS:           return "DIERR_OTHERAPPHASPRIO, DIERR_READONLY, DIERR_HANDLEEXISTS Another app has a higher priority level, preventing this call from succeeding, OR The device already has an event notification associated with it, OR The specified property cannot be changed.";
+            case E_PENDING:                    return "E_PENDING : Data is not yet available.";
         };
         return "Unknown DirectInput error";
 #endif
@@ -1089,8 +1063,8 @@ namespace Input
         }
         *dst = 0;
 
-        CON_DIAG(("%3d: %s", doi->dwOfs, buf));
-        LOG_DIAG(("Key(%3d,\"%s\");", doi->dwOfs, buf));
+        CON_DIAG(("%3d: %s", doi->dwOfs, buf))
+            LOG_DIAG(("Key(%3d,\"%s\");", doi->dwOfs, buf));
 
         return (DIENUM_CONTINUE);
     }
@@ -1103,13 +1077,13 @@ namespace Input
     {
         switch (pathCrc)
         {
-        case 0x92C3F6D0: // "iface.input.keynames"
-        {
-            LOGFMTOFF
-                diKeybd->EnumObjects(EnumKeybd, NULL, DIDFT_ALL);
-            LOGFMTON
-                break;
-        }
+            case 0x92C3F6D0: // "iface.input.keynames"
+            {
+                LOGFMTOFF
+                    diKeybd->EnumObjects(EnumKeybd, nullptr, DIDFT_ALL);
+                LOGFMTON
+                    break;
+            }
         }
     }
 }

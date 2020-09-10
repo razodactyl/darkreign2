@@ -26,21 +26,20 @@
 class MeshScale : public MeshEffect
 {
 public:
-  KeyAnim<ScaleKey> scaleAnim;
+    KeyAnim<ScaleKey> scaleAnim;
 
 public:
 
-	MeshScale( MeshScaleType *_type, MeshEnt *_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshScale(MeshScaleType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-	virtual ~MeshScale();
+    virtual ~MeshScale();
 
-	virtual Bool Simulate(F32 dt, MeshFX::CallBackData * cbd = NULL);
+    virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
 
-  MeshScaleType *GetType()
-  {
-    return (MeshScaleType *) type;
-  }
-
+    MeshScaleType* GetType()
+    {
+        return (MeshScaleType*)type;
+    }
 };
 
 #endif

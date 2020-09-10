@@ -9,7 +9,7 @@
 #include "vid_public.h"
 #include "TranBucket.h"
 
-#define TRANMAXBUCKETCOUNT 64
+#define TRANMAXBUCKETCOUNT    64
 //----------------------------------------------------------------------------
 
 void TranBucketMan::ClearData()
@@ -22,18 +22,21 @@ void TranBucketMan::ClearData()
     UpdateScaleZ();
     doSort = TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void TranBucketMan::SetPrimitiveDesc(PrimitiveDesc& prim)
 {
     primitive.SetPrimitiveDescTag(prim);
 }
+
 //----------------------------------------------------------------------------
 
 void TranBucketMan::SetPrimitiveDesc(Bucket& bucket, PrimitiveDesc& prim)
 {
     bucket.SetPrimitiveDescTag(prim);
 }
+
 //----------------------------------------------------------------------------
 
 Bool TranBucketMan::CompareRenderState(const PrimitiveDesc& other) const
@@ -61,9 +64,10 @@ Bool TranBucketMan::CompareRenderState(const PrimitiveDesc& other) const
 
     return FALSE;
 }
+
 //-----------------------------------------------------------------------------
 
-void TranBucketMan::Flush(Bool doDraw) // = TRUE
+void TranBucketMan::Flush(Bool doDraw)  // = TRUE
 {
     if (!doDraw)
     {
@@ -112,14 +116,14 @@ void TranBucketMan::Flush(Bool doDraw) // = TRUE
                 current = i;
             }
             /*
-            else if (list[i]->tag == max->tag)
-            {
-            if (list[i]->tag1 > max->tag1)
-            {
-            max = list[i];
-            current = i;
-            }
-            }
+                        else if (list[i]->tag == max->tag)
+                  {
+                    if (list[i]->tag1 > max->tag1)
+                    {
+                              max = list[i];
+                      current = i;
+                    }
+                  }
             */
         }
 
@@ -143,7 +147,7 @@ void TranBucketMan::Flush(Bool doDraw) // = TRUE
 
         max->Reset();
 
-        // move end of list to current position
+        // move end of list to current position 
         //
         list[current] = list[count];
     }
@@ -155,12 +159,13 @@ void TranBucketMan::Flush(Bool doDraw) // = TRUE
     curMem = memBlock;
     curSize = memSize;
 
-    currentBucket = NULL;
-    lastUsedBucket = NULL;
+    currentBucket = nullptr;
+    lastUsedBucket = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
-void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw) // = TRUE
+void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw)  // = TRUE
 {
     if (!doDraw)
     {
@@ -174,13 +179,12 @@ void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw) // = TRUE
 #if 1
 
     NList<Bucket>::Iterator li(&bucketList);
-    for (!li; *li; li++)
+    for (!li; *li; ++li)
     {
         Bucket* bucket = *li;
 
         if (bucket->texture_count && bucket->textureStages[0].texture == texture && bucket->vCount)
         {
-
             // flush the bucket with the maximum z value
             if ((bucket->flags & RS_DST_MASK) == RS_DST_ONE)
             {
@@ -198,7 +202,7 @@ void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw) // = TRUE
         bucket->Reset();
     }
 
-    currentBucket = NULL;
+    currentBucket = nullptr;
 
 #else
 
@@ -259,7 +263,7 @@ void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw) // = TRUE
         }
         max->Reset();
 
-        // move end of list to current position
+        // move end of list to current position 
         //
         list[current] = list[count];
     }
@@ -270,8 +274,9 @@ void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw) // = TRUE
 
     curMem = memBlock;
     curSize = memSize;
-    currentBucket = NULL;
+    currentBucket = nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 void TranBucketMan::UpdateScaleZ()
@@ -279,9 +284,10 @@ void TranBucketMan::UpdateScaleZ()
     ASSERT(minZ <= maxZ);
     ASSERT(maxBucketCount > 0.0f);
 
-    // scaleZ = (maxZ - minZ) / (maxBucketCount - 1);
+    //  scaleZ = (maxZ - minZ) / (maxBucketCount - 1);
     scaleZ = (maxBucketCount - 1) / (maxZ - minZ);
 }
+
 //----------------------------------------------------------------------------
 
 void TranBucketMan::SetZ(F32 _z)
@@ -296,13 +302,13 @@ void TranBucketMan::SetZ(F32 _z)
     }
     else if (_z > maxZ)
     {
-        sort_z = (U32)Utils::FtoLDown(maxBucketCount);
+        sort_z = static_cast<U32>(Utils::FtoLDown(maxBucketCount));
     }
     else
     {
         // calculate z value to use for sorting buckets
         // sort_z = (U32) Utils::FtoLDown( ( ( _z - minZ ) / scaleZ ) + 1.0f );
-        sort_z = (U32)Utils::FtoLDown((_z - minZ) * scaleZ);
+        sort_z = static_cast<U32>(Utils::FtoLDown((_z - minZ) * scaleZ));
     }
 
     // sort_z values start at 1 and maxBucketCount values start at 0;
@@ -310,11 +316,12 @@ void TranBucketMan::SetZ(F32 _z)
 #ifdef DEVELOPMENT
     if (!(sort_z <= (U32)maxBucketCount))
     {
-        ASSERT(sort_z <= (U32)maxBucketCount); // paranoia, paranoia, don't you know they're right behind me...
+        ASSERT(sort_z <= (U32)maxBucketCount);  // paranoia, paranoia, don't you know they're right behind me...
     }
     ASSERT(sort_z < U16_MAX);
 #endif
 
-    BucketMan::SetTag(U16(sort_z));
+    SetTag(U16(sort_z));
 }
+
 //----------------------------------------------------------------------------

@@ -31,6 +31,7 @@ void MeshEnt::RenderAnimV()
         root.RenderLightAnimV(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderNoAnimV()
@@ -49,6 +50,7 @@ void MeshEnt::RenderNoAnimV()
         RootPriv().RenderLightNoAnimV(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderNoLightAnimV()
@@ -65,6 +67,7 @@ void MeshEnt::RenderNoLightAnimV()
         RootPriv().RenderColorAnimV(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderNoLightNoAnimV()
@@ -83,6 +86,7 @@ void MeshEnt::RenderNoLightNoAnimV()
         RootPriv().RenderColorNoAnimV(buckys, vertCount, statesR, baseColor, clipFlagCache, controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderQuickLightNoAnimV()
@@ -111,6 +115,7 @@ void MeshEnt::RenderQuickLightNoAnimV()
         RootPriv().RenderColorNoAnimV(buckys, vertCount, statesR, color, clipFlagCache, controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderQuickLightAnimV()
@@ -138,6 +143,7 @@ void MeshEnt::RenderQuickLightAnimV()
         RootPriv().RenderColorAnimV(buckys, vertCount, statesR, color, clipFlagCache, controlFlags);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderOverlayV()
@@ -187,7 +193,7 @@ void MeshEnt::RenderOverlayV()
 
         // copy the vertex data
         //
-        VertexTL* sv, * ev = bucky.vert + bucky.vCount;
+        VertexTL *sv, *ev = bucky.vert + bucky.vCount;
         for (sv = bucky.vert; sv < ev; sv++, vmem++)
         {
             *vmem = *sv;
@@ -204,7 +210,7 @@ void MeshEnt::RenderOverlayV()
         //
         U16 offset = (U16)bucky.offset;
 
-        U16* si, * ei = bucky.index + bucky.iCount;
+        U16 *si, *ei = bucky.index + bucky.iCount;
         for (si = bucky.index; si < ei; si++, imem++)
         {
             *imem = (U16)(*si - offset);       // FIXME build in new offset
@@ -213,8 +219,9 @@ void MeshEnt::RenderOverlayV()
         Vid::UnlockIndexedPrimitiveMem(bucky.vCount, bucky.iCount);
 
 #ifdef DOSTATISTICS
-        Statistics::overlayTris = Statistics::overlayTris + bucky.iCount / 3;
+    Statistics::overlayTris = Statistics::overlayTris + bucky.iCount / 3;
 #endif
     }
 }
+
 //----------------------------------------------------------------------------

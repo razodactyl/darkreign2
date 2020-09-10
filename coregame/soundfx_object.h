@@ -26,41 +26,38 @@
 //
 namespace SoundFX
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward Declarations
+    //
+    class Type;
+    struct CallBackData;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declarations
-  //
-  class Type;
-  struct CallBackData;
 
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Object
+    //
+    class Object
+    {
+    protected:
+        friend class FX::Object;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Object
-  //
-  class Object
-  {
-  protected:
-    friend class FX::Object;
+        // The actual sound effect
+        Sound::Digital::Effect sound;
 
-    // The actual sound effect
-    Sound::Digital::Effect sound;
+    public:
 
-  public:
+        // Constructor and Destructor
+        Object(Type& type, MapObj* mapObj);
+        ~Object();
 
-    // Constructor and Destructor
-    Object(Type &type, MapObj *mapObj);
-    ~Object();
+        // Process
+        void Process(Type& type, MapObj* mapObj, CallBackData* cbd, Bool inRange);
 
-    // Process
-    void Process(Type &type, MapObj *mapObj, CallBackData *cbd, Bool inRange);
-
-    // Terminate
-    void Terminate(Type &type);
-
-  };
-
+        // Terminate
+        void Terminate(Type& type);
+    };
 }
 
 

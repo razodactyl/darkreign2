@@ -31,274 +31,266 @@
 //
 namespace Game
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TeamInfo - Contains preview information for a team
+    //
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TeamInfo - Contains preview information for a team
-  //
-
-  //
-  // Constructor
-  //
-  Preview::TeamInfo::TeamInfo(FScope *scope)
-  {
-    // The team name
-    name = StdLoad::TypeString(scope);
-
-    // The team id
-    teamId = StdLoad::TypeU32(scope);
-
-    // Start point
-    StdLoad::TypePoint<F32>
-    (
-      scope, "StartPoint", startPoint, 
-      Point<F32>((teamId + 1) * 0.1f, (teamId + 1) * 0.1f)
-    );
-
-    // Is the side fixed
-    sideFixed = StdLoad::TypeU32(scope, "SideFixed", TRUE);
-
-    // Get the side
-    side = StdLoad::TypeString(scope, "Side", Sides::GetSide().GetName().str);
-  }
-
-
-  //////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Preview
-  //
-
-  //
-  // Preview::Preview
-  //
-  Preview::Preview(const Missions::Mission *missionIn) 
-  : teams(&TeamInfo::node),
-    terrain(NULL),
-    ruleSetFixed(FALSE)
-  {
-    if (missionIn)
+    //
+    // Constructor
+    //
+    Preview::TeamInfo::TeamInfo(FScope* scope)
     {
-      name = missionIn->GetName().str;
-      path = missionIn->GetGroup().GetPath().str;
-    }
-    else
-    {
-      name = "";
-      path = "";
+        // The team name
+        name = StdLoad::TypeString(scope);
+
+        // The team id
+        teamId = StdLoad::TypeU32(scope);
+
+        // Start point
+        StdLoad::TypePoint<F32>
+        (
+            scope, "StartPoint", startPoint,
+            Point<F32>((teamId + 1) * 0.1f, (teamId + 1) * 0.1f)
+        );
+
+        // Is the side fixed
+        sideFixed = StdLoad::TypeU32(scope, "SideFixed", TRUE);
+
+        // Get the side
+        side = StdLoad::TypeString(scope, "Side", Sides::GetSide().GetName().str);
     }
 
-    // Open mission stream
-    const char *oldStream = OpenMissionStream();
 
-    // Open the game configuration file
-    PTree pTree;
+    //////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Preview
+    //
 
-    // Parse the file
-    if (pTree.AddFile(FILENAME_MISSION_CONFIG))
+    //
+    // Preview::Preview
+    //
+    Preview::Preview(const Missions::Mission* missionIn)
+        : terrain(nullptr),
+          teams(&TeamInfo::node),
+          ruleSetFixed(FALSE)
     {
-      // Get the global scope
-      FScope *gScope = pTree.GetGlobalScope();
-      FScope *sScope;
-
-      // Process each function
-      while ((sScope = gScope->NextFunction()) != NULL)
-      {
-        switch (sScope->NameCrc())
+        if (missionIn)
         {
-          case 0xEDF7E07D: // "DefaultRule"
-            ruleSet = StdLoad::TypeString(sScope);
-            break;
+            name = missionIn->GetName().str;
+            path = missionIn->GetGroup().GetPath().str;
+        }
+        else
+        {
+            name = "";
+            path = "";
+        }
 
-          case 0x7F6A7C11: // "FixedRule"
-            ruleSetFixed = StdLoad::TypeU32(sScope);
-            break;
+        // Open mission stream
+        const char* oldStream = OpenMissionStream();
 
-          case 0x1D4A8250: // "WorldInfo"
-            // Load map size
-            size = StdLoad::TypeU32(sScope, "CellMapX");
-            break;
+        // Open the game configuration file
+        PTree pTree;
 
-          case 0xCA519158: // "DefineTeams"
-          {
-            ASSERT(!teams.GetCount())
-
-            // Count the number of teams we find
-            FScope *fScope;
+        // Parse the file
+        if (pTree.AddFile(FILENAME_MISSION_CONFIG))
+        {
+            // Get the global scope
+            FScope* gScope = pTree.GetGlobalScope();
+            FScope* sScope;
 
             // Process each function
-            while ((fScope = sScope->NextFunction()) != NULL)
+            while ((sScope = gScope->NextFunction()) != nullptr)
             {
-              switch (fScope->NameCrc())
-              {
-                case 0xB884B9E8: // "CreateTeam"
+                switch (sScope->NameCrc())
                 {
-                  // Is this team available for play
-                  if (StdLoad::TypeU32(fScope, "AvailablePlay", 1))
-                  {
-                    // Create new team info
-                    TeamInfo *info = new TeamInfo(fScope);
+                    case 0xEDF7E07D: // "DefaultRule"
+                        ruleSet = StdLoad::TypeString(sScope);
+                        break;
 
-                    // Add to the tree
-                    teams.Add(info->GetName().crc, info);
-                  }
-                  break;
+                    case 0x7F6A7C11: // "FixedRule"
+                        ruleSetFixed = StdLoad::TypeU32(sScope);
+                        break;
+
+                    case 0x1D4A8250: // "WorldInfo"
+                        // Load map size
+                        size = StdLoad::TypeU32(sScope, "CellMapX");
+                        break;
+
+                    case 0xCA519158: // "DefineTeams"
+                    {
+                        ASSERT(!teams.GetCount());
+
+                        // Count the number of teams we find
+                        FScope* fScope;
+
+                        // Process each function
+                        while ((fScope = sScope->NextFunction()) != nullptr)
+                        {
+                            switch (fScope->NameCrc())
+                            {
+                                case 0xB884B9E8: // "CreateTeam"
+                                {
+                                    // Is this team available for play
+                                    if (StdLoad::TypeU32(fScope, "AvailablePlay", 1))
+                                    {
+                                        // Create new team info
+                                        TeamInfo* info = new TeamInfo(fScope);
+
+                                        // Add to the tree
+                                        teams.Add(info->GetName().crc, info);
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
                 }
-              }
             }
-
-            break;
-          }
         }
-      }
+        else
+        {
+            size = 0;
+        }
+
+        // Load preview texture
+        ReloadTextures();
+
+        // Restore old stuff
+        if (oldStream)
+        {
+            CloseMissionStream(oldStream);
+        }
     }
-    else
+
+
+    //
+    // Preview::~Preview
+    //
+    Preview::~Preview()
     {
-      size = 0;
+        ReleaseTextures();
+        teams.DisposeAll();
     }
 
-    // Load preview texture
-    ReloadTextures();
 
-    // Restore old stuff
-    if (oldStream)
+    //
+    // Preview::OpenMissionStream
+    //
+    const char* Preview::OpenMissionStream()
     {
-      CloseMissionStream(oldStream);
+        if (*path.str && *name.str)
+        {
+            // Save the currently active stream
+            const char* oldStream = FileSys::GetActiveStream();
+
+            // Find the mission
+            const Missions::Mission* mission = Missions::FindMission(name.str, path.str);
+
+            if (mission)
+            {
+                // Setup the preview stream
+                mission->SetupStream(GAME_PREVIEW_STREAM);
+
+                // Set the preview stream to be the current stream
+                FileSys::SetActiveStream(GAME_PREVIEW_STREAM);
+
+                return (oldStream);
+            }
+            LOG_ERR(("Preview: Mission [%s][%s] is gone!", path.str, name.str))
+            return (nullptr);
+        }
+        return (nullptr);
     }
-  }
 
 
-  //
-  // Preview::~Preview
-  //
-  Preview::~Preview()
-  {
-    ReleaseTextures();
-    teams.DisposeAll();
-  }
-
-
-  //
-  // Preview::OpenMissionStream
-  //
-  const char *Preview::OpenMissionStream()
-  {
-    if (*path.str && *name.str)
+    //
+    // Preview::CloseMissionStream
+    //
+    void Preview::CloseMissionStream(const char* oldStream)
     {
-      // Save the currently active stream
-      const char * oldStream = FileSys::GetActiveStream();
+        ASSERT(oldStream);
 
-      // Find the mission
-      const Missions::Mission *mission = Missions::FindMission(name.str, path.str);
+        // Restore the old active stream
+        FileSys::SetActiveStream(oldStream);
 
-      if (mission)
-      {
-        // Setup the preview stream
-        mission->SetupStream(GAME_PREVIEW_STREAM);
-
-        // Set the preview stream to be the current stream
-        FileSys::SetActiveStream(GAME_PREVIEW_STREAM);
-
-        return (oldStream);
-      }
-      else
-      {
-        LOG_ERR(("Preview: Mission [%s][%s] is gone!", path.str, name.str))
-        return (NULL);
-      }
+        // Delete the preview stream
+        FileSys::DeleteStream(GAME_PREVIEW_STREAM);
     }
-    else
+
+
+    //
+    // Preview::LoadTextures
+    //
+    void Preview::LoadTextures()
     {
-      return (NULL);
+        // Does the map texture exist
+        if (FileSys::Exists(GAME_PREVIEW_BITMAP))
+        {
+            terrain = new Bitmap(bitmapTEXTURE | bitmapNORELOAD);
+            terrain->SetName("GamePreview::Terrain");
+            terrain->ReadBMP(GAME_PREVIEW_BITMAP);
+        }
     }
-  }
 
 
-  //
-  // Preview::CloseMissionStream
-  //
-  void Preview::CloseMissionStream(const char *oldStream)
-  {
-    ASSERT(oldStream)
-
-    // Restore the old active stream
-    FileSys::SetActiveStream(oldStream);
-
-    // Delete the preview stream
-    FileSys::DeleteStream(GAME_PREVIEW_STREAM);
-  }
-
-
-  //
-  // Preview::LoadTextures
-  //
-  void Preview::LoadTextures()
-  {
-    // Does the map texture exist
-    if (FileSys::Exists(GAME_PREVIEW_BITMAP))
+    //
+    // Preview::ReleaseTextures
+    //
+    void Preview::ReleaseTextures()
     {
-      terrain = new Bitmap(bitmapTEXTURE | bitmapNORELOAD);
-      terrain->SetName("GamePreview::Terrain");
-      terrain->ReadBMP(GAME_PREVIEW_BITMAP);
+        terrain = nullptr;
     }
-  }
 
 
-  //
-  // Preview::ReleaseTextures
-  //
-  void Preview::ReleaseTextures()
-  {
-    terrain = NULL;
-  }
-
-
-  //
-  // Preview::ReloadTextures
-  //
-  // Reload textures on mode change
-  //
-  void Preview::ReloadTextures()
-  {
-    const char *oldStream = OpenMissionStream();
-
-    // Delete current textures
-    ReleaseTextures();
-
-    // Create new ones
-    LoadTextures();
-
-    // Restore old stream
-    if (oldStream)
+    //
+    // Preview::ReloadTextures
+    //
+    // Reload textures on mode change
+    //
+    void Preview::ReloadTextures()
     {
-      CloseMissionStream(oldStream);
+        const char* oldStream = OpenMissionStream();
+
+        // Delete current textures
+        ReleaseTextures();
+
+        // Create new ones
+        LoadTextures();
+
+        // Restore old stream
+        if (oldStream)
+        {
+            CloseMissionStream(oldStream);
+        }
     }
-  }
 
 
-  //
-  // GetMission
-  //
-  // Get the mission
-  //
-  const Missions::Mission * Preview::GetMission()
-  {
-    return (Missions::FindMission(name.str, path.str));
-  }
-
-
-  //
-  // Preview::FindId
-  //
-  Preview::TeamInfo *Preview::FindTeamId(U32 id)
-  {
-    for (NBinTree<TeamInfo>::Iterator i(&teams); *i; i++)
+    //
+    // GetMission
+    //
+    // Get the mission
+    //
+    const Missions::Mission* Preview::GetMission()
     {
-      if (id == (*i)->GetTeamId())
-      {
-        return (*i);
-      }
+        return (Missions::FindMission(name.str, path.str));
     }
-    return (NULL);
-  }
+
+
+    //
+    // Preview::FindId
+    //
+    Preview::TeamInfo* Preview::FindTeamId(U32 id)
+    {
+        for (NBinTree<TeamInfo>::Iterator i(&teams); *i; ++i)
+        {
+            if (id == (*i)->GetTeamId())
+            {
+                return (*i);
+            }
+        }
+        return (nullptr);
+    }
 }
-

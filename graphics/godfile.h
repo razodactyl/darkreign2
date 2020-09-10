@@ -29,7 +29,7 @@ class GodFile
 public:
 
     // Data pointer for reading
-    U8* memPtr, * initPtr;
+    U8 *memPtr, *initPtr;
     U32 size, version;
 
     // Block file for writing
@@ -38,30 +38,34 @@ public:
 public:
 
     // Constructor for reading
-    GodFile(U8* ptr, U32 size, U32 ver) : memPtr(ptr), initPtr(ptr), size(size), bFile(NULL), version(ver) {}
+    GodFile(U8* ptr, U32 size, U32 ver) : memPtr(ptr), initPtr(ptr), size(size), version(ver), bFile(nullptr)
+    {
+    }
 
     // Constructor for writing
-    GodFile(BlockFile* bFile) : bFile(bFile), memPtr(NULL) {}
+    GodFile(BlockFile* bFile) : memPtr(nullptr), bFile(bFile)
+    {
+    }
 
     // Look ahead at data
     U32 Peek()
     {
-        ASSERT(memPtr)
-            return (*(U32*)memPtr);
+        ASSERT(memPtr);
+        return (*(U32*)memPtr);
     }
 
     // Advance the pointer
     void Skip(S32 offset)
     {
-        ASSERT(memPtr)
-            memPtr += offset;
+        ASSERT(memPtr);
+        memPtr += offset;
     }
 
     // Load a U32
     U32 LoadU32()
     {
-        ASSERT(memPtr)
-            U32 data = *(U32*)memPtr;
+        ASSERT(memPtr);
+        U32 data = *(U32*)memPtr;
         memPtr += 4;
         return (data);
     }
@@ -69,17 +73,17 @@ public:
     // Read a chunk of data
     void LoadData(void* data, U32 size)
     {
-        ASSERT(memPtr)
-            ASSERT(U32(memPtr - initPtr) + size <= this->size)
-            memcpy(data, memPtr, size);
+        ASSERT(memPtr);
+        ASSERT(U32(memPtr - initPtr) + size <= this->size);
+        memcpy(data, memPtr, size);
         memPtr += size;
     }
 
     // Save a chunk of data
     void SaveData(const void* data, U32 size)
     {
-        ASSERT(bFile)
-            bFile->WriteToBlock(data, size);
+        ASSERT(bFile);
+        bFile->WriteToBlock(data, size);
     }
 
     // Read a string
@@ -109,25 +113,27 @@ public:
 //
 namespace God
 {
-
     // Template to read data
-    template <class T> void Load(GodFile& god, T& data)
+    template <class T>
+    void Load(GodFile& god, T& data)
     {
-        ASSERT(god.memPtr)
-            ASSERT(U32(god.memPtr - god.initPtr) + sizeof(T) <= god.size)
-            memcpy(&data, god.memPtr, sizeof(T));
+        ASSERT(god.memPtr);
+        ASSERT(U32(god.memPtr - god.initPtr) + sizeof(T) <= god.size);
+        memcpy(&data, god.memPtr, sizeof(T));
         god.memPtr += sizeof(T);
     }
 
     // Template to save data
-    template <class T> void Save(GodFile& god, const T& data)
+    template <class T>
+    void Save(GodFile& god, const T& data)
     {
-        ASSERT(god.bFile)
-            god.bFile->WriteToBlock(&data, sizeof T);
+        ASSERT(god.bFile);
+        god.bFile->WriteToBlock(&data, sizeof T);
     }
 
     // Array
-    template <class T> void LoadArray(GodFile& god, Array<T>& array, U32 max = U32_MAX)
+    template <class T>
+    void LoadArray(GodFile& god, Array<T>& array, U32 max = U32_MAX)
     {
         U32 count = god.LoadU32();
         if (count > max)
@@ -146,7 +152,8 @@ namespace God
         }
     }
 
-    template <class T> void SaveArray(GodFile& god, const Array<T>& array)
+    template <class T>
+    void SaveArray(GodFile& god, const Array<T>& array)
     {
         Save(god, U32(array.count));
         for (U32 i = 0; i < array.count; i++)
@@ -156,7 +163,8 @@ namespace God
     }
 
     // Aligned arrays
-    template <class T> void LoadArray4(GodFile& god, Array<T, 4>& array, U32 max = U32_MAX)
+    template <class T>
+    void LoadArray4(GodFile& god, Array<T, 4>& array, U32 max = U32_MAX)
     {
         U32 count = god.LoadU32();
         if (count > max)
@@ -175,7 +183,8 @@ namespace God
         }
     }
 
-    template <class T> void SaveArray4(GodFile& god, const Array<T, 4>& array)
+    template <class T>
+    void SaveArray4(GodFile& god, const Array<T, 4>& array)
     {
         Save(god, U32(array.count));
         for (U32 i = 0; i < array.count; i++)
@@ -185,35 +194,50 @@ namespace God
     }
 
     // Sphere specialisation
-    template<> void Load<Sphere>(GodFile& god, Sphere& sphere);
-    template<> void Save<Sphere>(GodFile& god, const Sphere& sphere);
+    template <>
+    void Load<Sphere>(GodFile& god, Sphere& sphere);
+    template <>
+    void Save<Sphere>(GodFile& god, const Sphere& sphere);
 
     // Bounds specialisation
-    template<> void Load<Bounds>(GodFile& god, Bounds& bounds);
-    template<> void Save<Bounds>(GodFile& god, const Bounds& bounds);
+    template <>
+    void Load<Bounds>(GodFile& god, Bounds& bounds);
+    template <>
+    void Save<Bounds>(GodFile& god, const Bounds& bounds);
 
     // Animkey specialisation
-    template<> void Load<AnimKey>(GodFile& god, AnimKey& key);
-    template<> void Save<AnimKey>(GodFile& god, const AnimKey& key);
+    template <>
+    void Load<AnimKey>(GodFile& god, AnimKey& key);
+    template <>
+    void Save<AnimKey>(GodFile& god, const AnimKey& key);
 
     // FaceObj specialisation
-    template<> void Load<FaceObj>(GodFile& god, FaceObj& face);
-    template<> void Save<FaceObj>(GodFile& god, const FaceObj& face);
+    template <>
+    void Load<FaceObj>(GodFile& god, FaceObj& face);
+    template <>
+    void Save<FaceObj>(GodFile& god, const FaceObj& face);
 
     // VertGroup specialisation
-    template<> void Load<VertGroup>(GodFile& god, VertGroup& vertGroup);
-    template<> void Save<VertGroup>(GodFile& god, const VertGroup& vertGroup);
+    template <>
+    void Load<VertGroup>(GodFile& god, VertGroup& vertGroup);
+    template <>
+    void Save<VertGroup>(GodFile& god, const VertGroup& vertGroup);
 
     // VertIndex specialisation
-    template<> void Load<VertIndex>(GodFile& god, VertIndex& vertIndex);
-    template<> void Save<VertIndex>(GodFile& god, const VertIndex& vertIndex);
+    template <>
+    void Load<VertIndex>(GodFile& god, VertIndex& vertIndex);
+    template <>
+    void Save<VertIndex>(GodFile& god, const VertIndex& vertIndex);
 
     // BucketDesc specialisation
-    template<> void Load<BucketDesc>(GodFile& god, BucketDesc& bucky);
-    template<> void Save<BucketDesc>(GodFile& god, const BucketDesc& bucky);
-    template<> void Load<BucketLock>(GodFile& god, BucketLock& bucky);
-    template<> void Save<BucketLock>(GodFile& god, const BucketLock& bucky);
+    template <>
+    void Load<BucketDesc>(GodFile& god, BucketDesc& bucky);
+    template <>
+    void Save<BucketDesc>(GodFile& god, const BucketDesc& bucky);
+    template <>
+    void Load<BucketLock>(GodFile& god, BucketLock& bucky);
+    template <>
+    void Save<BucketLock>(GodFile& god, const BucketLock& bucky);
 }
 
 #endif
-

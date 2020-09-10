@@ -27,102 +27,102 @@ class UnitObjInfo
 {
 public:
 
-  // Tactical settings information
-  class TacticalInfo
-  {
-    // Info for a single modifier
-    struct Info
+    // Tactical settings information
+    class TacticalInfo
     {
-      // The number of settings
-      U8 count;
+        // Info for a single modifier
+        struct Info
+        {
+            // The number of settings
+            U8 count;
 
-      // The number of different settings used
-      U32 countUsed;
+            // The number of different settings used
+            U32 countUsed;
 
-      // Does any unit have each of the settings
-      Bool *settings;
+            // Does any unit have each of the settings
+            Bool* settings;
+        };
+
+        // The number of modifiers
+        U8 count;
+
+        // Data for each existing modifier
+        Info* modifiers;
+
+        // Set the flag for the given setting
+        void Set(U8 modifier, U8 setting, Bool value = TRUE);
+
+    public:
+
+        // Constructor and destructor
+        TacticalInfo();
+        ~TacticalInfo();
+
+        // Reset all information
+        void Reset();
+
+        // Add the settings from the given unit
+        void Add(UnitObj* unit);
+
+        // Finished adding units
+        void Done();
+
+        // Get the number of settings used for the given modifier
+        U32 GetUsedSettings(U8 modifier) const;
+
+        // Get the flag for the given setting
+        Bool Get(U8 modifier, U8 setting) const;
     };
 
-    // The number of modifiers
-    U8 count;
+protected:
 
-    // Data for each existing modifier
-    Info *modifiers;
+    // The number of units added
+    U32 numberAdded;
 
-    // Set the flag for the given setting
-    void Set(U8 modifier, U8 setting, Bool value = TRUE);
+    // Tactical settings information
+    TacticalInfo tacticalInfo;
 
-  public:
+    // Unit attributes 
+    BinTree<void> attributes;
+
+    // Add attributes once per update
+    void AddAttributesOnce();
+
+    // Add the attributes for the given unit
+    void AddAttributes(UnitObj* unit);
+
+public:
 
     // Constructor and destructor
-    TacticalInfo();
-    ~TacticalInfo();
+    UnitObjInfo();
+    ~UnitObjInfo();
 
     // Reset all information
     void Reset();
 
-    // Add the settings from the given unit
-    void Add(UnitObj *unit);
+    // Add information for the given object
+    void Add(UnitObj* unit);
+
+    // Add information for each unit in the given list
+    void Add(const UnitObjList& list);
 
     // Finished adding units
     void Done();
 
-    // Get the number of settings used for the given modifier
-    U32 GetUsedSettings(U8 modifier) const;
+    // True if the given attribute is present
+    Bool FindAttribute(U32 crc);
 
-    // Get the flag for the given setting
-    Bool Get(U8 modifier, U8 setting) const;
-  };
+    // Returns the number of units added since the last reset
+    U32 GetNumberAdded()
+    {
+        return (numberAdded);
+    }
 
-protected:
-
-  // The number of units added
-  U32 numberAdded;
-
-  // Tactical settings information
-  TacticalInfo tacticalInfo;
-
-  // Unit attributes 
-  BinTree<void> attributes;
-
-  // Add attributes once per update
-  void AddAttributesOnce();
-
-  // Add the attributes for the given unit
-  void AddAttributes(UnitObj *unit);
-
-public:
-
-  // Constructor and destructor
-  UnitObjInfo();
-  ~UnitObjInfo();
-
-  // Reset all information
-  void Reset();
-
-  // Add information for the given object
-  void Add(UnitObj *unit);
-
-  // Add information for each unit in the given list
-  void Add(const UnitObjList &list);
-
-  // Finished adding units
-  void Done();
-
-  // True if the given attribute is present
-  Bool FindAttribute(U32 crc);
-
-  // Returns the number of units added since the last reset
-  U32 GetNumberAdded()
-  {
-    return (numberAdded);
-  }
-
-  // Get the tactical information
-  const TacticalInfo & GetTacticalInfo()
-  {
-    return (tacticalInfo);
-  }
+    // Get the tactical information
+    const TacticalInfo& GetTacticalInfo()
+    {
+        return (tacticalInfo);
+    }
 };
 
 

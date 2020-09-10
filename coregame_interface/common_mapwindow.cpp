@@ -42,7 +42,6 @@
 //
 namespace Common
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class MapWindow
@@ -231,8 +230,8 @@ namespace Common
     {
         ASSERT(terrainTex);
 
-        terrainTex = NULL;
-        shroudTex = NULL;
+        terrainTex = nullptr;
+        shroudTex = nullptr;
     }
 
 
@@ -241,12 +240,12 @@ namespace Common
     //
     MapWindow::MapWindow(IControl* parent)
         : GameWindow(parent),
-        angleHack(FALSE),
-        rotating(FALSE),
-        fixed(TRUE),
-        scaleToDist(FALSE),
-        blipSize(40.0F),
-        fovSize(30.0F)
+          rotating(FALSE),
+          fixed(TRUE),
+          angleHack(FALSE),
+          scaleToDist(FALSE),
+          fovSize(30.0F),
+          blipSize(40.0F)
     {
         rotation = (WorldCtrl::MiniMapRotation() * DEG2RAD) - PI2;
 
@@ -296,10 +295,7 @@ namespace Common
 
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -314,10 +310,7 @@ namespace Common
         {
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -393,9 +386,9 @@ namespace Common
             }
         }
 
-        ASSERT(unitCount <= MAX_UNITS)
+        ASSERT(unitCount <= MAX_UNITS);
 
-            return (unitCount == MAX_UNITS);
+        return (unitCount == MAX_UNITS);
     }
 
 
@@ -427,7 +420,7 @@ namespace Common
         {
             U32* bitsDst;
 
-            if ((bitsDst = (U32*)shroudTex->Lock()) != NULL)
+            if ((bitsDst = static_cast<U32*>(shroudTex->Lock())) != nullptr)
             {
                 U16 cw = Utils::FP::SetRoundDownMode();
 
@@ -437,8 +430,8 @@ namespace Common
                 U32 wid = WorldCtrl::CellMapX();
                 U32 hgt = WorldCtrl::CellMapZ();
 
-                F32 sdx = (F32)wid / (F32)shroudTexSize;
-                F32 sdz = (F32)hgt / (F32)shroudTexSize;
+                F32 sdx = static_cast<F32>(wid) / static_cast<F32>(shroudTexSize);
+                F32 sdz = static_cast<F32>(hgt) / static_cast<F32>(shroudTexSize);
                 F32 sz = wid - 1.0f;
 
                 S32 z, x;  // pixels
@@ -468,9 +461,10 @@ namespace Common
 
                         if (newRow && prevx != cx)
                         {
-                            if ((visibleBuf[cx] = (U8)Sight::Visible(cx, cz, Team::GetDisplayTeam())) == FALSE)
+                            if ((visibleBuf[cx] = static_cast<U8>(Sight::Visible(cx, cz, Team::GetDisplayTeam()))) ==
+                                FALSE)
                             {
-                                seenBuf[cx] = (U8)Sight::Seen(cx, cz, Team::GetDisplayTeam());
+                                seenBuf[cx] = static_cast<U8>(Sight::Seen(cx, cz, Team::GetDisplayTeam()));
                             }
                             prevx = cx;
                         }
@@ -533,86 +527,86 @@ namespace Common
     {
         switch (fScope->NameCrc())
         {
-        case 0xCA25272B: // "Rotating"
-        {
-            rotating = StdLoad::TypeU32(fScope, TRUE);
-            break;
-        }
+            case 0xCA25272B: // "Rotating"
+            {
+                rotating = StdLoad::TypeU32(fScope, TRUE);
+                break;
+            }
 
-        case 0x06DBC92E: // "Fixed"
-        {
-            fixed = StdLoad::TypeU32(fScope, TRUE);
-            break;
-        }
+            case 0x06DBC92E: // "Fixed"
+            {
+                fixed = StdLoad::TypeU32(fScope, TRUE);
+                break;
+            }
 
-        case 0xF101E96D: // "AngleHack"
-        {
-            angleHack = StdLoad::TypeU32(fScope, TRUE);
-            break;
-        }
+            case 0xF101E96D: // "AngleHack"
+            {
+                angleHack = StdLoad::TypeU32(fScope, TRUE);
+                break;
+            }
 
-        case 0xE7070C09: // "Scale"
-        {
-            scaleFactor = fScope->NextArgFPoint();
-            break;
-        }
+            case 0xE7070C09: // "Scale"
+            {
+                scaleFactor = fScope->NextArgFPoint();
+                break;
+            }
 
-        case 0xE7F4F780: // "ViewDistance"
-        {
-            viewDist = fScope->NextArgFPoint();
-            scaleToDist = TRUE;
-            break;
-        }
+            case 0xE7F4F780: // "ViewDistance"
+            {
+                viewDist = fScope->NextArgFPoint();
+                scaleToDist = TRUE;
+                break;
+            }
 
-        case 0x480F530E: // "FOVColor"
-        {
-            IFace::FScopeToColor(fScope, fovColor0);
-            //        fovColor1 = fovColor0;
-            break;
-        }
+            case 0x480F530E: // "FOVColor"
+            {
+                IFace::FScopeToColor(fScope, fovColor0);
+                //        fovColor1 = fovColor0;
+                break;
+            }
 
-        case 0x7CD9A3A3: // "FOVColor1"
-        {
-            IFace::FScopeToColor(fScope, fovColor1);
-            break;
-        }
+            case 0x7CD9A3A3: // "FOVColor1"
+            {
+                IFace::FScopeToColor(fScope, fovColor1);
+                break;
+            }
 
-        case 0x9A37838B: // "BlipTexture"
-        {
-            IFace::FScopeToTextureInfo(fScope, blipTexture);
-            break;
-        }
+            case 0x9A37838B: // "BlipTexture"
+            {
+                IFace::FScopeToTextureInfo(fScope, blipTexture);
+                break;
+            }
 
-        case 0x1F3BAC80: // "BlipTime"
-        {
-            blipTime = StdLoad::TypeF32(fScope, Range<F32>(0.1F, F32_MAX));
-            blipTimeInv = 1.0F / blipTime;
-            break;
-        }
+            case 0x1F3BAC80: // "BlipTime"
+            {
+                blipTime = StdLoad::TypeF32(fScope, Range<F32>(0.1F, F32_MAX));
+                blipTimeInv = 1.0F / blipTime;
+                break;
+            }
 
-        case 0x2427B782: // "BlipSize"
-        {
-            blipSize = StdLoad::TypeF32(fScope);
-            break;
-        }
+            case 0x2427B782: // "BlipSize"
+            {
+                blipSize = StdLoad::TypeF32(fScope);
+                break;
+            }
 
-        case 0x1C82B54A: // "FOVTexture"
-        {
-            IFace::FScopeToTextureInfo(fScope, fovTexture);
-            break;
-        }
+            case 0x1C82B54A: // "FOVTexture"
+            {
+                IFace::FScopeToTextureInfo(fScope, fovTexture);
+                break;
+            }
 
-        case 0x9F7D4227: // "FOVSize"
-        {
-            fovSize = StdLoad::TypeF32(fScope);
-            break;
-        }
+            case 0x9F7D4227: // "FOVSize"
+            {
+                fovSize = StdLoad::TypeF32(fScope);
+                break;
+            }
 
-        default:
-        {
-            GameWindow::Setup(fScope);
-            break;
-        }
+            default:
+            {
+                GameWindow::Setup(fScope);
+                break;
+            }
         }
     }
 
@@ -637,14 +631,15 @@ namespace Common
         Camera* mainCam = &Vid::CurCamera();
         Camera* camera = new Camera("map");
 
-        F32 twid = (F32)Terrain::MeterWidth();
-        F32 thgt = (F32)Terrain::MeterHeight();
+        F32 twid = static_cast<F32>(Terrain::MeterWidth());
+        F32 thgt = static_cast<F32>(Terrain::MeterHeight());
 
         // set up normal camera parameters
         camera->SetProjTransformIso(MAPVIEWNEAR, viewfar, fov, twid, thgt);
 
         // set its orientation (pointing strait down)
-        camera->SetWorld(
+        camera->SetWorld
+        (
             Quaternion(-PIBY2, Matrix::I.right),
             Vector(0, MAPVIEWNEAR + Terrain::terrMaxHeight, 0)
         );
@@ -741,8 +736,8 @@ namespace Common
         if (nowAvailable)
         {
 #ifdef DEVELOPMENT
-            static Clock::CycleWatch timer;
-            timer.Start();
+      static Clock::CycleWatch timer;
+      timer.Start();
 #endif
 
             VertexTL* verts;
@@ -752,7 +747,7 @@ namespace Common
             ClipRect clientRc = pi.client;
 
             // Calculate texture positions
-            UVPair uv[4] = { UVPair(0.0f, 0.0f), UVPair(0.0f, 1.0f), UVPair(1.0f, 1.0f), UVPair(1.0f, 0.0f) };
+            UVPair uv[4] = {UVPair(0.0f, 0.0f), UVPair(0.0f, 1.0f), UVPair(1.0f, 1.0f), UVPair(1.0f, 0.0f)};
 
             Matrix matrix = Matrix::I;
             const Matrix fortyfive(Quaternion(rotation, Matrix::I.up));
@@ -820,7 +815,8 @@ namespace Common
             */
             textureClr.a = U8(Min<U32>(Utils::FtoLDown(IFace::data.alphaScale * F32(textureClr.a)), 255L));
 
-            Point<F32> origin(
+            Point<F32> origin
+            (
                 F32(clientRc.p0.x + (clientRc.Width() >> 1)),
                 F32(clientRc.p0.y + (clientRc.Height() >> 1))
             );
@@ -828,11 +824,12 @@ namespace Common
 
             if (rotating)
             {
-                wid = wid - (F32)fabs(matrix.front.z) * (wid - (F32)sqrt(wid * wid * 0.125f) * 2.0f);
+                wid = wid - static_cast<F32>(fabs(matrix.front.z)) * (wid - static_cast<F32>(sqrt(wid * wid * 0.125f)) *
+                    2.0f);
             }
             else if (angleHack)
             {
-                wid = (F32)sqrt(wid * wid * 0.125f) * 2.0f;
+                wid = static_cast<F32>(sqrt(wid * wid * 0.125f)) * 2.0f;
             }
             int i = 0;
             for (; i < 4; i++)
@@ -881,7 +878,7 @@ namespace Common
                 //
                 U32 vCount = 4, iCount = 6;
                 VertexTL tempV[22];
-                U16      tempI[222];
+                U16 tempI[222];
 
                 for (i = 0; i < 4; i++)
                 {
@@ -899,9 +896,20 @@ namespace Common
 
                     for (i = 0; i < S32(unitCount); i++)
                     {
-                        Point<S32> p(
-                            Utils::FastFtoL(origin.x + matrix.right.x * (units[i].pos.x - 0.5f) * wid + matrix.front.x * (units[i].pos.y - 0.5f) * wid),
-                            Utils::FastFtoL(origin.y + matrix.right.z * (units[i].pos.x - 0.5f) * wid + matrix.front.z * (units[i].pos.y - 0.5f) * wid)
+                        Point<S32> p
+                        (
+                            Utils::FastFtoL
+                            (
+                                origin.x + matrix.right.x * (units[i].pos.x - 0.5f) * wid + matrix.front.x * (units[i]
+                                                                                                              .pos.y -
+                                    0.5f) * wid
+                            ),
+                            Utils::FastFtoL
+                            (
+                                origin.y + matrix.right.z * (units[i].pos.x - 0.5f) * wid + matrix.front.z * (units[i]
+                                                                                                              .pos.y -
+                                    0.5f) * wid
+                            )
                         );
 
                         // All triangles point up
@@ -918,11 +926,16 @@ namespace Common
 
                         verts[0].diffuse = verts[1].diffuse = verts[2].diffuse = (units[i].color & 0x00FFFFFF) | alpha;
 
-                        vCount = 3; iCount = 3;
-                        Vid::Clip::Screen::ToBuffer(tempV, tempI, verts, vCount, Vid::rectIndices, iCount, clipALL, mapVerts);
+                        vCount = 3;
+                        iCount = 3;
+                        Vid::Clip::Screen::ToBuffer
+                        (
+                            tempV, tempI, verts, vCount, Vid::rectIndices, iCount, clipALL,
+                            mapVerts
+                        );
 
-                        VertexTL* dv = IFace::GetVerts(vCount, NULL, 0, 0, vertOffset);
-                        VertexTL* ev = dv + vCount, * t = tempV;
+                        VertexTL* dv = IFace::GetVerts(vCount, nullptr, 0, 0, vertOffset);
+                        VertexTL *ev = dv + vCount, *t = tempV;
                         for (; dv < ev; dv++, t++)
                         {
                             *dv = *t;
@@ -985,16 +998,19 @@ namespace Common
                 verts[3].u = fovTexture.uv.p1.x;
                 verts[3].v = fovTexture.uv.p1.y;
 
-                vCount = 4; iCount = 6;
+                vCount = 4;
+                iCount = 6;
                 Vid::Clip::Screen::ToBuffer(tempV, tempI, verts, vCount, Vid::rectIndices, iCount, clipALL, mapVerts);
 
-                VertexTL* dv = IFace::GetVerts(
+                VertexTL* dv = IFace::GetVerts
+                (
                     vCount, fovTexture.texture,
                     (fovTexture.filter) ? 1 : 0,
                     (fovTexture.texMode == TextureInfo::TM_CENTRED) ? RS_TEXCLAMP : 0,
-                    vertOffset);
+                    vertOffset
+                );
 
-                VertexTL* ev = dv + vCount, * t = tempV;
+                VertexTL *ev = dv + vCount, *t = tempV;
                 for (; dv < ev; dv++, t++)
                 {
                     *dv = *t;
@@ -1012,7 +1028,7 @@ namespace Common
                         {
                           for (U32 i = 0; i < 1; i++)
                           {
-                            Vector v( Random::nonSync.Float() * Terrain::MeterWidth() + 2 - 1, 0, Random::nonSync.Float() * Terrain::MeterHeight() + 2 - 1);
+                            Vector v( Random::nonSync.Float() * Terrain::MeterWidth() + 2 - 1, 0, Random::nonSync.Float() * Terrain::MeterHeight() + 2 - 1); 
                             Common::MapWindow::Blip( v, 0xffffffff);
                           }
                         }
@@ -1062,7 +1078,8 @@ namespace Common
                             S32 size = Max<S32>(6, Utils::FtoL(blip->time * blipTimeInv * blipSize));
 
                             ClipRect rect(-size, -size, size, size);
-                            Point<S32> p(
+                            Point<S32> p
+                            (
                                 Utils::FastFtoL(origin.x + matrix.right.x * widx * wid + matrix.front.x * widy * wid),
                                 Utils::FastFtoL(origin.y + matrix.right.z * widx * wid + matrix.front.z * widy * wid)
                             );
@@ -1077,8 +1094,8 @@ namespace Common
             //      Utils::FP::RestoreMode(cw);
 
 #ifdef DEVELOPMENT
-            timer.Stop();
-            MSWRITEV(13, (12, 0, "Minimap %s", timer.Report()));
+      timer.Stop();
+      MSWRITEV(13, (12, 0, "Minimap %s", timer.Report()));
 #endif
         }
     }
@@ -1095,27 +1112,27 @@ namespace Common
         {
             switch (e.subType)
             {
-            case IFace::NOTIFY:
-            {
-                switch (e.iface.p1)
+                case IFace::NOTIFY:
                 {
-                case GameWindowMsg::Refresh:
-                {
-                    // Force rendering
-                    RenderTerrain();
-                    return(TRUE);
-                }
+                    switch (e.iface.p1)
+                    {
+                        case GameWindowMsg::Refresh:
+                        {
+                            // Force rendering
+                            RenderTerrain();
+                            return (TRUE);
+                        }
+                    }
+
+                    // Not handled
+                    break;
                 }
 
-                // Not handled
-                break;
-            }
-
-            case IFace::DISPLAYMODECHANGED:
-            {
-                reloadTextures = TRUE;    // textures are managed automatically
-                break;
-            }
+                case IFace::DISPLAYMODECHANGED:
+                {
+                    reloadTextures = TRUE;    // textures are managed automatically
+                    break;
+                }
             }
         }
 
@@ -1132,7 +1149,7 @@ namespace Common
         {
             // Delete blip closest to completion
             F32 nearestVal = F32_MAX;
-            MsgBlip* newBlip = NULL;
+            MsgBlip* newBlip = nullptr;
 
             for (U32 i = 0; i < MAX_BLIPS; i++)
             {
@@ -1230,7 +1247,7 @@ namespace Common
         List<MapWindow>::Iterator i(&maps);
         MapWindow* window;
 
-        while ((window = i++) != NULL)
+        while ((window = i++) != nullptr)
         {
             if (window->IsActive())
             {
@@ -1241,10 +1258,10 @@ namespace Common
 
         // Delete memory
         delete seenBuf;
-        seenBuf = NULL;
+        seenBuf = nullptr;
 
         delete visibleBuf;
-        visibleBuf = NULL;
+        visibleBuf = nullptr;
 
         // Delete surfaces
         ReleaseTextures();
@@ -1260,7 +1277,7 @@ namespace Common
     //
     MapObj* MapWindow::PickObject(S32, S32, SelectFilter*)
     {
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -1311,11 +1328,12 @@ namespace Common
 
         if (rotating)
         {
-            wid = wid - (F32)fabs(matrix.front.z) * (wid - (F32)sqrt(wid * wid * 0.125f) * 2.0f);
+            wid = wid - static_cast<F32>(fabs(matrix.front.z)) * (wid - static_cast<F32>(sqrt(wid * wid * 0.125f)) *
+                2.0f);
         }
         else if (angleHack)
         {
-            wid = (F32)sqrt(wid * wid * 0.125f) * 2.0f;
+            wid = static_cast<F32>(sqrt(wid * wid * 0.125f)) * 2.0f;
         }
         F32 invwid = 1.0f / wid;
 
@@ -1323,31 +1341,35 @@ namespace Common
         wid = WorldCtrl::MetreMapX();
 
         t.Set(F32(p0.x - origin.x) * invwid, -F32(p0.y - origin.y) * invwid);
-        t0[0].Set(
+        t0[0].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );
 
         t.Set(F32(p0.x - origin.x) * invwid, -F32(p1.y - origin.y) * invwid);
-        t0[1].Set(
+        t0[1].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );
 
         t.Set(F32(p1.x - origin.x) * invwid, -F32(p1.y - origin.y) * invwid);
-        t0[2].Set(
+        t0[2].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );
 
         t.Set(F32(p1.x - origin.x) * invwid, -F32(p0.y - origin.y) * invwid);
-        t0[3].Set(
+        t0[3].Set
+        (
             torigin.x + matrix.right.x * t.x * wid + matrix.front.x * t.y * wid,
             torigin.y + matrix.right.z * t.x * wid + matrix.front.z * t.y * wid
         );
 
         // Check all visible objects
-        for (NList<MapObj>::Iterator li(&MapObjCtrl::GetOnMapList()); *li; li++)
+        for (NList<MapObj>::Iterator li(&MapObjCtrl::GetOnMapList()); *li; ++li)
         {
             // Promote to a unit
             UnitObj* unitObj = Promote::Object<UnitObjType, UnitObj>(*li);
@@ -1374,7 +1396,7 @@ namespace Common
     //
     MapObj* MapWindow::FindClosest(const Area<S32>&)
     {
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -1413,11 +1435,12 @@ namespace Common
 
         if (rotating)
         {
-            wid = wid - (F32)fabs(matrix.front.z) * (wid - (F32)sqrt(wid * wid * 0.125f) * 2.0f);
+            wid = wid - static_cast<F32>(fabs(matrix.front.z)) * (wid - static_cast<F32>(sqrt(wid * wid * 0.125f)) *
+                2.0f);
         }
         else if (angleHack)
         {
-            wid = (F32)sqrt(wid * wid * 0.125f) * 2.0f;
+            wid = static_cast<F32>(sqrt(wid * wid * 0.125f)) * 2.0f;
         }
         F32 invwid = 1.0f / wid;
 
@@ -1453,14 +1476,14 @@ namespace Common
     {
         switch (propertyCrc)
         {
-        case 0xA2A4CB5F: // "JumpScroll"
-            return (TRUE);
+            case 0xA2A4CB5F: // "JumpScroll"
+                return (TRUE);
 
-        case 0x99885D43: // "PostDrawSelect"
-            return (TRUE);
+            case 0x99885D43: // "PostDrawSelect"
+                return (TRUE);
 
-        case 0xB665088B: // "Construction"
-            return (FALSE);
+            case 0xB665088B: // "Construction"
+                return (FALSE);
         }
 
         return (GameWindow::HasProperty(propertyCrc));
@@ -1481,5 +1504,4 @@ namespace Common
         // Save it
         terrainTex->WriteBMP(path.str);
     }
-
 }

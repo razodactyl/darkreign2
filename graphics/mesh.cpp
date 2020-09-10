@@ -29,7 +29,7 @@ void Mesh::ClearData()
 
     nodeType = nodeMesh;
 
-    local = NULL;
+    local = nullptr;
 
     renderFlags = RS_BLEND_DEF;
     isNull = TRUE;
@@ -37,12 +37,14 @@ void Mesh::ClearData()
     isControl = FALSE;
     isShadowPlane = FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 Mesh::~Mesh()
 {
     ReleaseLocal();
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::ReleaseLocal()
@@ -50,9 +52,10 @@ void Mesh::ReleaseLocal()
     if (local)
     {
         delete local;
-        local = NULL;
+        local = nullptr;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::SetName(const char* _name)
@@ -74,7 +77,7 @@ void Mesh::SetName(const char* _name)
     }
 
 #if 0
-    s[0] = '\0';    // chop off flags
+  s[0] = '\0';    // chop off flags
 #endif
 
     s += 2;
@@ -82,23 +85,23 @@ void Mesh::SetName(const char* _name)
     {
         switch (s[0])
         {
-
-        case 'g':     // glow
-        case 'G':
-            renderFlags &= ~(RS_BLEND_MASK);
-            renderFlags |= RS_BLEND_ADD;
-            break;
-        case '2':     // double sided
-            renderFlags |= RS_2SIDED;
-            break;
-        case 'h':     // hidden
-        case 'H':
-            renderFlags |= RS_HIDDEN;
-            break;
+            case 'g':     // glow
+            case 'G':
+                renderFlags &= ~(RS_BLEND_MASK);
+                renderFlags |= RS_BLEND_ADD;
+                break;
+            case '2':     // double sided
+                renderFlags |= RS_2SIDED;
+                break;
+            case 'h':     // hidden
+            case 'H':
+                renderFlags |= RS_HIDDEN;
+                break;
         }
         s++;
     }
 }
+
 //----------------------------------------------------------------------------
 
 U32 Mesh::GetMem() const
@@ -116,13 +119,14 @@ U32 Mesh::GetMem() const
     }
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::ClearData()
 {
     Utils::Memset(fileName.str, 0, MAX_GAMEIDENT);
 
-    read = NULL;
+    read = nullptr;
 
     nodeType = nodeMeshRoot;
 
@@ -131,7 +135,7 @@ void MeshRoot::ClearData()
     texTimer = .1f;   // .1 sec delay between frames
     treadPerMeter = 1.0f;
 
-    mrm = NULL;
+    mrm = nullptr;
     mrmFactor = 1.0f;
 
     godLoad = FALSE;
@@ -147,7 +151,7 @@ void MeshRoot::ClearData()
     hasControl = FALSE;
 
     shadowRadius = 0.0f;
-    shadowTexture = NULL;
+    shadowTexture = nullptr;
     shadowTime = 0;
     shadowType = shadowOVAL;
 
@@ -158,6 +162,7 @@ void MeshRoot::ClearData()
 
     vertCount = faceCount = 0;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot::~MeshRoot()
@@ -165,7 +170,7 @@ MeshRoot::~MeshRoot()
     // check if its already been removed from the manager tree
     if (treeNode.InUse())
     {
-        Mesh::Manager::rootTree.Unlink(this);
+        Manager::rootTree.Unlink(this);
     }
 
     if (mrm)
@@ -173,7 +178,7 @@ MeshRoot::~MeshRoot()
         //    delete [] mrmUpdates->vertexUpdates[0].faceUpdates;
         //    delete [] mrmUpdates->vertexUpdates;
         delete mrm;
-        mrm = NULL;
+        mrm = nullptr;
     }
 
     vertices.Release();
@@ -204,17 +209,19 @@ MeshRoot::~MeshRoot()
         delete read;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::ReleaseLocals()
 {
-    FamilyState* si, * se = &states[states.count];
+    FamilyState *si, *se = &states[states.count];
     for (si = &states[0]; si < se; si++)
     {
         Mesh* node = si->GetMeshFromRoot();
         node->ReleaseLocal();
     }
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshRoot::SetBlend(U32 blend, Bitmap* texture) // = NULL
@@ -222,7 +229,7 @@ U32 MeshRoot::SetBlend(U32 blend, Bitmap* texture) // = NULL
     renderFlags &= ~RS_BLEND_MASK;
     renderFlags |= blend;
 
-    FaceGroup* f, * fe = groups.data + groups.count;
+    FaceGroup *f, *fe = groups.data + groups.count;
     for (f = groups.data; f < fe; f++)
     {
         f->flags0 &= ~RS_BLEND_MASK;
@@ -235,11 +242,12 @@ U32 MeshRoot::SetBlend(U32 blend, Bitmap* texture) // = NULL
     }
     return renderFlags;
 }
+
 //----------------------------------------------------------------------------
 
 const Mesh* MeshRoot::FindIdent(NodeIdent& ident) const
 {
-    FamilyState* si, * se = &states[states.count];
+    FamilyState *si, *se = &states[states.count];
     for (si = &states[0]; si < se; si++)
     {
         Mesh* node = si->GetMeshFromRoot();
@@ -249,14 +257,16 @@ const Mesh* MeshRoot::FindIdent(NodeIdent& ident) const
             return node;
         }
     }
-    return NULL;
+    return nullptr;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetWorldRecurse(const Matrix& world)
 {
     FamilyNode::SetWorldRecurse(world);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray)
@@ -265,6 +275,7 @@ void MeshRoot::SetWorldRecurseRender(const Matrix& world, FamilyState* stateArra
 
     FamilyNode::SetWorldRecurseRender(world, &states[0]);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::Setup()
@@ -320,7 +331,7 @@ void MeshRoot::Setup()
             {
                 ERR_FATAL(("%s: bad overlay", xsiName.str));
             }
-            else if (bucky.texture1 == NULL)
+            if (bucky.texture1 == nullptr)
             {
                 LOG_WARN(("%s: bad overlay", xsiName.str));
             }
@@ -345,6 +356,7 @@ void MeshRoot::Setup()
     vertCount = vertices.count;
     faceCount = faces.count;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::SetupStates(const FamilyState* _states, U32 count, Matrix* _mats) // = NULL
@@ -370,6 +382,7 @@ Bool MeshRoot::SetupStates(const FamilyState* _states, U32 count, Matrix* _mats)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::SetupStates(Array<AnimKey> keys)
@@ -383,16 +396,17 @@ Bool MeshRoot::SetupStates(Array<AnimKey> keys)
     }
 
 #if 0
-    // eliminate root position and rotation offsets
-    states[0].ClearData();
-    if (inMats)
-    {
-        inMats[0].ClearData();
-    }
+  // eliminate root position and rotation offsets
+  states[0].ClearData();
+  if (inMats)
+  {
+    inMats[0].ClearData();
+  }
 #endif
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetupPlane(U32 i)
@@ -412,6 +426,7 @@ void MeshRoot::SetupPlane(U32 i)
 
     plane.Normalize();
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::SetupPlanes()
@@ -424,6 +439,7 @@ void MeshRoot::SetupPlanes()
         SetupPlane(i);
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::SetupAnimCycle(AnimList& animList, const char* cycleName) // = DEFCYCLENAME
@@ -438,6 +454,7 @@ Bool MeshRoot::SetupAnimCycle(AnimList& animList, const char* cycleName) // = DE
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::SetAnimCycle(U32 cycleID)
@@ -458,6 +475,7 @@ Bool MeshRoot::SetAnimCycle(U32 cycleID)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::CalcBoundingSphere()
@@ -472,26 +490,26 @@ void MeshRoot::CalcBoundingSphere()
         Sphere tmpSphere, maxSphere = bigSphere;
 
         static U16 indices[72] = {
-          0,  1,  2,  0,  2,  3,
-          4,  5,  6,  4,  6,  7,
-          1,  5,  6,  1,  6,  2,
-          0,  4,  7,  0,  7,  3,
-          0,  1,  5,  0,  5,  4,
-          3,  2,  6,  3,  6,  7,
+            0, 1, 2, 0, 2, 3,
+            4, 5, 6, 4, 6, 7,
+            1, 5, 6, 1, 6, 2,
+            0, 4, 7, 0, 7, 3,
+            0, 1, 5, 0, 5, 4,
+            3, 2, 6, 3, 6, 7,
 
-          8,  9, 10,  8, 10, 11,
-         12, 13, 14, 12, 14, 15,
-          9, 13, 14,  9, 14, 10,
-          8, 12, 15,  8, 15, 11,
-          8,  9, 13,  8, 13, 12,
-         11, 10, 14, 11, 14, 15
+            8, 9, 10, 8, 10, 11,
+            12, 13, 14, 12, 14, 15,
+            9, 13, 14, 9, 14, 10,
+            8, 12, 15, 8, 15, 11,
+            8, 9, 13, 8, 13, 12,
+            11, 10, 14, 11, 14, 15
         };
 
         Vector box[16];
         Vector cycleBox[16];
 
         NBinTree<AnimList>::Iterator li(&animCycles);
-        for (!li; *li; li++)
+        for (!li; *li; ++li)
         {
             AnimList* animCycle = (*li);
 
@@ -551,7 +569,7 @@ void MeshRoot::CalcBoundingSphere()
 
                 // set up key data and object matrices
                 //
-                animCycle->SetFrameObject((F32)i, states);
+                animCycle->SetFrameObject(static_cast<F32>(i), states);
 
                 // setup world matrices
                 //
@@ -652,6 +670,7 @@ void MeshRoot::CalcBoundingSphere()
         bigBounds.Set(maxSphere);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::CalcBoundingSphere(Sphere& _sphere)
@@ -666,7 +685,7 @@ void MeshRoot::CalcBoundingSphere(Sphere& _sphere)
     SetVertsWorld(states, vertmem, vertices.count, doMultiWeight);
 
     // build an index list from the face table
-    for (FaceObj* f = faces.data, *fe = faces.data + faces.count; f < fe; f++)
+    for (FaceObj *f = faces.data, *fe = faces.data + faces.count; f < fe; f++)
     {
         *pindex++ = f->verts[0];
         *pindex++ = f->verts[1];
@@ -678,6 +697,7 @@ void MeshRoot::CalcBoundingSphere(Sphere& _sphere)
 
     Vid::Heap::Restore(heapSize);
 }
+
 //----------------------------------------------------------------------------
 
 Bool IsInTri(Vector& pos, Vector* v, Plane& plane)
@@ -701,21 +721,21 @@ Bool IsInTri(Vector& pos, Vector* v, Plane& plane)
     if (lp.x > lp.y && lp.x > lp.z)
     {
 #ifdef DODOTINCHECK
-        // yz projection
-        S32 i, j = 0;
-        for (i = 2; i >= 0; j = i, i--)
-        {
-            Vector vect, enorm;
-            enorm.z = (v[j].y - v[i].y);
-            enorm.y = -(v[j].z - v[i].z);
-            vect.z = pos.z - v[i].z;
-            vect.y = pos.y - v[i].y;
-            F32 dotp = vect.y * enorm.y + vect.z * enorm.z;
-            if (dotp > 0.0f)
-            {
-                return FALSE;
-            }
-        }
+    // yz projection
+    S32 i, j = 0;
+    for (i = 2; i >= 0; j = i, i--)
+    {
+  		Vector vect, enorm;
+      enorm.z =  (v[j].y - v[i].y);
+      enorm.y = -(v[j].z - v[i].z);
+  		vect.z = pos.z - v[i].z;
+	  	vect.y = pos.y - v[i].y;
+		  F32 dotp = vect.y * enorm.y + vect.z * enorm.z;
+			if (dotp > 0.0f)
+      {
+        return FALSE;
+      }
+		}
 #else
         uu[0] = pos.y - v[0].y;
         vv[0] = pos.z - v[0].z;
@@ -730,21 +750,21 @@ Bool IsInTri(Vector& pos, Vector* v, Plane& plane)
     else if (lp.y > lp.x && lp.y > lp.z)
     {
 #ifdef DODOTINCHECK
-        // zx projection
-        S32 i, j = 0;
-        for (i = 2; i >= 0; j = i, i--)
-        {
-            Vector vect, enorm;
-            enorm.x = (v[j].z - v[i].z);
-            enorm.z = -(v[j].x - v[i].x);
-            vect.x = pos.x - v[i].x;
-            vect.z = pos.z - v[i].z;
-            F32 dotp = vect.z * enorm.z + vect.x * enorm.x;
-            if (dotp > 0.0f)
-            {
-                return FALSE;
-            }
-        }
+    // zx projection
+    S32 i, j = 0;
+    for (i = 2; i >= 0; j = i, i--)
+    {
+  		Vector vect, enorm;
+      enorm.x =  (v[j].z - v[i].z);
+      enorm.z = -(v[j].x - v[i].x);
+  		vect.x = pos.x - v[i].x;
+	  	vect.z = pos.z - v[i].z;
+		  F32 dotp = vect.z * enorm.z + vect.x * enorm.x;
+			if (dotp > 0.0f)
+      {
+        return FALSE;
+      }
+		}
 #else
         uu[0] = pos.z - v[0].z;
         vv[0] = pos.x - v[0].x;
@@ -759,21 +779,21 @@ Bool IsInTri(Vector& pos, Vector* v, Plane& plane)
     else
     {
 #ifdef DODOTINCHECK
-        // xy projection
-        S32 i, j = 0;
-        for (i = 2; i >= 0; j = i, i--)
-        {
-            Vector vect, enorm;
-            enorm.x = (v[j].y - v[i].y);
-            enorm.y = -(v[j].x - v[i].x);
-            vect.x = pos.x - v[i].x;
-            vect.y = pos.y - v[i].y;
-            F32 dotp = vect.y * enorm.y + vect.x * enorm.x;
-            if (dotp > 0.0f)
-            {
-                return FALSE;
-            }
-        }
+    // xy projection
+    S32 i, j = 0;
+    for (i = 2; i >= 0; j = i, i--)
+    {
+  		Vector vect, enorm;
+      enorm.x =  (v[j].y - v[i].y);
+      enorm.y = -(v[j].x - v[i].x);
+  		vect.x = pos.x - v[i].x;
+	  	vect.y = pos.y - v[i].y;
+		  F32 dotp = vect.y * enorm.y + vect.x * enorm.x;
+			if (dotp > 0.0f)
+      {
+        return FALSE;
+      }
+		}
 #else
         uu[0] = pos.x - v[0].x;
         vv[0] = pos.y - v[0].y;
@@ -821,26 +841,31 @@ Bool IsInTri(Vector& pos, Vector* v, Plane& plane)
 #endif
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 // returns the appropriate live node from stateArray
 // t is filled with the ratio of (vCollision - vStart) / (vEnd - vStart)
 //
-const FamilyNode* MeshRoot::CollidePoly(const Array<FamilyState>& stateArray, const Vector& vStart, const Vector& vEnd, F32& t) const
+const FamilyNode* MeshRoot::CollidePoly
+(
+    const Array<FamilyState>& stateArray, const Vector& vStart, const Vector& vEnd,
+    F32& t
+) const
 {
-    FamilyNode* retNode = NULL;
+    FamilyNode* retNode = nullptr;
 
     // get temp memory
     //
     U32 heapSize = vertices.count * sizeof(Vector) + faces.count * sizeof(Plane);
     Vector* verts = (Vector*)Vid::Heap::Request(heapSize);
-    Plane* tmpPlanes = (Plane*)(verts + vertices.count);
+    Plane* tmpPlanes = static_cast<Plane*>(verts + vertices.count);
 
     Bool doMultiWeight = (rootControlFlags & controlMULTIWEIGHT) && Vid::renderState.status.multiWeight ? TRUE : FALSE;
 
     SetVertsWorld(stateArray, verts, vertices.count, doMultiWeight);    // FIXME
 
-    FaceObj* f, * fe = faces.data + faces.count;
+    FaceObj *f, *fe = faces.data + faces.count;
     Plane* plane = tmpPlanes;
     for (f = faces.data; f < fe; f++)
     {
@@ -900,6 +925,7 @@ const FamilyNode* MeshRoot::CollidePoly(const Array<FamilyState>& stateArray, co
 
     return retNode;
 }
+
 //----------------------------------------------------------------------------
 
 void CheckMesh(MeshRoot& root, Mesh& mesh, U8* findex, U32& fcount, Bool doSiblings)
@@ -924,7 +950,7 @@ void CheckMesh(MeshRoot& root, Mesh& mesh, U8* findex, U32& fcount, Bool doSibli
         U32 j, len = strlen(n);
         for (j = 0; j < len; j++)
         {
-            buffer[j] = (char)tolower(n[j]);
+            buffer[j] = static_cast<char>(tolower(n[j]));
         }
         buffer[j] = '\0';
         if (!strstr(buffer, "chunk"))
@@ -935,9 +961,9 @@ void CheckMesh(MeshRoot& root, Mesh& mesh, U8* findex, U32& fcount, Bool doSibli
     if (doSiblings)
     {
         NList<FamilyNode>::Iterator kids(mesh.Children());
-        kids++;
+        ++kids;
         FamilyNode* node;
-        while ((node = kids++) != NULL)
+        while ((node = kids++) != nullptr)
         {
             if (node->GetNodeType() != nodeMesh)
             {
@@ -949,16 +975,17 @@ void CheckMesh(MeshRoot& root, Mesh& mesh, U8* findex, U32& fcount, Bool doSibli
             U32 j, len = strlen(n);
             for (j = 0; j < len; j++)
             {
-                buffer[j] = (char)tolower(n[j]);
+                buffer[j] = static_cast<char>(tolower(n[j]));
             }
             buffer[j] = '\0';
             if (!strstr(buffer, "chunk"))
             {
-                CheckMesh(root, *(Mesh*)node, findex, fcount, TRUE);
+                CheckMesh(root, *static_cast<Mesh*>(node), findex, fcount, TRUE);
             }
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::Chunkify()
@@ -978,7 +1005,7 @@ void MeshRoot::Chunkify()
     Mesh* list[MAXMESHPERGROUP];
 
     // find marked children
-    Mesh* m, * mesh = this;
+    Mesh *m, *mesh = this;
     U32 i, j, k, ccount = 0;
     for (i = 0; i < states.count; i++)
     {
@@ -990,7 +1017,7 @@ void MeshRoot::Chunkify()
         U32 len = strlen(n);
         for (j = 0; j < len; j++)
         {
-            buffer[j] = (char)tolower(n[j]);
+            buffer[j] = static_cast<char>(tolower(n[j]));
         }
         buffer[j] = '\0';
         if (strstr(buffer, "chunk"))
@@ -1013,14 +1040,14 @@ void MeshRoot::Chunkify()
         }
         NList<FamilyNode>::Iterator kids(&mesh->children);
         FamilyNode* node;
-        for (i = 0; (node = kids++) != NULL; i++)
+        for (i = 0; (node = kids++) != nullptr; i++)
         {
-            list[i] = (Mesh*)node;
+            list[i] = static_cast<Mesh*>(node);
         }
     }
 
     U32 heapSize = 3 * Vid::renderState.maxVerts * 2 + Vid::renderState.maxVerts;
-    U16* vindex, * nindex, * uvindex;
+    U16 *vindex, *nindex, *uvindex;
     U8* findex = (U8*)Vid::Heap::Request(heapSize);
 
     vindex = (U16*)(findex + Vid::renderState.maxVerts);
@@ -1046,10 +1073,10 @@ void MeshRoot::Chunkify()
         {
             root.faces.Alloc(fcount);
 #ifdef DOOLDPIPE
-            root.indices.Alloc(fcount * 3);
+      root.indices.Alloc( fcount * 3);
 #endif
 
-            U8  bindex[MAXBUCKYS];
+            U8 bindex[MAXBUCKYS];
             memset(vindex, 0xff, vertices.count * sizeof(U16));
             memset(nindex, 0xff, normals.count * sizeof(U16));
             memset(uvindex, 0xff, uvs.count * sizeof(U16));
@@ -1067,7 +1094,7 @@ void MeshRoot::Chunkify()
 
                     if (bindex[face.buckyIndex] == 0xff)
                     {
-                        bindex[face.buckyIndex] = (U8)bcount;
+                        bindex[face.buckyIndex] = static_cast<U8>(bcount);
                         bcount++;
                     }
                     root.faces[fi].buckyIndex = bindex[face.buckyIndex];
@@ -1076,24 +1103,24 @@ void MeshRoot::Chunkify()
                     {
                         if (vindex[face.verts[k]] == 0xffff)
                         {
-                            vindex[face.verts[k]] = (U8)vcount;
+                            vindex[face.verts[k]] = static_cast<U8>(vcount);
                             vcount++;
                         }
                         root.faces[fi].verts[k] = vindex[face.verts[k]];
 #ifdef DOOLDPIPE
-                        root.indices[fi * 3 + k] = vindex[face.verts[k]];
+            root.indices[fi * 3 + k] = vindex[face.verts[k]];
 #endif
 
                         if (nindex[face.norms[k]] == 0xffff)
                         {
-                            nindex[face.norms[k]] = (U16)ncount;
+                            nindex[face.norms[k]] = static_cast<U16>(ncount);
                             ncount++;
                         }
                         root.faces[fi].norms[k] = nindex[face.norms[k]];
 
                         if (uvindex[face.uvs[k]] == 0xffff)
                         {
-                            uvindex[face.uvs[k]] = (U16)uvcount;
+                            uvindex[face.uvs[k]] = static_cast<U16>(uvcount);
                             uvcount++;
                         }
                         root.faces[fi].uvs[k] = uvindex[face.uvs[k]];
@@ -1124,7 +1151,7 @@ void MeshRoot::Chunkify()
                     if (bindex[face.buckyIndex] == 0xff)
                     {
                         root.buckys[bcount] = buckys[face.buckyIndex];
-                        bindex[face.buckyIndex] = (U8)bcount;
+                        bindex[face.buckyIndex] = static_cast<U8>(bcount);
                         bcount++;
                     }
 
@@ -1132,7 +1159,7 @@ void MeshRoot::Chunkify()
                     {
                         if (vindex[face.verts[k]] == 0xffff)
                         {
-                            vindex[face.verts[k]] = (U16)vcount;
+                            vindex[face.verts[k]] = static_cast<U16>(vcount);
 
                             root.vertices[vcount] = vertices[face.verts[k]];
                             root.vertToState[vcount].count = 1;
@@ -1143,7 +1170,7 @@ void MeshRoot::Chunkify()
 
                         if (nindex[face.norms[k]] == 0xffff)
                         {
-                            nindex[face.norms[k]] = (U16)ncount;
+                            nindex[face.norms[k]] = static_cast<U16>(ncount);
 
                             root.normals[ncount] = normals[face.norms[k]];
 
@@ -1152,7 +1179,7 @@ void MeshRoot::Chunkify()
 
                         if (uvindex[face.uvs[k]] == 0xffff)
                         {
-                            uvindex[face.uvs[k]] = (U16)uvcount;
+                            uvindex[face.uvs[k]] = static_cast<U16>(uvcount);
 
                             root.uvs[uvcount] = uvs[face.uvs[k]];
 
@@ -1163,7 +1190,7 @@ void MeshRoot::Chunkify()
             }
         }
 
-        root.SetupStates(&states[mesh->GetIndex()], 1, NULL);
+        root.SetupStates(&states[mesh->GetIndex()], 1, nullptr);
         root.stateMats[0] = stateMats[mesh->GetIndex()];
         root.renderFlags = mesh->renderFlags;
 
@@ -1185,7 +1212,7 @@ void MeshRoot::Chunkify()
         sprintf(name.str, "chunk%d", chunknum);
         chunknum++;
 
-        if (!Mesh::Manager::SetupRoot(root, name.str))
+        if (!Manager::SetupRoot(root, name.str))
         {
             ERR_FATAL(("Error loading %s", name.str));
         }
@@ -1203,6 +1230,7 @@ void MeshRoot::Chunkify()
 
     LOG_DIAG(("Chunkify: generated %d chunks", ccount));
 }
+
 //----------------------------------------------------------------------------
 
 // keep handing off pointers to chunks to the calling function
@@ -1211,7 +1239,7 @@ const MeshRoot* MeshRoot::NextChunk()
 {
     if (chunks.count == 0)
     {
-        return NULL;
+        return nullptr;
     }
 
     MeshRoot* root = chunks[curChunk];
@@ -1222,6 +1250,7 @@ const MeshRoot* MeshRoot::NextChunk()
     }
     return root;
 }
+
 //----------------------------------------------------------------------------
 
 // optimize the node hierarchy
@@ -1262,12 +1291,12 @@ void MeshRoot::CompressStates()
     // record any states that animate
     //
     NBinTree<AnimList>::Iterator cycleI(&animCycles);
-    for (!cycleI; *cycleI; cycleI++)
+    for (!cycleI; *cycleI; ++cycleI)
     {
         AnimList* animList = (*cycleI);
 
         List<Animation>::Iterator ali(animList);
-        for (!ali; *ali; ali++)
+        for (!ali; *ali; ++ali)
         {
             Animation* a = (*ali);
 
@@ -1298,7 +1327,7 @@ void MeshRoot::CompressStates()
             || !strnicmp(states[i].GetMeshFromRoot()->GetName(), "cp-", 3)
             || !strnicmp(states[i].GetMeshFromRoot()->GetName(), "sp-", 3)
             || states[i].IsTread()
-            )
+        )
         {
             // keep all hard points and shadow planes
             //
@@ -1307,12 +1336,12 @@ void MeshRoot::CompressStates()
 
 #if 0 // only get rid of useless terminal nodes (end effectors)
 
-        else if (animCycles.GetCount() && states[i].GetMeshFromRoot()->Child())
-        {
-            // keep anything with a child if its an animating model
-            //
-            used[i] = 1;
-        }
+    else if (animCycles.GetCount() && states[i].GetMeshFromRoot()->Child())
+    {
+      // keep anything with a child if its an animating model
+      //
+      used[i] = 1;
+    }
 
 #else // get rid of all useless terminal nodes and internal useless nodes
 
@@ -1331,11 +1360,11 @@ void MeshRoot::CompressStates()
                 // or if the state provides a pivot point for its children
                 //
 #if 0
-                used[i] = 1;
+        used[i] = 1;
 #else
                 NList<FamilyNode>::Iterator kids(&states[i].GetMeshFromRoot()->children);
                 FamilyNode* node;
-                while ((node = kids++) != NULL)
+                while ((node = kids++) != nullptr)
                 {
                     if (!node->IsMesh())
                     {
@@ -1407,7 +1436,7 @@ void MeshRoot::CompressStates()
         Bool hit = 0;
         NList<FamilyNode>::Iterator kids(&curMesh.children);
         FamilyNode* node;
-        while ((node = kids++) != NULL)
+        while ((node = kids++) != nullptr)
         {
             if (!node->IsMesh())
             {
@@ -1417,7 +1446,7 @@ void MeshRoot::CompressStates()
             //
             hit = 1;
 
-            Mesh& curChild = *(Mesh*)node;
+            Mesh& curChild = *static_cast<Mesh*>(node);
             U32 index = curChild.GetIndex();
             FamilyState& childState = states[index];
 
@@ -1430,7 +1459,7 @@ void MeshRoot::CompressStates()
 
             // same for animation start states
             //
-            for (!cycleI; *cycleI; cycleI++)
+            for (!cycleI; *cycleI; ++cycleI)
             {
                 AnimList* animList = (*cycleI);
 
@@ -1453,7 +1482,7 @@ void MeshRoot::CompressStates()
                 // also all relevant animation keys   FIXME remove unused keys
                 //
                 List<Animation>::Iterator ali(animList);
-                for (!ali; *ali; ali++)
+                for (!ali; *ali; ++ali)
                 {
                     Animation* anim = (*ali);
 
@@ -1493,12 +1522,12 @@ void MeshRoot::CompressStates()
 
             // delete animations for this useless state
             //
-            for (!cycleI; *cycleI; cycleI++)
+            for (!cycleI; *cycleI; ++cycleI)
             {
                 AnimList* animList = (*cycleI);
 
                 List<Animation>::Iterator ali(animList);
-                for (!ali; *ali; ali++)
+                for (!ali; *ali; ++ali)
                 {
                     Animation* anim = (*ali);
 
@@ -1518,7 +1547,7 @@ void MeshRoot::CompressStates()
         // get rid of the useless mesh
         //
         curMesh.Extract();
-        delete& curMesh;
+        delete &curMesh;
 
         // if the model doesn't animate, some verts may refer to this state
         // so point them at the root
@@ -1550,7 +1579,7 @@ void MeshRoot::CompressStates()
             ASSERT(vertToState[i].index[j] < oldStateCount);
             ASSERT(stateMapOldToNew[vertToState[i].index[j]] < states.count);
 
-            vertToState[i].index[j] = (U16)stateMapOldToNew[vertToState[i].index[j]];
+            vertToState[i].index[j] = static_cast<U16>(stateMapOldToNew[vertToState[i].index[j]]);
         }
     }
 #if 1
@@ -1564,11 +1593,11 @@ void MeshRoot::CompressStates()
     }
 
     // set world matrices relative to 0
-  //
+    //
     SetWorldAll(Matrix::I);
 
     // create root space to state space transforms
-  //
+    //
     stateMats.Alloc(states.count);
     for (i = 0; i < states.count; i++)
     {
@@ -1582,7 +1611,7 @@ void MeshRoot::CompressStates()
 
     // reset animation too
     //
-    for (!cycleI; *cycleI; cycleI++)
+    for (!cycleI; *cycleI; ++cycleI)
     {
         AnimList* animList = (*cycleI);
 
@@ -1598,7 +1627,7 @@ void MeshRoot::CompressStates()
         // reset all anim->index's
         //
         List<Animation>::Iterator animI(animList);
-        for (!animI; *animI; animI++)
+        for (!animI; *animI; ++animI)
         {
             Animation* anim = (*animI);
 
@@ -1615,6 +1644,7 @@ void MeshRoot::CompressStates()
 
     ASSERT(states.count < MAXMESHPERGROUP);
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshRoot::GetMem() const
@@ -1627,6 +1657,7 @@ U32 MeshRoot::GetMem() const
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshRoot::GetMemGeometry() const
@@ -1650,6 +1681,7 @@ U32 MeshRoot::GetMemGeometry() const
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshRoot::GetMemChunks() const
@@ -1666,6 +1698,7 @@ U32 MeshRoot::GetMemChunks() const
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshRoot::GetMemMRM() const
@@ -1682,6 +1715,7 @@ U32 MeshRoot::GetMemMRM() const
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 U32 MeshRoot::GetMemAnim() const
@@ -1693,6 +1727,7 @@ U32 MeshRoot::GetMemAnim() const
 
     return mem;
 }
+
 //----------------------------------------------------------------------------
 
 // build the FaceGroup array
@@ -1714,7 +1749,7 @@ void MeshRoot::SortFaces()
     U16 count[MAXBUCKYS];
     Utils::Memset(count, 0, sizeof(count));
 
-    FaceObj* f, * fe = faces.data + faces.count;
+    FaceObj *f, *fe = faces.data + faces.count;
     for (f = faces.data; f < fe; f++)
     {
         ASSERT(f->buckyIndex < buckys.count);
@@ -1777,7 +1812,7 @@ void MeshRoot::SortFaces()
         group.ClearData();
 
         // copy the bucky
-        *((BucketLock*)&group) = buckys[i];
+        *static_cast<BucketLock*>(&group) = buckys[i];
         ASSERT(group.faces.count == 0);
         ASSERT(group.faces.data == NULL);
 
@@ -1802,7 +1837,7 @@ void MeshRoot::SortFaces()
 
         group.faces[count[f->buckyIndex]] = *f;
 
-        index[i] = (U16)count[f->buckyIndex];
+        index[i] = static_cast<U16>(count[f->buckyIndex]);
 
         count[f->buckyIndex]++;
     }
@@ -1818,10 +1853,10 @@ void MeshRoot::SortFaces()
             {
                 MRM::Face& face = mrm->vertex[i].face[j];
 
-                ASSERT(face.face < faces.count&& index[face.face] < faces.count);
+                ASSERT(face.face < faces.count && index[face.face] < faces.count);
 
                 face.xface = index[face.face];
-                face.xbucky = (U16)faces[face.face].buckyIndex;
+                face.xbucky = static_cast<U16>(faces[face.face].buckyIndex);
             }
         }
     }
@@ -1829,6 +1864,7 @@ void MeshRoot::SortFaces()
 
     Check();
 }
+
 //----------------------------------------------------------------------------
 
 // verify that the mesh will fit in the allotted temp space
@@ -1850,32 +1886,47 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
     if (buckys.count > maxBuckys)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many materials in: %s ; %d ; max %d",
-            fileName.str, buckys.count, maxBuckys));
+        WARN_CON_DIAG
+        (
+            ("Too many materials in: %s ; %d ; max %d",
+                fileName.str, buckys.count, maxBuckys)
+        );
     }
     if (vertices.count > maxVerts)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many verts in: %s ; %d ; max %d",
-            fileName.str, vertices.count, maxVerts));
+        WARN_CON_DIAG
+        (
+            ("Too many verts in: %s ; %d ; max %d",
+                fileName.str, vertices.count, maxVerts)
+        );
     }
     if (normals.count > maxVerts)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many normals in: %s ; %d ; max %d",
-            fileName.str, normals.count, maxVerts));
+        WARN_CON_DIAG
+        (
+            ("Too many normals in: %s ; %d ; max %d",
+                fileName.str, normals.count, maxVerts)
+        );
     }
     if (uvs.count > maxVerts)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many texture coords in: %s ; %d ; max %d",
-            fileName.str, uvs.count, maxVerts));
+        WARN_CON_DIAG
+        (
+            ("Too many texture coords in: %s ; %d ; max %d",
+                fileName.str, uvs.count, maxVerts)
+        );
     }
     if (faces.count > maxTris)
     {
         valid = FALSE;
-        WARN_CON_DIAG(("Too many tris in: %s ; %d ; max %d",
-            fileName.str, faces.count, maxTris));
+        WARN_CON_DIAG
+        (
+            ("Too many tris in: %s ; %d ; max %d",
+                fileName.str, faces.count, maxTris)
+        );
     }
     if (!valid)
     {
@@ -1884,13 +1935,13 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
 
     // temporary memory
     //
-    U16* iv, * in, * iu;
+    U16 *iv, *in, *iu;
     U32 heapSize = Vid::Heap::ReqU16(&iv, &in, &iu);
 
     U32 vCount = 0, iCount = 0;
     // setup buckys and fill them
     //
-    FaceGroup* b, * be = groups.data + groups.count;
+    FaceGroup *b, *be = groups.data + groups.count;
     for (b = groups.data; b < be; b++)
     {
         FaceGroup& bucky = *b;
@@ -1906,7 +1957,7 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
 
         // for all the faces in this group
         //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         for (f = bucky.faces.data; f < fe; f++)
         {
             FaceObj& face = *f;
@@ -1922,9 +1973,9 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
 
                 if (iv[ivj] != in[inj])
                 {
-                    iv[ivj] = (U16)bucky.vCount;
-                    in[inj] = (U16)bucky.vCount;
-                    iu[iuj] = (U16)bucky.vCount;
+                    iv[ivj] = static_cast<U16>(bucky.vCount);
+                    in[inj] = static_cast<U16>(bucky.vCount);
+                    iu[iuj] = static_cast<U16>(bucky.vCount);
                     bucky.vCount++;
                     bucky.iCount++;
                 }
@@ -1950,8 +2001,11 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
 
     if (vCount > maxVerts || iCount > maxIndices)
     {
-        WARN_CON_DIAG(("%s: too many verts/faces: vCount %d max %d ; iCount %d max %d",
-            fileName.str, vCount, maxVerts, iCount / 3, maxTris));
+        WARN_CON_DIAG
+        (
+            ("%s: too many verts/faces: vCount %d max %d ; iCount %d max %d",
+                fileName.str, vCount, maxVerts, iCount / 3, maxTris)
+        );
         return FALSE;
     }
 
@@ -1960,6 +2014,7 @@ Bool MeshRoot::Check(U32 maxBuckys, U32 maxVerts, U32 maxIndices)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 int _cdecl CompareVertexI2(const void* e1, const void* e2)
@@ -1977,6 +2032,7 @@ int _cdecl CompareVertexI2(const void* e1, const void* e2)
     }
     return 0;
 }
+
 //----------------------------------------------------------------------------
 
 // experimental hardware T&L render
@@ -1998,7 +2054,7 @@ void MeshRoot::Rebuild()
 
     // rebuild into grouped GeoCache data
     // for each group
-    FaceGroup* b, * be = groups.data + groups.count;
+    FaceGroup *b, *be = groups.data + groups.count;
     for (b = groups.data; b < be; b++, vtx += vCount, idx += iCount, iC += iCount)
     {
         FaceGroup& bucky = *b;
@@ -2016,12 +2072,12 @@ void MeshRoot::Rebuild()
         bucky.index = idx;
 
         // build a vertex list
-  //    Color  * colors   = new Color[  MAXREADINDICES];
+        //    Color  * colors   = new Color[  MAXREADINDICES];
 
-      // fully expand the geo data
+        // fully expand the geo data
 
-      // for each face in this group
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+        // for each face in this group
+        FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
         VertexI2* vi = vtx;
         for (f = bucky.faces.data; f < fe; f++)
         {
@@ -2040,7 +2096,7 @@ void MeshRoot::Rebuild()
                 vi->uv = uvs[iuj];
                 vi->vi = vertToState[ivj];
 
-                vi->i0 = (U32)ivj;
+                vi->i0 = static_cast<U32>(ivj);
 
                 ASSERT(iC + bucky.iCount < indexCount);
                 /*
@@ -2081,18 +2137,18 @@ void MeshRoot::Rebuild()
                 if (test)
                 {
                     // j matches current i
-                    idx[j] = (U16)vCount;
+                    idx[j] = static_cast<U16>(vCount);
                 }
             }
             vtx[vC] = vtx[i];
             vtx[vC].i1 = vC;  // for re-indexing
-/*
-            if (hasColors)
-            {
-                colors[vertexCount] = colors[i];
-            }
-*/
-            idx[i] = (U16)vC;
+            /*
+                        if (hasColors)
+                        {
+                            colors[vertexCount] = colors[i];
+                        }
+            */
+            idx[i] = static_cast<U16>(vC);
             vC++;
         }
     }
@@ -2103,7 +2159,7 @@ void MeshRoot::Rebuild()
     qsort(vtx, vC, sizeof(VertexI2), CompareVertexI2);
 
     // build re-indexing array
-    VertexI2* vi, * vie = vtx + vC;
+    VertexI2 *vi, *vie = vtx + vC;
     U16 count = 0;
     VertexI* dv = vertex.data;
     for (vi = vtx; vi < vie; vi++, count++, dv++)
@@ -2119,11 +2175,11 @@ void MeshRoot::Rebuild()
     {
         FaceGroup& bucky = *b;
 
-        bucky.geo.Alloc(bucky.vCount, bucky.iCount, sizeof(Vertex), mrm != NULL ? vertices.count : 0);
+        bucky.geo.Alloc(bucky.vCount, bucky.iCount, sizeof(Vertex), mrm != nullptr ? vertices.count : 0);
 
         //    memcpy( bucky.geo.idx, idx, bucky.iCount << 1);
-          // copy & re-index indices
-        U16* ii = bucky.geo.idx, * ie = ii + bucky.iCount;
+        // copy & re-index indices
+        U16 *ii = bucky.geo.idx, *ie = ii + bucky.iCount;
         for (U16* si = bucky.index; ii < ie; ii++, si++)
         {
             *ii = idx1[*si];
@@ -2163,16 +2219,19 @@ void MeshRoot::Rebuild()
             bucky.index = idx;
 
             // build a vertex list
-      //    Color  * colors   = new Color[  MAXREADINDICES];
+            //    Color  * colors   = new Color[  MAXREADINDICES];
 
-          // build expanded data
-          // for each face in this group
-            FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
+            // build expanded data
+            // for each face in this group
+            FaceObj *f, *fe = bucky.faces.data + bucky.faceCount;
             VertexI2* vv = vtx;
             for (f = bucky.faces.data; f < fe; f++)
             {
                 FaceObj& face = *f;
-                ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+                ASSERT
+                (
+                    face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count
+                );
 
                 for (U32 j = 0; j < 3; j++, vv++, iCount++)
                 {
@@ -2220,7 +2279,7 @@ void MeshRoot::Rebuild()
                         if (test)
                         {
                             // j matches current i
-                            idx[j] = (U16)vCount;
+                            idx[j] = static_cast<U16>(vCount);
                         }
                     }
                     vtx[vCount] = vtx[i];
@@ -2231,11 +2290,10 @@ void MeshRoot::Rebuild()
                                       colors[vertexCount] = colors[i];
                                   }
                     */
-                    idx[i] = (U16)vCount;
+                    idx[i] = static_cast<U16>(vCount);
                     vCount++;
                 }
             }
-
         }   // rebuilding for mrm state
 
         // rebuild the mrm data
@@ -2264,10 +2322,10 @@ void MeshRoot::Rebuild()
             }
 
             // setup mrm state records
-            GeoCache::Mrm::Rec reclist[222], * rec = reclist;
+            GeoCache::Mrm::Rec reclist[222], *rec = reclist;
 
             // for each original mrm face record
-            MRM::Face* f, * fe = mrmv->face + mrmv->faceCount;
+            MRM::Face *f, *fe = mrmv->face + mrmv->faceCount;
             for (f = mrmv->face; f < fe; f++)
             {
                 // not for this group
@@ -2281,23 +2339,23 @@ void MeshRoot::Rebuild()
                 // calc index
                 switch (f->token)
                 {
-                default:
-                    continue;
+                    default:
+                        continue;
 
-                case VertexA:
-                case NormalA:
-                case TexCoord1A:
-                    break;
-                case VertexB:
-                case NormalB:
-                case TexCoord1B:
-                    i0 += 1;
-                    break;
-                case VertexC:
-                case NormalC:
-                case TexCoord1C:
-                    i0 += 2;
-                    break;
+                    case VertexA:
+                    case NormalA:
+                    case TexCoord1A:
+                        break;
+                    case VertexB:
+                    case NormalB:
+                    case TexCoord1B:
+                        i0 += 1;
+                        break;
+                    case VertexC:
+                    case NormalC:
+                    case TexCoord1C:
+                        i0 += 2;
+                        break;
                 }
 
                 S32 value = bucky.geo.idx[i0];                        // current mrm index
@@ -2309,19 +2367,23 @@ void MeshRoot::Rebuild()
                 S32 it = -1;    // minimum index
 
                 // compare rebuilt mrm vert with all original verts; pick the best match
-                VertexI* v = vertex.data, * ve = v + vCount;
+                VertexI *v = vertex.data, *ve = v + vCount;
                 for (; v < ve; v++)
                 {
                     if (v->vv.x == vert.vv.x && v->vv.y == vert.vv.y && v->vv.z == vert.vv.z)
                     {
-                        Vector ntt(
+                        Vector ntt
+                        (
                             fabsf(v->nv.x - vert.nv.x),
                             fabsf(v->nv.y - vert.nv.y),
-                            fabsf(v->nv.z - vert.nv.z));    // delta normal
+                            fabsf(v->nv.z - vert.nv.z)
+                        );    // delta normal
 
-                        UVPair uvtt(
+                        UVPair uvtt
+                        (
                             fabsf(v->uv.u - vert.uv.u),
-                            fabsf(v->uv.v - vert.uv.v));    // delta uv
+                            fabsf(v->uv.v - vert.uv.v)
+                        );    // delta uv
 
                         if (it == -1 || (uvtt.u <= uvt.u && uvtt.v <= uvt.v
                             && ntt.x <= nt.x && ntt.y <= nt.y && ntt.z <= nt.z))
@@ -2344,12 +2406,12 @@ void MeshRoot::Rebuild()
                     ASSERT(0);   // couldn't find a match!
                 }
 
-                rec->index = (U16)i0;          // index's index
+                rec->index = static_cast<U16>(i0);          // index's index
 
-                rec->value[0] = (U16)value;    // increasing
-                rec->value[1] = (U16)it;       // decreasing
+                rec->value[0] = static_cast<U16>(value);    // increasing
+                rec->value[1] = static_cast<U16>(it);       // decreasing
 
-                bucky.geo.idx[i0] = (U16)it;   // setup this mrm state
+                bucky.geo.idx[i0] = static_cast<U16>(it);   // setup this mrm state
 
                 rec++;    // next record
             }
@@ -2358,7 +2420,7 @@ void MeshRoot::Rebuild()
             if (!bucky.geo.mrm[vvCount].rCount)
             {
                 // no valid records
-                bucky.geo.mrm[vvCount].rec = NULL;
+                bucky.geo.mrm[vvCount].rec = nullptr;
                 continue;
             }
             // allocate and copy the state records
@@ -2378,6 +2440,7 @@ void MeshRoot::Rebuild()
 
     MrmUpdate1(groups, vertices.count, vCount, fCount);
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::TexAnim(Array<FaceGroup>* _buckys, Bool skipFrame0) // = NULL, = TRUE
@@ -2414,8 +2477,8 @@ void MeshRoot::TexAnim(Array<FaceGroup>* _buckys, Bool skipFrame0) // = NULL, = 
             //      MSWRITEV(22, (y,  2, "%s : dtt: %f ", bucky.texture1->name.str, dtt  ) );
             //      y++;
 
-                  // frame 0 is the static frame
-                  //
+            // frame 0 is the static frame
+            //
             if (skipFrame0 && bucky.texture1->GetAnimFrame() == 0)
             {
                 bucky.texture1 = bucky.texture1->GetNext();
@@ -2426,6 +2489,7 @@ void MeshRoot::TexAnim(Array<FaceGroup>* _buckys, Bool skipFrame0) // = NULL, = 
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::TexAnimStartRandom(Array<FaceGroup>* _buckys) // = NULL
@@ -2464,6 +2528,7 @@ void MeshRoot::TexAnimStartRandom(Array<FaceGroup>* _buckys) // = NULL
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::CalcEnvMapTexCoords()    // FIXME: sphere coords
@@ -2493,7 +2558,7 @@ void MeshRoot::CalcEnvMapTexCoords()    // FIXME: sphere coords
 
     F32 wid = bigBounds.Radius() * bigBounds.Radius();
 
-    for (FaceObj* f = faces.data, *fe = faces.data + faces.count; f < fe; f++)
+    for (FaceObj *f = faces.data, *fe = faces.data + faces.count; f < fe; f++)
     {
         for (j = 0; j < 3; j++)
         {
@@ -2501,7 +2566,7 @@ void MeshRoot::CalcEnvMapTexCoords()    // FIXME: sphere coords
             UVPair& uv = uvs2[f->uvs[j]];
 
             ///      F32 radius = (vv.y - min);
-            F32 invlen = 2.0f * wid / (F32)sqrt(vv.z * vv.z + vv.x * vv.x);
+            F32 invlen = 2.0f * wid / static_cast<F32>(sqrt(vv.z * vv.z + vv.x * vv.x));
             if (invlen)
             {
                 vv.x *= invlen;
@@ -2517,9 +2582,14 @@ void MeshRoot::CalcEnvMapTexCoords()    // FIXME: sphere coords
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
-void MeshRoot::SetColorGradient(Color color0, Color color1, F32 offset, F32 height, Bool alphaOnly, Array<Color, 4>* colorA) // = FALSE, = NULL
+void MeshRoot::SetColorGradient
+(
+    Color color0, Color color1, F32 offset, F32 height, Bool alphaOnly,
+    Array<Color, 4>* colorA
+) // = FALSE, = NULL
 {
     if (!colorA)
     {
@@ -2541,7 +2611,7 @@ void MeshRoot::SetColorGradient(Color color0, Color color1, F32 offset, F32 heig
     F32 db = F32(color1.b - color0.b);
     F32 da = F32(color1.a - color0.a);
 
-    Vector* s, * e = vertices.data + vertices.count;
+    Vector *s, *e = vertices.data + vertices.count;
     Color* c = colorA->data;
     for (s = &vertices[0]; s < e; s++, c++)
     {
@@ -2564,15 +2634,17 @@ void MeshRoot::SetColorGradient(Color color0, Color color1, F32 offset, F32 heig
         }
         else
         {
-            c->SetNoExpand(
+            c->SetNoExpand
+            (
                 F32(color0.r) + dr * doff,
                 F32(color0.g) + dg * doff,
                 F32(color0.b) + db * doff,
-                F32(color0.a) + da * doff);
+                F32(color0.a) + da * doff
+            );
         }
     }
-
 }
+
 //----------------------------------------------------------------------------
 
 void MeshRoot::MrmUpdate(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCount, U32& _faceCount)
@@ -2581,7 +2653,7 @@ void MeshRoot::MrmUpdate(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCou
 
     while (_vertCount != vCountNew)
     {
-        MRM::Vertex* mrmv = NULL;
+        MRM::Vertex* mrmv = nullptr;
 
         // update the face and vertex counts first
         if (direction == Increasing)
@@ -2618,7 +2690,7 @@ void MeshRoot::MrmUpdate(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCou
         MRM::Face* faceList = mrmv->face;
 
         // apply all updates
-        MRM::Face* f, * fe = faceList + mrmv->faceCount;
+        MRM::Face *f, *fe = faceList + mrmv->faceCount;
         for (f = faceList; f < fe; f++)
         {
             FaceObj& face = _groups[f->xbucky].faces[f->xface];
@@ -2626,853 +2698,853 @@ void MeshRoot::MrmUpdate(Array<FaceGroup>& _groups, U32 vCountNew, U32& _vertCou
             // change the appropriate attribute
             switch (f->token)
             {
-            case VertexA:
-                face.verts[0] = (U16)f->index[direction];
-                ASSERT(face.verts[0] < _vertCount);
-                break;
-            case VertexB:
-                face.verts[1] = (U16)f->index[direction];
-                ASSERT(face.verts[1] < _vertCount);
-                break;
-            case VertexC:
-                face.verts[2] = (U16)f->index[direction];
-                ASSERT(face.verts[2] < _vertCount);
-                break;
-            case NormalA:
-                face.norms[0] = (U16)f->index[direction];
-                ASSERT(face.norms[0] < normals.count);
-                break;
-            case NormalB:
-                face.norms[1] = (U16)f->index[direction];
-                ASSERT(face.norms[1] < normals.count);
-                break;
-            case NormalC:
-                face.norms[2] = (U16)f->index[direction];
-                ASSERT(face.norms[2] < normals.count);
-                break;
-            case TexCoord1A:
-                face.uvs[0] = (U16)f->index[direction];
-                ASSERT(face.uvs[0] < uvs.count);
-                break;
-            case TexCoord1B:
-                face.uvs[1] = (U16)f->index[direction];
-                ASSERT(face.uvs[1] < uvs.count);
-                break;
-            case TexCoord1C:
-                face.uvs[2] = (U16)f->index[direction];
-                ASSERT(face.uvs[2] < uvs.count);
-                break;
-            }
-        }
-    }
-}
-//----------------------------------------------------------------------------
-
-
-
-#if 0
-
-void MeshRoot::Rebuild()
-{
-    // temporary memory
-    //
-    U16* iv, * in, * iu;
-    U32 heapSize = Vid::Heap::ReqU16(&iv, &in, &iu);
-
-    // count verts
-    //
-    FaceGroup* b, * be = groups.data + groups.count;
-    for (b = groups.data; b < be; b++)
-    {
-        FaceGroup& bucky = *b;
-
-        if (bucky.geo.vtx)
-        {
-            Vid::Heap::Restore(heapSize);
-            return;
-        }
-        U32 vCount = 0;
-        U32 iCount = 0;
-
-        // clear indexers
-        //
-        memset(iv, 0xff, sizeof(U16) * vertices.count);
-        memset(in, 0xfe, sizeof(U16) * normals.count);
-        memset(iu, 0xfd, sizeof(U16) * uvs.count);
-
-        // for all the faces in this group
-        //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
-        for (f = bucky.faces.data; f < fe; f++)
-        {
-            FaceObj& face = *f;
-            ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-            // light, project...
-            //
-            for (U32 j = 0; j < 3; j++)
-            {
-                U16 ivj = face.verts[j];
-                U16 inj = face.norms[j];
-                U16 iuj = face.uvs[j];
-
-                if (iv[ivj] != in[inj])
-                {
-                    iv[ivj] = (U16)vCount;
-                    in[inj] = (U16)vCount;
-                    iu[iuj] = (U16)vCount;
-                    vCount++;
-                    iCount++;
-                }
-                else if (iv[ivj] != iu[iuj])
-                {
-                    iv[ivj] = (U16)vCount;
-                    in[inj] = (U16)vCount;
-                    iu[iuj] = (U16)vCount;
-                    vCount++;
-                    iCount++;
-                }
-                else
-                {
-                    iCount++;
-                }
-            }
-        }
-        bucky.geo.Alloc(vCount, iCount);
-
-        vCount = 0;
-
-        // clear indexers
-        //
-        memset(iv, 0xff, sizeof(U16) * vertices.count);
-        memset(in, 0xfe, sizeof(U16) * normals.count);
-        memset(iu, 0xfd, sizeof(U16) * uvs.count);
-
-        // for all the faces in this group
-        //
-        Vertex* vtx = bucky.geo, * v0 = bucky.geo;
-        U16* idx = bucky.geo, * vmap = bucky.geo.vmap;
-        for (f = bucky.faces.data; f < fe; f++)
-        {
-            FaceObj& face = *f;
-            ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-            // light, project...
-            //
-            for (U32 j = 0; j < 3; j++)
-            {
-                U16 ivj = face.verts[j];
-                U16 inj = face.norms[j];
-                U16 iuj = face.uvs[j];
-
-                if (iv[ivj] != in[inj])
-                {
-                    vtx->vv = vertices[ivj];
-                    vtx->nv = normals[inj];
-                    vtx->uv = uvs[iuj];
-                    vtx++;
-
-                    iv[ivj] = (U16)vCount;
-                    in[inj] = (U16)vCount;
-                    iu[iuj] = (U16)vCount;
-
-                    *idx++ = (U16)vCount;
-                    vCount++;
-                    *vmap++ = (U16)ivj;
-                }
-                else if (iv[ivj] != iu[iuj])
-                {
-                    *vtx = v0[iv[ivj]];
-                    vtx->uv = uvs[iuj];
-                    vtx++;
-
-                    iv[ivj] = (U16)vCount;
-                    in[inj] = (U16)vCount;
-                    iu[iuj] = (U16)vCount;
-
-                    *idx++ = (U16)vCount;
-                    vCount++;
-                    *vmap++ = (U16)ivj;
-                }
-                else
-                {
-                    *idx++ = iv[ivj];
-                }
-            }
-        }
-        ASSERT(vmap - bucky.geo.vmap == vCount);
-    }
-    Vid::Heap::Restore(heapSize);
-}
-//----------------------------------------------------------------------------
-
-void MeshRoot::Rebuild()
-{
-    // temporary memory
-    //
-    U16* iv;
-    U32 heapSize = Vid::Heap::ReqU16(&iv, vertices.count);
-
-    // count verts
-    //
-    FaceGroup* b, * be = groups.data + groups.count;
-    for (b = groups.data; b < be; b++)
-    {
-        FaceGroup& bucky = *b;
-
-        if (bucky.geo.vtx)
-        {
-            Vid::Heap::Restore(heapSize);
-            return;
-        }
-        U32 vCount = 0;
-        U32 iCount = 0;
-
-        // clear indexers
-        //
-        memset(iv, 0xff, sizeof(U16) * vertices.count);
-
-        // for all the faces in this group
-        //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
-        for (f = bucky.faces.data; f < fe; f++)
-        {
-            FaceObj& face = *f;
-            ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-            // light, project...
-            //
-            for (U32 j = 0; j < 3; j++)
-            {
-                U16 ivj = face.verts[j];
-
-                if (iv[ivj] == 0xffff)
-                {
-                    iv[ivj] = (U16)vCount;
-                    vCount++;
-                    iCount++;
-                }
-                else
-                {
-                    iCount++;
-                }
-            }
-        }
-        bucky.geo.Alloc(vCount, iCount, sizeof(Vertex), FALSE);
-
-        vCount = 0;
-
-        // clear indexers
-        //
-        memset(iv, 0xff, sizeof(U16) * vertices.count);
-
-        // for all the faces in this group
-        //
-        Vertex* vtx = bucky.geo;
-        U16* idx = bucky.geo;
-        VertIndex* vmap = bucky.geo.vmap;
-        for (f = bucky.faces.data; f < fe; f++)
-        {
-            FaceObj& face = *f;
-            ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-            // light, project...
-            //
-            for (U32 j = 0; j < 3; j++)
-            {
-                U16 ivj = face.verts[j];
-
-                if (iv[ivj] == 0xffff)
-                {
-                    vtx->vv = vertices[ivj];
-                    vtx->nv = normals[ivj];
-                    vtx->uv = uvs[ivj];
-                    vtx++;
-
-                    iv[ivj] = (U16)vCount;
-
-                    *idx++ = (U16)vCount;
-                    vCount++;
-
-                    *vmap++ = vertToState[ivj];
-                }
-                else
-                {
-                    *idx++ = iv[ivj];
-                }
-            }
-        }
-        ASSERT(vmap - bucky.geo.vmap == (S32)vCount);
-    }
-    Vid::Heap::Restore(heapSize);
-}
-//----------------------------------------------------------------------------
-
-void MeshRoot::Rebuild()
-{
-    U32 indexCount = faceCount * 3;
-
-    // temp build mem
-    Vertex* vtx0;
-    U16* idx0;
-    U32 heapSize = Vid::Heap::ReqVertex((VertexTL**)&vtx0, indexCount * 2, &idx0, indexCount * 4);
-    U16* idx1 = idx0 + indexCount * 2;
-
-    Vertex* vtx = vtx0;
-    U16* idx = idx0;
-    VertIndex** vsx = (VertIndex**)(vtx0 + indexCount);
-
-#if 0
-    // temp build mem
-    U16* iv, * in, * iu;
-    U32 heapSize1 = Vid::Heap::ReqU16(&iv, &in, &iu);
-
-    // rebuild into grouped GeoCache data
-    // for each group
-    FaceGroup* b, * be = groups.data + groups.count;
-    for (b = groups.data; b < be; b++)
-    {
-        FaceGroup& bucky = *b;
-
-        if (bucky.geo.vtx)
-        {
-            // already done
-            Vid::Heap::Restore(heapSize);
-            return;
-        }
-        // clear counts
-        bucky.vCount = 0;
-        bucky.iCount = 0;
-
-        // build a vertex list
-  //    Color  * colors   = new Color[  MAXREADINDICES];
-
-      // clear indexers
-      //
-        memset(iv, 0xff, sizeof(U16) * vertices.count);
-        memset(in, 0xfe, sizeof(U16) * normals.count);
-        memset(iu, 0xfd, sizeof(U16) * uvs.count);
-
-        // for each face in this group
-        //
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
-        Vertex* v = vtx;
-        VertIndex** s = vsx;
-        for (f = bucky.faces.data; f < fe; f++)
-        {
-            FaceObj& face = *f;
-            ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-            // count
-            for (U32 j = 0; j < 3; j++, v++, s++, bucky.iCount++)
-            {
-                U16 ivj = face.verts[j];
-                U16 inj = face.norms[j];
-                U16 iuj = face.uvs[j];
-
-                if (iv[ivj] != in[inj])
-                {
-                    iv[ivj] = (U16)bucky.vCount;
-                    in[inj] = (U16)bucky.vCount;
-                    iu[iuj] = (U16)bucky.vCount;
-                    bucky.vCount++;
-                    bucky.iCount++;
-                }
-                else if (iv[ivj] != iu[iuj])
-                {
-                    iv[ivj] = (U16)bucky.vCount;
-                    in[inj] = (U16)bucky.vCount;
-                    iu[iuj] = (U16)bucky.vCount;
-                    bucky.vCount++;
-                    bucky.iCount++;
-                }
-                else
-                {
-                    bucky.iCount++;
-                }
-            }
-        }
-        // allocate memory
-        bucky.geo.Alloc(bucky.vCount, bucky.iCount, sizeof(Vertex), mrm != NULL ? vertices.count : 0);
-
-        // clear indexers
-        //
-        memset(iv, 0xff, sizeof(U16) * vertices.count);
-        memset(in, 0xfe, sizeof(U16) * normals.count);
-        memset(iu, 0xfd, sizeof(U16) * uvs.count);
-
-        bucky.vCount = 0;
-
-        // for each face in this group
-        Vertex* vtx = bucky.geo, * v0 = bucky.geo;
-        U16* idx = bucky.geo;
-        VertIndex* vmap = bucky.geo.vmap;
-        for (f = bucky.faces.data; f < fe; f++)
-        {
-            FaceObj& face = *f;
-            ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-            // rebuild
-            for (U32 j = 0; j < 3; j++)
-            {
-                U16 ivj = face.verts[j];
-                U16 inj = face.norms[j];
-                U16 iuj = face.uvs[j];
-
-                if (iv[ivj] != in[inj])
-                {
-                    vtx->vv = vertices[ivj];
-                    vtx->nv = normals[inj];
-                    vtx->uv = uvs[iuj];
-                    vtx++;
-
-                    iv[ivj] = (U16)bucky.vCount;
-                    in[inj] = (U16)bucky.vCount;
-                    iu[iuj] = (U16)bucky.vCount;
-
-                    *idx++ = (U16)bucky.vCount;
-                    bucky.vCount++;
-                    *vmap++ = vertToState[ivj];   // grouped GeoCache VertIndex's
-                }
-                else if (iv[ivj] != iu[iuj])
-                {
-                    *vtx = v0[iv[ivj]];
-                    vtx->uv = uvs[iuj];
-                    vtx++;
-
-                    iv[ivj] = (U16)bucky.vCount;
-                    in[inj] = (U16)bucky.vCount;
-                    iu[iuj] = (U16)bucky.vCount;
-
-                    *idx++ = (U16)bucky.vCount;
-                    bucky.vCount++;
-                    *vmap++ = vertToState[ivj];
-                }
-                else
-                {
-                    *idx++ = iv[ivj];
-                }
-            }
-        }
-        ASSERT(vmap - bucky.geo.vmap == (S32)bucky.vCount);
-    }
-
-#else
-
-    // rebuild into grouped GeoCache data
-    // for each group
-    FaceGroup* b, * be = groups.data + groups.count;
-    for (b = groups.data; b < be; b++)
-    {
-        FaceGroup& bucky = *b;
-
-        if (bucky.geo.vtx)
-        {
-            // already done
-            Vid::Heap::Restore(heapSize);
-            return;
-        }
-        // clear counts
-        bucky.vCount = 0;
-        bucky.iCount = 0;
-
-        // build a vertex list
-  //    Color  * colors   = new Color[  MAXREADINDICES];
-
-      // fully expand the geo data
-      // for each face in this group
-        FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
-        Vertex* vv = vtx;
-        U16* ii = idx1;
-        VertIndex** vs = vsx;
-        for (f = bucky.faces.data; f < fe; f++)
-        {
-            FaceObj& face = *f;
-            ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-            for (U32 j = 0; j < 3; j++, vv++, vs++, bucky.iCount++)
-            {
-                U16 ivj = face.verts[j];
-                U16 inj = face.norms[j];
-                U16 iuj = face.uvs[j];
-
-                vv->vv = vertices[ivj];
-                vv->nv = normals[inj];
-                vv->uv = uvs[iuj];
-                *vs = &vertToState[ivj];
-                *ii++ = ivj;
-
-                /*
-                              if (hasColors)
-                              {
-                          ASSERT( colorfeat->tris[lasti] < colorfeat->objCount);
-                                  colors[icount] = colorfeat->colors[colorfeat->tris[lasti]];
-                              }
-                */
-            }
-        }
-
-        // remove all redundancy in geometry
-        Utils::Memset(idx, 0xff, bucky.iCount << 1);
-        bucky.vCount = 0;
-        for (U32 i = 0; i < bucky.iCount; i++)
-        {
-            if (idx[i] == 0xffff)
-            {
-                for (U32 j = i + 1; j < bucky.iCount; j++)
-                {
-                    Bool test =
-                        (fabs(vtx[i].vv.x - vtx[j].vv.x) < Vid::Var::vertexThresh) &&
-                        (fabs(vtx[i].vv.y - vtx[j].vv.y) < Vid::Var::vertexThresh) &&
-                        (fabs(vtx[i].vv.z - vtx[j].vv.z) < Vid::Var::vertexThresh) &&
-                        (fabs(vtx[i].nv.x - vtx[j].nv.x) < Vid::Var::normalThresh) &&
-                        (fabs(vtx[i].nv.y - vtx[j].nv.y) < Vid::Var::normalThresh) &&
-                        (fabs(vtx[i].nv.z - vtx[j].nv.z) < Vid::Var::normalThresh) &&
-                        (fabs(vtx[i].u - vtx[j].u) < Vid::Var::tcoordThresh) &&
-                        (fabs(vtx[i].v - vtx[j].v) < Vid::Var::tcoordThresh) &&
-                        vsx[i] == vsx[j];
-                    //            && (!hasColors || colors[i] == colors[j]);
-
-                    if (test)
-                    {
-                        idx[j] = (U16)bucky.vCount;
-                    }
-                }
-                vtx[bucky.vCount] = vtx[i];
-                vsx[bucky.vCount] = vsx[i];
-
-                /*
-                              if (hasColors)
-                              {
-                                  colors[vertexCount] = colors[i];
-                              }
-                */
-                idx[i] = (U16)bucky.vCount;
-                bucky.vCount++;
-            }
-        }
-        bucky.geo.Alloc(bucky.vCount, bucky.iCount, sizeof(Vertex), mrm != NULL ? vertices.count : 0);
-
-        memcpy(bucky.geo.vtx, vtx, bucky.vCount * sizeof(Vertex));
-        memcpy(bucky.geo.idx, idx, bucky.iCount << 1);
-
-        VertIndex** vse = vsx + bucky.vCount, * dst = bucky.geo.vmap;
-        for (vs = vsx; vs < vse; vs++, dst++)
-        {
-            *dst = **vs;
-        }
-    }
-#endif
-
-    //  if (!mrm)
-    {
-        // no mrm data; done
-        return;
-    }
-
-    // for each mrm state (for each vertCount)
-    for (S32 vvCount = vertCount - 1; vvCount > 0; vvCount--)
-    {
-        // setup old data for this state
-        MrmUpdate(groups, vvCount, vertCount, faceCount);
-
-        // reset loop variables
-        U32 vCount = 0, iCount = 0;
-        vtx = vtx0;
-        idx = idx0;
-
-        // rebuild at this mrm state
-        // for each group
-        for (b = groups.data; b < be; b++, vtx += vCount, idx += iCount)
-        {
-            FaceGroup& bucky = *b;
-
-            // reset loop variables
-            vCount = 0;
-            iCount = 0;
-            bucky.vert = (VertexTL*)vtx;
-            bucky.index = idx;
-
-            // build a vertex list
-      //    Color  * colors   = new Color[  MAXREADINDICES];
-
-#if 0
-
-      // clear indexers
-      //
-            memset(iv, 0xff, sizeof(U16) * vertices.count);
-            memset(in, 0xfe, sizeof(U16) * normals.count);
-            memset(iu, 0xfd, sizeof(U16) * uvs.count);
-
-            // for each face in this group
-            FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
-            Vertex* vv = vtx;
-            U16* ii = idx;
-            for (f = bucky.faces.data; f < fe; f++)
-            {
-                FaceObj& face = *f;
-                ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-                // rebuild
-                for (U32 j = 0; j < 3; j++, iCount++)
-                {
-                    U16 ivj = face.verts[j];
-                    U16 inj = face.norms[j];
-                    U16 iuj = face.uvs[j];
-
-                    if (iv[ivj] != in[inj])
-                    {
-                        vv->vv = vertices[ivj];
-                        vv->nv = normals[inj];
-                        vv->uv = uvs[iuj];
-                        vv++;
-
-                        iv[ivj] = (U16)vCount;
-                        in[inj] = (U16)vCount;
-                        iu[iuj] = (U16)vCount;
-
-                        *ii++ = (U16)vCount;
-                        vCount++;
-                    }
-                    else if (iv[ivj] != iu[iuj])
-                    {
-                        *vv = vtx[iv[ivj]];
-                        vv->uv = uvs[iuj];
-                        vv++;
-
-                        iv[ivj] = (U16)vCount;
-                        in[inj] = (U16)vCount;
-                        iu[iuj] = (U16)vCount;
-
-                        *ii++ = (U16)vCount;
-                        vCount++;
-                    }
-                    else
-                    {
-                        *ii++ = iv[ivj];
-                    }
-                }
-            }
-
-            ASSERT((S32)vCount == vv - vtx && (S32)iCount == ii - idx);
-
-#else
-
-      // build expanded data
-      // for each face in this group
-            FaceObj* f, * fe = bucky.faces.data + bucky.faceCount;
-            Vertex* v = vtx;
-            for (f = bucky.faces.data; f < fe; f++)
-            {
-                FaceObj& face = *f;
-                ASSERT(face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
-
-                for (U32 j = 0; j < 3; j++, v++, iCount++)
-                {
-                    U16 ivj = face.verts[j];
-                    U16 inj = face.norms[j];
-                    U16 iuj = face.uvs[j];
-
-                    v->vv = vertices[ivj];
-                    v->nv = normals[inj];
-                    v->uv = uvs[iuj];
-                    /*
-                                  if (hasColors)
-                                  {
-                              ASSERT( colorfeat->tris[lasti] < colorfeat->objCount);
-                                      colors[icount] = colorfeat->colors[colorfeat->tris[lasti]];
-                                  }
-                    */
-                }
-            }
-
-            // remove all redundancy in geo data
-            Utils::Memset(idx, 0xff, iCount << 1);
-
-            for (U32 i = 0; i < iCount; i++)
-            {
-                if (idx[i] == 0xffff)
-                {
-                    for (U32 j = i + 1; j < iCount; j++)
-                    {
-                        Bool test =
-                            (fabs(vtx[i].vv.x - vtx[j].vv.x) < Vid::Var::vertexThresh) &&
-                            (fabs(vtx[i].vv.y - vtx[j].vv.y) < Vid::Var::vertexThresh) &&
-                            (fabs(vtx[i].vv.z - vtx[j].vv.z) < Vid::Var::vertexThresh) &&
-                            (fabs(vtx[i].nv.x - vtx[j].nv.x) < Vid::Var::normalThresh) &&
-                            (fabs(vtx[i].nv.y - vtx[j].nv.y) < Vid::Var::normalThresh) &&
-                            (fabs(vtx[i].nv.z - vtx[j].nv.z) < Vid::Var::normalThresh) &&
-                            (fabs(vtx[i].u - vtx[j].u) < Vid::Var::tcoordThresh) &&
-                            (fabs(vtx[i].v - vtx[j].v) < Vid::Var::tcoordThresh) &&
-                            vsx[i] == vsx[j];
-                        //            && (!hasColors || colors[i] == colors[j]);
-
-                        if (test)
-                        {
-                            idx[j] = (U16)vCount;
-                        }
-                    }
-                    vtx[vCount] = vtx[i];
-
-                    /*
-                                  if (hasColors)
-                                  {
-                                      colors[vertexCount] = colors[i];
-                                  }
-                    */
-                    idx[i] = (U16)vCount;
-                    vCount++;
-                }
-            }
-
-#endif
-        }   // rebuilding for mrm state
-
-        // rebuild the mrm data
-        MRM::Vertex* vertex = mrm->vertex + vvCount;
-
-        // for each group
-        for (b = groups.data; b < be; b++)
-        {
-            FaceGroup& bucky = *b;
-
-            // initial clear GeoCache mrm state 
-            bucky.geo.mrm[vvCount].iCount = 0;
-            bucky.geo.mrm[vvCount].vCount = 0;
-            bucky.geo.mrm[vvCount].rCount = 0;
-
-            // setup mrm[].iCount
-            for (U32 i = 0; i < vertex->newFaceCount; i++)
-            {
-                S32 bi = faces[faceCount].buckyIndex;
-
-                if (b - groups.data == bi)
-                {
-                    bucky.geo.mrm[vvCount].iCount += 3;
-                    bucky.geo.iCount -= 3;
-                }
-            }
-
-            // setup mrm state records
-            GeoCache::Mrm::Rec reclist[222], * rec = reclist;
-
-            // for each original mrm face record
-            MRM::Face* f, * fe = vertex->face + vertex->faceCount;
-            for (f = vertex->face; f < fe; f++)
-            {
-                // not for this group
-                if (b - groups.data != f->xbucky)
-                {
-                    continue;
-                }
-                // base index
-                U32 i0 = f->xface * 3;
-
-                // calc index
-                switch (f->token)
-                {
-                default:
-                    continue;
-
                 case VertexA:
-                case NormalA:
-                case TexCoord1A:
+                    face.verts[0] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.verts[0] < _vertCount);
                     break;
                 case VertexB:
-                case NormalB:
-                case TexCoord1B:
-                    i0 += 1;
+                    face.verts[1] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.verts[1] < _vertCount);
                     break;
                 case VertexC:
-                case NormalC:
-                case TexCoord1C:
-                    i0 += 2;
+                    face.verts[2] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.verts[2] < _vertCount);
                     break;
-                }
-
-
-                S32 value = bucky.geo.idx[i0];                      // current mrm index
-                Vertex& vert = ((Vertex*)bucky.vert)[value];   // current mrm vert
-
-                // minimum delta normal and uv
-                Vector nt(F32_MAX, F32_MAX, F32_MAX);
-                UVPair uvt(F32_MAX, F32_MAX);
-                S32 it = -1;    // minimum index
-
-                // compare rebuilt mrm vert with all original verts; pick the best match
-                Vertex* v = bucky.geo, * ve = v + vCount;
-                for (; v < ve; v++)
-                {
-                    if (v->vv.x == vert.vv.x && v->vv.y == vert.vv.y && v->vv.z == vert.vv.z)
-                    {
-                        Vector ntt(
-                            fabsf(v->nv.x - vert.nv.x),
-                            fabsf(v->nv.y - vert.nv.y),
-                            fabsf(v->nv.z - vert.nv.z));    // delta normal
-
-                        UVPair uvtt(
-                            fabsf(v->uv.u - vert.uv.u),
-                            fabsf(v->uv.v - vert.uv.v));    // delta uv
-
-                        if (it == -1 || (uvtt.u <= uvt.u && uvtt.v <= uvt.v
-                            && ntt.x <= nt.x && ntt.y <= nt.y && ntt.z <= nt.z))
-                        {
-                            // best so far
-                            nt = ntt;
-                            uvt = uvtt;
-                            it = v - (Vertex*)bucky.geo.vtx;
-                        }
-                    }
-                }
-                if (it == value)
-                {
-                    // original value is best 
-                    continue;
-                }
-
-                if (it == -1)
-                {
-                    ASSERT(0);   // couldn't find a match!
-                }
-
-                rec->index = (U16)i0;          // index's index
-
-                rec->value[0] = (U16)value;    // increasing
-                rec->value[1] = (U16)it;       // decreasing
-
-                bucky.geo.idx[i0] = (U16)it;   // setup this mrm state
-
-                rec++;    // next record
+                case NormalA:
+                    face.norms[0] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.norms[0] < normals.count);
+                    break;
+                case NormalB:
+                    face.norms[1] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.norms[1] < normals.count);
+                    break;
+                case NormalC:
+                    face.norms[2] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.norms[2] < normals.count);
+                    break;
+                case TexCoord1A:
+                    face.uvs[0] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.uvs[0] < uvs.count);
+                    break;
+                case TexCoord1B:
+                    face.uvs[1] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.uvs[1] < uvs.count);
+                    break;
+                case TexCoord1C:
+                    face.uvs[2] = static_cast<U16>(f->index[direction]);
+                    ASSERT(face.uvs[2] < uvs.count);
+                    break;
             }
-            bucky.geo.mrm[vvCount].rCount = U8(rec - reclist);
-
-            if (!bucky.geo.mrm[vvCount].rCount)
-            {
-                // no valid records
-                bucky.geo.mrm[vvCount].rec = NULL;
-                continue;
-            }
-            // allocate and copy the state records
-            bucky.geo.mrm[vvCount].rec = new GeoCache::Mrm::Rec[bucky.geo.mrm[vvCount].rCount];
-            memcpy(bucky.geo.mrm[vvCount].rec, reclist, bucky.geo.mrm[vvCount].rCount);
         }
     }
+}
+
+//----------------------------------------------------------------------------
+
 
 #if 0
-    // done with initial build temp memory
-    Vid::Heap::Restore(heapSize1);
+
+void MeshRoot::Rebuild()
+{
+  // temporary memory
+  //
+  U16 * iv, * in, * iu;
+  U32 heapSize = Vid::Heap::ReqU16( &iv, &in, &iu);
+
+  // count verts
+  //
+  FaceGroup * b, * be = groups.data + groups.count;
+  for (b = groups.data; b < be; b++)
+  {
+    FaceGroup & bucky = *b;
+
+    if (bucky.geo.vtx)
+    {
+      Vid::Heap::Restore( heapSize);
+      return;
+    }
+    U32 vCount = 0;
+    U32 iCount = 0;
+
+    // clear indexers
+    //
+    memset( iv, 0xff, sizeof(U16) * vertices.count);
+    memset( in, 0xfe, sizeof(U16) * normals.count);
+    memset( iu, 0xfd, sizeof(U16) * uvs.count);
+
+    // for all the faces in this group
+    //
+    FaceObj * f, * fe = bucky.faces.data + bucky.faceCount;
+    for (f = bucky.faces.data; f < fe; f++)
+    {
+      FaceObj & face = *f;
+      ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+      // light, project...
+      //
+      for (U32 j = 0; j < 3; j++)
+      {
+        U16 ivj = face.verts[j];
+	      U16 inj = face.norms[j];
+	      U16 iuj = face.uvs[j];
+
+        if (iv[ivj] != in[inj])
+        {
+          iv[ivj] = (U16) vCount;
+          in[inj] = (U16) vCount;
+          iu[iuj] = (U16) vCount;
+          vCount++;
+          iCount++;
+        }
+        else if (iv[ivj] != iu[iuj])
+        {
+          iv[ivj] = (U16) vCount;
+          in[inj] = (U16) vCount;
+          iu[iuj] = (U16) vCount;
+          vCount++;
+          iCount++;
+        }
+        else
+        {
+          iCount++;
+        }
+      }
+    }
+    bucky.geo.Alloc( vCount, iCount);
+
+    vCount = 0;
+
+    // clear indexers
+    //
+    memset( iv, 0xff, sizeof(U16) * vertices.count);
+    memset( in, 0xfe, sizeof(U16) * normals.count);
+    memset( iu, 0xfd, sizeof(U16) * uvs.count);
+
+    // for all the faces in this group
+    //
+    Vertex  * vtx = bucky.geo, * v0 = bucky.geo;
+    U16     * idx = bucky.geo, * vmap = bucky.geo.vmap;
+    for (f = bucky.faces.data; f < fe; f++)
+    {
+      FaceObj & face = *f;
+      ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+      // light, project...
+      //
+      for (U32 j = 0; j < 3; j++)
+      {
+        U16 ivj = face.verts[j];
+	      U16 inj = face.norms[j];
+	      U16 iuj = face.uvs[j];
+
+        if (iv[ivj] != in[inj])
+        {
+          vtx->vv = vertices[ivj];
+          vtx->nv = normals[inj];
+          vtx->uv = uvs[iuj];
+          vtx++;
+
+          iv[ivj] = (U16) vCount;
+          in[inj] = (U16) vCount;
+          iu[iuj] = (U16) vCount;
+
+          *idx++  = (U16) vCount;
+          vCount++;
+          *vmap++ = (U16) ivj;
+        }
+        else if (iv[ivj] != iu[iuj])
+        {
+          *vtx = v0[iv[ivj]];
+          vtx->uv = uvs[iuj];
+          vtx++;
+
+          iv[ivj] = (U16) vCount;
+          in[inj] = (U16) vCount;
+          iu[iuj] = (U16) vCount;
+
+          *idx++  = (U16) vCount;
+          vCount++;
+          *vmap++ = (U16) ivj;
+        }
+        else
+        {
+          *idx++ = iv[ivj];
+        }
+      }
+    }
+    ASSERT( vmap - bucky.geo.vmap == vCount);
+  }
+  Vid::Heap::Restore( heapSize);
+}
+//----------------------------------------------------------------------------
+
+void MeshRoot::Rebuild()
+{
+  // temporary memory
+  //
+  U16 * iv;
+  U32 heapSize = Vid::Heap::ReqU16( &iv, vertices.count);
+
+  // count verts
+  //
+  FaceGroup * b, * be = groups.data + groups.count;
+  for (b = groups.data; b < be; b++)
+  {
+    FaceGroup & bucky = *b;
+
+    if (bucky.geo.vtx)
+    {
+      Vid::Heap::Restore( heapSize);
+      return;
+    }
+    U32 vCount = 0;
+    U32 iCount = 0;
+
+    // clear indexers
+    //
+    memset( iv, 0xff, sizeof(U16) * vertices.count);
+
+    // for all the faces in this group
+    //
+    FaceObj * f, * fe = bucky.faces.data + bucky.faceCount;
+    for (f = bucky.faces.data; f < fe; f++)
+    {
+      FaceObj & face = *f;
+      ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+      // light, project...
+      //
+      for (U32 j = 0; j < 3; j++)
+      {
+        U16 ivj = face.verts[j];
+
+        if (iv[ivj] == 0xffff)
+        {
+          iv[ivj] = (U16) vCount;
+          vCount++;
+          iCount++;
+        }
+        else
+        {
+          iCount++;
+        }
+      }
+    }
+    bucky.geo.Alloc( vCount, iCount, sizeof(Vertex), FALSE);
+
+    vCount = 0;
+
+    // clear indexers
+    //
+    memset( iv, 0xff, sizeof(U16) * vertices.count);
+
+    // for all the faces in this group
+    //
+    Vertex  * vtx = bucky.geo;
+    U16     * idx = bucky.geo;
+    VertIndex * vmap = bucky.geo.vmap;
+    for (f = bucky.faces.data; f < fe; f++)
+    {
+      FaceObj & face = *f;
+      ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+      // light, project...
+      //
+      for (U32 j = 0; j < 3; j++)
+      {
+        U16 ivj = face.verts[j];
+
+        if (iv[ivj] == 0xffff)
+        {
+          vtx->vv = vertices[ivj];
+          vtx->nv = normals[ivj];
+          vtx->uv = uvs[ivj];
+          vtx++;
+
+          iv[ivj] = (U16) vCount;
+
+          *idx++  = (U16) vCount;
+          vCount++;
+
+          *vmap++ = vertToState[ivj];
+        }
+        else
+        {
+          *idx++ = iv[ivj];
+        }
+      }
+    }
+    ASSERT( vmap - bucky.geo.vmap == (S32);Count);
+  }
+  Vid::Heap::Restore( heapSize);
+}
+//----------------------------------------------------------------------------
+
+void MeshRoot::Rebuild()
+{
+  U32 indexCount = faceCount * 3;
+
+  // temp build mem
+  Vertex * vtx0;
+  U16 * idx0;
+  U32 heapSize = Vid::Heap::ReqVertex( (VertexTL **)&vtx0, indexCount * 2, &idx0, indexCount * 4);
+  U16 * idx1 = idx0 + indexCount * 2;
+
+  Vertex * vtx = vtx0;
+  U16 * idx = idx0;
+  VertIndex ** vsx = (VertIndex **) (vtx0 + indexCount);
+
+#if 0
+  // temp build mem
+  U16 * iv, * in, * iu;
+  U32 heapSize1 = Vid::Heap::ReqU16( &iv, &in, &iu);
+
+  // rebuild into grouped GeoCache data
+  // for each group
+  FaceGroup * b, * be = groups.data + groups.count;
+  for (b = groups.data; b < be; b++)
+  {
+    FaceGroup & bucky = *b;
+
+    if (bucky.geo.vtx)
+    {
+      // already done
+      Vid::Heap::Restore( heapSize);
+      return;
+    }
+    // clear counts
+    bucky.vCount = 0;
+    bucky.iCount = 0;
+
+	  // build a vertex list
+//    Color  * colors   = new Color[  MAXREADINDICES];
+
+// clear indexers
+    //
+    memset( iv, 0xff, sizeof(U16) * vertices.count);
+    memset( in, 0xfe, sizeof(U16) * normals.count);
+    memset( iu, 0xfd, sizeof(U16) * uvs.count);
+
+    // for each face in this group
+    //
+    FaceObj * f, * fe = bucky.faces.data + bucky.faceCount;
+    Vertex * v = vtx;
+    VertIndex ** s = vsx;
+    for (f = bucky.faces.data; f < fe; f++)
+    {
+      FaceObj & face = *f;
+      ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+      // count
+      for (U32 j = 0; j < 3; j++, v++, s++, bucky.iCount++)
+      {
+        U16 ivj = face.verts[j];
+	      U16 inj = face.norms[j];
+	      U16 iuj = face.uvs[j];
+
+        if (iv[ivj] != in[inj])
+        {
+          iv[ivj] = (U16) bucky.vCount;
+          in[inj] = (U16) bucky.vCount;
+          iu[iuj] = (U16) bucky.vCount;
+          bucky.vCount++;
+          bucky.iCount++;
+        }
+        else if (iv[ivj] != iu[iuj])
+        {
+          iv[ivj] = (U16) bucky.vCount;
+          in[inj] = (U16) bucky.vCount;
+          iu[iuj] = (U16) bucky.vCount;
+          bucky.vCount++;
+          bucky.iCount++;
+        }
+        else
+        {
+          bucky.iCount++;
+        }
+      }
+    }
+    // allocate memory
+    bucky.geo.Alloc( bucky.vCount, bucky.iCount, sizeof(Vertex), mrm != NULL ? vertices.count : 0);
+
+    // clear indexers
+    //
+    memset( iv, 0xff, sizeof(U16) * vertices.count);
+    memset( in, 0xfe, sizeof(U16) * normals.count);
+    memset( iu, 0xfd, sizeof(U16) * uvs.count);
+
+    bucky.vCount = 0;
+    
+    // for each face in this group
+    Vertex  * vtx = bucky.geo, * v0 = bucky.geo;
+    U16     * idx = bucky.geo;
+    VertIndex * vmap = bucky.geo.vmap;
+    for (f = bucky.faces.data; f < fe; f++)
+    {
+      FaceObj & face = *f;
+      ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+      // rebuild
+      for (U32 j = 0; j < 3; j++)
+      {
+        U16 ivj = face.verts[j];
+	      U16 inj = face.norms[j];
+	      U16 iuj = face.uvs[j];
+
+        if (iv[ivj] != in[inj])
+        {
+          vtx->vv = vertices[ivj];
+          vtx->nv = normals[inj];
+          vtx->uv = uvs[iuj];
+          vtx++;
+
+          iv[ivj] = (U16) bucky.vCount;
+          in[inj] = (U16) bucky.vCount;
+          iu[iuj] = (U16) bucky.vCount;
+
+          *idx++  = (U16) bucky.vCount;
+          bucky.vCount++;
+          *vmap++ = vertToState[ivj];   // grouped GeoCache VertIndex's
+        }
+        else if (iv[ivj] != iu[iuj])
+        {
+          *vtx = v0[iv[ivj]];
+          vtx->uv = uvs[iuj];
+          vtx++;
+
+          iv[ivj] = (U16) bucky.vCount;
+          in[inj] = (U16) bucky.vCount;
+          iu[iuj] = (U16) bucky.vCount;
+
+          *idx++  = (U16) bucky.vCount;
+          bucky.vCount++;
+          *vmap++ = vertToState[ivj];
+        }
+        else
+        {
+          *idx++ = iv[ivj];
+        }
+      }
+    }
+    ASSERT( vmap - bucky.geo.vmap == (S32);bucky.vCount);
+  }
+
+#else
+
+// rebuild into grouped GeoCache data
+  // for each group
+  FaceGroup * b, * be = groups.data + groups.count;
+  for (b = groups.data; b < be; b++)
+  {
+    FaceGroup & bucky = *b;
+
+    if (bucky.geo.vtx)
+    {
+      // already done
+      Vid::Heap::Restore( heapSize);
+      return;
+    }
+    // clear counts
+    bucky.vCount = 0;
+    bucky.iCount = 0;
+
+	  // build a vertex list
+//    Color  * colors   = new Color[  MAXREADINDICES];
+
+// fully expand the geo data
+    // for each face in this group
+    FaceObj * f, * fe = bucky.faces.data + bucky.faceCount;
+    Vertex * vv = vtx;
+    U16 * ii = idx1;
+    VertIndex ** vs = vsx;
+    for (f = bucky.faces.data; f < fe; f++)
+    {
+      FaceObj & face = *f;
+      ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+      for (U32 j = 0; j < 3; j++, vv++, vs++, bucky.iCount++)
+      {
+        U16 ivj = face.verts[j];
+	      U16 inj = face.norms[j];
+	      U16 iuj = face.uvs[j];
+
+        vv->vv = vertices[ivj];
+        vv->nv = normals[inj];
+        vv->uv = uvs[iuj];
+        *vs = &vertToState[ivj];
+        *ii++ = ivj;
+
+/*
+			  if (hasColors)
+			  {
+          ASSERT( colorfeat->tris[lasti] < colorfeat->objCount);
+				  colors[icount] = colorfeat->colors[colorfeat->tris[lasti]];
+			  }
+*/
+      }
+		}
+    
+	  // remove all redundancy in geometry
+    Utils::Memset(idx, 0xff, bucky.iCount << 1);
+	  bucky.vCount = 0;
+	  for (U32 i = 0; i < bucky.iCount; i++)
+	  {
+		  if (idx[i] == 0xffff)
+		  {
+			  for (U32 j = i + 1; j < bucky.iCount; j++)
+			  {
+				  Bool test = 
+            (fabs (vtx[i].vv.x - vtx[j].vv.x) < Vid::Var::vertexThresh) &&
+					  (fabs (vtx[i].vv.y - vtx[j].vv.y) < Vid::Var::vertexThresh) &&
+					  (fabs (vtx[i].vv.z - vtx[j].vv.z) < Vid::Var::vertexThresh) &&
+					  (fabs (vtx[i].nv.x - vtx[j].nv.x) < Vid::Var::normalThresh) &&
+					  (fabs (vtx[i].nv.y - vtx[j].nv.y) < Vid::Var::normalThresh) &&
+					  (fabs (vtx[i].nv.z - vtx[j].nv.z) < Vid::Var::normalThresh) &&
+					  (fabs (vtx[i].u - vtx[j].u)       < Vid::Var::tcoordThresh) &&
+            (fabs (vtx[i].v - vtx[j].v)       < Vid::Var::tcoordThresh) &&
+            vsx[i] == vsx[j];
+//            && (!hasColors || colors[i] == colors[j]);
+
+				  if (test)
+				  {
+					  idx[j] = (U16) bucky.vCount;
+				  }
+			  }
+			  vtx[bucky.vCount] = vtx[i];
+        vsx[bucky.vCount] = vsx[i];
+
+/*
+			  if (hasColors)
+			  {
+				  colors[vertexCount] = colors[i];
+			  }
+*/
+        idx[i] = (U16) bucky.vCount;
+			  bucky.vCount++;
+		  }
+	  }
+    bucky.geo.Alloc( bucky.vCount, bucky.iCount, sizeof(Vertex), mrm != NULL ? vertices.count : 0);
+
+    memcpy( bucky.geo.vtx, vtx, bucky.vCount * sizeof( Vertex));
+    memcpy( bucky.geo.idx, idx, bucky.iCount << 1);
+
+    VertIndex ** vse = vsx + bucky.vCount, * dst = bucky.geo.vmap;
+    for (vs = vsx; vs < vse; vs++, dst++)
+    {
+      *dst = **vs;
+    }
+  }
 #endif
 
-    // restore temp mem
-    Vid::Heap::Restore(heapSize);
+//  if (!mrm)
+  {
+    // no mrm data; done
+    return;
+  }
 
-    U32 vCount = vertCount;
-    U32 fCount = faceCount;
+  // for each mrm state (for each vertCount)
+  for (S32 vvCount = vertCount - 1; vvCount > 0; vvCount--)
+  {
+    // setup old data for this state
+    MrmUpdate( groups, vvCount, vertCount, faceCount);
 
-    // restore mrmstate
-    MrmUpdate(groups, vertices.count, vertCount, faceCount);
+    // reset loop variables
+    U32 vCount = 0, iCount = 0;
+    vtx = vtx0;
+    idx = idx0;
 
-    MrmUpdate1(groups, vertices.count, vCount, fCount);
+    // rebuild at this mrm state
+    // for each group
+    for (b = groups.data; b < be; b++, vtx += vCount, idx += iCount)
+    {
+      FaceGroup & bucky = *b;
+
+      // reset loop variables
+      vCount = 0;
+      iCount = 0;
+      bucky.vert  = (VertexTL *) vtx;
+      bucky.index = idx;
+
+	    // build a vertex list
+//    Color  * colors   = new Color[  MAXREADINDICES];
+
+#if 0
+
+// clear indexers
+      //
+      memset( iv, 0xff, sizeof(U16) * vertices.count);
+      memset( in, 0xfe, sizeof(U16) * normals.count);
+      memset( iu, 0xfd, sizeof(U16) * uvs.count);
+
+      // for each face in this group
+      FaceObj * f, * fe = bucky.faces.data + bucky.faceCount;
+      Vertex * vv = vtx;
+      U16 * ii = idx;
+      for (f = bucky.faces.data; f < fe; f++)
+      {
+        FaceObj & face = *f;
+        ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+        // rebuild
+        for (U32 j = 0; j < 3; j++, iCount++)
+        {
+          U16 ivj = face.verts[j];
+	        U16 inj = face.norms[j];
+	        U16 iuj = face.uvs[j];
+
+          if (iv[ivj] != in[inj])
+          {
+            vv->vv = vertices[ivj];
+            vv->nv = normals[inj];
+            vv->uv = uvs[iuj];
+            vv++;
+
+            iv[ivj] = (U16) vCount;
+            in[inj] = (U16) vCount;
+            iu[iuj] = (U16) vCount;
+
+            *ii++  = (U16) vCount;
+            vCount++;
+          }
+          else if (iv[ivj] != iu[iuj])
+          {
+            *vv = vtx[iv[ivj]];
+            vv->uv = uvs[iuj];
+            vv++;
+
+            iv[ivj] = (U16) vCount;
+            in[inj] = (U16) vCount;
+            iu[iuj] = (U16) vCount;
+
+            *ii++  = (U16) vCount;
+            vCount++;
+          }
+          else
+          {
+            *ii++ = iv[ivj];
+          }
+        }
+      }
+
+      ASSERT( (S32) vCount == vv - vtx && (S32);iCount == ii - idx);
+
+#else
+
+// build expanded data
+      // for each face in this group
+      FaceObj * f, * fe = bucky.faces.data + bucky.faceCount;
+      Vertex * v = vtx;
+      for (f = bucky.faces.data; f < fe; f++)
+      {
+        FaceObj & face = *f;
+        ASSERT( face.verts[0] < vertices.count && face.verts[1] < vertices.count && face.verts[2] < vertices.count);
+
+        for (U32 j = 0; j < 3; j++, v++, iCount++)
+        {
+          U16 ivj = face.verts[j];
+	        U16 inj = face.norms[j];
+	        U16 iuj = face.uvs[j];
+
+          v->vv = vertices[ivj];
+          v->nv = normals[inj];
+          v->uv = uvs[iuj];
+  /*
+			    if (hasColors)
+			    {
+            ASSERT( colorfeat->tris[lasti] < colorfeat->objCount);
+				    colors[icount] = colorfeat->colors[colorfeat->tris[lasti]];
+			    }
+  */
+        }
+		  }
+    
+	    // remove all redundancy in geo data
+      Utils::Memset(idx, 0xff, iCount << 1);
+
+	    for (U32 i = 0; i < iCount; i++)
+	    {
+		    if (idx[i] == 0xffff)
+		    {
+			    for (U32 j = i + 1; j < iCount; j++)
+			    {
+				    Bool test = 
+              (fabs (vtx[i].vv.x - vtx[j].vv.x) < Vid::Var::vertexThresh) &&
+					    (fabs (vtx[i].vv.y - vtx[j].vv.y) < Vid::Var::vertexThresh) &&
+					    (fabs (vtx[i].vv.z - vtx[j].vv.z) < Vid::Var::vertexThresh) &&
+					    (fabs (vtx[i].nv.x - vtx[j].nv.x) < Vid::Var::normalThresh) &&
+					    (fabs (vtx[i].nv.y - vtx[j].nv.y) < Vid::Var::normalThresh) &&
+					    (fabs (vtx[i].nv.z - vtx[j].nv.z) < Vid::Var::normalThresh) &&
+					    (fabs (vtx[i].u - vtx[j].u)       < Vid::Var::tcoordThresh) &&
+              (fabs (vtx[i].v - vtx[j].v)       < Vid::Var::tcoordThresh) &&
+              vsx[i] == vsx[j];
+  //            && (!hasColors || colors[i] == colors[j]);
+
+				    if (test)
+				    {
+					    idx[j] = (U16) vCount;
+				    }
+			    }
+			    vtx[vCount] = vtx[i];
+
+  /*
+			    if (hasColors)
+			    {
+				    colors[vertexCount] = colors[i];
+			    }
+  */
+          idx[i] = (U16) vCount;
+			    vCount++;
+		    }
+	    }
+
+#endif
+    }   // rebuilding for mrm state
+
+    // rebuild the mrm data
+    MRM::Vertex * vertex = mrm->vertex + vvCount;
+
+    // for each group
+    for (b = groups.data; b < be; b++)
+    {
+      FaceGroup & bucky = *b;
+
+      // initial clear GeoCache mrm state 
+      bucky.geo.mrm[vvCount].iCount = 0;   
+      bucky.geo.mrm[vvCount].vCount = 0;
+      bucky.geo.mrm[vvCount].rCount = 0;   
+
+      // setup mrm[].iCount
+      for (U32 i = 0; i < vertex->newFaceCount; i++)
+      {
+        S32 bi = faces[faceCount].buckyIndex;
+
+        if (b - groups.data == bi)
+        {
+          bucky.geo.mrm[vvCount].iCount += 3;   
+          bucky.geo.iCount -= 3;
+        }
+      }
+
+      // setup mrm state records
+      GeoCache::Mrm::Rec reclist[222], * rec = reclist;
+
+      // for each original mrm face record
+      MRM::Face * f, * fe = vertex->face + vertex->faceCount;
+	    for (f = vertex->face; f < fe; f++)
+	    {
+        // not for this group
+        if (b - groups.data != f->xbucky)
+        {
+          continue;
+        }
+        // base index
+        U32 i0 = f->xface * 3;
+
+        // calc index
+  	    switch (f->token)
+		    {
+        default:
+          continue;
+
+		    case VertexA:
+		    case NormalA:
+  		  case TexCoord1A:
+          break;
+		    case VertexB:
+		    case NormalB:
+		    case TexCoord1B:
+          i0 += 1;
+			    break;
+		    case VertexC:
+        case NormalC:
+  		  case TexCoord1C:
+          i0 += 2;
+    	    break;
+		    }
+
+
+        S32 value = bucky.geo.idx[i0];                      // current mrm index
+        Vertex & vert = ((Vertex * ) bucky.vert)[ value];   // current mrm vert
+
+        // minimum delta normal and uv
+        Vector nt( F32_MAX, F32_MAX, F32_MAX);
+        UVPair uvt( F32_MAX, F32_MAX);
+        S32 it = -1;    // minimum index
+
+        // compare rebuilt mrm vert with all original verts; pick the best match
+        Vertex * v = bucky.geo, * ve = v + vCount;
+        for ( ; v < ve; v++)
+        {
+          if (v->vv.x == vert.vv.x && v->vv.y == vert.vv.y && v->vv.z == vert.vv.z)
+          {
+            Vector ntt( 
+             fabsf (v->nv.x - vert.nv.x),
+             fabsf (v->nv.y - vert.nv.y),
+             fabsf (v->nv.z - vert.nv.z));    // delta normal
+
+            UVPair uvtt( 
+             fabsf (v->uv.u - vert.uv.u),
+             fabsf (v->uv.v - vert.uv.v));    // delta uv
+
+            if (it == -1 || (uvtt.u <= uvt.u && uvtt.v <= uvt.v
+             && ntt.x  <= nt.x  && ntt.y  <= nt.y && ntt.z <= nt.z))
+            {
+              // best so far
+              nt = ntt;
+              uvt = uvtt;
+              it = v - (Vertex *) bucky.geo.vtx;
+            }
+          }
+        }
+        if (it == value)
+        {
+          // original value is best 
+          continue;
+        }
+
+        if (it == -1)
+        {
+          ASSERT( 0);   // couldn't find a match!
+        }
+
+        rec->index = (U16) i0;          // index's index
+
+        rec->value[0] = (U16) value;    // increasing
+        rec->value[1] = (U16) it;       // decreasing
+
+        bucky.geo.idx[i0] = (U16) it;   // setup this mrm state
+
+        rec++;    // next record
+      }
+      bucky.geo.mrm[vvCount].rCount = U8(rec - reclist);
+
+      if (!bucky.geo.mrm[vvCount].rCount)
+      {
+        // no valid records
+        bucky.geo.mrm[vvCount].rec = NULL;
+        continue;
+      }
+      // allocate and copy the state records
+      bucky.geo.mrm[vvCount].rec = new GeoCache::Mrm::Rec[ bucky.geo.mrm[vvCount].rCount]; 
+      memcpy( bucky.geo.mrm[vvCount].rec, reclist, bucky.geo.mrm[vvCount].rCount);
+    }
+  }
+
+#if 0
+  // done with initial build temp memory
+  Vid::Heap::Restore( heapSize1);
+#endif
+
+  // restore temp mem
+  Vid::Heap::Restore( heapSize);
+
+  U32 vCount = vertCount;
+  U32 fCount = faceCount;
+
+  // restore mrmstate
+  MrmUpdate( groups, vertices.count, vertCount, faceCount);
+
+  MrmUpdate1( groups, vertices.count, vCount, fCount);
 }
 //----------------------------------------------------------------------------
 
@@ -3482,7 +3554,7 @@ void MeshRoot::Rebuild()
 //
 void MeshRoot::SetBucketDataZ(F32 z) // = 1
 {
-    FaceGroup* g, * ge = groups.data + groups.count;
+    FaceGroup *g, *ge = groups.data + groups.count;
     for (g = groups.data; g < ge; g++)
     {
         FaceGroup& bucky = *g;
@@ -3496,11 +3568,12 @@ void MeshRoot::SetBucketDataZ(F32 z) // = 1
 
         // copy the vertex data
         //
-        VertexTL* sv, * ev = bucky.vert + bucky.vCount;
+        VertexTL *sv, *ev = bucky.vert + bucky.vCount;
         for (sv = bucky.vert; sv < ev; sv++)
         {
             sv->vv.z = z;
         }
     }
 }
+
 //----------------------------------------------------------------------------

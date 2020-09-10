@@ -33,10 +33,10 @@
 ColorButton::ColorButton(IControl* parent) : ICButton(parent)
 {
     // Clear the var
-    var = NULL;
+    var = nullptr;
 
     // Styles
-    SetTabStop(FALSE);
+    SetTabStop(nullptr);
 
     // Set the default size of the button
     SetSize(30, 20);
@@ -80,14 +80,14 @@ void ColorButton::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x742EA048: // "UseVar"
-        ConfigureVar(var, fScope);
-        break;
+        case 0x742EA048: // "UseVar"
+            ConfigureVar(var, fScope);
+            break;
 
-    default:
-        // Unknown scopes get passed down
-        ICButton::Setup(fScope);
-        break;
+        default:
+            // Unknown scopes get passed down
+            ICButton::Setup(fScope);
+            break;
     }
 }
 
@@ -124,7 +124,6 @@ Bool ColorButton::Deactivate()
 }
 
 
-
 //
 // EditColor
 //
@@ -135,7 +134,7 @@ void ColorButton::EditColor()
     if (var)
     {
         // Promote
-        ColorEditor* editor = IFace::Find<ColorEditor>("ColorEditor", NULL, TRUE);
+        ColorEditor* editor = IFace::Find<ColorEditor>("ColorEditor", nullptr, TRUE);
 
         // Set the color var to our own
         editor->SetColorVar(var);
@@ -158,20 +157,20 @@ U32 ColorButton::HandleEvent(Event& e)
         // Interface events
         switch (e.subType)
         {
-        case IFace::NOTIFY:
-        {
-            switch (e.iface.p1)
+            case IFace::NOTIFY:
             {
-            case ICButtonMsg::Press:
-            {
-                // Edit color
-                EditColor();
+                switch (e.iface.p1)
+                {
+                    case ICButtonMsg::Press:
+                    {
+                        // Edit color
+                        EditColor();
 
-                // Default processing
-                break;
+                        // Default processing
+                        break;
+                    }
+                }
             }
-            }
-        }
         }
     }
 
@@ -197,12 +196,12 @@ void ColorButton::Notify(IFaceVar*)
 //
 void ColorButton::UseVar(IFaceVar* varIn)
 {
-    ASSERT(varIn)
+    ASSERT(varIn);
 
-        if (var)
-        {
-            delete var;
-        }
+    if (var)
+    {
+        delete var;
+    }
 
     var = new IFaceVar(this, &varIn->GetItem());
 }

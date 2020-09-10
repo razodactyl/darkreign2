@@ -18,6 +18,7 @@
 #pragma comment(lib, "advapi32.lib")
 
 #define APPLICATION_CONFIGFILE    "library\\engine\\startup.cfg"
+
 //----------------------------------------------------------------------------
 
 
@@ -32,6 +33,7 @@ namespace Main
     {
         return CreateGameWindow("Pandemic Mesh Viewer");
     }
+
     //----------------------------------------------------------------------------
 
     //
@@ -46,6 +48,7 @@ namespace Main
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -77,6 +80,7 @@ void CDECL Start()
     // Shutdown generic core systems
     Main::CoreSystemDone();
 }
+
 //----------------------------------------------------------------------------
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,4 +111,5 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR cmdLine, int)
 
     return 0;
 }
+
 //----------------------------------------------------------------------------

@@ -24,32 +24,28 @@
 //
 namespace AI
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Debug
+    //
+    namespace Debug
+    {
+        // Init
+        void Init();
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Debug
-  //
-  namespace Debug
-  {
+        // Done
+        void Done();
 
-    // Init
-    void Init();
+        // Init Simulation
+        void InitSimulation();
 
-    // Done
-    void Done();
-
-    // Init Simulation
-    void InitSimulation();
-
-    // Done Simulation
-    void DoneSimulation();
+        // Done Simulation
+        void DoneSimulation();
 
 
-    // Show PlanEvaluation
-    Bool ShowPlanEvaluation();
-
-  }
-
+        // Show PlanEvaluation
+        Bool ShowPlanEvaluation();
+    }
 }
 
 #endif

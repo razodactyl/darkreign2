@@ -26,65 +26,63 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 EjectSpy::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class EjectSpy
-    //
-
-
-    //
-    // Generate
-    //
-    void EjectSpy::Generate(Player &player)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 EjectSpy::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 EjectSpy::Execute(const U8 *, Player &player)
-    {
-      // Eject spies from all selected buildings
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      {
-        UnitObj *obj = **i;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class EjectSpy
+        //
 
-        // Check for all spies that are in this building
-        for (NList<SpyObj>::Iterator j(&SpyObj::allSpies); *j; j++)
-        { 
-          Tasks::SpyIdle *task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(*j);
 
-          if (task && task->IsInfiltrating(obj))
-          {
-            // Eject spy from building
-            task->Eject();
-          }
+        //
+        // Generate
+        //
+        void EjectSpy::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
 
-      return (sizeof (Data));
+
+        //
+        // Execute
+        //
+        U32 EjectSpy::Execute(const U8*, Player& player)
+        {
+            // Eject spies from all selected buildings
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                UnitObj* obj = **i;
+
+                // Check for all spies that are in this building
+                for (NList<SpyObj>::Iterator j(&SpyObj::allSpies); *j; j++)
+                {
+                    Tasks::SpyIdle* task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(*j);
+
+                    if (task && task->IsInfiltrating(obj))
+                    {
+                        // Eject spy from building
+                        task->Eject();
+                    }
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

@@ -103,6 +103,7 @@ void MeshEnt::SelectVerts(Area<S32>* rect, Bool append, Bool toggle) // = NULL, 
         Vid::Heap::Restore(heapSize);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::SelectFaces(Area<S32>* rect, Bool append, Bool toggle) // = NULL, = FALSE, = FALSE
@@ -195,6 +196,7 @@ void MeshEnt::SelectFaces(Area<S32>* rect, Bool append, Bool toggle) // = NULL, 
         Vid::Heap::Restore(heapSize);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::UnSelectVerts(Area<S32>* rect) // = NULL
@@ -274,6 +276,7 @@ void MeshEnt::UnSelectVerts(Area<S32>* rect) // = NULL
         Vid::Heap::Restore(heapSize);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::UnSelectFaces(Area<S32>* rect) // = NULL
@@ -351,6 +354,7 @@ void MeshEnt::UnSelectFaces(Area<S32>* rect) // = NULL
         Vid::Heap::Restore(heapSize);
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SelectVert(U16 index, Bool append) // = FALSE)
@@ -382,6 +386,7 @@ Bool MeshEnt::SelectVert(U16 index, Bool append) // = FALSE)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::SelectFace(U16 index, Bool append) // = FALSE)
@@ -421,6 +426,7 @@ Bool MeshEnt::SelectFace(U16 index, Bool append) // = FALSE)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::UnSelectVert(U16 index)
@@ -445,6 +451,7 @@ Bool MeshEnt::UnSelectVert(U16 index)
     }
     return FALSE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshEnt::UnSelectFace(U16 index)
@@ -470,4 +477,5 @@ Bool MeshEnt::UnSelectFace(U16 index)
     }
     return FALSE;
 }
+
 //----------------------------------------------------------------------------

@@ -73,7 +73,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>Default</InlineFunctionExpansion>
       <StringPooling>true</StringPooling>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -178,6 +178,7 @@
     <ClCompile Include="BucketDesc.cpp" />
     <ClCompile Include="buckets_light.cpp" />
     <ClCompile Include="buckets_lock.cpp" />
+    <ClCompile Include="meshmrm.cpp" />
     <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="TranBucket.cpp" />
     <ClCompile Include="camera.cpp" />

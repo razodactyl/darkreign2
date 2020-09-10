@@ -12,6 +12,7 @@
 #include "light_priv.h"
 #include "console.h"
 #include "hardware.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -19,73 +20,73 @@ namespace Vid
     namespace Var
     {
         // load controls
-        VarFloat         scaleFactor;
-        VarFloat         vertexThresh;
-        VarFloat         normalThresh;
-        VarFloat         tcoordThresh;
-        VarInteger       doBasePose;
-        VarInteger       doMrmGen;
-        VarInteger       doFrogPose;     // special pose for mrmgen
-        VarInteger       doGenericMat;   // use generic 70% grey material
-        VarInteger       doOptimize;
-        VarInteger       doLoadGod;
+        VarFloat scaleFactor;
+        VarFloat vertexThresh;
+        VarFloat normalThresh;
+        VarFloat tcoordThresh;
+        VarInteger doBasePose;
+        VarInteger doMrmGen;
+        VarInteger doFrogPose;     // special pose for mrmgen
+        VarInteger doGenericMat;   // use generic 70% grey material
+        VarInteger doOptimize;
+        VarInteger doLoadGod;
 
-        VarFloat         mrmMergeThresh;
-        VarFloat         mrmNormalCrease;
-        VarInteger       mrmMultiNormals;
+        VarFloat mrmMergeThresh;
+        VarFloat mrmNormalCrease;
+        VarInteger mrmMultiNormals;
 
-        VarInteger       mipMin;
-        VarInteger       mipCount;
-        VarInteger       terrMipCount;
+        VarInteger mipMin;
+        VarInteger mipCount;
+        VarInteger terrMipCount;
 
         // runtime       controls
-        VarFloat         mrmDist;
-        VarFloat         mrmFactor;
+        VarFloat mrmDist;
+        VarFloat mrmFactor;
 
-        VarInteger       mrmAuto;
-        VarFloat         mrmAutoFactor;
-        VarInteger       mrmLow;
-        VarInteger       mrmHigh;
-        VarFloat         mrmAutoConstant1;
-        VarFloat         mrmAutoConstant2;
-        VarInteger       mrmAutoCutoff;
-        F32              mrmCameraMove;
+        VarInteger mrmAuto;
+        VarFloat mrmAutoFactor;
+        VarInteger mrmLow;
+        VarInteger mrmHigh;
+        VarFloat mrmAutoConstant1;
+        VarFloat mrmAutoConstant2;
+        VarInteger mrmAutoCutoff;
+        F32 mrmCameraMove;
 
-        VarFloat         mrmAutoConstant3;
+        VarFloat mrmAutoConstant3;
 
-        VarInteger       doMRM;          // use mrm
-        VarInteger       doMultiWeight;  // use multi-weighting
-        VarInteger       doInterpolate;  // interp between sim frames
+        VarInteger doMRM;          // use mrm
+        VarInteger doMultiWeight;  // use multi-weighting
+        VarInteger doInterpolate;  // interp between sim frames
 
-        VarInteger       teamColor;
-        VarInteger       baseColor;
-        VarInteger       envAlpha;
-        VarInteger       shadowAlpha;
-        VarInteger       alphaColor;
+        VarInteger teamColor;
+        VarInteger baseColor;
+        VarInteger envAlpha;
+        VarInteger shadowAlpha;
+        VarInteger alphaColor;
 
-        VarInteger       showBounds;     // draw bounds
-        VarInteger       showNormals;    // draw normals
-        VarInteger       showHardPoints; // draw hardpoints
-        VarInteger       showOrigin;     // draw mesh origins
-        VarInteger       showShadows;    // draw fake shadows
-        VarInteger       showShadowReal; // draw cast shadows
-        VarInteger       showEnvMap;     // draw environment mapping
-        VarInteger       showOverlay;    // draw texture overlay
-        VarInteger       showOverlayMip; // diplay overlay with mipmapping
-        VarInteger       showSP0;        // draw shadow plane 0
-        VarInteger       showSP1;        // draw shadow plane 1
-        VarInteger       animOverlay;    // do anim overlay
-        VarInteger       showMesh;       // draw the mesh
+        VarInteger showBounds;     // draw bounds
+        VarInteger showNormals;    // draw normals
+        VarInteger showHardPoints; // draw hardpoints
+        VarInteger showOrigin;     // draw mesh origins
+        VarInteger showShadows;    // draw fake shadows
+        VarInteger showShadowReal; // draw cast shadows
+        VarInteger showEnvMap;     // draw environment mapping
+        VarInteger showOverlay;    // draw texture overlay
+        VarInteger showOverlayMip; // diplay overlay with mipmapping
+        VarInteger showSP0;        // draw shadow plane 0
+        VarInteger showSP1;        // draw shadow plane 1
+        VarInteger animOverlay;    // do anim overlay
+        VarInteger showMesh;       // draw the mesh
 
-        VarFloat         animBlendTime;
-        VarFloat         animBlendRate;
+        VarFloat animBlendTime;
+        VarFloat animBlendRate;
 
-        VarInteger       lightQuick;     // full bright lighting on units
-        VarInteger       lightSingle;
-        VarFloat         shadowY;        // limit shadow stretching
+        VarInteger lightQuick;     // full bright lighting on units
+        VarInteger lightSingle;
+        VarFloat shadowY;        // limit shadow stretching
 
-        VarString        godFilePath;    // where to save god files
-        VarString        gfgFilePath;    // where to save gfg files
+        VarString godFilePath;    // where to save god files
+        VarString gfgFilePath;    // where to save gfg files
     }
 
     namespace Command
@@ -169,10 +170,10 @@ namespace Vid
 
 #else
 
-            VarSys::CreateInteger("mesh.mrm.auto.low", 1000 / 16, VarSys::NOTIFY, &Var::mrmLow)->SetIntegerRange(1, 1000);
-            VarSys::CreateInteger("mesh.mrm.auto.high", 1000 / 32, VarSys::NOTIFY, &Var::mrmHigh)->SetIntegerRange(1, 1000);
+      VarSys::CreateInteger("mesh.mrm.auto.low", 1000/16, VarSys::NOTIFY, &Var::mrmLow)->SetIntegerRange(1, 1000);
+      VarSys::CreateInteger("mesh.mrm.auto.high", 1000/32, VarSys::NOTIFY, &Var::mrmHigh)->SetIntegerRange(1, 1000);
 
-            VarSys::CreateInteger("mesh.mrm.auto.cutoff", 7, VarSys::NOTIFY, &mrmAutoCutoff);
+      VarSys::CreateInteger("mesh.mrm.auto.cutoff", 7, VarSys::NOTIFY, &mrmAutoCutoff);
 #endif
 
             VarSys::CreateInteger("mesh.load.god", 1, VarSys::NOTIFY, &Var::doLoadGod);
@@ -246,6 +247,7 @@ namespace Vid
 
             nightLightColor.Set((U32)255, (U32)255, (U32)255, (U32)88);
         }
+
         //-----------------------------------------------------------------------------
 
         void DoneMesh()
@@ -264,6 +266,7 @@ namespace Vid
             VarSys::DeleteItem("mesh.mrm");
             VarSys::DeleteItem("mesh");
         }
+
         //-----------------------------------------------------------------------------
 
         static void Handler(U32 pathCrc)
@@ -277,258 +280,257 @@ namespace Vid
 
             switch (pathCrc)
             {
+                    /*
+                          VarSys::CreateInteger("mesh.load.terrmipcount", 4, VarSys::NOTIFY, &Var::terrMipCount);
+                    */
 
-                /*
-                      VarSys::CreateInteger("mesh.load.terrmipcount", 4, VarSys::NOTIFY, &Var::terrMipCount);
-                */
+                case 0xB8DA60B2: // "mesh.anim.blendtime"
+                    renderState.animBlendTime = Var::animBlendTime;
+                    break;
 
-            case 0xB8DA60B2: // "mesh.anim.blendtime"
-                renderState.animBlendTime = Var::animBlendTime;
-                break;
+                case 0x54135A94: // "mesh.load.mipcount"
+                    renderState.mipCount = Var::mipCount;
+                    break;
+                case 0xF8D50B70: // "mesh.load.mipmin"
+                    renderState.mipMin = Var::mipMin;
+                    break;
+                case 0xD4D8592F: // "mesh.load.scale"
+                    renderState.scaleFactor = Var::scaleFactor;
+                    break;
+                case 0x8D87963B: // "mesh.load.mrmgen"
+                    renderState.status.mrmGen = Var::doMrmGen;
+                    break;
 
-            case 0x54135A94: // "mesh.load.mipcount"
-                renderState.mipCount = Var::mipCount;
-                break;
-            case 0xF8D50B70: // "mesh.load.mipmin"
-                renderState.mipMin = Var::mipMin;
-                break;
-            case 0xD4D8592F: // "mesh.load.scale"
-                renderState.scaleFactor = Var::scaleFactor;
-                break;
-            case 0x8D87963B: // "mesh.load.mrmgen"
-                renderState.status.mrmGen = Var::doMrmGen;
-                break;
+                case 0xA3B49A76: // "mesh.show.overlaymip"
+                    renderState.status.overlayMip = Var::showOverlayMip;
+                    break;
+                case 0xDB6B49D2: // "mesh.show.shadow"
+                    renderState.status.showShadows = Var::showShadows;
+                    break;
+                case 0x5BD45BD5: // "mesh.show.overlay"
+                    renderState.status.overlay = Var::showOverlay;
+                    break;
+                case 0x106657EA: // "mesh.show.envmap"
+                    renderState.status.envmap = Var::showEnvMap;
+                    break;
+                case 0x8D408543: // "mesh.show.hardpoints"
+                    renderState.status.showPoints = Var::showHardPoints;
+                    break;
+                case 0xF866E28F: // "mesh.show.origin"
+                    renderState.status.showOrigin = Var::showOrigin;
+                    break;
+                case 0x3067FEC3: // "mesh.show.normals"
+                    renderState.status.showNormals = Var::showNormals;
+                    break;
+                case 0xE0D39344: // "mesh.show.bounds"
+                    renderState.status.showBounds = Var::showBounds;
+                    break;
+                case 0x4D511DA8: // "mesh.show.multiweight"
+                    renderState.status.multiWeight = Var::doMultiWeight;
+                    break;
+                case 0xFA861318: // "mesh.show.interpolation"
+                    renderState.status.interpMesh = Var::doInterpolate;
+                    break;
 
-            case 0xA3B49A76: // "mesh.show.overlaymip"
-                renderState.status.overlayMip = Var::showOverlayMip;
-                break;
-            case 0xDB6B49D2: // "mesh.show.shadow"
-                renderState.status.showShadows = Var::showShadows;
-                break;
-            case 0x5BD45BD5: // "mesh.show.overlay"
-                renderState.status.overlay = Var::showOverlay;
-                break;
-            case 0x106657EA: // "mesh.show.envmap"
-                renderState.status.envmap = Var::showEnvMap;
-                break;
-            case 0x8D408543: // "mesh.show.hardpoints"
-                renderState.status.showPoints = Var::showHardPoints;
-                break;
-            case 0xF866E28F: // "mesh.show.origin"
-                renderState.status.showOrigin = Var::showOrigin;
-                break;
-            case 0x3067FEC3: // "mesh.show.normals"
-                renderState.status.showNormals = Var::showNormals;
-                break;
-            case 0xE0D39344: // "mesh.show.bounds"
-                renderState.status.showBounds = Var::showBounds;
-                break;
-            case 0x4D511DA8: // "mesh.show.multiweight"
-                renderState.status.multiWeight = Var::doMultiWeight;
-                break;
-            case 0xFA861318: // "mesh.show.interpolation"
-                renderState.status.interpMesh = Var::doInterpolate;
-                break;
-
-            case 0x26AC80A3: // "mesh.mrm.active"
-                renderState.status.mrm = Var::doMRM;
-                if (!*Var::doMRM)
-                {
-                    // restore all meshes to max vertex count
-                    Mesh::Manager::FullResList();
-                }
-                break;
-            case 0xEF4F617A: // "mesh.toggle.mrm"
-                Var::doMRM = !*Var::doMRM;
-                break;
-            case 0x6E2078E8: // "mesh.mrm.auto.active"
-                renderState.status.mrmAuto = Var::mrmAuto;
-                break;
-            case 0x115B9E22: // "mesh.mrm.factor"
-                renderState.mrmFactor1 = Var::mrmFactor;
-                break;
-            case 0x0783E3A9: // "mesh.mrm.distance"
-                renderState.mrmDist = Var::mrmDist;
-                break;
-                /*
-                      VarSys::CreateInteger("mesh.mrm.auto.low", low, VarSys::NOTIFY, &Var::mrmLow)->SetIntegerRange(1, 100000);
-                      VarSys::CreateInteger("mesh.mrm.auto.high", high, VarSys::NOTIFY, &Var::mrmHigh)->SetIntegerRange(1, 100000);
-                      VarSys::CreateFloat("mesh.mrm.auto.constant1", 0.1f, VarSys::NOTIFY, &Var::mrmAutoConstant1);
-                      VarSys::CreateFloat("mesh.mrm.auto.constant2", 0.00002f, VarSys::NOTIFY, &Var::mrmAutoConstant2);
-                      VarSys::CreateFloat("mesh.mrm.auto.constant3", 0.01f, VarSys::NOTIFY, &Var::mrmAutoConstant3);
-                */
-
-            case 0xD1598EAB: // "mesh.toggle.weighting"
-                Var::doMultiWeight = !*Var::doMultiWeight;
-                break;
-            case 0x2768304F: // "mesh.toggle.basepose"
-                Var::doBasePose = !*Var::doBasePose;
-                break;
-            case 0x7081F6C1: // "mesh.toggle.interpolation"
-                Var::doInterpolate = !*Var::doInterpolate;
-                break;
-            case 0x7F22B644: // "mesh.toggle.bounds"
-                Var::showBounds = !*Var::showBounds;
-                break;
-            case 0xDC1078E0: // "mesh.toggle.normals"
-                Var::showNormals = !*Var::showNormals;
-                break;
-            case 0x337EB398: // "mesh.toggle.hardpoints"
-                Var::showHardPoints = !*Var::showHardPoints;
-                break;
-            case 0x792562E7: // "mesh.toggle.origins"
-                Var::showOrigin = !*Var::showOrigin;
-                break;
-
-            case 0x5790E329: // "mesh.light.quick"
-                renderState.status.lightQuick = Var::lightQuick;
-                Mesh::Manager::SetupRenderProcList();
-                break;
-            case 0x04149DC1: // "mesh.light.single"
-                renderState.status.lightSingle = Var::lightSingle;
-                break;
-
-            case 0x18DC25F5: // "mesh.shadow.fadedepth"
-            case 0xE268DB72: // "mesh.shadow.fadedist"
-                renderState.shadowFadeDist = Vid::Math::farPlane * *Var::varShadowFadeDist;
-                renderState.shadowFadeDepthInv = 1 / ((Vid::Math::farPlane - Vid::renderState.shadowFadeDist) * *Var::varShadowFadeDepth);
-                break;
-            case 0x71AFCDF2: // "mesh.shadow.fadecutoff"
-                renderState.shadowFadeCutoff = *Var::varShadowFadeCutoff;
-                break;
-            case 0xF6C26D5A: // "mesh.shadow.y"
-                renderState.shadowY = Var::shadowY;
-                break;
-            case 0xB3474136: // "mesh.shadow.size"
-                renderState.texShadowSize = Var::varShadowSize;
-                break;
-
-            case 0xAC7D07DF: // "mesh.shadow.nightcolor"
-            {
-                S32 r = 255, g = 255, b = 255, a = 88;
-                Console::GetArgInteger(1, r);
-                Console::GetArgInteger(2, g);
-                Console::GetArgInteger(3, b);
-                Console::GetArgInteger(4, a);
-
-                nightLightColor.Set(r, g, b, a);
-                break;
-            }
-
-            case 0xA3E7812D: // "mesh.color.team"
-                renderState.teamColor = *Var::teamColor;
-                if (Mesh::Manager::curEnt)
-                {
-                    Mesh::Manager::curParent->SetTeamColor((Color)*Var::teamColor);
-                }
-                break;
-            case 0x263E1AA9: // "mesh.color.envalpha"
-                renderState.envAlpha = Var::envAlpha;
-                break;
-            case 0x7E8D6042: // "mesh.color.shadowalpha"
-                renderState.shadowAlpha = Var::shadowAlpha;
-                Vid::Light::SetupShadow();
-                break;
-
-                // utility
-                //
-            case 0x0C39A9C1: // "mesh.envmap"
-                if (Console::GetArgString(1, (const char*&)s1))
-                {
-                    Bitmap* map = Bitmap::Manager::Find(s1);
-                    if (map)
+                case 0x26AC80A3: // "mesh.mrm.active"
+                    renderState.status.mrm = Var::doMRM;
+                    if (!*Var::doMRM)
                     {
-                        Mesh::Manager::envMap = map;
+                        // restore all meshes to max vertex count
+                        Mesh::Manager::FullResList();
                     }
-                }
-                else
-                {
-                    CON_DIAG(("envmap = %s", Mesh::Manager::envMap ? Mesh::Manager::envMap->GetName() : "null"));
-                }
-                break;
-            case 0x46BDAA81: // "mesh.color.alpha"
-            case 0x05D592EA: // "mesh.color.base"
-                if (Mesh::Manager::curEnt)
-                {
-                    Color color = Var::baseColor;
-                    color.a = (U8)Var::alphaColor;
-                    Mesh::Manager::curParent->SetBaseColor(color);
-                    Mesh::Manager::curParent->SetFogTarget(255, color.a, TRUE);
-                }
-                break;
+                    break;
+                case 0xEF4F617A: // "mesh.toggle.mrm"
+                    Var::doMRM = !*Var::doMRM;
+                    break;
+                case 0x6E2078E8: // "mesh.mrm.auto.active"
+                    renderState.status.mrmAuto = Var::mrmAuto;
+                    break;
+                case 0x115B9E22: // "mesh.mrm.factor"
+                    renderState.mrmFactor1 = Var::mrmFactor;
+                    break;
+                case 0x0783E3A9: // "mesh.mrm.distance"
+                    renderState.mrmDist = Var::mrmDist;
+                    break;
+                    /*
+                          VarSys::CreateInteger("mesh.mrm.auto.low", low, VarSys::NOTIFY, &Var::mrmLow)->SetIntegerRange(1, 100000);
+                          VarSys::CreateInteger("mesh.mrm.auto.high", high, VarSys::NOTIFY, &Var::mrmHigh)->SetIntegerRange(1, 100000);
+                          VarSys::CreateFloat("mesh.mrm.auto.constant1", 0.1f, VarSys::NOTIFY, &Var::mrmAutoConstant1);
+                          VarSys::CreateFloat("mesh.mrm.auto.constant2", 0.00002f, VarSys::NOTIFY, &Var::mrmAutoConstant2);
+                          VarSys::CreateFloat("mesh.mrm.auto.constant3", 0.01f, VarSys::NOTIFY, &Var::mrmAutoConstant3);
+                    */
 
-            case 0x7AF1FC7D: // "mesh.diffuse"
-            {
-                F32 f1;
-                if (Console::GetArgFloat(1, f1))
+                case 0xD1598EAB: // "mesh.toggle.weighting"
+                    Var::doMultiWeight = !*Var::doMultiWeight;
+                    break;
+                case 0x2768304F: // "mesh.toggle.basepose"
+                    Var::doBasePose = !*Var::doBasePose;
+                    break;
+                case 0x7081F6C1: // "mesh.toggle.interpolation"
+                    Var::doInterpolate = !*Var::doInterpolate;
+                    break;
+                case 0x7F22B644: // "mesh.toggle.bounds"
+                    Var::showBounds = !*Var::showBounds;
+                    break;
+                case 0xDC1078E0: // "mesh.toggle.normals"
+                    Var::showNormals = !*Var::showNormals;
+                    break;
+                case 0x337EB398: // "mesh.toggle.hardpoints"
+                    Var::showHardPoints = !*Var::showHardPoints;
+                    break;
+                case 0x792562E7: // "mesh.toggle.origins"
+                    Var::showOrigin = !*Var::showOrigin;
+                    break;
+
+                case 0x5790E329: // "mesh.light.quick"
+                    renderState.status.lightQuick = Var::lightQuick;
+                    Mesh::Manager::SetupRenderProcList();
+                    break;
+                case 0x04149DC1: // "mesh.light.single"
+                    renderState.status.lightSingle = Var::lightSingle;
+                    break;
+
+                case 0x18DC25F5: // "mesh.shadow.fadedepth"
+                case 0xE268DB72: // "mesh.shadow.fadedist"
+                    renderState.shadowFadeDist = Vid::Math::farPlane * *Var::varShadowFadeDist;
+                    renderState.shadowFadeDepthInv = 1 / ((Vid::Math::farPlane - Vid::renderState.shadowFadeDist) * *Var::varShadowFadeDepth);
+                    break;
+                case 0x71AFCDF2: // "mesh.shadow.fadecutoff"
+                    renderState.shadowFadeCutoff = *Var::varShadowFadeCutoff;
+                    break;
+                case 0xF6C26D5A: // "mesh.shadow.y"
+                    renderState.shadowY = Var::shadowY;
+                    break;
+                case 0xB3474136: // "mesh.shadow.size"
+                    renderState.texShadowSize = Var::varShadowSize;
+                    break;
+
+                case 0xAC7D07DF: // "mesh.shadow.nightcolor"
                 {
-                    if (f1 < 0.1f)
+                    S32 r = 255, g = 255, b = 255, a = 88;
+                    Console::GetArgInteger(1, r);
+                    Console::GetArgInteger(2, g);
+                    Console::GetArgInteger(3, b);
+                    Console::GetArgInteger(4, a);
+
+                    nightLightColor.Set(r, g, b, a);
+                    break;
+                }
+
+                case 0xA3E7812D: // "mesh.color.team"
+                    renderState.teamColor = *Var::teamColor;
+                    if (Mesh::Manager::curEnt)
                     {
-                        f1 = 0.1f;
+                        Mesh::Manager::curParent->SetTeamColor((Color)*Var::teamColor);
                     }
-                    else if (f1 > 1.0f)
+                    break;
+                case 0x263E1AA9: // "mesh.color.envalpha"
+                    renderState.envAlpha = Var::envAlpha;
+                    break;
+                case 0x7E8D6042: // "mesh.color.shadowalpha"
+                    renderState.shadowAlpha = Var::shadowAlpha;
+                    Vid::Light::SetupShadow();
+                    break;
+
+                    // utility
+                    //
+                case 0x0C39A9C1: // "mesh.envmap"
+                    if (Console::GetArgString(1, (const char*&)s1))
                     {
-                        f1 = 1.0f;
-                    }
-                    Material::Manager::SetDiffuse(f1);
-                }
-                else
-                {
-                    CON_DIAG(("diffuse = %.2f", Material::Manager::diffuseVal))
-                }
-                break;
-            }
-            case 0xD3BE61C1: // "mesh.report"
-                Console::GetArgString(1, (const char*&)s1);
-                Mesh::Manager::ReportList(s1);
-                break;
-            case 0xAA7BD58D: // "mesh.dump.heirarchy"
-                if (Mesh::Manager::curEnt)
-                {
-                    Mesh::Manager::curEnt->LogHierarchy();
-                }
-                break;
-            case 0xEC368032: // "mesh.dump.offsetall"
-                if (Mesh::Manager::curEnt)
-                {
-                    Mesh::Manager::curEnt->DumpHierarchy();
-                }
-                break;
-            case 0x9AC2B5EA: // "mesh.dump.offset"
-                if (Mesh::Manager::curEnt && Console::GetArgString(1, (const char*&)s1))
-                {
-                    FamilyNode* n1 = Mesh::Manager::curEnt->FindLocal(s1);
-                    if (n1 && n1 != Mesh::Manager::curEnt)
-                    {
-                        FamilyNode* n2 = Mesh::Manager::curEnt;
-                        char* s2;
-                        if (Console::GetArgString(2, (const char*&)s2))
+                        Bitmap* map = Bitmap::Manager::Find(s1);
+                        if (map)
                         {
-                            FamilyNode* n = Mesh::Manager::curEnt->FindLocal(s2);
-                            if (n)
-                            {
-                                n2 = n;
-                            }
+                            Mesh::Manager::envMap = map;
                         }
-                        Matrix matrix;
-                        matrix.ClearData();
-                        n2->FindOffsetLocal(n1, matrix);
-
-                        CON_DIAG((""));
-                        CON_DIAG(("right %f,%f,%f", matrix.right.x, matrix.right.y, matrix.right.z));
-                        CON_DIAG(("up    %f,%f,%f", matrix.up.x, matrix.up.y, matrix.up.z));
-                        CON_DIAG(("front %f,%f,%f", matrix.front.x, matrix.front.y, matrix.front.z));
-                        CON_DIAG(("posit %f,%f,%f", matrix.posit.x, matrix.posit.y, matrix.posit.z));
-                        break;
                     }
-                }
-                CON_DIAG(("app.offset [dstnode] [opt:srcnode]"));
-                break;
+                    else
+                    {
+                        CON_DIAG(("envmap = %s", Mesh::Manager::envMap ? Mesh::Manager::envMap->GetName() : "null"));
+                    }
+                    break;
+                case 0x46BDAA81: // "mesh.color.alpha"
+                case 0x05D592EA: // "mesh.color.base"
+                    if (Mesh::Manager::curEnt)
+                    {
+                        Color color = Var::baseColor;
+                        color.a = (U8)Var::alphaColor;
+                        Mesh::Manager::curParent->SetBaseColor(color);
+                        Mesh::Manager::curParent->SetFogTarget(255, color.a, TRUE);
+                    }
+                    break;
 
+                case 0x7AF1FC7D: // "mesh.diffuse"
+                {
+                    F32 f1;
+                    if (Console::GetArgFloat(1, f1))
+                    {
+                        if (f1 < 0.1f)
+                        {
+                            f1 = 0.1f;
+                        }
+                        else if (f1 > 1.0f)
+                        {
+                            f1 = 1.0f;
+                        }
+                        Material::Manager::SetDiffuse(f1);
+                    }
+                    else
+                    {
+                        CON_DIAG(("diffuse = %.2f", Material::Manager::diffuseVal))
+                    }
+                    break;
+                }
+                case 0xD3BE61C1: // "mesh.report"
+                    Console::GetArgString(1, (const char*&)s1);
+                    Mesh::Manager::ReportList(s1);
+                    break;
+                case 0xAA7BD58D: // "mesh.dump.heirarchy"
+                    if (Mesh::Manager::curEnt)
+                    {
+                        Mesh::Manager::curEnt->LogHierarchy();
+                    }
+                    break;
+                case 0xEC368032: // "mesh.dump.offsetall"
+                    if (Mesh::Manager::curEnt)
+                    {
+                        Mesh::Manager::curEnt->DumpHierarchy();
+                    }
+                    break;
+                case 0x9AC2B5EA: // "mesh.dump.offset"
+                    if (Mesh::Manager::curEnt && Console::GetArgString(1, (const char*&)s1))
+                    {
+                        FamilyNode* n1 = Mesh::Manager::curEnt->FindLocal(s1);
+                        if (n1 && n1 != Mesh::Manager::curEnt)
+                        {
+                            FamilyNode* n2 = Mesh::Manager::curEnt;
+                            char* s2;
+                            if (Console::GetArgString(2, (const char*&)s2))
+                            {
+                                FamilyNode* n = Mesh::Manager::curEnt->FindLocal(s2);
+                                if (n)
+                                {
+                                    n2 = n;
+                                }
+                            }
+                            Matrix matrix;
+                            matrix.ClearData();
+                            n2->FindOffsetLocal(n1, matrix);
+
+                            CON_DIAG((""));
+                            CON_DIAG(("right %f,%f,%f", matrix.right.x, matrix.right.y, matrix.right.z));
+                            CON_DIAG(("up    %f,%f,%f", matrix.up.x, matrix.up.y, matrix.up.z));
+                            CON_DIAG(("front %f,%f,%f", matrix.front.x, matrix.front.y, matrix.front.z));
+                            CON_DIAG(("posit %f,%f,%f", matrix.posit.x, matrix.posit.y, matrix.posit.z));
+                            break;
+                        }
+                    }
+                    CON_DIAG(("app.offset [dstnode] [opt:srcnode]"));
+                    break;
             }
         }
+
         //-----------------------------------------------------------------------------
     }
-    //-----------------------------------------------------------------------------
 
+    //-----------------------------------------------------------------------------
 };

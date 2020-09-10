@@ -26,7 +26,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Server::Session
@@ -37,25 +36,25 @@ namespace StyxNet
     //
     Server::Session::Session(Server& server, User* host, const SessionName& name, CRC password, U32 maxUsers)
         : SessionData
-        (
-            name,
-            U16
-            (
-                ((server.flags& ServerFlags::StandAlone) ? SessionFlags::RoutingServer : 0) |
-                (password ? SessionFlags::Password : 0)
-            ),
-            U16(Version::GetBuildNumber()),
-            0,
-            Clamp<U32>(minimumSessionUsers, maxUsers, maximumSessionUsers)
-        ),
-        server(server),
-        host(host),
-        password(password),
-        sequenceNumber(1),
-        users(&User::nodeSession),
-        items(&Item::nodeSession),
-        oldPktsIndex(0),
-        migration(NULL)
+          (
+              name,
+              U16
+              (
+                  ((server.flags & ServerFlags::StandAlone) ? SessionFlags::RoutingServer : 0) |
+                  (password ? SessionFlags::Password : 0)
+              ),
+              U16(Version::GetBuildNumber()),
+              0,
+              Clamp<U32>(minimumSessionUsers, maxUsers, maximumSessionUsers)
+          ),
+          server(server),
+          password(password),
+          sequenceNumber(1),
+          users(&User::nodeSession),
+          items(&Item::nodeSession),
+          host(host),
+          oldPktsIndex(0),
+          migration(nullptr)
     {
         Utils::Memset(&oldPkts, 0x00, sizeof(oldPkts));
 
@@ -125,7 +124,7 @@ namespace StyxNet
         if (user.session)
         {
             user.session->RemoveUser(user);
-            user.session = NULL;
+            user.session = nullptr;
         }
 
         // Send info about the session to this user
@@ -182,7 +181,7 @@ namespace StyxNet
 
         users.Unlink(&user);
         --numUsers;
-        user.session = NULL;
+        user.session = nullptr;
 
         // If we're migrating, tell the migration
         if (migration)
@@ -210,7 +209,7 @@ namespace StyxNet
             }
             else
             {
-                host = NULL;
+                host = nullptr;
             }
         }
     }
@@ -240,10 +239,10 @@ namespace StyxNet
             return (FALSE);
         }
 
-        // Pull out sync data from the incomming queue 
+        // Pull out sync data from the incoming queue 
         // and build an update packet to send to all users
 
-        // LDIAG("Sending SessionData Seq:" << sequenceNumber << " Size:" << size)
+        // LDIAG("Sending SessionData Seq:" << sequenceNumber << " Size:" << size);
 
         Packet& pkt = Packet::Create(ServerMessage::SessionSyncData, maxSyncDataSize);
         U8* ptr = pkt.GetData();
@@ -261,7 +260,7 @@ namespace StyxNet
         NList<Item>::Iterator i(&items);
 
         Item* item;
-        while ((item = i++) != NULL && !ranOut)
+        while ((item = i++) != nullptr && !ranOut)
         {
             Packet& p = item->packet;
             Bool fromHost = (host && item->user == host->name.crc) ? TRUE : FALSE;
@@ -269,143 +268,151 @@ namespace StyxNet
             // Process this packet
             switch (p.GetCommand())
             {
-            case ServerMessage::SessionMigrate:
-            {
-                CAST(ServerMessage::Data::SessionMigrate*, sessionMigrateData, p.GetData());
-                U32 totalLength = sizeof(ServerMessage::Data::SessionSyncDataMigrate);
-                if (remaining < totalLength)
+                case ServerMessage::SessionMigrate:
                 {
-                    ranOut = TRUE;
+                    CAST(ServerMessage::Data::SessionMigrate*, sessionMigrateData, p.GetData());
+                    U32 totalLength = sizeof(ServerMessage::Data::SessionSyncDataMigrate);
+                    if (remaining < totalLength)
+                    {
+                        ranOut = TRUE;
+                        break;
+                    }
+
+                    CAST(ServerMessage::Data::SessionSyncDataMigrate*, d, ptr);
+                    d->command = EventMessage::SyncMigrate;
+                    d->address = sessionMigrateData->address;
+                    d->key = sessionMigrateData->key;
+
+                    flags |= SessionFlags::MigratingFrom;
+
+                    // Adjust pointer and remaining
+                    ptr += totalLength;
+                    remaining -= totalLength;
                     break;
                 }
 
-                CAST(ServerMessage::Data::SessionSyncDataMigrate*, d, ptr);
-                d->command = EventMessage::SyncMigrate;
-                d->address = sessionMigrateData->address;
-                d->key = sessionMigrateData->key;
-
-                flags |= SessionFlags::MigratingFrom;
-
-                // Adjust pointer and remaining
-                ptr += totalLength;
-                remaining -= totalLength;
-                break;
-            }
-
-            case ClientMessage::SessionSyncData:
-            {
-                CAST(ClientMessage::Data::SessionSyncData*, sessionSyncData, p.GetData());
-                U32 length = p.GetLength() - sizeof(ClientMessage::Data::SessionSyncData);
-                U32 totalLength = length + sizeof(ServerMessage::Data::SessionSyncDataData);
-                if (remaining < totalLength)
+                case ClientMessage::SessionSyncData:
                 {
-                    ranOut = TRUE;
-                    break;
-                }
-                CAST(ServerMessage::Data::SessionSyncDataData*, d, ptr);
+                    CAST(ClientMessage::Data::SessionSyncData*, sessionSyncData, p.GetData());
+                    U32 length = p.GetLength() - sizeof(ClientMessage::Data::SessionSyncData);
+                    U32 totalLength = length + sizeof(ServerMessage::Data::SessionSyncDataData);
+                    if (remaining < totalLength)
+                    {
+                        ranOut = TRUE;
+                        break;
+                    }
+                    CAST(ServerMessage::Data::SessionSyncDataData*, d, ptr);
 
-                d->command = EventMessage::SyncData;
-                d->from = item->user;
-                d->key = sessionSyncData->key;
-                ASSERT(length < U16_MAX);
-                d->length = U16(length);
-
-                if (length)
-                {
-                    Utils::Memcpy(d->data, sessionSyncData->data, length);
-                }
-
-                ptr += totalLength;
-                remaining -= totalLength;
-                break;
-            }
-
-            case ClientMessage::SessionStoreData:
-            {
-                CAST(ClientMessage::Data::SessionStoreData*, sessionStoreData, p.GetData())
-                    U32 length = p.GetLength() - sizeof(ClientMessage::Data::SessionStoreData);
-                U32 totalLength = length + sizeof(ServerMessage::Data::SessionSyncDataStoreData);
-                if (remaining < totalLength)
-                {
-                    ranOut = TRUE;
-                    break;
-                }
-
-                // Attempt to store into our database
-                if (data.Store(sessionStoreData->key, sessionStoreData->index, length, sessionStoreData->data, fromHost))
-                {
-                    CAST(ServerMessage::Data::SessionSyncDataStoreData*, d, ptr);
-
-                    d->command = EventMessage::SyncStore;
+                    d->command = EventMessage::SyncData;
                     d->from = item->user;
-                    d->key = sessionStoreData->key;
-                    d->index = sessionStoreData->index;
+                    d->key = sessionSyncData->key;
                     ASSERT(length < U16_MAX);
                     d->length = U16(length);
-                    Utils::Memcpy(d->data, sessionStoreData->data, length);
+
+                    if (length)
+                    {
+                        Utils::Memcpy(d->data, sessionSyncData->data, length);
+                    }
 
                     ptr += totalLength;
                     remaining -= totalLength;
-                }
-                else
-                {
-                    LDIAG("Data " << sessionStoreData->key << ":" << sessionStoreData->index << " [" << length << "] could not be stored by " << item->user);
-                }
-                break;
-            }
-
-            case ClientMessage::SessionClearData:
-            {
-                CAST(ClientMessage::Data::SessionClearData*, sessionClearData, p.GetData());
-                U32 totalLength = sizeof(ServerMessage::Data::SessionSyncDataClearData);
-                if (remaining < totalLength)
-                {
-                    ranOut = TRUE;
                     break;
                 }
 
-                // Attempt to clear into our database
-                if (data.Clear(sessionClearData->key, sessionClearData->index, fromHost))
+                case ClientMessage::SessionStoreData:
                 {
-                    CAST(ServerMessage::Data::SessionSyncDataClearData*, d, ptr);
+                    CAST(ClientMessage::Data::SessionStoreData*, sessionStoreData, p.GetData())
+                    U32 length = p.GetLength() - sizeof(ClientMessage::Data::SessionStoreData);
+                    U32 totalLength = length + sizeof(ServerMessage::Data::SessionSyncDataStoreData);
+                    if (remaining < totalLength)
+                    {
+                        ranOut = TRUE;
+                        break;
+                    }
 
-                    d->command = EventMessage::SyncClear;
-                    d->from = item->user;
-                    d->key = sessionClearData->key;
-                    d->index = sessionClearData->index;
+                    // Attempt to store into our database
+                    if (data.Store
+                        (
+                            sessionStoreData->key, sessionStoreData->index, length, sessionStoreData->data,
+                            fromHost
+                        ))
+                    {
+                        CAST(ServerMessage::Data::SessionSyncDataStoreData*, d, ptr);
 
-                    // Adjust pointer and remaining
-                    ptr += totalLength;
-                    remaining -= totalLength;
-                }
-                break;
-            }
+                        d->command = EventMessage::SyncStore;
+                        d->from = item->user;
+                        d->key = sessionStoreData->key;
+                        d->index = sessionStoreData->index;
+                        ASSERT(length < U16_MAX);
+                        d->length = U16(length);
+                        Utils::Memcpy(d->data, sessionStoreData->data, length);
 
-            case ClientMessage::SessionFlushData:
-            {
-                U32 totalLength = sizeof(ServerMessage::Data::SessionSyncDataFlushData);
-                if (remaining < totalLength)
-                {
-                    ranOut = TRUE;
+                        ptr += totalLength;
+                        remaining -= totalLength;
+                    }
+                    else
+                    {
+                        LDIAG
+                        (
+                            "Data " << sessionStoreData->key << ":" << sessionStoreData->index << " [" << length <<
+                            "] could not be stored by " << item->user
+                        );
+                    }
                     break;
                 }
 
-                // Flush all of the data in our data base
-                if (fromHost)
+                case ClientMessage::SessionClearData:
                 {
-                    data.Flush();
-                    CAST(ServerMessage::Data::SessionSyncDataFlushData*, d, ptr);
-                    d->command = EventMessage::SyncFlush;
-                    d->from = item->user;
+                    CAST(ClientMessage::Data::SessionClearData*, sessionClearData, p.GetData());
+                    U32 totalLength = sizeof(ServerMessage::Data::SessionSyncDataClearData);
+                    if (remaining < totalLength)
+                    {
+                        ranOut = TRUE;
+                        break;
+                    }
 
-                    // Adjust pointer and remaining
-                    ptr += totalLength;
-                    remaining -= totalLength;
+                    // Attempt to clear into our database
+                    if (data.Clear(sessionClearData->key, sessionClearData->index, fromHost))
+                    {
+                        CAST(ServerMessage::Data::SessionSyncDataClearData*, d, ptr);
+
+                        d->command = EventMessage::SyncClear;
+                        d->from = item->user;
+                        d->key = sessionClearData->key;
+                        d->index = sessionClearData->index;
+
+                        // Adjust pointer and remaining
+                        ptr += totalLength;
+                        remaining -= totalLength;
+                    }
+                    break;
                 }
-                break;
-            }
 
-            default:
+                case ClientMessage::SessionFlushData:
+                {
+                    U32 totalLength = sizeof(ServerMessage::Data::SessionSyncDataFlushData);
+                    if (remaining < totalLength)
+                    {
+                        ranOut = TRUE;
+                        break;
+                    }
+
+                    // Flush all of the data in our data base
+                    if (fromHost)
+                    {
+                        data.Flush();
+                        CAST(ServerMessage::Data::SessionSyncDataFlushData*, d, ptr);
+                        d->command = EventMessage::SyncFlush;
+                        d->from = item->user;
+
+                        // Adjust pointer and remaining
+                        ptr += totalLength;
+                        remaining -= totalLength;
+                    }
+                    break;
+                }
+
+                default:
                 LWARN("Wasn't expecting command " << p.GetCommand());
             }
 
@@ -452,31 +459,31 @@ namespace StyxNet
         else
         {
             // We're not standalone, migrate to another client
-            LDIAG("Initiating migration sequence for session '" << name.str << "'")
+            LDIAG("Initiating migration sequence for session '" << name.str << "'");
 
-                // If there's only one user in the session tell them that migration was a success
-                if (users.GetCount() <= 1)
+            // If there's only one user in the session tell them that migration was a success
+            if (users.GetCount() <= 1)
+            {
+                LDIAG("Only one user, no need to migrate");
+
+                User* user = users.GetFirst();
+                if (user)
                 {
-                    LDIAG("Only one user, no need to migrate");
-
-                    User* user = users.GetFirst();
-                    if (user)
-                    {
-                        // Tell the use that no migration was needed
-                        Packet::Create(ServerResponse::UserMigrateNotNeeded).Send(user->socket);
-                    }
+                    // Tell the use that no migration was needed
+                    Packet::Create(ServerResponse::UserMigrateNotNeeded).Send(user->socket);
                 }
-                else
+            }
+            else
+            {
+                LDIAG("Migration Commencing");
+
+                // Make the current host as an old host
+                if (host)
                 {
-                    LDIAG("Migration Commencing");
-
-                    // Make the current host as an old host
-                    if (host)
-                    {
-                        host->flags |= UserFlags::PreviousHost;
-                    }
-                    server.migrations.Append(migration = new Migration(*this));
+                    host->flags |= UserFlags::PreviousHost;
                 }
+                server.migrations.Append(migration = new Migration(*this));
+            }
         }
     }
 
@@ -560,5 +567,4 @@ namespace StyxNet
         // Adjust index
         oldPktsIndex = GetNextIndex(oldPktsIndex);
     }
-
 }

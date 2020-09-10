@@ -10,6 +10,7 @@
 #include "vid_public.h"
 #include "meshent.h"
 #include "perfstats.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -17,15 +18,16 @@ namespace Vid
     namespace Clip
     {
         static U32 codes[6][4] = {
-          clipNONE, clipNEAR,   clipNEAR,   clipOUTSIDE,
-          clipNONE, clipFAR,    clipFAR,    clipOUTSIDE,
-          clipNONE, clipLEFT,   clipLEFT,   clipOUTSIDE,
-          clipNONE, clipRIGHT,  clipRIGHT,  clipOUTSIDE,
-          clipNONE, clipTOP,    clipTOP,    clipOUTSIDE,
-          clipNONE, clipBOTTOM, clipBOTTOM, clipOUTSIDE,
+            clipNONE, clipNEAR, clipNEAR, clipOUTSIDE,
+            clipNONE, clipFAR, clipFAR, clipOUTSIDE,
+            clipNONE, clipLEFT, clipLEFT, clipOUTSIDE,
+            clipNONE, clipRIGHT, clipRIGHT, clipOUTSIDE,
+            clipNONE, clipTOP, clipTOP, clipOUTSIDE,
+            clipNONE, clipBOTTOM, clipBOTTOM, clipOUTSIDE,
         };
     };
 };
+
 //-----------------------------------------------------------------------------
 
 // posit is already in camera space
@@ -172,12 +174,13 @@ U32 Camera::SphereTestCamera(const Vector& posit, F32 radius)
         if (code == clipNONE && Vid::renderState.status.clipGuard)
         {
             // force the polys thru the clipper for fully clipped rejection only
-      //        code = lcode;   // full clip
-      //      code = clipGUARD;
+            //        code = lcode;   // full clip
+            //      code = clipGUARD;
         }
     }
     return code;
 }
+
 //-----------------------------------------------------------------------------
 
 U32 Camera::SphereTest(const Vector& origin, F32 radius, Vector* viewPos) //  = NULL
@@ -191,6 +194,7 @@ U32 Camera::SphereTest(const Vector& origin, F32 radius, Vector* viewPos) //  = 
 
     return SphereTestCamera(*viewPos, radius);
 }
+
 //-----------------------------------------------------------------------------
 
 // origin (bounds.offset) in model coords
@@ -202,6 +206,7 @@ U32 Camera::BoundsTest(const Matrix& world, Bounds& bounds, Vector* viewPos) // 
 
     return BoundsTestOrigin(camOrigin, bounds, viewPos);
 }
+
 //-----------------------------------------------------------------------------
 
 // world is already in world origin space
@@ -217,20 +222,20 @@ U32 Camera::BoundsTestOrigin(const Matrix& world, Bounds& bounds, Vector* viewPo
 
 #if 0
 
-    return
-        Vid::renderState.status.clipFunc ?
-        Vid::renderState.status.clipBox ?
-        bounds.FrustrumBoxTest(camOrigin, planes)
-        : bounds.FrustrumSphereTest(camOrigin, planes)
-        : SphereTestCamera(camOrigin.posit, bounds.Radius());
+  return
+    Vid::renderState.status.clipFunc ?
+      Vid::renderState.status.clipBox ? 
+        bounds.FrustrumBoxTest( camOrigin, planes) 
+      : bounds.FrustrumSphereTest( camOrigin, planes)
+    : SphereTestCamera( camOrigin.posit, bounds.Radius());
 
 #else
 
     return bounds.FrustrumBoxTest(camOrigin, planes);
 
 #endif
+}
 
-    }
 //-----------------------------------------------------------------------------
 
 U32 Camera::BoundsTestSphere(const Matrix& world, Bounds& bounds, Vector* viewPos) // = NULL)
@@ -245,6 +250,7 @@ U32 Camera::BoundsTestSphere(const Matrix& world, Bounds& bounds, Vector* viewPo
     }
     return bounds.FrustrumSphereTest(camOrigin, planes);
 }
+
 //-----------------------------------------------------------------------------
 
 U32 Camera::BoundsTestBox(const Matrix& world, Bounds& bounds, Vector* viewPos) // = NULL)
@@ -259,6 +265,7 @@ U32 Camera::BoundsTestBox(const Matrix& world, Bounds& bounds, Vector* viewPos) 
     }
     return bounds.FrustrumBoxTest(camOrigin, planes);
 }
+
 //-----------------------------------------------------------------------------
 
 // returns clip flag bits found at the top of family.h
@@ -349,12 +356,13 @@ U32 Bounds::FrustrumSphereTest(const Matrix& camOrigin, const Plane* planes)
         if (code == clipNONE && Vid::renderState.status.clipGuard)
         {
             // force the polys thru the clipper for fully clipped rejection only
-      //        code = lcode;   // full clip
-      //      code = clipGUARD;
+            //        code = lcode;   // full clip
+            //      code = clipGUARD;
         }
     }
     return code;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestSphereNear(const Matrix& camOrigin, const Plane* planes) const
@@ -368,6 +376,7 @@ U32 Bounds::TestSphereNear(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[0][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestSphereFar(const Matrix& camOrigin, const Plane* planes) const
@@ -381,6 +390,7 @@ U32 Bounds::TestSphereFar(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[1][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestSphereLeft(const Matrix& camOrigin, const Plane* planes) const
@@ -394,6 +404,7 @@ U32 Bounds::TestSphereLeft(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[2][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestSphereRight(const Matrix& camOrigin, const Plane* planes) const
@@ -407,6 +418,7 @@ U32 Bounds::TestSphereRight(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[3][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestSphereTop(const Matrix& camOrigin, const Plane* planes) const
@@ -420,6 +432,7 @@ U32 Bounds::TestSphereTop(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[4][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestSphereBottom(const Matrix& camOrigin, const Plane* planes) const
@@ -433,6 +446,7 @@ U32 Bounds::TestSphereBottom(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[5][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 // returns clip flag bits found at the top of family.h
@@ -523,12 +537,13 @@ U32 Bounds::FrustrumBoxTest(const Matrix& camOrigin, const Plane* planes)
         if (code == clipNONE && Vid::renderState.status.clipGuard)
         {
             // force the polys thru the clipper for fully clipped rejection only
-      //        code = lcode;   // full clip
+            //        code = lcode;   // full clip
             code = clipGUARD;
         }
     }
     return code;
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestBoxNear(const Matrix& camOrigin, const Plane* planes) const
@@ -543,6 +558,7 @@ U32 Bounds::TestBoxNear(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[0][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestBoxFar(const Matrix& camOrigin, const Plane* planes) const
@@ -557,6 +573,7 @@ U32 Bounds::TestBoxFar(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[1][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestBoxLeft(const Matrix& camOrigin, const Plane* planes) const
@@ -573,6 +590,7 @@ U32 Bounds::TestBoxLeft(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[2][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestBoxRight(const Matrix& camOrigin, const Plane* planes) const
@@ -589,6 +607,7 @@ U32 Bounds::TestBoxRight(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[3][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestBoxTop(const Matrix& camOrigin, const Plane* planes) const
@@ -606,6 +625,7 @@ U32 Bounds::TestBoxTop(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[4][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------
 
 U32 Bounds::TestBoxBottom(const Matrix& camOrigin, const Plane* planes) const
@@ -623,4 +643,5 @@ U32 Bounds::TestBoxBottom(const Matrix& camOrigin, const Plane* planes) const
 
     return Vid::Clip::codes[5][(2 & (flag0.i >> 30)) | (1 & (flag1.i >> 31))];
 }
+
 //----------------------------------------------------------------------------

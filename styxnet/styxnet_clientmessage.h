@@ -16,7 +16,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace ClientMessage
@@ -86,11 +85,14 @@ namespace StyxNet
                 SessionName name;               // Name of the session
                 CRC password;                   // Password for the session
             };
+
             typedef SessionCreate SessionConnect;
+
             struct SessionDestroy
             {
                 CRC name;                       // Name of the session
             };
+
             struct SessionJoin
             {
                 CRC name;                       // Name of the session to join
@@ -101,17 +103,20 @@ namespace StyxNet
             {
                 CRC user;                       // Name of the user to kick
             };
+
             struct SessionPrivateData
             {
                 CRC key;                        // Data key
                 U32 numRecipients;              // Number of recipients
                 CRC recipients[];               // The recipients
             };
+
             struct SessionData
             {
                 CRC key;                        // Data Key
                 U8 data[];                      // The data
             };
+
             typedef SessionData SessionSyncData;
 
             struct SessionStoreData
@@ -120,6 +125,7 @@ namespace StyxNet
                 CRC index;                      // Index Key
                 U8 data[];                      // The data
             };
+
             struct SessionClearData
             {
                 CRC key;                        // Data Key
@@ -128,9 +134,7 @@ namespace StyxNet
 
 #pragma pack(pop)
         }
-
     }
-
 }
 
 #endif

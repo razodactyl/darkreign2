@@ -154,4 +154,3 @@ namespace PathSearch
         return (path->points);
     }
 }
-

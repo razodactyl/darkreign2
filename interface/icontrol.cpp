@@ -100,7 +100,7 @@ IControl* IControl::FindById(U32 id)
             return (*i);
         }
     }
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -136,18 +136,18 @@ void IControl::Load(FScope* scope)
 {
     FScope* sScope;
 
-    while ((sScope = scope->NextFunction()) != NULL)
+    while ((sScope = scope->NextFunction()) != nullptr)
     {
         switch (sScope->NameCrc())
         {
-        case 0xAFBFC0B7: // "Activation"
-        {
-            if (IControl* c = IFace::FindByName(sScope->NextArgString()))
+            case 0xAFBFC0B7: // "Activation"
             {
-                c->ChangeActiveState(sScope->NextArgInteger());
+                if (IControl* c = IFace::FindByName(sScope->NextArgString()))
+                {
+                    c->ChangeActiveState(sScope->NextArgInteger());
+                }
+                break;
             }
-            break;
-        }
         }
     }
 }
@@ -157,29 +157,29 @@ void IControl::Load(FScope* scope)
 // IControl::IControl
 //
 IControl::IControl(IControl* parentCtrl)
-    : children(&IControl::childNode),
-    translations(&EventTranslation::node),
-    paintInfo(IFace::data.cgDefault),
-    controlStyle(0),
-    controlState(0),
-    parent(NULL),
-    texture(NULL),
-    freeText(FALSE),
-    freeTipText(FALSE),
-    postConfigured(FALSE),
-    textJustify(0),
-    textStr(NULL),
-    formatStr(NULL),
-    tipTextStr(NULL),
-    inputHook(FALSE),
-    forceTextClr(FALSE),
-    cursor(0),
-    pollInterval(0),
-    nextPollTime(0),
-    varAlias(NULL),
-    region(NULL),
-    skin(NULL),
-    multiLine(NULL)
+    : controlState(0),
+      controlStyle(0),
+      parent(nullptr),
+      region(nullptr),
+      paintInfo(IFace::data.cgDefault),
+      children(&IControl::childNode),
+      texture(nullptr),
+      skin(nullptr),
+      textStr(nullptr),
+      formatStr(nullptr),
+      multiLine(nullptr),
+      tipTextStr(nullptr),
+      textJustify(0),
+      cursor(0),
+      freeText(FALSE),
+      freeTipText(FALSE),
+      postConfigured(FALSE),
+      inputHook(FALSE),
+      forceTextClr(FALSE),
+      translations(&EventTranslation::node),
+      pollInterval(0),
+      nextPollTime(0),
+      varAlias(nullptr)
 {
     // Default size
     SetPos(0, 0);
@@ -208,16 +208,16 @@ IControl::IControl(IControl* parentCtrl)
 IControl::~IControl()
 {
     // Make sure it isnt active
-    ASSERT(!IsActive())
+    ASSERT(!IsActive());
 
-        // Delete all children
-        DisposeChildren();
+    // Delete all children
+    DisposeChildren();
 
     // Detach from parent
     if (parent)
     {
         parent->RemoveChild(this);
-        parent = NULL;
+        parent = nullptr;
     }
     if (region)
     {
@@ -232,39 +232,39 @@ IControl::~IControl()
     if (multiLine)
     {
         delete multiLine;
-        multiLine = NULL;
+        multiLine = nullptr;
     }
 
     // Delete memory
     if (freeText && textStr)
     {
         delete[] textStr;
-        textStr = NULL;
+        textStr = nullptr;
     }
 
     if (formatStr)
     {
         delete[] formatStr;
-        formatStr = NULL;
+        formatStr = nullptr;
     }
 
     if (freeTipText && tipTextStr)
     {
         delete[] tipTextStr;
-        tipTextStr = NULL;
+        tipTextStr = nullptr;
     }
 
     // Delete texture info
     if (texture)
     {
         delete texture;
-        texture = NULL;
+        texture = nullptr;
     }
 
     if (varAlias)
     {
         delete varAlias;
-        varAlias = NULL;
+        varAlias = nullptr;
     }
 
     // Register object destruction
@@ -332,22 +332,22 @@ void IControl::Draw(PaintInfo& pi)
 //
 void IControl::SetParent(IControl* ctrl)
 {
-    ASSERT(ctrl)
+    ASSERT(ctrl);
 
-        // Is the current parent different to the new one?
-        if (parent != ctrl)
+    // Is the current parent different to the new one?
+    if (parent != ctrl)
+    {
+        // Yes, is the current parent valid?
+        if (parent != nullptr)
         {
-            // Yes, is the current parent valid?
-            if (parent != NULL)
-            {
-                // Yes, so remove this control from the parent's list
-                parent->RemoveChild(this);
-            }
-
-            // Add the
-            parent = ctrl;
-            parent->AddChild(this);
+            // Yes, so remove this control from the parent's list
+            parent->RemoveChild(this);
         }
+
+        // Add the
+        parent = ctrl;
+        parent->AddChild(this);
+    }
 }
 
 
@@ -397,7 +397,7 @@ void IControl::DisposeChildren()
     while (*i)
     {
         IControl* ctrl = *i;
-        i++;
+        ++i;
 
         // Deactivate the control first
         if (ctrl->IsActive())
@@ -415,9 +415,9 @@ void IControl::DisposeChildren()
 //
 // Enumerate list of children
 //
-void IControl::EnumChildren(Bool(*proc)(IControl*, U32), U32 context)
+void IControl::EnumChildren(Bool (*proc)(IControl*, U32), U32 context)
 {
-    for (NList<IControl>::Iterator i(&children); *i; i++)
+    for (NList<IControl>::Iterator i(&children); *i; ++i)
     {
         if (!proc(*i, context))
         {
@@ -452,7 +452,7 @@ Bool IControl::SetTabStop(IControl* from, Bool forward)
     {
         Bool found = FALSE;
 
-        for (; *i; i++)
+        for (; *i; ++i)
         {
             if (from == *i)
             {
@@ -462,10 +462,7 @@ Bool IControl::SetTabStop(IControl* from, Bool forward)
                     found = TRUE;
                     break;
                 }
-                else
-                {
-                    LOG_ERR(("'From' [%s] is not a tab stop", from->Name()));
-                }
+                LOG_ERR(("'From' [%s] is not a tab stop", from->Name()));
             }
         }
 
@@ -547,7 +544,7 @@ void IControl::DrawChildren(PaintInfo& pi)
     NList<IControl>::Iterator i(&children);
 
     // Draw children from lowest Z-pos to highest
-    for (i.GoToTail(); *i; i--)
+    for (i.GoToTail(); *i; --i)
     {
         IControl* child = *i;
 
@@ -579,13 +576,13 @@ void IControl::DrawCtrlText(const PaintInfo& pi, const CH* str, Color* colorOver
     // Draw the text
     CH buf[256];
 
-    if (pi.font == NULL)
+    if (pi.font == nullptr)
     {
         ERR_FATAL(("No font specified for [%s]", Name()))
     }
 
     // Ask the control for a string
-    if (multiLine == NULL && str == NULL)
+    if (multiLine == nullptr && str == nullptr)
     {
         GetTextString(buf, 256);
         str = buf;
@@ -629,16 +626,14 @@ void IControl::DrawCtrlText(const PaintInfo& pi, const CH* str, Color* colorOver
             {
                 textPos.y = 1;
             }
+            else if (textJustify & JUSTIFY_BOTTOM)
+            {
+                textPos.y = Max<S32>(pi.client.Height() - S32(textSize.y), 0);
+            }
             else
-
-                if (textJustify & JUSTIFY_BOTTOM)
-                {
-                    textPos.y = Max<S32>(pi.client.Height() - S32(textSize.y), 0);
-                }
-                else
-                {
-                    textPos.y = Max<S32>((pi.client.Height() - textSize.y) / 2, 0);
-                }
+            {
+                textPos.y = Max<S32>((pi.client.Height() - textSize.y) / 2, 0);
+            }
         }
 
         // Align horizontally
@@ -646,16 +641,14 @@ void IControl::DrawCtrlText(const PaintInfo& pi, const CH* str, Color* colorOver
         {
             textPos.x = 1;
         }
+        else if (textJustify & JUSTIFY_RIGHT)
+        {
+            textPos.x = Max<S32>(pi.client.Width() - S32(textSize.x), 0);
+        }
         else
-
-            if (textJustify & JUSTIFY_RIGHT)
-            {
-                textPos.x = Max<S32>(pi.client.Width() - S32(textSize.x), 0);
-            }
-            else
-            {
-                textPos.x = Max<S32>((pi.client.Width() - S32(textSize.x)) / 2, 0);
-            }
+        {
+            textPos.x = Max<S32>((pi.client.Width() - S32(textSize.x)) / 2, 0);
+        }
 
         // Add in any indent
         textPos += indent;
@@ -697,8 +690,8 @@ void IControl::DrawCtrlBackground(const PaintInfo& pi, const TextureInfo* tex)
             IFace::RenderGradient
             (
                 pi.client,
-                parent->IsModal() ? IFace::GetColor(IFace::CLR_TITLE_BG1) : IFace::GetColor(IFace::CLR_TITLELO_BG1),
-                parent->IsModal() ? IFace::GetColor(IFace::CLR_TITLE_BG2) : IFace::GetColor(IFace::CLR_TITLELO_BG2),
+                parent->IsModal() ? GetColor(IFace::CLR_TITLE_BG1) : GetColor(IFace::CLR_TITLELO_BG1),
+                parent->IsModal() ? GetColor(IFace::CLR_TITLE_BG2) : GetColor(IFace::CLR_TITLELO_BG2),
                 TRUE,
                 tex,
                 pi.alphaScale
@@ -714,7 +707,7 @@ void IControl::DrawCtrlBackground(const PaintInfo& pi, const TextureInfo* tex)
             (
                 pi.client,
                 pi.colors->bg[ColorIndex()],
-                IFace::GetMetric(IFace::VGRADIENT),
+                GetMetric(IFace::VGRADIENT),
                 TRUE,
                 tex,
                 pi.alphaScale
@@ -729,7 +722,7 @@ void IControl::DrawCtrlBackground(const PaintInfo& pi, const TextureInfo* tex)
                 (
                     pi.client,
                     pi.colors->bg[ColorIndex()],
-                    IFace::GetMetric(IFace::HGRADIENT),
+                    GetMetric(IFace::HGRADIENT),
                     FALSE,
                     tex,
                     pi.alphaScale
@@ -765,27 +758,23 @@ void IControl::DrawCtrlFrame(const PaintInfo& pi)
     {
         if (controlStyle & STYLE_THINBORDER)
         {
-            IFace::RenderRectangle(pi.window, Color(0L, 0L, 0L, 128L), NULL, pi.alphaScale);
+            IFace::RenderRectangle(pi.window, Color(0L, 0L, 0L, 128L), nullptr, pi.alphaScale);
         }
-        else
-
-            if (controlStyle & STYLE_THICKBORDER)
-            {
-                IFace::RenderRectangle(pi.window, Color(0L, 0L, 0L, 128L), NULL, pi.alphaScale);
-            }
-            else
-
-                if (controlStyle & STYLE_DROPSHADOW)
-                {
-                    IFace::RenderShadow
-                    (
-                        pi.client,
-                        pi.client + (pi.window.p1.y - pi.client.p1.y),
-                        Color(0L, 0L, 0L, IFace::GetMetric(IFace::SHADOW_ALPHA)),
-                        IFace::GetMetric(IFace::DROPSHADOW_UP),
-                        pi.alphaScale
-                    );
-                }
+        else if (controlStyle & STYLE_THICKBORDER)
+        {
+            IFace::RenderRectangle(pi.window, Color(0L, 0L, 0L, 128L), nullptr, pi.alphaScale);
+        }
+        else if (controlStyle & STYLE_DROPSHADOW)
+        {
+            IFace::RenderShadow
+            (
+                pi.client,
+                pi.client + (pi.window.p1.y - pi.client.p1.y),
+                Color(0L, 0L, 0L, GetMetric(IFace::SHADOW_ALPHA)),
+                GetMetric(IFace::DROPSHADOW_UP),
+                pi.alphaScale
+            );
+        }
     }
 }
 
@@ -799,441 +788,441 @@ void IControl::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x70DFC843: // "If"
-    {
-        if (Comparison::Function(fScope, NULL))
+        case 0x70DFC843: // "If"
         {
-            fScope->InitIterators();
-            Configure(fScope);
-        }
-        else
-        {
-            if (fScope->ParentFunction())
+            if (Comparison::Function(fScope, nullptr))
             {
-                FScope* nScope = fScope->ParentFunction()->PeekFunction();
-                if (nScope && nScope->NameCrc() == 0x5F3F76C0) // "Else"
+                fScope->InitIterators();
+                Configure(fScope);
+            }
+            else
+            {
+                if (fScope->ParentFunction())
                 {
-                    Configure(nScope);
+                    FScope* nScope = fScope->ParentFunction()->PeekFunction();
+                    if (nScope && nScope->NameCrc() == 0x5F3F76C0) // "Else"
+                    {
+                        Configure(nScope);
+                    }
                 }
             }
+            break;
         }
-        break;
-    }
 
-    case 0x5F3F76C0: // "Else"
-      // Ignore elses on their own
-        break;
+        case 0x5F3F76C0: // "Else"
+            // Ignore elses on their own
+            break;
 
-    case 0x4BED1273: // "Switch"
-    {
-        FSCOPE_DIRTY(fScope);
-
-        // Get the name of the var to test on
-        Switch::Value& value = Switch::GetValue(fScope, NULL);
-
-        while (FScope* sScope = fScope->NextFunction())
+        case 0x4BED1273: // "Switch"
         {
-            if (sScope->NameCrc() == 0x97AF68BF) // "Case"
+            FSCOPE_DIRTY(fScope)
+
+            // Get the name of the var to test on
+            Switch::Value& value = Switch::GetValue(fScope, nullptr);
+
+            while (FScope* sScope = fScope->NextFunction())
             {
-                if (Switch::CompareValue(value, sScope, NULL))
+                if (sScope->NameCrc() == 0x97AF68BF) // "Case"
+                {
+                    if (CompareValue(value, sScope, nullptr))
+                    {
+                        Configure(sScope);
+                        break;
+                    }
+                }
+                else if (sScope->NameCrc() == 0x8F651465) // "Default"
                 {
                     Configure(sScope);
-                    break;
                 }
             }
-            else if (sScope->NameCrc() == 0x8F651465) // "Default"
+
+            DisposeValue(value);
+            break;
+        }
+
+        case 0xA398E348: // "CreateControl"
+        {
+            const char* name = fScope->NextArgString();
+            const char* cls = fScope->NextArgString();
+
+            IControl* ctrl = IFace::CreateControl(name, cls, this);
+
+            if (ctrl == nullptr)
             {
+                LOG_ERR(("Error creating control [%s]", name));
+            }
+            else
+            {
+                ctrl->Configure(fScope);
+            }
+
+            // Save this object as the previously configured object
+            previous = ctrl;
+
+            break;
+        }
+
+        case 0x46E28B78: // "ReadTemplate"
+        {
+            ReadTemplate(fScope->NextArgString(), TRUE);
+            break;
+        }
+
+        case 0x63B98E4E: // "ReadRegData"
+        {
+            FScope* sScope = IFace::FindRegData(fScope->NextArgString(), FALSE);
+
+            if (sScope)
+            {
+                sScope->InitIterators();
                 Configure(sScope);
             }
+            break;
         }
 
-        Switch::DisposeValue(value);
-        break;
-    }
 
-    case 0xA398E348: // "CreateControl"
-    {
-        const char* name = fScope->NextArgString();
-        const char* cls = fScope->NextArgString();
+            //
+            // Position/size/style
+            //
 
-        IControl* ctrl = IFace::CreateControl(name, cls, this);
-
-        if (ctrl == NULL)
+        case 0x1FDE7389: // "Style"
         {
-            LOG_ERR(("Error creating control [%s]", name));
-        }
-        else
-        {
-            ctrl->Configure(fScope);
-        }
+            VNode* vNode;
 
-        // Save this object as the previously configured object
-        previous = ctrl;
-
-        break;
-    }
-
-    case 0x46E28B78: // "ReadTemplate"
-    {
-        ReadTemplate(fScope->NextArgString(), TRUE);
-        break;
-    }
-
-    case 0x63B98E4E: // "ReadRegData"
-    {
-        FScope* sScope = IFace::FindRegData(fScope->NextArgString(), FALSE);
-
-        if (sScope)
-        {
-            sScope->InitIterators();
-            Configure(sScope);
-        }
-        break;
-    }
-
-
-    //
-    // Position/size/style
-    //
-
-    case 0x1FDE7389: // "Style"
-    {
-        VNode* vNode;
-
-        while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != NULL)
-        {
-            const char* str = vNode->GetString();
-            Bool toggle = TRUE;
-
-            if (*str == '!')
+            while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != nullptr)
             {
-                toggle = FALSE;
-                str++;
+                const char* str = vNode->GetString();
+                Bool toggle = TRUE;
+
+                if (*str == '!')
+                {
+                    toggle = FALSE;
+                    str++;
+                }
+                SetStyleItem(str, toggle);
             }
-            SetStyleItem(str, toggle);
+            break;
         }
-        break;
-    }
 
-    case 0x09C72CDE: // "Geometry"
-    case 0x150D82F6: // "Geom"
-    {
-        VNode* vNode;
-
-        while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != NULL)
+        case 0x09C72CDE: // "Geometry"
+        case 0x150D82F6: // "Geom"
         {
-            SetGeometry(vNode->GetString(), NULL);
-        }
-        break;
-    }
+            VNode* vNode;
 
-    case 0x362FA3AA: // "Size"
-    {
-        int width = fScope->NextArgInteger();
-        int height = fScope->NextArgInteger();
-
-        SetSize(width, height);
-        SetGeomSize(width, height);
-
-        break;
-    }
-
-    case 0xCE8A18A6: // "Align"
-    {
-        // Get the name of the control to align with
-        const char* name = fScope->NextArgString();
-
-        if (!SetAlignTo(name))
-        {
-            LOG_ERR(("Unable to align to control '%s' (not found)", name));
-        }
-        break;
-    }
-
-    case 0x8D878A02: // "Position"
-    case 0x29BAA7D3: // "Pos"
-    {
-        int x = fScope->NextArgInteger();
-        int y = fScope->NextArgInteger();
-
-        SetPos(x, y);
-
-        break;
-    }
-
-    case 0xB817BF51: // "Region"
-    {
-        S32 size = StdLoad::TypeU32(fScope);
-
-        // Allocate an array
-        region = new Array<Point<S32> >;
-        region->Alloc(size);
-
-        FScope* sScope = fScope->NextFunction();;
-        for (S32 n = 0; n < size; n++)
-        {
-            StdLoad::TypePoint<S32>(sScope, (*region)[n]);
-            sScope = fScope->NextFunction();
-        }
-        break;
-    }
-
-
-    //
-    // Colors
-    //
-    case 0x6F3CCD1D: // "ColorGroup"
-    {
-        const char* name = fScope->NextArgString();
-        ColorGroup* c = IFace::FindColorGroup(Crc::CalcStr(name));
-
-        if (c)
-        {
-            SetColorGroup(c);
-        }
-        else
-        {
-            LOG_ERR(("ColorGroup [%s] does not exist [%s]", name, Name()))
-        }
-        break;
-    }
-
-    //
-    // Graphics resources
-    //
-
-    case 0x7951FC0B: // "Texture"
-    case 0x76802A4E: // "Image"
-    {
-        TextureInfo t;
-        IFace::FScopeToTextureInfo(fScope, t);
-        SetImage(&t);
-        break;
-    }
-
-    case 0x7C6FF505: // "Skin"
-    {
-        SetTextureSkin(IFace::FindTextureSkin(StdLoad::TypeStringCrc(fScope)));
-        break;
-    }
-
-    case 0xA8C33851: // "Cursor"
-    {
-        SetCursor(StdLoad::TypeStringCrc(fScope));
-        break;
-    }
-
-    //
-    // Text
-    //
-
-    case 0xCB28D32D: // "Text"
-    {
-        SetTextString(TRANSLATE((StdLoad::TypeString(fScope))), TRUE);
-        break;
-    }
-
-    case 0x8645C6A0: // "FormatSpec"
-    {
-        SetFormatSpec(StdLoad::TypeString(fScope));
-        break;
-    }
-
-    case 0x78D5CFD4: // "Font"
-    {
-        SetTextFont(StdLoad::TypeString(fScope));
-        break;
-    }
-
-    case 0x1593179E: // "JustifyText"
-    {
-        VNode* vNode;
-
-        while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != NULL)
-        {
-            const char* str = vNode->GetString();
-
-            switch (Crc::CalcStr(str))
+            while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != nullptr)
             {
-            case 0xBA190163: // "Left"
-            {
-                textJustify &= ~JUSTIFY_HORZ;
-                textJustify |= JUSTIFY_LEFT;
-                break;
+                SetGeometry(vNode->GetString(), NULL);
             }
-
-            case 0xE2DDD72B: // "Right"
-            {
-                textJustify &= ~JUSTIFY_HORZ;
-                textJustify |= JUSTIFY_RIGHT;
-                break;
-            }
-
-            case 0x03633B25: // "Centre"
-            case 0x76AB5539: // "Center"
-            case 0x97883E31: // "HCentre"
-            case 0xE240502D: // "HCenter"      
-            {
-                textJustify &= ~JUSTIFY_HORZ;
-                break;
-            }
-
-            case 0x239B3316: // "Top"
-            {
-                textJustify &= ~JUSTIFY_VERT;
-                textJustify |= JUSTIFY_TOP;
-                break;
-            }
-
-            case 0x5270B6BD: // "Bottom"
-            {
-                textJustify &= ~JUSTIFY_VERT;
-                textJustify |= JUSTIFY_BOTTOM;
-                break;
-            }
-
-            case 0xA5F1DFCA: // "VCentre"
-            case 0xD039B1D6: // "VCenter"
-            {
-                textJustify &= ~JUSTIFY_VERT;
-                break;
-            }
-
-            default:
-            {
-                LOG_ERR(("Unknown Justification [%s] for [%s]", str, Name()));
-                break;
-            }
-            }
+            break;
         }
-        break;
-    }
 
-    case 0xF2B876C7: // "TipText"
-    {
-        SetTipText(TRANSLATE((StdLoad::TypeString(fScope))), TRUE);
-        break;
-    }
-
-    //
-    // Event passing/handling
-    //
-
-    case 0x546486D8: // "OnEvent"
-    {
-        AddEventScope(fScope->NextArgString(), fScope);
-        break;
-    }
-
-    case 0xFF58B9E9: // "NotifyParent"
-    {
-        // FIXME: retained for backward compatibility
-
-        // Original event id      
-        U32 event = StdLoad::TypeStringCrc(fScope);
-
-        // Translated event id
-        U32 notify = StdLoad::TypeStringCrc(fScope);
-
-        // Optional params
-        U32 param1 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
-        U32 param2 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
-        U32 param3 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
-
-        // Add translation to send events to parent
-        AddEventTranslation(event, notify, parent, param1, param2, param3);
-
-        break;
-    }
-
-    case 0x5E1C2AD5: // "TranslateEvent"
-    {
-        // Original event id
-        U32 event = StdLoad::TypeStringCrc(fScope);
-
-        // Translated event id
-        U32 notify = StdLoad::TypeStringCrc(fScope);
-
-        // Control to send event to
-        const char* name = StdLoad::TypeString(fScope);
-
-        // Optional param
-        U32 param1 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
-        U32 param2 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
-        U32 param3 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
-
-        IControl* ctrl = IFace::FindByName(name, this);
-        if (ctrl)
+        case 0x362FA3AA: // "Size"
         {
-            // Add translation to send events to control
-            AddEventTranslation(event, notify, ctrl, param1, param2, param3);
+            int width = fScope->NextArgInteger();
+            int height = fScope->NextArgInteger();
+
+            SetSize(width, height);
+            SetGeomSize(width, height);
+
+            break;
         }
-        else
+
+        case 0xCE8A18A6: // "Align"
         {
-            LOG_DIAG(("TranslateEvent: Control [%s] not found", name))
+            // Get the name of the control to align with
+            const char* name = fScope->NextArgString();
+
+            if (!SetAlignTo(name))
+            {
+                LOG_ERR(("Unable to align to control '%s' (not found)", name));
+            }
+            break;
         }
-        break;
-    }
 
-    case 0x7863C42F: // "PollInterval"
-    {
-        pollInterval = fScope->NextArgInteger();
-
-        if (pollInterval < 0)
+        case 0x8D878A02: // "Position"
+        case 0x29BAA7D3: // "Pos"
         {
-            ERR_FATAL(("Poll interval must not be negative"));
+            int x = fScope->NextArgInteger();
+            int y = fScope->NextArgInteger();
+
+            SetPos(x, y);
+
+            break;
         }
-        break;
-    }
+
+        case 0xB817BF51: // "Region"
+        {
+            S32 size = StdLoad::TypeU32(fScope);
+
+            // Allocate an array
+            region = new Array<Point<S32>>;
+            region->Alloc(size);
+
+            FScope* sScope = fScope->NextFunction();
+            for (S32 n = 0; n < size; n++)
+            {
+                StdLoad::TypePoint<S32>(sScope, (*region)[n]);
+                sScope = fScope->NextFunction();
+            }
+            break;
+        }
 
 
-    //
-    // Local variables
-    //
+            //
+            // Colors
+            //
+        case 0x6F3CCD1D: // "ColorGroup"
+        {
+            const char* name = fScope->NextArgString();
+            ColorGroup* c = IFace::FindColorGroup(Crc::CalcStr(name));
 
-    case 0xC2F455BE: // "VarAlias"
-    {
-        SetVarAlias(StdLoad::TypeString(fScope));
-        break;
-    }
+            if (c)
+            {
+                SetColorGroup(c);
+            }
+            else
+            {
+                LOG_ERR(("ColorGroup [%s] does not exist [%s]", name, Name()))
+            }
+            break;
+        }
 
-    case 0x921C808B: // "CreateVarInteger"
-    {
-        const char* name = StdLoad::TypeString(fScope);
-        S32 dVal = S32(StdLoad::TypeU32(fScope, U32(0)));
-        S32 minVal = S32(StdLoad::TypeU32(fScope, U32(S32_MIN)));
-        S32 maxVal = S32(StdLoad::TypeU32(fScope, U32(S32_MAX)));
+            //
+            // Graphics resources
+            //
 
-        CreateInteger(name, dVal, minVal, maxVal);
-        break;
-    }
+        case 0x7951FC0B: // "Texture"
+        case 0x76802A4E: // "Image"
+        {
+            TextureInfo t;
+            IFace::FScopeToTextureInfo(fScope, t);
+            SetImage(&t);
+            break;
+        }
 
-    case 0xAFF1375D: // "CreateVarFloat"
-    {
-        const char* name = StdLoad::TypeString(fScope);
-        F32 dVal = StdLoad::TypeF32(fScope, 0.0F);
-        F32 minVal = StdLoad::TypeF32(fScope, F32_MIN);
-        F32 maxVal = StdLoad::TypeF32(fScope, F32_MAX);
+        case 0x7C6FF505: // "Skin"
+        {
+            SetTextureSkin(IFace::FindTextureSkin(StdLoad::TypeStringCrc(fScope)));
+            break;
+        }
 
-        CreateFloat(name, dVal, minVal, maxVal);
-        break;
-    }
+        case 0xA8C33851: // "Cursor"
+        {
+            SetCursor(StdLoad::TypeStringCrc(fScope));
+            break;
+        }
 
-    case 0xA2F8DAA2: // "CreateVarString"
-    {
-        const char* name = StdLoad::TypeString(fScope);
-        const char* dVal = StdLoad::TypeStringD(fScope, "");
+            //
+            // Text
+            //
 
-        CreateString(name, dVal);
-        break;
-    }
+        case 0xCB28D32D: // "Text"
+        {
+            SetTextString(TRANSLATE((StdLoad::TypeString(fScope))), TRUE);
+            break;
+        }
 
-    default:
-    {
-        // Unknown configuration directive
-        LOG_ERR(("Unknown IControl setting [%s] for [%s]", fScope->NameStr(), Name()));
-        break;
-    }
+        case 0x8645C6A0: // "FormatSpec"
+        {
+            SetFormatSpec(StdLoad::TypeString(fScope));
+            break;
+        }
+
+        case 0x78D5CFD4: // "Font"
+        {
+            SetTextFont(StdLoad::TypeString(fScope));
+            break;
+        }
+
+        case 0x1593179E: // "JustifyText"
+        {
+            VNode* vNode;
+
+            while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != nullptr)
+            {
+                const char* str = vNode->GetString();
+
+                switch (Crc::CalcStr(str))
+                {
+                    case 0xBA190163: // "Left"
+                    {
+                        textJustify &= ~JUSTIFY_HORZ;
+                        textJustify |= JUSTIFY_LEFT;
+                        break;
+                    }
+
+                    case 0xE2DDD72B: // "Right"
+                    {
+                        textJustify &= ~JUSTIFY_HORZ;
+                        textJustify |= JUSTIFY_RIGHT;
+                        break;
+                    }
+
+                    case 0x03633B25: // "Centre"
+                    case 0x76AB5539: // "Center"
+                    case 0x97883E31: // "HCentre"
+                    case 0xE240502D: // "HCenter"      
+                    {
+                        textJustify &= ~JUSTIFY_HORZ;
+                        break;
+                    }
+
+                    case 0x239B3316: // "Top"
+                    {
+                        textJustify &= ~JUSTIFY_VERT;
+                        textJustify |= JUSTIFY_TOP;
+                        break;
+                    }
+
+                    case 0x5270B6BD: // "Bottom"
+                    {
+                        textJustify &= ~JUSTIFY_VERT;
+                        textJustify |= JUSTIFY_BOTTOM;
+                        break;
+                    }
+
+                    case 0xA5F1DFCA: // "VCentre"
+                    case 0xD039B1D6: // "VCenter"
+                    {
+                        textJustify &= ~JUSTIFY_VERT;
+                        break;
+                    }
+
+                    default:
+                    {
+                        LOG_ERR(("Unknown Justification [%s] for [%s]", str, Name()));
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+
+        case 0xF2B876C7: // "TipText"
+        {
+            SetTipText(TRANSLATE((StdLoad::TypeString(fScope))), TRUE);
+            break;
+        }
+
+            //
+            // Event passing/handling
+            //
+
+        case 0x546486D8: // "OnEvent"
+        {
+            AddEventScope(fScope->NextArgString(), fScope);
+            break;
+        }
+
+        case 0xFF58B9E9: // "NotifyParent"
+        {
+            // FIXME: retained for backward compatibility
+
+            // Original event id      
+            U32 event = StdLoad::TypeStringCrc(fScope);
+
+            // Translated event id
+            U32 notify = StdLoad::TypeStringCrc(fScope);
+
+            // Optional params
+            U32 param1 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
+            U32 param2 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
+            U32 param3 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
+
+            // Add translation to send events to parent
+            AddEventTranslation(event, notify, parent, param1, param2, param3);
+
+            break;
+        }
+
+        case 0x5E1C2AD5: // "TranslateEvent"
+        {
+            // Original event id
+            U32 event = StdLoad::TypeStringCrc(fScope);
+
+            // Translated event id
+            U32 notify = StdLoad::TypeStringCrc(fScope);
+
+            // Control to send event to
+            const char* name = StdLoad::TypeString(fScope);
+
+            // Optional param
+            U32 param1 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
+            U32 param2 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
+            U32 param3 = StdLoad::TypeStringCrc(fScope, 0xFFFFFFFF);
+
+            IControl* ctrl = IFace::FindByName(name, this);
+            if (ctrl)
+            {
+                // Add translation to send events to control
+                AddEventTranslation(event, notify, ctrl, param1, param2, param3);
+            }
+            else
+            {
+                LOG_DIAG(("TranslateEvent: Control [%s] not found", name))
+            }
+            break;
+        }
+
+        case 0x7863C42F: // "PollInterval"
+        {
+            pollInterval = fScope->NextArgInteger();
+
+            if (pollInterval < 0)
+            {
+                ERR_FATAL(("Poll interval must not be negative"));
+            }
+            break;
+        }
+
+
+            //
+            // Local variables
+            //
+
+        case 0xC2F455BE: // "VarAlias"
+        {
+            SetVarAlias(StdLoad::TypeString(fScope));
+            break;
+        }
+
+        case 0x921C808B: // "CreateVarInteger"
+        {
+            const char* name = StdLoad::TypeString(fScope);
+            S32 dVal = S32(StdLoad::TypeU32(fScope, U32(0)));
+            S32 minVal = S32(StdLoad::TypeU32(fScope, U32(S32_MIN)));
+            S32 maxVal = S32(StdLoad::TypeU32(fScope, U32(S32_MAX)));
+
+            CreateInteger(name, dVal, minVal, maxVal);
+            break;
+        }
+
+        case 0xAFF1375D: // "CreateVarFloat"
+        {
+            const char* name = StdLoad::TypeString(fScope);
+            F32 dVal = StdLoad::TypeF32(fScope, 0.0F);
+            F32 minVal = StdLoad::TypeF32(fScope, F32_MIN);
+            F32 maxVal = StdLoad::TypeF32(fScope, F32_MAX);
+
+            CreateFloat(name, dVal, minVal, maxVal);
+            break;
+        }
+
+        case 0xA2F8DAA2: // "CreateVarString"
+        {
+            const char* name = StdLoad::TypeString(fScope);
+            const char* dVal = StdLoad::TypeStringD(fScope, "");
+
+            CreateString(name, dVal);
+            break;
+        }
+
+        default:
+        {
+            // Unknown configuration directive
+            LOG_ERR(("Unknown IControl setting [%s] for [%s]", fScope->NameStr(), Name()));
+            break;
+        }
     }
 }
 
@@ -1248,7 +1237,7 @@ void IControl::Configure(FScope* fScope)
     FScope* sScope;
 
     // Pass each function in the scope to the control
-    while ((sScope = fScope->NextFunction()) != NULL)
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
         Setup(sScope);
     }
@@ -1317,7 +1306,11 @@ void IControl::AutoSize()
                 // Use longest line
                 for (U32 i = 0; i < multiLine->count; i++)
                 {
-                    longest = Max<U32>(paintInfo.font->Width(multiLine->items[i].text, multiLine->items[i].length) + TextWidthPad, longest);
+                    longest = Max<U32>
+                    (
+                        paintInfo.font->Width(multiLine->items[i].text, multiLine->items[i].length) + TextWidthPad,
+                        longest
+                    );
                 }
                 newX += longest;
             }
@@ -1372,7 +1365,7 @@ TextureInfo* IControl::GetTexture()
     TextureInfo& config = GetPaintInfo().colors->textures[ColorIndex()];
 
     // Use color group if configured
-    return (config.texture ? &config : NULL);
+    return (config.texture ? &config : nullptr);
 }
 
 
@@ -1460,7 +1453,7 @@ Bool IControl::ValidateMultiLine()
         if (multiLine->items && (multiLine->items[0].text != textStr))
         {
             delete multiLine->items;
-            multiLine->items = NULL;
+            multiLine->items = nullptr;
             multiLine->count = 0;
 
             return (FALSE);
@@ -1486,7 +1479,7 @@ void IControl::SetupAlignment()
         // Adjust its geometry
         alignTo->AdjustGeometry();
     }
-    /*
+    /* 
     // Commenting this out will probably break shit
     else
     {
@@ -1553,7 +1546,7 @@ void IControl::AdjustGeometry()
 {
     Point<S32> oldSize = size;
 
-    if (parent == NULL)
+    if (parent == nullptr)
     {
         return;
     }
@@ -1643,7 +1636,8 @@ void IControl::AdjustGeometry()
 
     if (geom.flags & GEOM_WINVCENTRE)
     {
-        pos.y = ((parent->GetPaintInfo().window.Height() - size.y) / 2) - parent->GetPaintInfo().client.p0.y + geom.pos.y;
+        pos.y = ((parent->GetPaintInfo().window.Height() - size.y) / 2) - parent->GetPaintInfo().client.p0.y + geom
+                                                                                                               .pos.y;
     }
 
     if (geom.flags & GEOM_HCENTRE)
@@ -1653,7 +1647,8 @@ void IControl::AdjustGeometry()
 
     if (geom.flags & GEOM_WINHCENTRE)
     {
-        pos.x = ((parent->GetPaintInfo().window.Width() - size.x) / 2) - parent->GetPaintInfo().client.p0.x + geom.pos.x;
+        pos.x = ((parent->GetPaintInfo().window.Width() - size.x) / 2) - parent->GetPaintInfo().client.p0.x + geom
+                                                                                                              .pos.x;
     }
 
     // If required, ensure control is entirely visible
@@ -1687,28 +1682,24 @@ ClipRect IControl::GetAdjustmentRect()
         // Adjust for border
         if (controlStyle & STYLE_THINBORDER)
         {
-            S32 border = IFace::GetMetric(IFace::BORDER_THIN);
+            S32 border = GetMetric(IFace::BORDER_THIN);
             r.Set(border, border, -border, -border);
         }
+        else if (controlStyle & STYLE_THICKBORDER)
+        {
+            S32 border = GetMetric(IFace::BORDER_THICK);
+            r.Set(border, border, -border, -border);
+        }
+        else if (controlStyle & STYLE_DROPSHADOW)
+        {
+            S32 shadow = GetMetric(IFace::DROPSHADOW_UP);
+            r.Set(0, 0, -shadow, -shadow);
+        }
+
         else
-
-            if (controlStyle & STYLE_THICKBORDER)
-            {
-                S32 border = IFace::GetMetric(IFace::BORDER_THICK);
-                r.Set(border, border, -border, -border);
-            }
-            else
-
-                if (controlStyle & STYLE_DROPSHADOW)
-                {
-                    S32 shadow = IFace::GetMetric(IFace::DROPSHADOW_UP);
-                    r.Set(0, 0, -shadow, -shadow);
-                }
-
-                else
-                {
-                    r.Set(0, 0, 0, 0);
-                }
+        {
+            r.Set(0, 0, 0, 0);
+        }
     }
 
     return (ClipRect(r));
@@ -1751,7 +1742,7 @@ Bool IControl::Activate()
         // Notify that configuration is complete, only once per lifetime, 
         // and before first activation
         PostConfigure();
-        ASSERT(postConfigured)
+        ASSERT(postConfigured);
     }
 
     if (!CanActivate())
@@ -1774,7 +1765,7 @@ Bool IControl::Activate()
     // Activate all children
     NList<IControl>::Iterator i(&children);
 
-    for (i.GoToTail(); *i; i--)
+    for (i.GoToTail(); *i; --i)
     {
         IControl* p = *i;
 
@@ -1800,15 +1791,13 @@ Bool IControl::Activate()
         SetModal();
 
         // Activate the first item on the tab list
-        SetTabStop(NULL, TRUE);
+        SetTabStop(nullptr, TRUE);
     }
-    else
-
-        if (controlStyle & STYLE_SETTABSTOP)
-        {
-            // Activate the first item on the tab list
-            SetTabStop(NULL, TRUE);
-        }
+    else if (controlStyle & STYLE_SETTABSTOP)
+    {
+        // Activate the first item on the tab list
+        SetTabStop(nullptr, TRUE);
+    }
 
     // Alpha animation
     if (controlStyle & STYLE_FADEIN)
@@ -1861,7 +1850,7 @@ Bool IControl::Deactivate()
     }
 
     // Deactivate all children
-    for (NList<IControl>::Iterator i(&children); *i; i++)
+    for (NList<IControl>::Iterator i(&children); *i; ++i)
     {
         (*i)->Deactivate();
     }
@@ -1894,12 +1883,8 @@ Bool IControl::ToggleActive()
     {
         return Deactivate();
     }
-    else
-    {
-        return Activate();
-    }
+    return Activate();
 }
-
 
 
 //
@@ -2010,7 +1995,8 @@ void IControl::SetZPos(U32 flags)
                     IControl* modalCtrl = IFace::GetModal();
 
                     // Do we need to move the modal
-                    Bool moveModal = !(controlStyle & STYLE_MODAL) && (modalCtrl && (modalCtrl != this) && (modalCtrl->parent == parent));
+                    Bool moveModal = !(controlStyle & STYLE_MODAL) && (modalCtrl && (modalCtrl != this) && (modalCtrl->
+                        parent == parent));
 
                     if (moveModal)
                     {
@@ -2067,39 +2053,34 @@ U32 IControl::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
-        case Input::KEYDOWN:
-        case Input::KEYREPEAT:
-        {
-            switch (e.input.code)
+            case Input::KEYDOWN:
+            case Input::KEYREPEAT:
             {
-            case DIK_TAB:
-            {
-                // Tab and Shift-Tab move through the TabStop list
-                if (e.input.state & Input::SHIFTDOWN)
+                switch (e.input.code)
                 {
-                    // Generate a prevtab message
-                    SendNotify(parent, IControlMsg::PrevTabStop, FALSE);
-                    return TRUE;
-                }
-                else
-                {
-                    // Generate a nexttab message
-                    SendNotify(parent, IControlMsg::NextTabStop, FALSE);
-                    return TRUE;
+                    case DIK_TAB:
+                    {
+                        // Tab and Shift-Tab move through the TabStop list
+                        if (e.input.state & Input::SHIFTDOWN)
+                        {
+                            // Generate a prevtab message
+                            SendNotify(parent, IControlMsg::PrevTabStop, FALSE);
+                            return TRUE;
+                        }
+                        // Generate a nexttab message
+                        SendNotify(parent, IControlMsg::NextTabStop, FALSE);
+                        return TRUE;
+                        break;
+                    }
                 }
                 break;
             }
-            }
-            break;
-        }
         }
     }
-    else
-
-        if (e.type == IFace::EventID())
+    else if (e.type == IFace::EventID())
+    {
+        switch (e.subType)
         {
-            switch (e.subType)
-            {
                 // A child control is notifying us of an event
             case IFace::NOTIFY:
             {
@@ -2108,91 +2089,91 @@ U32 IControl::HandleEvent(Event& e)
                 // Handle the event
                 switch (id)
                 {
-                case IControlMsg::PrevTabStop:
-                {
-                    // Move to next tab
-                    SetTabStop(IFace::GetFocus(), FALSE);
+                    case IControlMsg::PrevTabStop:
+                    {
+                        // Move to next tab
+                        SetTabStop(IFace::GetFocus(), FALSE);
 
-                    // Handled
-                    return (TRUE);
-                }
+                        // Handled
+                        return (TRUE);
+                    }
 
-                case IControlMsg::NextTabStop:
-                {
-                    // Move to previous tab
-                    SetTabStop(IFace::GetFocus(), TRUE);
+                    case IControlMsg::NextTabStop:
+                    {
+                        // Move to previous tab
+                        SetTabStop(IFace::GetFocus(), TRUE);
 
-                    // Handled
-                    return (TRUE);
-                }
+                        // Handled
+                        return (TRUE);
+                    }
 
-                case IControlNotify::PreResize:
-                {
-                    ASSERT(IsActive())
+                    case IControlNotify::PreResize:
+                    {
+                        ASSERT(IsActive());
 
                         resizeInfo.control = this;
-                    resizeInfo.capture = HasMouseCapture();
-                    resizeInfo.focus = HasKeyFocus();
-                    resizeInfo.modal = IsModal();
+                        resizeInfo.capture = HasMouseCapture();
+                        resizeInfo.focus = HasKeyFocus();
+                        resizeInfo.modal = IsModal();
 
-                    // Handled
-                    return (TRUE);
-                }
-
-                case IControlNotify::PostResize:
-                {
-                    if (resizeInfo.control.Alive() && (resizeInfo.control.GetData() == this))
-                    {
-                        // Restore state
-                        if (resizeInfo.capture)
-                        {
-                            GetMouseCapture();
-                        }
-                        if (resizeInfo.focus)
-                        {
-                            GetKeyFocus();
-                        }
-                        if (resizeInfo.modal)
-                        {
-                            SetModal();
-                        }
+                        // Handled
+                        return (TRUE);
                     }
 
-                    // Clear reaper
-                    resizeInfo.control = NULL;
-
-                    // Handled
-                    return (TRUE);
-                }
-
-                default:
-                {
-                    // Execute a custom action scope, see AddEventScope()
-                    FScope* actionScope;
-
-                    if ((actionScope = actions.Find(id)) != NULL)
+                    case IControlNotify::PostResize:
                     {
-                        ExecScope(actionScope);
+                        if (resizeInfo.control.Alive() && (resizeInfo.control.GetData() == this))
+                        {
+                            // Restore state
+                            if (resizeInfo.capture)
+                            {
+                                GetMouseCapture();
+                            }
+                            if (resizeInfo.focus)
+                            {
+                                GetKeyFocus();
+                            }
+                            if (resizeInfo.modal)
+                            {
+                                SetModal();
+                            }
+                        }
+
+                        // Clear reaper
+                        resizeInfo.control = nullptr;
+
+                        // Handled
+                        return (TRUE);
                     }
 
-                    // Handled
-                    return (TRUE);
-                }
+                    default:
+                    {
+                        // Execute a custom action scope, see AddEventScope()
+                        FScope* actionScope;
+
+                        if ((actionScope = actions.Find(id)) != nullptr)
+                        {
+                            ExecScope(actionScope);
+                        }
+
+                        // Handled
+                        return (TRUE);
+                    }
                 }
 
                 // Not handled
                 break;
             }
 
-            // The display mode has changed
+                // The display mode has changed
             case IFace::DISPLAYMODECHANGED:
             {
                 if (controlState & STATE_ACTIVE)
                 {
                     // Notify all children
-                    for (NList<IControl>::Iterator i(&children); *i; i++)
+                    for (NList<IControl>::Iterator i(&children); *i; ++i)
                     {
-                        IFace::SendEvent(*i, NULL, IFace::DISPLAYMODECHANGED, e.iface.p1, e.iface.p2);
+                        SendEvent(*i, nullptr, IFace::DISPLAYMODECHANGED, e.iface.p1, e.iface.p2);
                     }
                 }
 
@@ -2200,7 +2181,7 @@ U32 IControl::HandleEvent(Event& e)
                 return (TRUE);
             }
 
-            // Mouse moved in or out of control
+                // Mouse moved in or out of control
             case IFace::MOUSEIN:
             {
                 controlState |= STATE_HILITE;
@@ -2221,10 +2202,10 @@ U32 IControl::HandleEvent(Event& e)
 
             case IFace::TIPDELAY:
             {
-                return (U32(IFace::GetMetric(IFace::TIP_DELAY)));
-            }
+                return (U32(GetMetric(IFace::TIP_DELAY)));
             }
         }
+    }
 
     // Not handled
     return FALSE;
@@ -2254,11 +2235,12 @@ IControl* IControl::Find(S32 x, S32 y, Bool all)
         if (in)
         {
             // x,y is inside this control, is it inside any children?
-            for (NList<IControl>::Iterator i(&children); *i; i++)
+            for (NList<IControl>::Iterator i(&children); *i; ++i)
             {
-                IControl* found = NULL;
+                IControl* found = nullptr;
 
-                if ((found = (*i)->Find(x - pos.x - paintInfo.client.p0.x, y - pos.y - paintInfo.client.p0.y, all)) != NULL)
+                if ((found = (*i)->Find(x - pos.x - paintInfo.client.p0.x, y - pos.y - paintInfo.client.p0.y, all)) !=
+                    nullptr)
                 {
                     return (found);
                 }
@@ -2269,13 +2251,10 @@ IControl* IControl::Find(S32 x, S32 y, Bool all)
             {
                 return (this);
             }
-            else
-            {
-                return (controlStyle & STYLE_INERT ? NULL : this);
-            }
+            return (controlStyle & STYLE_INERT ? nullptr : this);
         }
     }
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -2290,7 +2269,7 @@ IControl* IControl::Find(U32 id, Bool descend)
     {
         NList<IControl>::Iterator i(&children);
 
-        for (!i; *i; i++)
+        for (!i; *i; ++i)
         {
             if ((*i)->ID() == id)
             {
@@ -2300,18 +2279,18 @@ IControl* IControl::Find(U32 id, Bool descend)
 
         if (descend)
         {
-            for (!i; *i; i++)
+            for (!i; *i; ++i)
             {
                 IControl* found;
 
-                if ((found = (*i)->Find(id, descend)) != NULL)
+                if ((found = (*i)->Find(id, descend)) != nullptr)
                 {
                     return found;
                 }
             }
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -2326,17 +2305,14 @@ Bool IControl::IsChild(IControl* ctrl)
     {
         return TRUE;
     }
-    else
+    for (NList<IControl>::Iterator i(&children); *i; ++i)
     {
-        for (NList<IControl>::Iterator i(&children); *i; i++)
+        if ((*i)->IsChild(ctrl))
         {
-            if ((*i)->IsChild(ctrl))
-            {
-                return TRUE;
-            }
+            return TRUE;
         }
-        return FALSE;
     }
+    return FALSE;
 }
 
 
@@ -2365,15 +2341,15 @@ void IControl::Notify(IFaceVar*)
 //
 // Configure an iface var
 //
-void IControl::ConfigureVar(IFaceVar*& var, FScope* fScope)
+void IControl::ConfigureVar(IFaceVar* & var, FScope* fScope)
 {
-    ASSERT(fScope)
+    ASSERT(fScope);
 
-        // Ensure var is not already setup
-        if (var)
-        {
-            fScope->ScopeError("Var already setup for [%s]", Name());
-        }
+    // Ensure var is not already setup
+    if (var)
+    {
+        fScope->ScopeError("Var already setup for [%s]", Name());
+    }
 
     // Allocate the var
     var = new IFaceVar(this, FindVarName(fScope->NextArgString()));
@@ -2385,7 +2361,7 @@ void IControl::ConfigureVar(IFaceVar*& var, FScope* fScope)
 //
 // Configure an iface var
 //
-void IControl::ConfigureVar(IFaceVar*& var, const char* name)
+void IControl::ConfigureVar(IFaceVar* & var, const char* name)
 {
     // Ensure var is not already setup
     if (var)
@@ -2406,7 +2382,7 @@ void IControl::ConfigureVar(IFaceVar*& var, const char* name)
 void IControl::ActivateVar(IFaceVar* var, VarSys::VarItemType type)
 {
     // Ensure var exists
-    if (var == NULL)
+    if (var == nullptr)
     {
         ERR_FATAL(("Var not specified for [%s]", Name()));
     }
@@ -2446,7 +2422,7 @@ void IControl::SetEnabled(Bool flag, Bool recurse)
 
     if (recurse)
     {
-        for (NList<IControl>::Iterator i(&children); *i; i++)
+        for (NList<IControl>::Iterator i(&children); *i; ++i)
         {
             (*i)->SetEnabled(flag, recurse);
         }
@@ -2556,7 +2532,7 @@ const char* IControl::FindVarName(const char* var)
             // Find the control
             ctrl = IFace::FindByName(buf, this);
 
-            if (ctrl == NULL)
+            if (ctrl == nullptr)
             {
                 LOG_DIAG(("FindVarName: could not find control [%s]", buf));
                 return (var);
@@ -2565,16 +2541,10 @@ const char* IControl::FindVarName(const char* var)
             // Construct the var name
             return (ctrl->DynVarName(dot + 1));
         }
-        else
-        {
-            return (ctrl->DynVarName(stripped));
-        }
+        return (ctrl->DynVarName(stripped));
     }
-    else
-    {
-        // Else return the unmodified var name
-        return (var);
-    }
+    // Else return the unmodified var name
+    return (var);
 }
 
 
@@ -2604,7 +2574,6 @@ VarSys::VarItem* IControl::CreateFloat(const char* name, F32 dVal, F32 low, F32 
 }
 
 
-
 //
 // CreateString
 //
@@ -2629,10 +2598,7 @@ Bool IControl::InWindow(const Point<S32>& p) const
     {
         return (wnd.IsInPolyConvex(region->data, region->count));
     }
-    else
-    {
-        return ((wnd.x >= 0) && (wnd.y >= 0) && (wnd.x <= size.x) && (wnd.y <= size.y));
-    }
+    return ((wnd.x >= 0) && (wnd.y >= 0) && (wnd.x <= size.x) && (wnd.y <= size.y));
 }
 
 
@@ -2663,7 +2629,7 @@ Point<S32> IControl::ScreenToWindow(const Point<S32>& p) const
     Point<S32> wnd = p - ctrl->pos;
 
     // NOTE: paintInfo.window should always be (0,0)
-    while ((ctrl = ctrl->parent) != NULL)
+    while ((ctrl = ctrl->parent) != nullptr)
     {
         wnd -= (ctrl->pos + ctrl->GetPaintInfo().client.p0);
     }
@@ -2860,7 +2826,7 @@ void CDECL IControl::SetStyle(const char* s, ...)
         SetStyleItem(str, toggle);
 
         // Next string
-        str = va_arg(args, const char*);
+        str = va_arg(args, const char *);
         count++;
 
 #ifdef DEVELOPMENT
@@ -2886,80 +2852,80 @@ Bool IControl::SetStyleItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0xD07BB6DB: // "Transparent"
-        style = STYLE_TRANSPARENT;
-        break;
+        case 0xD07BB6DB: // "Transparent"
+            style = STYLE_TRANSPARENT;
+            break;
 
-    case 0xD1F1A181: // "Border"
-    case 0x85682BDC: // "ThinBorder"
-        style = STYLE_THINBORDER;
-        break;
+        case 0xD1F1A181: // "Border"
+        case 0x85682BDC: // "ThinBorder"
+            style = STYLE_THINBORDER;
+            break;
 
-    case 0x8E2D3B74: // "SunkenBorder"
-        style = STYLE_SUNKENBORDER;
-        break;
+        case 0x8E2D3B74: // "SunkenBorder"
+            style = STYLE_SUNKENBORDER;
+            break;
 
-    case 0x8391F316: // "ThickBorder"
-        style = STYLE_THICKBORDER;
-        break;
+        case 0x8391F316: // "ThickBorder"
+            style = STYLE_THICKBORDER;
+            break;
 
-    case 0xCF4762D7: // "DropShadow"
-        style = STYLE_DROPSHADOW;
-        break;
+        case 0xCF4762D7: // "DropShadow"
+            style = STYLE_DROPSHADOW;
+            break;
 
-    case 0x2BCBD026: // "Modal"
-        style = STYLE_MODAL;
-        break;
+        case 0x2BCBD026: // "Modal"
+            style = STYLE_MODAL;
+            break;
 
-    case 0x130C47D7: // "ModalClose"
-        SetStyleItem("Modal", TRUE);
-        style = STYLE_MODALCLOSE;
-        break;
+        case 0x130C47D7: // "ModalClose"
+            SetStyleItem("Modal", TRUE);
+            style = STYLE_MODALCLOSE;
+            break;
 
-    case 0xA2139C2B: // "TitleGradient"
-        style = STYLE_TITLEGRADIENT;
-        break;
+        case 0xA2139C2B: // "TitleGradient"
+            style = STYLE_TITLEGRADIENT;
+            break;
 
-    case 0xFB39354A: // "Gradient"   
-    case 0x74B064A2: // "VGradient"
-        style = STYLE_VGRADIENT;
-        break;
+        case 0xFB39354A: // "Gradient"   
+        case 0x74B064A2: // "VGradient"
+            style = STYLE_VGRADIENT;
+            break;
 
-    case 0xC736BA70: // "HGradient"
-        style = STYLE_HGRADIENT;
-        break;
+        case 0xC736BA70: // "HGradient"
+            style = STYLE_HGRADIENT;
+            break;
 
-    case 0x0E7AD538: // "TabStop"
-        style = STYLE_TABSTOP;
-        break;
+        case 0x0E7AD538: // "TabStop"
+            style = STYLE_TABSTOP;
+            break;
 
-    case 0x75B5764D: // "NoAutoActivate"
-        style = STYLE_NOAUTOACTIVATE;
-        break;
+        case 0x75B5764D: // "NoAutoActivate"
+            style = STYLE_NOAUTOACTIVATE;
+            break;
 
-    case 0xCE0418E9: // "FadeIn"
-        style = STYLE_FADEIN;
-        break;
+        case 0xCE0418E9: // "FadeIn"
+            style = STYLE_FADEIN;
+            break;
 
-    case 0x163A9EFE: // "SetTabStop"
-        style = STYLE_SETTABSTOP;
-        break;
+        case 0x163A9EFE: // "SetTabStop"
+            style = STYLE_SETTABSTOP;
+            break;
 
-    case 0xD0A3B705: // "MultiLine"
-        style = STYLE_MULTILINE;
-        break;
+        case 0xD0A3B705: // "MultiLine"
+            style = STYLE_MULTILINE;
+            break;
 
-    case 0x68C66A0B: // "SaveState"
-        style = STYLE_SAVESTATE;
-        break;
+        case 0x68C66A0B: // "SaveState"
+            style = STYLE_SAVESTATE;
+            break;
 
-    case 0xDF054928: // "SystemWide"
-        style = STYLE_SYSTEMWIDE;
-        break;
+        case 0xDF054928: // "SystemWide"
+            style = STYLE_SYSTEMWIDE;
+            break;
 
-    default:
+        default:
         LOG_ERR(("Unknown Control Style [%s] for [%s]", s, Name()));
-        return FALSE;
+            return FALSE;
     }
 
     // Toggle the style
@@ -2980,35 +2946,35 @@ Bool IControl::SetStateItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0x38652912: // "Selected"
-        state = STATE_SELECTED;
-        break;
+        case 0x38652912: // "Selected"
+            state = STATE_SELECTED;
+            break;
 
-    case 0xDA7FE644: // "Hilite"
-        state = STATE_HILITE;
-        break;
+        case 0xDA7FE644: // "Hilite"
+            state = STATE_HILITE;
+            break;
 
-    case 0x98B375EE: // "Disabled"
-        state = STATE_DISABLED;
-        break;
+        case 0x98B375EE: // "Disabled"
+            state = STATE_DISABLED;
+            break;
 
-    case 0x71BB5A64: // "MaskColor"
-        state = STATE_MASK_COLOR;
-        break;
+        case 0x71BB5A64: // "MaskColor"
+            state = STATE_MASK_COLOR;
+            break;
 
-        // Active
-    case 0x65E86346: // "Active"
-        state = STATE_ACTIVE;
-        break;
+            // Active
+        case 0x65E86346: // "Active"
+            state = STATE_ACTIVE;
+            break;
 
-        // Visible
-    case 0x01C95681: // "Visible"
-        state = STATE_VISIBLE;
-        break;
+            // Visible
+        case 0x01C95681: // "Visible"
+            state = STATE_VISIBLE;
+            break;
 
-    default:
+        default:
         LOG_ERR(("Unknown Control State [%s] for [%s]", s, Name()));
-        return FALSE;
+            return FALSE;
     }
 
     // Toggle the style
@@ -3033,12 +2999,11 @@ void CDECL IControl::SetGeometry(const char* s, ...)
     while (str)
     {
         SetGeometryItem(str, TRUE);
-        str = va_arg(args, const char*);
+        str = va_arg(args, const char *);
     }
 
     va_end(args);
 }
-
 
 
 //
@@ -3052,123 +3017,123 @@ Bool IControl::SetGeometryItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0x239B3316: // "Top"
-        geometry = GEOM_BOTTOM;
-        toggle = !toggle;
-        break;
+        case 0x239B3316: // "Top"
+            geometry = GEOM_BOTTOM;
+            toggle = !toggle;
+            break;
 
-    case 0xBA190163: // "Left"
-        geometry = GEOM_RIGHT;
-        toggle = !toggle;
-        break;
+        case 0xBA190163: // "Left"
+            geometry = GEOM_RIGHT;
+            toggle = !toggle;
+            break;
 
-    case 0xE2DDD72B: // "Right"
-        geometry = GEOM_RIGHT;
-        break;
+        case 0xE2DDD72B: // "Right"
+            geometry = GEOM_RIGHT;
+            break;
 
-    case 0x5270B6BD: // "Bottom"
-        geometry = GEOM_BOTTOM;
-        break;
+        case 0x5270B6BD: // "Bottom"
+            geometry = GEOM_BOTTOM;
+            break;
 
-    case 0x97883E31: // "HCentre"
-        geometry = GEOM_HCENTRE;
-        break;
+        case 0x97883E31: // "HCentre"
+            geometry = GEOM_HCENTRE;
+            break;
 
-    case 0xA5F1DFCA: // "VCentre"
-        geometry = GEOM_VCENTRE;
-        break;
+        case 0xA5F1DFCA: // "VCentre"
+            geometry = GEOM_VCENTRE;
+            break;
 
-    case 0x31A85A6B: // "ParentWidth"
-        geometry = GEOM_PARENTWIDTH;
-        break;
+        case 0x31A85A6B: // "ParentWidth"
+            geometry = GEOM_PARENTWIDTH;
+            break;
 
-    case 0x33BB440C: // "ParentHeight"
-        geometry = GEOM_PARENTHEIGHT;
-        break;
+        case 0x33BB440C: // "ParentHeight"
+            geometry = GEOM_PARENTHEIGHT;
+            break;
 
-    case 0x22A55929: // "WinLeft"
-        geometry = GEOM_WINLEFT;
-        break;
+        case 0x22A55929: // "WinLeft"
+            geometry = GEOM_WINLEFT;
+            break;
 
-    case 0x5D904B0D: // "WinRight"
-        geometry = GEOM_WINRIGHT;
-        break;
+        case 0x5D904B0D: // "WinRight"
+            geometry = GEOM_WINRIGHT;
+            break;
 
-    case 0xEE6FC858: // "WinTop"
-        geometry = GEOM_WINTOP;
-        break;
+        case 0xEE6FC858: // "WinTop"
+            geometry = GEOM_WINTOP;
+            break;
 
-    case 0x9A9DA07E: // "WinBottom"
-        geometry = GEOM_WINBOTTOM;
-        break;
+        case 0x9A9DA07E: // "WinBottom"
+            geometry = GEOM_WINBOTTOM;
+            break;
 
-    case 0x011C8010: // "WinHCentre"
-    case 0x74D4EE0C: // "WinHCenter"
-        geometry = GEOM_WINHCENTRE;
-        break;
+        case 0x011C8010: // "WinHCentre"
+        case 0x74D4EE0C: // "WinHCenter"
+            geometry = GEOM_WINHCENTRE;
+            break;
 
-    case 0x336561EB: // "WinVCentre"
-    case 0x46AD0FF7: // "WinVCenter"
-        geometry = GEOM_WINVCENTRE;
-        break;
+        case 0x336561EB: // "WinVCentre"
+        case 0x46AD0FF7: // "WinVCenter"
+            geometry = GEOM_WINVCENTRE;
+            break;
 
-    case 0x170935EB: // "WinParentWidth"
-        geometry = GEOM_WINPARENTWIDTH;
-        break;
+        case 0x170935EB: // "WinParentWidth"
+            geometry = GEOM_WINPARENTWIDTH;
+            break;
 
-    case 0x10713F5E: // "WinParentHeight"
-        geometry = GEOM_WINPARENTHEIGHT;
-        break;
+        case 0x10713F5E: // "WinParentHeight"
+            geometry = GEOM_WINPARENTHEIGHT;
+            break;
 
-    case 0x63BDADB1: // "Square"
-        geometry = GEOM_SQUARE;
-        break;
+        case 0x63BDADB1: // "Square"
+            geometry = GEOM_SQUARE;
+            break;
 
-    case 0x33888D96: // "AutoSize"
-        geometry = GEOM_AUTOSIZE;
-        break;
+        case 0x33888D96: // "AutoSize"
+            geometry = GEOM_AUTOSIZE;
+            break;
 
-    case 0x26B76D5D: // "AutoSizeX"
-        geometry = GEOM_AUTOSIZEX;
-        break;
+        case 0x26B76D5D: // "AutoSizeX"
+            geometry = GEOM_AUTOSIZEX;
+            break;
 
-    case 0x227670EA: // "AutoSizeY"
-        geometry = GEOM_AUTOSIZEY;
-        break;
+        case 0x227670EA: // "AutoSizeY"
+            geometry = GEOM_AUTOSIZEY;
+            break;
 
-    case 0x5F178928: // "HInternal"
-        geometry = GEOM_HINTERNAL;
-        break;
+        case 0x5F178928: // "HInternal"
+            geometry = GEOM_HINTERNAL;
+            break;
 
-    case 0xA09DA094: // "HExternal"
-        geometry = GEOM_HINTERNAL;
-        toggle = !toggle;
-        break;
+        case 0xA09DA094: // "HExternal"
+            geometry = GEOM_HINTERNAL;
+            toggle = !toggle;
+            break;
 
-    case 0xEC9157FA: // "VInternal"
-        geometry = GEOM_VINTERNAL;
-        break;
+        case 0xEC9157FA: // "VInternal"
+            geometry = GEOM_VINTERNAL;
+            break;
 
-    case 0x131B7E46: // "VExternal"
-        geometry = GEOM_VINTERNAL;
-        toggle = !toggle;
-        break;
+        case 0x131B7E46: // "VExternal"
+            geometry = GEOM_VINTERNAL;
+            toggle = !toggle;
+            break;
 
-    case 0x2337C3D2: // "AlignToWidth"
-        geometry = GEOM_ALIGNTOWIDTH;
-        break;
+        case 0x2337C3D2: // "AlignToWidth"
+            geometry = GEOM_ALIGNTOWIDTH;
+            break;
 
-    case 0xE9B11D12: // "AlignToHeight"
-        geometry = GEOM_ALIGNTOHEIGHT;
-        break;
+        case 0xE9B11D12: // "AlignToHeight"
+            geometry = GEOM_ALIGNTOHEIGHT;
+            break;
 
-    case 0x1432986D: // "KeepVisible"
-        geometry = GEOM_KEEPVISIBLE;
-        break;
+        case 0x1432986D: // "KeepVisible"
+            geometry = GEOM_KEEPVISIBLE;
+            break;
 
-    default:
+        default:
         LOG_ERR(("Unknown Geometry setting [%s] for [%s]", s, Name()));
-        return (FALSE);
+            return (FALSE);
     }
 
     // Toggle the geometry setting
@@ -3243,12 +3208,12 @@ void IControl::SetPos(S32 x, S32 y)
 //
 void IControl::SetColorGroup(ColorGroup* c)
 {
-    ASSERT(c)
+    ASSERT(c);
 
-        if (c)
-        {
-            paintInfo.colors = c;
-        }
+    if (c)
+    {
+        paintInfo.colors = c;
+    }
 }
 
 
@@ -3278,7 +3243,7 @@ void IControl::OverrideTextColor(const Color* c)
 //
 const Color* IControl::GetOverrideTextColor()
 {
-    return (forceTextClr ? &forcedTextColor : NULL);
+    return (forceTextClr ? &forcedTextColor : nullptr);
 }
 
 
@@ -3296,20 +3261,19 @@ void IControl::SetTextureSkin(TextureSkin* skinIn)
 //
 void IControl::SetImage(const TextureInfo* t)
 {
-    if (t == NULL)
+    if (t == nullptr)
     {
         // Delete the texture info struct
         if (texture)
         {
             delete texture;
-            texture = NULL;
-            return;
+            texture = nullptr;
         }
     }
     else
     {
         // Allocate a new texture info struct if needed
-        if (texture == NULL)
+        if (texture == nullptr)
         {
             texture = new TextureInfo;
         }
@@ -3383,7 +3347,7 @@ void IControl::SetTipText(const CH* str, Bool dup)
     else
     {
         // Clear the tip text
-        tipTextStr = NULL;
+        tipTextStr = nullptr;
         freeTipText = FALSE;
     }
 }
@@ -3439,15 +3403,12 @@ void IControl::GetTextString(CH* buf, U32 bufSize)
 //
 const CH* IControl::GetTextString()
 {
-    if (textStr == NULL)
+    if (textStr == nullptr)
     {
         //    LOG_WARN(("No text is defined for control '%s'", Name()))
         return (Utils::Ansi2Unicode(Name()));
     }
-    else
-    {
-        return (textStr);
-    }
+    return (textStr);
 }
 
 
@@ -3520,7 +3481,7 @@ void IControl::ExecScope(FScope* fScope)
     // Step through each function in this scope
     FScope* sScope;
 
-    while ((sScope = fScope->NextFunction()) != NULL)
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
         ExecItem(sScope);
     }
@@ -3536,439 +3497,437 @@ void IControl::ExecItem(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x01E5156C: // "Activate"
-    case 0x7619BFA6: // "Deactivate"
-    case 0x5A377534: // "ToggleActive"
-    case 0x40939940: // "Enable"
-    case 0x80FFE965: // "Disable"
-    case 0x31FBCA52: // "EnableRecurse"
-    case 0x4988852B: // "DisableRecurse"
-    case 0x74EF9BE3: // "Destroy"
-    case 0x53EA6BFE: // "SetFocus"
-    case 0xD921FC22: // "SetStyle"
-    case 0x9FD16EF0: // "Resize"
-    case 0x3381FB36: // "Move"
-    case 0x5077882B: // "SetState"
-    {
-        IControl* ctrl = this;
-
-        // Optional argument specifies the name of the control, using the
-        // syntax defined in ICRoot::Find
-        VNode* vNode = fScope->NextArgument(VNode::AT_STRING, FALSE);
-        if (vNode)
+        case 0x01E5156C: // "Activate"
+        case 0x7619BFA6: // "Deactivate"
+        case 0x5A377534: // "ToggleActive"
+        case 0x40939940: // "Enable"
+        case 0x80FFE965: // "Disable"
+        case 0x31FBCA52: // "EnableRecurse"
+        case 0x4988852B: // "DisableRecurse"
+        case 0x74EF9BE3: // "Destroy"
+        case 0x53EA6BFE: // "SetFocus"
+        case 0xD921FC22: // "SetStyle"
+        case 0x9FD16EF0: // "Resize"
+        case 0x3381FB36: // "Move"
+        case 0x5077882B: // "SetState"
         {
-            // Use this control as the basis for finding the control
-            const char* str;
-            if (IFace::ExpandDerefVar(vNode->GetString(), TRUE, this, str))
+            IControl* ctrl = this;
+
+            // Optional argument specifies the name of the control, using the
+            // syntax defined in ICRoot::Find
+            VNode* vNode = fScope->NextArgument(VNode::AT_STRING, FALSE);
+            if (vNode)
             {
-                ctrl = IFace::FindByName(str, this);
-                if (!ctrl)
+                // Use this control as the basis for finding the control
+                const char* str;
+                if (IFace::ExpandDerefVar(vNode->GetString(), TRUE, this, str))
                 {
-                    LOG_ERR(("%s: Control [%s] not found", fScope->NameStr(), str));
+                    ctrl = IFace::FindByName(str, this);
+                    if (!ctrl)
+                    {
+                        LOG_ERR(("%s: Control [%s] not found", fScope->NameStr(), str));
+                    }
                 }
             }
-        }
 
-        // Not allowed to do stuff to root
-        if (ctrl == IFace::RootWindow())
-        {
-            LOG_ERR(("Tried to do bad stuff to root!"))
+            // Not allowed to do stuff to root
+            if (ctrl == IFace::RootWindow())
+            {
+                LOG_ERR(("Tried to do bad stuff to root!"))
                 //fScope->StackRecurse();
                 return;
-        }
+            }
 
-        // If a control was found, perform operation on it
-        if (ctrl)
-        {
-            switch (fScope->NameCrc())
+            // If a control was found, perform operation on it
+            if (ctrl)
             {
-            case 0x01E5156C: // "Activate"
-            {
-                // 2nd argument specifies optional context
-                VNode* vNode = fScope->NextArgument(VNode::AT_STRING, FALSE);
-                if (vNode)
+                switch (fScope->NameCrc())
                 {
-                    IControl* contextCtrl = NULL;
-
-                    // Use this control as the basis for finding the control
-                    const char* str;
-                    if (IFace::ExpandDerefVar(vNode->GetString(), TRUE, this, str))
+                    case 0x01E5156C: // "Activate"
                     {
-                        contextCtrl = IFace::FindByName(str, this);
-                        if (!contextCtrl)
+                        // 2nd argument specifies optional context
+                        VNode* vNode = fScope->NextArgument(VNode::AT_STRING, FALSE);
+                        if (vNode)
                         {
-                            LOG_ERR(("%s: Context Control [%s] not found", fScope->NameStr(), str));
+                            IControl* contextCtrl = nullptr;
+
+                            // Use this control as the basis for finding the control
+                            const char* str;
+                            if (IFace::ExpandDerefVar(vNode->GetString(), TRUE, this, str))
+                            {
+                                contextCtrl = IFace::FindByName(str, this);
+                                if (!contextCtrl)
+                                {
+                                    LOG_ERR(("%s: Context Control [%s] not found", fScope->NameStr(), str));
+                                }
+                            }
+                            ctrl->SetContext(contextCtrl);
                         }
+
+                        IFace::Activate(ctrl);
+                        break;
                     }
-                    ctrl->SetContext(contextCtrl);
-                }
 
-                IFace::Activate(ctrl);
-                break;
-            }
+                    case 0x7619BFA6: // "Deactivate"
+                        IFace::Deactivate(ctrl);
+                        break;
 
-            case 0x7619BFA6: // "Deactivate"
-                IFace::Deactivate(ctrl);
-                break;
+                    case 0x5A377534: // "ToggleActive"
+                        if (ctrl->ToggleActive() && ctrl->IsActive())
+                        {
+                            ctrl->SetZPos(0);
+                        }
+                        break;
 
-            case 0x5A377534: // "ToggleActive"
-                if (ctrl->ToggleActive() && ctrl->IsActive())
-                {
-                    ctrl->SetZPos(0);
-                }
-                break;
+                    case 0x40939940: // "Enable"
+                        ctrl->SetEnabled(TRUE);
+                        break;
 
-            case 0x40939940: // "Enable"
-                ctrl->SetEnabled(TRUE);
-                break;
+                    case 0x80FFE965: // "Disable"
+                        ctrl->SetEnabled(FALSE);
+                        break;
 
-            case 0x80FFE965: // "Disable"
-                ctrl->SetEnabled(FALSE);
-                break;
+                    case 0x31FBCA52: // "EnableRecurse"
+                        ctrl->SetEnabled(TRUE, TRUE);
+                        break;
 
-            case 0x31FBCA52: // "EnableRecurse"
-                ctrl->SetEnabled(TRUE, TRUE);
-                break;
+                    case 0x4988852B: // "DisableRecurse"
+                        ctrl->SetEnabled(FALSE, TRUE);
+                        break;
 
-            case 0x4988852B: // "DisableRecurse"
-                ctrl->SetEnabled(FALSE, TRUE);
-                break;
+                    case 0x74EF9BE3: // "Destroy"
+                        ctrl->MarkForDeletion();
+                        break;
 
-            case 0x74EF9BE3: // "Destroy"
-                ctrl->MarkForDeletion();
-                break;
+                    case 0x53EA6BFE: // "SetFocus"
+                        ctrl->GetKeyFocus();
+                        break;
 
-            case 0x53EA6BFE: // "SetFocus"
-                ctrl->GetKeyFocus();
-                break;
-
-            case 0xD921FC22: // "SetStyle"
-            {
-                VNode* vNode;
-
-                while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != NULL)
-                {
-                    const char* str = vNode->GetString();
-                    Bool toggle = TRUE;
-
-                    if (*str == '!')
+                    case 0xD921FC22: // "SetStyle"
                     {
-                        toggle = FALSE;
-                        str++;
+                        VNode* vNode;
+
+                        while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != nullptr)
+                        {
+                            const char* str = vNode->GetString();
+                            Bool toggle = TRUE;
+
+                            if (*str == '!')
+                            {
+                                toggle = FALSE;
+                                str++;
+                            }
+                            ctrl->SetStyleItem(str, toggle);
+                        }
+                        break;
                     }
-                    ctrl->SetStyleItem(str, toggle);
-                }
-                break;
-            }
 
-            case 0x9FD16EF0: // "Resize"
-            {
-                Bool active = ctrl->IsActive();
-
-                S32 x = StdLoad::TypeU32(fScope);
-                S32 y = StdLoad::TypeU32(fScope);
-
-                // Deactivate first
-                if (active)
-                {
-                    ctrl->Deactivate();
-                }
-
-                // Resize
-                ctrl->SetSize(x, y);
-                ctrl->SetGeomSize(x, y);
-
-                // Reactivate if necessary
-                if (active)
-                {
-                    ctrl->Activate();
-                }
-                break;
-            }
-
-            case 0x3381FB36: // "Move"
-            {
-                Bool active = ctrl->IsActive();
-
-                S32 x = StdLoad::TypeU32(fScope);
-                S32 y = StdLoad::TypeU32(fScope);
-
-                // Deactivate first
-                if (active)
-                {
-                    ctrl->Deactivate();
-                }
-
-                // Move
-                ctrl->SetPos(x, y);
-
-                // Reactivate if necessary
-                if (active)
-                {
-                    ctrl->Activate();
-                }
-                break;
-            }
-
-            case 0x5077882B: // "SetState"
-            {
-                VNode* vNode;
-
-                while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != NULL)
-                {
-                    const char* str = vNode->GetString();
-                    Bool toggle = TRUE;
-
-                    if (*str == '!')
+                    case 0x9FD16EF0: // "Resize"
                     {
-                        toggle = FALSE;
-                        str++;
+                        Bool active = ctrl->IsActive();
+
+                        S32 x = StdLoad::TypeU32(fScope);
+                        S32 y = StdLoad::TypeU32(fScope);
+
+                        // Deactivate first
+                        if (active)
+                        {
+                            ctrl->Deactivate();
+                        }
+
+                        // Resize
+                        ctrl->SetSize(x, y);
+                        ctrl->SetGeomSize(x, y);
+
+                        // Reactivate if necessary
+                        if (active)
+                        {
+                            ctrl->Activate();
+                        }
+                        break;
                     }
-                    ctrl->SetStateItem(str, toggle);
+
+                    case 0x3381FB36: // "Move"
+                    {
+                        Bool active = ctrl->IsActive();
+
+                        S32 x = StdLoad::TypeU32(fScope);
+                        S32 y = StdLoad::TypeU32(fScope);
+
+                        // Deactivate first
+                        if (active)
+                        {
+                            ctrl->Deactivate();
+                        }
+
+                        // Move
+                        ctrl->SetPos(x, y);
+
+                        // Reactivate if necessary
+                        if (active)
+                        {
+                            ctrl->Activate();
+                        }
+                        break;
+                    }
+
+                    case 0x5077882B: // "SetState"
+                    {
+                        VNode* vNode;
+
+                        while ((vNode = fScope->NextArgument(VNode::AT_STRING, FALSE)) != nullptr)
+                        {
+                            const char* str = vNode->GetString();
+                            Bool toggle = TRUE;
+
+                            if (*str == '!')
+                            {
+                                toggle = FALSE;
+                                str++;
+                            }
+                            ctrl->SetStateItem(str, toggle);
+                        }
+                        break;
+                    }
                 }
-                break;
             }
 
-            }
+            return;
         }
 
-        return;
-    }
-
-    case 0xECE0FB7B: // "SendNotifyEvent"
-    case 0xF521756C: // "Notify"
-    {
-        // Send an event to a control
-        const char* name = StdLoad::TypeString(fScope);
-        const char* event = StdLoad::TypeString(fScope);
-        StrCrc<64> param[3];
-        param[0] = StdLoad::TypeStringD(fScope, "");
-        param[1] = StdLoad::TypeStringD(fScope, "");
-        param[2] = StdLoad::TypeStringD(fScope, "");
-
-        for (int i = 0; i < 3; i++)
+        case 0xECE0FB7B: // "SendNotifyEvent"
+        case 0xF521756C: // "Notify"
         {
-            // Is the first character * ?
-            /*
-            Bool deref = FALSE;
-            const char *untrans = param[i].str;
-            if (*untrans == '*')
+            // Send an event to a control
+            const char* name = StdLoad::TypeString(fScope);
+            const char* event = StdLoad::TypeString(fScope);
+            StrCrc<64> param[3];
+            param[0] = StdLoad::TypeStringD(fScope, "");
+            param[1] = StdLoad::TypeStringD(fScope, "");
+            param[2] = StdLoad::TypeStringD(fScope, "");
+
+            for (int i = 0; i < 3; i++)
             {
-              deref = TRUE;
-              untrans++;
+                // Is the first character * ?
+                /*
+                Bool deref = FALSE;
+                const char *untrans = param[i].str;
+                if (*untrans == '*')
+                {
+                  deref = TRUE;
+                  untrans++;
+                }
+        
+                // Substitute variable name
+                const char *str = FindVarName(untrans);
+        
+                // Do we want to derefence this var ?
+                if (deref)
+                {
+                  VarSys::VarItem *item = VarSys::FindVarItem(str);
+                  if (item)
+                  {
+                    str = item->GetStringValue();
+                  }
+                  else
+                  {
+                    LOG_WARN(("Cannot dereference var '%s'", str))
+                    return;
+                  }
+                }
+                */
+
+                const char* str;
+                if (IFace::ExpandDerefVar(param[i].str, TRUE, this, str))
+                {
+                    param[i] = str;
+                }
+                else
+                {
+                    return;
+                }
             }
 
-            // Substitute variable name
-            const char *str = FindVarName(untrans);
+            IControl* ctrl;
 
-            // Do we want to derefence this var ?
-            if (deref)
+            if ((ctrl = IFace::FindByName(name, this)) != nullptr)
             {
-              VarSys::VarItem *item = VarSys::FindVarItem(str);
-              if (item)
-              {
-                str = item->GetStringValue();
-              }
-              else
-              {
-                LOG_WARN(("Cannot dereference var '%s'", str))
-                return;
-              }
-            }
-            */
-
-            const char* str;
-            if (IFace::ExpandDerefVar(param[i].str, TRUE, this, str))
-            {
-                param[i] = str;
+                SendNotify(ctrl, Crc::CalcStr(event), FALSE, param[0].crc, param[1].crc, param[2].crc);
             }
             else
             {
-                return;
+                LOG_ERR(("Notify: could not find control [%s]", name))
             }
+            return;
         }
 
-        IControl* ctrl;
-
-        if ((ctrl = IFace::FindByName(name, this)) != NULL)
+        case 0xFF58B9E9: // "NotifyParent"
         {
-            SendNotify(ctrl, Crc::CalcStr(event), FALSE, param[0].crc, param[1].crc, param[2].crc);
+            // Send a notification event to our parent
+            SendNotify(parent, StdLoad::TypeStringCrc(fScope), FALSE);
+            return;
         }
-        else
+
+        case 0xC4FD8F50: // "Cmd"
         {
-            LOG_ERR(("Notify: could not find control [%s]", name))
+            // Execute a cosole command withing the scope of this control
+            Console::ProcessCmd(StdLoad::TypeString(fScope), this);
+            return;
         }
-        return;
-    }
 
-    case 0xFF58B9E9: // "NotifyParent"
-    {
-        // Send a notification event to our parent
-        SendNotify(parent, StdLoad::TypeStringCrc(fScope), FALSE);
-        return;
-    }
-
-    case 0xC4FD8F50: // "Cmd"
-    {
-        // Execute a cosole command withing the scope of this control
-        Console::ProcessCmd(StdLoad::TypeString(fScope), this);
-        return;
-    }
-
-    case 0x698BE5EA: // "IFaceCmd"
-    {
-        // Execute a console command within the scope of this control
-        ProcessCmd(fScope);
-        return;
-    }
-
-    case 0x70DFC843: // "If"
-    {
-        if (Comparison::Function(fScope, this))
+        case 0x698BE5EA: // "IFaceCmd"
         {
-            ExecScope(fScope);
+            // Execute a console command within the scope of this control
+            ProcessCmd(fScope);
+            return;
         }
-        else
+
+        case 0x70DFC843: // "If"
         {
-            if (fScope->ParentFunction())
+            if (Comparison::Function(fScope, this))
             {
-                FScope* nScope = fScope->ParentFunction()->PeekFunction();
-                if (nScope && nScope->NameCrc() == 0x5F3F76C0) // "Else"
+                ExecScope(fScope);
+            }
+            else
+            {
+                if (fScope->ParentFunction())
                 {
-                    ExecScope(nScope);
+                    FScope* nScope = fScope->ParentFunction()->PeekFunction();
+                    if (nScope && nScope->NameCrc() == 0x5F3F76C0) // "Else"
+                    {
+                        ExecScope(nScope);
+                    }
                 }
             }
+            break;
         }
-        break;
-    }
 
-    case 0x5F3F76C0: // "Else"
-      // Ignore elses on their own
-        break;
+        case 0x5F3F76C0: // "Else"
+            // Ignore elses on their own
+            break;
 
 
-    case 0x4BED1273: // "Switch"
-    {
-        FSCOPE_DIRTY(fScope)
+        case 0x4BED1273: // "Switch"
+        {
+            FSCOPE_DIRTY(fScope)
 
             // Get the name of the var to test on
             Switch::Value& value = Switch::GetValue(fScope, this);
 
-        while (FScope* sScope = fScope->NextFunction())
-        {
-            if (sScope->NameCrc() == 0x97AF68BF) // "Case"
+            while (FScope* sScope = fScope->NextFunction())
             {
-                if (Switch::CompareValue(value, sScope, this))
+                if (sScope->NameCrc() == 0x97AF68BF) // "Case"
+                {
+                    if (CompareValue(value, sScope, this))
+                    {
+                        ExecScope(sScope);
+                        break;
+                    }
+                }
+                else if (sScope->NameCrc() == 0x8F651465) // "Default"
                 {
                     ExecScope(sScope);
-                    break;
                 }
             }
-            else if (sScope->NameCrc() == 0x8F651465) // "Default"
+
+            DisposeValue(value);
+            break;
+        }
+
+        case 0x2F0B8AF3: // "MessageBox"
+        {
+            // Get the message box title
+            const char* title = StdLoad::TypeString(fScope, "Title");
+
+            // Get the message box message
+            const char* message = StdLoad::TypeString(fScope, "Message");
+
+            // Get the control to send messages to
+            const char* control = StdLoad::TypeString(fScope, "Control", "");
+            //IControl *ctrl = *control ? IFace::FindByName(control, this) : NULL;
+            IControl* ctrl = this;
+
+            if (*control)
             {
-                ExecScope(sScope);
+                const char* str;
+                if (IFace::ExpandDerefVar(control, TRUE, this, str))
+                {
+                    ctrl = IFace::FindByName(str, this);
+                }
             }
-        }
 
-        Switch::DisposeValue(value);
-        break;
-    }
+            // Message box events
+            const char* text;
+            const char* event;
+            MBEvent* events[3];
 
-    case 0x2F0B8AF3: // "MessageBox"
-    {
-        // Get the message box title
-        const char* title = StdLoad::TypeString(fScope, "Title");
-
-        // Get the message box message
-        const char* message = StdLoad::TypeString(fScope, "Message");
-
-        // Get the control to send messages to
-        const char* control = StdLoad::TypeString(fScope, "Control", "");
-        //IControl *ctrl = *control ? IFace::FindByName(control, this) : NULL;
-        IControl* ctrl = this;
-
-        if (*control)
-        {
-            const char* str;
-            if (IFace::ExpandDerefVar(control, TRUE, this, str))
-            {
-                ctrl = IFace::FindByName(str, this);
-            }
-        }
-
-        // Message box events
-        const char* text;
-        const char* event;
-        MBEvent* events[3];
-
-        // The first button is required
-        FScope* eScope = fScope->GetFunction("Button0");
-        text = StdLoad::TypeString(eScope);
-        if (eScope->IsNextArgString())
-        {
-            event = StdLoad::TypeString(eScope);
-            events[0] = new MBEventNotify(text, TRANSLATE((text)), ctrl, Crc::CalcStr(event));
-        }
-        else
-        {
-            events[0] = new MBEvent(text, TRANSLATE((text)));
-        }
-
-        // The second and third buttons are optional
-        eScope = fScope->GetFunction("Button1", FALSE);
-        if (eScope)
-        {
+            // The first button is required
+            FScope* eScope = fScope->GetFunction("Button0");
             text = StdLoad::TypeString(eScope);
             if (eScope->IsNextArgString())
             {
                 event = StdLoad::TypeString(eScope);
-                events[1] = new MBEventNotify(text, TRANSLATE((text)), ctrl, Crc::CalcStr(event));
+                events[0] = new MBEventNotify(text, TRANSLATE((text)), ctrl, Crc::CalcStr(event));
             }
             else
             {
-                events[1] = new MBEvent(text, TRANSLATE((text)));
+                events[0] = new MBEvent(text, TRANSLATE((text)));
             }
-        }
-        else
-        {
-            events[1] = NULL;
-        }
 
-        eScope = fScope->GetFunction("Button2", FALSE);
-        if (eScope)
-        {
-            text = StdLoad::TypeString(eScope);
-            if (eScope->IsNextArgString())
+            // The second and third buttons are optional
+            eScope = fScope->GetFunction("Button1", FALSE);
+            if (eScope)
             {
-                event = StdLoad::TypeString(eScope);
-                events[2] = new MBEventNotify(text, TRANSLATE((text)), ctrl, Crc::CalcStr(event));
+                text = StdLoad::TypeString(eScope);
+                if (eScope->IsNextArgString())
+                {
+                    event = StdLoad::TypeString(eScope);
+                    events[1] = new MBEventNotify(text, TRANSLATE((text)), ctrl, Crc::CalcStr(event));
+                }
+                else
+                {
+                    events[1] = new MBEvent(text, TRANSLATE((text)));
+                }
             }
             else
             {
-                events[2] = new MBEvent(text, TRANSLATE((text)));
+                events[1] = nullptr;
             }
+
+            eScope = fScope->GetFunction("Button2", FALSE);
+            if (eScope)
+            {
+                text = StdLoad::TypeString(eScope);
+                if (eScope->IsNextArgString())
+                {
+                    event = StdLoad::TypeString(eScope);
+                    events[2] = new MBEventNotify(text, TRANSLATE((text)), ctrl, Crc::CalcStr(event));
+                }
+                else
+                {
+                    events[2] = new MBEvent(text, TRANSLATE((text)));
+                }
+            }
+            else
+            {
+                events[2] = nullptr;
+            }
+
+            IFace::MsgBox(TRANSLATE((title)), TRANSLATE((message)), 0, events[0], events[1], events[2]);
+            return;
         }
-        else
+
+        case 0xC39EE127: // "op"
         {
-            events[2] = NULL;
+            Operation::Function(fScope, this);
+            break;
         }
 
-        IFace::MsgBox(TRANSLATE((title)), TRANSLATE((message)), 0, events[0], events[1], events[2]);
-        return;
-    }
-
-    case 0xC39EE127: // "op"
-    {
-        Operation::Function(fScope, this);
-        break;
-    }
-
-    default:
-    {
-        // Execute a console command at the global scope
-        Main::ScopeHandler(fScope);
-        return;
-    }
+        default:
+        {
+            // Execute a console command at the global scope
+            Main::ScopeHandler(fScope);
+        }
     }
 }
 
@@ -3981,14 +3940,14 @@ void IControl::ExecItem(FScope* fScope)
 //
 Bool IControl::AddEventTranslation(U32 event, U32 notify, IControl* ctrl, U32 param1, U32 param2, U32 param3)
 {
-    ASSERT(ctrl)
+    ASSERT(ctrl);
 
-        // Ensure it doesnt exist already
-        if (translations.Find(event))
-        {
-            LOG_ERR(("Notification 0x%.8X for [%s] already exists", event, Name()))
-                return (FALSE);
-        }
+    // Ensure it doesnt exist already
+    if (translations.Find(event))
+    {
+        LOG_ERR(("Notification 0x%.8X for [%s] already exists", event, Name()))
+        return (FALSE);
+    }
 
     // Otherwise add it to the list
     translations.Add(event, new EventTranslation(notify, param1, param2, param3, ctrl));
@@ -4008,7 +3967,7 @@ Bool IControl::SendNotify(IControl* ctrl, U32 event, Bool translate, U32 param1,
     {
         EventTranslation* xlate;
 
-        if ((xlate = translations.Find(event)) != NULL)
+        if ((xlate = translations.Find(event)) != nullptr)
         {
             event = xlate->id;
             ctrl = xlate->ctrl;
@@ -4018,14 +3977,14 @@ Bool IControl::SendNotify(IControl* ctrl, U32 event, Bool translate, U32 param1,
         }
     }
 
-    if (ctrl == NULL)
+    if (ctrl == nullptr)
     {
         LOG_DIAG(("no ctrl"));
         return (FALSE);
     }
 
     // Send event directly to the control
-    return (IFace::SendEvent(ctrl, this, IFace::NOTIFY, event, param1, param2, param3));
+    return (SendEvent(ctrl, this, IFace::NOTIFY, event, param1, param2, param3));
 }
 
 
@@ -4036,7 +3995,7 @@ Bool IControl::SendNotify(IControl* ctrl, U32 event, Bool translate, U32 param1,
 //
 Bool IControl::NotifyAllChildren(U32 event, Bool translate, U32 param1, U32 param2, U32 param3, Bool propagate)
 {
-    for (NList<IControl>::Iterator i(&children); *i; i++)
+    for (NList<IControl>::Iterator i(&children); *i; ++i)
     {
         SendNotify(*i, event, translate, param1, param2, param3);
 
@@ -4147,7 +4106,7 @@ void IControl::ProcessCmd(FScope* fScope)
                 else
                 {
                     LOG_WARN(("Cannot dereference var '%s'", str))
-                        return;
+                    return;
                 }
             }
 
@@ -4183,8 +4142,8 @@ void IControl::ProcessCmd(FScope* fScope)
 // Struct MultiLine - multi line text
 //
 IControl::MultiLine::MultiLine(U32 n)
-    : count(n),
-    items(NULL)
+    : items(nullptr),
+      count(n)
 {
     if (count)
     {

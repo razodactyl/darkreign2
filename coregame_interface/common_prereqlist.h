@@ -28,61 +28,60 @@
 //
 namespace Common
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class PrereqList
-  //
-  class PrereqList : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class PrereqList
+    //
+    class PrereqList : public IControl
+    {
     PROMOTE_LINK(PrereqList, IControl, 0xF210E7EF) // "PrereqList"
 
-  protected:
+    protected:
 
-    // Point
-    Point<S32> point;
+        // Point
+        Point<S32> point;
 
-    // The team
-    Team *team;
+        // The team
+        Team* team;
 
-    // The type prereqs are being displayed for
-    UnitObjType *type;
+        // The type prereqs are being displayed for
+        UnitObjType* type;
 
-    // Reaper to the facility
-    UnitObjPtr constructor;
+        // Reaper to the facility
+        UnitObjPtr constructor;
 
-    // Cost and time language keys
-    MultiIdent costKey, timeKey;
+        // Cost and time language keys
+        MultiIdent costKey, timeKey;
 
-    // Type preview
-    TypePreviewPtr preview;
+        // Type preview
+        TypePreviewPtr preview;
 
-  public:
+    public:
 
-    // Constructor
-    PrereqList(IControl *parent);
-    ~PrereqList();
+        // Constructor
+        PrereqList(IControl* parent);
+        ~PrereqList();
 
-    // Configure control from an FScope
-    void Setup(FScope *fScope);
+        // Configure control from an FScope
+        void Setup(FScope* fScope);
 
-    // Setup
-    void Setup(const Point<S32> &point, Team *team, UnitObjType *type, UnitObj *constructor);
+        // Setup
+        void Setup(const Point<S32>& point, Team* team, UnitObjType* type, UnitObj* constructor);
 
-    // Called after Configure() is completed
-    void PostConfigure();
+        // Called after Configure() is completed
+        void PostConfigure();
 
-    // Activate
-    Bool Activate();
+        // Activate
+        Bool Activate();
 
-  protected:
+    protected:
 
-    // Draw control
-    void DrawSelf(PaintInfo &pi);
+        // Draw control
+        void DrawSelf(PaintInfo& pi);
 
-    // Build
-    U32 Build(Bool first, UnitObjType *type, BinTree<UnitObjType> &types, List<UnitObjType> &list);
-
-  };
+        // Build
+        U32 Build(Bool first, UnitObjType* type, BinTree<UnitObjType>& types, List<UnitObjType>& list);
+    };
 }
 
 #endif

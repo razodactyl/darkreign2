@@ -43,6 +43,7 @@ class FamilyNode;
 class AnimList;
 class Team;
 class Bitmap;
+
 namespace FootPrint
 {
     class Type;
@@ -74,7 +75,7 @@ namespace MapObjNotify
 
 class MapObjType : public GameObjType
 {
-    PROMOTE_LINK(MapObjType, GameObjType, 0x4542B0F8); // "MapObjType"
+PROMOTE_LINK(MapObjType, GameObjType, 0x4542B0F8); // "MapObjType"
 
 protected:
 
@@ -192,10 +193,10 @@ protected:
     S32 idleAnimationCount;
 
     // Pointer to a physics simulation function
-    void (MapObjType::* mapPhysicsProc)(MapObj&, Matrix&);
+    void (MapObjType::*mapPhysicsProc)(MapObj&, Matrix&);
 
     // Pointer to a collision function
-    void (MapObjType::* mapCollideProc)(MapObj&, MapObj*, const Vector*);
+    void (MapObjType::*mapCollideProc)(MapObj&, MapObj*, const Vector*);
 
 protected:
 
@@ -229,7 +230,7 @@ public:
     ~MapObjType();
 
     // Called after all types are loaded
-    void PostLoad();
+    void PostLoad() override;
 
     // Returns the mesh root for this type
     MeshRoot* GetMeshRoot();
@@ -238,7 +239,7 @@ public:
     virtual Bool InitializeResources();
 
     // Create a new instance using this type
-    GameObj* NewInstance(U32 id) = 0;
+    GameObj* NewInstance(U32 id) override = 0;
 
     // Get the footprint type, or NULL if none
     FootPrint::Type* GetFootPrintType();
@@ -247,7 +248,11 @@ public:
     FX::Type* FindGenericFX(U32 key);
 
     // Generate a generic effect on the given object
-    FX::Object* StartGenericFX(MapObj* obj, U32 key, FX::FXCallBack callBack = NULL, Bool process = FALSE, const Vector* velocity = NULL, void* context = NULL, F32 lifeTime = 0.0f);
+    FX::Object* StartGenericFX
+    (
+        MapObj* obj, U32 key, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
+        const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f
+    );
 
     // Are instances of this type on the movement list by default
     virtual Bool DefaultPrimitiveProcessing()
@@ -282,8 +287,8 @@ public:
     // Return the default claim layer of this type
     Claim::LayerId GetDefaultLayer()
     {
-        ASSERT(movementModel)
-            return (movementModel->defaultLayer);
+        ASSERT(movementModel);
+        return (movementModel->defaultLayer);
     }
 
     // Returns the mass of this type
@@ -308,15 +313,15 @@ public:
     // Returns the surface area of this type
     F32 GetSurface()
     {
-        ASSERT(resourcesInitialized)
-            return (surface);
+        ASSERT(resourcesInitialized);
+        return (surface);
     }
 
     // Returns the inverse of the surface area
     F32 GetSurfaceInv()
     {
-        ASSERT(resourcesInitialized)
-            return (surfaceInv);
+        ASSERT(resourcesInitialized);
+        return (surfaceInv);
     }
 
     // Has armour initially
@@ -346,8 +351,8 @@ public:
     // Object size in grains
     U32 GetGrainSize()
     {
-        ASSERT(resourcesInitialized)
-            return (grainSize);
+        ASSERT(resourcesInitialized);
+        return (grainSize);
     }
 
     // Returns the maximum armour of the type
@@ -413,8 +418,8 @@ public:
     // Is this a null object
     Bool IsNullObj()
     {
-        ASSERT(resourcesInitialized)
-            return (meshConfig.isNullMesh);
+        ASSERT(resourcesInitialized);
+        return (meshConfig.isNullMesh);
     }
 
     // Is this object a projectile
@@ -436,17 +441,17 @@ public:
     }
 
     // FindFloor
-    F32 FindFloor(F32 x, F32 z, Vector* normal = NULL)
+    F32 FindFloor(F32 x, F32 z, Vector* normal = nullptr)
     {
-        ASSERT(movementModel)
-            return (movementModel->findFloor(x, z, normal));
+        ASSERT(movementModel);
+        return (movementModel->findFloor(x, z, normal));
     }
 
     // Return the movement model
     Movement::Model& GetMovementModel()
     {
-        ASSERT(movementModel)
-            return (*movementModel);
+        ASSERT(movementModel);
+        return (*movementModel);
     }
 
     // Returns the number of idle animations on this type
@@ -589,10 +594,10 @@ public:
     }
 
     // Called when the object is marked for deletion
-    void MarkedForDeletion();
+    void MarkedForDeletion() override;
 
     // Called to before deleting the object
-    void PreDelete();
+    void PreDelete() override;
 
     // Move object to/from primitive processing list
     void SetPrimitiveProcessing(Bool request);
@@ -601,17 +606,17 @@ public:
     virtual void ProcessCycle();
 
     // Load and save state configuration
-    void LoadState(FScope* fScope);
-    void SaveState(FScope* fScope, MeshEnt* theMesh = NULL);
+    void LoadState(FScope* fScope) override;
+    void SaveState(FScope* fScope, MeshEnt* theMesh = nullptr) override;
 
     // Equip the object
-    void Equip();
+    void Equip() override;
 
     // Called after all objects are loaded
-    void PostLoad();
+    void PostLoad() override;
 
     // Send an event
-    Bool SendEvent(const Task::Event& event, Bool idle = FALSE);
+    Bool SendEvent(const Task::Event& event, Bool idle = FALSE) override;
 
     // AddToMapHook
     virtual void AddToMapHook();
@@ -638,10 +643,10 @@ public:
     void TestClusterOverlap(S8& x, S8& z);
 
     // Make this object self destruct, optionally triggering special explosion
-    void SelfDestruct(Bool explosion = FALSE, Team* modifier = NULL);
+    void SelfDestruct(Bool explosion = FALSE, Team* modifier = nullptr);
 
     // Dump information about the object
-    ostream& Info(ostream& o);
+    ostream& Info(ostream& o) override;
 
     // Has Animation
     Bool HasAnimation(U32 nameCrc);
@@ -677,16 +682,28 @@ public:
     FootPrint::Instance* RecurseFootInstance();
 
     // Modify the number of hitpoints an object has
-    virtual void ModifyHitPoints(S32 mod, UnitObj* sourceUnit = NULL, Team* sourceTeam = NULL, const Vector* direction = NULL);
+    virtual void ModifyHitPoints
+    (
+        S32 mod, UnitObj* sourceUnit = nullptr, Team* sourceTeam = nullptr,
+        const Vector* direction = nullptr
+    );
 
     // Modify the armour an object has
     virtual void ModifyArmour(S32 mod);
 
     // Starts the given generic FX (returns NULL if not created)
-    FX::Object* StartGenericFX(U32 key, FX::FXCallBack callBack = NULL, Bool process = FALSE, const Vector* velocity = NULL, void* context = NULL, F32 lifeTime = 0.0f);
+    FX::Object* StartGenericFX
+    (
+        U32 key, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
+        const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f
+    );
 
     // Starts the given FX type (returns NULL if not created)
-    FX::Object* StartFX(U32 typeCrc, FX::FXCallBack callBack = NULL, Bool process = FALSE, const Vector* velocity = NULL, void* context = NULL, F32 lifeTime = 0.0f);
+    FX::Object* StartFX
+    (
+        U32 typeCrc, FX::FXCallBack callBack = nullptr, Bool process = FALSE,
+        const Vector* velocity = nullptr, void* context = nullptr, F32 lifeTime = 0.0f
+    );
 
     // Get the color and percentage for the health of the unit
     void GetHealthInfo(Color& color, F32& pct);
@@ -772,8 +789,8 @@ public:
     // Return a pointer to the balance data
     const MoveTable::BalanceData& GetBalanceData()
     {
-        ASSERT(balanceData)
-            return (*balanceData);
+        ASSERT(balanceData);
+        return (*balanceData);
     }
 
     // Set the current layer
@@ -835,7 +852,7 @@ public:
     MapObjType* MapType()
     {
         // This is a safe cast
-        return ((MapObjType*)type);
+        return static_cast<MapObjType*>(type);
     };
 
     // Get the footprint instance, or NULL
@@ -878,16 +895,16 @@ public:
     // Get object instance's mesh root
     const MeshRoot* GetMeshRoot() const
     {
-        ASSERT(meshEnt)
-            return &(meshEnt->Root());
+        ASSERT(meshEnt);
+        return &(meshEnt->Root());
     }
 
     // MeshEnt overloads
     //
     MeshEnt& Mesh() const
     {
-        ASSERT(meshEnt)
-            return *meshEnt;
+        ASSERT(meshEnt);
+        return *meshEnt;
     };
 
     //  fog of war
@@ -896,17 +913,19 @@ public:
 
     // Attach this object to a parent
     virtual void Attach(MapObj* parent, FamilyNode& node);
-    void Attach(MapObj* parent = NULL, NodeIdent* ident = NULL);
+    void Attach(MapObj* parent = nullptr, NodeIdent* ident = nullptr);
 
-    inline MeshObj* FindIdent(NodeIdent& ident) const
+    MeshObj* FindIdent(NodeIdent& ident) const
     {
         return meshEnt->FindIdent(ident);
     }
-    inline MeshObj* FindMesh(const char* pointName) const
+
+    MeshObj* FindMesh(const char* pointName) const
     {
         return meshEnt->FindMeshObj(pointName);
     }
-    inline MeshObj* GetIdent(NodeIdent& nodeIdent) const
+
+    MeshObj* GetIdent(NodeIdent& nodeIdent) const
     {
         ASSERT(nodeIdent.Valid());
 
@@ -918,32 +937,36 @@ public:
 
     // world spatial data
     //
-    inline const Matrix& WorldMatrix() const
+    const Matrix& WorldMatrix() const
     {
         return meshState0->WorldMatrix();
     }
-    inline const Vector& Position() const
+
+    const Vector& Position() const
     {
         return meshState0->WorldMatrix().Position();
     }
-    inline const Vector& Origin() const
+
+    const Vector& Origin() const
     {
         return meshEnt->Origin();
     }
-    inline const Vector& RootOrigin() const
+
+    const Vector& RootOrigin() const
     {
         return meshEnt->RootOrigin();
     }
 
     // child world spatial data
     //
-    inline const Matrix& WorldMatrix(const NodeIdent& nodeIdent) const
+    const Matrix& WorldMatrix(const NodeIdent& nodeIdent) const
     {
         ASSERT(nodeIdent.Valid());
 
         return meshEnt->WorldMatrixChild(nodeIdent.index);
     }
-    inline const Vector& Position(const NodeIdent& nodeIdent) const
+
+    const Vector& Position(const NodeIdent& nodeIdent) const
     {
         ASSERT(nodeIdent.Valid());
 
@@ -953,49 +976,56 @@ public:
 
     // display (interpolated) world spatial data
     //
-    inline const Matrix& WorldMatrixRender() const
+    const Matrix& WorldMatrixRender() const
     {
         return meshEnt->WorldMatrixRender();
     }
-    inline const Vector& PositionRender() const
+
+    const Vector& PositionRender() const
     {
         return WorldMatrixRender().Position();
     }
-    inline const Vector& OriginRender() const
+
+    const Vector& OriginRender() const
     {
         return meshEnt->OriginRender();
     }
-    inline const Vector& RootOriginRender() const
+
+    const Vector& RootOriginRender() const
     {
         return meshEnt->RootOriginRender();
     }
 
     // object spatial data
     //
-    inline const Matrix& ObjectMatrix() const
+    const Matrix& ObjectMatrix() const
     {
         return meshState0->ObjectMatrix();
     }
-    inline const Quaternion& Rotation() const
+
+    const Quaternion& Rotation() const
     {
         return meshState0->GetRotation();
     }
-    inline const Vector& Scale() const
+
+    const Vector& Scale() const
     {
         return meshState0->GetScale();
     }
-    inline const Bounds& ObjectBounds() const
+
+    const Bounds& ObjectBounds() const
     {
         return meshEnt->ObjectBounds();
     }
-    inline const Bounds& RootBounds() const
+
+    const Bounds& RootBounds() const
     {
         return meshEnt->RootBounds();
     }
 
     // child object spatial data 
     //
-    inline const Matrix& ObjectMatrix(const NodeIdent& nodeIdent) const
+    const Matrix& ObjectMatrix(const NodeIdent& nodeIdent) const
     {
         ASSERT(nodeIdent.Valid());
 
@@ -1004,101 +1034,114 @@ public:
 
     // display (interpolated) object spatial data
     //
-    inline const Matrix& ObjectMatrixRender() const
+    const Matrix& ObjectMatrixRender() const
     {
         return meshEnt->GetIntObjectMatrix();
     }
-    inline const Quaternion& RotationRender() const
+
+    const Quaternion& RotationRender() const
     {
         return meshEnt->GetIntRotation();
     }
 
     // child object spatial data 
     //
-    inline const Matrix& ObjectMatrixRender(const NodeIdent& node) const
+    const Matrix& ObjectMatrixRender(const NodeIdent& node) const
     {
         return meshEnt->GetIntObjectMatrix(node.index);
     }
-    inline const Quaternion& RotationRender(const NodeIdent& node) const
+
+    const Quaternion& RotationRender(const NodeIdent& node) const
     {
         return meshEnt->GetIntRotation(node.index);
     }
 
     // get target
     //
-    inline const Vector& TargetPosition() const
+    const Vector& TargetPosition() const
     {
         return meshState1->GetPosition();
     }
-    inline const Quaternion& TargetRotation() const
+
+    const Quaternion& TargetRotation() const
     {
         return meshState1->GetRotation();
     }
 
     // get target child
     //
-    inline const Vector& TargetPosition(const NodeIdent& node) const
+    const Vector& TargetPosition(const NodeIdent& node) const
     {
         return meshEnt->GetTargetPosition(node);
     }
-    inline const Quaternion& TargetRotation(const NodeIdent& node) const
+
+    const Quaternion& TargetRotation(const NodeIdent& node) const
     {
         return meshEnt->GetTargetRotation(node);
     }
 
     // set target
     //
-    inline void SetSimTarget(const Quaternion& quaternion)
+    void SetSimTarget(const Quaternion& quaternion)
     {
         meshEnt->SetSimTarget(quaternion);
     }
-    inline void SetSimTarget(const Vector& position)
+
+    void SetSimTarget(const Vector& position)
     {
         meshEnt->SetSimTarget(position);
     }
-    inline void SetSimTarget(const Quaternion& quaternion, const Vector& position)
+
+    void SetSimTarget(const Quaternion& quaternion, const Vector& position)
     {
         meshEnt->SetSimTarget(quaternion, position);
     }
-    inline void SetSimTarget(const Matrix& matrix)
+
+    void SetSimTarget(const Matrix& matrix)
     {
         meshEnt->SetSimTarget(matrix);
     }
 
     // set target child
     //
-    inline void SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion)
+    void SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion)
     {
         meshEnt->SetSimTarget(ident, quaternion);
     }
-    inline void SetSimTarget(const NodeIdent& ident, const Vector& position)
+
+    void SetSimTarget(const NodeIdent& ident, const Vector& position)
     {
         meshEnt->SetSimTarget(ident, position);
     }
-    inline void SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion, const Vector& position)
+
+    void SetSimTarget(const NodeIdent& ident, const Quaternion& quaternion, const Vector& position)
     {
         meshEnt->SetSimTarget(ident, quaternion, position);
     }
-    inline void SetSimTarget(const NodeIdent& ident, const Matrix& matrix)
+
+    void SetSimTarget(const NodeIdent& ident, const Matrix& matrix)
     {
         meshEnt->SetSimTarget(ident, matrix);
     }
 
     // Set the current and next simulation frame's rotation, position, and scale
     //
-    inline void SetSimCurrent(const Quaternion& quaternion)
+    void SetSimCurrent(const Quaternion& quaternion)
     {
         meshEnt->SetSimCurrent(quaternion);
     }
-    inline void SetSimCurrent(const Vector& position)
+
+    void SetSimCurrent(const Vector& position)
     {
         meshEnt->SetSimCurrent(position);
     }
-    inline void SetSimCurrent(const Quaternion& quaternion, const Vector& position)
+
+    void SetSimCurrent(const Quaternion& quaternion, const Vector& position)
     {
         meshEnt->SetSimCurrent(quaternion, position);
     }
-    inline void SetSimCurrent(const Matrix& matrix)
+
+    void SetSimCurrent(const Matrix& matrix)
     {
         meshEnt->SetSimCurrent(matrix);
     }
@@ -1131,8 +1174,8 @@ public:
     //
 #ifdef DEVELOPMENT
 
-    virtual void RenderDebug() {}
-
+  virtual void RenderDebug() {}
+  
 #endif
 };
 

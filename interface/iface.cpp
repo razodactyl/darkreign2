@@ -42,13 +42,12 @@
 //#define LOGGING
 
 #ifdef LOGGING
-#define LOG_IFACE(x) LOG_DIAG(x)
-#define PROCESS(c,e,s) DebugProcessEvent(c,e,s)
+  #define LOG_IFACE(x) LOG_DIAG(x)
+  #define PROCESS(c,e,s) DebugProcessEvent(c,e,s)
 #else
 #define LOG_IFACE(x)
 #define PROCESS(c,e,s) c->HandleEvent(e)
 #endif
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,16 +74,16 @@ namespace IFace
     static U32 systemFlags;
 
     // Repaint function
-    static RepaintProc* paintProc = NULL;
+    static RepaintProc* paintProc = nullptr;
 
     // The list of registered control classes
     static BinTree<ICClass> ctrlTypes;
 
     // Root window, all windows in the system are descendents of this
-    static ICRoot* root = NULL;
+    static ICRoot* root = nullptr;
 
     // Overlay windows, such as tool tips
-    static ICRoot* overlays = NULL;
+    static ICRoot* overlays = nullptr;
 
     // Stack for modal windows
     static Stack<IControlPtr> modalStack;
@@ -212,36 +211,38 @@ namespace IFace
     struct Substitution : public VarSys::Substitution
     {
         // Constructor
-        Substitution() : VarSys::Substitution(VARCHAR) { }
+        Substitution() : VarSys::Substitution(VARCHAR)
+        {
+        }
 
         // Expansion
-        const char* Expand(const char* name, void* context)
+        const char* Expand(const char* name, void* context) override
         {
             IControl* ctrl = reinterpret_cast<IControl*>(context);
 
             switch (*name)
             {
-            case VARCHAR:
-                // Use the root control
-                ctrl = IFace::RootWindow();
-                break;
+                case VARCHAR:
+                    // Use the root control
+                    ctrl = RootWindow();
+                    break;
 
-            case '\0':
-                // Use the context team
-                if (!ctrl)
-                {
-                    LOG_DIAG(("Expanding '%s': Expected context for control substitution", name));
-                    return (name);
-                }
-                break;
+                case '\0':
+                    // Use the context team
+                    if (!ctrl)
+                    {
+                        LOG_DIAG(("Expanding '%s': Expected context for control substitution", name))
+                        return (name);
+                    }
+                    break;
 
-            default:
-                if ((ctrl = IFace::FindByName(name, ctrl)) == NULL)
-                {
-                    LOG_DIAG(("Expanding '%s': Could not find control", name));
-                    return (name);
-                }
-                break;
+                default:
+                    if ((ctrl = FindByName(name, ctrl)) == nullptr)
+                    {
+                        LOG_DIAG(("Expanding '%s': Could not find control", name));
+                        return (name);
+                    }
+                    break;
             }
 
             return (ctrl->DynVarName());
@@ -256,16 +257,16 @@ namespace IFace
     //
 #ifdef LOGGING
 
-    static U32 DebugProcessEvent(IControl* ctrl, Event& e, const char* str)
-    {
-        LOG_IFACE
-        ((
-            "%s Event: %.4X %.4X %.8X %.8X %.8X %.8X to [%s]",
-            str, e.type, e.subType, e.param1, e.param2, e.param3, e.param4, ctrl->Name()
-            ))
+  static U32 DebugProcessEvent(IControl *ctrl, Event &e, const char *str)
+  {
+    LOG_IFACE
+    ((
+      "%s Event: %.4X %.4X %.8X %.8X %.8X %.8X to [%s]", 
+      str, e.type, e.subType, e.param1, e.param2, e.param3, e.param4, ctrl->Name()
+    ))
 
-            return (ctrl->HandleEvent(e));
-    }
+    return (ctrl->HandleEvent(e));
+  }
 
 #endif
 
@@ -297,7 +298,7 @@ namespace IFace
         EventSys::RegisterEvent("IFACE", eventId);
 
         // Set up the event handlers
-        EventSys::SetHandler(IFace::EventID(), IFaceEventHandler);
+        EventSys::SetHandler(EventID(), IFaceEventHandler);
         EventSys::SetHandler(Input::EventID(), InputEventHandler);
 
         // Register scope handler
@@ -439,7 +440,7 @@ namespace IFace
         IControl::DeleteMarkedControls();
 
         // Don't do any processing of controls if the interface is not visible
-        IControl* over = NULL;
+        IControl* over = nullptr;
 
         if (systemFlags & DISABLE_DRAW)
         {
@@ -458,14 +459,14 @@ namespace IFace
                     // mouse over has changed
                     if (mouseOver.Alive())
                     {
-                        SendEvent(mouseOver, NULL, MOUSEOUT, 0, 0);
+                        SendEvent(mouseOver, nullptr, MOUSEOUT, 0, 0);
                     }
 
                     if (!modal.Alive() || (modal.Alive() && modal->IsChild(over)))
                     {
                         if (over)
                         {
-                            SendEvent(over, NULL, MOUSEIN, 0, 0);
+                            SendEvent(over, nullptr, MOUSEIN, 0, 0);
                         }
                     }
 
@@ -512,7 +513,7 @@ namespace IFace
             MSWRITEV(13, (19, 0, "OVER    %-32s", mouseOver.Alive() ? mouseOver->Name() : ""));
             MSWRITEV(13, (20, 0, "MODAL   %-32s", modal.Alive() ? modal->Name() : ""));
             MSWRITEV(13, (21, 0, "FOCUS   %-32s", focus.Alive() ? focus->Name() : ""));
-            MSWRITEV(13, (22, 0, "CAPTURE %-32s", mouseCapture.Alive() ? mouseCapture->Name() : ""));
+            MSWRITEV(13, (22, 0, "CAPTURE %-32s", mouseCapture.Alive() ? mouseCapture->Name(): ""));
         }
 
         // Delete all controls that are marked
@@ -528,13 +529,11 @@ namespace IFace
                 data.alphaScale = 0.0F;
                 fading = FALSE;
             }
-            else
-
-                if ((fadeRate > 0) && (data.alphaScale > 1.0F))
-                {
-                    data.alphaScale = 1.0F;
-                    fading = FALSE;
-                }
+            else if ((fadeRate > 0) && (data.alphaScale > 1.0F))
+            {
+                data.alphaScale = 1.0F;
+                fading = FALSE;
+            }
         }
 
         PERF_E("IFace::Process");
@@ -555,38 +554,32 @@ namespace IFace
             // Mouse is over a child of modal window, or the modal, so use mouseover's cursor
             return (mouseOver->GetCursor());
         }
-        else
+        // Mouse is outside modal window
+        if (modalCtrl->IsModalClose())
         {
-            // Mouse is outside modal window
-            if (modalCtrl->IsModalClose())
+            if (modalStack.GetCount() > 0)
             {
-                if (modalStack.GetCount() > 0)
-                {
-                    // Window is modal close style, repeat procedure with next window on the stack
-                    U32 cursor;
-                    IControlPtr* top;
+                // Window is modal close style, repeat procedure with next window on the stack
+                U32 cursor;
+                IControlPtr* top;
 
-                    // Get top item
-                    top = modalStack.Pop();
+                // Get top item
+                top = modalStack.Pop();
 
-                    // Process it, until no more items on stack
-                    cursor = ProcessModalCursor(*top);
+                // Process it, until no more items on stack
+                cursor = ProcessModalCursor(*top);
 
-                    // Push it back on
-                    modalStack.Push(top);
+                // Push it back on
+                modalStack.Push(top);
 
-                    return (cursor);
-                }
-                else
-                {
-                    // Use cursor of control under mouse
-                    return (mouseOver->GetCursor());
-                }
+                return (cursor);
             }
+            // Use cursor of control under mouse
+            return (mouseOver->GetCursor());
         }
 
         // Mouse is out of the modal's tree, use NO cursor
-        return (CursorSys::GetStandardCursor(CursorSys::NO));
+        return (GetStandardCursor(CursorSys::NO));
     }
 
 
@@ -603,20 +596,18 @@ namespace IFace
             // Use capture control's cursor
             cursor = mouseCapture->GetCursor();
         }
-        else
-
-            if (mouseOver.Alive())
+        else if (mouseOver.Alive())
+        {
+            if (modal.Alive())
             {
-                if (modal.Alive())
-                {
-                    cursor = ProcessModalCursor(modal);
-                }
-                else
-                {
-                    // Mouse is over a control so use its cursor
-                    cursor = mouseOver->GetCursor();
-                }
+                cursor = ProcessModalCursor(modal);
             }
+            else
+            {
+                // Mouse is over a control so use its cursor
+                cursor = mouseOver->GetCursor();
+            }
+        }
 
         // Set the cursor
         CursorSys::Set(cursor);
@@ -647,7 +638,7 @@ namespace IFace
             U32 yres = Vid::backBmp.Height();
 
             // Reload unmanaged bitmaps
-            for (List<Bitmap>::Iterator i(&unmanagedBitmaps); *i; i++)
+            for (List<Bitmap>::Iterator i(&unmanagedBitmaps); *i; ++i)
             {
                 (*i)->ReleaseDD();
                 (*i)->Read((*i)->GetName());
@@ -657,8 +648,8 @@ namespace IFace
             UpdateScreenMetrics();
 
             // Notify the root window of mode change
-            SendEvent(root, NULL, DISPLAYMODECHANGED, xres, yres);
-            SendEvent(overlays, NULL, DISPLAYMODECHANGED, xres, yres);
+            SendEvent(root, nullptr, DISPLAYMODECHANGED, xres, yres);
+            SendEvent(overlays, nullptr, DISPLAYMODECHANGED, xres, yres);
         }
     }
 
@@ -670,7 +661,7 @@ namespace IFace
     {
         if (sysInit)
         {
-            SetMouseCapture(NULL);
+            SetMouseCapture(nullptr);
         }
     }
 
@@ -682,9 +673,9 @@ namespace IFace
     {
         if (nextTipOwner.Alive())
         {
-            if (IFace::LastInputEventTime() > nextTipDelay)
+            if (LastInputEventTime() > nextTipDelay)
             {
-                SendEvent(nextTipOwner, NULL, DISPLAYTIP);
+                SendEvent(nextTipOwner, nullptr, DISPLAYTIP);
                 nextTipOwner.Clear();
             }
         }
@@ -711,12 +702,12 @@ namespace IFace
         if (over && tipMode)
         {
             // Automatically pop up the new tool tip if already in tip mode
-            SendEvent(over, NULL, DISPLAYTIP);
+            SendEvent(over, nullptr, DISPLAYTIP);
         }
         else
         {
             // Ask the control for it's tool tip time
-            if (over && ((nextTipDelay = SendEvent(over, NULL, TIPDELAY)) > 0))
+            if (over && ((nextTipDelay = SendEvent(over, nullptr, TIPDELAY)) > 0))
             {
                 nextTipOwner = over;
             }
@@ -869,10 +860,10 @@ namespace IFace
 
         const char* newClass = fScope->NextArgString();
         const char* baseClass = fScope->NextArgString();
-        ICClass* base, * c;
+        ICClass *base, *c;
 
         // The base class must already be defined
-        if ((base = ctrlTypes.Find(Crc::CalcStr(baseClass))) == NULL)
+        if ((base = ctrlTypes.Find(Crc::CalcStr(baseClass))) == nullptr)
         {
             ERR_FATAL(("Base control class [%s] not defined", baseClass));
         }
@@ -884,7 +875,7 @@ namespace IFace
         c->base = base->type;
         c->derived = TRUE;
         c->createProc = base->createProc;
-        c->scope = fScope->Dup(NULL);
+        c->scope = fScope->Dup(nullptr);
 
         if (ctrlTypes.Add(c->type.crc, c))
         {
@@ -922,18 +913,18 @@ namespace IFace
 
         ICClass* c = ctrlTypes.Find(classId);
 
-        if (c == NULL)
+        if (c == nullptr)
         {
-            return (NULL);
+            return (nullptr);
         }
 
         ASSERT(c->createProc);
 
         // If this control class is derived from another class (using DefineControlType) then
         // call the base class function to instantiate the control
-        IControl* ctrl = NULL;
+        IControl* ctrl = nullptr;
 
-        if (parent == NULL)
+        if (parent == nullptr)
         {
             parent = root;
         }
@@ -948,7 +939,7 @@ namespace IFace
         }
 
         // Couldn't create it
-        if (ctrl == NULL)
+        if (ctrl == nullptr)
         {
             ERR_FATAL(("Error creating control [%s]", ctrlName));
         }
@@ -983,7 +974,7 @@ namespace IFace
 
         IControl* ctrl = CreateControl(ctrlName, ctrlClass, parent);
 
-        if (ctrl != NULL)
+        if (ctrl != nullptr)
         {
             ctrl->Configure(fScope);
         }
@@ -1020,7 +1011,7 @@ namespace IFace
     //
     static void CreateRootLevelControl(FScope* fScope)
     {
-        CreateControl(fScope, NULL);
+        CreateControl(fScope, nullptr);
     }
 
 
@@ -1050,19 +1041,16 @@ namespace IFace
     {
         FScope* p = scopeRegistry.Find(Crc::CalcStr(name));
 
-        if (p == NULL)
+        if (p == nullptr)
         {
             if (warn)
             {
                 LOG_ERR(("Registry data [%s] not found", name))
             }
-            return (NULL);
+            return (nullptr);
         }
-        else
-        {
-            p->InitIterators();
-            return (subFunc ? p->NextFunction() : p);
-        }
+        p->InitIterators();
+        return (subFunc ? p->NextFunction() : p);
     }
 
 
@@ -1075,7 +1063,7 @@ namespace IFace
 
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             U32 key = sScope->NameCrc();
 
@@ -1093,16 +1081,14 @@ namespace IFace
                     {
                         metricTable[i] = Crc::CalcStr(vNode->GetString());
                     }
+                    else if (vNode->aType == VNode::AT_INTEGER)
+                    {
+                        metricTable[i] = vNode->GetInteger();
+                    }
                     else
-
-                        if (vNode->aType == VNode::AT_INTEGER)
-                        {
-                            metricTable[i] = vNode->GetInteger();
-                        }
-                        else
-                        {
-                            LOG_ERR(("Metric [%s] not String or Integer", sScope->NameStr()));
-                        }
+                    {
+                        LOG_ERR(("Metric [%s] not String or Integer", sScope->NameStr()))
+                    }
                     break;
                 }
             }
@@ -1110,7 +1096,7 @@ namespace IFace
             // Not found
             if (i == MAX_CUSTOM_METRICS)
             {
-                LOG_ERR(("Unknown Metric Name [%s]", sScope->NameStr()));
+                LOG_ERR(("Unknown Metric Name [%s]", sScope->NameStr()))
             }
         }
     }
@@ -1125,7 +1111,7 @@ namespace IFace
 
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             U32 key = sScope->NameCrc();
 
@@ -1143,7 +1129,7 @@ namespace IFace
             // Not found
             if (i == MAX_COLORS)
             {
-                LOG_ERR(("Unknown Color Name [%s]", sScope->NameStr()));
+                LOG_ERR(("Unknown Color Name [%s]", sScope->NameStr()))
             }
         }
 
@@ -1171,7 +1157,7 @@ namespace IFace
 
         FScope* sScope;
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             U32 type = sScope->NameCrc();
             Color c;
@@ -1189,7 +1175,7 @@ namespace IFace
         ASSERT(fScope);
 
         const char* name = fScope->NextArgString();
-        const char* base = fScope->GetArgCount() > 1 ? fScope->NextArgString() : NULL;
+        const char* base = fScope->GetArgCount() > 1 ? fScope->NextArgString() : nullptr;
         FScope* sScope;
 
         // Find the color group
@@ -1208,108 +1194,108 @@ namespace IFace
         }
 
         // Read in each setting
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0x7C801FA5: // "NormalBg"
-                FScopeToColor(sScope, c->bg[ColorGroup::NORMAL]);
-                break;
+                case 0x7C801FA5: // "NormalBg"
+                    FScopeToColor(sScope, c->bg[ColorGroup::NORMAL]);
+                    break;
 
-            case 0x39A43E0C: // "NormalFg"
-                FScopeToColor(sScope, c->fg[ColorGroup::NORMAL]);
-                break;
+                case 0x39A43E0C: // "NormalFg"
+                    FScopeToColor(sScope, c->fg[ColorGroup::NORMAL]);
+                    break;
 
-            case 0xA4758AEE: // "SelectedBg"
-                FScopeToColor(sScope, c->bg[ColorGroup::SELECTED]);
-                break;
+                case 0xA4758AEE: // "SelectedBg"
+                    FScopeToColor(sScope, c->bg[ColorGroup::SELECTED]);
+                    break;
 
-            case 0xE151AB47: // "SelectedFg"
-                FScopeToColor(sScope, c->fg[ColorGroup::SELECTED]);
-                break;
+                case 0xE151AB47: // "SelectedFg"
+                    FScopeToColor(sScope, c->fg[ColorGroup::SELECTED]);
+                    break;
 
-            case 0xACADD3A8: // "HilitedBg"
-                FScopeToColor(sScope, c->bg[ColorGroup::HILITED]);
-                break;
+                case 0xACADD3A8: // "HilitedBg"
+                    FScopeToColor(sScope, c->bg[ColorGroup::HILITED]);
+                    break;
 
-            case 0xE989F201: // "HilitedFg"
-                FScopeToColor(sScope, c->fg[ColorGroup::HILITED]);
-                break;
+                case 0xE989F201: // "HilitedFg"
+                    FScopeToColor(sScope, c->fg[ColorGroup::HILITED]);
+                    break;
 
-            case 0xDC54D3B9: // "HilitedSelBg"
-                FScopeToColor(sScope, c->bg[ColorGroup::SELHILITED]);
-                break;
+                case 0xDC54D3B9: // "HilitedSelBg"
+                    FScopeToColor(sScope, c->bg[ColorGroup::SELHILITED]);
+                    break;
 
-            case 0x9970F210: // "HilitedSelFg"
-                FScopeToColor(sScope, c->fg[ColorGroup::SELHILITED]);
-                break;
+                case 0x9970F210: // "HilitedSelFg"
+                    FScopeToColor(sScope, c->fg[ColorGroup::SELHILITED]);
+                    break;
 
-            case 0x51BB620B: // "DisabledBg"
-                FScopeToColor(sScope, c->bg[ColorGroup::DISABLED]);
-                break;
+                case 0x51BB620B: // "DisabledBg"
+                    FScopeToColor(sScope, c->bg[ColorGroup::DISABLED]);
+                    break;
 
-            case 0x149F43A2: // "DisabledFg"
-                FScopeToColor(sScope, c->fg[ColorGroup::DISABLED]);
-                break;
+                case 0x149F43A2: // "DisabledFg"
+                    FScopeToColor(sScope, c->fg[ColorGroup::DISABLED]);
+                    break;
 
-            case 0x7DC41647: // "AllBg"
-            {
-                Color clr;
-                FScopeToColor(sScope, clr);
-
-                for (U32 i = 0; i < ColorGroup::MAX_INDEX; i++)
+                case 0x7DC41647: // "AllBg"
                 {
-                    c->bg[i] = clr;
+                    Color clr;
+                    FScopeToColor(sScope, clr);
+
+                    for (U32 i = 0; i < ColorGroup::MAX_INDEX; i++)
+                    {
+                        c->bg[i] = clr;
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case 0x38E037EE: // "AllFg"
-            {
-                Color clr;
-                FScopeToColor(sScope, clr);
-
-                for (U32 i = 0; i < ColorGroup::MAX_INDEX; i++)
+                case 0x38E037EE: // "AllFg"
                 {
-                    c->fg[i] = clr;
+                    Color clr;
+                    FScopeToColor(sScope, clr);
+
+                    for (U32 i = 0; i < ColorGroup::MAX_INDEX; i++)
+                    {
+                        c->fg[i] = clr;
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case 0xE688BD45: // "NormalTexture"
-                FScopeToTextureInfo(sScope, c->textures[ColorGroup::NORMAL]);
-                break;
+                case 0xE688BD45: // "NormalTexture"
+                    FScopeToTextureInfo(sScope, c->textures[ColorGroup::NORMAL]);
+                    break;
 
-            case 0xABFE44A3: // "SelectedTexture"
-                FScopeToTextureInfo(sScope, c->textures[ColorGroup::SELECTED]);
-                break;
+                case 0xABFE44A3: // "SelectedTexture"
+                    FScopeToTextureInfo(sScope, c->textures[ColorGroup::SELECTED]);
+                    break;
 
-            case 0x5330A9A1: // "HilitedTexture"
-                FScopeToTextureInfo(sScope, c->textures[ColorGroup::HILITED]);
-                break;
+                case 0x5330A9A1: // "HilitedTexture"
+                    FScopeToTextureInfo(sScope, c->textures[ColorGroup::HILITED]);
+                    break;
 
-            case 0x588A3B34: // "HilitedSelTexture"
-                FScopeToTextureInfo(sScope, c->textures[ColorGroup::SELHILITED]);
-                break;
+                case 0x588A3B34: // "HilitedSelTexture"
+                    FScopeToTextureInfo(sScope, c->textures[ColorGroup::SELHILITED]);
+                    break;
 
-            case 0xDCE70F6D: // "DisabledTexture"
-                FScopeToTextureInfo(sScope, c->textures[ColorGroup::DISABLED]);
-                break;
+                case 0xDCE70F6D: // "DisabledTexture"
+                    FScopeToTextureInfo(sScope, c->textures[ColorGroup::DISABLED]);
+                    break;
 
-            case 0xB1DA7108: // "AllTextures"
-            {
-                TextureInfo ti;
-                FScopeToTextureInfo(sScope, ti);
-
-                for (U32 i = 0; i < ColorGroup::MAX_INDEX; i++)
+                case 0xB1DA7108: // "AllTextures"
                 {
-                    c->textures[i] = ti;
-                }
-                break;
-            }
+                    TextureInfo ti;
+                    FScopeToTextureInfo(sScope, ti);
 
-            default:
-                LOG_ERR(("Invalid Color Group Item [%s]", sScope->NameStr()));
+                    for (U32 i = 0; i < ColorGroup::MAX_INDEX; i++)
+                    {
+                        c->textures[i] = ti;
+                    }
+                    break;
+                }
+
+                default:
+                LOG_ERR(("Invalid Color Group Item [%s]", sScope->NameStr()))
                 break;
             }
         }
@@ -1324,7 +1310,7 @@ namespace IFace
         ASSERT(fScope);
 
         const char* name = fScope->NextArgString();
-        const char* base = fScope->GetArgCount() > 1 ? fScope->NextArgString() : NULL;
+        const char* base = fScope->GetArgCount() > 1 ? fScope->NextArgString() : nullptr;
 
         // Find or create the skin
         TextureSkin* c = CreateTextureSkin(name);
@@ -1356,94 +1342,94 @@ namespace IFace
 
         ASSERT(fScope);
 
-        while ((sScope = fScope->NextFunction()) != NULL)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0x7BFCAF3E: // "DefineControlType"
-            {
-                DefineControlType(sScope);
-                break;
-            }
+                case 0x7BFCAF3E: // "DefineControlType"
+                {
+                    DefineControlType(sScope);
+                    break;
+                }
 
-            case 0xDC817C35: // "CreateRegData"
-            {
-                CreateRegData(sScope);
-                break;
-            }
+                case 0xDC817C35: // "CreateRegData"
+                {
+                    CreateRegData(sScope);
+                    break;
+                }
 
-            case 0x5A948686: // "ScanCodes"
-            {
-                KeyBind::ProcessScanCodes(sScope);
-                break;
-            }
+                case 0x5A948686: // "ScanCodes"
+                {
+                    KeyBind::ProcessScanCodes(sScope);
+                    break;
+                }
 
-            case 0xEF9BD543: // "Modifiers"
-            {
-                KeyBind::ProcessModifiers(sScope);
-                break;
-            }
+                case 0xEF9BD543: // "Modifiers"
+                {
+                    KeyBind::ProcessModifiers(sScope);
+                    break;
+                }
 
-            case 0xC57E4440: // "CreateCursor"
-            {
-                CursorSys::ProcessCreateCursor(sScope);
-                break;
-            }
+                case 0xC57E4440: // "CreateCursor"
+                {
+                    CursorSys::ProcessCreateCursor(sScope);
+                    break;
+                }
 
-            case 0x390A51F7: // "CreateColorGroup"
-            {
-                ProcessCreateColorGroup(sScope);
-                break;
-            }
+                case 0x390A51F7: // "CreateColorGroup"
+                {
+                    ProcessCreateColorGroup(sScope);
+                    break;
+                }
 
-            case 0x2DA197F3: // "CreateFont"
-            {
-                // Create the font
-                FontSys::Create(sScope);
-                break;
-            }
+                case 0x2DA197F3: // "CreateFont"
+                {
+                    // Create the font
+                    FontSys::Create(sScope);
+                    break;
+                }
 
-            case 0x291BAD22: // "CreateSkin"
-            {
-                ProcessCreateSkin(sScope);
-                break;
-            }
+                case 0x291BAD22: // "CreateSkin"
+                {
+                    ProcessCreateSkin(sScope);
+                    break;
+                }
 
-            case 0x2B3B14E3: // "Colors"
-            {
-                ConfigureColors(sScope);
-                break;
-            }
+                case 0x2B3B14E3: // "Colors"
+                {
+                    ConfigureColors(sScope);
+                    break;
+                }
 
-            case 0xFA934E14: // "DefaultConsoleColor"
-            {
-                ConfigureDefaultConsoleColor(sScope);
-                break;
-            }
+                case 0xFA934E14: // "DefaultConsoleColor"
+                {
+                    ConfigureDefaultConsoleColor(sScope);
+                    break;
+                }
 
-            case 0x3EDD1FB9: // "ConsoleColors"
-            {
-                ConfigureConsoleColors(sScope);
-                break;
-            }
+                case 0x3EDD1FB9: // "ConsoleColors"
+                {
+                    ConfigureConsoleColors(sScope);
+                    break;
+                }
 
-            case 0x824D2A30: // "Metrics"
-            {
-                ConfigureMetrics(sScope);
-                break;
-            }
+                case 0x824D2A30: // "Metrics"
+                {
+                    ConfigureMetrics(sScope);
+                    break;
+                }
 
-            case 0xDCC321D2: // "Sound"
-            {
-                IFace::Sound::Configure(sScope);
-                break;
-            }
+                case 0xDCC321D2: // "Sound"
+                {
+                    Sound::Configure(sScope);
+                    break;
+                }
 
-            case 0x14D3A281: // "StandardCursors"
-            {
-                CursorSys::ProcessStandardCursors(sScope);
-                break;
-            }
+                case 0x14D3A281: // "StandardCursors"
+                {
+                    CursorSys::ProcessStandardCursors(sScope);
+                    break;
+                }
             }
         }
     }
@@ -1458,7 +1444,7 @@ namespace IFace
 
         Event e;
         e.type = eventId;
-        e.subType = (U16)type;
+        e.subType = static_cast<U16>(type);
         e.iface.to = ctrl;
         e.iface.from = from;
         e.iface.p1 = p1;
@@ -1481,7 +1467,7 @@ namespace IFace
         if (e)
         {
             // Create reapers for the to and from controls
-            IControlPtr* ptrTo = NULL, * ptrFrom = NULL;
+            IControlPtr *ptrTo = nullptr, *ptrFrom = nullptr;
 
             // Setup the destination reaper, this is mandatory
             ptrTo = new IControlPtr;
@@ -1496,7 +1482,7 @@ namespace IFace
 
             // Build up the event structure
             e->type = eventId;
-            e->subType = (U16)type;
+            e->subType = static_cast<U16>(type);
             e->iface.to = ptrTo;
             e->iface.from = ptrFrom;
             e->iface.p1 = p1;
@@ -1508,10 +1494,7 @@ namespace IFace
 
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -1520,7 +1503,7 @@ namespace IFace
     //
     U32 SendNotify(IControl* ctrl, IControl* from, U32 event, U32 p1, U32 p2, U32 p3)
     {
-        return (SendEvent(ctrl, from, IFace::NOTIFY, event, p1, p2, p3));
+        return (SendEvent(ctrl, from, NOTIFY, event, p1, p2, p3));
     }
 
 
@@ -1534,11 +1517,8 @@ namespace IFace
         {
             return (SendNotify(ctrl, from, type, p1, p2, p3));
         }
-        else
-        {
-            LOG_WARN(("SendNotifyModal: There is no modal control"));
-            return (FALSE);
-        }
+        LOG_WARN(("SendNotifyModal: There is no modal control"))
+        return (FALSE);
     }
 
 
@@ -1552,11 +1532,8 @@ namespace IFace
         {
             return (SendNotify(ctrl, from, type, p1, p2, p3));
         }
-        else
-        {
-            LOG_WARN(("SendNotifyFocus: There is no control with focus"));
-            return (FALSE);
-        }
+        LOG_WARN(("SendNotifyFocus: There is no control with focus"))
+        return (FALSE);
     }
 
 
@@ -1565,7 +1542,7 @@ namespace IFace
     //
     U32 PostNotify(IControl* ctrl, IControl* from, U32 event, U32 p1, U32 p2, U32 p3)
     {
-        return (PostEvent(ctrl, from, IFace::NOTIFY, event, p1, p2, p3));
+        return (PostEvent(ctrl, from, NOTIFY, event, p1, p2, p3));
     }
 
 
@@ -1579,11 +1556,8 @@ namespace IFace
         {
             return (PostNotify(ctrl, from, type, p1, p2, p3));
         }
-        else
-        {
-            LOG_WARN(("PostNotifyModal: There is no modal control"));
-            return (FALSE);
-        }
+        LOG_WARN(("PostNotifyModal: There is no modal control"))
+        return (FALSE);
     }
 
 
@@ -1597,11 +1571,8 @@ namespace IFace
         {
             return (PostNotify(ctrl, from, type, p1, p2, p3));
         }
-        else
-        {
-            LOG_WARN(("PostNotifyFocus: There is no control with focus"));
-            return (FALSE);
-        }
+        LOG_WARN(("PostNotifyFocus: There is no control with focus"))
+        return (FALSE);
     }
 
 
@@ -1623,10 +1594,7 @@ namespace IFace
         {
             return (0);
         }
-        else
-        {
-            return (Main::thisTime - lastInputEvent);
-        }
+        return (Main::thisTime - lastInputEvent);
     }
 
 
@@ -1658,7 +1626,7 @@ namespace IFace
         BinTree<ICClass>::Iterator i(&ctrlTypes);
         ICClass* c;
 
-        while ((c = i++) != NULL)
+        while ((c = i++) != nullptr)
         {
             if (c->derived)
             {
@@ -1777,10 +1745,7 @@ namespace IFace
             ctrl->SetZPos(0);
             return (TRUE);
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -1790,17 +1755,14 @@ namespace IFace
     Bool Deactivate(const char* name)
     {
         // Find the control
-        IControl* ctrl = root->FindByName(name, NULL);
+        IControl* ctrl = root->FindByName(name, nullptr);
 
         // Deactivate it
         if (ctrl)
         {
             return (Deactivate(ctrl));
         }
-        else
-        {
-            return (FALSE);
-        }
+        return (FALSE);
     }
 
 
@@ -1819,7 +1781,7 @@ namespace IFace
     Bool ToggleActive(const char* name)
     {
         // Find the control
-        IControl* ctrl = root->FindByName(name, NULL);
+        IControl* ctrl = root->FindByName(name, nullptr);
 
         // (De)activate it
         if (ctrl)
@@ -1845,7 +1807,7 @@ namespace IFace
     {
         if (tipCtrl.Alive())
         {
-            LOG_WARN(("Tip Control [%s] already alive", tipCtrl->Name()));
+            LOG_WARN(("Tip Control [%s] already alive", tipCtrl->Name()))
         }
 
         tipCtrl = c;
@@ -1935,7 +1897,7 @@ namespace IFace
 
         // turn off wireframe; don't notify vars (I)
         //
-        Bool shade = Vid::SetShadeStateI(wireFrame ? Vid::shadeWIRE : Vid::shadeGOURAUD);
+        Bool shade = SetShadeStateI(wireFrame ? Vid::shadeWIRE : Vid::shadeGOURAUD);
 
         // turn off texture filtering; don't notify vars (I)
         //
@@ -1972,7 +1934,7 @@ namespace IFace
         if (!tex)
         {
             Vid::SetTextureStateI(tex);
-            Vid::SetTexture(NULL);
+            Vid::SetTexture(nullptr);
         }
 
         // Restore texture filtering; don't notify vars (I)
@@ -2012,8 +1974,8 @@ namespace IFace
         PERF_E("Flush buckets");
 
         // Setup defaults
-        Vid::SetTexture(NULL);
-        Vid::SetMaterial(NULL);
+        Vid::SetTexture(nullptr);
+        Vid::SetMaterial(nullptr);
         prevAlpha = Vid::SetAlphaState(TRUE);
 
         // Setup bucket pointers
@@ -2083,13 +2045,13 @@ namespace IFace
             // Notify new capture control
             if (ctrl)
             {
-                SendEvent(ctrl, NULL, GOTCAPTURE);
+                SendEvent(ctrl, nullptr, GOTCAPTURE);
             }
 
             // Notify previous capture control
             if (mouseCapture.Alive())
             {
-                SendEvent(mouseCapture, NULL, LOSTCAPTURE);
+                SendEvent(mouseCapture, nullptr, LOSTCAPTURE);
             }
         }
 
@@ -2117,7 +2079,7 @@ namespace IFace
         // Notify control that it has lost focus
         if (mouseCapture.Alive())
         {
-            SendEvent(mouseCapture, NULL, LOSTCAPTURE);
+            SendEvent(mouseCapture, nullptr, LOSTCAPTURE);
         }
 
         // Clear the capture reaper
@@ -2130,7 +2092,7 @@ namespace IFace
     //
     IControl* GetCapture()
     {
-        return mouseCapture.Alive() ? mouseCapture.GetData() : NULL;
+        return mouseCapture.Alive() ? mouseCapture.GetData() : nullptr;
     }
 
 
@@ -2139,7 +2101,7 @@ namespace IFace
     //
     IControl* GetMouseOver()
     {
-        return mouseOver.Alive() ? mouseOver.GetData() : NULL;
+        return mouseOver.Alive() ? mouseOver.GetData() : nullptr;
     }
 
 
@@ -2154,13 +2116,13 @@ namespace IFace
             // Notify new focus control
             if (ctrl)
             {
-                SendEvent(ctrl, NULL, GOTFOCUS);
+                SendEvent(ctrl, nullptr, GOTFOCUS);
             }
 
             // Notify previous focus control
             if (focus.Alive())
             {
-                SendEvent(focus, NULL, LOSTFOCUS);
+                SendEvent(focus, nullptr, LOSTFOCUS);
             }
         }
 
@@ -2188,7 +2150,7 @@ namespace IFace
         // Notify control that it has lost focus
         if (focus.Alive())
         {
-            SendEvent(focus, NULL, LOSTFOCUS);
+            SendEvent(focus, nullptr, LOSTFOCUS);
         }
 
         // Otherwise clear the focus reaper
@@ -2201,7 +2163,7 @@ namespace IFace
     //
     IControl* GetFocus()
     {
-        return focus.Alive() ? focus.GetData() : NULL;
+        return focus.Alive() ? focus.GetData() : nullptr;
     }
 
 
@@ -2228,8 +2190,8 @@ namespace IFace
         modal.Setup(ctrl);
 
         // Clear Capture and focus
-        SetMouseCapture(NULL);
-        SetFocus(NULL);
+        SetMouseCapture(nullptr);
+        SetFocus(nullptr);
     }
 
 
@@ -2260,17 +2222,14 @@ namespace IFace
                 // Ok, we have an alive and active control
                 break;
             }
-            else
-            {
-                // throw that one away and get the next one
-                //LOG_DIAG(("UnsetModal: throwing away [%s]", ptr->Alive() ? (*ptr)->Name() : "DEAD"));
+            // throw that one away and get the next one
+            //LOG_DIAG(("UnsetModal: throwing away [%s]", ptr->Alive() ? (*ptr)->Name() : "DEAD"));
 
-                // Delete current reaper
-                delete ptr;
+            // Delete current reaper
+            delete ptr;
 
-                // Get the next one
-                ptr = modalStack.Pop();
-            }
+            // Get the next one
+            ptr = modalStack.Pop();
         }
 
         if (ptr)
@@ -2294,7 +2253,7 @@ namespace IFace
     //
     IControl* GetModal()
     {
-        return modal.Alive() ? modal.GetData() : NULL;
+        return modal.Alive() ? modal.GetData() : nullptr;
     }
 
 
@@ -2329,7 +2288,7 @@ namespace IFace
 
             if (focus.Alive())
             {
-                IFace::SendEvent(focus, NULL, CARETCHANGED, caretState, 0);
+                SendEvent(focus, nullptr, CARETCHANGED, caretState, 0);
             }
         }
     }
@@ -2378,7 +2337,7 @@ namespace IFace
             if (p != ctrl)
             {
                 // Does this control want to hook this event?
-                if (SendEvent(p, NULL, HOOKCHECK, e.subType))
+                if (SendEvent(p, nullptr, HOOKCHECK, e.subType))
                 {
                     // If it returns TRUE, then don't pass to the original control
                     if (PROCESS(p, e, "Hook"))
@@ -2437,23 +2396,21 @@ namespace IFace
         // Process the event normally
         switch (e.subType)
         {
-        case Input::KEYDOWN:
-        case Input::KEYUP:
-        case Input::KEYCHAR:
-        case Input::KEYREPEAT:
-        {
-            // Focus control has first bite at focus event
-            if (focus.Alive())
+            case Input::KEYDOWN:
+            case Input::KEYUP:
+            case Input::KEYCHAR:
+            case Input::KEYREPEAT:
             {
-                if (HandleThisEvent(focus, e, TRUE))
+                // Focus control has first bite at focus event
+                if (focus.Alive())
                 {
-                    // Event was handled by the control
-                    return (TRUE);
+                    if (HandleThisEvent(focus, e, TRUE))
+                    {
+                        // Event was handled by the control
+                        return (TRUE);
+                    }
                 }
-            }
-            else
-
-                if (!modal.Alive())
+                else if (!modal.Alive())
                 {
                     // Else let the key binding system have a go at it
                     if (KeyBind::HandleEvent(e))
@@ -2463,50 +2420,50 @@ namespace IFace
                     }
                 }
 
-            // Do default behavior
-            break;
-        }
-
-        case Input::MOUSEBUTTONDOWN:
-        case Input::MOUSEBUTTONDBLCLK:
-        {
-            // Call hook function
-            OnMouseClick();
-
-            // Handle mouse clicks outside modal window
-            while (modal.Alive() && !modal->InWindow(Point<S32>(e.input.mouseX, e.input.mouseY)))
-            {
-                if (modal->IsModalClose())
-                {
-                    // Deactivate the modal control
-                    modal->Deactivate();
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-        // Intentional fall through
-
-        case Input::MOUSEBUTTONUP:
-        case Input::MOUSEBUTTONDBLCLKUP:
-        case Input::MOUSEMOVE:
-        case Input::MOUSEAXIS:
-        {
-            // Mouse movement events get passed to control under the cursor
-            passToControlUnderCursor = TRUE;
-
-            // Capture control has first bite at mouse events
-            if (mouseCapture.Alive())
-            {
-                HandleThisEvent(mouseCapture, e, TRUE);
-                return (TRUE);
+                // Do default behavior
+                break;
             }
 
-            // Do default behavior
-            break;
-        }
+            case Input::MOUSEBUTTONDOWN:
+            case Input::MOUSEBUTTONDBLCLK:
+            {
+                // Call hook function
+                OnMouseClick();
+
+                // Handle mouse clicks outside modal window
+                while (modal.Alive() && !modal->InWindow(Point<S32>(e.input.mouseX, e.input.mouseY)))
+                {
+                    if (modal->IsModalClose())
+                    {
+                        // Deactivate the modal control
+                        modal->Deactivate();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+                // Intentional fall through
+
+            case Input::MOUSEBUTTONUP:
+            case Input::MOUSEBUTTONDBLCLKUP:
+            case Input::MOUSEMOVE:
+            case Input::MOUSEAXIS:
+            {
+                // Mouse movement events get passed to control under the cursor
+                passToControlUnderCursor = TRUE;
+
+                // Capture control has first bite at mouse events
+                if (mouseCapture.Alive())
+                {
+                    HandleThisEvent(mouseCapture, e, TRUE);
+                    return (TRUE);
+                }
+
+                // Do default behavior
+                break;
+            }
         }
 
         // Next, pass event to modal control
@@ -2546,8 +2503,8 @@ namespace IFace
     //
     Bool IFaceEventHandler(Event& e)
     {
-        IControlPtr* ptrTo = (IControlPtr*)e.iface.to;
-        IControlPtr* ptrFrom = (IControlPtr*)e.iface.from;
+        IControlPtr* ptrTo = static_cast<IControlPtr*>(e.iface.to);
+        IControlPtr* ptrFrom = static_cast<IControlPtr*>(e.iface.from);
 
         ASSERT(ptrTo);
 
@@ -2666,7 +2623,7 @@ namespace IFace
     {
         if (type >= MAX_METRICS)
         {
-            ERR_FATAL(("Metric out of range [%d]", type));
+            ERR_FATAL(("Metric out of range [%d]", type))
         }
         return (metricTable[type]);
     }
@@ -2679,7 +2636,7 @@ namespace IFace
     {
         if (type >= MAX_COLORS)
         {
-            ERR_FATAL(("Color out of range [%d]", type));
+            ERR_FATAL(("Color out of range [%d]", type))
         }
         return (colorTable[type]);
     }
@@ -2696,10 +2653,7 @@ namespace IFace
         {
             return (*color);
         }
-        else
-        {
-            return (defaultConsoleColor);
-        }
+        return (defaultConsoleColor);
     }
 
 
@@ -2729,7 +2683,7 @@ namespace IFace
         ColorGroup* c;
         U32 key = Crc::CalcStr(name);
 
-        if ((c = stdColorGroups.Find(key)) == NULL)
+        if ((c = stdColorGroups.Find(key)) == nullptr)
         {
             c = new ColorGroup;
 
@@ -2755,7 +2709,7 @@ namespace IFace
         U32 key = Crc::CalcStr(name);
 
         // Find color group in standard list first, then custom group
-        if ((c = FindColorGroup(key)) != NULL)
+        if ((c = FindColorGroup(key)) != nullptr)
         {
             return (c);
         }
@@ -2781,16 +2735,13 @@ namespace IFace
     //
     ColorGroup* FindColorGroup(U32 id)
     {
-        ColorGroup* c = NULL;
+        ColorGroup* c = nullptr;
 
-        if ((c = stdColorGroups.Find(id)) != NULL)
+        if ((c = stdColorGroups.Find(id)) != nullptr)
         {
             return (c);
         }
-        else
-        {
-            return (customColorGroups.Find(id));
-        }
+        return (customColorGroups.Find(id));
     }
 
 
@@ -2803,7 +2754,7 @@ namespace IFace
         U32 key = Crc::CalcStr(name);
 
         // Find texture skin
-        if ((t = FindTextureSkin(key)) != NULL)
+        if ((t = FindTextureSkin(key)) != nullptr)
         {
             return (t);
         }
@@ -3065,7 +3016,8 @@ namespace IFace
                 state & IControl::STATE_SELECTED ? 'S' : '.',
                 state & IControl::STATE_HILITE ? 'H' : '.',
                 state & IControl::STATE_DISABLED ? 'D' : '.',
-                state & IControl::STATE_ACTIVE ? 'A' : '.');
+                state & IControl::STATE_ACTIVE ? 'A' : '.'
+            );
 
             s += strlen(s);
         }
@@ -3078,7 +3030,7 @@ namespace IFace
         // Control name
         Utils::Strmcpy(s, control->Name(), sizeof(buf) - (s - buf));
 
-        CON_DIAG((buf));
+        CON_DIAG((buf))
 
         // Enumerate its children if recursion is on
         if (context & 0x80000000)
@@ -3123,9 +3075,9 @@ namespace IFace
 
         // System variables
         const char* language = MultiLanguage::GetLanguage();
-        if (language == NULL)
+        if (language == nullptr)
         {
-            ERR_FATAL(("No language configured"));
+            ERR_FATAL(("No language configured"))
         }
 
         VarSys::CreateString("iface.language", language, VarSys::NOEDIT);
@@ -3156,9 +3108,8 @@ namespace IFace
     //
     static void TestCallBack(U32 id, U32)
     {
-        LOG_DIAG(("Button 0x%.8X pressed", id));
+        LOG_DIAG(("Button 0x%.8X pressed", id))
     }
-
 
 
     //
@@ -3167,10 +3118,10 @@ namespace IFace
     static Bool IfMessageHook(const CH*, U32&, void* context)
     {
         ASSERT(context);
-        ASSERT(*(U32*)context == 0);
+        ASSERT(*static_cast<U32 *>(context) == 0);
 
         // Set the flag to true
-        *(U32*)context = TRUE;
+        *static_cast<U32*>(context) = TRUE;
 
         // Stop enumerating
         return (FALSE);
@@ -3184,343 +3135,350 @@ namespace IFace
     {
         switch (pathCrc)
         {
-        case 0x9FD05ECF: // "iface.disabledraw"
-        {
-            S32 flag;
-            if (Console::GetArgInteger(1, flag))
+            case 0x9FD05ECF: // "iface.disabledraw"
             {
-                SetFlag(DISABLE_DRAW, flag ? TRUE : FALSE);
+                S32 flag;
+                if (Console::GetArgInteger(1, flag))
+                {
+                    SetFlag(DISABLE_DRAW, flag ? TRUE : FALSE);
+                }
+                break;
             }
-            break;
-        }
 
-        case 0xB6138D00: // "iface.disableactivate"
-        {
-            S32 flag;
-            if (Console::GetArgInteger(1, flag))
+            case 0xB6138D00: // "iface.disableactivate"
             {
-                SetFlag(DISABLE_ACTIVATE, flag ? TRUE : FALSE);
+                S32 flag;
+                if (Console::GetArgInteger(1, flag))
+                {
+                    SetFlag(DISABLE_ACTIVATE, flag ? TRUE : FALSE);
+                }
+                break;
             }
-            break;
-        }
 
 
-        // Process args
-        case 0x9EE90A99: // "iface.listcontrols"
-        {
-            const char* args;
-            U32 argc = 1;
-            U32 context = 0;
-            IControl* base = root;
-
-            // Process args
-            for (;;)
+                // Process args
+            case 0x9EE90A99: // "iface.listcontrols"
             {
-                if (!Console::GetArgString(argc++, args))
+                const char* args;
+                U32 argc = 1;
+                U32 context = 0;
+                IControl* base = root;
+
+                // Process args
+                for (;;)
                 {
-                    break;
+                    if (!Console::GetArgString(argc++, args))
+                    {
+                        break;
+                    }
+
+                    switch (Crc::CalcStr(args))
+                    {
+                        case 0x8B5AB605: // "/r"
+                        {
+                            // Recursive listing
+                            context |= 0x80000000;
+                            break;
+                        }
+
+                        case 0x985EC0D9: // "/v"
+                        {
+                            // Verbose listing
+                            context |= 0x40000000;
+                            break;
+                        }
+
+                        default:
+                        {
+                            IControl* ctrl = FindByName(args);
+                            if (ctrl)
+                            {
+                                base = ctrl;
+                            }
+                            break;
+                        }
+                    }
                 }
 
-                switch (Crc::CalcStr(args))
-                {
-                case 0x8B5AB605: // "/r"
-                {
-                    // Recursive listing
-                    context |= 0x80000000;
-                    break;
-                }
+                // Enum the children
+                ASSERT(base);
+                base->EnumChildren(EnumChildrenCallback, context);
 
-                case 0x985EC0D9: // "/v"
-                {
-                    // Verbose listing
-                    context |= 0x40000000;
-                    break;
-                }
+                break;
+            }
 
-                default:
+            case 0x0301E78C: // "iface.listclasses"
+            {
+                for (BinTree<ICClass>::Iterator i(&ctrlTypes); *i; ++i)
                 {
-                    IControl* ctrl = IFace::FindByName(args);
+                    if ((*i)->derived)
+                    {
+                        CON_DIAG(("%s (%s)", (*i)->type.str, (*i)->base.str))
+                    }
+                    else
+                    {
+                        CON_DIAG(((*i)->type.str))
+                    }
+                }
+                break;
+            }
+
+            case 0x971AD37F: // "iface.activate"
+            {
+                const char* name;
+
+                // Check for one string argument
+                if (!Console::GetArgString(1, name))
+                {
+                    CON_ERR((Console::ARGS))
+                }
+                else
+                {
+                    Activate(name);
+                }
+                break;
+            }
+
+            case 0x76F6033F: // "iface.deactivate"
+            {
+                const char* name;
+
+                // Check for one string argument
+                if (!Console::GetArgString(1, name))
+                {
+                    CON_ERR((Console::ARGS))
+                }
+                else
+                {
+                    Deactivate(name);
+                }
+                break;
+            }
+
+            case 0x1B48EEF0: // "iface.toggleactive"
+            {
+                const char* name;
+
+                // Check for one string argument
+                if (!Console::GetArgString(1, name))
+                {
+                    CON_ERR((Console::ARGS))
+                }
+                else
+                {
+                    ToggleActive(name);
+                }
+                break;
+            }
+
+            case 0x7C2B3DA1: // "iface.closedialog"
+            {
+                if (modal.Alive())
+                {
+                    (*modal).Deactivate();
+                }
+                break;
+            }
+
+            case 0xA0718455: // "iface.resize"
+            {
+                const char* name;
+                Point<S32> size;
+
+                // Check for one string argument
+                if (!(Console::GetArgString(1, name) && Console::GetArgInteger(2, size.x) && Console::GetArgInteger
+                    (
+                        3, size.y
+                    )))
+                {
+                    CON_ERR((Console::ARGS))
+                }
+                else
+                {
+                    // Find the control
+                    IControl* ctrl = FindByName(name, root);
+
+                    // Resize it
                     if (ctrl)
                     {
-                        base = ctrl;
+                        Point<S32> pos = ctrl->GetPos();
+                        ctrl->Resize(size);
+                        ctrl->SetPos(pos.x, pos.y);
                     }
-                    break;
                 }
-                }
+                break;
             }
 
-            // Enum the children
-            ASSERT(base);
-            base->EnumChildren(EnumChildrenCallback, context);
-
-            break;
-        }
-
-        case 0x0301E78C: // "iface.listclasses"
-        {
-            for (BinTree<ICClass>::Iterator i(&ctrlTypes); *i; i++)
+            case 0x3FC8ECAA: // "iface.listfonts"
             {
-                if ((*i)->derived)
+                FontSys::Report();
+                break;
+            }
+
+            case 0x51723C76: // "iface.writefonts"
+            {
+                FontSys::WriteFonts();
+                break;
+            }
+
+            case 0x4DE07566: // "iface.screenshot"
+            {
+                ScreenDump();
+                break;
+            }
+
+            case 0x0D5B5622: // "iface.setlocale"
+            {
+                // Remove this when ML system is written
+                //FIXME(915843011, "aiarossi"); // Fri Jan 08 16:50:11 1999
+
+                const char* locale;
+
+                // Check for one string argument
+                if (!Console::GetArgString(1, locale))
                 {
-                    CON_DIAG(("%s (%s)", (*i)->type.str, (*i)->base.str));
+                    CON_ERR((Console::ARGS))
                 }
                 else
                 {
-                    CON_DIAG(((*i)->type.str));
-                }
-            }
-            break;
-        }
+                    const char* ret = setlocale(LC_CTYPE, locale);
 
-        case 0x971AD37F: // "iface.activate"
-        {
-            const char* name;
-
-            // Check for one string argument
-            if (!Console::GetArgString(1, name))
-            {
-                CON_ERR((Console::ARGS));
-            }
-            else
-            {
-                Activate(name);
-            }
-            break;
-        }
-
-        case 0x76F6033F: // "iface.deactivate"
-        {
-            const char* name;
-
-            // Check for one string argument
-            if (!Console::GetArgString(1, name))
-            {
-                CON_ERR((Console::ARGS));
-            }
-            else
-            {
-                Deactivate(name);
-            }
-            break;
-        }
-
-        case 0x1B48EEF0: // "iface.toggleactive"
-        {
-            const char* name;
-
-            // Check for one string argument
-            if (!Console::GetArgString(1, name))
-            {
-                CON_ERR((Console::ARGS));
-            }
-            else
-            {
-                ToggleActive(name);
-            }
-            break;
-        }
-
-        case 0x7C2B3DA1: // "iface.closedialog"
-        {
-            if (modal.Alive())
-            {
-                (*modal).Deactivate();
-            }
-            break;
-        }
-
-        case 0xA0718455: // "iface.resize"
-        {
-            const char* name;
-            Point<S32> size;
-
-            // Check for one string argument
-            if (!(Console::GetArgString(1, name) && Console::GetArgInteger(2, size.x) && Console::GetArgInteger(3, size.y)))
-            {
-                CON_ERR((Console::ARGS));
-            }
-            else
-            {
-                // Find the control
-                IControl* ctrl = FindByName(name, root);
-
-                // Resize it
-                if (ctrl)
-                {
-                    Point<S32> pos = ctrl->GetPos();
-                    ctrl->Resize(size);
-                    ctrl->SetPos(pos.x, pos.y);
-                }
-            }
-            break;
-        }
-
-        case 0x3FC8ECAA: // "iface.listfonts"
-        {
-            FontSys::Report();
-            break;
-        }
-
-        case 0x51723C76: // "iface.writefonts"
-        {
-            FontSys::WriteFonts();
-            break;
-        }
-
-        case 0x4DE07566: // "iface.screenshot"
-        {
-            ScreenDump();
-            break;
-        }
-
-        case 0x0D5B5622: // "iface.setlocale"
-        {
-            // Remove this when ML system is written
-            //FIXME(915843011, "aiarossi"); // Fri Jan 08 16:50:11 1999
-
-            const char* locale;
-
-            // Check for one string argument
-            if (!Console::GetArgString(1, locale))
-            {
-                CON_ERR((Console::ARGS))
-            }
-            else
-            {
-                const char* ret = setlocale(LC_CTYPE, locale);
-
-                if (ret)
-                {
-                    CON_DIAG(("Locale now '%s'", ret));
-                }
-                else
-                {
-                    CON_ERR(("Unable to set locale"));
-                }
-            }
-            break;
-        }
-
-        case 0x9D767A92: // "iface.sendnotifyevent"
-        {
-            const char* name;
-            const char* event;
-
-            // Check for two string arguments
-            if (!Console::GetArgString(1, name) || !Console::GetArgString(2, event))
-            {
-                CON_ERR((Console::ARGS));
-            }
-            else
-            {
-                const char* arg1 = "";
-                Console::GetArgString(3, arg1);
-
-                const char* arg2 = "";
-                Console::GetArgString(4, arg2);
-
-                const char* arg3 = "";
-                Console::GetArgString(5, arg3);
-
-                // Find the control
-                IControl* ctrl = FindByName(name, root);
-
-                if (ctrl)
-                {
-                    // Send the event to the control
-                    SendEvent(ctrl, NULL, IFace::NOTIFY, Crc::CalcStr(event), Crc::CalcStr(arg1), Crc::CalcStr(arg2), Crc::CalcStr(arg3));
-                }
-                else
-                {
-                    // Couldn't find the control
-                    CON_ERR(("Could not find control '%s'", name))
-                }
-            }
-            break;
-        }
-
-        case 0x91AC6DBA: // "iface.ifconsolemsg"
-        {
-            const char* msgs, * cmd;
-
-            if (Console::GetArgString(1, msgs) && Console::GetArgString(2, cmd))
-            {
-                BinTree<U32> filters;
-                U32 flag = FALSE;
-
-                // FIXME: Split msgs up into ';' delimited values
-                filters.Add(Crc::CalcStr(msgs));
-
-                if (filters.GetCount())
-                {
-                    Console::EnumStrings(&filters, IfMessageHook, &flag);
-
-                    if (flag)
+                    if (ret)
                     {
-                        Console::ProcessCmd(cmd);
+                        CON_DIAG(("Locale now '%s'", ret))
                     }
-                    filters.DisposeAll();
+                    else
+                    {
+                        CON_ERR(("Unable to set locale"))
+                    }
                 }
+                break;
             }
-            break;
-        }
 
-        case 0x04EFD033: // "iface.deactivatemodals"
-        {
-            DeactivateModals();
-            break;
-        }
+            case 0x9D767A92: // "iface.sendnotifyevent"
+            {
+                const char* name;
+                const char* event;
+
+                // Check for two string arguments
+                if (!Console::GetArgString(1, name) || !Console::GetArgString(2, event))
+                {
+                    CON_ERR((Console::ARGS))
+                }
+                else
+                {
+                    const char* arg1 = "";
+                    Console::GetArgString(3, arg1);
+
+                    const char* arg2 = "";
+                    Console::GetArgString(4, arg2);
+
+                    const char* arg3 = "";
+                    Console::GetArgString(5, arg3);
+
+                    // Find the control
+                    IControl* ctrl = FindByName(name, root);
+
+                    if (ctrl)
+                    {
+                        // Send the event to the control
+                        SendEvent
+                        (
+                            ctrl, nullptr, NOTIFY, Crc::CalcStr(event), Crc::CalcStr(arg1), Crc::CalcStr(arg2),
+                            Crc::CalcStr(arg3)
+                        );
+                    }
+                    else
+                    {
+                        // Couldn't find the control
+                        CON_ERR(("Could not find control '%s'", name))
+                    }
+                }
+                break;
+            }
+
+            case 0x91AC6DBA: // "iface.ifconsolemsg"
+            {
+                const char *msgs, *cmd;
+
+                if (Console::GetArgString(1, msgs) && Console::GetArgString(2, cmd))
+                {
+                    BinTree<U32> filters;
+                    U32 flag = FALSE;
+
+                    // FIXME: Split msgs up into ';' delimited values
+                    filters.Add(Crc::CalcStr(msgs));
+
+                    if (filters.GetCount())
+                    {
+                        Console::EnumStrings(&filters, IfMessageHook, &flag);
+
+                        if (flag)
+                        {
+                            Console::ProcessCmd(cmd);
+                        }
+                        filters.DisposeAll();
+                    }
+                }
+                break;
+            }
+
+            case 0x04EFD033: // "iface.deactivatemodals"
+            {
+                DeactivateModals();
+                break;
+            }
 
 
 #ifdef DEVELOPMENT
-        // 
-        // Debugging only
-        //
-        case 0x09D5D144: // "iface.setalpha"
-        {
-            F32 f;
-
-            if (Console::GetArgFloat(1, f))
+                // 
+                // Debugging only
+                //
+            case 0x09D5D144: // "iface.setalpha"
             {
-                data.alphaScale = Clamp<F32>(0.0F, f, 1.0F);
-            }
-            break;
-        }
+                F32 f;
 
-        case 0x5E0670DE: // "iface.fadeup"
-        {
-            F32 f;
-
-            if (Console::GetArgFloat(1, f) && f > 1e-4F)
-            {
-                SetFade(0.0F, f);
-            }
-            break;
-        }
-
-        case 0x650D4B05: // "iface.testmodechange"
-        {
-            // Test the mode change function without actually changing modes
-            OnModeChange();
-            break;
-        }
-
-        case 0xD54EF697: // "iface.testmsgbox"
-        {
-            const char* title, * str;
-
-            if (Console::GetArgString(1, title) && Console::GetArgString(2, str))
-            {
-                const char* caption;
-                MBEvent* b1 = NULL, * b2 = NULL, * b3 = NULL;
-
-                if (!Console::GetArgString(3, caption))
+                if (Console::GetArgFloat(1, f))
                 {
-                    caption = "Ok";
+                    data.alphaScale = Clamp<F32>(0.0F, f, 1.0F);
                 }
+                break;
+            }
 
-                b1 = new MBEventCallback(caption, TRANSLATE((caption)), TestCallBack);
-                LOG_DIAG(("Added [%s]=0x%.8X", caption, Crc::CalcStr(caption)))
+            case 0x5E0670DE: // "iface.fadeup"
+            {
+                F32 f;
+
+                if (Console::GetArgFloat(1, f) && f > 1e-4F)
+                {
+                    SetFade(0.0F, f);
+                }
+                break;
+            }
+
+            case 0x650D4B05: // "iface.testmodechange"
+            {
+                // Test the mode change function without actually changing modes
+                OnModeChange();
+                break;
+            }
+
+            case 0xD54EF697: // "iface.testmsgbox"
+            {
+                const char *title, *str;
+
+                if (Console::GetArgString(1, title) && Console::GetArgString(2, str))
+                {
+                    const char* caption;
+                    MBEvent *b1 = nullptr, *b2 = nullptr, *b3 = nullptr;
+
+                    if (!Console::GetArgString(3, caption))
+                    {
+                        caption = "Ok";
+                    }
+
+                    b1 = new MBEventCallback(caption, TRANSLATE((caption)), TestCallBack);
+                    LOG_DIAG(("Added [%s]=0x%.8X", caption, Crc::CalcStr(caption)))
 
                     // Button 2 and 3 are optional
                     if (Console::GetArgString(4, caption))
@@ -3528,23 +3486,21 @@ namespace IFace
                         b2 = new MBEventCallback(caption, TRANSLATE((caption)), TestCallBack);
                         LOG_DIAG(("Added [%s]=0x%.8X", caption, Crc::CalcStr(caption)))
                     }
-                if (Console::GetArgString(5, caption))
-                {
-                    b3 = new MBEventCallback(caption, TRANSLATE((caption)), TestCallBack);
-                    LOG_DIAG(("Added [%s]=0x%.8X", caption, Crc::CalcStr(caption)))
-                }
+                    if (Console::GetArgString(5, caption))
+                    {
+                        b3 = new MBEventCallback(caption, TRANSLATE((caption)), TestCallBack);
+                        LOG_DIAG(("Added [%s]=0x%.8X", caption, Crc::CalcStr(caption)))
+                    }
 
-                MsgBox(TRANSLATE((title)), TRANSLATE((str)), 0, b1, b2, b3);
+                    MsgBox(TRANSLATE((title)), TRANSLATE((str)), 0, b1, b2, b3);
+                }
+                else
+                {
+                    CON_ERR((Console::ARGS))
+                }
+                break;
             }
-            else
-            {
-                CON_ERR((Console::ARGS))
-            }
-            break;
-        }
 #endif
         }
     }
 }
-
-

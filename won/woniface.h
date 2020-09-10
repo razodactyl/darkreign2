@@ -53,60 +53,55 @@ namespace WonIface
     namespace Message
     {
         // Successfully retrieved server list
-        const U32 RetrievedServerList = 0x167A1BD4; // "Message::RetrievedServerList"
+        const U32 RetrievedServerList = 0x167A1BD4;             // "Message::RetrievedServerList"
 
         // Firewall status updated
-        const U32 FirewallStatus = 0xB29A920F; // "Message::FirewallStatus"
+        const U32 FirewallStatus = 0xB29A920F;                  // "Message::FirewallStatus"
 
         // Account was logged in successfully
-        const U32 LoggedIn = 0xB8A78CAF; // "Message::LoggedIn"
+        const U32 LoggedIn = 0xB8A78CAF;                        // "Message::LoggedIn"
 
         // Account was created successfully
-        const U32 CreatedAccount = 0x2CF8742D; // "Message::CreatedAccount"
+        const U32 CreatedAccount = 0x2CF8742D;                  // "Message::CreatedAccount"
 
         // Password was successfully changed
-        const U32 ChangedPassword = 0xC1FDF3FE; // "Message::ChangedPassword"
+        const U32 ChangedPassword = 0xC1FDF3FE;                 // "Message::ChangedPassword"
 
         // Chat message
-        const U32 Chat = 0x0B3E6240; // "Message::Chat"
-
+        const U32 Chat = 0x0B3E6240;                            // "Message::Chat"
 
         // The first room update was completed
-        const U32 InitialRoomUpdate = 0x217B7065; // "Message::InitialRoomUpdate"
+        const U32 InitialRoomUpdate = 0x217B7065;               // "Message::InitialRoomUpdate"
 
         // A room update was completed
-        const U32 RoomsUpdated = 0x8234728F; // "Message::RoomsUpdated"
+        const U32 RoomsUpdated = 0x8234728F;                    // "Message::RoomsUpdated"
 
         // A new room was created
-        const U32 CreatedRoom = 0xBD6BF24B; // "Message::CreatedRoom"
+        const U32 CreatedRoom = 0xBD6BF24B;                     // "Message::CreatedRoom"
 
         // A new room was registered
-        const U32 RegisteredRoom = 0x5418CDEE; // "Message::RegisteredRoom"
+        const U32 RegisteredRoom = 0x5418CDEE;                  // "Message::RegisteredRoom"
 
         // We have connected to a room
-        const U32 ConnectedRoom = 0x69BC04E9; // "Message::ConnectedRoom"
+        const U32 ConnectedRoom = 0x69BC04E9;                   // "Message::ConnectedRoom"
 
         // We have entered a room
-        const U32 EnteredRoom = 0xB5704F6A; // "Message::EnteredRoom"
-
+        const U32 EnteredRoom = 0xB5704F6A;                     // "Message::EnteredRoom"
 
         // Player list changed
-        const U32 PlayersChanged = 0xB4504DF9; // "Message::PlayersChanged"
-
+        const U32 PlayersChanged = 0xB4504DF9;                  // "Message::PlayersChanged"
 
         // Game list changed
-        const U32 GamesChanged = 0x1CACB3BE; // "Message::GamesChanged"
-
+        const U32 GamesChanged = 0x1CACB3BE;                    // "Message::GamesChanged"
 
         // A new game was created
-        const U32 CreatedGame = 0x660BF5C7; // "Message::CreatedGame"
-
+        const U32 CreatedGame = 0x660BF5C7;                     // "Message::CreatedGame"
 
         // A progress update for a HTTP download
-        const U32 HTTPProgressUpdate = 0xBAD75EC2; // "Message::HTTPProgressUpdate"
+        const U32 HTTPProgressUpdate = 0xBAD75EC2;              // "Message::HTTPProgressUpdate"
 
         // A HTTP download completed
-        const U32 HTTPCompleted = 0xC41D0A90; // "Message::HTTPCompleted"
+        const U32 HTTPCompleted = 0xC41D0A90;                   // "Message::HTTPCompleted"
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -140,7 +135,6 @@ namespace WonIface
 
                 // Username
                 CH* user;
-
 
                 // Constructor
                 Chat(U32 id, const CH* text, const CH* user = nullptr);
@@ -185,8 +179,8 @@ namespace WonIface
                 // Constructor
                 HTTPProgressUpdate(U32 handle, U32 progress, U32 size)
                     : handle(handle),
-                    progress(progress),
-                    size(size)
+                      progress(progress),
+                      size(size)
                 {
                 }
             };
@@ -207,7 +201,7 @@ namespace WonIface
                 // Constructor
                 HTTPCompleted(U32 handle, Bool isNew)
                     : handle(handle),
-                    isNew(isNew)
+                      isNew(isNew)
                 {
                 }
             };
@@ -358,10 +352,10 @@ namespace WonIface
         // Initializing Constructor
         Player(const CH* name, U32 id, Bool moderator, Bool muted, Bool ignored)
             : id(id),
-            name(name),
-            moderator(moderator),
-            muted(muted),
-            ignored(ignored)
+              name(name),
+              moderator(moderator),
+              muted(muted),
+              ignored(ignored)
         {
         }
     };
@@ -391,9 +385,9 @@ namespace WonIface
         // Constructor
         Room(const CH* name, U32 numPlayers, Bool password, Bool lobby)
             : name(name),
-            numPlayers(numPlayers),
-            password(password),
-            lobby(lobby)
+              numPlayers(numPlayers),
+              password(password),
+              lobby(lobby)
         {
         }
     };
@@ -423,8 +417,8 @@ namespace WonIface
         // Constructor
         Game(const GameName& name, const PlayerName& host, U32 size, const U8* dataIn)
             : name(name),
-            hostUsername(host),
-            size(size)
+              hostUsername(host),
+              size(size)
         {
             data = reinterpret_cast<U8*>(Alloc(size));
             Utils::Memcpy(data, dataIn, size);
@@ -461,7 +455,6 @@ namespace WonIface
     // Abort what ever we're doing
     void Abort();
 
-
     // Create a Won account
     void CreateAccount(const char* username, const char* password);
 
@@ -471,13 +464,11 @@ namespace WonIface
     // Change the password of an existing Won account
     void ChangePassword(const char* username, const char* oldPassword, const char* newPassword);
 
-
     // Detect if we're behind a firewall
     void DetectFirewall();
 
     // What's our firewall status
     U32 GetFirewallStatus();
-
 
     // Keep our Won connection alive
     void KeepAlive();
@@ -492,11 +483,12 @@ namespace WonIface
     void CreateRoom(const CH* roomname, const CH* password);
 
     // Join a room
-    void JoinRoom(const CH* roomname, const CH* password);
+    void JoinRoom(const CH* room_name, const CH* room_password);
 
     // Get the list of players in the current room
     void GetPlayerList(NList<Player>& players);
 
+    void PostEvent(U32 message, void* data = nullptr);
 
     // Add a game to the list of games
     void AddGame(const GameName& name, U32 size, const U8* data);
@@ -510,10 +502,8 @@ namespace WonIface
     // Get the list of games in the current room
     void GetGameList(NList<Game>& games);
 
-
     // Get the address which is connecting us to the internet
     Bool GetLocalAddress(U32& ip, U16& port);
-
 
     // Send broadcast chat message
     void BroadcastMessage(const CH* text);
@@ -523,7 +513,6 @@ namespace WonIface
 
     // Send private chat message
     void PrivateMessage(const char* player, const CH* text);
-
 
     // Ignore a player
     void IgnorePlayer(const char* player);
@@ -539,18 +528,14 @@ namespace WonIface
     // Check the given key
     Bool CheckKey(const char* key);
 
-
     // Retrieve a HTTP file and store it locally in the download directory
-    //U32 HTTPGet(U32 proxyIP, U16 proxyPort, const char *hostName, U32 hostPort, const char *path, const char *local, Bool allowResume);
-    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local,
-        Bool allowResume);
+    U32 HTTPGet(const char* proxy, const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume);
 
     // Retrieve a HTTP file and store it locally in the download directory
     U32 HTTPGet(const char* hostName, U16 hostPort, const char* path, const char* local, Bool allowResume);
 
     // Stop downloading a HTTP file
     void HTTPAbortGet(U32 handle);
-
 
     // Enable/Disable logging
     void Logging(Bool on);

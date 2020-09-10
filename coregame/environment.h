@@ -26,26 +26,26 @@
 //
 namespace Environment
 {
-  extern VarFloat     waterSpeed;   // water u,v animation speed
+    extern VarFloat waterSpeed;   // water u,v animation speed
 
-  // Initialization and Shutdown
-  void Init();
-  void Done();
+    // Initialization and Shutdown
+    void Init();
+    void Done();
 
-  // Process Environment
-  void Process();
+    // Process Environment
+    void Process();
 
-  // Render Environment
-  void Render();
+    // Render Environment
+    void Render();
 
-  // Load information
-  void LoadInfo(FScope *fScope);
+    // Load information
+    void LoadInfo(FScope* fScope);
 
-  // Save information
-  void SaveInfo(FScope *fScope);
+    // Save information
+    void SaveInfo(FScope* fScope);
 
-  // Post Load
-  void PostLoad();
+    // Post Load
+    void PostLoad();
 }
 
 

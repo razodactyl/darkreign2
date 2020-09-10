@@ -30,21 +30,19 @@
 //
 namespace MultiPlayer
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Class TransferList::Item
         //
         class TransferList::Item : public ICStatic
         {
-            PROMOTE_LINK(TransferList::Item, ICStatic, 0x2BAF755E) // "TransferList::Item"
+        PROMOTE_LINK(TransferList::Item, ICStatic, 0x2BAF755E) // "TransferList::Item"
 
         protected:
 
@@ -59,8 +57,8 @@ namespace MultiPlayer
             // Constructor
             Item(TransferList& transferList, Transfer::Offer* offer, IControl* parent)
                 : transferList(transferList),
-                offer(offer),
-                ICStatic(parent)
+                  offer(offer),
+                  ICStatic(parent)
             {
                 SetColorGroup(IFace::data.cgListItem);
             }
@@ -69,7 +67,6 @@ namespace MultiPlayer
             void DrawSelf(PaintInfo& pi);
 
             friend TransferList;
-
         };
 
 
@@ -86,7 +83,7 @@ namespace MultiPlayer
         //
         TransferList::TransferList(IControl* parent)
             : ICListBox(parent),
-            heightProgress(10)
+              heightProgress(10)
         {
             listBoxStyle |= STYLE_NOSELECTION;
         }
@@ -99,37 +96,37 @@ namespace MultiPlayer
         {
             switch (fScope->NameCrc())
             {
-            case 0xF39D93DD: // "OffsetFile"
-                StdLoad::TypePoint<S32>(fScope, offsetFile);
-                break;
+                case 0xF39D93DD: // "OffsetFile"
+                    StdLoad::TypePoint<S32>(fScope, offsetFile);
+                    break;
 
-            case 0x2E6FADAE: // "OffsetPlayer"
-                StdLoad::TypePoint<S32>(fScope, offsetPlayer);
-                break;
+                case 0x2E6FADAE: // "OffsetPlayer"
+                    StdLoad::TypePoint<S32>(fScope, offsetPlayer);
+                    break;
 
-            case 0xEFC39332: // "OffsetTransferred"
-                StdLoad::TypePoint<S32>(fScope, offsetTransferred);
-                break;
+                case 0xEFC39332: // "OffsetTransferred"
+                    StdLoad::TypePoint<S32>(fScope, offsetTransferred);
+                    break;
 
-            case 0xECA04E02: // "OffsetRate"
-                StdLoad::TypePoint<S32>(fScope, offsetRate);
-                break;
+                case 0xECA04E02: // "OffsetRate"
+                    StdLoad::TypePoint<S32>(fScope, offsetRate);
+                    break;
 
-            case 0x92BD62DD: // "OffsetETA"
-                StdLoad::TypePoint<S32>(fScope, offsetETA);
-                break;
+                case 0x92BD62DD: // "OffsetETA"
+                    StdLoad::TypePoint<S32>(fScope, offsetETA);
+                    break;
 
-            case 0x5592337B: // "OffsetProgress"
-                StdLoad::TypePoint<S32>(fScope, offsetProgress);
-                break;
+                case 0x5592337B: // "OffsetProgress"
+                    StdLoad::TypePoint<S32>(fScope, offsetProgress);
+                    break;
 
-            case 0x4669855C: // "HeightProgress"
-                heightProgress = StdLoad::TypeU32(fScope);
-                break;
+                case 0x4669855C: // "HeightProgress"
+                    heightProgress = StdLoad::TypeU32(fScope);
+                    break;
 
-            default:
-                ICListBox::Setup(fScope);
-                break;
+                default:
+                    ICListBox::Setup(fScope);
+                    break;
             }
         }
 
@@ -143,31 +140,30 @@ namespace MultiPlayer
             {
                 switch (e.subType)
                 {
-                case IFace::NOTIFY:
-                {
-                    // Do specific handling
-                    switch (e.iface.p1)
+                    case IFace::NOTIFY:
                     {
-                    case TransferListMsg::Halt:
-                        if (e.iface.from)
+                        // Do specific handling
+                        switch (e.iface.p1)
                         {
-                            IControl* from = static_cast<IControl*>(e.iface.from);
-                            TransferList::Item* item = IFace::Promote<TransferList::Item>(from);
-                            if (item)
-                            {
-                                item->offer->transfer.Abort();
-                            }
-                        }
+                            case TransferListMsg::Halt:
+                                if (e.iface.from)
+                                {
+                                    IControl* from = static_cast<IControl*>(e.iface.from);
+                                    TransferList::Item* item = IFace::Promote<TransferList::Item>(from);
+                                    if (item)
+                                    {
+                                        item->offer->transfer.Abort();
+                                    }
+                                }
 
-                        // Handled
-                        return (TRUE);
+                                // Handled
+                                return (TRUE);
+                        }
                     }
-                }
                 }
             }
             return (ICListBox::HandleEvent(e));
         }
-
 
 
         //
@@ -256,13 +252,13 @@ namespace MultiPlayer
 
             switch (state)
             {
-            case StyxNet::TransferState::Transferring:
-                break;
+                case StyxNet::TransferState::Transferring:
+                    break;
 
-            default:
-                remaining = offer->size;
-                rate = 0;
-                break;
+                default:
+                    remaining = offer->size;
+                    rate = 0;
+                    break;
             }
 
             U32 transferred = offer->size - remaining;
@@ -359,9 +355,6 @@ namespace MultiPlayer
                 Color(0.2f, 1.0f, 1.0f, pi.alphaScale),
                 Color(0.1f, 0.5f, 0.5f, pi.alphaScale)
             );
-
         }
-
     }
-
 }

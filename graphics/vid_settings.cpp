@@ -11,6 +11,7 @@
 #include "vid_cmd.h"
 #include "stdload.h"
 #include "hardware.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -19,7 +20,7 @@ namespace Vid
     {
         Bool firstEver = TRUE;
         Bool setMode = FALSE;
-        U32  cMode, cDD;
+        U32 cMode, cDD;
 
         const char* SettingsFile = "settings.cfg";
         const char* SettingsVersion = "Vid::Settings3";
@@ -148,6 +149,7 @@ namespace Vid
             //      return !doStatus.modeOverRide;
             return TRUE;
         }
+
         //-----------------------------------------------------------------------------
 
         void Save(FScope* fScope) // = NULL
@@ -211,6 +213,7 @@ namespace Vid
                 LOG_DIAG(("Unable to write video settings file '%s'", SettingsFile));
             }
         }
+
         //-----------------------------------------------------------------------------
 
         void SetupTex()
@@ -279,6 +282,7 @@ namespace Vid
 
             Var::Dialog::inDialog = FALSE;
         }
+
         //-----------------------------------------------------------------------------
 
         void SetupFinal()
@@ -289,7 +293,7 @@ namespace Vid
             {
                 // No noticeable speed difference if disabled
                 Var::varMovie = TRUE; //CurDD().totalTexMem >= 1024 * 1024 * 8 ? TRUE : FALSE;
-        //        Var::varMirror    = *Var::perfVideo >= 2 && *Var::perfProcessor >= 1;
+                //        Var::varMirror    = *Var::perfVideo >= 2 && *Var::perfProcessor >= 1;
                 Var::varMirror = FALSE;
                 //        Var::varHardTL    = CurDD().hardTL;
                 Var::varHardTL = FALSE;
@@ -316,8 +320,8 @@ namespace Vid
             }
 
             Var::Dialog::inDialog = FALSE;
-
         }
+
         //-----------------------------------------------------------------------------
     }
 };

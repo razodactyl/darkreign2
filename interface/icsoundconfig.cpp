@@ -102,53 +102,76 @@ void ICSoundConfig::Notify(IFaceVar* var)
     {
         Sound::Digital::SetVolume(digitalVolume->GetFloatValue());
     }
+    else if (var == reservedVolume)
+    {
+        Sound::Digital::Reserved::SetVolume(reservedVolume->GetFloatValue());
+    }
+    else if (var == redbookVolume)
+    {
+        Sound::Vorbis::SetVolume(redbookVolume->GetFloatValue());
+        Sound::Redbook::SetVolume(redbookVolume->GetFloatValue());
+    }
     else
-
-        if (var == reservedVolume)
+    {
+        if (var == redbookEnabled)
         {
-            Sound::Digital::Reserved::SetVolume(reservedVolume->GetFloatValue());
-        }
-        else
-
-            if (var == redbookVolume)
+            // Are we turning audio on
+            if (redbookEnabled->GetIntegerValue())
             {
-                Sound::Redbook::SetVolume(redbookVolume->GetFloatValue());
-            }
-            else
+                // Set the enabled status
+                Sound::Redbook::SetEnabled(TRUE);
+                Sound::Vorbis::SetEnabled(TRUE);
 
-                if (var == redbookEnabled)
+                if (File::Exists("music"))
                 {
-                    // Are we turning audio on
-                    if (redbookEnabled->GetIntegerValue())
+                    if (!Sound::Vorbis::Claimed())
                     {
-                        // Set the enabled status
-                        Sound::Redbook::SetEnabled(TRUE);
-
-                        // Ignore if already claimed
-                        if (!Sound::Redbook::Claimed())
+                        // Attempt to claim
+                        if (Sound::Vorbis::Claim())
                         {
-                            // Attempt to claim
-                            if (Sound::Redbook::Claim())
-                            {
-                                // Grab the volume from the driver
-                                redbookVolume->SetFloatValue(Sound::Redbook::Volume());
-
-                                // Start a random track
-                                Sound::Redbook::Play(Random::nonSync.Integer(Sound::Redbook::TrackCount()));
-                            }
-                            else
-                            {
-                                // Automatically pop the button up
-                                redbookEnabled->SetIntegerValue(FALSE);
-                            }
+                            F32 current_music_volume = redbookVolume->GetFloatValue();
+                            Sound::Vorbis::SetVolume(current_music_volume);
+                            Sound::Vorbis::Play(Random::nonSync.Integer(Sound::Vorbis::TrackCount()));
+                        }
+                        else
+                        {
+                            // Automatically pop the button back up because we couldn't claim.
+                            redbookEnabled->SetIntegerValue(FALSE);
                         }
                     }
-                    else
+                }
+                else
+                {
+                    // Ignore if already claimed
+                    if (!Sound::Redbook::Claimed())
                     {
-                        Sound::Redbook::SetEnabled(FALSE);
-                        Sound::Redbook::Release();
+                        // Attempt to claim
+                        if (Sound::Redbook::Claim())
+                        {
+                            // Grab the volume from the driver
+                            redbookVolume->SetFloatValue(Sound::Redbook::Volume());
+
+                            // Start a random track
+                            Sound::Redbook::Play(Random::nonSync.Integer(Sound::Redbook::TrackCount()));
+                        }
+                        else
+                        {
+                            // Automatically pop the button up
+                            redbookEnabled->SetIntegerValue(FALSE);
+                        }
                     }
                 }
+            }
+            else
+            {
+                Sound::Redbook::SetEnabled(FALSE);
+                Sound::Redbook::Release();
+
+                Sound::Vorbis::SetEnabled(FALSE);
+                Sound::Vorbis::Release();
+            }
+        }
+    }
 }
 
 
@@ -163,56 +186,56 @@ U32 ICSoundConfig::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
-        case IFace::NOTIFY:
-        {
-            switch (e.iface.p1)
+            case IFace::NOTIFY:
             {
-            case 0x0F9DCBFF: // "SoundConfig::Message::Open"
-            {
-                if (providerIndex->GetIntegerValue() > 0)
+                switch (e.iface.p1)
                 {
-                    // Set the new provider preference
-                    Sound::Digital::SetProviderPreference(providerIndex->GetIntegerValue() - 1);
-
-                    // Change the digital 3D provider
-                    if (Sound::Digital::Change3DProvider())
+                    case 0x0F9DCBFF: // "SoundConfig::Message::Open"
                     {
-                        lastError->SetStringValue("Go big n spin!");
-                    }
-                    else
-                    {
-                        lastError->SetStringValue(Sound::LastError());
+                        if (providerIndex->GetIntegerValue() > 0)
+                        {
+                            // Set the new provider preference
+                            Sound::Digital::SetProviderPreference(providerIndex->GetIntegerValue() - 1);
+
+                            // Change the digital 3D provider
+                            if (Sound::Digital::Change3DProvider())
+                            {
+                                lastError->SetStringValue("Go big n spin!");
+                            }
+                            else
+                            {
+                                lastError->SetStringValue(Sound::LastError());
+                            }
+
+                            // Update control state
+                            UpdateState();
+                        }
+
+                        return (TRUE);
                     }
 
-                    // Update control state
-                    UpdateState();
+                    case 0x02D5D57F: // "SoundConfig::Message::Release"
+                    {
+                        // Release the digital 3D provider
+                        Sound::Digital::Change3DProvider(FALSE);
+
+                        // Clear last error
+                        lastError->SetStringValue("");
+
+                        // Update control state
+                        UpdateState();
+
+                        return (TRUE);
+                    }
+
+                    case IControlNotify::Activated:
+                    {
+                        // Update the current state
+                        UpdateState();
+                        break;
+                    }
                 }
-
-                return (TRUE);
             }
-
-            case 0x02D5D57F: // "SoundConfig::Message::Release"
-            {
-                // Release the digital 3D provider
-                Sound::Digital::Change3DProvider(FALSE);
-
-                // Clear last error
-                lastError->SetStringValue("");
-
-                // Update control state
-                UpdateState();
-
-                return (TRUE);
-            }
-
-            case IControlNotify::Activated:
-            {
-                // Update the current state
-                UpdateState();
-                break;
-            }
-            }
-        }
         }
     }
 
@@ -232,7 +255,7 @@ Bool ICSoundConfig::Activate()
         // Get the current volumes
         digitalVolume->SetFloatValue(Sound::Digital::Volume());
         reservedVolume->SetFloatValue(Sound::Digital::Reserved::Volume());
-        redbookVolume->SetFloatValue(Sound::Redbook::Volume());
+        redbookVolume->SetFloatValue(Sound::Vorbis::Volume());
         redbookEnabled->SetIntegerValue(Sound::Redbook::GetEnabled());
 
         providerIndex->Activate();

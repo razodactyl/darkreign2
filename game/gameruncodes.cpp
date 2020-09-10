@@ -42,7 +42,6 @@ namespace GameRunCodes
     //
     namespace Base
     {
-
         //
         // Init
         //
@@ -112,7 +111,6 @@ namespace GameRunCodes
     //
     namespace KeyCheck
     {
-
         //
         // Init
         //
@@ -158,10 +156,10 @@ namespace GameRunCodes
         {
             switch (crc)
             {
-            case 0x2F312211: // "CanLeave"
-            {
-                return (Won::Cmd::IsKeyValid());
-            }
+                case 0x2F312211: // "CanLeave"
+                {
+                    return (Won::Cmd::IsKeyValid());
+                }
             }
             return (0);
         }
@@ -188,12 +186,12 @@ namespace GameRunCodes
             {
                 switch (e.subType)
                 {
-                case Input::KEYDOWN:
-                {
-                    moviePlayer.Stop();
-                    Input::FlushEvents();
-                    break;
-                }
+                    case Input::KEYDOWN:
+                    {
+                        moviePlayer.Stop();
+                        Input::FlushEvents();
+                        break;
+                    }
                 }
             }
             return (TRUE);
@@ -256,7 +254,6 @@ namespace GameRunCodes
                 }
                 else
                 {
-
 #endif
 
                     // Is there already a user loaded
@@ -272,12 +269,10 @@ namespace GameRunCodes
                     }
 
 #ifndef DEVELOPMENT
-
                 }
             }
 
 #endif
-
         }
 
 
@@ -292,7 +287,7 @@ namespace GameRunCodes
             IFace::GameWindow()->ReleaseKeyFocus();
 
             // Clear the event handler
-            IFace::SetGameHandler(NULL);
+            IFace::SetGameHandler(nullptr);
 
             // Stop the movie player
             moviePlayer.Stop();
@@ -354,10 +349,10 @@ namespace GameRunCodes
         {
             switch (crc)
             {
-            case 0x2F312211: // "CanLeave"
-            {
-                return (User::LoggedIn());
-            }
+                case 0x2F312211: // "CanLeave"
+                {
+                    return (User::LoggedIn());
+                }
             }
             return (0);
         }
@@ -487,14 +482,12 @@ namespace GameRunCodes
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Namespace Outro - Displays outro movies etc
     //
     namespace Outro
     {
-
         //
         // Init
         //
@@ -530,5 +523,4 @@ namespace GameRunCodes
             Base::Done();
         }
     }
-
 }

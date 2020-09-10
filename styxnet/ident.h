@@ -28,4 +28,3 @@ typedef StrCrc<IDENT_LEN, CH> IdentCH;
 
 
 #endif
-

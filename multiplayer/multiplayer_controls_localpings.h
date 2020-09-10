@@ -23,38 +23,32 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class LocalPings
+    // NameSpace Controls
     //
-    class LocalPings : public ICStatic
+    namespace Controls
     {
-      PROMOTE_LINK(LocalPings, ICStatic, 0xEF5F1CA7) // "LocalPings"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class LocalPings
+        //
+        class LocalPings : public ICStatic
+        {
+        PROMOTE_LINK(LocalPings, ICStatic, 0xEF5F1CA7) // "LocalPings"
 
-    public:
+        public:
 
-      // Constructor
-      LocalPings(IControl *parent)
-      : ICStatic(parent)
-      { 
-      }
+            // Constructor
+            LocalPings(IControl* parent)
+                : ICStatic(parent)
+            {
+            }
 
-      // Redraw self
-      void DrawSelf(PaintInfo &pi);
-
-
-    };
-
-  }
-
+            // Redraw self
+            void DrawSelf(PaintInfo& pi);
+        };
+    }
 }
 
 

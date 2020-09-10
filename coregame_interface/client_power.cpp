@@ -24,7 +24,6 @@
 
 namespace Client
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Power
@@ -36,10 +35,10 @@ namespace Client
     //
     Power::Power(IControl* parent)
         : IControl(parent),
-        notchValue(100),
-        notchPixelMax(16),
-        notchPixelMin(2),
-        notchWidth(3)
+          notchValue(100),
+          notchPixelMax(16),
+          notchPixelMin(2),
+          notchWidth(3)
     {
     }
 
@@ -59,24 +58,24 @@ namespace Client
     {
         switch (fScope->NameCrc())
         {
-        case 0x9D4C1655: // "NotchValue"
-            notchValue = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
-            break;
+            case 0x9D4C1655: // "NotchValue"
+                notchValue = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
+                break;
 
-        case 0xDE0C1438: // "NotchPixelMax"
-            notchPixelMax = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
-            break;
+            case 0xDE0C1438: // "NotchPixelMax"
+                notchPixelMax = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
+                break;
 
-        case 0x02D3C1A8: // "NotchPixelMin"
-            notchPixelMin = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
-            break;
+            case 0x02D3C1A8: // "NotchPixelMin"
+                notchPixelMin = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
+                break;
 
-        case 0xC0BACAE5: // "NotchWidth"
-            notchWidth = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
-            break;
+            case 0xC0BACAE5: // "NotchWidth"
+                notchWidth = StdLoad::TypeU32(fScope, Range<U32>(1, U32_MAX));
+                break;
 
-        default:
-            IControl::Setup(fScope);
+            default:
+                IControl::Setup(fScope);
         }
     }
 
@@ -111,10 +110,10 @@ namespace Client
 
             // What the available height
             U32 height = pi.client.Height();
-            ASSERT(height > 0)
+            ASSERT(height > 0);
 
-                // How many notches are required to display this max (round up)
-                div_t d = div((int)max, (int)notchValue);
+            // How many notches are required to display this max (round up)
+            div_t d = div(static_cast<int>(max), static_cast<int>(notchValue));
             U32 numNotches = d.quot + (d.rem ? 1 : 0);
 
             // How many pixels can we assign to each notch
@@ -129,43 +128,58 @@ namespace Client
                     notchPixels = mask;
                     break;
                 }
-            } while (mask >>= 1);
+            }
+            while (mask >>= 1);
 
             // We now have the number of pixels per notch, which also gives the ratio of pixels/units
 
             // Draw background
-            IFace::RenderRectangle(
+            IFace::RenderRectangle
+            (
                 pi.client,
                 Color(0.0f, 0.0f, 0.0f),
-                NULL,
-                pi.alphaScale);
+                nullptr,
+                pi.alphaScale
+            );
 
             // Display the available power
-            IFace::RenderRectangle(
-                ClipRect(
+            IFace::RenderRectangle
+            (
+                ClipRect
+                (
                     pi.client.p0.x, pi.client.p1.y - notchPixels * available / notchValue,
-                    pi.client.p1.x, pi.client.p1.y),
+                    pi.client.p1.x, pi.client.p1.y
+                ),
                 power.GetColor(),
-                NULL,
-                pi.alphaScale);
+                nullptr,
+                pi.alphaScale
+            );
 
             // Display the day night difference
-            IFace::RenderRectangle(
-                ClipRect(
+            IFace::RenderRectangle
+            (
+                ClipRect
+                (
                     pi.client.p0.x, pi.client.p1.y - notchPixels * availableDay / notchValue,
-                    pi.client.p1.x, pi.client.p1.y - notchPixels * availableNight / notchValue),
+                    pi.client.p1.x, pi.client.p1.y - notchPixels * availableNight / notchValue
+                ),
                 Color(1.0f, 1.0f, 1.0f, 0.4f),
-                NULL,
-                pi.alphaScale);
+                nullptr,
+                pi.alphaScale
+            );
 
             // Display the current power
-            IFace::RenderRectangle(
-                ClipRect(
+            IFace::RenderRectangle
+            (
+                ClipRect
+                (
                     pi.client.p0.x, pi.client.p1.y - notchPixels * consumed / notchValue,
-                    pi.client.p1.x, pi.client.p1.y - notchPixels * consumed / notchValue + 1),
+                    pi.client.p1.x, pi.client.p1.y - notchPixels * consumed / notchValue + 1
+                ),
                 Color(1.0f, 1.0f, 1.0f),
-                NULL,
-                pi.alphaScale);
+                nullptr,
+                pi.alphaScale
+            );
 
 
             if (notchPixels > notchPixelMin)
@@ -174,29 +188,33 @@ namespace Client
                 S32 y = pi.client.p1.y;
                 while (y >= pi.client.p0.y)
                 {
-                    IFace::RenderRectangle(
-                        ClipRect(
+                    IFace::RenderRectangle
+                    (
+                        ClipRect
+                        (
                             pi.client.p0.x, y,
-                            pi.client.p0.x + notchWidth, y + 1),
+                            pi.client.p0.x + notchWidth, y + 1
+                        ),
                         Color(1.0f, 1.0f, 1.0f),
-                        NULL,
-                        pi.alphaScale);
+                        nullptr,
+                        pi.alphaScale
+                    );
 
-                    IFace::RenderRectangle(
-                        ClipRect(
+                    IFace::RenderRectangle
+                    (
+                        ClipRect
+                        (
                             pi.client.p1.x - notchWidth, y,
-                            pi.client.p1.x, y + 1),
+                            pi.client.p1.x, y + 1
+                        ),
                         Color(1.0f, 1.0f, 1.0f),
-                        NULL,
-                        pi.alphaScale);
+                        nullptr,
+                        pi.alphaScale
+                    );
 
                     y -= notchPixels;
                 }
-
             }
-
         }
-
     }
-
 }

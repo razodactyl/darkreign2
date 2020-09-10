@@ -58,7 +58,9 @@ struct ICListBox::Rebuild
 
 
     // Constructor
-    Rebuild() : flags(0) {}
+    Rebuild() : flags(0)
+    {
+    }
 };
 
 
@@ -75,14 +77,14 @@ struct ICListBox::ListContainer : public IControl
         SetName("[Container]");
     }
 
-    void DrawChildren(PaintInfo& pi)
+    void DrawChildren(PaintInfo& pi) override
     {
         const U32 DISPLAY_MASK = STATE_ACTIVE | STATE_VISIBLE;
 
         NList<IControl>::Iterator i(&children);
 
         // Draw children from lowest Z-pos to highest
-        for (i.GoToTail(); *i; i--)
+        for (i.GoToTail(); *i; --i)
         {
             IControl* child = *i;
 
@@ -129,16 +131,16 @@ const char* SliderCtrlName = "[ListSlider]";
 //
 ICListBox::ICListBox(IControl* parent)
     : IControl(parent),
-    listBoxStyle(0),
-    selectedVar(NULL),
-    indexVar(NULL),
-    slider(NULL),
-    itemConfig(NULL),
-    sliderCfg(NULL),
-    desiredTop(-1),
-    reposition(FALSE),
-    cellPad(2),
-    updateVar(FALSE)
+      listBoxStyle(0),
+      itemConfig(nullptr),
+      sliderCfg(nullptr),
+      selectedVar(nullptr),
+      indexVar(nullptr),
+      desiredTop(-1),
+      cellPad(2),
+      slider(nullptr),
+      reposition(FALSE),
+      updateVar(FALSE)
 {
     // Default color
     SetColorGroup(IFace::data.cgClient);
@@ -183,31 +185,31 @@ ICListBox::~ICListBox()
     if (itemConfig)
     {
         delete itemConfig;
-        itemConfig = NULL;
+        itemConfig = nullptr;
     }
 
     // Dispose of slider name
     if (slider)
     {
         delete slider;
-        slider = NULL;
+        slider = nullptr;
     }
 
     // Dispose of vars
     if (selectedVar)
     {
         delete selectedVar;
-        selectedVar = NULL;
+        selectedVar = nullptr;
     }
     if (indexVar)
     {
         delete indexVar;
-        indexVar = NULL;
+        indexVar = nullptr;
     }
     if (topVar)
     {
         delete topVar;
-        topVar = NULL;
+        topVar = nullptr;
     }
 }
 
@@ -258,11 +260,11 @@ void ICListBox::Sort(Bool useDesc)
 {
     if (container->children.GetCount())
     {
-        IControl** array = new IControl * [container->children.GetCount()];
+        IControl** array = new IControl*[container->children.GetCount()];
 
         U32 n = 0;
 
-        for (NList<IControl>::Iterator li(&container->children); *li; li++, n++)
+        for (NList<IControl>::Iterator li(&container->children); *li; ++li, n++)
         {
             array[n] = *li;
         }
@@ -270,7 +272,7 @@ void ICListBox::Sort(Bool useDesc)
 
         qsort
         (
-            (void*)array, (size_t)n, sizeof(IControl*),
+            static_cast<void*>(array), static_cast<size_t>(n), sizeof(IControl*),
             useDesc ? CompareControlsDescription : CompareControls
         );
 
@@ -279,7 +281,7 @@ void ICListBox::Sort(Bool useDesc)
             container->children.Append(array[j]);
         }
 
-        delete[] array;
+        delete [] array;
     }
 }
 
@@ -311,12 +313,12 @@ ICListBox::Rebuild* ICListBox::PreRebuild()
 //
 // PostRebuild
 //
-void ICListBox::PostRebuild(ICListBox::Rebuild** rebuild)
+void ICListBox::PostRebuild(Rebuild** rebuild)
 {
-    ASSERT(rebuild)
-        ASSERT(*rebuild)
+    ASSERT(rebuild);
+    ASSERT(*rebuild);
 
-        Rebuild* r = *rebuild;
+    Rebuild* r = *rebuild;
 
     UpdateRange();
 
@@ -334,7 +336,7 @@ void ICListBox::PostRebuild(ICListBox::Rebuild** rebuild)
     }
 
     delete r;
-    r = NULL;
+    r = nullptr;
 }
 
 
@@ -404,18 +406,18 @@ void ICListBox::UpdateRange(Bool clear)
 //
 Bool ICListBox::SetupCellSize()
 {
-    ASSERT(IsActive())
+    ASSERT(IsActive());
 
 #ifdef LOGGING
-        Clock::CycleWatch t;
-    t.Start();
+  Clock::CycleWatch t;
+  t.Start();
 #endif
 
     S32 idx = 0;
     S32 visible = 0;
     NList<IControl>::Iterator i(&container->children);
 
-    for (; idx < top; idx++, i++)
+    for (; idx < top; idx++, ++i)
     {
         if (*i)
         {
@@ -458,27 +460,26 @@ Bool ICListBox::SetupCellSize()
 
 
         idx++;
-        i++;
+        ++i;
         visible++;
         y += h;
     }
 
     vis = visible;
 
-    for (; *i; i++)
+    for (; *i; ++i)
     {
         (*i)->MoveTo(Point<S32>(0, paintInfo.client.Height()));
         (*i)->SetVisible(FALSE);
     }
 
 #ifdef LOGGING
-    t.Stop();
-    LOG_IFACE(("SetupCellSize [%s] %d cycles", Name(), U32(t.GetTotal())))
+  t.Stop();
+  LOG_IFACE(("SetupCellSize [%s] %d cycles", Name(), U32(t.GetTotal())))
 #endif
 
-        return (TRUE);
+    return (TRUE);
 }
-
 
 
 //
@@ -488,12 +489,12 @@ Bool ICListBox::SetupCellSize()
 //
 Bool ICListBox::Select(IControl* item, Bool toggle, Bool clear, Bool notify)
 {
-    ASSERT(item)
+    ASSERT(item);
 
-        if (item == NULL)
-        {
-            return (FALSE);
-        }
+    if (item == nullptr)
+    {
+        return (FALSE);
+    }
 
     // Ignore if there is no selection
     if (listBoxStyle & STYLE_NOSELECTION)
@@ -571,13 +572,13 @@ Bool ICListBox::Select(IControl* item, Bool toggle, Bool clear, Bool notify)
 
     // Update selected flags - FIXME: less than optimal
     {
-        for (NList<IControl>::Iterator i(&container->children); *i; i++)
+        for (NList<IControl>::Iterator i(&container->children); *i; ++i)
         {
             (*i)->controlState &= ~STATE_SELECTED;
         }
     }
     {
-        for (SelectedList::Iterator i(&selectedList); *i; i++)
+        for (SelectedList::Iterator i(&selectedList); *i; ++i)
         {
             (**i)->controlState |= STATE_SELECTED;
         }
@@ -599,7 +600,11 @@ Bool ICListBox::Select(IControl* item, Bool toggle, Bool clear, Bool notify)
     {
         if (selectedList.GetCount())
         {
-            SendNotify(this, ICListBoxNotify::ChangeSelection, TRUE, item->NameCrc(), item->controlState & STATE_SELECTED);
+            SendNotify
+            (
+                this, ICListBoxNotify::ChangeSelection, TRUE, item->NameCrc(),
+                item->controlState & STATE_SELECTED
+            );
         }
         else
         {
@@ -618,8 +623,8 @@ Bool ICListBox::Select(IControl* item, Bool toggle, Bool clear, Bool notify)
 //
 U32 ICListBox::ItemCount()
 {
-    ASSERT(container)
-        return (container->children.GetCount());
+    ASSERT(container);
+    return (container->children.GetCount());
 }
 
 
@@ -629,8 +634,8 @@ U32 ICListBox::ItemCount()
 // Get the list of items
 const NList<IControl>& ICListBox::GetItems()
 {
-    ASSERT(container)
-        return (container->children);
+    ASSERT(container);
+    return (container->children);
 }
 
 
@@ -644,7 +649,7 @@ Bool ICListBox::ClearSelected(Bool notify)
     // Clear current list
     selectedList.PurgeDead();
 
-    for (SelectedList::Iterator i(&selectedList); *i; i++)
+    for (SelectedList::Iterator i(&selectedList); *i; ++i)
     {
         (**i)->controlState &= ~STATE_SELECTED;
     }
@@ -674,11 +679,11 @@ Bool ICListBox::ClearSelected(Bool notify)
 //
 // Enumerate list of selected items
 //
-void ICListBox::EnumSelected(Bool(*proc)(IControl*, U32), U32 context)
+void ICListBox::EnumSelected(Bool (*proc)(IControl*, U32), U32 context)
 {
     selectedList.PurgeDead();
 
-    for (SelectedList::Iterator i(&selectedList); *i; i++)
+    for (SelectedList::Iterator i(&selectedList); *i; ++i)
     {
         if (!proc(**i, context))
         {
@@ -695,7 +700,7 @@ void ICListBox::EnumSelected(void (*proc)(const char* key, const CH* display, vo
 {
     selectedList.PurgeDead();
 
-    for (SelectedList::Iterator i(&selectedList); *i; i++)
+    for (SelectedList::Iterator i(&selectedList); *i; ++i)
     {
         proc((**i)->Name(), (**i)->GetTextString(), context);
     }
@@ -707,7 +712,7 @@ void ICListBox::EnumSelected(void (*proc)(const char* key, const CH* display, vo
 //
 void ICListBox::EnumNonSelected(void (*proc)(const char* key, const CH* display, void* context), void* context)
 {
-    for (NList<IControl>::Iterator i(&container->children); *i; i++)
+    for (NList<IControl>::Iterator i(&container->children); *i; ++i)
     {
         if (!((*i)->controlState & STATE_SELECTED))
         {
@@ -722,7 +727,7 @@ void ICListBox::EnumNonSelected(void (*proc)(const char* key, const CH* display,
 //
 // Return the key of the selected item
 //
-Bool ICListBox::GetSelectedItem(const char*& s)
+Bool ICListBox::GetSelectedItem(const char* & s)
 {
     selectedList.PurgeDead();
 
@@ -731,11 +736,8 @@ Bool ICListBox::GetSelectedItem(const char*& s)
         s = selectedList.GetFirst()->Name();
         return (TRUE);
     }
-    else
-    {
-        s = NULL;
-        return (FALSE);
-    }
+    s = nullptr;
+    return (FALSE);
 }
 
 
@@ -752,10 +754,7 @@ IControl* ICListBox::GetSelectedItem()
     {
         return (selectedList.GetFirst());
     }
-    else
-    {
-        return (NULL);
-    }
+    return (nullptr);
 }
 
 
@@ -771,7 +770,7 @@ U32 ICListBox::GetSelectedIndex()
     if (selectedList.GetCount())
     {
         U32 index = 1;
-        for (NList<IControl>::Iterator i(&container->children); *i; i++)
+        for (NList<IControl>::Iterator i(&container->children); *i; ++i)
         {
             if (*i == selectedList.GetFirst())
             {
@@ -794,7 +793,7 @@ U32 ICListBox::GetSelectedIndex()
 //
 Bool ICListBox::SetSelectedItem(const char* name, Bool force, Bool notify)
 {
-    for (NList<IControl>::Iterator i(&container->children); *i; i++)
+    for (NList<IControl>::Iterator i(&container->children); *i; ++i)
     {
         if (!Utils::Strcmp(name, (*i)->Name()))
         {
@@ -841,7 +840,7 @@ Bool ICListBox::SetSelectedItem(IControl* ctrl, Bool force, Bool notify)
 
     //if (selectedList.GetCount())
     {
-        for (NList<IControl>::Iterator i(&container->children); *i; i++)
+        for (NList<IControl>::Iterator i(&container->children); *i; ++i)
         {
             if (*i == ctrl)
             {
@@ -887,7 +886,8 @@ void ICListBox::AddItem(const char* id, IControl* ctrl, Bool configured)
     }
 
     // If this is the first item in the list, select it
-    if ((container->children.GetCount() == 1) && !(listBoxStyle & (STYLE_MULTISELECT | STYLE_NOSELECTION | STYLE_CANCLEAR)))
+    if ((container->children.GetCount() == 1) && !(listBoxStyle & (STYLE_MULTISELECT | STYLE_NOSELECTION |
+        STYLE_CANCLEAR)))
     {
         Select(ctrl, FALSE, FALSE);
     }
@@ -927,34 +927,34 @@ void ICListBox::RemoveItem(const char* id)
 //
 void ICListBox::RemoveItem(IControl* ctrl)
 {
-    ASSERT(ctrl)
-        ASSERT(ctrl->parent == container)
+    ASSERT(ctrl);
+    ASSERT(ctrl->parent == container);
 
-        // If this ctrl is selected
-        if (selectedList.Exists(ctrl))
+    // If this ctrl is selected
+    if (selectedList.Exists(ctrl))
+    {
+        selectedList.Remove(ctrl);
+        if (!(listBoxStyle & (STYLE_MULTISELECT | STYLE_CANCLEAR)))
         {
-            selectedList.Remove(ctrl);
-            if (!(listBoxStyle & (STYLE_MULTISELECT | STYLE_CANCLEAR)))
+            // Is there a next control ?
+            if (IControl* next = container->children.GetNext(ctrl))
             {
-                // Is there a next control ?
-                if (IControl* next = container->children.GetNext(ctrl))
-                {
-                    Select(next, FALSE, FALSE);
-                }
-                else if (IControl* prev = container->children.GetPrev(ctrl))
-                {
-                    Select(prev, FALSE, FALSE);
-                }
-                else
-                {
-                    ClearSelected();
-                }
+                Select(next, FALSE, FALSE);
+            }
+            else if (IControl* prev = container->children.GetPrev(ctrl))
+            {
+                Select(prev, FALSE, FALSE);
             }
             else
             {
-                // We should update the var or something here ?
+                ClearSelected();
             }
         }
+        else
+        {
+            // We should update the var or something here ?
+        }
+    }
     ctrl->MarkForDeletion();
     ForceReposition();
 }
@@ -993,9 +993,9 @@ void ICListBox::AddTextItem(const char* id, const CH* display, const Color* text
 
         if (listBoxStyle & STYLE_WRAP)
         {
-            ASSERT(paintInfo.client.Width() > 3)
+            ASSERT(paintInfo.client.Width() > 3);
 
-                U32 length;
+            U32 length;
             const CH* next = IFace::BreakText(ptr, ctrl->GetPaintInfo().font, paintInfo.client.Width() - 3, length);
             ctrl->SetTextString(Utils::Strndup(ptr, length), FALSE, TRUE);
             ptr = next;
@@ -1004,7 +1004,7 @@ void ICListBox::AddTextItem(const char* id, const CH* display, const Color* text
         {
             // Setup
             ctrl->SetTextString(ptr, TRUE);
-            ptr = NULL;
+            ptr = nullptr;
         }
 
         ctrl->SetTextJustify(JUSTIFY_LEFT);
@@ -1020,7 +1020,8 @@ void ICListBox::AddTextItem(const char* id, const CH* display, const Color* text
 
         // Add it the the end of the listbox
         AddItem(id, ctrl, TRUE);
-    } while (ptr);
+    }
+    while (ptr);
 }
 
 
@@ -1048,12 +1049,12 @@ ClipRect ICListBox::GetAdjustmentRect()
 {
     ClipRect r(0, 0, 0, 0);
 
-    if (skin == NULL)
+    if (skin == nullptr)
     {
         // Adjust geometry to compensate for slider
         if (listBoxStyle & STYLE_VSLIDER)
         {
-            r.Set(0, 0, -(IFace::GetMetric(IFace::SLIDER_WIDTH) + 0), 0);
+            r.Set(0, 0, -(GetMetric(IFace::SLIDER_WIDTH) + 0), 0);
         }
     }
 
@@ -1074,7 +1075,7 @@ void ICListBox::PostConfigure()
     // Create slider if needed
     if (listBoxStyle & STYLE_VSLIDER)
     {
-        ICListSlider* sliderCtrl = NULL;
+        ICListSlider* sliderCtrl = nullptr;
 
         if (sliderCfg)
         {
@@ -1084,7 +1085,7 @@ void ICListBox::PostConfigure()
             {
                 sliderCtrl = IFace::Promote<ICListSlider>(ctrl);
             }
-            if (sliderCtrl == NULL)
+            if (sliderCtrl == nullptr)
             {
                 ERR_FATAL(("Error creating list slider for [%s]", Name()))
             }
@@ -1095,7 +1096,7 @@ void ICListBox::PostConfigure()
             sliderCtrl = new ICListSlider(this);
             sliderCtrl->SetName(SliderCtrlName);
             sliderCtrl->SetGeometry("WinParentHeight", "WinRight", "WinTop", NULL);
-            sliderCtrl->SetSize(IFace::GetMetric(IFace::SLIDER_WIDTH), 0);
+            sliderCtrl->SetSize(GetMetric(IFace::SLIDER_WIDTH), 0);
             sliderCtrl->SetOrientation("Vertical");
         }
 
@@ -1107,7 +1108,7 @@ void ICListBox::PostConfigure()
     {
         ICListSlider* sliderCtrl = IFace::Find<ICListSlider>(slider, this);
 
-        if (sliderCtrl == NULL)
+        if (sliderCtrl == nullptr)
         {
             ERR_FATAL(("Slider [%s] not found", slider));
         }
@@ -1128,11 +1129,11 @@ Bool ICListBox::Activate()
     {
         LOG_LIST(("[%s] activate", Name()))
 
-            if (!(listBoxStyle & (STYLE_NOAUTOREBUILD)))
-            {
-                // Generate a list rebuild message
-                SendNotify(this, ICListBoxMsg::Rebuild, FALSE);
-            }
+        if (!(listBoxStyle & (STYLE_NOAUTOREBUILD)))
+        {
+            // Generate a list rebuild message
+            SendNotify(this, ICListBoxMsg::Rebuild, FALSE);
+        }
 
         // Activate vars
         ActivateVar(topVar);
@@ -1207,14 +1208,15 @@ Bool ICListBox::Activate()
         // Force reposition on next redraw
         ForceReposition();
 
-        LOG_LIST(("[%s] Activated, #selected=%d, index=%d, sel='%s'", Name(), selectedList.GetCount(), indexVar ? indexVar->GetIntegerValue() : -1, selectedVar ? selectedVar->GetStringValue() : ""))
+        LOG_LIST
+        (
+            ("[%s] Activated, #selected=%d, index=%d, sel='%s'", Name(), selectedList.GetCount(), indexVar ? indexVar->
+                GetIntegerValue() : -1, selectedVar ? selectedVar->GetStringValue() : "")
+        )
 
-            return (TRUE);
+        return (TRUE);
     }
-    else
-    {
-        return (FALSE);
-    }
+    return (FALSE);
 }
 
 
@@ -1236,10 +1238,7 @@ Bool ICListBox::Deactivate()
 
         return (TRUE);
     }
-    else
-    {
-        return (FALSE);
-    }
+    return (FALSE);
 }
 
 
@@ -1252,135 +1251,135 @@ void ICListBox::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x742EA048: // "UseVar"
-    {
-        ConfigureVar(selectedVar, fScope);
-        break;
-    }
-
-    case 0xF379ABC4: // "IndexVar"
-    {
-        ConfigureVar(indexVar, fScope);
-        break;
-    }
-
-    case 0x8DFC9692: // "UseSlider"
-    {
-        // Ensure slider has not already been setup
-        if (slider)
+        case 0x742EA048: // "UseVar"
         {
-            delete slider;
-        }
-
-        // Dup the slider string
-        slider = Utils::Strdup(fScope->NextArgString());
-
-        break;
-    }
-
-    case 0xF4E44C64: // "ItemConfig"
-    {
-        // If we don't already have a config
-        if (!itemConfig)
-        {
-            // Copy this one
-            itemConfig = fScope->Dup();
-        }
-        break;
-    }
-
-    case 0x83AB76D4: // "SliderConfig"
-    {
-        sliderCfg = IFace::FindRegData(fScope->NextArgString());
-        break;
-    }
-
-    case 0x52AC1340: // "CellPadding"
-    {
-        cellPad = fScope->NextArgInteger();
-        break;
-    }
-
-    case 0x2E5E6E1D: // "AddTextItem"
-    {
-        const char* id = fScope->NextArgString();
-        const CH* str = NULL;
-
-        // Optional text string
-        VNode* vNode = fScope->NextArgument(VNode::AT_STRING, FALSE);
-        if (vNode)
-        {
-            str = TRANSLATE((vNode->GetString()));
-        }
-
-        // Optional text color override
-        FScope* sScope;
-
-        if ((sScope = fScope->GetFunction("Color", FALSE)) != NULL)
-        {
-            Color c;
-
-            StdLoad::TypeColor(sScope, c);
-            AddTextItem(id, str, &c);
-        }
-        else
-        {
-            AddTextItem(id, str);
-        }
-        return;
-    }
-
-    case 0x9F1D54D0: // "Add"
-    {
-        IControl* ctrl = IFace::CreateControl(fScope, container);
-
-        if (ctrl == NULL)
-        {
-            LOG_ERR(("Error creating control [%s]", ctrl->Name()));
-        }
-        else
-        {
-            AddItem(ctrl->Name(), ctrl);
-        }
-        break;
-    }
-
-    case 0x1237D9DA: // "SetSelected"
-    {
-        VNode* vNode = fScope->NextArgument();
-
-        switch (vNode->aType)
-        {
-        case VNode::AT_STRING:
-        {
-            SetSelectedItem(vNode->GetString());
+            ConfigureVar(selectedVar, fScope);
             break;
         }
 
-        case VNode::AT_INTEGER:
+        case 0xF379ABC4: // "IndexVar"
         {
-            IControl* ctrl = container->children[vNode->GetInteger()];
+            ConfigureVar(indexVar, fScope);
+            break;
+        }
 
-            if (ctrl)
+        case 0x8DFC9692: // "UseSlider"
+        {
+            // Ensure slider has not already been setup
+            if (slider)
             {
-                Select(ctrl, FALSE, TRUE);
+                delete slider;
+            }
+
+            // Dup the slider string
+            slider = Utils::Strdup(fScope->NextArgString());
+
+            break;
+        }
+
+        case 0xF4E44C64: // "ItemConfig"
+        {
+            // If we don't already have a config
+            if (!itemConfig)
+            {
+                // Copy this one
+                itemConfig = fScope->Dup();
+            }
+            break;
+        }
+
+        case 0x83AB76D4: // "SliderConfig"
+        {
+            sliderCfg = IFace::FindRegData(fScope->NextArgString());
+            break;
+        }
+
+        case 0x52AC1340: // "CellPadding"
+        {
+            cellPad = fScope->NextArgInteger();
+            break;
+        }
+
+        case 0x2E5E6E1D: // "AddTextItem"
+        {
+            const char* id = fScope->NextArgString();
+            const CH* str = nullptr;
+
+            // Optional text string
+            VNode* vNode = fScope->NextArgument(VNode::AT_STRING, FALSE);
+            if (vNode)
+            {
+                str = TRANSLATE((vNode->GetString()));
+            }
+
+            // Optional text color override
+            FScope* sScope;
+
+            if ((sScope = fScope->GetFunction("Color", FALSE)) != nullptr)
+            {
+                Color c;
+
+                StdLoad::TypeColor(sScope, c);
+                AddTextItem(id, str, &c);
+            }
+            else
+            {
+                AddTextItem(id, str);
+            }
+            return;
+        }
+
+        case 0x9F1D54D0: // "Add"
+        {
+            IControl* ctrl = IFace::CreateControl(fScope, container);
+
+            if (ctrl == nullptr)
+            {
+                LOG_ERR(("Error creating control [%s]", ctrl->Name()));
+            }
+            else
+            {
+                AddItem(ctrl->Name(), ctrl);
+            }
+            break;
+        }
+
+        case 0x1237D9DA: // "SetSelected"
+        {
+            VNode* vNode = fScope->NextArgument();
+
+            switch (vNode->aType)
+            {
+                case VNode::AT_STRING:
+                {
+                    SetSelectedItem(vNode->GetString());
+                    break;
+                }
+
+                case VNode::AT_INTEGER:
+                {
+                    IControl* ctrl = container->children[vNode->GetInteger()];
+
+                    if (ctrl)
+                    {
+                        Select(ctrl, FALSE, TRUE);
+                    }
+                    break;
+                }
+
+                default:
+                    fScope->ScopeError("SetSelected: Expected a String or an Integer");
+                    break;
             }
             break;
         }
 
         default:
-            fScope->ScopeError("SetSelected: Expected a String or an Integer");
+        {
+            // Pass it to the previous level in the hierarchy
+            IControl::Setup(fScope);
             break;
         }
-        break;
-    }
-
-    default:
-    {
-        // Pass it to the previous level in the hierarchy
-        IControl::Setup(fScope);
-        break;
-    }
     }
 }
 
@@ -1398,16 +1397,14 @@ void ICListBox::Notify(IFaceVar* var)
         {
             SetSelectedItem(indexVar->GetIntegerValue());
         }
-        else
-            if (selectedVar && selectedVar == var)
-            {
-                SetSelectedItem(selectedVar->GetStringValue());
-            }
-            else
-                if (topVar == var)
-                {
-                    ForceReposition();
-                }
+        else if (selectedVar && selectedVar == var)
+        {
+            SetSelectedItem(selectedVar->GetStringValue());
+        }
+        else if (topVar == var)
+        {
+            ForceReposition();
+        }
     }
     else
     {
@@ -1433,7 +1430,7 @@ U32 ICListBox::HandleEvent(Event& e)
         // Filter out references to self
         if (child == container)
         {
-            child = NULL;
+            child = nullptr;
         }
 
         // If this control isn't in the container, try to go up until we hit the container
@@ -1445,32 +1442,30 @@ U32 ICListBox::HandleEvent(Event& e)
         // Otherwise process it internally
         switch (e.subType)
         {
-        case Input::MOUSEBUTTONDOWN:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDOWN:
             {
-                // If left button is pressed on a child select it
-                if (child)
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    Bool toggle = listBoxStyle & STYLE_MULTISELECT
-                        ? TRUE
-                        : FALSE;
-
-                    // Play click sound
-                    IFace::Sound::Play(soundClick, this);
-
-                    if (!(listBoxStyle & STYLE_NOSELECTIONINPUT))
+                    // If left button is pressed on a child select it
+                    if (child)
                     {
-                        // Select the item
-                        Select(child, toggle, !toggle);
+                        Bool toggle = listBoxStyle & STYLE_MULTISELECT
+                                          ? TRUE
+                                          : FALSE;
+
+                        // Play click sound
+                        IFace::Sound::Play(soundClick, this);
+
+                        if (!(listBoxStyle & STYLE_NOSELECTIONINPUT))
+                        {
+                            // Select the item
+                            Select(child, toggle, !toggle);
+                        }
                     }
+
+                    // Handled
+                    return (TRUE);
                 }
-
-                // Handled
-                return (TRUE);
-            }
-            else
-
                 if (e.input.code == Input::RightButtonCode())
                 {
                     if (!(listBoxStyle & STYLE_NOSELECTIONINPUT))
@@ -1486,71 +1481,76 @@ U32 ICListBox::HandleEvent(Event& e)
                     return (TRUE);
                 }
 
-            // Not handled
-            break;
-        }
+                // Not handled
+                break;
+            }
 
-        case Input::MOUSEBUTTONDBLCLK:
-        {
-            if (e.input.code == Input::LeftButtonCode())
+            case Input::MOUSEBUTTONDBLCLK:
             {
-                // If left button is double clicked on a child then select it
-                if (child)
+                if (e.input.code == Input::LeftButtonCode())
                 {
-                    if (!(listBoxStyle & STYLE_NOSELECTIONINPUT))
+                    // If left button is double clicked on a child then select it
+                    if (child)
                     {
-                        // and notify the parent of a double click event
-                        if (Select(child))
+                        if (!(listBoxStyle & STYLE_NOSELECTIONINPUT))
                         {
-                            if (!(listBoxStyle & STYLE_MULTISELECT))
+                            // and notify the parent of a double click event
+                            if (Select(child))
                             {
-                                // Play click sound
-                                IFace::Sound::Play(soundClick, this);
+                                if (!(listBoxStyle & STYLE_MULTISELECT))
+                                {
+                                    // Play click sound
+                                    IFace::Sound::Play(soundClick, this);
 
-                                // Generate a double click notification
-                                SendNotify(this, ICListBoxNotify::DoubleClick);
+                                    // Generate a double click notification
+                                    SendNotify(this, ICListBoxNotify::DoubleClick);
+                                }
+
+                                // Handled
+                                return (TRUE);
                             }
-
-                            // Handled
-                            return (TRUE);
                         }
                     }
                 }
+
+                // Not handled
+                break;
             }
 
-            // Not handled
-            break;
-        }
-
-        case Input::MOUSEAXIS:
-        {
-            S16 amount = S16(e.input.ch / -120);
-
-            // Generate scroll event
-            SendNotify(this, ICListBoxMsg::ScrollLine, FALSE, amount);
-
-            // Handled
-            return (TRUE);
-        }
-
-        case Input::KEYDOWN:
-        {
-            switch (e.input.code)
+            case Input::MOUSEAXIS:
             {
-            case DIK_RETURN:
+                S16 amount = S16(e.input.ch / -120);
+
+                // Generate scroll event
+                SendNotify(this, ICListBoxMsg::ScrollLine, FALSE, amount);
+
+                // Handled
+                return (TRUE);
+            }
+
+            case Input::KEYDOWN:
             {
-                if (!(listBoxStyle & STYLE_NOSELECTIONINPUT))
+                switch (e.input.code)
                 {
-                    // and notify the parent of a double click event
-                    if (!(listBoxStyle & STYLE_MULTISELECT))
+                    case DIK_RETURN:
                     {
-                        if (selectedList.GetCount() == 1)
+                        if (!(listBoxStyle & STYLE_NOSELECTIONINPUT))
                         {
-                            // Play click sound
-                            IFace::Sound::Play(soundClick, this);
+                            // and notify the parent of a double click event
+                            if (!(listBoxStyle & STYLE_MULTISELECT))
+                            {
+                                if (selectedList.GetCount() == 1)
+                                {
+                                    // Play click sound
+                                    IFace::Sound::Play(soundClick, this);
 
-                            // Generate a double click notification
-                            SendNotify(this, ICListBoxNotify::DoubleClick);
+                                    // Generate a double click notification
+                                    SendNotify(this, ICListBoxNotify::DoubleClick);
+                                }
+
+                                // Handled
+                                return (TRUE);
+                            }
                         }
 
                         // Handled
@@ -1558,158 +1558,151 @@ U32 ICListBox::HandleEvent(Event& e)
                     }
                 }
 
-                // Handled
-                return (TRUE);
+                // Not handled
+                break;
             }
-            }
-
-            // Not handled
-            break;
-        }
         }
     }
-    else
-
-        if (e.type == IFace::EventID())
+    else if (e.type == IFace::EventID())
+    {
+        switch (e.subType)
         {
-            switch (e.subType)
-            {
             case IFace::NOTIFY:
             {
                 // Do specific handling
                 switch (e.iface.p1)
                 {
-                case ICListBoxMsg::ClearSelection:
-                {
-                    if (listBoxStyle & STYLE_CANCLEAR)
+                    case ICListBoxMsg::ClearSelection:
                     {
-                        ClearSelected();
-                    }
-
-                    // Handled
-                    return (TRUE);
-                }
-
-                case ICListBoxMsg::DeleteAll:
-                {
-                    // Delete all items in the list
-                    DeleteAllItems();
-
-                    // Handled
-                    return (TRUE);
-                }
-
-                case ICListBoxMsg::SetSelected:
-                {
-                    // Set a selected item
-                    for (NList<IControl>::Iterator i(&container->children); *i; i++)
-                    {
-                        if (e.iface.p2 == (*i)->NameCrc())
+                        if (listBoxStyle & STYLE_CANCLEAR)
                         {
-                            Bool toggle = listBoxStyle & STYLE_MULTISELECT ? TRUE : FALSE;
-                            Select(*i, toggle, !toggle);
-                            break;
+                            ClearSelected();
                         }
+
+                        // Handled
+                        return (TRUE);
                     }
 
-                    // Handled
-                    return (TRUE);
-                }
-
-                case ICListBoxMsg::ScrollLine:
-                {
-                    // Scroll by n lines
-                    S32 n = S32(e.iface.p2);
-                    top = top + n;
-
-                    // Handled
-                    return (TRUE);
-                }
-
-                case ICListBoxMsg::ScrollPage:
-                {
-                    // Scroll by n pages
-                    if (vis > 1)
+                    case ICListBoxMsg::DeleteAll:
                     {
-                        S32 n = S32(e.iface.p2) * vis;
-                        top = top + ((n > 1) ? n - 1 : ((n < 1) ? n + 1 : n));
+                        // Delete all items in the list
+                        DeleteAllItems();
+
+                        // Handled
+                        return (TRUE);
                     }
 
-                    // Handled
-                    return (TRUE);
-                }
-
-                case ICListBoxMsg::MoveUp:
-                {
-                    // Take the selected item and move it up one place
-                    IControl* selected = GetSelectedItem();
-                    if (selected)
+                    case ICListBoxMsg::SetSelected:
                     {
-                        IControl* prev = container->children.GetPrev(selected);
-
-                        if (prev)
+                        // Set a selected item
+                        for (NList<IControl>::Iterator i(&container->children); *i; ++i)
                         {
-                            container->children.Unlink(selected);
-                            container->children.InsertBefore(&container->children.GetNode(*prev), selected);
-
-                            SetupCellSize();
-                            UpdateRange(FALSE);
+                            if (e.iface.p2 == (*i)->NameCrc())
+                            {
+                                Bool toggle = listBoxStyle & STYLE_MULTISELECT ? TRUE : FALSE;
+                                Select(*i, toggle, !toggle);
+                                break;
+                            }
                         }
+
+                        // Handled
+                        return (TRUE);
                     }
 
-                    // Handled
-                    return (TRUE);
-                }
-
-                case ICListBoxMsg::MoveDown:
-                {
-                    // Take the selected item and move it down one place
-                    IControl* selected = GetSelectedItem();
-                    if (selected)
+                    case ICListBoxMsg::ScrollLine:
                     {
-                        IControl* next = container->children.GetNext(selected);
+                        // Scroll by n lines
+                        S32 n = S32(e.iface.p2);
+                        top = top + n;
 
-                        if (next)
-                        {
-                            container->children.Unlink(selected);
-                            container->children.InsertAfter(&container->children.GetNode(*next), selected);
-
-                            UpdateRange(FALSE);
-                            SetupCellSize();
-                        }
+                        // Handled
+                        return (TRUE);
                     }
 
-                    // Handled
-                    return (TRUE);
-                }
+                    case ICListBoxMsg::ScrollPage:
+                    {
+                        // Scroll by n pages
+                        if (vis > 1)
+                        {
+                            S32 n = S32(e.iface.p2) * vis;
+                            top = top + ((n > 1) ? n - 1 : ((n < 1) ? n + 1 : n));
+                        }
 
-                default:
-                {
-                    // Not handled
-                    break;
-                }
+                        // Handled
+                        return (TRUE);
+                    }
+
+                    case ICListBoxMsg::MoveUp:
+                    {
+                        // Take the selected item and move it up one place
+                        IControl* selected = GetSelectedItem();
+                        if (selected)
+                        {
+                            IControl* prev = container->children.GetPrev(selected);
+
+                            if (prev)
+                            {
+                                container->children.Unlink(selected);
+                                container->children.InsertBefore(&container->children.GetNode(*prev), selected);
+
+                                SetupCellSize();
+                                UpdateRange(FALSE);
+                            }
+                        }
+
+                        // Handled
+                        return (TRUE);
+                    }
+
+                    case ICListBoxMsg::MoveDown:
+                    {
+                        // Take the selected item and move it down one place
+                        IControl* selected = GetSelectedItem();
+                        if (selected)
+                        {
+                            IControl* next = container->children.GetNext(selected);
+
+                            if (next)
+                            {
+                                container->children.Unlink(selected);
+                                container->children.InsertAfter(&container->children.GetNode(*next), selected);
+
+                                UpdateRange(FALSE);
+                                SetupCellSize();
+                            }
+                        }
+
+                        // Handled
+                        return (TRUE);
+                    }
+
+                    default:
+                    {
+                        // Not handled
+                        break;
+                    }
                 }
 
                 // Not handled
                 break;
             }
 
-            // Check if we are hooking into this message
+                // Check if we are hooking into this message
             case IFace::HOOKCHECK:
             {
                 switch (e.iface.p1)
                 {
-                case Input::MOUSEBUTTONDOWN:
-                case Input::MOUSEBUTTONDBLCLK:
-                case Input::MOUSEAXIS:
-                    return (TRUE);
+                    case Input::MOUSEBUTTONDOWN:
+                    case Input::MOUSEBUTTONDBLCLK:
+                    case Input::MOUSEAXIS:
+                        return (TRUE);
 
-                default:
-                    return (FALSE);
+                    default:
+                        return (FALSE);
                 }
             }
-            }
         }
+    }
 
     // Allow IControl class to process this event
     return IControl::HandleEvent(e);
@@ -1727,48 +1720,48 @@ Bool ICListBox::SetStyleItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0x6F942D71: // "VSlider"
-        style = STYLE_VSLIDER;
-        break;
+        case 0x6F942D71: // "VSlider"
+            style = STYLE_VSLIDER;
+            break;
 
-    case 0x7348AC3A: // "NoSelection"
-        style = STYLE_NOSELECTION;
-        break;
+        case 0x7348AC3A: // "NoSelection"
+            style = STYLE_NOSELECTION;
+            break;
 
-    case 0x74DA85D3: // "MultiSelect"
-        style = STYLE_MULTISELECT;
-        break;
+        case 0x74DA85D3: // "MultiSelect"
+            style = STYLE_MULTISELECT;
+            break;
 
-    case 0xC216D0BE: // "CanClear"
-        style = STYLE_CANCLEAR;
-        break;
+        case 0xC216D0BE: // "CanClear"
+            style = STYLE_CANCLEAR;
+            break;
 
-    case 0x6F8E6C70: // "AutoScroll"
-        style = STYLE_AUTOSCROLL;
-        break;
+        case 0x6F8E6C70: // "AutoScroll"
+            style = STYLE_AUTOSCROLL;
+            break;
 
-    case 0x00079F36: // "SmartScroll"
-        style = STYLE_SMARTSCROLL;
-        break;
+        case 0x00079F36: // "SmartScroll"
+            style = STYLE_SMARTSCROLL;
+            break;
 
-    case 0xE8DA81E7: // "Wrap"
-        style = STYLE_WRAP;
-        break;
+        case 0xE8DA81E7: // "Wrap"
+            style = STYLE_WRAP;
+            break;
 
-    case 0xF94FEE72: // "AutoTipText"
-        style = STYLE_AUTOTIPTEXT;
-        break;
+        case 0xF94FEE72: // "AutoTipText"
+            style = STYLE_AUTOTIPTEXT;
+            break;
 
-    case 0xF5037B67: // "NoAutoRebuild"
-        style = STYLE_NOAUTOREBUILD;
-        break;
+        case 0xF5037B67: // "NoAutoRebuild"
+            style = STYLE_NOAUTOREBUILD;
+            break;
 
-    case 0x43E9E615: // "NoSelectionInput"
-        style = STYLE_NOSELECTIONINPUT;
-        break;
+        case 0x43E9E615: // "NoSelectionInput"
+            style = STYLE_NOSELECTIONINPUT;
+            break;
 
-    default:
-        return (IControl::SetStyleItem(s, toggle));
+        default:
+            return (IControl::SetStyleItem(s, toggle));
     }
 
     // Toggle the style
@@ -1776,7 +1769,6 @@ Bool ICListBox::SetStyleItem(const char* s, Bool toggle)
 
     return (TRUE);
 }
-
 
 
 //
@@ -1787,12 +1779,12 @@ ICListBox* ICListBox::FindListBox(const char* path)
     IControl* ctrl = IFace::FindByName(path);
 
     // This currently does not check for correct type
-    if (ctrl && ctrl->DerivedFrom(ICListBox::ClassId()))
+    if (ctrl && ctrl->DerivedFrom(ClassId()))
     {
-        return ((ICListBox*)ctrl);
+        return static_cast<ICListBox*>(ctrl);
     }
 
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -1802,7 +1794,11 @@ ICListBox* ICListBox::FindListBox(const char* path)
 // fill a list box with files matching 'filter' from the folder 'path'
 // returns the number of files added
 //
-U32 ICListBox::FillFromPath(const char* path, const char* filter, Bool doClear, Bool doSubDirs) // = "*.*", = TRUE, = FALSE
+U32 ICListBox::FillFromPath
+(
+    const char* path, const char* filter, Bool doClear,
+    Bool doSubDirs
+) // = "*.*", = TRUE, = FALSE
 {
     Dir::Find find;
 
@@ -1822,9 +1818,10 @@ U32 ICListBox::FillFromPath(const char* path, const char* filter, Bool doClear, 
             // Don't add directories
             if (*find.finddata.name != '.')
             {
-                AddTextItem(find.finddata.name, NULL);
+                AddTextItem(find.finddata.name, nullptr);
             }
-        } while (Dir::FindNext(find));
+        }
+        while (Dir::FindNext(find));
     }
 
     // Finish find operation
@@ -1842,7 +1839,8 @@ U32 ICListBox::FillFromPath(const char* path, const char* filter, Bool doClear, 
 
                 FillFromPath(buffer, filter, FALSE, TRUE);
             }
-        } while (Dir::FindNext(find));
+        }
+        while (Dir::FindNext(find));
 
         // Finish find operation
         Dir::FindClose(find);

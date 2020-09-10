@@ -33,6 +33,7 @@
 // Forward declarations
 //
 class Player;
+
 namespace Strategic
 {
     class Object;
@@ -97,7 +98,6 @@ public:
         // Save and load state
         void SaveState(FScope* scope);
         void LoadState(FScope* scope);
-
     };
 
 private:
@@ -105,12 +105,12 @@ private:
     LOGDEC
 
 
-        //
-        // General
-        //
+    //
+    // General
+    //
 
-        // Team identifier
-        U32 id;
+    // Team identifier
+    U32 id;
 
     // Console identifier
     U32 consoleId;
@@ -130,7 +130,7 @@ private:
     NList<UnitObj> unitObjects;
 
     // Units owned by this team by type
-    BinTree<NList<UnitObj> > unitObjectsByType;
+    BinTree<NList<UnitObj>> unitObjectsByType;
 
     // Number of command points on team
     U32 totalCommandCost;
@@ -439,7 +439,7 @@ public:
     S32 GetUnitLimitBalance();
 
     // Returns TRUE if the unit limit has been reached
-    Bool UnitLimitReached(UnitObjType* type = NULL, UnitObjType* remove = NULL);
+    Bool UnitLimitReached(UnitObjType* type = nullptr, UnitObjType* remove = nullptr);
 
     // Register that a unit has started/stopped construction for this team
     void RegisterConstructionBegin(UnitObj* unit);
@@ -566,7 +566,12 @@ public:
         ASSERT(teamsById[teamId]);
         ASSERT(relation < Relation::MAX);
 
-        return ((relations[teamId] == relation) && Id2Team(teamId)->relations[id] == relation);
+        return
+        (
+            (relations[teamId] == relation)
+            &&
+            Id2Team(teamId)->relations[id] == relation
+        );
     }
 
     // SetRelation
@@ -610,11 +615,8 @@ public:
         {
             return (groupEnemyHuman);
         }
-        else
-        {
-            ASSERT(relation < Relation::MAX);
-            return (group[relation]);
-        }
+        ASSERT(relation < Relation::MAX);
+        return (group[relation]);
     }
 
     // Get the start location
@@ -710,7 +712,7 @@ public:
     // Add the list of filtered types
     void AddFilteredTypes(const UnitObjTypeList& types)
     {
-        for (UnitObjTypeList::Iterator t(&types); *t; t++)
+        for (UnitObjTypeList::Iterator t(&types); *t; ++t)
         {
             if ((*t)->Alive())
             {
@@ -824,7 +826,7 @@ public:
     {
         if (client)
         {
-            for (NBinTree<Team>::Iterator t(&teamsByName); *t; t++)
+            for (NBinTree<Team>::Iterator t(&teamsByName); *t; ++t)
             {
                 (*t)->defaultClient = FALSE;
             }
@@ -983,7 +985,7 @@ public:
     static void ClearDisplayTeam()
     {
         ASSERT(displayTeam);
-        displayTeam = NULL;
+        displayTeam = nullptr;
     }
 
     // Name2Team: Converts a team name into a team pointer
@@ -1021,7 +1023,7 @@ public:
     static U32 NumAvailableTeams()
     {
         U32 num = 0;
-        for (NBinTree<Team>::Iterator t(&teamsByName); *t; t++)
+        for (NBinTree<Team>::Iterator t(&teamsByName); *t; ++t)
         {
             if ((*t)->availablePlay)
             {

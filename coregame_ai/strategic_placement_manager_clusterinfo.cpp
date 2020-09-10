@@ -19,7 +19,6 @@
 //
 namespace Strategic
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // Class Placement::Manager::ClusterInfo
@@ -34,7 +33,7 @@ namespace Strategic
     //
     Placement::Manager::ClusterInfo::ClusterInfo()
         : type(NEVER_EVALUATED),
-        cells(0)
+          cells(0)
     {
     }
 
@@ -46,33 +45,40 @@ namespace Strategic
     {
         switch (type)
         {
-        case NEVER_EVALUATED:
-            break;
+            case NEVER_EVALUATED:
+                break;
 
-        case VIABLE:
-        case UNVIABLE:
-        case NEVER_VIABLE:
-            return;
+            case VIABLE:
+            case UNVIABLE:
+            case NEVER_VIABLE:
+                return;
         }
 
         MapCluster* mapCluster = WorldCtrl::GetCluster(index);
         U32 mask = 0x1;
 
         // Test each of the cells in the cluster to see if
-        for (U32 cz = WorldCtrl::ClusterToTopCell(mapCluster->zIndex); cz <= WorldCtrl::ClusterToBottomCell(mapCluster->zIndex); cz++)
+        for (U32 cz = WorldCtrl::ClusterToTopCell(mapCluster->zIndex); cz <= WorldCtrl::ClusterToBottomCell
+             (
+                 mapCluster->zIndex
+             ); cz++)
         {
-            for (U32 cx = WorldCtrl::ClusterToLeftCell(mapCluster->xIndex); cx <= WorldCtrl::ClusterToRightCell(mapCluster->xIndex); cx++)
+            for (U32 cx = WorldCtrl::ClusterToLeftCell(mapCluster->xIndex); cx <= WorldCtrl::ClusterToRightCell
+                 (
+                     mapCluster->xIndex
+                 ); cx++)
             {
                 // The traction type can be on that cell
                 // The constructor traction type can be on that cell
                 // The constructor can get there via a connected region test
                 cells |=
-                    (
-                        PathSearch::CanMoveToCell(set.footTraction, cx, cz) // &&
-              //          PathSearch::CanMoveToCell(set.constructorTraction, cx, cz) &&
-              //          set.constructorRegion == ConnectedRegion::GetValue(set.constructorTraction, cx, cz)
-                        )
-                    ? mask : 0;
+                (
+                    PathSearch::CanMoveToCell(set.footTraction, cx, cz) // &&
+                    //          PathSearch::CanMoveToCell(set.constructorTraction, cx, cz) &&
+                    //          set.constructorRegion == ConnectedRegion::GetValue(set.constructorTraction, cx, cz)
+                )
+                    ? mask
+                    : 0;
 
                 mask <<= 1;
             }
@@ -150,8 +156,8 @@ namespace Strategic
         ConnectedRegion::Pixel constructorRegion
     )
         : footTraction(footTraction),
-        constructorTraction(constructorTraction),
-        constructorRegion(constructorRegion)
+          constructorTraction(constructorTraction),
+          constructorRegion(constructorRegion)
     {
         info = new ClusterInfo[WorldCtrl::ClusterCount()];
     }
@@ -214,6 +220,4 @@ namespace Strategic
         info[cluster].Evaluate(cluster, *this);
         return (info[cluster].TestCell(WorldCtrl::CellToClusterCell(x), WorldCtrl::CellToClusterCell(z)));
     }
-
-
 }

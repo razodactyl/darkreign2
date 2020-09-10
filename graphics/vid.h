@@ -33,4 +33,3 @@ namespace Vid
 };
 
 #endif		// __VID_H
-

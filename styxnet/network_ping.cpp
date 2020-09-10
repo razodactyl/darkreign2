@@ -112,7 +112,7 @@ namespace Network
         {
         private:
 
-            typedef BOOL (STDCALL *GetRTTAndHopCountFunc
+            typedef BOOL (STDCALL* GetRTTAndHopCountFunc
             )(U32 DestIpAddress, PULONG HopCount, ULONG MaxHops, PULONG RTT);
 
             // DLL
@@ -214,8 +214,11 @@ namespace Network
             Handle* FindHandleByAddress(U32 ip);
 
             // Receive a ping
-            static Bool Recv(Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
-                             U8& hops);
+            static Bool Recv
+            (
+                Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
+                U8& hops
+            );
 
             // Thread for handling pings
             static U32 STDCALL ThreadProc(void* context);
@@ -243,13 +246,13 @@ namespace Network
         //
         void Init()
         {
-            ASSERT(!initialized)
+            ASSERT(!initialized);
 
-            LDIAG("Trying RawSocket")
+            LDIAG("Trying RawSocket");
             method = new RawSocket();
             if (!method->IsAvailable())
             {
-                LDIAG("Trying IP Helper API")
+                LDIAG("Trying IP Helper API");
                 delete method;
                 method = new IPHelperAPI();
                 if (!method->IsAvailable())
@@ -267,7 +270,7 @@ namespace Network
         //
         void Done()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             // Cleanup the method
             delete method;
@@ -281,7 +284,7 @@ namespace Network
         //
         void Send(const Win32::Socket::Address& address, Callback callback, void* context)
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             // For this address, add an entry so that when we receive pings we can call the correct callback
             Handle* handle = new Handle(address, callback, context);
@@ -295,7 +298,7 @@ namespace Network
         //
         void Process()
         {
-            ASSERT(initialized)
+            ASSERT(initialized);
 
             // Are there any events in the event queue ?
             while (Event* e = events.RemovePre(0))
@@ -341,7 +344,7 @@ namespace Network
                     CHECKFUNC(GetRTTAndHopCount)
                 }
 
-                LDIAG("Starting IP Helper thread")
+                LDIAG("Starting IP Helper thread");
 
                 // Start the thread
                 thread.Start(ThreadProc, this);
@@ -360,7 +363,7 @@ namespace Network
                 dll = nullptr;
             }
 
-            LDIAG("Stopping IP Helper thread")
+            LDIAG("Stopping IP Helper thread");
 
             // Signal the quit event
             eventQuit.Signal();
@@ -387,7 +390,7 @@ namespace Network
         //
         void IPHelperAPI::Send(Handle& handle)
         {
-            LDIAG("Adding ping to " << handle.address << " to queue")
+            LDIAG("Adding ping to " << handle.address << " to queue");
 
             // Add the handle to the outgoing queue
             handleCritSec.Enter();
@@ -448,7 +451,7 @@ namespace Network
                                 }
                                 else
                                 {
-                                    LDIAG("Ping failed")
+                                    LDIAG("Ping failed");
 
                                     Event* e = Ping::events.AddPre();
                                     e->handle = handle;
@@ -572,7 +575,7 @@ namespace Network
 
             // For some reason we can't change TTL when winsock indicates its status as 'On Win95'
             //socket.SetSockOpt(IPPROTO_IP, IP_TTL, (char *) &ttl, sizeof (U32));
-            pingSocket.Send(handle.address, buffer, sizeof (buffer));
+            pingSocket.Send(handle.address, buffer, sizeof(buffer));
         }
 
 
@@ -600,11 +603,14 @@ namespace Network
         //
         // Decode an incoming ping
         //
-        Bool RawSocket::Recv(Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
-                             U8& hops)
+        Bool RawSocket::Recv
+        (
+            Win32::Socket& socket, Win32::Socket::Address& address, U32& type, U16& seq, U32& rtt,
+            U8& hops
+        )
         {
             U8 buffer[512];
-            U32 recv = socket.Recv(address, buffer, sizeof (buffer));
+            U32 recv = socket.Recv(address, buffer, sizeof(buffer));
 
             // Skip ahead to the ICMP header within the IP packet
             IP::Header* headerIP = (IP::Header*)buffer;
@@ -615,7 +621,7 @@ namespace Network
             // Make sure the reply is sane
             if (recv < headerLength + ICMP::MinimumSize)
             {
-                //LOG_DIAG("Too few bytes from " << address)
+                // LOG_DIAG("Too few bytes from " << address)
                 return (FALSE);
             }
             type = headerICMP->type;
@@ -637,14 +643,14 @@ namespace Network
                     return (FALSE);
 
                 default:
-                    //LDIAG("Unknown ICMP packet type " << int(headerICMP->type) << " received");
+                    // LDIAG("Unknown ICMP packet type " << int(headerICMP->type);<< " received");
                     return (FALSE);
             }
 
             // Grab the sequence number
             seq = headerICMP->seq;
 
-            // Figure out how far the packet travelled
+            // Figure out how far the packet traveled
             hops = U8(256 - headerIP->ttl);
 
             if (hops == 192)
@@ -674,10 +680,10 @@ namespace Network
 
             if (headerICMP->type == ICMP::Type::TimeExceeded)
             {
-                //LDIAG("TTL expired.");
+                // LDIAG("TTL expired.");
                 return (FALSE);
             }
-            //LDIAG("Ping: " << (int) rtt << " Hops: " << (int) hops << " TTL: " << (int) headerIP->ttl)
+            // LDIAG("Ping: " << (int) rtt << " Hops: " << (int) hops << " TTL: " << (int) headerIP->ttl);
             return (TRUE);
         }
 
@@ -741,7 +747,7 @@ namespace Network
                                         // We lost a ping or they are returning out of sequence
                                         lost = diff;
 
-                                        // Move the expeceted sequence to this ping
+                                        // Move the expected sequence to this ping
                                         sequence->in = U16(seq);
                                     }
 

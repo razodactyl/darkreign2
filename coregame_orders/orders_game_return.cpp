@@ -24,62 +24,58 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 Return::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Return
-    //
-
-
-    //
-    // Generate
-    //
-    void Return::Generate(Player &player, Modifier mod)
+    namespace Game
     {
-      Data  data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.mod = mod;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 Return::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Return::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Return
+        //
 
-      // Send the move order to all of the selected objects
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      {
-        if ((**i)->CanEverMove())
+
+        //
+        // Generate
+        //
+        void Return::Generate(Player& player, Modifier mod)
         {
-          // To return, move to where you are
-          IssueTask(d->mod, **i, new Tasks::UnitMove(**i, (**i)->WorldMatrix().Position()), player);
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.mod = mod;
+
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
 
-      return (sizeof (Data));
+
+        //
+        // Execute
+        //
+        U32 Return::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Send the move order to all of the selected objects
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                if ((**i)->CanEverMove())
+                {
+                    // To return, move to where you are
+                    IssueTask(d->mod, **i, new Tasks::UnitMove(**i, (**i)->WorldMatrix().Position()), player);
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }
-
-

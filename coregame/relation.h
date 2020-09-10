@@ -27,61 +27,61 @@ class Relation
 {
 private:
 
-  static char chars[];
-  static const char * names[];
+    static char chars[];
+    static const char* names[];
 
 public:
 
-  enum Type { ALLY, NEUTRAL, ENEMY, MAX, ENEMYHUMAN };
-  Type relation;
+    enum Type { ALLY, NEUTRAL, ENEMY, MAX, ENEMYHUMAN };
 
-  // Constructor
-  Relation(Type relation = NEUTRAL);
+    Type relation;
 
-  // String constructor
-  Relation(const char *name);
+    // Constructor
+    Relation(Type relation = NEUTRAL);
 
-  // Loading Constructor
-  Relation(FScope *);
+    // String constructor
+    Relation(const char* name);
 
-  // Save
-  void Save(FScope *);
+    // Loading Constructor
+    Relation(FScope*);
 
-  // Name
-  const char *GetName() const;
+    // Save
+    void Save(FScope*);
 
-  // Char
-  char GetChar() const;
+    // Name
+    const char* GetName() const;
 
-  // operator==
-  Bool operator==(Relation &r)
-  {
-    return (relation == r.relation);
-  }
+    // Char
+    char GetChar() const;
 
-  // operator=
-  Relation & operator=(int r)
-  {
-    ASSERT(r < MAX);
-    relation = (Type) r;
-    return (*this);
-  }
+    // operator==
+    Bool operator==(Relation& r)
+    {
+        return (relation == r.relation);
+    }
 
-  // operator<
-  Bool operator<(Type t)
-  {
-    return (relation < t);
-  }
+    // operator=
+    Relation& operator=(int r)
+    {
+        ASSERT(r < MAX);
+        relation = (Type)r;
+        return (*this);
+    }
 
-  // operator int
-  operator int()
-  {
-    return (relation);
-  }
+    // operator<
+    Bool operator<(Type t)
+    {
+        return (relation < t);
+    }
 
-  // Resolve name to type
-  static Type Resolve(const char *name);
+    // operator int
+    operator int()
+    {
+        return (relation);
+    }
 
+    // Resolve name to type
+    static Type Resolve(const char* name);
 };
 
 

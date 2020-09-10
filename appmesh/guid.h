@@ -25,13 +25,11 @@
 //
 namespace Guid
 {
+    // Application GUID
+    extern const GUID Application;
 
-  // Application GUID
-  extern const GUID Application;
-
-  // Convert GUID into a string
-  const char * GetText(GUID *guid);
-
+    // Convert GUID into a string
+    const char* GetText(GUID* guid);
 };
 
 

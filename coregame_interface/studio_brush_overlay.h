@@ -52,7 +52,6 @@ namespace Studio
                 S32 textureIndex;
                 S32 style;
                 S32 saveStyle;
-
             } bInfo;
 
             IFaceVar* varOverlay;

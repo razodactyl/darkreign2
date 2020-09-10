@@ -9,6 +9,7 @@
 
 #include "vid_public.h"
 #include "statistics.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -21,9 +22,12 @@ namespace Vid
     void RenderRectangleOutline(const Area<F32>& rect, Color color, U32 blend, U16 sorting, F32 vz, F32 rhw) // = RS_BLEND_GLOW, = sortEFFECT
     {
         // set the primitive description
-        SetBucketPrimitiveDesc(PT_LINELIST, FVF_TLVERTEX,
+        SetBucketPrimitiveDesc
+        (
+            PT_LINELIST, FVF_TLVERTEX,
             //    SetBucketPrimitiveDesc( PT_TRIANGLELIST, FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_NOINDEXED | blend);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_NOINDEXED | blend
+        );
 
         // set material
         SetBucketMaterial(defMaterial);
@@ -89,6 +93,7 @@ namespace Vid
         // submit the polygons
         UnlockPrimitiveMem(8);
     }
+
     //----------------------------------------------------------------------------
 
     //
@@ -109,7 +114,7 @@ namespace Vid
         {
             return;
         }
-        VertexTL* vertmem, temp[4];
+        VertexTL *vertmem, temp[4];
         U16* indexmem = 0;
 
         blend |= RS_TEXCLAMP;
@@ -122,8 +127,11 @@ namespace Vid
         else
         {
             // set the primitive description
-            SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
-                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | blend);
+            SetBucketPrimitiveDesc
+            (
+                PT_TRIANGLELIST, FVF_TLVERTEX,
+                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | blend
+            );
 
             // set material
             SetBucketMaterial(defMaterial);
@@ -180,11 +188,13 @@ namespace Vid
 
         if (immediate)
         {
-            Vid::DrawIndexedPrimitive(
+            Vid::DrawIndexedPrimitive
+            (
                 PT_TRIANGLELIST,
                 FVF_TLVERTEX,
                 vertmem, 4, Vid::rectIndices, 6,
-                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+            );
         }
         else
         {
@@ -192,6 +202,7 @@ namespace Vid
             UnlockIndexedPrimitiveMem(4, 6);
         }
     }
+
     //----------------------------------------------------------------------------
 
     void RenderSprite(Bool doFog, const Vector& pos, F32 size, const Bitmap* texture, Color color, U32 blend, U16 sorting, const Vector& rotate) // = TRUE, RS_BLEND_GLOW, sortEFFECT, Matrix::I::right
@@ -204,6 +215,7 @@ namespace Vid
 
         RenderSpriteProjected(doFog, p, camz, rhw, size, texture, color, blend, sorting, rotate);
     }
+
     //----------------------------------------------------------------------------
 
     void RenderSpriteProjected(Bool doFog, const Vector& pos, F32 camz, F32 rhw, F32 size, const Bitmap* texture, Color color, U32 blend, U16 sorting, const Vector& rotate) // = TRUE, RS_BLEND_GLOW, sortEFFECT, Matrix::I::right
@@ -220,8 +232,11 @@ namespace Vid
         blend |= RS_TEXCLAMP;
 
         // set the primitive description
-        SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend);
+        SetBucketPrimitiveDesc
+        (
+            PT_TRIANGLELIST, FVF_TLVERTEX,
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend
+        );
 
         // set material
         SetBucketMaterial(defMaterial);
@@ -249,10 +264,10 @@ namespace Vid
         F32 y0 = pos.y - size;
         F32 y1 = pos.y + size;
 #else
-        F32 x0 = pos.x - r.x + r.y;
-        F32 x1 = pos.x + r.x - r.y;
-        F32 y0 = pos.y - r.y - r.x;
-        F32 y1 = pos.y + r.y - r.x;
+	  F32 x0 = pos.x - r.x + r.y;
+	  F32 x1 = pos.x + r.x - r.y;
+	  F32 y0 = pos.y - r.y - r.x;
+	  F32 y1 = pos.y + r.y - r.x;
 #endif
 
         // top left corner
@@ -317,6 +332,7 @@ namespace Vid
         Statistics::spriteTris = Statistics::spriteTris + 2;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     void RenderFlareSprite(Bool doFog, const Vector& pos, F32 size, const Bitmap* texture, Color color, U32 blend, U16 sorting, const Vector& rotate) // = RS_BLEND_GLOW, sortEFFECT, Matrix::I::right
@@ -341,10 +357,13 @@ namespace Vid
         F32 y1 = p.y + size;
 
         // set bucket primitive description
-        SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend);   // FIXME: dx clip
+        SetBucketPrimitiveDesc
+        (
+            PT_TRIANGLELIST, FVF_TLVERTEX,
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend
+        );   // FIXME: dx clip
 
-          // set bucket material
+        // set bucket material
         SetBucketMaterial(defMaterial);
         SetBucketTexture(texture, TRUE, 0, blend);
 
@@ -422,13 +441,14 @@ namespace Vid
         Statistics::spriteTris = Statistics::spriteTris + 4;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
 #if 1
 
-  // render a psuedo 3-D beam clipping at the nearplane 
-  // FIXME: farplane
-  //
+    // render a psuedo 3-D beam clipping at the nearplane 
+    // FIXME: farplane
+    //
     void RenderBeam(Bool doFog, const Vector* points, U32 pointCount, F32 radius, F32 zpos, const Bitmap* texture, Color color, U32 blend, U16 sorting, F32 u0, F32 du, Bool taper, Color* colorA, F32* radiusA) // RS_BLEND_ADD, = sortEFFECT, = 0.0f, = 1.0f, = TRUE, = NULL, = NULL
     {
         ASSERT(pointCount > 1);
@@ -451,10 +471,12 @@ namespace Vid
         F32 nearplane = Math::nearPlane + 0.1f;
 
         // setup buckets
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend
+        );
 
         Vid::SetWorldTransform(Matrix::I);
         SetBucketMaterial(defMaterial);
@@ -963,7 +985,7 @@ namespace Vid
             if (dorend)
             {
                 // setup prev cam vert
-            //    pVertCam = tVertCam;
+                //    pVertCam = tVertCam;
 
                 // setup projected vert
                 Vid::ProjectFromCamera_I(*v1, tVertCam);
@@ -1039,227 +1061,528 @@ namespace Vid
         Statistics::spriteTris = Statistics::spriteTris + (i1 - indexmem) / 3;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
 #else
 
-  // render a psuedo 3-D beam clipping at the nearplane 
-  // FIXME: farplane
+    // render a psuedo 3-D beam clipping at the nearplane 
+    // FIXME: farplane
   //
-    void RenderBeam(Bool doFog, const Vector* points, U32 pointCount, F32 radius, F32 zpos, const Bitmap* texture, Color color, U32 blend, U16 sorting, F32 u0, F32 du, Bool taper, Color* colorA, F32* radiusA) // RS_BLEND_ADD, = sortEFFECT, = 0.0f, = 1.0f, = TRUE, = NULL, = NULL
+  void RenderBeam( Bool doFog, const Vector * points, U32 pointCount, F32 radius, F32 zpos, const Bitmap *texture, Color color, U32 blend, U16 sorting, F32 u0, F32 du, Bool taper, Color * colorA, F32 * radiusA) // RS_BLEND_ADD, = sortEFFECT, = 0.0f, = 1.0f, = TRUE, = NULL, = NULL
+  {
+    radiusA;
+    colorA;
+
+    F32 nearplane = Math::nearPlane + 0.1f;
+
+    // setup buckets
+    Vid::SetBucketPrimitiveDesc(
+      PT_TRIANGLELIST,
+      FVF_TLVERTEX,
+      DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend);
+
+    Vid::SetWorldTransform( Matrix::I);
+    SetBucketMaterial( defMaterial);
+    SetBucketTexture( texture, TRUE, 0, blend);
+    Vid::SetTranBucketZ( zpos, sorting);
+
+    // figure vert and index counts (without taper)
+    U32 vcount = pointCount * 2;
+    U32 icount = (pointCount - 1) * 6;
+
+    // lock memory
+    VertexTL *vertmem;
+    U16 *indexmem;
+    if (!Vid::LockIndexedPrimitiveMem((void **)&vertmem, vcount, &indexmem, icount, points))
     {
-        radiusA;
-        colorA;
+      return;
+    }
 
-        F32 nearplane = Math::nearPlane + 0.1f;
+    // loop variables
+	  F32 dist, rad;
+    U32 j1 = 0;
+    VertexTL pVertProj;
+    const Vector *tVertP = points;
+    Vector tVert, tVertCam, pVert, pVertCam, wid1;
+    wid1.z = 0.0f;
 
-        // setup buckets
-        Vid::SetBucketPrimitiveDesc(
-            PT_TRIANGLELIST,
-            FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend);
+    VertexTL *v1 = vertmem;
+    U16 *i1 = indexmem;
 
-        Vid::SetWorldTransform(Matrix::I);
-        SetBucketMaterial(defMaterial);
-        SetBucketTexture(texture, TRUE, 0, blend);
-        Vid::SetTranBucketZ(zpos, sorting);
+    // setup cam vert
+    Vid::TransformFromWorld( tVertCam, *tVertP);
+    // setup prev cam vert
+    pVertCam = tVertCam;
 
-        // figure vert and index counts (without taper)
-        U32 vcount = pointCount * 2;
-        U32 icount = (pointCount - 1) * 6;
+    // setup projected vert
+    Vid::ProjectFromWorld( *v1, *tVertP);
+    // fill vertmem
+    v1->diffuse  = color;
+    v1->specular = 0xff000000;
+    v1->u = u0;
+    v1->v = 0.5f;
+    if (doFog)
+    {
+      v1->SetFog();
+    }
+    // save proj vert
+    pVertProj = *v1;
 
-        // lock memory
-        VertexTL* vertmem;
-        U16* indexmem;
-        if (!Vid::LockIndexedPrimitiveMem((void**)&vertmem, vcount, &indexmem, icount, points))
-        {
-            return;
-        }
+    Vector nextCam;
+    VertexTL nextTL;
+    Vid::TransformFromWorld( nextCam, *(tVertP + 1));
 
-        // loop variables
-        F32 dist, rad;
-        U32 j1 = 0;
-        VertexTL pVertProj;
-        const Vector* tVertP = points;
-        Vector tVert, tVertCam, pVert, pVertCam, wid1;
-        wid1.z = 0.0f;
+    Bool sTaper = taper;
+    if (!sTaper)
+    {
+      if (nextCam.z < nearplane)
+      {
+        // this vert behind; prev vert not
+        Vector dp = nextCam - pVertCam;
+        F32 t = (nearplane - pVertCam.z) / (nextCam.z - pVertCam.z);
+        nextCam = pVertCam + dp * t;
+        nextCam.z = nearplane;
+      }
+      Vid::ProjectFromCamera_I( nextTL, nextCam);
 
-        VertexTL* v1 = vertmem;
-        U16* i1 = indexmem;
+      // wid1 is 2D cross of vector from this to next
+      wid1.y = -(v1->vv.x - nextTL.vv.x);
+      wid1.x =   v1->vv.y - nextTL.vv.y;
 
-        // setup cam vert
-        Vid::TransformFromWorld(tVertCam, *tVertP);
-        // setup prev cam vert
-        pVertCam = tVertCam;
+      // radius for this vert
+      rad = Vid::Project( radius, tVertCam.z);
 
-        // setup projected vert
-        Vid::ProjectFromWorld(*v1, *tVertP);
-        // fill vertmem
-        v1->diffuse = color;
-        v1->specular = 0xff000000;
-        v1->u = u0;
-        v1->v = 0.5f;
+      // adjust wid1
+      dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
+      dist = (dist == 0.0f) ? 1 : rad / dist;
+      wid1 *= dist;
+
+      // top vertmem
+      v1->vv -= wid1;
+      v1->v = 0.0f;
+
+      // bot vertmem
+      v1++;
+      *v1 = pVertProj;
+      v1->vv += wid1;
+      v1->v = 1.0f;
+    }
+
+    // setup prev world vert
+    pVert = *tVertP;
+    // next vert
+    tVertP++;
+    // setup this vert
+    tVert = *tVertP;
+
+    // this segment dist
+    F32 dd = Vector( tVert - pVert).Magnitude();
+
+    // advance uvScale
+    u0 += du * dd;
+    F32 pu = u0;
+
+    // setup cam vert
+    Vid::TransformFromWorld( tVertCam, tVert);
+
+    Bool dorend = TRUE;
+    if (pVertCam.z <= nearplane)
+    {
+      // prev vert behind nearplane
+
+      if (tVertCam.z < nearplane)
+      {
+        // this vert behind nearplane
+        dorend = FALSE;
+      }
+      else
+      {
+        // clip prev to this vert
+        Vector dp = tVertCam - pVertCam;
+        F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
+        pVertCam = pVertCam + dp * t;
+
+        dp = tVert - pVert;
+        pVert = pVert + dp * t;
+
+        Vid::ProjectFromCamera_I( *v1, pVertCam);
+        v1->u += du * dd * t;
         if (doFog)
         {
-            v1->SetFog();
+          v1->SetFog();
         }
-        // save proj vert
-        pVertProj = *v1;
-
-        Vector nextCam;
-        VertexTL nextTL;
-        Vid::TransformFromWorld(nextCam, *(tVertP + 1));
-
-        Bool sTaper = taper;
         if (!sTaper)
         {
-            if (nextCam.z < nearplane)
-            {
-                // this vert behind; prev vert not
-                Vector dp = nextCam - pVertCam;
-                F32 t = (nearplane - pVertCam.z) / (nextCam.z - pVertCam.z);
-                nextCam = pVertCam + dp * t;
-                nextCam.z = nearplane;
-            }
-            Vid::ProjectFromCamera_I(nextTL, nextCam);
+          // wid1 is 2D cross of vector from this to next
+          Vid::ProjectFromCamera_I( nextTL, tVertCam);
+          wid1.y = -(v1->vv.x - nextTL.vv.x);
+          wid1.x =   v1->vv.y - nextTL.vv.y;
 
-            // wid1 is 2D cross of vector from this to next
-            wid1.y = -(v1->vv.x - nextTL.vv.x);
-            wid1.x = v1->vv.y - nextTL.vv.y;
+          // radius for this vert
+          rad = Vid::Project( radius, pVertCam.z);    // fixme: use ProjectRHW
 
-            // radius for this vert
-            rad = Vid::Project(radius, tVertCam.z);
+          // adjust wid1
+          dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
+          dist = (dist == 0.0f) ? 1 : rad / dist;
+          wid1 *= dist;
 
-            // adjust wid1
-            dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
-            dist = (dist == 0.0f) ? 1 : rad / dist;
-            wid1 *= dist;
+          // setup prev proj vert
+          pVertProj = *v1;
 
-            // top vertmem
-            v1->vv -= wid1;
-            v1->v = 0.0f;
+          // setup the other proj vert
+          *(v1 - 1) = *v1;
 
-            // bot vertmem
-            v1++;
-            *v1 = pVertProj;
-            v1->vv += wid1;
-            v1->v = 1.0f;
+          // setup position offsets
+          v1->vv += wid1;
+          v1->v = 1.0f;
+          (v1 - 1)->vv -= wid1;
+          (v1 - 1)->v = 0;
         }
+      }
+    }
+    else if (tVertCam.z < nearplane)
+    {
+      // this vert behind; prev vert not
+      Vector dp = tVertCam - pVertCam;
+      F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
+      tVertCam = pVertCam + dp * t;
+      tVertCam.z = nearplane;
 
-        // setup prev world vert
-        pVert = *tVertP;
-        // next vert
-        tVertP++;
-        // setup this vert
-        tVert = *tVertP;
+      dp  = tVert - pVert;
+      tVert = pVert + dp * t;
 
-        // this segment dist
-        F32 dd = Vector(tVert - pVert).Magnitude();
+      pu = pu - du * dd + du * dd * t;
+    }
+    // setup prev cam vert
+    pVertCam = tVertCam;
+    // next vertmem
+    v1++;
 
-        // advance uvScale
-        u0 += du * dd;
-        F32 pu = u0;
+    // setup projected vert
+    Vid::ProjectFromCamera_I( *v1, tVertCam);
 
-        // setup cam vert
-        Vid::TransformFromWorld(tVertCam, tVert);
+    // radius for this vert
+    rad = Vid::Project( radius, tVertCam.z);
 
-        Bool dorend = TRUE;
-        if (pVertCam.z <= nearplane)
+    // wid1 is 2D cross of vector from this to prev
+    wid1.y = -(pVertProj.vv.x - v1->vv.x);
+    wid1.x =   pVertProj.vv.y - v1->vv.y;
+
+    // adjust wid1
+    dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
+    dist = (dist == 0.0f) ? 1 : rad / dist;
+    wid1 *= dist;
+
+    // top vertmem
+    v1->diffuse  = color;
+    v1->specular = 0xff000000;
+    v1->u = pu;
+    v1->v = 0.0f;
+    if (doFog)
+    {
+      v1->SetFog();
+    }
+
+    // setup prev projected
+    pVertProj = *v1;
+
+    // top vertmem
+    v1->vv -= wid1;
+
+    // bot vertmem
+    v1++;
+    *v1 = pVertProj;
+    v1->vv += wid1;
+    v1->v = 1.0f;
+    if (doFog)
+    {
+      v1->SetFog();
+    }
+
+    // next vert
+    tVertP++;
+
+    if (sTaper)
+    {
+      // taper to single tri at the ends
+      if (dorend)
+      {
+        // not clipped; fill indexmem
+        *i1++ = (U16)(j1);
+        *i1++ = (U16)(j1 + 1);
+        *i1++ = (U16)(j1 + 2);
+      }
+      j1 += 1;
+    }
+    else
+    {
+      // 2 tris at the ends
+      if (dorend)
+      {
+        // not clipped; fill indexmem
+        *i1++ = (U16)(j1);
+        *i1++ = (U16)(j1 + 1);
+        *i1++ = (U16)(j1 + 3);
+        *i1++ = (U16)(j1);
+        *i1++ = (U16)(j1 + 3);
+        *i1++ = (U16)(j1 + 2);
+      }
+      j1 += 2;
+    }
+
+    // loop through the middle points; advancing uvScale
+    const Vector *pe = points + pointCount - 1;
+    for ( ; tVertP < pe; tVertP++)
+    {
+      // setup prev
+      pVert = tVert;
+      // setup this
+      tVert = *tVertP;
+
+      dd = Vector( tVert - pVert).Magnitude();
+
+      // advance uvScale
+      u0 += du * dd;
+      pu = u0;
+
+      // setup cam vert
+      Vid::TransformFromWorld( tVertCam, tVert);
+
+      F32 dd = Vector(tVert - pVert).Magnitude();
+
+      // clip
+      dorend = TRUE;
+      if (pVertCam.z <= nearplane)
+      {
+        // prev behind
+
+        if (tVertCam.z < nearplane)
         {
-            // prev vert behind nearplane
-
-            if (tVertCam.z < nearplane)
-            {
-                // this vert behind nearplane
-                dorend = FALSE;
-            }
-            else
-            {
-                // clip prev to this vert
-                Vector dp = tVertCam - pVertCam;
-                F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
-                pVertCam = pVertCam + dp * t;
-
-                dp = tVert - pVert;
-                pVert = pVert + dp * t;
-
-                Vid::ProjectFromCamera_I(*v1, pVertCam);
-                v1->u += du * dd * t;
-                if (doFog)
-                {
-                    v1->SetFog();
-                }
-                if (!sTaper)
-                {
-                    // wid1 is 2D cross of vector from this to next
-                    Vid::ProjectFromCamera_I(nextTL, tVertCam);
-                    wid1.y = -(v1->vv.x - nextTL.vv.x);
-                    wid1.x = v1->vv.y - nextTL.vv.y;
-
-                    // radius for this vert
-                    rad = Vid::Project(radius, pVertCam.z);    // fixme: use ProjectRHW
-
-                    // adjust wid1
-                    dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
-                    dist = (dist == 0.0f) ? 1 : rad / dist;
-                    wid1 *= dist;
-
-                    // setup prev proj vert
-                    pVertProj = *v1;
-
-                    // setup the other proj vert
-                    *(v1 - 1) = *v1;
-
-                    // setup position offsets
-                    v1->vv += wid1;
-                    v1->v = 1.0f;
-                    (v1 - 1)->vv -= wid1;
-                    (v1 - 1)->v = 0;
-                }
-            }
+          // this behind
+          dorend = FALSE;
         }
-        else if (tVertCam.z < nearplane)
+        else
         {
-            // this vert behind; prev vert not
-            Vector dp = tVertCam - pVertCam;
-            F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
-            tVertCam = pVertCam + dp * t;
-            tVertCam.z = nearplane;
+          // prev behind; this not
+          // delta
+          Vector dp = tVertCam - pVertCam;
+          // parametric delta
+          F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
 
-            dp = tVert - pVert;
-            tVert = pVert + dp * t;
+          // adjust prev cam vert
+          pVertCam = pVertCam + dp * t;
 
-            pu = pu - du * dd + du * dd * t;
+          // delta
+          dp = tVert - pVert;
+          // adjust prev vert
+          pVert = pVert + dp * t;
+
+          // setup adjusted screen vert
+          Vid::ProjectFromCamera_I( *v1, pVertCam);
+          // adjust texture coord
+          v1->u += du * dd * t;
+          if (doFog)
+          {
+            v1->SetFog();
+          }
+
+          // wid1 is 2D cross of vector from this to next
+          Vid::ProjectFromCamera_I( nextTL, tVertCam);
+          wid1.y = -(v1->vv.x - nextTL.vv.x);
+          wid1.x =   v1->vv.y - nextTL.vv.y;
+
+          // radius for this vert
+          rad = Vid::Project( radius, pVertCam.z);
+
+          // adjust wid1
+          dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
+          dist = (dist == 0.0f) ? 1 : rad / dist;
+          wid1 *= dist;
+
+          // reset prev
+          pVertProj = *v1;
+          // setup other vert
+          *(v1 - 1) = *v1;
+
+          // add offsets
+          v1->vv += wid1;
+          (v1 - 1)->vv -= wid1;
+          (v1 - 1)->v = 0;
         }
-        // setup prev cam vert
-        pVertCam = tVertCam;
-        // next vertmem
-        v1++;
+      }
+      else if (tVertCam.z < nearplane)
+      {
+        // last in front; this behind
+        Vector dp = tVertCam - pVertCam;
+        F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
+        tVertCam = pVertCam + dp * t;
+        tVertCam.z = nearplane;
 
-        // setup projected vert
-        Vid::ProjectFromCamera_I(*v1, tVertCam);
+        dp  = tVert - pVert;
+        tVert = pVert + dp * t;
+
+        pu = pu - du * dd + du * dd * t;
+      }
+
+      // setup prev cam vert
+      pVertCam = tVertCam;
+      // next vertmem
+      v1++;
+
+      // setup projected vert
+      Vid::ProjectFromCamera_I( *v1, tVertCam);
+
+      wid1.y = -(pVertProj.vv.x - v1->vv.x);
+      wid1.x =   pVertProj.vv.y - v1->vv.y;
+
+      rad = Vid::Project( radius, tVertCam.z);
+
+      dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
+      dist = (dist == 0.0f) ? 1 : rad / dist;
+      wid1 *= dist;
+
+      v1->diffuse  = color;
+      v1->specular = 0xff000000;
+      v1->u = pu;
+      v1->v = 0.0f;
+      if (doFog)
+      {
+        v1->SetFog();
+      }
+      pVertProj = *v1;
+
+      v1->vv -= wid1;
+
+      v1++;
+      *v1 = pVertProj;
+      v1->vv += wid1;
+      v1->v = 1.0f;
+
+      if (dorend)
+      {
+        *i1++ = (U16)(j1);
+        *i1++ = (U16)(j1 + 1);
+        *i1++ = (U16)(j1 + 3);
+        *i1++ = (U16)(j1);
+        *i1++ = (U16)(j1 + 3);
+        *i1++ = (U16)(j1 + 2);
+      }
+      j1 += 2;
+    }
+
+    pVert = tVert;
+    tVert = *tVertP;
+    
+    dd = Vector( tVert - pVert).Magnitude();
+
+    // advance uvScale
+    u0 += du * dd;
+    pu = u0;
+
+    // setup cam vert
+    Vid::TransformFromWorld( tVertCam, tVert);
+
+    dorend = TRUE;
+    if (pVertCam.z <= nearplane)
+    {
+      if (tVertCam.z < nearplane)
+      {
+        dorend = FALSE;
+      }
+      else
+      {
+        Vector dp = tVertCam - pVertCam;
+        F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
+        pVertCam = pVertCam + dp * t;
+
+        dp = tVert - pVert;
+        pVert = pVert + dp * t;
+
+        Vid::ProjectFromCamera_I( *v1, pVertCam);
+        if (doFog)
+        {
+          v1->SetFog();
+        }
+        v1->u += du * dd * t;
+
+        // wid1 is 2D cross of vector from this to next
+        Vid::ProjectFromCamera_I( nextTL, tVertCam);
+        wid1.y = -(v1->vv.x - nextTL.vv.x);
+        wid1.x =   v1->vv.y - nextTL.vv.y;
 
         // radius for this vert
-        rad = Vid::Project(radius, tVertCam.z);
-
-        // wid1 is 2D cross of vector from this to prev
-        wid1.y = -(pVertProj.vv.x - v1->vv.x);
-        wid1.x = pVertProj.vv.y - v1->vv.y;
+        rad = Vid::Project( radius, pVertCam.z);
 
         // adjust wid1
         dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
         dist = (dist == 0.0f) ? 1 : rad / dist;
         wid1 *= dist;
 
-        // top vertmem
-        v1->diffuse = color;
-        v1->specular = 0xff000000;
-        v1->u = pu;
-        v1->v = 0.0f;
-        if (doFog)
+        pVertProj = *v1;
+        *(v1 - 1) = *v1;
+
+        v1->vv += wid1;
+        v1->v = 1;
+        (v1 - 1)->vv -= wid1;
+        (v1 - 1)->v = 0;
+      }
+    }
+    else if (tVertCam.z < nearplane)
+    {
+      Vector dp = tVertCam - pVertCam;
+      F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
+      tVertCam = pVertCam + dp * t;
+      tVertCam.z = nearplane;
+
+      dp  = tVert - pVert;
+      tVert = pVert + dp * t;
+
+      pu = pu - du * dd + du * dd * t;
+    }
+    v1++;
+
+    if (dorend)
+    {
+      // setup prev cam vert
+    //    pVertCam = tVertCam;
+
+      // setup projected vert
+      Vid::ProjectFromCamera_I( *v1, tVertCam);
+      v1->diffuse  = color;
+      v1->specular = 0xff000000;
+      v1->u = pu;
+      if (doFog)
+      {
+        v1->SetFog();
+      }
+
+      if (taper)
+      {
+        v1->v = 0.5f;
+
+        if (dorend)
         {
-            v1->SetFog();
+          *i1++ = (U16)(j1);
+          *i1++ = (U16)(j1 + 1);
+          *i1++ = (U16)(j1 + 2);
         }
+      }
+      else
+      {
+        v1->v = 0.0f;
+
+        // wid1 is 2D cross of vector from this to prev
+        wid1.y = -(pVertProj.vv.x - v1->vv.x);
+        wid1.x =   pVertProj.vv.y - v1->vv.y;
+
+        // radius for this vert
+        rad = Vid::Project( radius, tVertCam.z);
+
+        // adjust wid1
+        dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
+        dist = (dist == 0.0f) ? 1 : rad / dist;
+        wid1 *= dist;
 
         // setup prev projected
         pVertProj = *v1;
@@ -1272,341 +1595,43 @@ namespace Vid
         *v1 = pVertProj;
         v1->vv += wid1;
         v1->v = 1.0f;
-        if (doFog)
-        {
-            v1->SetFog();
-        }
-
-        // next vert
-        tVertP++;
-
-        if (sTaper)
-        {
-            // taper to single tri at the ends
-            if (dorend)
-            {
-                // not clipped; fill indexmem
-                *i1++ = (U16)(j1);
-                *i1++ = (U16)(j1 + 1);
-                *i1++ = (U16)(j1 + 2);
-            }
-            j1 += 1;
-        }
-        else
-        {
-            // 2 tris at the ends
-            if (dorend)
-            {
-                // not clipped; fill indexmem
-                *i1++ = (U16)(j1);
-                *i1++ = (U16)(j1 + 1);
-                *i1++ = (U16)(j1 + 3);
-                *i1++ = (U16)(j1);
-                *i1++ = (U16)(j1 + 3);
-                *i1++ = (U16)(j1 + 2);
-            }
-            j1 += 2;
-        }
-
-        // loop through the middle points; advancing uvScale
-        const Vector* pe = points + pointCount - 1;
-        for (; tVertP < pe; tVertP++)
-        {
-            // setup prev
-            pVert = tVert;
-            // setup this
-            tVert = *tVertP;
-
-            dd = Vector(tVert - pVert).Magnitude();
-
-            // advance uvScale
-            u0 += du * dd;
-            pu = u0;
-
-            // setup cam vert
-            Vid::TransformFromWorld(tVertCam, tVert);
-
-            F32 dd = Vector(tVert - pVert).Magnitude();
-
-            // clip
-            dorend = TRUE;
-            if (pVertCam.z <= nearplane)
-            {
-                // prev behind
-
-                if (tVertCam.z < nearplane)
-                {
-                    // this behind
-                    dorend = FALSE;
-                }
-                else
-                {
-                    // prev behind; this not
-                    // delta
-                    Vector dp = tVertCam - pVertCam;
-                    // parametric delta
-                    F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
-
-                    // adjust prev cam vert
-                    pVertCam = pVertCam + dp * t;
-
-                    // delta
-                    dp = tVert - pVert;
-                    // adjust prev vert
-                    pVert = pVert + dp * t;
-
-                    // setup adjusted screen vert
-                    Vid::ProjectFromCamera_I(*v1, pVertCam);
-                    // adjust texture coord
-                    v1->u += du * dd * t;
-                    if (doFog)
-                    {
-                        v1->SetFog();
-                    }
-
-                    // wid1 is 2D cross of vector from this to next
-                    Vid::ProjectFromCamera_I(nextTL, tVertCam);
-                    wid1.y = -(v1->vv.x - nextTL.vv.x);
-                    wid1.x = v1->vv.y - nextTL.vv.y;
-
-                    // radius for this vert
-                    rad = Vid::Project(radius, pVertCam.z);
-
-                    // adjust wid1
-                    dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
-                    dist = (dist == 0.0f) ? 1 : rad / dist;
-                    wid1 *= dist;
-
-                    // reset prev
-                    pVertProj = *v1;
-                    // setup other vert
-                    *(v1 - 1) = *v1;
-
-                    // add offsets
-                    v1->vv += wid1;
-                    (v1 - 1)->vv -= wid1;
-                    (v1 - 1)->v = 0;
-                }
-            }
-            else if (tVertCam.z < nearplane)
-            {
-                // last in front; this behind
-                Vector dp = tVertCam - pVertCam;
-                F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
-                tVertCam = pVertCam + dp * t;
-                tVertCam.z = nearplane;
-
-                dp = tVert - pVert;
-                tVert = pVert + dp * t;
-
-                pu = pu - du * dd + du * dd * t;
-            }
-
-            // setup prev cam vert
-            pVertCam = tVertCam;
-            // next vertmem
-            v1++;
-
-            // setup projected vert
-            Vid::ProjectFromCamera_I(*v1, tVertCam);
-
-            wid1.y = -(pVertProj.vv.x - v1->vv.x);
-            wid1.x = pVertProj.vv.y - v1->vv.y;
-
-            rad = Vid::Project(radius, tVertCam.z);
-
-            dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
-            dist = (dist == 0.0f) ? 1 : rad / dist;
-            wid1 *= dist;
-
-            v1->diffuse = color;
-            v1->specular = 0xff000000;
-            v1->u = pu;
-            v1->v = 0.0f;
-            if (doFog)
-            {
-                v1->SetFog();
-            }
-            pVertProj = *v1;
-
-            v1->vv -= wid1;
-
-            v1++;
-            *v1 = pVertProj;
-            v1->vv += wid1;
-            v1->v = 1.0f;
-
-            if (dorend)
-            {
-                *i1++ = (U16)(j1);
-                *i1++ = (U16)(j1 + 1);
-                *i1++ = (U16)(j1 + 3);
-                *i1++ = (U16)(j1);
-                *i1++ = (U16)(j1 + 3);
-                *i1++ = (U16)(j1 + 2);
-            }
-            j1 += 2;
-        }
-
-        pVert = tVert;
-        tVert = *tVertP;
-
-        dd = Vector(tVert - pVert).Magnitude();
-
-        // advance uvScale
-        u0 += du * dd;
-        pu = u0;
-
-        // setup cam vert
-        Vid::TransformFromWorld(tVertCam, tVert);
-
-        dorend = TRUE;
-        if (pVertCam.z <= nearplane)
-        {
-            if (tVertCam.z < nearplane)
-            {
-                dorend = FALSE;
-            }
-            else
-            {
-                Vector dp = tVertCam - pVertCam;
-                F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
-                pVertCam = pVertCam + dp * t;
-
-                dp = tVert - pVert;
-                pVert = pVert + dp * t;
-
-                Vid::ProjectFromCamera_I(*v1, pVertCam);
-                if (doFog)
-                {
-                    v1->SetFog();
-                }
-                v1->u += du * dd * t;
-
-                // wid1 is 2D cross of vector from this to next
-                Vid::ProjectFromCamera_I(nextTL, tVertCam);
-                wid1.y = -(v1->vv.x - nextTL.vv.x);
-                wid1.x = v1->vv.y - nextTL.vv.y;
-
-                // radius for this vert
-                rad = Vid::Project(radius, pVertCam.z);
-
-                // adjust wid1
-                dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
-                dist = (dist == 0.0f) ? 1 : rad / dist;
-                wid1 *= dist;
-
-                pVertProj = *v1;
-                *(v1 - 1) = *v1;
-
-                v1->vv += wid1;
-                v1->v = 1;
-                (v1 - 1)->vv -= wid1;
-                (v1 - 1)->v = 0;
-            }
-        }
-        else if (tVertCam.z < nearplane)
-        {
-            Vector dp = tVertCam - pVertCam;
-            F32 t = (nearplane - pVertCam.z) / (tVertCam.z - pVertCam.z);
-            tVertCam = pVertCam + dp * t;
-            tVertCam.z = nearplane;
-
-            dp = tVert - pVert;
-            tVert = pVert + dp * t;
-
-            pu = pu - du * dd + du * dd * t;
-        }
-        v1++;
 
         if (dorend)
         {
-            // setup prev cam vert
-        //    pVertCam = tVertCam;
-
-            // setup projected vert
-            Vid::ProjectFromCamera_I(*v1, tVertCam);
-            v1->diffuse = color;
-            v1->specular = 0xff000000;
-            v1->u = pu;
-            if (doFog)
-            {
-                v1->SetFog();
-            }
-
-            if (taper)
-            {
-                v1->v = 0.5f;
-
-                if (dorend)
-                {
-                    *i1++ = (U16)(j1);
-                    *i1++ = (U16)(j1 + 1);
-                    *i1++ = (U16)(j1 + 2);
-                }
-            }
-            else
-            {
-                v1->v = 0.0f;
-
-                // wid1 is 2D cross of vector from this to prev
-                wid1.y = -(pVertProj.vv.x - v1->vv.x);
-                wid1.x = pVertProj.vv.y - v1->vv.y;
-
-                // radius for this vert
-                rad = Vid::Project(radius, tVertCam.z);
-
-                // adjust wid1
-                dist = (F32)sqrt(wid1.y * wid1.y + wid1.x * wid1.x);
-                dist = (dist == 0.0f) ? 1 : rad / dist;
-                wid1 *= dist;
-
-                // setup prev projected
-                pVertProj = *v1;
-
-                // top vertmem
-                v1->vv -= wid1;
-
-                // bot vertmem
-                v1++;
-                *v1 = pVertProj;
-                v1->vv += wid1;
-                v1->v = 1.0f;
-
-                if (dorend)
-                {
-                    *i1++ = (U16)(j1);
-                    *i1++ = (U16)(j1 + 1);
-                    *i1++ = (U16)(j1 + 3);
-                    *i1++ = (U16)(j1);
-                    *i1++ = (U16)(j1 + 3);
-                    *i1++ = (U16)(j1 + 2);
-                }
-            }
+          *i1++ = (U16)(j1);
+          *i1++ = (U16)(j1 + 1);
+          *i1++ = (U16)(j1 + 3);
+          *i1++ = (U16)(j1);
+          *i1++ = (U16)(j1 + 3);
+          *i1++ = (U16)(j1 + 2);
         }
-        v1++;
+      }
+    }
+    v1++;
 
-        Vid::UnlockIndexedPrimitiveMem(v1 - vertmem, i1 - indexmem);
+    Vid::UnlockIndexedPrimitiveMem(v1 - vertmem, i1 - indexmem);
 
 #ifdef DOSTATISTICS
-        Statistics::spriteTris = Statistics::spriteTris + (i1 - indexmem) / 3;
+    Statistics::spriteTris = Statistics::spriteTris + (i1 - indexmem) / 3;
 #endif
-    }
-    //----------------------------------------------------------------------------
+  }
+  //----------------------------------------------------------------------------
 
 #endif
-  // render a fully 3-D beam
-  //
+    // render a fully 3-D beam
+    //
     void RenderBeamOriented(Bool doFog, const Vector* points, U32 pointCount, const Vector& orientation, F32 zpos, const Bitmap* texture, Color color, U32 blend, U16 sorting, F32 u0, F32 du, Bool taper, Color* colorA, F32* radiusA) // RS_BLEND_ADD, = sortEFFECT, = 0.0f, = 1.0f, = TRUE, = NULL, = NULL
     {
         radiusA;
         colorA;
 
         // setup buckets
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | blend
+        );
 
         Vid::SetWorldTransform(Matrix::I);
         SetBucketMaterial(defMaterial);
@@ -1617,7 +1642,7 @@ namespace Vid
         U16* indexmem;
         U32 heapSize = Vid::Heap::ReqVertex(&vertmem, pointCount << 1, &indexmem, (pointCount - 1) * 6);
 
-        const Vector* p = points, * pe = points + pointCount - 1;
+        const Vector *p = points, *pe = points + pointCount - 1;
         VertexTL* v = vertmem;
 
         if (taper)
@@ -1734,5 +1759,5 @@ namespace Vid
         Vid::Heap::Restore(heapSize);
     }
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

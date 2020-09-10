@@ -26,7 +26,7 @@
 class MeshGlow : public MeshEffect
 {
 public:
-    KeyAnim<ColorKey>   colorAnim;
+    KeyAnim<ColorKey> colorAnim;
 
 public:
     MeshGlow(MeshGlowType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);

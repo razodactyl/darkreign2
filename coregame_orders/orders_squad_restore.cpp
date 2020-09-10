@@ -25,58 +25,56 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Restore
+    // NameSpace Squad
     //
-
-    U32 Restore::orderId;
-
-
-    //
-    // Generate
-    //
-    void Restore::Generate(Player &player, U32 squad, Modifier mod)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Restore
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 Restore::orderId;
 
-      // Pack the squad
-      data.squad = squad;
 
-      // Pack the modifier
-      data.mod = mod;
+        //
+        // Generate
+        //
+        void Restore::Generate(Player& player, U32 squad, Modifier mod)
+        {
+            Data data;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Pack the squad
+            data.squad = squad;
+
+            // Pack the modifier
+            data.mod = mod;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Restore::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                // Tell 'em to restore
+                IssueTask(d->mod, squadObj, new Tasks::SquadRestore(squadObj), player);
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Restore::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        // Tell 'em to restore
-        IssueTask(d->mod, squadObj, new Tasks::SquadRestore(squadObj), player);
-      }
-  
-      return (sizeof (Data));
-    }
-  }
 }

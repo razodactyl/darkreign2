@@ -26,14 +26,14 @@
 // Constructor
 //
 IconWindow::IconWindow(IControl* parent) : IControl(parent),
-iconWindowStyle(0),
-iconConfig(NULL),
-textureBlank(NULL),
-gridStart(0, 0),
-gridSize(0, 0),
-iconSize(0, 0),
-iconSpacing(0, 0),
-start(0)
+                                           iconWindowStyle(0),
+                                           iconConfig(nullptr),
+                                           textureBlank(nullptr),
+                                           gridStart(0, 0),
+                                           gridSize(0, 0),
+                                           iconSize(0, 0),
+                                           iconSpacing(0, 0),
+                                           start(0)
 {
     // Need to hook MouseAxis messages
     inputHook = TRUE;
@@ -66,13 +66,13 @@ IconWindow::~IconWindow()
 //
 void IconWindow::SetIconConfig(FScope* fScope)
 {
-    ASSERT(fScope)
+    ASSERT(fScope);
 
-        // Delete any current scope
-        if (iconConfig)
-        {
-            delete iconConfig;
-        }
+    // Delete any current scope
+    if (iconConfig)
+    {
+        delete iconConfig;
+    }
 
     // Copy the given scope
     iconConfig = fScope->Dup();
@@ -90,12 +90,12 @@ Bool IconWindow::SetStyleItem(const char* s, Bool toggle)
 
     switch (Crc::CalcStr(s))
     {
-    case 0x2942B3CD: // "Horizontal"
-        style = STYLE_HORIZONTAL;
-        break;
+        case 0x2942B3CD: // "Horizontal"
+            style = STYLE_HORIZONTAL;
+            break;
 
-    default:
-        return (IControl::SetStyleItem(s, toggle));
+        default:
+            return (IControl::SetStyleItem(s, toggle));
     }
 
     // Toggle the style
@@ -114,44 +114,44 @@ void IconWindow::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x6DD986AE: // "TextureBlank"
-    {
-        if (textureBlank)
+        case 0x6DD986AE: // "TextureBlank"
         {
-            delete textureBlank;
+            if (textureBlank)
+            {
+                delete textureBlank;
+            }
+            textureBlank = new TextureInfo;
+            IFace::FScopeToTextureInfo(fScope, *textureBlank);
+            break;
         }
-        textureBlank = new TextureInfo;
-        IFace::FScopeToTextureInfo(fScope, *textureBlank);
-        break;
-    }
 
-    case 0x3FF8C1F1: // "GridStart"
-        gridStart.x = fScope->NextArgInteger();
-        gridStart.y = fScope->NextArgInteger();
-        break;
+        case 0x3FF8C1F1: // "GridStart"
+            gridStart.x = fScope->NextArgInteger();
+            gridStart.y = fScope->NextArgInteger();
+            break;
 
-    case 0x849F69A3: // "GridSize"
-        gridSize.x = fScope->NextArgInteger();
-        gridSize.y = fScope->NextArgInteger();
-        break;
+        case 0x849F69A3: // "GridSize"
+            gridSize.x = fScope->NextArgInteger();
+            gridSize.y = fScope->NextArgInteger();
+            break;
 
-    case 0x8916E77C: // "IconConfig"
-        SetIconConfig(fScope);
-        break;
+        case 0x8916E77C: // "IconConfig"
+            SetIconConfig(fScope);
+            break;
 
-    case 0xAD301B47: // "IconSize"
-        iconSize.x = fScope->NextArgInteger();
-        iconSize.y = fScope->NextArgInteger();
-        break;
+        case 0xAD301B47: // "IconSize"
+            iconSize.x = fScope->NextArgInteger();
+            iconSize.y = fScope->NextArgInteger();
+            break;
 
-    case 0xD45FB645: // "IconSpacing"
-        iconSpacing.x = fScope->NextArgInteger();
-        iconSpacing.y = fScope->NextArgInteger();
-        break;
+        case 0xD45FB645: // "IconSpacing"
+            iconSpacing.x = fScope->NextArgInteger();
+            iconSpacing.y = fScope->NextArgInteger();
+            break;
 
-        // Pass it to the previous level in the hierarchy
-    default:
-        IControl::Setup(fScope);
+            // Pass it to the previous level in the hierarchy
+        default:
+            IControl::Setup(fScope);
     }
 }
 
@@ -195,7 +195,7 @@ void IconWindow::ArrangeIcons()
     S32 index = 0;
 
     // Iterate over all icons
-    for (List<IControl>::Iterator i(&icons); *i; i++, index++)
+    for (List<IControl>::Iterator i(&icons); *i; ++i, index++)
     {
         // Get the icon
         IControl* icon = *i;
@@ -253,40 +253,38 @@ U32 IconWindow::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
-        case IFace::NOTIFY:
-        {
-            switch (e.iface.p1)
+            case IFace::NOTIFY:
             {
-            case IconWindowMsg::DecPos:
-                MoveStart(start - ((iconWindowStyle & STYLE_HORIZONTAL) ? gridSize.y : gridSize.x));
-                return (TRUE);
+                switch (e.iface.p1)
+                {
+                    case IconWindowMsg::DecPos:
+                        MoveStart(start - ((iconWindowStyle & STYLE_HORIZONTAL) ? gridSize.y : gridSize.x));
+                        return (TRUE);
 
-            case IconWindowMsg::IncPos:
-                MoveStart(start + ((iconWindowStyle & STYLE_HORIZONTAL) ? gridSize.y : gridSize.x));
-                return (TRUE);
-            }
-            break;
-        }
-
-        case IFace::HOOKCHECK:
-        {
-            switch (e.iface.p1)
-            {
-            case Input::MOUSEAXIS:
-                return (TRUE);
+                    case IconWindowMsg::IncPos:
+                        MoveStart(start + ((iconWindowStyle & STYLE_HORIZONTAL) ? gridSize.y : gridSize.x));
+                        return (TRUE);
+                }
+                break;
             }
 
-            // Don't want to hook anything else
-            return (FALSE);
-        }
+            case IFace::HOOKCHECK:
+            {
+                switch (e.iface.p1)
+                {
+                    case Input::MOUSEAXIS:
+                        return (TRUE);
+                }
+
+                // Don't want to hook anything else
+                return (FALSE);
+            }
         }
     }
-    else
-
-        if (e.type == Input::EventID())
+    else if (e.type == Input::EventID())
+    {
+        switch (e.subType)
         {
-            switch (e.subType)
-            {
             case Input::MOUSEAXIS:
             {
                 S16 amount = S16(e.input.ch);
@@ -296,18 +294,16 @@ U32 IconWindow::HandleEvent(Event& e)
                 {
                     SendNotify(this, IconWindowMsg::IncPos, FALSE);
                 }
-                else
-
-                    if (amount > 0)
-                    {
-                        SendNotify(this, IconWindowMsg::DecPos, FALSE);
-                    }
+                else if (amount > 0)
+                {
+                    SendNotify(this, IconWindowMsg::DecPos, FALSE);
+                }
 
                 // Hooked event, so don't pass to children
                 return (TRUE);
             }
-            }
         }
+    }
 
     return (IControl::HandleEvent(e));
 }
@@ -415,7 +411,7 @@ void IconWindow::DeleteIcon(IControl* icon)
     else
     {
         // Mark each icon for deletion
-        for (List<IControl>::Iterator i(&icons); *i; i++)
+        for (List<IControl>::Iterator i(&icons); *i; ++i)
         {
             (*i)->MarkForDeletion();
         }
@@ -427,4 +423,3 @@ void IconWindow::DeleteIcon(IControl* icon)
         start = 0;
     }
 }
-

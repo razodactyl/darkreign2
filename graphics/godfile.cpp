@@ -21,11 +21,11 @@
 //
 namespace God
 {
-
     //
     // Sphere
     //
-    template<> void Load<Sphere>(GodFile& god, Sphere& sphere)
+    template <>
+    void Load<Sphere>(GodFile& god, Sphere& sphere)
     {
         // matrix plus box size and radius
         Load(god, sphere.radius);
@@ -38,7 +38,8 @@ namespace God
         sphere.radius2 = sphere.radius * sphere.radius;
     }
 
-    template<> void Save<Sphere>(GodFile& god, const Sphere& sphere)
+    template <>
+    void Save<Sphere>(GodFile& god, const Sphere& sphere)
     {
         Save(god, sphere.radius);
         Save(god, (Matrix)sphere);
@@ -50,7 +51,8 @@ namespace God
     //
     // Bounds
     //
-    template<> void Load<Bounds>(GodFile& god, Bounds& bounds)
+    template <>
+    void Load<Bounds>(GodFile& god, Bounds& bounds)
     {
         F32 v0, v1, v2;
         Load(god, v0);
@@ -66,7 +68,8 @@ namespace God
         bounds.SetOffset(offset);
     }
 
-    template<> void Save<Bounds>(GodFile& god, const Bounds& bounds)
+    template <>
+    void Save<Bounds>(GodFile& god, const Bounds& bounds)
     {
         Save(god, bounds.Radius());
         Save(god, bounds.Width());
@@ -78,7 +81,8 @@ namespace God
     //
     // Animkey
     //
-    template<> void Load<AnimKey>(GodFile& god, AnimKey& key)
+    template <>
+    void Load<AnimKey>(GodFile& god, AnimKey& key)
     {
         key.ClearData();
 
@@ -95,7 +99,8 @@ namespace God
         }
     }
 
-    template<> void Save<AnimKey>(GodFile& god, const AnimKey& key)
+    template <>
+    void Save<AnimKey>(GodFile& god, const AnimKey& key)
     {
         Save(god, key.frame);
         Save(god, U32(key.type));
@@ -108,7 +113,8 @@ namespace God
     //
     // FaceObj
     //
-    template<> void Load<FaceObj>(GodFile& god, FaceObj& face)
+    template <>
+    void Load<FaceObj>(GodFile& god, FaceObj& face)
     {
         face.ClearData();
 
@@ -120,7 +126,8 @@ namespace God
         god.LoadData(face.uvs, 3 * sizeof(U16));
     }
 
-    template<> void Save<FaceObj>(GodFile& god, const FaceObj& face)
+    template <>
+    void Save<FaceObj>(GodFile& god, const FaceObj& face)
     {
         God::Save(god, U16(face.buckyIndex));
         god.SaveData(&face.verts, 3 * sizeof(U16));
@@ -131,7 +138,8 @@ namespace God
     //
     // VertGroup
     //
-    template<> void Load<VertGroup>(GodFile& god, VertGroup& vertGroup)
+    template <>
+    void Load<VertGroup>(GodFile& god, VertGroup& vertGroup)
     {
         vertGroup.ClearData();
 
@@ -161,7 +169,8 @@ namespace God
         }
     }
 
-    template<> void Save<VertGroup>(GodFile& god, const VertGroup& vertGroup)
+    template <>
+    void Save<VertGroup>(GodFile& god, const VertGroup& vertGroup)
     {
         God::Save(god, U32(vertGroup.stateIndex));
         God::Save(god, U32(vertGroup.vertCount));
@@ -183,7 +192,8 @@ namespace God
     //
     // VertIndex
     //
-    template<> void Load<VertIndex>(GodFile& god, VertIndex& vertIndex)
+    template <>
+    void Load<VertIndex>(GodFile& god, VertIndex& vertIndex)
     {
         U32 slack = 0;
         U32 count = god.LoadU32();
@@ -208,7 +218,8 @@ namespace God
         }
     }
 
-    template<> void Save<VertIndex>(GodFile& god, const VertIndex& vertIndex)
+    template <>
+    void Save<VertIndex>(GodFile& god, const VertIndex& vertIndex)
     {
         God::Save(god, U32(vertIndex.count));
 
@@ -222,7 +233,8 @@ namespace God
     //
     //  BucketLock
     //
-    template<> void Load<BucketDesc>(GodFile& god, BucketDesc& bucky)
+    template <>
+    void Load<BucketDesc>(GodFile& god, BucketDesc& bucky)
     {
         God::Load(god, bucky.flags0);
         God::Load(god, bucky.vertCount);
@@ -301,7 +313,8 @@ namespace God
         }
     }
 
-    template<> void Save<BucketDesc>(GodFile& god, const BucketDesc& bucky)
+    template <>
+    void Save<BucketDesc>(GodFile& god, const BucketDesc& bucky)
     {
         God::Save(god, U32(bucky.flags0));
         God::Save(god, U32(bucky.vertCount));
@@ -327,14 +340,15 @@ namespace God
         God::Save(god, U32(bucky.overlay));
     }
 
-    template<> void Load<BucketLock>(GodFile& god, BucketLock& bucky)
+    template <>
+    void Load<BucketLock>(GodFile& god, BucketLock& bucky)
     {
         Load<BucketDesc>(god, bucky);
     }
 
-    template<> void Save<BucketLock>(GodFile& god, const BucketLock& bucky)
+    template <>
+    void Save<BucketLock>(GodFile& god, const BucketLock& bucky)
     {
         Save<BucketDesc>(god, bucky);
     }
-
 }

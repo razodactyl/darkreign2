@@ -26,7 +26,8 @@
 //
 // Destructor
 //
-template <> GameTask<UnitObjType, UnitObj>::~GameTask()
+template <>
+GameTask<UnitObjType, UnitObj>::~GameTask()
 {
 }
 
@@ -36,8 +37,9 @@ template <> GameTask<UnitObjType, UnitObj>::~GameTask()
 //
 // Type specific processing
 //
-template <> void GameTask<UnitObjType, UnitObj>::GameProcess()
+template <>
+void GameTask<UnitObjType, UnitObj>::GameProcess()
 {
-  // Perform tactical processing
-  Tactical::Process(this, GetTaskTable(), subject);
+    // Perform tactical processing
+    Tactical::Process(this, GetTaskTable(), subject);
 }

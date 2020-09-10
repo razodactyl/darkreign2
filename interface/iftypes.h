@@ -42,9 +42,9 @@ struct TextureInfo
     };
 
     Bitmap* texture;
-    Area<F32>   uv;
-    Area<S32>   pixels;
-    ClipRect    texRect;
+    Area<F32> uv;
+    Area<S32> pixels;
+    ClipRect texRect;
 
     // Is this a system owned struct?
     U32 system : 1,
@@ -107,14 +107,16 @@ struct ColorGroup
 //
 struct PaintInfo
 {
-    ClipRect    client;
-    ClipRect    window;
+    ClipRect client;
+    ClipRect window;
     Font* font;
     ColorGroup* colors;
-    F32         alphaScale;
+    F32 alphaScale;
 
     // Default constructor
-    PaintInfo(ColorGroup* c) : font(NULL), colors(c), alphaScale(1.0F) {}
+    PaintInfo(ColorGroup* c) : font(NULL), colors(c), alphaScale(1.0F)
+    {
+    }
 };
 
 
@@ -129,7 +131,15 @@ struct TextureSkin
     // Indexes for interior/left/top/right/bottom
     enum
     {
-        I = 0, TL, TR, BL, BR, L, T, R, B,
+        I = 0,
+        TL,
+        TR,
+        BL,
+        BR,
+        L,
+        T,
+        R,
+        B,
         MAX_INDEX
     };
 

@@ -26,65 +26,64 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitBoard
+    //
+    class UnitBoard : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitBoard)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitBoard
-  //
-  class UnitBoard : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitBoard)
+    private:
 
-  private:
+        // The transport being boarded
+        TransportObjPtr target;
 
-    // The transport being boarded
-    TransportObjPtr target;
+        // The location of the target when we started moving
+        Vector destination;
 
-    // The location of the target when we started moving
-    Vector destination;
-
-    // Movement handle
-    Movement::Handle moveHandle;
+        // Movement handle
+        Movement::Handle moveHandle;
 
 
-    // Do we have a valid transport target
-    Bool ValidTarget();
+        // Do we have a valid transport target
+        Bool ValidTarget();
 
-    // Returns either the destination or current position of the target
-    Vector GetTargetVector();
+        // Returns either the destination or current position of the target
+        Vector GetTargetVector();
 
-    // Has the target moved significantly from it's original location
-    Bool TargetMoved();
+        // Has the target moved significantly from it's original location
+        Bool TargetMoved();
 
-    // Is the target within boarding range
-    Bool TargetInRange();
+        // Is the target within boarding range
+        Bool TargetInRange();
 
-  public:
+    public:
 
-    // Constructors
-    UnitBoard(GameObj *subject);
-    UnitBoard(GameObj *subject, TransportObj *target);
+        // Constructors
+        UnitBoard(GameObj* subject);
+        UnitBoard(GameObj* subject, TransportObj* target);
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-  private:
+    private:
 
-    // State machine procedures
-    void StateInit();
-    void StateSeekEntry();
-    void StateDone();
-  };
+        // State machine procedures
+        void StateInit();
+        void StateSeekEntry();
+        void StateDone();
+    };
 }
 
 #endif

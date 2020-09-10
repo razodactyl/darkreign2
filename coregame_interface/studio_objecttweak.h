@@ -26,133 +26,123 @@
 //
 namespace Studio
 {
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace ObjectTweak
-  //
-  namespace ObjectTweak
-  {
-
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class BaseObj
+    // NameSpace ObjectTweak
     //
-    class BaseObj : public IControl
+    namespace ObjectTweak
     {
-      PROMOTE_LINK(ObjectTweak::BaseObj, IControl, 0x2CFA6E13); // "ObjectTweak::BaseObj"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class BaseObj
+        //
+        class BaseObj : public IControl
+        {
+        PROMOTE_LINK(ObjectTweak::BaseObj, IControl, 0x2CFA6E13); // "ObjectTweak::BaseObj"
 
-    public:
+        public:
 
-      // Constructor
-      BaseObj(IControl *parent);
-      ~BaseObj();
+            // Constructor
+            BaseObj(IControl* parent);
+            ~BaseObj();
 
-      // Draw the control
-      void DrawSelf(PaintInfo &pi);
-
-    };
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class MapObj
-    //
-    class MapObj : public BaseObj
-    {
-      PROMOTE_LINK(MapObj, BaseObj, 0x8CC5AE1A); // "ObjectTweak::MapObj"
-
-    protected:
-
-      // Hitpoints
-      IFaceVar *hitPoints;
-
-      // Armour
-      IFaceVar *armour;
-
-    protected:
-
-      // Notification that a local var has changed value
-      void Notify(IFaceVar *var);
-
-    public:
-
-      // Constructor
-      MapObj(IControl *parent);
-      ~MapObj();
-
-      // Activate and deactivate this control
-      Bool Activate();
-      Bool Deactivate();
-
-    };
+            // Draw the control
+            void DrawSelf(PaintInfo& pi);
+        };
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class UnitObj
-    //
-    class UnitObj : public BaseObj
-    {
-      PROMOTE_LINK(UnitObj, BaseObj, 0xC12DA4B3); // "ObjectTweak::UnitObj"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class MapObj
+        //
+        class MapObj : public BaseObj
+        {
+        PROMOTE_LINK(MapObj, BaseObj, 0x8CC5AE1A); // "ObjectTweak::MapObj"
 
-    protected:
+        protected:
 
-      // Hitpoints
-      IFaceVar *team;
+            // Hitpoints
+            IFaceVar* hitPoints;
 
-    protected:
+            // Armour
+            IFaceVar* armour;
 
-      // Notification that a local var has changed value
-      void Notify(IFaceVar *var);
+        protected:
 
-    public:
+            // Notification that a local var has changed value
+            void Notify(IFaceVar* var);
 
-      // Constructor
-      UnitObj(IControl *parent);
-      ~UnitObj();
+        public:
 
-      // Activate and deactivate this control
-      Bool Activate();
-      Bool Deactivate();
+            // Constructor
+            MapObj(IControl* parent);
+            ~MapObj();
 
-    };
+            // Activate and deactivate this control
+            Bool Activate();
+            Bool Deactivate();
+        };
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class ResourceObj
-    //
-    class ResourceObj : public BaseObj
-    {
-      PROMOTE_LINK(ResourceObj, BaseObj, 0x49D041A5); // "ObjectTweak::ResourceObj"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class UnitObj
+        //
+        class UnitObj : public BaseObj
+        {
+        PROMOTE_LINK(UnitObj, BaseObj, 0xC12DA4B3); // "ObjectTweak::UnitObj"
 
-    protected:
+        protected:
 
-      // Resource
-      IFaceVar *resource;
+            // Hitpoints
+            IFaceVar* team;
 
-    protected:
+        protected:
 
-      // Notification that a local var has changed value
-      void Notify(IFaceVar *var);
+            // Notification that a local var has changed value
+            void Notify(IFaceVar* var);
 
-    public:
+        public:
 
-      // Constructor
-      ResourceObj(IControl *parent);
-      ~ResourceObj();
+            // Constructor
+            UnitObj(IControl* parent);
+            ~UnitObj();
 
-      // Activate and deactivate this control
-      Bool Activate();
-      Bool Deactivate();
+            // Activate and deactivate this control
+            Bool Activate();
+            Bool Deactivate();
+        };
 
-    };
 
-  }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class ResourceObj
+        //
+        class ResourceObj : public BaseObj
+        {
+        PROMOTE_LINK(ResourceObj, BaseObj, 0x49D041A5); // "ObjectTweak::ResourceObj"
 
+        protected:
+
+            // Resource
+            IFaceVar* resource;
+
+        protected:
+
+            // Notification that a local var has changed value
+            void Notify(IFaceVar* var);
+
+        public:
+
+            // Constructor
+            ResourceObj(IControl* parent);
+            ~ResourceObj();
+
+            // Activate and deactivate this control
+            Bool Activate();
+            Bool Deactivate();
+        };
+    }
 }
 
 #endif

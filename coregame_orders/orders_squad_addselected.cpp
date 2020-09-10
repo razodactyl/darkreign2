@@ -23,56 +23,54 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class AddSelected
+    // NameSpace Squad
     //
-
-    U32 AddSelected::orderId;
-
-
-    //
-    // Generate
-    //
-    void AddSelected::Generate(Player &player, U32 squad)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class AddSelected
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.squad = squad;
+        U32 AddSelected::orderId;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+
+        //
+        // Generate
+        //
+        void AddSelected::Generate(Player& player, U32 squad)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.squad = squad;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 AddSelected::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                // Add this players selected units to the squad
+                squadObj->AddUnitObjList(&player.GetSelectedList());
+
+                // Notify the player that units were added to the squad
+                squadObj->NotifyPlayer(0x2EC81EFB, d->pid); // "Squad::UnitsAdded"
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 AddSelected::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        // Add this players selected units to the squad
-        squadObj->AddUnitObjList(&player.GetSelectedList());
-
-        // Notify the player that units were added to the squad
-        squadObj->NotifyPlayer(0x2EC81EFB, d->pid); // "Squad::UnitsAdded"
-      }
-     
-      return (sizeof (Data));
-    }
-  }
 }

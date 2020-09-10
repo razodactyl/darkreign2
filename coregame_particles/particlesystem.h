@@ -59,14 +59,16 @@ namespace ParticleSystem
     ParticleRenderClass* FindRenderType(U32 id);
 
     // Construct a new particle instance
-    Particle* New(
+    Particle* New
+    (
         ParticleClass* p,
         const Matrix& matrix,
         const Vector& veloc,
         const Vector& omega,
         const Vector& length,
         F32 timer,
-        void* data = NULL);
+        void* data = NULL
+    );
 
     // Particle system post load
     void PostLoad();
@@ -88,6 +90,7 @@ namespace ParticleSystem
     {
         return VisTest(TRUE, p0, p, p1);
     }
+
     inline Bool Visible(const Vector& p0, const ParticleClass* p, const Vector* p1 = NULL)
     {
         return VisTest(FALSE, p0, p, p1);

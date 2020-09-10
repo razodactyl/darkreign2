@@ -42,6 +42,7 @@ enum ClipType
     clipALL = clipNEARFAR | clip2D,
     clipDEFAULT = clipNEARFAR,
 };
+
 //-----------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------
@@ -60,6 +61,7 @@ struct ShadowInfo
 
     Area<F32> size;
 };
+
 //----------------------------------------------------------------------------
 
 
@@ -131,6 +133,7 @@ public:
         return index != 0xffffffff;
     }
 };
+
 //----------------------------------------------------------------------------
 
 class RootObj
@@ -142,7 +145,7 @@ protected:
     friend class MeshObj;
     friend class MeshEnt;
 
-    NodeIdent              name;
+    NodeIdent name;
 
 public:
     void ClearData()
@@ -150,6 +153,7 @@ public:
         name.Set("");
         name.index = 0;
     }
+
     RootObj()
     {
         ClearData();
@@ -159,6 +163,7 @@ public:
     {
         name.Set(_name);
     }
+
     void SetIndex(U32 index)
     {
         name.index = index;
@@ -168,19 +173,23 @@ public:
     {
         return name.str;
     }
+
     U32 GetNameCrc() const
     {
         return name.crc;
     }
+
     U32 GetIndex() const
     {
         return name.index;
     }
+
     const NodeIdent& GetIdent() const
     {
         return name;
     }
 };
+
 //----------------------------------------------------------------------------
 class Mesh;       // forward references
 class MeshObj;
@@ -201,36 +210,41 @@ enum AnimKeyEnum
     animDIRTY = 0x80,
     animALLDIRTY = animCONDIRTY | animDIRTY,
 };
+
 typedef U32 AnimKeyType;
 
 class AnimKey
 {
 public:
-    F32                     frame;
-    AnimKeyType             type;
+    F32 frame;
+    AnimKeyType type;
 
-    Quaternion              quaternion;       // spatial info
-    Vector                  position;
-    Vector                  scale;
+    Quaternion quaternion;       // spatial info
+    Vector position;
+    Vector scale;
 
     AnimKey()
     {
         ClearData();
     }
+
     void ClearData();
 
     U32 GetAnimType() const
     {
         return type;
     }
+
     F32 GetFrame() const
     {
         return frame;
     }
+
     void SetAnimType(AnimKeyType _type)
     {
         type = _type;
     }
+
     F32 SetFrame(F32 _frame)
     {
         frame = _frame;
@@ -240,10 +254,12 @@ public:
     {
         return quaternion;
     }
+
     const Vector& GetPosition() const
     {
         return position;
     }
+
     const Vector& GetScale() const
     {
         return scale;
@@ -259,7 +275,7 @@ public:
 
     void Set(const Quaternion& _quaternion, const Vector& _position)
     {
-        //    ASSERT( _quaternion.Dot( _quaternion) > 0);
+        //    ASSERT( _quaternion.Dot( _quaternion);> 0);
 
         quaternion = _quaternion;
         position = _position;
@@ -269,7 +285,7 @@ public:
 
     void Set(const Quaternion& _quaternion)
     {
-        //    ASSERT( _quaternion.Dot( _quaternion) > 0);
+        //    ASSERT( _quaternion.Dot( _quaternion);> 0);
 
         quaternion = _quaternion;
 
@@ -303,7 +319,7 @@ public:
 
     inline void operator=(const FamilyState& state);
 
-    inline Bool operator==(const AnimKey& key)
+    Bool operator==(const AnimKey& key)
     {
         // doesn't compare frame
         //
@@ -313,6 +329,7 @@ public:
     void SaveState(FScope* fScope);
     void LoadState(FScope* fScope);
 };
+
 //----------------------------------------------------------------------------
 
 // dynamic render feature control flags
@@ -348,7 +365,6 @@ enum FamilyNodeType
 
 class FamilyNode : public RootObj
 {
-
 public:
     FamilyNodeType nodeType;	                // family node type identifier
 
@@ -370,11 +386,13 @@ public:
     {
         ClearData();
     }
+
     FamilyNode(FamilyState& _state)
     {
         ClearData();
         SetState(_state);
     }
+
     virtual ~FamilyNode();
 
     // FamilyNode's FamilyState (state) overloads
@@ -402,46 +420,56 @@ public:
 
     // node type functions
     //
-    inline U32 GetNodeType() const
+    U32 GetNodeType() const
     {
         return nodeType;
     }
-    inline Bool IsMesh() const
+
+    Bool IsMesh() const
     {
         return nodeType == nodeMesh;
     }
-    inline Bool IsMeshRoot() const
+
+    Bool IsMeshRoot() const
     {
         return nodeType == nodeMeshRoot;
     }
-    inline Bool IsMeshObj() const
+
+    Bool IsMeshObj() const
     {
         return nodeType == nodeMeshObj;
     }
-    inline Bool IsMeshEnt() const
+
+    Bool IsMeshEnt() const
     {
         return nodeType == nodeMeshEnt;
     }
-    inline Bool IsLight() const
+
+    Bool IsLight() const
     {
         return nodeType == nodeLight;
     }
-    inline Bool IsCamera() const
+
+    Bool IsCamera() const
     {
         return nodeType == nodeCamera;
     }
+
     Bool HasLight() const
     {
         return Child() && Child()->IsLight();
     }
+
     Bool HasCamera() const
     {
         return Child() && Child()->IsCamera();
     }
+
     Bool HasMeshEnt() const
     {
         return Child() && Child()->IsMeshEnt();
     }
+
     Bool HasAttachment() const
     {
         return HasMeshEnt();
@@ -449,17 +477,17 @@ public:
 
     // family heirarchy 
     //
-    inline const FamilyNode* Parent() const
+    const FamilyNode* Parent() const
     {
         return parent;
     }
 
-    inline const NList<FamilyNode>* Children() const
+    const NList<FamilyNode>* Children() const
     {
         return &children;
     }
 
-    inline const FamilyNode* Child() const
+    const FamilyNode* Child() const
     {
         return children.GetHead();
     }
@@ -475,7 +503,7 @@ public:
 
     void Attach(const char* _name, FamilyNode& node, Bool local = FALSE);
 
-    inline void AttachLocal(const char* _name, FamilyNode& node)
+    void AttachLocal(const char* _name, FamilyNode& node)
     {
         Attach(_name, node, TRUE);
     }
@@ -486,22 +514,25 @@ public:
     void SetWorldAll(const Matrix& world);
     void SetWorldAll();
 
-    inline void SetWorld(const Matrix& matrix)
+    void SetWorld(const Matrix& matrix)
     {
         SetWorldMatrix(matrix);
         SetWorldAll();
     }
-    inline void SetWorld(const Quaternion& _quaternion, const Vector& _position)
+
+    void SetWorld(const Quaternion& _quaternion, const Vector& _position)
     {
         SetWorldMatrix(_quaternion, _position);
         SetWorldAll();
     }
-    inline void SetWorld(const Quaternion& _quaternion)
+
+    void SetWorld(const Quaternion& _quaternion)
     {
         SetWorldMatrix(_quaternion);
         SetWorldAll();
     }
-    inline void SetWorld(const Vector& _position)
+
+    void SetWorld(const Vector& _position)
     {
         SetWorldMatrix(_position);
         SetWorldAll();
@@ -509,10 +540,26 @@ public:
 
     // display
     //
-    virtual void Render() {}
-    virtual void Render(const Array<FamilyState>& stateArray, Color teamColor, U32 clipFlags = clipALL, U32 _controlFlags = controlDEF);
-    virtual void RenderColor(const Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL, U32 _controlFlags = controlDEF);
-    virtual void RenderSingle(Color teamColor = 0xffffffff, U32 _controlFlags = controlDEF) { teamColor; _controlFlags; }
+    virtual void Render()
+    {
+    }
+
+    virtual void Render
+    (
+        const Array<FamilyState>& stateArray, Color teamColor, U32 clipFlags = clipALL,
+        U32 _controlFlags = controlDEF
+    );
+    virtual void RenderColor
+    (
+        const Array<FamilyState>& stateArray, Color color, U32 clipFlags = clipALL,
+        U32 _controlFlags = controlDEF
+    );
+
+    virtual void RenderSingle(Color teamColor = 0xffffffff, U32 _controlFlags = controlDEF)
+    {
+        teamColor;
+        _controlFlags;
+    }
 
     // search & info
     //
@@ -524,55 +571,63 @@ public:
     //
     FamilyNode* Find(U32 crc, Bool local = FALSE);
 
-    inline Mesh* FindMesh(U32 crc, Bool local = FALSE)
+    Mesh* FindMesh(U32 crc, Bool local = FALSE)
     {
         FamilyNode* node = Find(crc, local);
 
-        return node && (nodeType == nodeMesh || nodeType == nodeMeshRoot) ? (Mesh*)node : NULL;
+        return node && (nodeType == nodeMesh || nodeType == nodeMeshRoot) ? (Mesh*)node : nullptr;
     }
-    inline MeshObj* FindMeshObj(U32 crc, Bool local = FALSE)
+
+    MeshObj* FindMeshObj(U32 crc, Bool local = FALSE)
     {
         FamilyNode* node = Find(crc, local);
 
-        return node && (nodeType == nodeMeshObj || nodeType == nodeMeshEnt) ? (MeshObj*)node : NULL;
+        return node && (nodeType == nodeMeshObj || nodeType == nodeMeshEnt) ? (MeshObj*)node : nullptr;
     }
 
-    inline FamilyNode* Find(const char* _name, Bool local = FALSE)
+    FamilyNode* Find(const char* _name, Bool local = FALSE)
     {
         return Find(Crc::CalcStr(_name), local);
     }
-    inline Mesh* FindMesh(const char* _name, Bool local = FALSE)
+
+    Mesh* FindMesh(const char* _name, Bool local = FALSE)
     {
         return FindMesh(Crc::CalcStr(_name), local);
     }
-    inline MeshObj* FindMeshObj(const char* _name, Bool local = FALSE)
+
+    MeshObj* FindMeshObj(const char* _name, Bool local = FALSE)
     {
         return FindMeshObj(Crc::CalcStr(_name), local);
     }
 
     // local = TRUE inline overloads
     //
-    inline FamilyNode* FindLocal(U32 crc)
+    FamilyNode* FindLocal(U32 crc)
     {
         return Find(crc, TRUE);
     }
-    inline FamilyNode* FindLocal(const char* _name)
+
+    FamilyNode* FindLocal(const char* _name)
     {
         return FindLocal(Crc::CalcStr(_name));
     }
-    inline Mesh* FindMeshLocal(U32 crc)
+
+    Mesh* FindMeshLocal(U32 crc)
     {
         return FindMesh(crc, TRUE);
     }
-    inline Mesh* FindMeshLocal(const char* _name)
+
+    Mesh* FindMeshLocal(const char* _name)
     {
         return FindMeshLocal(Crc::CalcStr(_name));
     }
-    inline MeshObj* FindMeshObjLocal(U32 crc)
+
+    MeshObj* FindMeshObjLocal(U32 crc)
     {
         return FindMeshObj(crc, TRUE);
     }
-    inline MeshObj* FindMeshObjLocal(const char* _name)
+
+    MeshObj* FindMeshObjLocal(const char* _name)
     {
         return FindMeshObjLocal(Crc::CalcStr(_name));
     }
@@ -584,11 +639,12 @@ public:
 
     // local = TRUE inline overloads
     //
-    inline Bool FindOffsetLocal(const FamilyNode* node, Matrix& matrix)
+    Bool FindOffsetLocal(const FamilyNode* node, Matrix& matrix)
     {
         return FindOffset(node, matrix, TRUE);
     }
-    inline FamilyNode* FindOffsetLocal(const char* _name, Matrix& matrix)
+
+    FamilyNode* FindOffsetLocal(const char* _name, Matrix& matrix)
     {
         return FindOffset(_name, matrix, TRUE);
     }
@@ -597,24 +653,32 @@ public:
     //
     // MAXMESHPERGROUP is maxsize of 'names'
     //
-    U32 GetHierarchy(BuffString* names, U32& count, Bool local = FALSE, U32 tabCount = 0, Matrix* matrix = NULL) const;
+    U32 GetHierarchy
+    (
+        BuffString* names, U32& count, Bool local = FALSE, U32 tabCount = 0,
+        Matrix* matrix = nullptr
+    ) const;
+
     U32 GetHierarchy(BuffString* names, Bool local = FALSE) const
     {
         U32 count = 0;
         return GetHierarchy(names, count, local);
     }
+
     void LogHierarchy(Bool local = FALSE) const
     {
-        GetHierarchy(NULL, local);
+        GetHierarchy(nullptr, local);
     }
+
     void DumpHierarchy(Bool local = FALSE) const
     {
         U32 count = 0;
         Matrix matrix;
         matrix.ClearData();
-        GetHierarchy(NULL, count, local, 0, &matrix);
+        GetHierarchy(nullptr, count, local, 0, &matrix);
     }
 };
+
 //----------------------------------------------------------------------------
 
 //class FamilyState : public AnimKey
@@ -634,12 +698,12 @@ protected:
     friend inline void FamilyNode::CalcWorldMatrix(const Matrix& world);
     friend inline void FamilyNode::CalcWorldMatrix(const Matrix& world, FamilyState& state);
 
-    Matrix                  objectMatrix;     // cached
-    Matrix                  worldMatrix;
+    Matrix objectMatrix;     // cached
+    Matrix worldMatrix;
 
     FamilyNode* node;             // instance
 
-    inline const Matrix& ObjectMatrix() const
+    const Matrix& ObjectMatrix() const
     {
         return objectMatrix;
     }
@@ -647,93 +711,107 @@ protected:
 public:
 
     void ClearData();
+
     FamilyState()
     {
         ClearData();
     }
 
-    inline const Matrix& WorldMatrix() const
+    const Matrix& WorldMatrix() const
     {
         return worldMatrix;
     }
-    inline const Matrix& ObjectMatrixPriv() const    // can't set everybody up as friends
+
+    const Matrix& ObjectMatrixPriv() const    // can't set everybody up as friends
     {
         return objectMatrix;
     }
 
-    inline void operator=(const AnimKey& key)
+    void operator=(const AnimKey& key)
     {
-        *((AnimKey*)this) = key;
+        *static_cast<AnimKey*>(this) = key;
     }
 
     // AnimKey overloads
     //
-    inline U32 GetAnimType() const
+    U32 GetAnimType() const
     {
         return AnimKey::GetAnimType();
     }
-    inline F32 GetFrame() const
+
+    F32 GetFrame() const
     {
         return AnimKey::GetFrame();
     }
-    inline void SetAnimType(AnimKeyType _type)
+
+    void SetAnimType(AnimKeyType _type)
     {
         AnimKey::SetAnimType(_type);
     }
-    inline F32 SetFrame(F32 _frame)
+
+    F32 SetFrame(F32 _frame)
     {
         AnimKey::SetFrame(_frame);
     }
 
-    inline const Quaternion& GetRotation() const
+    const Quaternion& GetRotation() const
     {
         return AnimKey::GetRotation();
     }
-    inline const Vector& GetPosition() const
+
+    const Vector& GetPosition() const
     {
         return AnimKey::GetPosition();
     }
-    inline const Vector& GetScale() const
+
+    const Vector& GetScale() const
     {
         return AnimKey::GetScale();
     }
 
-    inline void Set(const Matrix& matrix)
+    void Set(const Matrix& matrix)
     {
         AnimKey::Set(matrix);
     }
-    inline void Set(const Quaternion& _quaternion, const Vector& _position)
+
+    void Set(const Quaternion& _quaternion, const Vector& _position)
     {
         AnimKey::Set(_quaternion, _position);
     }
-    inline void Set(const Quaternion& _quaternion)
+
+    void Set(const Quaternion& _quaternion)
     {
         AnimKey::Set(_quaternion);
     }
-    inline void Set(const Vector& _position)
+
+    void Set(const Vector& _position)
     {
         AnimKey::Set(_position);
     }
-    inline void SetScale(const Vector& _scale)
+
+    void SetScale(const Vector& _scale)
     {
         AnimKey::SetScale(_scale);
     }
-    inline void Set(const AnimKey& src)
+
+    void Set(const AnimKey& src)
     {
         AnimKey::Set(src);
     }
 
-    inline FamilyNode& GetNode() const
+    FamilyNode& GetNode() const
     {
         ASSERT(node);
         return *node;
     }
-    inline const NodeIdent& GetIdent() const
+
+    const NodeIdent& GetIdent() const
     {
         ASSERT(node);
         return GetNode().GetIdent();
     }
-    inline const char* GetName() const
+
+    const char* GetName() const
     {
         ASSERT(node);
         return GetNode().GetName();
@@ -741,15 +819,17 @@ public:
 
     void SetNode(const FamilyNode& _node);
 
-    inline void SetNode(const FamilyState& _state)
+    void SetNode(const FamilyState& _state)
     {
         SetNode(_state.GetNode());
     }
-    inline void SetState(FamilyState& _state) const
+
+    void SetState(FamilyState& _state) const
     {
         GetNode().SetState(_state);
     }
-    inline void SetState(FamilyState& _state, U32 index) const
+
+    void SetState(FamilyState& _state, U32 index) const
     {
         GetNode().SetState(_state, index);
     }
@@ -761,10 +841,12 @@ public:
         objectMatrix.Set(quaternion);
         objectMatrix.Set(position);
     }
+
     void SetObjectScale()
     {
         objectMatrix.SetScale(scale);
     }
+
     void SetObject(const AnimKey& src)
     {
         objectMatrix.Set(src.quaternion);
@@ -777,10 +859,12 @@ public:
         worldMatrix.Set(quaternion);
         worldMatrix.Set(position);
     }
+
     void SetWorldScale()
     {
         worldMatrix.SetScale(scale);
     }
+
     void SetWorld(const AnimKey& src)
     {
         worldMatrix.Set(src.quaternion);
@@ -808,21 +892,24 @@ public:
         SetWorldScale();
     }
 
-    inline FamilyNode* Node() const
+    FamilyNode* Node() const
     {
         return node;
     }
-    inline Mesh* GetMeshFromRoot() const
+
+    Mesh* GetMeshFromRoot() const
     {
         return (Mesh*)node;
     }
+
     inline Bool IsTread() const;    // in mesh.h; only use on Mesh's
     inline Bool IsControl() const;
 
-    inline MeshObj* GetMeshObj() const
+    MeshObj* GetMeshObj() const
     {
         return (MeshObj*)node;
     }
+
     inline Mesh* GetMesh() const;    // in meshent.h; only use on MeshEnts's
 
     void SetObjectMatrix(const Matrix& matrix)
@@ -830,26 +917,31 @@ public:
         AnimKey::Set(matrix);
         SetObject();
     }
+
     void SetObjectMatrix(const Quaternion& _quaternion)
     {
         AnimKey::Set(_quaternion);
         SetObject();
     }
+
     void SetObjectMatrix(const Vector& _position)
     {
         AnimKey::Set(_position);
         SetObject();
     }
+
     void SetObjectMatrix(const Quaternion& _quaternion, const Vector& _position)
     {
         AnimKey::Set(_quaternion, _position);
         SetObject();
     }
+
     void SetObjectMatrixScale(const Vector& _scale)
     {
         AnimKey::Set(_scale);
         SetObjectScale();
     }
+
     void SetObjectMatrix(const AnimKey& key)
     {
         AnimKey::Set(key);
@@ -868,6 +960,7 @@ public:
         position = matrix.posit;
         worldMatrix = matrix;
     }
+
     void SetWorldMatrix(const Quaternion& _quaternion, const Vector& _position)
     {
         quaternion = _quaternion;
@@ -875,23 +968,26 @@ public:
         worldMatrix.Set(quaternion);
         worldMatrix.posit = position;
     }
+
     void SetWorldMatrix(const Quaternion& _quaternion)
     {
         quaternion = _quaternion;
         worldMatrix.Set(quaternion);
     }
+
     void SetWorldMatrix(const Vector& _position)
     {
         position = _position;
         worldMatrix.posit = position;
     }
+
     void SetWorldMatrixScale(const Vector& _scale)
     {
         scale = _scale;
         worldMatrix.SetScale(scale);
     }
-
 };
+
 //----------------------------------------------------------------------------
 
 // FamilyNode's FamilyState (state) overloads
@@ -901,6 +997,7 @@ inline void FamilyNode::CalcWorldMatrix(const Matrix& world)
     ASSERT(statePtr);
     statePtr->worldMatrix = parent ? statePtr->objectMatrix * world : world;   // FIXME
 }
+
 inline void FamilyNode::CalcWorldMatrix(const Matrix& world, FamilyState& state)
 {
     ASSERT(statePtr);
@@ -912,12 +1009,14 @@ inline void FamilyNode::SetState(const FamilyState& _state)
     statePtr = (FamilyState*)&_state;
     statePtr->SetNode(*this);
 }
+
 inline void FamilyNode::SetState(const FamilyState& _state, U32 index)
 {
     statePtr = (FamilyState*)&_state;
     statePtr->SetNode(*this);
     SetIndex(index);
 }
+
 inline void FamilyNode::SetState(const char* _name, const FamilyState& _state, U32 index)
 {
     statePtr = (FamilyState*)&_state;
@@ -937,6 +1036,7 @@ inline const Matrix& FamilyNode::ObjectMatrix() const
     ASSERT(statePtr);
     return statePtr->ObjectMatrix();
 }
+
 inline const Matrix& FamilyNode::WorldMatrix() const
 {
     ASSERT(statePtr);
@@ -948,26 +1048,31 @@ inline void FamilyNode::SetObjectMatrix(const AnimKey& key)
     ASSERT(statePtr);
     statePtr->SetObjectMatrix(key);
 }
+
 inline void FamilyNode::SetObjectMatrix(const Matrix& matrix)
 {
     ASSERT(statePtr);
     statePtr->SetObjectMatrix(matrix);
 }
+
 inline void FamilyNode::SetObjectMatrix(const Quaternion& _quaternion, const Vector& _position)
 {
     ASSERT(statePtr);
     statePtr->SetObjectMatrix(_quaternion, _position);
 }
+
 inline void FamilyNode::SetObjectMatrix(const Quaternion& _quaternion)
 {
     ASSERT(statePtr);
     statePtr->SetObjectMatrix(_quaternion);
 }
+
 inline void FamilyNode::SetObjectMatrix(const Vector& _position)
 {
     ASSERT(statePtr);
     statePtr->SetObjectMatrix(_position);
 }
+
 inline void FamilyNode::SetObjectMatrixScale(const Vector& _scale)
 {
     ASSERT(statePtr);
@@ -979,21 +1084,25 @@ inline void FamilyNode::SetWorldMatrix(const Matrix& matrix)
     ASSERT(statePtr);
     statePtr->SetWorldMatrix(matrix);
 }
+
 inline void FamilyNode::SetWorldMatrix(const Quaternion& _quaternion, const Vector& _position)
 {
     ASSERT(statePtr);
     statePtr->SetWorldMatrix(_quaternion, _position);
 }
+
 inline void FamilyNode::SetWorldMatrix(const Quaternion& _quaternion)
 {
     ASSERT(statePtr);
     statePtr->SetWorldMatrix(_quaternion);
 }
+
 inline void FamilyNode::SetWorldMatrix(const Vector& _position)
 {
     ASSERT(statePtr);
     statePtr->SetWorldMatrix(_position);
 }
+
 inline void FamilyNode::SetWorldMatrixScale(const Vector& _scale)
 {
     ASSERT(statePtr);
@@ -1002,8 +1111,9 @@ inline void FamilyNode::SetWorldMatrixScale(const Vector& _scale)
 
 inline void AnimKey::operator=(const FamilyState& state)
 {
-    *((AnimKey*)this) = *((AnimKey*)&state);
+    *static_cast<AnimKey*>(this) = *((AnimKey*)&state);
 }
+
 //----------------------------------------------------------------------------
 
 #endif			// FAMILY_H

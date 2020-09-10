@@ -181,7 +181,7 @@ namespace StyxNet
             length + (numRecipients * sizeof(CRC))
         );
 
-        CAST(ClientMessage::Data::SessionPrivateData *, sessionPrivateData, pkt.GetData())
+        CAST(ClientMessage::Data::SessionPrivateData*, sessionPrivateData, pkt.GetData())
 
         // Copy over the key
         sessionPrivateData->key = key;
@@ -192,15 +192,21 @@ namespace StyxNet
         if (numRecipients)
         {
             // Copy over the recipient list
-            Utils::Memcpy(pkt.GetData() + sizeof(ClientMessage::Data::SessionPrivateData), recipients,
-                          numRecipients * sizeof(CRC));
+            Utils::Memcpy
+            (
+                pkt.GetData() + sizeof(ClientMessage::Data::SessionPrivateData), recipients,
+                numRecipients * sizeof(CRC)
+            );
         }
 
         if (length)
         {
             // Copy over the message
-            Utils::Memcpy(pkt.GetData() + sizeof(ClientMessage::Data::SessionPrivateData) + numRecipients * sizeof(CRC),
-                          data, length);
+            Utils::Memcpy
+            (
+                pkt.GetData() + sizeof(ClientMessage::Data::SessionPrivateData) + numRecipients * sizeof(CRC),
+                data, length
+            );
         }
 
         // Send to the server our chat message
@@ -219,7 +225,7 @@ namespace StyxNet
             sizeof(ClientMessage::Data::SessionData) + length
         );
 
-        CAST(ClientMessage::Data::SessionData *, sessionData, pkt.GetData())
+        CAST(ClientMessage::Data::SessionData*, sessionData, pkt.GetData())
 
         // Save the key
         sessionData->key = key;
@@ -240,7 +246,7 @@ namespace StyxNet
     //
     void Client::StoreData(CRC key, CRC index, U32 length, const U8* data)
     {
-        ASSERT(length)
+        ASSERT(length);
 
         Packet& pkt = Packet::Create
         (
@@ -248,7 +254,7 @@ namespace StyxNet
             sizeof(ClientMessage::Data::SessionStoreData) + length
         );
 
-        CAST(ClientMessage::Data::SessionStoreData *, sessionStoreData, pkt.GetData())
+        CAST(ClientMessage::Data::SessionStoreData*, sessionStoreData, pkt.GetData())
 
         // Save the key and index
         sessionStoreData->key = key;
@@ -359,7 +365,7 @@ namespace StyxNet
     //
     void Client::MigrateSession()
     {
-        LDIAG("Asking server to migrate session")
+        LDIAG("Asking server to migrate session");
         Packet::Create(ClientMessage::SessionMigrate).Send(socket);
     }
 
@@ -369,7 +375,7 @@ namespace StyxNet
     //
     void Client::MigrationComplete()
     {
-        LDIAG("Telling server that migration is completed")
+        LDIAG("Telling server that migration is completed");
         Packet::Create(ClientMessage::SessionMigrated).Send(socket);
     }
 
@@ -379,7 +385,7 @@ namespace StyxNet
     //
     void Client::AcceptMigration(U16 port, U32 key)
     {
-        LDIAG("Accepting migration")
+        LDIAG("Accepting migration");
 
         ClientResponse::Data::SessionRequestMigrateAccept* sessionRequestMigrateAccept;
         Packet& pkt = Packet::Create(ClientResponse::SessionRequestMigrateAccept, sessionRequestMigrateAccept);
@@ -423,7 +429,7 @@ namespace StyxNet
     void Client::Bogus()
     {
         // Bad data, disconnect
-        LDIAG("Received bogus data")
+        LDIAG("Received bogus data");
         flags |= ClientFlags::Disconnected;
         SendEvent(EventMessage::ServerDisconnected);
     }
@@ -436,9 +442,9 @@ namespace StyxNet
     {
         if (length == sizeof(ServerMessage::Data::SessionSyncDataMigrate))
         {
-            CAST(const ServerMessage::Data::SessionSyncDataMigrate *, sessionMigrate, data)
+            CAST(const ServerMessage::Data::SessionSyncDataMigrate*, sessionMigrate, data)
 
-            LDIAG("Server wants us to migrate to " << sessionMigrate->address << " " << HEX(sessionMigrate->key, 8))
+            LDIAG("Server wants us to migrate to " << sessionMigrate->address << " " << HEX(sessionMigrate->key, 8));
 
             // We need to connect to a new server
             flags |= ClientFlags::Migrating;
@@ -446,11 +452,11 @@ namespace StyxNet
             // If we're connected, disconnect us
             if (flags & ClientFlags::Connected)
             {
-                LDIAG("Logging out")
+                LDIAG("Logging out");
                 Packet::Create(ClientMessage::UserLogout).Send(socket);
             }
 
-            LDIAG("Closing socket")
+            LDIAG("Closing socket");
 
             // Close the connection to the current server
             socket.Close();
@@ -468,7 +474,7 @@ namespace StyxNet
             // Save the migration key
             migrationKey = sessionMigrate->key;
 
-            LDIAG("Opening new socket")
+            LDIAG("Opening new socket");
 
             // Open the socket
             socket.Open();
@@ -481,12 +487,12 @@ namespace StyxNet
             // Make sure its using statistics
             socket.UseStats();
 
-            LDIAG("Binding the new socket")
+            LDIAG("Binding the new socket");
 
             // Rebind the socket
             socket.Bind(Win32::Socket::Address(ADDR_ANY, 0));
 
-            LDIAG("Seting up event select")
+            LDIAG("Seting up event select");
 
             socket.EventSelect(event, FD_CONNECT | FD_READ | FD_WRITE | FD_CLOSE);
 
@@ -508,8 +514,11 @@ namespace StyxNet
     //
     // ExtractSyncData
     //
-    Bool Client::ExtractSyncData(const U8*& ptr, U32& remaining, CRC& type, CRC& from, CRC& key, CRC& index,
-                                 U32& length, const U8*& data)
+    Bool Client::ExtractSyncData
+    (
+        const U8*& ptr, U32& remaining, CRC& type, CRC& from, CRC& key, CRC& index,
+        U32& length, const U8*& data
+    )
     {
         if (!remaining)
         {
@@ -535,9 +544,12 @@ namespace StyxNet
                         remaining -= sizeof(ServerMessage::Data::SessionSyncDataMigrate);
                         return (TRUE);
                     }
-                    LDIAG("SessionSyncData Type MIGRATE, Header was too small")
-                    LDIAG("remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataMigrate)[" <<
-                        sizeof (ServerMessage::Data::SessionSyncDataMigrate) << "]")
+                    LDIAG("SessionSyncData Type MIGRATE, Header was too small");
+                    LDIAG
+                    (
+                        "remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataMigrate);" <<
+                        sizeof(ServerMessage::Data::SessionSyncDataMigrate) << "]"
+                    )
                     return (FALSE);
                     break;
                 }
@@ -546,7 +558,7 @@ namespace StyxNet
                 {
                     if (remaining >= sizeof(ServerMessage::Data::SessionSyncDataData))
                     {
-                        CAST(const ServerMessage::Data::SessionSyncDataData *, syncData, ptr)
+                        CAST(const ServerMessage::Data::SessionSyncDataData*, syncData, ptr)
                         from = syncData->from;
                         key = syncData->key;
                         index = 0;
@@ -562,13 +574,16 @@ namespace StyxNet
                             remaining -= length;
                             return (TRUE);
                         }
-                        LDIAG("SessionSyncData Type DATA, Data was too small")
-                        LDIAG("remaining[" << remaining << "] length[" << length << "]")
+                        LDIAG("SessionSyncData Type DATA, Data was too small");
+                        LDIAG("remaining[" << remaining << "] length[" << length << "]");
                         return (FALSE);
                     }
-                    LDIAG("SessionSyncData Type DATA, Header was too small")
-                    LDIAG("remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataData)[" << sizeof
-                        (ServerMessage::Data::SessionSyncDataData) << "]")
+                    LDIAG("SessionSyncData Type DATA, Header was too small");
+                    LDIAG
+                    (
+                        "remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataData);" << sizeof
+                        (ServerMessage::Data::SessionSyncDataData) << "]"
+                    )
                     return (FALSE);
                     break;
                 }
@@ -577,7 +592,7 @@ namespace StyxNet
                 {
                     if (remaining >= sizeof(ServerMessage::Data::SessionSyncDataStoreData))
                     {
-                        CAST(const ServerMessage::Data::SessionSyncDataStoreData *, syncStore, ptr)
+                        CAST(const ServerMessage::Data::SessionSyncDataStoreData*, syncStore, ptr)
 
                         from = syncStore->from;
                         key = syncStore->key;
@@ -593,13 +608,16 @@ namespace StyxNet
                             remaining -= length;
                             return (TRUE);
                         }
-                        LDIAG("SessionSyncData Type STORE, Data was too small")
-                        LDIAG("remaining[" << remaining << "] length[" << length << "]")
+                        LDIAG("SessionSyncData Type STORE, Data was too small");
+                        LDIAG("remaining[" << remaining << "] length[" << length << "]");
                         return (FALSE);
                     }
-                    LDIAG("SessionSyncData Type STORE, Header was too small")
-                    LDIAG("remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataStoreData)[" <<
-                        sizeof (ServerMessage::Data::SessionSyncDataStoreData) << "]")
+                    LDIAG("SessionSyncData Type STORE, Header was too small");
+                    LDIAG
+                    (
+                        "remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataStoreData);" <<
+                        sizeof(ServerMessage::Data::SessionSyncDataStoreData) << "]"
+                    )
                     return (FALSE);
                     break;
                 }
@@ -608,7 +626,7 @@ namespace StyxNet
                 {
                     if (remaining >= sizeof(ServerMessage::Data::SessionSyncDataClearData))
                     {
-                        CAST(const ServerMessage::Data::SessionSyncDataClearData *, syncClear, ptr)
+                        CAST(const ServerMessage::Data::SessionSyncDataClearData*, syncClear, ptr)
 
                         from = syncClear->from;
                         key = syncClear->key;
@@ -620,9 +638,12 @@ namespace StyxNet
                         remaining -= sizeof(ServerMessage::Data::SessionSyncDataClearData);
                         return (TRUE);
                     }
-                    LDIAG("SessionSyncData Type CLEAR, Header was too small")
-                    LDIAG("remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataClearData)[" <<
-                        sizeof (ServerMessage::Data::SessionSyncDataClearData) << "]")
+                    LDIAG("SessionSyncData Type CLEAR, Header was too small");
+                    LDIAG
+                    (
+                        "remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataClearData);" <<
+                        sizeof(ServerMessage::Data::SessionSyncDataClearData) << "]"
+                    )
                     return (FALSE);
                     break;
                 }
@@ -631,7 +652,7 @@ namespace StyxNet
                 {
                     if (remaining >= sizeof(ServerMessage::Data::SessionSyncDataFlushData))
                     {
-                        CAST(const ServerMessage::Data::SessionSyncDataFlushData *, syncFlush, ptr)
+                        CAST(const ServerMessage::Data::SessionSyncDataFlushData*, syncFlush, ptr)
 
                         from = syncFlush->from;
                         key = 0;
@@ -643,9 +664,12 @@ namespace StyxNet
                         remaining -= sizeof(ServerMessage::Data::SessionSyncDataFlushData);
                         return (TRUE);
                     }
-                    LDIAG("SessionSyncData Type CLEAR, Header was too small")
-                    LDIAG("remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataFlushData)[" <<
-                        sizeof (ServerMessage::Data::SessionSyncDataFlushData) << "]")
+                    LDIAG("SessionSyncData Type CLEAR, Header was too small");
+                    LDIAG
+                    (
+                        "remaining[" << remaining << "] sizeof (ServerMessage::Data::SessionSyncDataFlushData);" <<
+                        sizeof(ServerMessage::Data::SessionSyncDataFlushData) << "]"
+                    )
                     return (FALSE);
                     break;
                 }
@@ -658,8 +682,8 @@ namespace StyxNet
                 }
             }
         }
-        LDIAG("SyncData was too small to contain a type")
-        LDIAG("remaining[" << remaining << "] sizeof (U32)[" << sizeof (U32) << "]")
+        LDIAG("SyncData was too small to contain a type");
+        LDIAG("remaining[" << remaining << "] sizeof (U32)[" << sizeof(U32) << "]");
         return (FALSE);
     }
 
@@ -709,12 +733,12 @@ namespace StyxNet
                         S32 error = networkEvents.GetError(FD_CONNECT_BIT);
                         if (error)
                         {
-                            LDIAG("Connection to server failed")
+                            LDIAG("Connection to server failed");
                             client->SendEvent(EventMessage::ServerConnectFailed);
                         }
                         else
                         {
-                            LDIAG("Connection established with server")
+                            LDIAG("Connection established with server");
 
                             /*
                             // Are we reconnecting ?
@@ -723,12 +747,12 @@ namespace StyxNet
                               // Attempt reconnect to the server
                               ClientMessage::Data::UserReconnect *reconnect;
                               Packet &pkt = Packet::Create(ClientMessage::UserReconnect, reconnect);
-              
+
                               reconnect->secret = client->secret;
                               reconnect->sequence = client->sequence;
                               pkt.Send(client->socket);
-              
-                              LDIAG("Sent UserReconnect to server")
+
+                              LDIAG("Sent UserReconnect to server");
                             }
                             else
                             */
@@ -743,7 +767,7 @@ namespace StyxNet
                                 login->migratable = client->config.migratable;
                                 pkt.Send(client->socket);
 
-                                LDIAG("Sent UserLogin to server")
+                                LDIAG("Sent UserLogin to server");
                             }
                         }
                     }
@@ -763,7 +787,7 @@ namespace StyxNet
 
                     if (networkEvents.GetEvents() & FD_WRITE)
                     {
-                        LDIAG("Able to write to server")
+                        LDIAG("Able to write to server");
                     }
 
                     if (networkEvents.GetEvents() & FD_CLOSE)
@@ -771,34 +795,31 @@ namespace StyxNet
                         // Close the socket on this side immediately
                         client->socket.Close();
 
-                        /*
-                        // Are we logged in to the server
-                        if (client->flags & ClientFlags::Connected)
-                        {
-                          // Attempt reconnection
-                          LDIAG("We lost our connection to the server, attempting reconnection")
-            
-                          client->flags |= ClientFlags::Reconnecting;
-            
-                          client->socket.Close();
-                          client->socket.Open();
-                          client->socket.Bind(Win32::Socket::Address(ADDR_ANY, 0));
-                          client->socket.EventSelect(client->event, FD_CONNECT | FD_READ | FD_WRITE | FD_CLOSE);
-                          if (!client->socket.Connect(client->config.address))
-                          {
-                            LWARN("Could not connect socket to " << client->config.address)
-                            client->SendEvent(EventMessage::ServerConnectFailed);
-                          }
-                        }
-                        else
-                        */
-
+                        // // Are we logged in to the server
+                        // if (client->flags & ClientFlags::Connected)
+                        // {
+                        //     // Attempt reconnection
+                        //     LDIAG("We lost our connection to the server, attempting reconnection");
+                        //
+                        //     client->flags |= ClientFlags::Reconnecting;
+                        //
+                        //     client->socket.Close();
+                        //     client->socket.Open();
+                        //     client->socket.Bind(Win32::Socket::Address(ADDR_ANY, 0));
+                        //     client->socket.EventSelect(client->event, FD_CONNECT | FD_READ | FD_WRITE | FD_CLOSE);
+                        //     if (!client->socket.Connect(client->config.address))
+                        //     {
+                        //         LWARN("Could not connect socket to " << client->config.address);
+                        //         client->SendEvent(EventMessage::ServerConnectFailed);
+                        //     }
+                        // }
+                        // else
                         {
                             // We only want a single disconnected message
                             if (!(client->flags & ClientFlags::Disconnected))
                             {
                                 client->flags |= ClientFlags::Disconnected;
-                                LDIAG("Connection to server has been severed")
+                                LDIAG("Connection to server has been severed");
                                 client->SendEvent(EventMessage::ServerDisconnected);
                             }
                         }
@@ -872,10 +893,10 @@ namespace StyxNet
         {
             case ServerResponse::UserConnected:
             {
-                LDIAG("Successfully connected to server")
+                LDIAG("Successfully connected to server");
                 SendEvent(EventMessage::ServerConnected);
 
-                CAST(const ServerResponse::Data::UserConnected *, userConnected, packet.GetData())
+                CAST(const ServerResponse::Data::UserConnected*, userConnected, packet.GetData());
 
                 // The user is now connected
                 flags |= ClientFlags::Connected;
@@ -886,7 +907,7 @@ namespace StyxNet
                 // Are we migrating ?
                 if (flags & ClientFlags::Migrating)
                 {
-                    LDIAG("We're migrating")
+                    LDIAG("We're migrating");
                     ClientMessage::Data::UserMigrating* userMigrating;
                     Packet& pkt = Packet::Create(ClientMessage::UserMigrating, userMigrating);
                     userMigrating->migrationKey = migrationKey;
@@ -898,56 +919,56 @@ namespace StyxNet
             }
 
             case ServerResponse::UserNotInSession:
-            LDIAG("User is not in a session")
-            break;
+            LDIAG("User is not in a session");
+                break;
 
             case ServerResponse::UserMigrated:
-            LDIAG("We successfully migrated")
+            LDIAG("We successfully migrated");
                 SendEvent(EventMessage::SessionMigrateComplete);
                 break;
 
             case ServerResponse::UserMigrationFailed:
-            LDIAG("We failed to migrate")
+            LDIAG("We failed to migrate");
                 SendEvent(EventMessage::SessionMigrateFailed);
                 break;
 
             case ServerResponse::UserMigrateNotNeeded:
-            LDIAG("No need to migrate")
+            LDIAG("No need to migrate");
                 SendEvent(EventMessage::SessionMigrateNotNeeded);
                 break;
 
             case ServerResponse::ServerShuttingDown:
-            LDIAG("Server is shutting down")
-            break;
+            LDIAG("Server is shutting down");
+                break;
 
             case ServerResponse::SessionCreated:
-            LDIAG("Session successfully created")
+            LDIAG("Session successfully created");
                 ASSERT(!session);
                 session = new Session;
                 SendEvent(EventMessage::SessionCreated);
                 break;
 
             case ServerResponse::SessionConnected:
-            LDIAG("Session successfully connected")
+            LDIAG("Session successfully connected");
                 ASSERT(!session);
                 session = new Session;
                 SendEvent(EventMessage::SessionConnected);
                 break;
 
             case ServerResponse::SessionAlreadyExists:
-            LDIAG("Session with that name already exists")
+            LDIAG("Session with that name already exists");
                 SendEvent(EventMessage::SessionAlreadyExists);
                 break;
 
             case ServerResponse::SessionJoined:
-            LDIAG("Session successfully joined")
+            LDIAG("Session successfully joined");
                 ASSERT(!session);
                 session = new Session;
                 SendEvent(EventMessage::SessionJoined);
                 break;
 
             case ServerResponse::SessionClosed:
-            LDIAG("Session has been closed")
+            LDIAG("Session has been closed");
                 ASSERT(session);
                 delete session;
                 session = nullptr;
@@ -955,52 +976,52 @@ namespace StyxNet
                 break;
 
             case ServerResponse::SessionList:
-            LDIAG("Session list retrived")
-            break;
+            LDIAG("Session list retrived");
+                break;
 
             case ServerResponse::SessionHostOnly:
-            LDIAG("Only the host can do that")
-            break;
+            LDIAG("Only the host can do that");
+                break;
 
             case ServerResponse::SessionNotFound:
-            LDIAG("Session was not found")
-            break;
+            LDIAG("Session was not found");
+                break;
 
             case ServerResponse::SessionBadUser:
-            LDIAG("Session reports bad user name")
+            LDIAG("Session reports bad user name");
                 SendEvent(EventMessage::SessionBadUser);
                 break;
 
             case ServerResponse::SessionBadPassword:
-            LDIAG("Session reports bad password")
+            LDIAG("Session reports bad password");
                 SendEvent(EventMessage::SessionBadPassword);
                 break;
 
             case ServerResponse::SessionFull:
-            LDIAG("Session is full")
+            LDIAG("Session is full");
                 SendEvent(EventMessage::SessionFull);
                 break;
 
             case ServerResponse::SessionIsLocked:
-            LDIAG("Session is locked")
+            LDIAG("Session is locked");
                 SendEvent(EventMessage::SessionIsLocked);
                 break;
 
             case ServerMessage::SessionKicked:
-            LDIAG("Kicked from session")
+            LDIAG("Kicked from session");
                 SendEvent(EventMessage::SessionKicked);
                 break;
 
             case ServerResponse::SessionLocalOnly:
-            LDIAG("Attempt to perform an operation which is only allowed for local players")
-            break;
+            LDIAG("Attempt to perform an operation which is only allowed for local players");
+                break;
 
             case ServerResponse::SessionSingleOnly:
-            LDIAG("Only one session can be created on a non stand alone server")
-            break;
+            LDIAG("Only one session can be created on a non stand alone server");
+                break;
 
             case ServerMessage::ServerShutdown:
-            LDIAG("Server is shutting down")
+            LDIAG("Server is shutting down");
                 flags &= ~ClientFlags::Connected;
                 break;
 
@@ -1009,7 +1030,7 @@ namespace StyxNet
                 ServerMessage::Data::SessionUserAdded* sessionUserAdded;
                 if (packet.GetData((const ServerMessage::Data::SessionUserAdded*&)sessionUserAdded))
                 {
-                    ASSERT(session)
+                    ASSERT(session);
 
                     // Tell everyone that there's a new user
                     SendEvent
@@ -1022,7 +1043,7 @@ namespace StyxNet
                     {
                         session->AddUser(sessionUserAdded->who);
 
-                        LDIAG("User " << sessionUserAdded->who.str << " has entered the sesion")
+                        LDIAG("User " << sessionUserAdded->who.str << " has entered the sesion");
 
                         // If this is us then tell someone
                         if (sessionUserAdded->who.crc == config.userName.crc)
@@ -1054,7 +1075,7 @@ namespace StyxNet
                     User* user = session->FindUser(sessionUserRemoved->who);
                     if (user)
                     {
-                        LDIAG("User " << user->GetName().str << " has left the session")
+                        LDIAG("User " << user->GetName().str << " has left the session");
 
                         // Inform that the user left
                         SendEvent
@@ -1075,7 +1096,7 @@ namespace StyxNet
                     }
                     else
                     {
-                        LDIAG("User " << sessionUserRemoved->who << "was not in session")
+                        LDIAG("User " << sessionUserRemoved->who << "was not in session");
                     }
                 }
                 else
@@ -1102,7 +1123,7 @@ namespace StyxNet
                     }
                     else
                     {
-                        LDIAG("User " << sessionUserDisconnected->who << "was not in session")
+                        LDIAG("User " << sessionUserDisconnected->who << "was not in session");
                     }
                 }
                 else
@@ -1129,7 +1150,7 @@ namespace StyxNet
                     }
                     else
                     {
-                        LDIAG("User " << sessionUserReconnected->who << "was not in session")
+                        LDIAG("User " << sessionUserReconnected->who << "was not in session");
                     }
                 }
                 else
@@ -1141,9 +1162,9 @@ namespace StyxNet
 
             case ServerMessage::SessionInfo:
             {
-                CAST(const ServerMessage::Data::SessionInfo *, sessionInfo, packet.GetData())
+                CAST(const ServerMessage::Data::SessionInfo*, sessionInfo, packet.GetData())
 
-                ASSERT(session)
+                ASSERT(session);
                 session->name = sessionInfo->name.str;
                 session->flags = sessionInfo->flags;
                 session->maxUsers = sessionInfo->maxUsers;
@@ -1158,7 +1179,7 @@ namespace StyxNet
 
             case ServerMessage::SessionData:
             {
-                CAST(const ServerMessage::Data::SessionData *, sessionData, packet.GetData())
+                CAST(const ServerMessage::Data::SessionData*, sessionData, packet.GetData())
 
                 EventMessage::Data::SessionData* data = new EventMessage::Data::SessionData;
 
@@ -1183,8 +1204,8 @@ namespace StyxNet
                 {
                     case Std::UserPing:
                     {
-                        CAST(const Std::Data::UserPing *, userPing, sessionData->data)
-                        ASSERT(session)
+                        CAST(const Std::Data::UserPing*, userPing, sessionData->data)
+                        ASSERT(session);
                         User* user = session->FindUser(sessionData->from);
                         if (user)
                         {
@@ -1198,7 +1219,7 @@ namespace StyxNet
 
             case ServerMessage::SessionPrivateData:
             {
-                CAST(const ServerMessage::Data::SessionPrivateData *, sessionPrivateData, packet.GetData())
+                CAST(const ServerMessage::Data::SessionPrivateData*, sessionPrivateData, packet.GetData())
                 EventMessage::Data::SessionPrivateData* data = new EventMessage::Data::SessionPrivateData;
 
                 data->from = sessionPrivateData->from;
@@ -1220,7 +1241,7 @@ namespace StyxNet
 
             case ServerMessage::SessionSyncData:
             {
-                CAST(const ServerMessage::Data::SessionSyncData *, sessionSyncData, packet.GetData())
+                CAST(const ServerMessage::Data::SessionSyncData*, sessionSyncData, packet.GetData())
                 EventMessage::Data::SessionSyncData* data = new EventMessage::Data::SessionSyncData;
 
                 // Save the sequence number
@@ -1245,18 +1266,21 @@ namespace StyxNet
 
             case ServerMessage::SessionRequestMigrate:
             {
-                CAST(const ServerMessage::Data::SessionRequestMigrate *, sessionMigrateRequest, packet.GetData())
+                CAST(const ServerMessage::Data::SessionRequestMigrate*, sessionMigrateRequest, packet.GetData())
 
                 // Send an event so that they can make the determination on whether to accept or not
-                SendEvent(EventMessage::SessionMigrateRequest,
-                          new EventMessage::Data::SessionMigrateRequest(sessionMigrateRequest->seq));
+                SendEvent
+                (
+                    EventMessage::SessionMigrateRequest,
+                    new EventMessage::Data::SessionMigrateRequest(sessionMigrateRequest->seq)
+                );
                 break;
             }
 
             default:
                 // Unknown packet command
-            LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server")
-            break;
+            LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
+                break;
         }
     }
 

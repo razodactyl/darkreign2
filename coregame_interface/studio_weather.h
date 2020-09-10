@@ -33,56 +33,57 @@
 //
 namespace Studio
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Options : video options dialog
-  //
-  class Weather : public ICWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Options : video options dialog
+    //
+    class Weather : public ICWindow
+    {
     PROMOTE_LINK(Weather, ICWindow, 0x43A3F670); // "Weather"
 
-  protected:
-    U32  FillRainTypes();
-    U32  FillSplatTypes();
+    protected:
+        U32 FillRainTypes();
+        U32 FillSplatTypes();
 
-    void SetSelRainType( U32 sel);
+        void SetSelRainType(U32 sel);
 
-    ICListBox * RainTypesBox()
-    {
-      return (ICListBox *) Find(Crc::CalcStr("RainTypes"));
-    }
-    ICListBox * SplatTypesBox()
-    {
-      return (ICListBox *) Find(Crc::CalcStr("SplatTypes"));
-    }
-    ICListBox * SplatTypesDropGround()
-    {
-      ICDropList * box = (ICDropList *) Find(Crc::CalcStr("SplatGroundList"));
+        ICListBox* RainTypesBox()
+        {
+            return (ICListBox*)Find(Crc::CalcStr("RainTypes"));
+        }
 
-      return box ? box->GetListBox() : NULL;
-    }
-    ICListBox * SplatTypesDropWater()
-    {
-      ICDropList * box = (ICDropList *) Find(Crc::CalcStr("SplatWaterList"));
+        ICListBox* SplatTypesBox()
+        {
+            return (ICListBox*)Find(Crc::CalcStr("SplatTypes"));
+        }
 
-      return box ? box->GetListBox() : NULL;
-    }
+        ICListBox* SplatTypesDropGround()
+        {
+            ICDropList* box = (ICDropList*)Find(Crc::CalcStr("SplatGroundList"));
 
-    // enable/disable controls based on context
-    //
-    void Check();
+            return box ? box->GetListBox() : NULL;
+        }
 
-  public:
+        ICListBox* SplatTypesDropWater()
+        {
+            ICDropList* box = (ICDropList*)Find(Crc::CalcStr("SplatWaterList"));
 
-    // Constructor 
-    Weather(IControl *parent);
-    ~Weather();
+            return box ? box->GetListBox() : NULL;
+        }
 
-    // Event handler
-    U32 HandleEvent(Event &e);
-  };
+        // enable/disable controls based on context
+        //
+        void Check();
 
+    public:
+
+        // Constructor 
+        Weather(IControl* parent);
+        ~Weather();
+
+        // Event handler
+        U32 HandleEvent(Event& e);
+    };
 }
 
 

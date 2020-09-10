@@ -20,17 +20,18 @@ class Animation
 {
     //protected:
 public:
-    F32                     maxFrame;     // the highest key number
+    F32 maxFrame;     // the highest key number
 
-    Array<AnimKey>          keys;
+    Array<AnimKey> keys;
 
-    U32                     index;        // which mesh in a group 
+    U32 index;        // which mesh in a group 
 
 public:
     Animation()
     {
         ClearData();
     }
+
     ~Animation()
     {
         Release();
@@ -41,6 +42,7 @@ public:
         maxFrame = 0.0f;
         index = 0;
     }
+
     void Release()
     {
         keys.Release();
@@ -64,10 +66,12 @@ public:
         state.SetObject();
         state.SetObjectScale();
     }
+
     inline void SetFrame(F32 frame, Array<FamilyState>& stateArray) const
     {
         SetFrame(frame, stateArray[index]);
     }
+
     inline void SetFrame(F32 frame, Array<AnimKey>& keyArray) const
     {
         SetFrame(frame, keyArray[index]);
@@ -77,6 +81,7 @@ public:
     {
         SetFrameOverlay(frame, stateArray[index], controlFrame);
     }
+
     inline void SetFrameOverlay(F32 frame, Array<AnimKey>& keyArray, F32 controlFrame) const
     {
         SetFrameOverlay(frame, keyArray[index], controlFrame);
@@ -90,6 +95,7 @@ public:
         index = _index;
         keys.Alloc(count);
     }
+
     inline void SetInterpolate(F32 frame, FamilyState* states) const
     {
         ASSERT(keys.count == 2);
@@ -100,12 +106,13 @@ public:
     {
         return keys[0].type;
     }
+
     inline Bool IsValid() const
     {
         return keys[0].frame < keys[1].frame;
     }
-
 };
+
 //----------------------------------------------------------------------------
 
 enum AnimType
@@ -121,18 +128,18 @@ class AnimList : public List<Animation>
 public:
     NBinTree<AnimList>::Node cycleNode;
 
-    F32                     maxFrame;     // the highest key number
-    F32                     endFrame;     // last non-loop frame
-    Array<AnimKey>          states;       // starting states for this cycle
+    F32 maxFrame;     // the highest key number
+    F32 endFrame;     // last non-loop frame
+    Array<AnimKey> states;       // starting states for this cycle
 
-    AnimType                type;
+    AnimType type;
 
-    GameIdent               name;
+    GameIdent name;
 
-    F32                     animSpeed, framesPerMeter;
-    F32                     controlFrame;  // usually middle
+    F32 animSpeed, framesPerMeter;
+    F32 controlFrame;  // usually middle
 
-    Bounds                  bounds;        // bounding bounds for this cycle
+    Bounds bounds;        // bounding bounds for this cycle
 
     void ClearData()
     {
@@ -149,11 +156,13 @@ public:
     {
         ClearData();
     }
+
     void Release()
     {
         states.Release();
         DisposeAll();
     }
+
     ~AnimList()
     {
         Release();
@@ -179,6 +188,7 @@ public:
 
     U32 GetMem() const;
 };
+
 //----------------------------------------------------------------------------
 
 class AnimCycles : public NBinTree<AnimList>
@@ -186,6 +196,7 @@ class AnimCycles : public NBinTree<AnimList>
 public:
     U32 GetMem() const;
 };
+
 //----------------------------------------------------------------------------
 
 #endif  // __ANIM_H

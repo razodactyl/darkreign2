@@ -23,7 +23,7 @@ namespace FileSys
     static Bool sysInit = FALSE;
     static ResourceStreamPtr cStream;
     static NList<ResourceStream> streams(&ResourceStream::node);
-    static List<FileSys::KeyDirPair> subPairs;
+    static List<KeyDirPair> subPairs;
     static DTrack* dTracker;
     static FileString packExtension(".zwp");
     static FileString packWildCard("*.zwp");
@@ -123,7 +123,6 @@ namespace FileSys
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class FileSrc - A single file source (directory/pack/stream)
@@ -148,7 +147,6 @@ namespace FileSys
     {
         dTracker->RegisterDestruction(dTrack);
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -186,7 +184,7 @@ namespace FileSys
     Bool ResourceStream::HasStreamReference(U32 crc)
     {
         // Check each file source
-        for (NList<FileSrc>::Iterator i(&sources); *i; i++)
+        for (NList<FileSrc>::Iterator i(&sources); *i; ++i)
         {
             // Does this file source reference 'crc'
             if ((*i)->HasStreamReference(crc))
@@ -221,7 +219,7 @@ namespace FileSys
     Bool ResourceStream::Exists(U32 crc)
     {
         // Check each file source
-        for (NList<FileSrc>::Iterator i(&sources); *i; i++)
+        for (NList<FileSrc>::Iterator i(&sources); *i; ++i)
         {
             if ((*i)->Exists(crc))
             {
@@ -241,10 +239,10 @@ namespace FileSys
     //
     FastFind* ResourceStream::GetFastFind(const char* name)
     {
-        FastFind* fastFind = NULL;
+        FastFind* fastFind = nullptr;
 
         // Check each file source
-        for (NList<FileSrc>::Iterator i(&sources); *i && !fastFind; i++)
+        for (NList<FileSrc>::Iterator i(&sources); *i && !fastFind; ++i)
         {
             fastFind = (*i)->GetFastFind(name, this);
         }
@@ -260,10 +258,10 @@ namespace FileSys
     //
     DataFile* ResourceStream::Open(const char* name)
     {
-        DataFile* file = NULL;
+        DataFile* file = nullptr;
 
         // Check each file source
-        for (NList<FileSrc>::Iterator i(&sources); *i && !file; i++)
+        for (NList<FileSrc>::Iterator i(&sources); *i && !file; ++i)
         {
             file = (*i)->Open(name);
         }
@@ -286,12 +284,11 @@ namespace FileSys
         LOG_DIAG(("%sSTREAM %s", *iStr, streamId.str));
 
         // log each source
-        for (NList<FileSrc>::Iterator i(&sources); *i; i++)
+        for (NList<FileSrc>::Iterator i(&sources); *i; ++i)
         {
             (*i)->LogSource(indent + 2);
         }
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -304,8 +301,8 @@ namespace FileSys
     //  
     DataFileDirect::DataFileDirect(const char* path, const char* nameIn) :
         DataFile(nameIn),
-        path(path),
-        memoryPtr(NULL)
+        memoryPtr(nullptr),
+        path(path)
     {
         file.Open(path, name.str, File::READ);
     }
@@ -319,7 +316,7 @@ namespace FileSys
         if (memoryPtr)
         {
             file.UnmapMemory(memoryPtr);
-            memoryPtr = NULL;
+            memoryPtr = nullptr;
         }
 
         file.Close();
@@ -389,7 +386,7 @@ namespace FileSys
     //
     void* DataFileDirect::GetMemoryPtr()
     {
-        if (memoryPtr == NULL)
+        if (memoryPtr == nullptr)
         {
             memoryPtr = file.MapMemory(name.str);
         }
@@ -408,7 +405,6 @@ namespace FileSys
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // System Functions
@@ -422,7 +418,7 @@ namespace FileSys
     ResourceStream* FindStream(U32 crc)
     {
         // Check each existing stream
-        for (NList<ResourceStream>::Iterator i(&streams); *i; i++)
+        for (NList<ResourceStream>::Iterator i(&streams); *i; ++i)
         {
             // Is this the one we're after
             if ((*i)->streamId.crc == crc)
@@ -431,7 +427,7 @@ namespace FileSys
             }
         }
 
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -471,7 +467,7 @@ namespace FileSys
         U32 crc = Crc::CalcStr(key);
 
         // Find sub
-        for (List<KeyDirPair>::Iterator i(&subPairs); *i; i++)
+        for (List<KeyDirPair>::Iterator i(&subPairs); *i; ++i)
         {
             // Is this the one we're looking for
             if ((*i)->keyId.crc == crc)
@@ -481,7 +477,7 @@ namespace FileSys
         }
 
         // Didn't find the pair
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -499,7 +495,7 @@ namespace FileSys
         char* p;
 
         // Does 'str' contain the substitution key
-        if ((p = Utils::Strstr(str, pair->keyId.str)) == 0)
+        if ((p = Utils::Strstr(str, pair->keyId.str)) == nullptr)
         {
             return (FALSE);
         }
@@ -508,7 +504,7 @@ namespace FileSys
         const char* s = str;
 
         // Work out how many chars in front of sub key
-        U32 c = (U32)(p - s);
+        U32 c = static_cast<U32>(p - s);
 
         ASSERT(c >= 0);
 
@@ -569,50 +565,50 @@ namespace FileSys
         FileSysIdent streamId = fScope->NextArgString();
 
         // Step through each function in this scope
-        while ((sScope = fScope->NextFunction()) != 0)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0x9EE0321C: // "AddDir"
-                AddSrcDir(streamId.str, SubStatic(sScope->NextArgString()));
-                break;
+                case 0x9EE0321C: // "AddDir"
+                    AddSrcDir(streamId.str, SubStatic(sScope->NextArgString()));
+                    break;
 
-            case 0x88D49578: // "AddPack"
-                AddSrcPack(streamId.str, SubStatic(sScope->NextArgString()));
-                break;
+                case 0x88D49578: // "AddPack"
+                    AddSrcPack(streamId.str, SubStatic(sScope->NextArgString()));
+                    break;
 
-            case 0xA8C3233B: // "AddStream"
-                AddSrcStream(streamId.str, sScope->NextArgString());
-                break;
+                case 0xA8C3233B: // "AddStream"
+                    AddSrcStream(streamId.str, sScope->NextArgString());
+                    break;
 
-            case 0xAE33BA8A: // "AddDirRecurse"
-                AddSrcDirRecurse(streamId.str, SubStatic(sScope->NextArgString()));
-                break;
+                case 0xAE33BA8A: // "AddDirRecurse"
+                    AddSrcDirRecurse(streamId.str, SubStatic(sScope->NextArgString()));
+                    break;
 
-            case 0xAB492463: // "AddResource"
-            {
-                // Get the directory that holds the resource
-                PathString path(SubStatic(sScope->NextArgString()));
+                case 0xAB492463: // "AddResource"
+                {
+                    // Get the directory that holds the resource
+                    PathString path(SubStatic(sScope->NextArgString()));
 
-                // Add the resource
-                AddResource(streamId.str, path.str, sScope->NextArgString());
-                break;
-            }
+                    // Add the resource
+                    AddResource(streamId.str, path.str, sScope->NextArgString());
+                    break;
+                }
 
-            case 0x2FBD944F: // "AddResourceOptional"
-            {
-                // Get the directory that holds the resource
-                PathString path(SubStatic(sScope->NextArgString()));
+                case 0x2FBD944F: // "AddResourceOptional"
+                {
+                    // Get the directory that holds the resource
+                    PathString path(SubStatic(sScope->NextArgString()));
 
-                // Add the resource
-                AddResource(streamId.str, path.str, sScope->NextArgString(), FALSE);
-                break;
-            }
+                    // Add the resource
+                    AddResource(streamId.str, path.str, sScope->NextArgString(), FALSE);
+                    break;
+                }
 
-            // ignore anything else
-            default:
+                    // ignore anything else
+                default:
                 LOG_WARN(("Ignoring unexpected function '%s'", sScope->NameStr()));
-                break;
+                    break;
             }
         }
     }
@@ -697,7 +693,7 @@ namespace FileSys
         dTracker = new DTrack("FileSys", 64);
 
         // Clear current stream
-        cStream = NULL;
+        cStream = nullptr;
 
         sysInit = TRUE;
     }
@@ -765,7 +761,7 @@ namespace FileSys
         const char* sPtr = path;
 
         // Support multiple subs on single string
-        for (!i; *i; i++)
+        for (!i; *i; ++i)
         {
             // Process subs on source, put result in dest
             if (Subst(dBuf.str, sPtr, *i))
@@ -965,7 +961,8 @@ namespace FileSys
                         LOG_WARN(("Unable to add sub-dir '%s' to stream '%s'", find.finddata.name, stream));
                     }
                 }
-            } while (Dir::FindNext(find));
+            }
+            while (Dir::FindNext(find));
         }
 
         // Finish find operation
@@ -986,12 +983,12 @@ namespace FileSys
         PathString path;
 
         // Try and add the directory
-        Utils::MakePath(path.str, path.GetSize(), dir, name, NULL);
+        Utils::MakePath(path.str, path.GetSize(), dir, name, nullptr);
         Bool success1 = AddSrcDirRecurse(stream, path.str);
 
         // Try and add the pack
         Utils::MakePath(path.str, path.GetSize(), dir, name, packExtension.str);
-        Bool success2 = FileSys::AddSrcPack(stream, path.str);
+        Bool success2 = AddSrcPack(stream, path.str);
 
         // Did both sources fail, and the resource is required
         if (!success1 && !success2 && required)
@@ -1010,7 +1007,7 @@ namespace FileSys
     //
     const char* GetActiveStream()
     {
-        return (cStream.Alive() ? cStream->streamId.str : NULL);
+        return (cStream.Alive() ? cStream->streamId.str : nullptr);
     }
 
 
@@ -1027,11 +1024,8 @@ namespace FileSys
             cStream = FindStream(Crc::CalcStr(stream));
             return (cStream.Alive());
         }
-        else
-        {
-            cStream = NULL;
-            return (TRUE);
-        }
+        cStream = nullptr;
+        return (TRUE);
     }
 
 
@@ -1073,7 +1067,7 @@ namespace FileSys
             // Are we currently pointing to it
             if (s == cStream)
             {
-                cStream = NULL;
+                cStream = nullptr;
             }
 
             // Delete it
@@ -1100,7 +1094,7 @@ namespace FileSys
         ResourceStream* s;
 
         // Check each existing stream
-        while ((s = i++) != NULL)
+        while ((s = i++) != nullptr)
         {
             // Ignore if read-only flag is set
             if (!s->readOnly)
@@ -1108,7 +1102,7 @@ namespace FileSys
                 // Clear current stream if being deleted
                 if (s == cStream)
                 {
-                    cStream = NULL;
+                    cStream = nullptr;
                 }
 
                 // Delete it
@@ -1156,18 +1150,16 @@ namespace FileSys
     Bool BuildIndexes(const char* stream)
     {
         // Get target stream
-        ResourceStream* s = NULL;
+        ResourceStream* s = nullptr;
 
         if (stream)
         {
             s = FindStream(Crc::CalcStr(stream));
         }
-        else
-
-            if (cStream.Alive())
-            {
-                s = cStream;
-            }
+        else if (cStream.Alive())
+        {
+            s = cStream;
+        }
 
         if (s)
         {
@@ -1194,7 +1186,7 @@ namespace FileSys
         }
 
         // No active stream
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -1224,7 +1216,7 @@ namespace FileSys
         }
 
         // Failed
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -1247,6 +1239,18 @@ namespace FileSys
             return (Open(dir.str, slash));
         }
 
+        // Does the name contain a directory
+        if (const char* slash = Utils::Strrchr(path, '/'))
+        {
+            PathString dir;
+
+            // Copy the path
+            Utils::Strmcpy(dir.str, path, ++slash - path);
+
+            // Open the file
+            return (Open(dir.str, slash));
+        }
+
         // Do we have a current stream
         if (cStream.Alive())
         {
@@ -1254,7 +1258,7 @@ namespace FileSys
             return (cStream->Open(path));
         }
 
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -1275,7 +1279,7 @@ namespace FileSys
         }
 
         LOG_WARN(("FastFind failed (%s) : stream deleted!", fastFind->Name()));
-        return (NULL);
+        return (nullptr);
     }
 
 
@@ -1306,42 +1310,42 @@ namespace FileSys
         FScope* sScope;
 
         // Step through each function in this scope
-        while ((sScope = fScope->NextFunction()) != 0)
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0x2B450588: // "SetSub"
-                ProcessRegisterDirSub(sScope);
-                break;
+                case 0x2B450588: // "SetSub"
+                    ProcessRegisterDirSub(sScope);
+                    break;
 
-            case 0x7583EA7D: // "ConfigureStream"
-                ProcessConfigureStream(sScope);
-                break;
+                case 0x7583EA7D: // "ConfigureStream"
+                    ProcessConfigureStream(sScope);
+                    break;
 
-            case 0xB54D014C: // "SetActiveStream"
-                ProcessSetActiveStream(sScope);
-                break;
+                case 0xB54D014C: // "SetActiveStream"
+                    ProcessSetActiveStream(sScope);
+                    break;
 
-            case 0x6993308D: // "SetStreamReadOnly"
-                ProcessSetStreamReadOnly(sScope);
-                break;
+                case 0x6993308D: // "SetStreamReadOnly"
+                    ProcessSetStreamReadOnly(sScope);
+                    break;
 
-            case 0x3A79CCC8: // "DeleteStream"
-                ProcessDeleteStream(sScope);
-                break;
+                case 0x3A79CCC8: // "DeleteStream"
+                    ProcessDeleteStream(sScope);
+                    break;
 
-            case 0xAF7D752D: // "DeleteAllStreams"
-                ProcessDeleteAllStreams();
-                break;
+                case 0xAF7D752D: // "DeleteAllStreams"
+                    ProcessDeleteAllStreams();
+                    break;
 
-            case 0x16D4B4B4: // "PackExtension"
-                ProcessPackExtension(sScope);
-                break;
+                case 0x16D4B4B4: // "PackExtension"
+                    ProcessPackExtension(sScope);
+                    break;
 
-                // Warn if unknown
-            default:
+                    // Warn if unknown
+                default:
                 LOG_WARN(("Ignoring unexpected function '%s'", sScope->NameStr()));
-                break;
+                    break;
             }
         }
     }
@@ -1357,7 +1361,7 @@ namespace FileSys
         LOG_DIAG(("Logging FileSys Stream Data"));
 
         // Log all them streams
-        for (NList<ResourceStream>::Iterator i(&streams); *i; i++)
+        for (NList<ResourceStream>::Iterator i(&streams); *i; ++i)
         {
             if (cStream.Alive() && (*i == cStream))
             {

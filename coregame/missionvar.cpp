@@ -20,122 +20,115 @@
 //
 namespace MissionVar
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Definitions
+    //
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Definitions
-  //
-
-  // Scope where mission vars are saved
-  const char *varScope = "coregame.mission.dyndata";
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Internal Data
-  //
-  static Bool initialized = FALSE;
+    // Scope where mission vars are saved
+    const char* varScope = "coregame.mission.dyndata";
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Struct Substitution
-  //
-  struct Substitution : public VarSys::Substitution
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Internal Data
+    //
+    static Bool initialized = FALSE;
 
-    // Constructor
-    Substitution() 
-    : VarSys::Substitution(MISSION_VARCHAR) 
-    { 
-    }
 
-    // Expansion
-    const char *Expand(const char *, void *)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Struct Substitution
+    //
+    struct Substitution : public VarSys::Substitution
     {
-      ASSERT(initialized)
-      return (varScope);
+        // Constructor
+        Substitution()
+            : VarSys::Substitution(MISSION_VARCHAR)
+        {
+        }
+
+        // Expansion
+        const char* Expand(const char*, void*) override
+        {
+            ASSERT(initialized);
+            return (varScope);
+        }
+    };
+
+    static Substitution substitution;
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Prototypes
+    //
+
+    // Reset
+    void Reset();
+
+    //
+    // Init
+    //
+    void Init()
+    {
+        ASSERT(!initialized);
+
+        // Register the substitution
+        VarSys::RegisterSubstitution(substitution);
+
+        Reset();
+
+        initialized = TRUE;
     }
 
-  };
 
-  static Substitution substitution;
+    //
+    // Done
+    //
+    void Done()
+    {
+        ASSERT(initialized);
 
+        Reset();
 
+        // Unregister the var substitution
+        VarSys::UnregisterSubstitution(substitution);
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Prototypes
-  //
-
-  // Reset
-  void Reset();
-
-  //
-  // Init
-  //
-  void Init()
-  {
-    ASSERT(!initialized)
-
-    // Register the substitution
-    VarSys::RegisterSubstitution(substitution);
-
-    Reset();
-
-    initialized = TRUE;
-  }
-
-
-  //
-  // Done
-  //
-  void Done()
-  {
-    ASSERT(initialized)
-
-    Reset();
-
-    // Unregister the var substitution
-    VarSys::UnregisterSubstitution(substitution);
-
-    initialized = FALSE;
-  }
-
-
-  //
-  // Save the mission vars
-  //
-  void Save(FScope *fScope)
-  {
-    ASSERT(initialized)
-
-    if (VarSys::VarScope *scope = VarSys::FindVarScope(varScope))
-    {  
-      VarFile::Save(fScope, scope);
+        initialized = FALSE;
     }
-  }
 
 
-  //
-  // Load the mission vars
-  //
-  void Load(FScope *fScope)
-  {
-    ASSERT(initialized)
+    //
+    // Save the mission vars
+    //
+    void Save(FScope* fScope)
+    {
+        ASSERT(initialized);
 
-    VarFile::Load(fScope, varScope);
-  }
-
-
-  //
-  // Reset
-  //
-  void Reset()
-  {
-    VarSys::DeleteItem(varScope);
-  }
+        if (VarSys::VarScope* scope = VarSys::FindVarScope(varScope))
+        {
+            VarFile::Save(fScope, scope);
+        }
+    }
 
 
+    //
+    // Load the mission vars
+    //
+    void Load(FScope* fScope)
+    {
+        ASSERT(initialized);
 
+        VarFile::Load(fScope, varScope);
+    }
+
+
+    //
+    // Reset
+    //
+    void Reset()
+    {
+        VarSys::DeleteItem(varScope);
+    }
 }

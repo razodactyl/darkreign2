@@ -47,32 +47,32 @@ namespace Setup
         // Check current drive is a valid type
         switch (type)
         {
-        case Drive::REMOVABLE:
-            sType = "Removable";
-            break;
+            case Drive::REMOVABLE:
+                sType = "Removable";
+                break;
 
-        case Drive::FIXED:
-            sType = "Fixed";
-            break;
+            case Drive::FIXED:
+                sType = "Fixed";
+                break;
 
-        case Drive::NETWORK:
-            sType = "Network";
-            break;
+            case Drive::NETWORK:
+                sType = "Network";
+                break;
 
-        case Drive::RAMDISK:
-            sType = "Ramdisk";
-            break;
+            case Drive::RAMDISK:
+                sType = "Ramdisk";
+                break;
 
-        case Drive::CDROM:
-            sType = "CDROM";
-            //LOG_WARN(("Invalid current drive type (CDROM)"));
-            //return (FALSE);
-            break;
+            case Drive::CDROM:
+                sType = "CDROM";
+                //LOG_WARN(("Invalid current drive type (CDROM)"));
+                //return (FALSE);
+                break;
 
-        default:
+            default:
             LOG_DIAG(("Assuming valid current drive type! (%d)", type));
-            sType = "Unknown";
-            break;
+                sType = "Unknown";
+                break;
         }
 
         LOG_DIAG(("Drive type : %s", *sType));
@@ -92,34 +92,34 @@ namespace Setup
 
 #ifndef MONO_DISABLED
 
-        FScope* sScope;
+    FScope *sScope;
 
-        // Step through each function in this scope
-        while ((sScope = fScope->NextFunction()) != 0)
+    // Step through each function in this scope
+    while ((sScope = fScope->NextFunction()) != 0)
+    {
+      switch (sScope->NameCrc())
+      {
+        case 0x44568AC2: // "CreateScratchPanel"
         {
-            switch (sScope->NameCrc())
-            {
-            case 0x44568AC2: // "CreateScratchPanel"
-            {
-                const char* owner = NULL;
-                const char* title = NULL;
-                int id;
-                VNode* vNode;
+          const char *owner = NULL;
+          const char *title = NULL;
+          int id;
+          VNode *vNode;
 
-                id = sScope->NextArgInteger();
-                owner = sScope->NextArgString();
+          id = sScope->NextArgInteger();
+          owner = sScope->NextArgString();
+        
+          vNode = sScope->NextArgument(VNode::AT_STRING, FALSE);
+          if (vNode)
+          {
+            title = vNode->GetString();
+          }
 
-                vNode = sScope->NextArgument(VNode::AT_STRING, FALSE);
-                if (vNode)
-                {
-                    title = vNode->GetString();
-                }
-
-                Mono::Scratch::Create(id, owner, title);
-            }
-            break;
-            }
+          Mono::Scratch::Create(id, owner, title);
         }
+        break;
+      }
+    }
 #endif
     }
 
@@ -190,12 +190,9 @@ namespace Setup
 
         if (!libOk)
         {
-            ERR_MESSAGE(("A required file was not found: " CD_CHECK_LIB));
+            ERR_MESSAGE(("A required file was not found: " CD_CHECK_LIB))
         }
 
         return (trackOk);
     }
 }
-
-
-

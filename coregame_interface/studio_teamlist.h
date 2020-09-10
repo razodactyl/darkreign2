@@ -33,44 +33,41 @@ class Team;
 //
 namespace Studio
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TeamList
-  //
-  class TeamList : public ICWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TeamList
+    //
+    class TeamList : public ICWindow
+    {
     PROMOTE_LINK(TeamList, ICWindow, 0x18EB5DFA) // "TeamList"
 
-  protected:
+    protected:
 
-    // Current Team
-    IFaceVar *currentTeam;
+        // Current Team
+        IFaceVar* currentTeam;
 
-    // Create Team
-    IFaceVar *createTeam;
+        // Create Team
+        IFaceVar* createTeam;
 
-    // Team list
-    ICListBoxPtr teamList;
+        // Team list
+        ICListBoxPtr teamList;
 
-  public:
+    public:
 
-    // Constructor
-    TeamList(IControl *parent);
-    ~TeamList();
+        // Constructor
+        TeamList(IControl* parent);
+        ~TeamList();
 
-    // Event handling
-    U32 HandleEvent(Event &e);
+        // Event handling
+        U32 HandleEvent(Event& e);
 
-    // Activate and deactivate this control
-    Bool Activate();
-    Bool Deactivate();
+        // Activate and deactivate this control
+        Bool Activate();
+        Bool Deactivate();
 
-    // Build the list of teams
-    void BuildList();
-
-  };
-
+        // Build the list of teams
+        void BuildList();
+    };
 }
 
 #endif

@@ -13,8 +13,13 @@
 #include "material.h"
 //----------------------------------------------------------------------------
 
+#ifdef DODX6
+typedef LPDIRECT3DLIGHT			  LightD3D;
+typedef D3DLIGHT2             LightDescD3D;
+#else
 typedef D3DLIGHT7* LightD3D;
 typedef D3DLIGHT7 LightDescD3D;
+#endif
 
 namespace Vid
 {
@@ -40,12 +45,12 @@ namespace Vid
             F32 range;
             F32 att[3];
             F32 cone[2];
-            F32 beam; // beam intensity factor (0 for no beam)
+            F32 beam;            // beam intensity factor (0 for no beam)
 
-            U32 switchable : 1; // switch on/off with night/day or always on
+            U32 switchable : 1;  // switch on/off with night/day or always on
 
-            NodeIdent pointIdent; // Name of point to attach to on the mesh
-            F32 priority; // how important is it?  0 - very important, 1 - not important
+            NodeIdent pointIdent;      // Name of point to attach to on the mesh
+            F32 priority;        // how important is it?  0 - very important, 1 - not important
 
             Desc(FScope* fScope);
         };
@@ -77,9 +82,9 @@ namespace Vid
         public:
             ShadowInfo shadowInfo;
 
-            NBinTree<Obj>::Node treeNode; // node for Obj::Manager::tree
-            NList<Obj>::Node activeNode; // node for active light list
-            NList<Obj>::Node mapNode; // node for mapobj
+            NBinTree<Obj>::Node treeNode;         // node for Obj::Manager::tree
+            NList<Obj>::Node activeNode;       // node for active light list
+            NList<Obj>::Node mapNode;          // node for mapobj
 
             // lighting temp data; set by SetupLightsCamera and SetupLightsModel
             Vector position;
@@ -88,13 +93,13 @@ namespace Vid
             Vector halfVector;
 
         private:
-            void Setup(const Matrix& world)
+            inline void Setup(const Matrix& world)
             {
                 world;
 #ifndef DODXLEANANDGRUMPY
-                // setup direct 3D
-                * ((Vector*)&d3d.dvPosition) = world.posit;
-                *((Vector*)&d3d.dvDirection) = world.front;
+        // setup direct 3D
+        *((Vector *) &d3d.dvPosition)  = world.posit;
+	      *((Vector *) &d3d.dvDirection) = world.front;
 #endif
             }
 
@@ -109,79 +114,78 @@ namespace Vid
             U32 GetMem() const { return sizeof(*this); }
 
             // FamilyNode virtual functions
-            void SetWorldRecurse(const Matrix& world) override;
-            void SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray) override;
+            virtual void SetWorldRecurse(const Matrix& world);
+            virtual void SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray);
 
-            void Render(const Array<FamilyState>& stateArray, Color teamColor, U32 clipFlags = clipALL,
-                        U32 _controlFlags = controlDEF) override;
-            void RenderSingle(Color teamColor = 0xffffffff, U32 _controlFlags = controlDEF) override;
+            virtual void Render(const Array<FamilyState>& stateArray, Color teamColor, U32 clipFlags = clipALL, U32 _controlFlags = controlDEF);
+            virtual void RenderSingle(Color teamColor = 0xffffffff, U32 _controlFlags = controlDEF);
 
-            void Render() override
+            virtual void Render()
             {
                 RenderSingle();
             }
 
-            LightD3D D3D()
+            inline LightD3D D3D()
             {
                 return &d3d;
             }
 
-            F32 R() const
+            inline F32 R() const
             {
                 return d3d.dcvDiffuse.r;
             }
 
-            F32 G() const
+            inline F32 G() const
             {
                 return d3d.dcvDiffuse.g;
             }
 
-            F32 B() const
+            inline F32 B() const
             {
                 return d3d.dcvDiffuse.b;
             }
 
-            const Bounds& ObjectBounds() const
+            inline const Bounds& ObjectBounds() const
             {
                 return bounds;
             }
 
-            Bool IsActive() const
+            inline Bool IsActive() const
             {
                 return active;
             }
 
-            Bool IsSwitchable() const
+            inline Bool IsSwitchable() const
             {
                 return switchable;
             }
 
-            Bool IsRenderable() const
+            inline Bool IsRenderable() const
             {
                 return (beam ? TRUE : FALSE);
             }
 
-            Type GetType() const
+            inline Type GetType() const
             {
-                return static_cast<Type>(d3d.dltType);
+                return (Type)d3d.dltType;
             }
 
-            F32 GetRange() const
+            inline F32 GetRange() const
             {
                 return d3d.dvRange;
             }
 
-            F32 GetCone() const
+            inline F32 GetCone() const
             {
                 return Type() == lightSPOT ? d3d.dvTheta : -1.0f;
             }
 
-            F32 GetCosTheta() const
+            inline F32 GetCosTheta() const
             {
                 return cosTheta;
             }
 
-            Color GetBeamColor() const
+            inline Color GetBeamColor() const
             {
                 return colorBeam;
             }
@@ -194,49 +198,43 @@ namespace Vid
             void SetAtten(F32 a0, F32 a1, F32 a2);
             void Switch(Bool switchOn);
 
-            void SetSwitchable(Bool _switch)
+            inline void SetSwitchable(Bool _switch)
             {
                 switchable = _switch;
             }
 
-            void SetColor(ColorF32& color)
+            inline void SetColor(ColorF32& color)
             {
                 SetColor(color.r, color.g, color.b);
             }
 
-            void SetColor(Color color)
+            inline void SetColor(Color color)
             {
                 SetColor(color.r * U8toNormF32, color.g * U8toNormF32, color.b * U8toNormF32);
             }
 
-            void SetActive(Bool isActive = TRUE)
+            inline void SetActive(Bool isActive = TRUE)
             {
                 active = isActive;
             }
 
-            void SetPosition(Vector& pos)
+            inline void SetPosition(Vector& pos)
             {
                 SetWorld(pos);
             }
 
-            void SetFront(Vector& front)
+            inline void SetFront(Vector& front)
             {
                 SetWorld(Quaternion(2 * PI, front));
             }
 
-            void PointLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn,
-                                  const Material& material, ColorF32& diff, ColorF32& spec);
-            void SpotLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn,
-                                 const Material& material, ColorF32& diff, ColorF32& spec);
-            void DirectLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn,
-                                   const Material& material, ColorF32& diff, ColorF32& spec);
+            void PointLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec);
+            void SpotLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec);
+            void DirectLightCamera(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec);
 
-            void PointLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn,
-                                 const Material& material, ColorF32& diff, ColorF32& spec);
-            void SpotLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn,
-                                const Material& material, ColorF32& diff, ColorF32& spec);
-            void DirectLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn,
-                                  const Material& material, ColorF32& diff, ColorF32& spec);
+            void PointLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec);
+            void SpotLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec);
+            void DirectLightModel(const Vector& vert, const Vector& norm, const ColorF32& diffIn, const Material& material, ColorF32& diff, ColorF32& spec);
 
             void PointLightModel(const Vector& vert, ColorF32& diff);
             void SpotLightModel(const Vector& vert, ColorF32& diff);
@@ -244,12 +242,12 @@ namespace Vid
             void Light(Color* lightvals, const Vector* norms, U32 count);
 
 #ifndef DODXLEANANDGRUMPY
-            void PointLight(Vertex* dst, U32 count);
-            void SpotLight(Vertex* dst, U32 count);
-            void DirectLight(Vertex* dst, U32 count);
-            void PointLight(VertexL* dst, U32 count);
-            void SpotLight(VertexL* dst, U32 count);
-            void DirectLight(VertexL* dst, U32 count);
+      void PointLight(  Vertex  * dst, U32 count);
+	    void SpotLight(   Vertex  * dst, U32 count);
+	    void DirectLight( Vertex  * dst, U32 count);
+      void PointLight(  VertexL * dst, U32 count);
+	    void SpotLight(   VertexL * dst, U32 count);
+	    void DirectLight( VertexL * dst, U32 count);
 #endif
         };
 

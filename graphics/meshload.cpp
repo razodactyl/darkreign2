@@ -70,6 +70,7 @@ void Mesh::LoadAnimation(GodFile* god, Animation& animation, AnimType type)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::LoadAnimCycle(GodFile* god, AnimList& animCycle)
@@ -115,6 +116,7 @@ void Mesh::LoadAnimCycle(GodFile* god, AnimList& animCycle)
         LoadAnimation(god, *anim, animCycle.type);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::SaveAnimation(GodFile* god, const Animation& animation)
@@ -123,6 +125,7 @@ void Mesh::SaveAnimation(GodFile* god, const Animation& animation)
     God::Save(*god, animation.maxFrame);
     God::SaveArray(*god, animation.keys);
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::SaveAnimCycle(GodFile* god, const AnimList& animCycle)
@@ -146,15 +149,17 @@ void Mesh::SaveAnimCycle(GodFile* god, const AnimList& animCycle)
         SaveAnimation(god, *(*li));
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::LoadMRMFace(GodFile* god, MRM::Face& face)
 {
     face.face = (U16)god->LoadU32();
-    face.token = (MRM::Face::Token) god->LoadU32();
+    face.token = (MRM::Face::Token)god->LoadU32();
     face.index[0] = (U16)god->LoadU32();
     face.index[1] = (U16)god->LoadU32();
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::LoadMRMVertex(GodFile* god, MRM::Vertex& vertex)
@@ -169,6 +174,7 @@ void Mesh::LoadMRMVertex(GodFile* god, MRM::Vertex& vertex)
         LoadMRMFace(god, vertex.face[i]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 MRM* Mesh::LoadMRM(GodFile* god, const MeshRoot& root)
@@ -181,10 +187,13 @@ MRM* Mesh::LoadMRM(GodFile* god, const MeshRoot& root)
     U32 textCount = god->LoadU32();
 
     faceCount, normCount, textCount;
-    ASSERT(mrm->vertCount == root.vertices.count
+    ASSERT
+    (
+        mrm->vertCount == root.vertices.count
         && faceCount == root.faces.count
         && normCount == root.normals.count
-        && textCount == root.uvs.count);
+        && textCount == root.uvs.count
+    );
 
     mrm->faceCount = (U16)god->LoadU32();
 
@@ -241,6 +250,7 @@ MRM* Mesh::LoadMRM(GodFile* god, const MeshRoot& root)
 
     return mrm;
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::SaveMRMFace(GodFile* god, const MRM::Face& face)
@@ -250,6 +260,7 @@ void Mesh::SaveMRMFace(GodFile* god, const MRM::Face& face)
     God::Save(*god, U32(face.index[0]));
     God::Save(*god, U32(face.index[1]));
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::SaveMRMVertex(GodFile* god, const MRM::Vertex& vertex)
@@ -264,6 +275,7 @@ void Mesh::SaveMRMVertex(GodFile* god, const MRM::Vertex& vertex)
         SaveMRMFace(god, vertex.face[i]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::SaveMRM(GodFile* god, const MeshRoot& root)
@@ -290,6 +302,7 @@ void Mesh::SaveMRM(GodFile* god, const MeshRoot& root)
         SaveMRMVertex(god, root.mrm->vertex[i]);
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::SaveScale(const char* _fileName)
@@ -306,6 +319,7 @@ Bool MeshRoot::SaveScale(const char* _fileName)
 
     return Save(buff.str);
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::Save(const char* _fileName)
@@ -326,7 +340,7 @@ Bool MeshRoot::Save(const char* _fileName)
     if (!bFile.Open(path.str, BlockFile::CREATE, FALSE))
     {
         LOG_ERR((bFile.LastError()))
-            return (FALSE);
+        return (FALSE);
     }
 
     // Save meshroot block
@@ -367,6 +381,7 @@ Bool MeshRoot::Save(const char* _fileName)
         return (FALSE);
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::Save(GodFile* god)
@@ -418,10 +433,10 @@ Bool MeshRoot::Save(GodFile* god)
     God::SaveArray(*god, keys);
 
 #if 0
-    // environment mapping data     // FIXME
-    God::Save(*god, U32(0));    // empty array
-    God::Save(*god, U32(0));    // empty array
-    God::Save(*god, 0);
+  // environment mapping data     // FIXME
+  God::Save(*god, U32(0));    // empty array
+  God::Save(*god, U32(0));    // empty array
+  God::Save(*god, 0);
 #endif
 
     God::Save(*god, U32(animCycles.GetCount()));
@@ -452,6 +467,7 @@ Bool MeshRoot::Save(GodFile* god)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::FindLoadScale(const char* godFileName)
@@ -497,6 +513,7 @@ MeshRoot* Mesh::Manager::FindLoadScale(const char* godFileName)
 
     return root;
 }
+
 //----------------------------------------------------------------------------
 
 MeshRoot* Mesh::Manager::FindLoad(const char* godFileName)
@@ -517,7 +534,7 @@ MeshRoot* Mesh::Manager::FindLoad(const char* godFileName)
     //  U32 t1 = Clock::Time::Ms();
     //#endif
 
-      // Open the block file
+    // Open the block file
     BlockFile bFile;
 
     FilePath path;
@@ -600,13 +617,14 @@ MeshRoot* Mesh::Manager::FindLoad(const char* godFileName)
         bFile.Close();
 
         //#ifdef DEVELOPMENT
-            //U32 elapsed = Clock::Time::Ms() - t1;
-            //LOG_DIAG(("%6dms Loading [%s]", elapsed, path.str))
+        //U32 elapsed = Clock::Time::Ms() - t1;
+        //LOG_DIAG(("%6dms Loading [%s]", elapsed, path.str))
         //#endif
     }
 
     return root;
 }
+
 //----------------------------------------------------------------------------
 
 Bool MeshRoot::Load(GodFile* god)
@@ -782,6 +800,7 @@ Bool MeshRoot::Load(GodFile* god)
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Save(GodFile* god)
@@ -822,6 +841,7 @@ void Mesh::Save(GodFile* god)
     }
     God::Save(*god, U32(0xA93EB864)); // "EndOfMesh"
 }
+
 //----------------------------------------------------------------------------
 
 void Mesh::Load(GodFile* god, MeshRoot& root, Mesh* _parent, Bool isPrimary)
@@ -901,5 +921,5 @@ void Mesh::Load(GodFile* god, MeshRoot& root, Mesh* _parent, Bool isPrimary)
         newMesh->Load(god, root, (Mesh*)Parent(), FALSE);
     }
 }
-//----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------------

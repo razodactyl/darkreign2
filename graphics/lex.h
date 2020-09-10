@@ -19,15 +19,15 @@ using std::istrstream;
 
 //----------------------------------------------------------------------------
 
-template <class T> class LexFile
+template <class T>
+class LexFile
 {
 private:
     struct TokenItem
     {
         char* name;
-        T               token;
-    }
-    *tokList;
+        T token;
+    } * tokList;
 
     BOOL IsAMatch(char* str, TokenItem** inItem)
     {
@@ -67,9 +67,11 @@ public:
     T GetToken(istrstream* fs);
     void GetString(istrstream* fs, char* string);
 };
+
 //----------------------------------------------------------------------------
 
-template <class T> T LexFile<T>::GetToken(istrstream* fs)
+template <class T>
+T LexFile<T>::GetToken(istrstream* fs)
 {
     char ch, str[128];
     TokenItem* item = NULL;
@@ -85,45 +87,48 @@ template <class T> T LexFile<T>::GetToken(istrstream* fs)
                 // end of file
                 return _END_OF_FILE;
             }
-        } while (isspace(ch));
+        }
+        while (isspace(ch));
 
         switch (ch)
         {
-        case '{':
-            // check for open brace
-            str[0] = ch;
-            str[1] = '\0';
-            if (IsAMatch(str, &item) == TRUE)
-            {
-                return item->token;
-            }
-            break;
+            case '{':
+                // check for open brace
+                str[0] = ch;
+                str[1] = '\0';
+                if (IsAMatch(str, &item) == TRUE)
+                {
+                    return item->token;
+                }
+                break;
 
-        case '}':
-            // check for close brace
-            str[0] = ch;
-            str[1] = '\0';
-            if (IsAMatch(str, &item) == TRUE)
-            {
-                return item->token;
-            }
-            break;
+            case '}':
+                // check for close brace
+                str[0] = ch;
+                str[1] = '\0';
+                if (IsAMatch(str, &item) == TRUE)
+                {
+                    return item->token;
+                }
+                break;
 
-        default:
-            // check for token strings
-            fs->putback(ch);
-            *fs >> str;
-            if (IsAMatch(str, &item) == TRUE)
-            {
-                return item->token;
-            }
-            break;
+            default:
+                // check for token strings
+                fs->putback(ch);
+                *fs >> str;
+                if (IsAMatch(str, &item) == TRUE)
+                {
+                    return item->token;
+                }
+                break;
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
-template <class T> void LexFile<T>::GetString(istrstream* fs, char* str)
+template <class T>
+void LexFile<T>::GetString(istrstream* fs, char* str)
 {
     int len;
     char ch;
@@ -138,7 +143,8 @@ template <class T> void LexFile<T>::GetString(istrstream* fs, char* str)
             // end of file
             return;
         }
-    } while (isspace(ch));
+    }
+    while (isspace(ch));
 
     if (ch != '"')
     {
@@ -174,8 +180,8 @@ template <class T> void LexFile<T>::GetString(istrstream* fs, char* str)
                 str[len++] = ch;
                 str[len] = '\0';
             }
-
-        } while (ch != '"');
+        }
+        while (ch != '"');
 
         return;
     }
@@ -196,6 +202,7 @@ template <class T> void LexFile<T>::GetString(istrstream* fs, char* str)
         }
     }
 }
+
 //----------------------------------------------------------------------------
 
 #endif // __LEX_H

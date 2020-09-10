@@ -22,63 +22,61 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Delete
+    // NameSpace Squad
     //
-
-    U32 Delete::orderId;
-
-    //
-    // Generate
-    //
-    void Delete::Generate(Player &player, U32 squad)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Delete
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 Delete::orderId;
 
-      // Pack the squad
-      data.squad = squad;
-
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
-    }
-
-
-    //
-    // Execute
-    //
-    U32 Delete::Execute(const U8 *data, Player &)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        // Notify the player that the deletion has taken place
-        squadObj->NotifyPlayer(0xE145C9A6); // "Squad::Deleted"
-
-        // Delete all of the units in the squad
-        for (SquadObj::UnitList::Iterator i(&squadObj->GetList()); *i; i++)
+        //
+        // Generate
+        //
+        void Delete::Generate(Player& player, U32 squad)
         {
-          if ((*i)->Alive())
-          {
-            GameObjCtrl::MarkForDeletion(**i);
-          }
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Pack the squad
+            data.squad = squad;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
-  
-      return (sizeof (Data));
+
+
+        //
+        // Execute
+        //
+        U32 Delete::Execute(const U8* data, Player&)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                // Notify the player that the deletion has taken place
+                squadObj->NotifyPlayer(0xE145C9A6); // "Squad::Deleted"
+
+                // Delete all of the units in the squad
+                for (SquadObj::UnitList::Iterator i(&squadObj->GetList()); *i; i++)
+                {
+                    if ((*i)->Alive())
+                    {
+                        GameObjCtrl::MarkForDeletion(**i);
+                    }
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

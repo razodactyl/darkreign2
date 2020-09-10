@@ -26,47 +26,45 @@
 //
 namespace FontSys
 {
+    // Flags for Create
+    enum
+    {
+        READONLY = 0x0001
+    };
 
-  // Flags for Create
-  enum
-  {
-    READONLY = 0x0001
-  };
+    // Initialise system
+    void Init();
 
-  // Initialise system
-  void Init();
+    // Shutdown system
+    void Done();
 
-  // Shutdown system
-  void Done();
+    // Create a new font
+    Bool Create(const char* name, const char* path, U32 flags = 0);
+    void Create(FScope* fScope);
 
-  // Create a new font
-  Bool Create(const char *name, const char *path, U32 flags = 0);
-  void Create(FScope *fScope);
+    // Delete font
+    Bool Delete(const char* name, Bool& found);
+    Bool Delete(U32 crc, Bool& found);
 
-  // Delete font
-  Bool Delete(const char *name, Bool &found);
-  Bool Delete(U32 crc, Bool &found);
+    Font* GetFont(const char* name);
+    Font* GetFont(U32 crc);
 
-  Font *GetFont(const char *name);
-  Font *GetFont(U32 crc);
+    void DeleteAll();
 
-  void DeleteAll();
+    // Function to be called when the video mode changes
+    void OnModeChange();
 
-  // Function to be called when the video mode changes
-  void OnModeChange();
+    // List all fonts to the console
+    void Report();
 
-  // List all fonts to the console
-  void Report();
+    // Write all fonts to bmp files
+    void WriteFonts();
 
-  // Write all fonts to bmp files
-  void WriteFonts();
+    // Allocate a texture
+    Bitmap* AllocTexture(U16& handle);
 
-  // Allocate a texture
-  Bitmap *AllocTexture(U16 &handle);
-
-  // Find a texture
-  Bitmap *FindTexture(U16 handle);
-
+    // Find a texture
+    Bitmap* FindTexture(U16 handle);
 };
 
 #endif

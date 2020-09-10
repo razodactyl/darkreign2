@@ -24,28 +24,27 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Script::Recruiter
+    //
+    class Script::Recruiter
+    {
+    public:
 
-	/////////////////////////////////////////////////////////////////////////////
-	//
-  // Class Script::Recruiter
-  //
-  class Script::Recruiter
-  {
-  public:
+        // Destructor
+        virtual ~Recruiter()
+        {
+        };
 
-    // Destructor
-    virtual ~Recruiter() { };
+        // Inact the recruiter
+        virtual void Execute(Script& script, U32 handle) = 0;
 
-    // Inact the recruiter
-    virtual void Execute(Script &script, U32 handle) = 0;
+    public:
 
-  public:
-
-    // Create a recruiter
-    static Recruiter * Create(Script &script, FScope *fScope);
-
-  };
-
+        // Create a recruiter
+        static Recruiter* Create(Script& script, FScope* fScope);
+    };
 }
 
 #endif

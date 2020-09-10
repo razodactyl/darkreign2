@@ -30,7 +30,6 @@
 //
 namespace Strategic
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // Class Placement
@@ -42,12 +41,12 @@ namespace Strategic
     //
     Placement::Placement(Manager& manager, const GameIdent& name, FScope* fScope)
         : manager(manager),
-        name(name),
-        locatorsIdle(&Locator::nodePlacementTree),
-        locatorsActive(&Locator::nodePlacementTree),
-        locatorsActiveList(&Locator::nodePlacementList),
-        locatorsActiveIterator(&locatorsActiveList),
-        ruleSet(*new RuleSet(fScope))
+          locatorsIdle(&Locator::nodePlacementTree),
+          locatorsActive(&Locator::nodePlacementTree),
+          locatorsActiveList(&Locator::nodePlacementList),
+          locatorsActiveIterator(&locatorsActiveList),
+          ruleSet(*new RuleSet(fScope)),
+          name(name)
     {
         fallback = StdLoad::TypeString(fScope, "Fallback", "");
     }
@@ -63,7 +62,7 @@ namespace Strategic
         locatorsActiveList.UnlinkAll();
         locatorsActive.DisposeAll();
 
-        delete& ruleSet;
+        delete&ruleSet;
     }
 
 
@@ -82,7 +81,7 @@ namespace Strategic
         {
             // There's already a locator for this token ?
             LOG_AI(("There's already an idle locator for token [%08X]", U32(&token)))
-                FindNextLocation(token);
+            FindNextLocation(token);
             return;
         }
 
@@ -93,7 +92,7 @@ namespace Strategic
         Water* water = token.GetWater();
 
         // Ask the ruleset if there's a pre-existing cluster set for this type
-        ClusterSet* clusterSet = NULL;
+        ClusterSet* clusterSet = nullptr;
 
         if (resource)
         {
@@ -110,12 +109,14 @@ namespace Strategic
                 offset -= resource->GetCentre();
                 offset.Normalize();
 
-                clusterSet = ClusterSet::Create(
+                clusterSet = ClusterSet::Create
+                (
                     resource->GetCentre(),
                     ruleSet,
                     token.GetType(),
                     F32(atan2(offset.z, offset.x)),
-                    *this);
+                    *this
+                );
 
                 typeClusterSet->clusterSets.Add(token.GetType().GetNameCrc(), clusterSet);
             }
@@ -135,12 +136,14 @@ namespace Strategic
                 offset -= water->GetClosest();
                 offset.Normalize();
 
-                clusterSet = ClusterSet::Create(
+                clusterSet = ClusterSet::Create
+                (
                     water->GetClosest(),
                     ruleSet,
                     token.GetType(),
                     F32(atan2(offset.z, offset.x)),
-                    *this);
+                    *this
+                );
 
                 typeClusterSet->clusterSets.Add(token.GetType().GetNameCrc(), clusterSet);
             }
@@ -152,21 +155,23 @@ namespace Strategic
 
             if (!clusterSet)
             {
-                clusterSet = ClusterSet::Create(
+                clusterSet = ClusterSet::Create
+                (
                     token.GetBase().GetLocation(),
                     ruleSet,
                     token.GetType(),
                     token.GetBase().GetOrientation(),
-                    *this);
+                    *this
+                );
 
                 ruleSet.clusterSetsBase.Add(token.GetType().GetNameCrc(), clusterSet);
             }
         }
 
-        ASSERT(clusterSet)
+        ASSERT(clusterSet);
 
-            // We'll need to create a new locator
-            Locator* locator = new Locator(token, *clusterSet);
+        // We'll need to create a new locator
+        Locator* locator = new Locator(token, *clusterSet);
 
         // Make it active
         locatorsActive.Add(U32(&token), locator);
@@ -184,14 +189,14 @@ namespace Strategic
         if (!locator)
         {
             LOG_AI(("No idle locator could be found for the given token [%08X]", U32(&token)))
-                FindLocation(token);
+            FindLocation(token);
             return;
         }
 
         LOG_AI(("Finding next location for token [%08X]", U32(&token)))
 
-            // Remove the locator from the idle tree and add it to the active tree
-            locatorsIdle.Unlink(locator);
+        // Remove the locator from the idle tree and add it to the active tree
+        locatorsIdle.Unlink(locator);
         locatorsActive.Add(U32(&token), locator);
         locatorsActiveList.Append(locator);
     }
@@ -204,7 +209,7 @@ namespace Strategic
     {
         LOG_AI(("Placement of Token [%08X] is being aborted", U32(&token)))
 
-            Locator* locator = locatorsActive.Find(U32(&token));
+        Locator* locator = locatorsActive.Find(U32(&token));
 
         if (locator)
         {
@@ -275,41 +280,44 @@ namespace Strategic
             // Ask the type locator to check the current cluster for buildability
             switch (locator->clusterSet.FindCell(cell, dir))
             {
-            case ClusterSet::FOUND:
-            {
-                // Tell the token that there's somewhere to build
-                locator->token.SetLocation(
-                    Vector(
-                        WorldCtrl::CellToMetresX(cell.x),
-                        0,
-                        WorldCtrl::CellToMetresZ(cell.z)),
-                    dir);
+                case ClusterSet::FOUND:
+                {
+                    // Tell the token that there's somewhere to build
+                    locator->token.SetLocation
+                    (
+                        Vector
+                        (
+                            WorldCtrl::CellToMetresX(cell.x),
+                            0,
+                            WorldCtrl::CellToMetresZ(cell.z)
+                        ),
+                        dir
+                    );
 
-                // This locator is now idle
-                U32 key = locator->nodePlacementTree.GetKey();
+                    // This locator is now idle
+                    U32 key = locator->nodePlacementTree.GetKey();
 
-                locatorsActive.Unlink(locator);
-                locatorsActiveList.Unlink(locator);
-                locatorsIdle.Add(key, locator);
-                break;
+                    locatorsActive.Unlink(locator);
+                    locatorsActiveList.Unlink(locator);
+                    locatorsIdle.Add(key, locator);
+                    break;
+                }
+
+                case ClusterSet::NOTFOUND:
+                {
+                    // This locator is now idle
+                    U32 key = locator->nodePlacementTree.GetKey();
+
+                    locatorsActive.Unlink(locator);
+                    locatorsActiveList.Unlink(locator);
+                    locatorsIdle.Add(key, locator);
+                    locator->token.NoLocation();
+                    break;
+                }
+
+                case ClusterSet::PENDING:
+                    break;
             }
-
-            case ClusterSet::NOTFOUND:
-            {
-                // This locator is now idle
-                U32 key = locator->nodePlacementTree.GetKey();
-
-                locatorsActive.Unlink(locator);
-                locatorsActiveList.Unlink(locator);
-                locatorsIdle.Add(key, locator);
-                locator->token.NoLocation();
-                break;
-            }
-
-            case ClusterSet::PENDING:
-                break;
-            }
-
         }
     }
 
@@ -321,14 +329,9 @@ namespace Strategic
     {
         if (fallback.Null())
         {
-            return (NULL);
+            return (nullptr);
         }
-        else
-        {
-            LOG_AI(("Getting fallback '%s'", fallback.str))
-                return (&GetManager().GetPlacement(fallback));
-        }
+        LOG_AI(("Getting fallback '%s'", fallback.str))
+        return (&GetManager().GetPlacement(fallback));
     }
-
 }
-

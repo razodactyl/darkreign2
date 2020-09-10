@@ -31,7 +31,7 @@
 //
 ICGauge::ICGauge(IControl* parent)
     : IControl(parent),
-    gaugeVar(NULL)
+      gaugeVar(NULL)
 {
     orientation = HORIZONTAL;
 
@@ -171,7 +171,8 @@ Bool ICGauge::Activate()
 
         // Calculate range of pixel movement of thumb
         pixelRange = (orientation == HORIZONTAL)
-            ? paintInfo.client.Width() : paintInfo.client.Height();
+                         ? paintInfo.client.Width()
+                         : paintInfo.client.Height();
         ASSERT(pixelRange > 0);
 
         // Initialise sliding range
@@ -210,19 +211,19 @@ void ICGauge::InitRange()
     {
         switch (gaugeVar->Type())
         {
-        case VarSys::VI_INTEGER:
-        {
-            valueMin = F32(item.integer.lo);
-            valueMax = F32(item.integer.hi);
-            break;
-        }
+            case VarSys::VI_INTEGER:
+            {
+                valueMin = F32(item.integer.lo);
+                valueMax = F32(item.integer.hi);
+                break;
+            }
 
-        case VarSys::VI_FPOINT:
-        {
-            valueMin = F32(item.fpoint.lo);
-            valueMax = F32(item.fpoint.hi);
-            break;
-        }
+            case VarSys::VI_FPOINT:
+            {
+                valueMin = F32(item.fpoint.lo);
+                valueMax = F32(item.fpoint.hi);
+                break;
+            }
         }
     }
 
@@ -238,24 +239,24 @@ void ICGauge::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0x742EA048: // "UseVar"
-    {
-        ConfigureVar(gaugeVar, fScope);
-        break;
-    }
+        case 0x742EA048: // "UseVar"
+        {
+            ConfigureVar(gaugeVar, fScope);
+            break;
+        }
 
-    case 0xEE2D2689: // "Orientation"
-    {
-        SetOrientation(fScope->NextArgString());
-        break;
-    }
+        case 0xEE2D2689: // "Orientation"
+        {
+            SetOrientation(fScope->NextArgString());
+            break;
+        }
 
-    default:
-    {
-        // Pass it to the previous level in the hierarchy
-        IControl::Setup(fScope);
-        break;
-    }
+        default:
+        {
+            // Pass it to the previous level in the hierarchy
+            IControl::Setup(fScope);
+            break;
+        }
     }
 }
 
@@ -276,16 +277,16 @@ void ICGauge::SetOrientation(const char* s)
 {
     switch (Crc::CalcStr(s))
     {
-    case 0x2942B3CD: // "HORIZONTAL"
-        SetOrientation(HORIZONTAL);
-        break;
+        case 0x2942B3CD: // "HORIZONTAL"
+            SetOrientation(HORIZONTAL);
+            break;
 
-    case 0xC8F18F06: // "VERTICAL"
-        SetOrientation(VERTICAL);
-        break;
+        case 0xC8F18F06: // "VERTICAL"
+            SetOrientation(VERTICAL);
+            break;
 
-    default:
+        default:
         ERR_FATAL(("Invalid orientation [%s]", s));
-        break;
+            break;
     }
 }

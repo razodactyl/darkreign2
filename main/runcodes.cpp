@@ -34,10 +34,10 @@ LOGDEF(RunCodes, "RunCodes")
 //
 RunCodes::RunCodes(const char* name)
     : ident(name),
-    currentRC(NULL),
-    nextRC(NULL),
-    changeRC(FALSE),
-    runOnceProc(NULL)
+      currentRC(nullptr),
+      nextRC(nullptr),
+      changeRC(FALSE),
+      runOnceProc(nullptr)
 {
 }
 
@@ -47,7 +47,11 @@ RunCodes::RunCodes(const char* name)
 //
 // Run code intialization
 //
-void RunCodes::Register(const char* name, RCPROC fnGame, RCPROC fnInit, RCPROC fnDone, RCPROC fnPost, NOTIFYPROC fnNotify)
+void RunCodes::Register
+(
+    const char* name, RCPROC fnGame, RCPROC fnInit, RCPROC fnDone, RCPROC fnPost,
+    NOTIFYPROC fnNotify
+)
 {
     RunCode* r = new RunCode;
 
@@ -60,12 +64,12 @@ void RunCodes::Register(const char* name, RCPROC fnGame, RCPROC fnInit, RCPROC f
 
     // Make sure a runcode with the same id has not already been registered
     RunCode* prev;
-    if ((prev = runCodes.Find(r->ident.crc)) != NULL)
+    if ((prev = runCodes.Find(r->ident.crc)) != nullptr)
     {
         ERR_FATAL(("[%s] Runcode [%s] already registered (as [%s])", ident.str, r->ident.str, prev->ident.str));
     }
 
-    LOG_DIAG(("[runcodes.cpp register] %s", name));
+    LOG_DIAG(("Runcode [%s] registered.", ident.str))
 
     runCodes.Add(r->ident.crc, r);
 }
@@ -124,7 +128,7 @@ void RunCodes::Clear()
     }
 
     // Clear the current runcode
-    currentRC = NULL;
+    currentRC = nullptr;
 }
 
 
@@ -139,14 +143,14 @@ void RunCodes::Process()
     if (runOnceProc)
     {
         runOnceProc();
-        runOnceProc = NULL;
+        runOnceProc = nullptr;
     }
 
     // Run code change was requested
     if (changeRC)
     {
         // Ensure we are changing to a valid run code
-        if (nextRC == NULL)
+        if (nextRC == nullptr)
         {
             ERR_FATAL(("[%s] Run code is NULL", ident.str));
         }
@@ -172,7 +176,7 @@ void RunCodes::Process()
 
         // Changed over ok
         currentRC = nextRC;
-        nextRC = NULL;
+        nextRC = nullptr;
         changeRC = FALSE;
 
         // Initialize the new run code

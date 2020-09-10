@@ -40,6 +40,7 @@ MeshGlow::MeshGlow(MeshGlowType* _type, MeshEnt* _ent, F32 _lifeTime, U32 _flags
         ent.SetRenderProc(&MeshEnt::RenderGlowEffect);
     }
 }
+
 //----------------------------------------------------------------------------
 
 // Destuctor
@@ -47,6 +48,7 @@ MeshGlow::MeshGlow(MeshGlowType* _type, MeshEnt* _ent, F32 _lifeTime, U32 _flags
 MeshGlow::~MeshGlow()
 {
 }
+
 //----------------------------------------------------------------------------
 
 // Simulation function
@@ -66,6 +68,7 @@ Bool MeshGlow::Simulate(F32 dt, MeshFX::CallBackData* cbd) // = NULL
 
     return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderGlowEffect()
@@ -98,7 +101,7 @@ void MeshEnt::RenderGlowEffect()
         {
             return;
         }
-        VertexTL* sv, * ev = bucky.vert + bucky.vCount;
+        VertexTL *sv, *ev = bucky.vert + bucky.vCount;
         for (sv = bucky.vert; sv < ev; sv++, vmem++)
         {
             *vmem = *sv;
@@ -108,7 +111,7 @@ void MeshEnt::RenderGlowEffect()
 
         U16 offset = (U16)bucky.offset;
 
-        U16* si, * ei = bucky.index + bucky.iCount;
+        U16 *si, *ei = bucky.index + bucky.iCount;
         for (si = bucky.index; si < ei; si++, imem++)
         {
             *imem = (U16)(*si - offset);       // FIXME build in new offset
@@ -117,4 +120,5 @@ void MeshEnt::RenderGlowEffect()
         Vid::UnlockIndexedPrimitiveMem(bucky.vCount, bucky.iCount);
     }
 }
+
 //----------------------------------------------------------------------------

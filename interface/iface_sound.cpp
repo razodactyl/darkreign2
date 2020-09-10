@@ -27,14 +27,12 @@
 //
 namespace IFace
 {
-
     ///////////////////////////////////////////////////////////////////////////
     //
     // Namespace Sound
     //
     namespace Sound
     {
-
         // Sound table - the first (256 - USER_DEFINED) sounds correspond
         // to items in the enumeration SoundType, the rest are user defined,
         // up to a max of 256
@@ -61,7 +59,7 @@ namespace IFace
         {
             for (U32 i = 0; i < MAX_SOUNDS; i++)
             {
-                soundTable[i].effect = NULL;
+                soundTable[i].effect = nullptr;
             }
             nextUserDef = USER_DEFINED;
         }
@@ -90,11 +88,8 @@ namespace IFace
                 soundTable[nextUserDef].volume = volume;
                 return (nextUserDef++);
             }
-            else
-            {
-                LOG_DIAG(("No more entries in iface sound table [%s]", file))
-                    return (NO_SOUND);
-            }
+            LOG_DIAG(("No more entries in iface sound table [%s]", file))
+            return (NO_SOUND);
         }
 
 
@@ -107,7 +102,6 @@ namespace IFace
 
             if (soundTable[id].effect)
             {
-
                 soundTable[id].effect->Play2D(soundTable[id].volume);
             }
         }
@@ -144,21 +138,21 @@ namespace IFace
         //
         void Configure(FScope* fScope)
         {
-            ASSERT(fScope)
+            ASSERT(fScope);
 
-                FScope* sScope;
+            FScope* sScope;
 
-            while ((sScope = fScope->NextFunction()) != NULL)
+            while ((sScope = fScope->NextFunction()) != nullptr)
             {
                 switch (sScope->NameCrc())
                 {
-                case 0xC50D9383: // "MenuCommand"
-                    ConfigureSound(MENU_COMMAND, sScope);
-                    break;
+                    case 0xC50D9383: // "MenuCommand"
+                        ConfigureSound(MENU_COMMAND, sScope);
+                        break;
 
-                case 0xB20D263B: // "MenuPopup"
-                    ConfigureSound(MENU_POPUP, sScope);
-                    break;
+                    case 0xB20D263B: // "MenuPopup"
+                        ConfigureSound(MENU_POPUP, sScope);
+                        break;
                 }
             }
         }

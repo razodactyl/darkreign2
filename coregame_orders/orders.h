@@ -45,53 +45,52 @@ class Order
 {
 public:
 
-  // Base data required for every order
-  struct Data
-  {
-    // The order type
-    U32 orderId;
-
-    // The player id
-    U8 pid;
-
-    // Setup the base data
-    void Setup(U32 o, Player &player)
+    // Base data required for every order
+    struct Data
     {
-      orderId = o;
-      pid = U8(player.GetId());
-    }
-  };
+        // The order type
+        U32 orderId;
+
+        // The player id
+        U8 pid;
+
+        // Setup the base data
+        void Setup(U32 o, Player& player)
+        {
+            orderId = o;
+            pid = U8(player.GetId());
+        }
+    };
 
 private:
 
-  // Name of the order
-  const char *name;
+    // Name of the order
+    const char* name;
 
-  // Function to execute when the order comes in
-  U32 (*execute)(const U8 *, Player &player);
-
-public:
-
-  // Tree Node
-  NBinTree<Order>::Node node;
+    // Function to execute when the order comes in
+    U32 (*execute)(const U8*, Player& player);
 
 public:
 
-  // Order: Create an order and register it
-  Order(const char *name, U32 &id, U32 (*execute)(const U8 *, Player &player));
+    // Tree Node
+    NBinTree<Order>::Node node;
 
-  // GetName: Retrieve the name of the order
-  const char * GetName()
-  {
-    return (name);
-  }
+public:
 
-  // Execute: Execute this orders function
-  U32 Execute(const U8 *data, Player &player)
-  {
-    return (execute(data, player));
-  }
+    // Order: Create an order and register it
+    Order(const char* name, U32& id, U32 (*execute)(const U8*, Player& player));
 
+    // GetName: Retrieve the name of the order
+    const char* GetName()
+    {
+        return (name);
+    }
+
+    // Execute: Execute this orders function
+    U32 Execute(const U8* data, Player& player)
+    {
+        return (execute(data, player));
+    }
 };
 
 
@@ -101,57 +100,56 @@ public:
 //
 namespace Orders
 {
-  LOGEXTERN
+    LOGEXTERN
 
-  // Init: Initialize orders system
-  void Init();
+    // Init: Initialize orders system
+    void Init();
 
-  // Done: Shutdown the orders system
-  void Done();
+    // Done: Shutdown the orders system
+    void Done();
 
-  // Add: Add an order to the dispatch buffer
-  //
-  // NOTE: Orders do not preserve size information.  It is assumed that the type
-  //       is sufficient information for the other end to decode it.  If an
-  //       order requires variable length data then the order must embed size
-  //       information into its own data.
-  void Add(Order::Data &data, U32 size, Bool route = TRUE);
-  
-  // Dispatch: Send the orders in the dispatch queue
-  void Dispatch();
+    // Add: Add an order to the dispatch buffer
+    //
+    // NOTE: Orders do not preserve size information.  It is assumed that the type
+    //       is sufficient information for the other end to decode it.  If an
+    //       order requires variable length data then the order must embed size
+    //       information into its own data.
+    void Add(Order::Data& data, U32 size, Bool route = TRUE);
 
-  // Execute: Execute orders
-  void Execute(const U8 *data, U32 size, U32 from);
+    // Dispatch: Send the orders in the dispatch queue
+    void Dispatch();
 
-  // Reset: Resets the orders system
-  void Reset();
+    // Execute: Execute orders
+    void Execute(const U8* data, U32 size, U32 from);
 
-  // SendSpam : Spam 1 order
-  void SendSpam();
+    // Reset: Resets the orders system
+    void Reset();
 
-  // SendBlip: Send the smallest possible order
-  void SendBlip();
+    // SendSpam : Spam 1 order
+    void SendSpam();
 
-  // SaveDemo: Save orders to demo file
-  Bool SaveDemo(BlockFile &bFile);
+    // SendBlip: Send the smallest possible order
+    void SendBlip();
 
-  // LoadDemo: Read orders from demo file
-  Bool LoadDemo(BlockFile &bFile);
+    // SaveDemo: Save orders to demo file
+    Bool SaveDemo(BlockFile& bFile);
 
-  // GetLagStats: Get the statistics on order lag
-  const Stats::Stat & GetLagStats();
+    // LoadDemo: Read orders from demo file
+    Bool LoadDemo(BlockFile& bFile);
 
-  // Modifier for orders which use tasks directly
-  enum Modifier
-  {
-    FLUSH,
-    APPEND,
-    PREPEND
-  };
+    // GetLagStats: Get the statistics on order lag
+    const Stats::Stat& GetLagStats();
 
-  // IssueTask
-  void IssueTask(Modifier mod, GameObj *unitObj, Task *task, Player &player, U32 flags = 0);
+    // Modifier for orders which use tasks directly
+    enum Modifier
+    {
+        FLUSH,
+        APPEND,
+        PREPEND
+    };
 
+    // IssueTask
+    void IssueTask(Modifier mod, GameObj* unitObj, Task* task, Player& player, U32 flags = 0);
 }
 
 

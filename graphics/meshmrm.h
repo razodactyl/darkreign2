@@ -18,9 +18,15 @@ struct MRM
         enum Token
         {
             BadToken,
-            VertexA, VertexB, VertexC,
-            NormalA, NormalB, NormalC,
-            TexCoord1A, TexCoord1B, TexCoord1C,
+            VertexA,
+            VertexB,
+            VertexC,
+            NormalA,
+            NormalB,
+            NormalC,
+            TexCoord1A,
+            TexCoord1B,
+            TexCoord1C,
             //	    TexCoord2A, TexCoord2B, TexCoord2C,
             SizeToken = 0xffff
         };
@@ -30,6 +36,7 @@ struct MRM
 
         Token token;
     };
+
     struct Vertex
     {
         U16 newFaceCount;
@@ -52,6 +59,7 @@ struct MRM
     {
         vertex = NULL;
     }
+
     ~MRM()
     {
         Free();
@@ -60,6 +68,7 @@ struct MRM
     void Alloc(U16 totalFaceCount, U16 vertCount);
     void Free();
 };
+
 //----------------------------------------------------------------------------
 
 #endif

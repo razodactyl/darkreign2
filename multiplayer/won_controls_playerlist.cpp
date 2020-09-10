@@ -26,14 +26,12 @@
 //
 namespace Won
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Controls
     //
     namespace Controls
     {
-
         ///////////////////////////////////////////////////////////////////////////////
         //
         // Definitions
@@ -58,8 +56,8 @@ namespace Won
         //
         PlayerList::PlayerList(IControl* parent)
             : ICListBox(parent),
-            offsetIcon(0),
-            offsetName(20)
+              offsetIcon(0),
+              offsetName(20)
         {
         }
 
@@ -71,29 +69,29 @@ namespace Won
         {
             switch (fScope->NameCrc())
             {
-            case 0x42215C38: // "OffsetIcon"
-                offsetIcon = StdLoad::TypeU32(fScope);
-                break;
+                case 0x42215C38: // "OffsetIcon"
+                    offsetIcon = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0xD6ABAE33: // "OffsetName"
-                offsetName = StdLoad::TypeU32(fScope);
-                break;
+                case 0xD6ABAE33: // "OffsetName"
+                    offsetName = StdLoad::TypeU32(fScope);
+                    break;
 
-            case 0xF66754C8: // "IconMuted"
-                IFace::FScopeToTextureInfo(fScope, iconMuted);
-                break;
+                case 0xF66754C8: // "IconMuted"
+                    IFace::FScopeToTextureInfo(fScope, iconMuted);
+                    break;
 
-            case 0xF3F09996: // "IconIgnored"
-                IFace::FScopeToTextureInfo(fScope, iconIgnored);
-                break;
+                case 0xF3F09996: // "IconIgnored"
+                    IFace::FScopeToTextureInfo(fScope, iconIgnored);
+                    break;
 
-            case 0x29D46D8C: // "IconModerator"
-                IFace::FScopeToTextureInfo(fScope, iconModerator);
-                break;
+                case 0x29D46D8C: // "IconModerator"
+                    IFace::FScopeToTextureInfo(fScope, iconModerator);
+                    break;
 
-            default:
-                ICListBox::Setup(fScope);
-                break;
+                default:
+                    ICListBox::Setup(fScope);
+                    break;
             }
         }
 
@@ -109,10 +107,10 @@ namespace Won
         //
         PlayerList::Item::Item(PlayerList& playerList, Bool moderator, Bool muted, Bool ignored)
             : playerList(playerList),
-            ICStatic(&playerList),
-            moderator(moderator),
-            muted(muted),
-            ignored(ignored)
+              ICStatic(&playerList),
+              moderator(moderator),
+              muted(muted),
+              ignored(ignored)
         {
             controlStyle &= ~STYLE_INERT;
             SetColorGroup(IFace::data.cgListItem);
@@ -131,11 +129,13 @@ namespace Won
                 // Add launch ready icon
                 IFace::RenderRectangle
                 (
-                    ClipRect(
+                    ClipRect
+                    (
                         pi.client.p0.x + playerList.offsetIcon,
                         midY - (icon.pixels.Height() >> 1),
                         pi.client.p0.x + playerList.offsetIcon + icon.pixels.Width(),
-                        midY - (icon.pixels.Height() >> 1) + icon.pixels.Height()),
+                        midY - (icon.pixels.Height() >> 1) + icon.pixels.Height()
+                    ),
                     Color(1.0f, 1.0f, 1.0f),
                     &icon,
                     pi.alphaScale
@@ -160,7 +160,8 @@ namespace Won
             if (pi.font)
             {
                 U32 yoffs = (pi.client.Height() - pi.font->Height()) / 2;
-                pi.font->Draw(
+                pi.font->Draw
+                (
                     pi.client.p0.x + playerList.offsetName,
                     pi.client.p0.y + yoffs,
                     GetTextString(),
@@ -183,8 +184,6 @@ namespace Won
             {
                 DrawIcon(pi, playerList.iconMuted);
             }
-
         }
-
     }
 }

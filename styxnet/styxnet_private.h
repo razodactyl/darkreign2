@@ -40,7 +40,6 @@
 //
 namespace StyxNet
 {
-
     // Buffer size
     const U32 serverBufferSize = 8192;
 
@@ -68,7 +67,6 @@ namespace StyxNet
 
     // Remove server
     void RemoveServer();
-
 }
 
 

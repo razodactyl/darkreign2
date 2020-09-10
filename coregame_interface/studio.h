@@ -17,14 +17,14 @@
 //
 namespace Studio
 {
-  // 
-  // Conceptually the studio should not expose any more than these four
-  // functions.  This is very important! (spaghetti verses meatballs :)
-  //
-  void Init();
-  void PostInit();
-  void Done();
-  void Process();
+    // 
+    // Conceptually the studio should not expose any more than these four
+    // functions.  This is very important! (spaghetti verses meatballs :)
+    //
+    void Init();
+    void PostInit();
+    void Done();
+    void Process();
 }
 
 #endif

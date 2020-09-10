@@ -28,6 +28,7 @@ void PrimitiveDesc::SetPrimitiveDesc(const PrimitiveDesc& prim)
     SizeofVertex();
 #endif
 }
+
 //-----------------------------------------------------------------------------
 
 void PrimitiveDesc::SetPrimitiveDescTag(const PrimitiveDesc& prim)
@@ -50,12 +51,15 @@ void PrimitiveDesc::SetPrimitiveDescTag(const PrimitiveDesc& prim)
     SizeofVertex();
 #endif
 }
+
 //-----------------------------------------------------------------------------
 
-void PrimitiveDesc::SetPrimitiveDesc(
+void PrimitiveDesc::SetPrimitiveDesc
+(
     PRIMITIVE_TYPE _primitive_type,
     VERTEX_TYPE _vertex_type,
-    U32 _flags)
+    U32 _flags
+)
 {
     //  ASSERT( _indexed);
 
@@ -67,6 +71,7 @@ void PrimitiveDesc::SetPrimitiveDesc(
     SizeofVertex();
 #endif
 }
+
 //-----------------------------------------------------------------------------
 
 void PrimitiveDesc::ClearData()
@@ -79,6 +84,7 @@ void PrimitiveDesc::ClearData()
 
     ClearTextures();
 }
+
 //-----------------------------------------------------------------------------
 
 #ifdef DOVERTEXNON32
@@ -87,27 +93,27 @@ U32 PrimitiveDesc::SizeofVertex()
 {
     switch (vertex_type)
     {
-    case FVF_VERTEX:
-        sizeofVertex = sizeof(Vertex);
-        break;
-    case FVF_CVERTEX:
-        sizeofVertex = sizeof(VertexC);
-        break;
-    case FVF_T2CVERTEX:
-        sizeofVertex = sizeof(VertexT2C);
-        break;
-    case FVF_LVERTEX:
-        sizeofVertex = sizeof(VertexL);
-        break;
-    case FVF_TLVERTEX:
-        sizeofVertex = sizeof(VertexTL);
-        break;
-    case FVF_T2LVERTEX:
-        sizeofVertex = sizeof(VertexT2L);
-        break;
-    default:
-        sizeofVertex = 0;
-        break;
+        case FVF_VERTEX:
+            sizeofVertex = sizeof(Vertex);
+            break;
+        case FVF_CVERTEX:
+            sizeofVertex = sizeof(VertexC);
+            break;
+        case FVF_T2CVERTEX:
+            sizeofVertex = sizeof(VertexT2C);
+            break;
+        case FVF_LVERTEX:
+            sizeofVertex = sizeof(VertexL);
+            break;
+        case FVF_TLVERTEX:
+            sizeofVertex = sizeof(VertexTL);
+            break;
+        case FVF_T2LVERTEX:
+            sizeofVertex = sizeof(VertexT2L);
+            break;
+        default:
+            sizeofVertex = 0;
+            break;
     }
     return sizeofVertex;
 }
@@ -133,6 +139,7 @@ void PrimitiveDesc::SetTexture(const Bitmap* _texture, U32 stage, U32 blend) // 
         texture_count = stage;
     }
 }
+
 //-----------------------------------------------------------------------------
 
 void PrimitiveDesc::ClearTextures()
@@ -140,14 +147,15 @@ void PrimitiveDesc::ClearTextures()
     memset(textureStages, NULL, sizeof(TextureStage) * MAX_TEXTURE_STAGES);
     texture_count = 0;
 }
+
 //-----------------------------------------------------------------------------
 
 Bool PrimitiveDesc::CompareRenderState(const PrimitiveDesc& other) const
 {
     if (
 #ifndef DODXLEANANDGRUMPY
-        material == other.material &&
-        vertex_type == other.vertex_type &&
+		   material       == other.material       &&
+		   vertex_type    == other.vertex_type    &&
 #endif
         tag == other.tag &&
         primitive_type == other.primitive_type &&
@@ -167,4 +175,5 @@ Bool PrimitiveDesc::CompareRenderState(const PrimitiveDesc& other) const
 
     return FALSE;
 }
+
 //-----------------------------------------------------------------------------

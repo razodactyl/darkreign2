@@ -25,7 +25,7 @@
 //
 ICRoot::ICRoot()
     : IControl(NULL),
-    gameHandler(NULL)
+      gameHandler(NULL)
 {
 }
 
@@ -65,7 +65,7 @@ void ICRoot::Draw(PaintInfo& pi)
 //
 // Install an overriding event handler
 //
-EventSys::HANDLERPROC  ICRoot::SetGameHandler(EventSys::HANDLERPROC proc)
+EventSys::HANDLERPROC ICRoot::SetGameHandler(EventSys::HANDLERPROC proc)
 {
     EventSys::HANDLERPROC old = gameHandler;
 
@@ -143,7 +143,7 @@ void ICRoot::PurgeNonSystem()
 IControl* ICRoot::FindByName(const char* name, IControl* base)
 {
     char path[256];
-    char* token, * p = path;
+    char *token, *p = path;
     IControl* ctrl = base ? base : this;
 
     Utils::Strmcpy(path, name, sizeof(path));
@@ -201,21 +201,21 @@ U32 ICRoot::HandleEvent(Event& e)
         // Handle interface events
         switch (e.subType)
         {
-        case IFace::DISPLAYMODECHANGED:
-        {
-            // Modify window size
-            size.x = e.iface.p1;
-            size.y = e.iface.p2;
-            SetupPaintInfo();
+            case IFace::DISPLAYMODECHANGED:
+            {
+                // Modify window size
+                size.x = e.iface.p1;
+                size.y = e.iface.p2;
+                SetupPaintInfo();
 
-            // Refresh all active controls (twice, since the alignment function 
-            // changed to not Deactivate/Activate controls that are already active
-            RefreshControls();
-            RefreshControls();
+                // Refresh all active controls (twice, since the alignment function 
+                // changed to not Deactivate/Activate controls that are already active
+                RefreshControls();
+                RefreshControls();
 
-            // Notify all children
-            return (IControl::HandleEvent(e));
-        }
+                // Notify all children
+                return (IControl::HandleEvent(e));
+            }
         }
     }
 

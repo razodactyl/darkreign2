@@ -43,62 +43,65 @@ namespace Vid
         void Done();
 
         Bool Start();
-        U32  LoopStart();
+        U32 LoopStart();
         void LoopStop();
         void Stop();
     };
+
     //-----------------------------------------------------------------------------
 
-    extern U32                  extraFog;
+    extern U32 extraFog;
 
     // statistics
-    extern U32                  indexCount;
-    extern U32                  texMemPerFrame;
-    extern U32                  totalTexMemory;
+    extern U32 indexCount;
+    extern U32 texMemPerFrame;
+    extern U32 totalTexMemory;
     extern Bitmap* turtleTex;
-    extern Bool                 showTexSwap;
-    extern Bool                 firstRun;
+    extern Bool showTexSwap;
+    extern Bool firstRun;
 
-    extern Area<F32>            clipRect;
+    extern Area<F32> clipRect;
 
     // direct X
-    extern SurfaceDD            front;
-    extern DirectDD             ddx;
-    extern Direct3D             d3d;
-    extern DeviceD3D            device;
-    extern ViewPortDescD3D      viewDesc;
+    extern SurfaceDD front;
+    extern DirectDD ddx;
+    extern Direct3D d3d;
+    extern DeviceD3D device;
+    extern ViewPortDescD3D viewDesc;
 
     extern Material* defMaterial;
     extern Material* blackMaterial;
     extern Camera* curCamera;
 
-    extern List<Pix>            zbuffFormatList;
-    extern S32						      curZbuffFormat;
+    extern List<Pix> zbuffFormatList;
+    extern S32 curZbuffFormat;
 
     // mode change callback function
     typedef void (MODECHANGEPROC)(void);
     MODECHANGEPROC* SetModeChangeCallback(MODECHANGEPROC* proc);
 
-    extern BucketMan            bucket;
-    extern TranBucketMan  	    tranbucket;
+    extern BucketMan bucket;
+    extern TranBucketMan tranbucket;
     extern BucketMan* currentBucketMan;
 
     // handy indices
-    extern U16                  rectIndices[12];
+    extern U16 rectIndices[12];
 
     // function members
     Bool InitDD(Bool noPick = FALSE);
     Bool InitD3D(U32 driver);
+
     inline Bool InitD3D()
     {
         return InitD3D(CurDD().curDriver);
     }
+
     Bool RenderFlush();
     Bool RenderBegin();
     Bool RenderEnd();
     Bool SetRenderState(Bool checkInit = TRUE);
     void ReportMode(U32 report = 3);
-    U32  FreeVidMem(U32 report = FALSE);
+    U32 FreeVidMem(U32 report = FALSE);
     void OnActivate(Bool active);
 
     void ReleaseDD();
@@ -127,7 +130,8 @@ namespace Vid
         shadeFLAT = 2,
         shadeGOURAUD = 3,
     };
-    U32  SetShadeState(U32 flags);
+
+    U32 SetShadeState(U32 flags);
 
     enum FilterFlags
     {
@@ -135,7 +139,8 @@ namespace Vid
         filterMIPMAP = 2,
         filterMIPFILTER = 4,
     };
-    U32  SetFilterState(U32 flags, S32 stage = 0);
+
+    U32 SetFilterState(U32 flags, S32 stage = 0);
 
     inline U32 SetFilterState(Bool filter, Bool mipmap, Bool mipfilter, S32 stage = 0)
     {
@@ -146,11 +151,11 @@ namespace Vid
         return SetFilterState(f, stage);
     }
 
-    U32  SetSrcBlendState(U32 flags);
-    U32  SetDstBlendState(U32 flags);
+    U32 SetSrcBlendState(U32 flags);
+    U32 SetDstBlendState(U32 flags);
     void SetTextureFactor(Color color);
-    U32  SetTexBlendState(U32 flags, U32 stage = 0);
-    U32  SetTexWrapState(U32 flags, U32 stage = 0);
+    U32 SetTexBlendState(U32 flags, U32 stage = 0);
+    U32 SetTexWrapState(U32 flags, U32 stage = 0);
 
     // these are in vidcmd.cpp
     // don't update vars
@@ -159,8 +164,8 @@ namespace Vid
     Bool SetFogStateI(Bool fogOn);
     Bool SetDitherStateI(Bool doDither);
     Bool SetSpecularStateI(Bool doSpecular);
-    U32  SetShadeStateI(U32 flags);
-    U32  SetFilterStateI(U32 flags, S32 stage = 0);
+    U32 SetShadeStateI(U32 flags);
+    U32 SetFilterStateI(U32 flags, S32 stage = 0);
 
     inline U32 SetFilterStateI(Bool filter, Bool mipmap, Bool mipfilter, S32 stage = 1)
     {
@@ -182,15 +187,18 @@ namespace Vid
     {
         return *curCamera;
     }
+
     Bool SetCamera(Camera& cam, Bool force = FALSE);
 
     inline void SetProjTransform(F32 n, F32 f, F32 fv)
     {
         CurCamera().SetProjTransform(n, f, fv);
     }
+
     void SetWorldTransform(const Matrix& mat);
 
     void SetMaterialDX(const Material* mat);
+
     inline void SetMaterial(const Material* mat)
     {
         mat;
@@ -201,6 +209,7 @@ namespace Vid
         }
 #endif
     }
+
     Bool SetTexture(Bitmap* tex, U32 stage = 0, U32 blend = RS_BLEND_DEF);
 
     // JONATHAN
@@ -211,10 +220,12 @@ namespace Vid
 
     void SetFogColor(F32 r, F32 g, F32 b);
     void SetFogRange(F32 min, F32 max, F32 density);
+
     inline void SetFogRange()
     {
         SetFogRange(renderState.fogMin, renderState.fogMax, renderState.fogDensity);
     }
+
     void SetAmbientColor(F32 r, F32 g, F32 b);
     void GetAmbientColor(F32& r, F32& g, F32& b);
 
@@ -225,6 +236,7 @@ namespace Vid
     {
         return *zbuffFormatList[curZbuffFormat];
     }
+
     inline void ClearBack(Color color = 0, Area<S32>* rect = NULL)
     {
         backBmp.Clear(color, rect);
@@ -237,19 +249,23 @@ namespace Vid
     {
         BucketMan::SetPrimitiveType(primitive_type);
     }
+
     inline void SetBucketVertexType(VERTEX_TYPE vertex_type)
     {
         BucketMan::SetVertexType(vertex_type);
     }
+
     inline void SetTranslucent(Bool translucent)
     {
         currentBucketMan = (translucent) ? &tranbucket : &bucket;
     }
 
-    inline void SetBucketPrimitiveDesc(
+    inline void SetBucketPrimitiveDesc
+    (
         PRIMITIVE_TYPE primitive_type,
-        VERTEX_TYPE	vertex_type,
-        U32 flags)
+        VERTEX_TYPE vertex_type,
+        U32 flags
+    )
     {
         SetTranslucent(FALSE);   // reset in case material and texture are NULL
         BucketMan::SetPrimitiveDesc(primitive_type, vertex_type, flags);
@@ -261,6 +277,7 @@ namespace Vid
     }
 
     void SetBucketMaterialProc(const Material* material);
+
     inline void SetBucketMaterial(const Material* material)
     {
         material;
@@ -287,16 +304,19 @@ namespace Vid
         tranbucket.SetZNorm(z);
         BucketMan::SetTag1(sort);
     }
+
     inline void SetTranBucketZ(F32 z, U16 sort = sortNORMAL0)        // z in view space
     {
         tranbucket.SetZ(z);
         BucketMan::SetTag1(sort);
     }
+
     inline void SetTranBucketZMax(U16 sort = sortNORMAL0)
     {
         tranbucket.SetZ(CurCamera().FarPlane());
         BucketMan::SetTag1(sort);
     }
+
     inline void SetTranBucketZMaxPlus(U16 sort = sortNORMAL0)
     {
         tranbucket.SetZ(CurCamera().FarPlane() + 1.0f);
@@ -307,6 +327,7 @@ namespace Vid
     {
         tranbucket.SetMaxZ(max_z);
     }
+
     inline void SetTranBucketMinZ(F32 min_z)
     {
         tranbucket.SetMinZ(min_z);
@@ -362,17 +383,21 @@ namespace Vid
     }
 
     void RenderRectangleOutline(const Area<F32>& rect, Color color, U32 blend = RS_BLEND_GLOW, U16 sorting = sortDEBUG0, F32 vz = 0, F32 rhw = 1);
+
     inline void RenderRectangleOutline(const Vector& pos, F32 size, Color color, U32 blend = RS_BLEND_GLOW, U16 sorting = sortDEBUG0, F32 vz = 0, F32 rhw = 1)
     {
         Area<F32> rect(pos.x - size, pos.y - size, pos.x + size, pos.y + size);
         RenderRectangleOutline(rect, color, blend, sorting, vz, rhw);
     }
+
     void RenderRectangle(const Area<F32>& rect, Color color, Bitmap* tex = NULL, U32 blend = RS_BLEND_DEF, U16 sorting = sortDEBUG0, F32 vz = 0, F32 rhw = 1, Bool immediate = FALSE);
+
     inline void RenderRectangle(const Vector& pos, F32 size, Color color, Bitmap* tex = NULL, U32 blend = RS_BLEND_GLOW, U16 sorting = sortDEBUG0, F32 vz = 0, F32 rhw = 1, Bool immediate = FALSE)
     {
         Area<F32> rect(pos.x - size, pos.y - size, pos.x + size, pos.y + size);
         RenderRectangle(rect, color, tex, blend, sorting, vz, rhw, immediate);
     }
+
     inline void RenderRectangle(const Area<S32>& inRect, Color color, Bitmap* tex = NULL, U32 blend = RS_BLEND_DEF, U16 sorting = sortDEBUG0, F32 vz = 0, F32 rhw = 1, Bool immediate = FALSE)
     {
         Area<F32> rect((F32)inRect.p0.x, (F32)inRect.p0.y, (F32)inRect.p1.x, (F32)inRect.p1.y);
@@ -385,28 +410,34 @@ namespace Vid
     void RenderBeam(Bool doFog, const Vector* points, U32 pointCount, F32 radius, F32 zpos, const Bitmap* texture, Color color, U32 blend = RS_BLEND_ADD, U16 sorting = sortLIGHT0, F32 u0 = 0.0f, F32 du = 1.0f, Bool taper = TRUE, Color* colorA = NULL, F32* radiusA = NULL);
     void RenderBeamOriented(Bool doFog, const Vector* points, U32 pointCount, const Vector& orientation, F32 zpos, const Bitmap* texture, Color color, U32 blend = RS_BLEND_ADD, U16 sorting = sortLIGHT0, F32 u0 = 0.0f, F32 du = 1.0f, Bool taper = TRUE, Color* colorA = NULL, F32* radiusA = NULL);
 
-    Bool DrawPrimitive(
+    Bool DrawPrimitive
+    (
         PRIMITIVE_TYPE prim_type,
         VERTEX_TYPE vert_type,
         LPVOID verts,
         DWORD vert_count,
-        DWORD flags);
+        DWORD flags
+    );
 
-    Bool DrawFanStripPrimitive(
+    Bool DrawFanStripPrimitive
+    (
         PRIMITIVE_TYPE prim_type,
         VERTEX_TYPE vert_type,
         LPVOID verts,
         DWORD vert_count,
-        DWORD flags);
+        DWORD flags
+    );
 
-    Bool DrawIndexedPrimitive(
+    Bool DrawIndexedPrimitive
+    (
         PRIMITIVE_TYPE prim_type,
         VERTEX_TYPE vert_type,
         LPVOID verts,
         DWORD vert_count,
         LPWORD indices,
         DWORD index_count,
-        DWORD flags);
+        DWORD flags
+    );
 
     DWORD FlagsToBitDepth(DWORD flags);
 
@@ -439,10 +470,12 @@ namespace Vid
         dxError = Vid::device->Clear(1UL, (LPD3DRECT)rect, clearFlags, color, 1, 0);
         LOG_DXERR(("Vid::ClearD3D: viewport->Clear2"));
     }
+
     inline void RenderClear(U32 clearFlags)
     {
         RenderClear(clearFlags, renderState.fogColor);
     }
+
     inline void RenderClear()
     {
         RenderClear(renderState.clearFlags);
@@ -477,9 +510,8 @@ namespace Vid
     Bool SetGamma(S32 val);
 
     void CDECL LogPerf(const char* format, ...);
-
 };
+
 //----------------------------------------------------------------------------
 
 #endif		// __VIDPUBLIC_H
-

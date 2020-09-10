@@ -10,6 +10,7 @@
 #include "vid_public.h"
 #include "vidclip.h"
 #include "terrain_priv.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -33,14 +34,16 @@ namespace Vid
 
             sysInit = TRUE;
         }
+
         //-----------------------------------------------------------------------------
 
         void Done()
         {
             sysInit = FALSE;
         }
+
         //-----------------------------------------------------------------------------
-        Terrain::WaterRegion* waterR = NULL, * lastWaterR = NULL;
+        Terrain::WaterRegion *waterR = NULL, *lastWaterR = NULL;
         U32 counter = 0;
 
         Bool Start()
@@ -67,12 +70,13 @@ namespace Vid
 
             return TRUE;
         }
+
         //-----------------------------------------------------------------------------
 
         U32 LoopStart()
         {
             if (waterR - Terrain::waterList.data >= (S32)Terrain::waterCount)
-                //      if (waterR != Terrain::waterList.data)
+            // if (waterR != Terrain::waterList.data)
             {
                 return FALSE;
             }
@@ -107,6 +111,7 @@ namespace Vid
 
             return waterR > Terrain::waterList.data ? 1 : 2;
         }
+
         //-----------------------------------------------------------------------------
 
         void LoopStop()
@@ -118,6 +123,7 @@ namespace Vid
             lastWaterR = waterR;
             waterR++;
         }
+
         //-----------------------------------------------------------------------------
 
         void Stop()
@@ -138,8 +144,9 @@ namespace Vid
             lastWaterR = NULL;
             counter = 0;
         }
-        //-----------------------------------------------------------------------------
 
+        //-----------------------------------------------------------------------------
     }
 }
+
 //----------------------------------------------------------------------------

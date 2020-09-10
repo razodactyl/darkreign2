@@ -36,88 +36,85 @@ class Team;
 //
 namespace AI
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Debug
-  //
-  namespace Debug
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Info
+    // NameSpace Debug
     //
-    class Info : public ICWindow
+    namespace Debug
     {
-      PROMOTE_LINK(TeamList, ICWindow, 0x9A7BBCB9) // "AI::Debug::Info"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Info
+        //
+        class Info : public ICWindow
+        {
+        PROMOTE_LINK(TeamList, ICWindow, 0x9A7BBCB9) // "AI::Debug::Info"
 
-    protected:
+        protected:
 
-      Strategic::Object *object;
+            Strategic::Object* object;
 
-      IFaceVar *powerCurrentConsumed;
-      IFaceVar *powerCurrentProduced;
-      IFaceVar *powerCurrentProducedDay;
-      IFaceVar *powerCurrentProducedNight;
+            IFaceVar* powerCurrentConsumed;
+            IFaceVar* powerCurrentProduced;
+            IFaceVar* powerCurrentProducedDay;
+            IFaceVar* powerCurrentProducedNight;
 
-      IFaceVar *powerOnOrderConsumed;
-      IFaceVar *powerOnOrderProducedDay;
-      IFaceVar *powerOnOrderProducedNight;
+            IFaceVar* powerOnOrderConsumed;
+            IFaceVar* powerOnOrderProducedDay;
+            IFaceVar* powerOnOrderProducedNight;
 
-      IFaceVar *powerInConstructionConsumed;
-      IFaceVar *powerInConstructionProducedDay;
-      IFaceVar *powerInConstructionProducedNight;
+            IFaceVar* powerInConstructionConsumed;
+            IFaceVar* powerInConstructionProducedDay;
+            IFaceVar* powerInConstructionProducedNight;
 
-      IFaceVar *resourceCurrent;
-      IFaceVar *resourceOnOrder;
-      IFaceVar *resourceInConstruction;
-      IFaceVar *resourceAvailable;
+            IFaceVar* resourceCurrent;
+            IFaceVar* resourceOnOrder;
+            IFaceVar* resourceInConstruction;
+            IFaceVar* resourceAvailable;
 
-      ICListBoxPtr baseList;
-      ICListBoxPtr bombardierList;
-      ICListBoxPtr resourceList;
-      ICListBoxPtr scriptList;
-      ICListBoxPtr assetList;
-      ICListBoxPtr objectiveList;
+            ICListBoxPtr baseList;
+            ICListBoxPtr bombardierList;
+            ICListBoxPtr resourceList;
+            ICListBoxPtr scriptList;
+            ICListBoxPtr assetList;
+            ICListBoxPtr objectiveList;
 
-    public:
+        public:
 
-      // Constructor
-      Info(IControl *parent);
-      ~Info();
+            // Constructor
+            Info(IControl* parent);
+            ~Info();
 
-      // Activate and deactivate this control
-      Bool Activate();
-      Bool Deactivate();
+            // Activate and deactivate this control
+            Bool Activate();
+            Bool Deactivate();
 
-      // Poll
-      void Poll();
+            // Poll
+            void Poll();
 
-    private:
+        private:
 
-      // Add base
-      void AddBase(Strategic::Base &base);
+            // Add base
+            void AddBase(Strategic::Base& base);
 
-      // Add orderer
-      void AddOrderer(Strategic::Base::Orderer &orderer, U32 weight, U32 totalWeight, U32 usage, U32 totalUsage);
+            // Add orderer
+            void AddOrderer(Strategic::Base::Orderer& orderer, U32 weight, U32 totalWeight, U32 usage, U32 totalUsage);
 
-      // Add token
-      void AddToken(Strategic::Base::Token &token, U32 indent);
+            // Add token
+            void AddToken(Strategic::Base::Token& token, U32 indent);
 
-      // Add asset request
-      void AddAssetRequest(Strategic::Asset::Request &request);
+            // Add asset request
+            void AddAssetRequest(Strategic::Asset::Request& request);
 
-    public:
+        public:
 
-      // SetObject
-      void SetObject(Strategic::Object *o)
-      {
-        object = o;
-      }
-
-    };
-  }
+            // SetObject
+            void SetObject(Strategic::Object* o)
+            {
+                object = o;
+            }
+        };
+    }
 }
 
 #endif

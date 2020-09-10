@@ -43,15 +43,15 @@ namespace Studio
     // Constructor
     //
     FootEditor::FootEditor(IControl* parent) : ICWindow(parent),
-        mode(EM_HIDE),
-        defaultPath("."),
-        gridSize(224, 224),
-        gridOffset(5, 5),
-        type(NULL),
-        foot(NULL),
-        grid(NULL),
-        varType(NULL),
-        reflectVarChanges(TRUE)
+                                               mode(EM_HIDE),
+                                               gridSize(224, 224),
+                                               gridOffset(5, 5),
+                                               varType(nullptr),
+                                               defaultPath("."),
+                                               type(nullptr),
+                                               foot(nullptr),
+                                               grid(nullptr),
+                                               reflectVarChanges(TRUE)
     {
         // Create interface vars
         varSurface = new IFaceVar(this, CreateString("surface", ""));
@@ -91,30 +91,29 @@ namespace Studio
     {
         switch (fScope->NameCrc())
         {
-        case 0x22E56232: // "TypeVar"
-            ConfigureVar(varType, fScope);
-            break;
+            case 0x22E56232: // "TypeVar"
+                ConfigureVar(varType, fScope);
+                break;
 
-        case 0x2BA8A025: // "EditGridSize"
-            gridSize.x = fScope->NextArgInteger();
-            gridSize.y = fScope->NextArgInteger();
-            break;
+            case 0x2BA8A025: // "EditGridSize"
+                gridSize.x = fScope->NextArgInteger();
+                gridSize.y = fScope->NextArgInteger();
+                break;
 
-        case 0x87DBB97C: // "EditGridOffset"
-            gridOffset.x = fScope->NextArgInteger();
-            gridOffset.y = fScope->NextArgInteger();
-            break;
+            case 0x87DBB97C: // "EditGridOffset"
+                gridOffset.x = fScope->NextArgInteger();
+                gridOffset.y = fScope->NextArgInteger();
+                break;
 
-        case 0xC1AFE857: // "EditPath"
-            defaultPath = fScope->NextArgString();
-            break;
+            case 0xC1AFE857: // "EditPath"
+                defaultPath = fScope->NextArgString();
+                break;
 
-        default:
-            ICWindow::Setup(fScope);
-            break;
+            default:
+                ICWindow::Setup(fScope);
+                break;
         }
     }
-
 
 
     //
@@ -137,28 +136,28 @@ namespace Studio
             {
                 switch (mode)
                 {
-                case EM_SURFACE:
-                {
-                    ASSERT(typeCell)
+                    case EM_SURFACE:
+                    {
+                        ASSERT(typeCell);
 
                         // Get the current surface info
                         MoveTable::KeyInfo* info = MoveTable::FindSurfaceInfo(varSurface->GetStringValue());
 
-                    if (info)
-                    {
-                        typeCell->SetFlag(FootPrint::Type::SURFACE, TRUE);
-                        typeCell->surface = info->index;
+                        if (info)
+                        {
+                            typeCell->SetFlag(FootPrint::Type::SURFACE, TRUE);
+                            typeCell->surface = info->index;
+                        }
+                        else
+                        {
+                            typeCell->SetFlag(FootPrint::Type::SURFACE, FALSE);
+                        }
+                        break;
                     }
-                    else
-                    {
-                        typeCell->SetFlag(FootPrint::Type::SURFACE, FALSE);
-                    }
-                    break;
-                }
 
-                case EM_DIRECTIONS:
-                {
-                    ASSERT(typeCell)
+                    case EM_DIRECTIONS:
+                    {
+                        ASSERT(typeCell);
 
                         typeCell->dirs = U8
                         (
@@ -167,8 +166,8 @@ namespace Studio
                             (varDirSouth->GetIntegerValue() << 2) |
                             (varDirWest->GetIntegerValue() << 3)
                         );
-                    break;
-                }
+                        break;
+                    }
                 }
 
                 // Update info
@@ -201,28 +200,28 @@ namespace Studio
             {
                 switch (mode)
                 {
-                case EM_SURFACE:
-                {
-                    MoveTable::KeyInfo* info = NULL;
-
-                    if (typeCell->GetFlag(FootPrint::Type::SURFACE))
+                    case EM_SURFACE:
                     {
-                        info = MoveTable::FindSurfaceInfo(typeCell->surface);
+                        MoveTable::KeyInfo* info = nullptr;
+
+                        if (typeCell->GetFlag(FootPrint::Type::SURFACE))
+                        {
+                            info = MoveTable::FindSurfaceInfo(typeCell->surface);
+                        }
+
+                        // Set or clear var
+                        varSurface->SetStringValue(info ? info->ident.str : "[No Surface]");
+                        break;
                     }
 
-                    // Set or clear var
-                    varSurface->SetStringValue(info ? info->ident.str : "[No Surface]");
-                    break;
-                }
-
-                case EM_DIRECTIONS:
-                {
-                    varDirNorth->SetIntegerValue(typeCell->dirs & 1);
-                    varDirEast->SetIntegerValue(typeCell->dirs & 2);
-                    varDirSouth->SetIntegerValue(typeCell->dirs & 4);
-                    varDirWest->SetIntegerValue(typeCell->dirs & 8);
-                    break;
-                }
+                    case EM_DIRECTIONS:
+                    {
+                        varDirNorth->SetIntegerValue(typeCell->dirs & 1);
+                        varDirEast->SetIntegerValue(typeCell->dirs & 2);
+                        varDirSouth->SetIntegerValue(typeCell->dirs & 4);
+                        varDirWest->SetIntegerValue(typeCell->dirs & 8);
+                        break;
+                    }
                 }
             }
         }
@@ -246,43 +245,43 @@ namespace Studio
 
             switch (Crc::CalcStr(varMode->GetStringValue()))
             {
-            case 0x2769C38A: // "Hide"
-                mode = EM_HIDE;
-                break;
+                case 0x2769C38A: // "Hide"
+                    mode = EM_HIDE;
+                    break;
 
-            case 0x0F238F81: // "SetBase"
-                mode = EM_SETBASE;
-                break;
+                case 0x0F238F81: // "SetBase"
+                    mode = EM_SETBASE;
+                    break;
 
-            case 0xD374785A: // "ClaimLo"
-                mode = EM_CLAIMLO;
-                break;
+                case 0xD374785A: // "ClaimLo"
+                    mode = EM_CLAIMLO;
+                    break;
 
-            case 0x8CD61441: // "ClaimHi"
-                mode = EM_CLAIMHI;
-                break;
+                case 0x8CD61441: // "ClaimHi"
+                    mode = EM_CLAIMHI;
+                    break;
 
-            case 0x6728DE39: // "Surface"
-                mode = EM_SURFACE;
-                flag = TRUE;
-                break;
+                case 0x6728DE39: // "Surface"
+                    mode = EM_SURFACE;
+                    flag = TRUE;
+                    break;
 
-            case 0x268A0234: // "Second"
-                mode = EM_SECOND;
-                break;
+                case 0x268A0234: // "Second"
+                    mode = EM_SECOND;
+                    break;
 
-            case 0xFFAD789F: // "BlockLOS"
-                mode = EM_BLOCKLOS;
-                break;
+                case 0xFFAD789F: // "BlockLOS"
+                    mode = EM_BLOCKLOS;
+                    break;
 
-            case 0xCC5B039A: // "Zip"
-                mode = EM_ZIP;
-                break;
+                case 0xCC5B039A: // "Zip"
+                    mode = EM_ZIP;
+                    break;
 
-            case 0xF35F8DA9: // "Directions"
-                mode = EM_DIRECTIONS;
-                flag = TRUE;
-                break;
+                case 0xF35F8DA9: // "Directions"
+                    mode = EM_DIRECTIONS;
+                    flag = TRUE;
+                    break;
             }
 
             // Update info based on new mode
@@ -291,9 +290,9 @@ namespace Studio
             // Change the display of the selected cell
             if (type)
             {
-                ASSERT(grid)
+                ASSERT(grid);
 
-                    grid->SetDisplaySelected(flag);
+                grid->SetDisplaySelected(flag);
             }
         }
         else
@@ -306,16 +305,16 @@ namespace Studio
 
         // Direction has changed
         if
+        (
+            reflectVarChanges &&
             (
-                reflectVarChanges &&
-                (
-                    var == varDirNorth ||
-                    var == varDirEast ||
-                    var == varDirSouth ||
-                    var == varDirWest ||
-                    var == varSurface
-                    )
-                )
+                var == varDirNorth ||
+                var == varDirEast ||
+                var == varDirSouth ||
+                var == varDirWest ||
+                var == varSurface
+            )
+        )
         {
             ModifySelectedCell();
         }
@@ -329,40 +328,40 @@ namespace Studio
     //
     Bool FootEditor::ValidCell
     (
-        S32 x, S32 z, FootPrint::Type::Cell*& typeCell, FootPrint::Layer::Cell*& layerCell
+        S32 x, S32 z, FootPrint::Type::Cell* & typeCell, FootPrint::Layer::Cell* & layerCell
     )
     {
         switch (mode)
         {
-        case EM_HIDE:
-        case EM_SETBASE:
-        case EM_CLAIMLO:
-        case EM_CLAIMHI:
-        case EM_SURFACE:
-        case EM_SECOND:
-        case EM_DIRECTIONS:
-        case EM_BLOCKLOS:
-        {
-            // Is this position on the foot
-            if (foot && x > 0 && z > 0 && x <= foot->Size().x && z <= foot->Size().z)
+            case EM_HIDE:
+            case EM_SETBASE:
+            case EM_CLAIMLO:
+            case EM_CLAIMHI:
+            case EM_SURFACE:
+            case EM_SECOND:
+            case EM_DIRECTIONS:
+            case EM_BLOCKLOS:
             {
-                // Setup the type cell
-                typeCell = &foot->GetCell(x - 1, z - 1);
-                return (TRUE);
+                // Is this position on the foot
+                if (foot && x > 0 && z > 0 && x <= foot->Size().x && z <= foot->Size().z)
+                {
+                    // Setup the type cell
+                    typeCell = &foot->GetCell(x - 1, z - 1);
+                    return (TRUE);
+                }
+                break;
             }
-            break;
-        }
 
-        case EM_ZIP:
-        {
-            // Is this a vertex position
-            if (foot && x > 0 && z > 0)
+            case EM_ZIP:
             {
-                layerCell = &foot->GetLayer(FootPrint::Type::LAYER_LOWER).GetCell(x - 1, z - 1);
-                return (TRUE);
+                // Is this a vertex position
+                if (foot && x > 0 && z > 0)
+                {
+                    layerCell = &foot->GetLayer(FootPrint::Type::LAYER_LOWER).GetCell(x - 1, z - 1);
+                    return (TRUE);
+                }
+                break;
             }
-            break;
-        }
         }
 
         return (FALSE);
@@ -383,9 +382,9 @@ namespace Studio
 
             // Clean up previous data
             grid->MarkForDeletion();
-            foot = NULL;
-            grid = NULL;
-            type = NULL;
+            foot = nullptr;
+            grid = nullptr;
+            type = nullptr;
         }
     }
 
@@ -401,12 +400,12 @@ namespace Studio
         ClearData();
 
         // Find the new type
-        if ((type = GameObjCtrl::FindType<MapObjType>(varType->GetStringValue())) != NULL)
+        if ((type = GameObjCtrl::FindType<MapObjType>(varType->GetStringValue())) != nullptr)
         {
             // Get the footprint type (required)
-            if ((foot = type->GetFootPrintType()) == NULL)
+            if ((foot = type->GetFootPrintType()) == nullptr)
             {
-                type = NULL;
+                type = nullptr;
                 return;
             }
 
@@ -456,7 +455,7 @@ namespace Studio
         if (file)
         {
             path = file->Path();
-            FileSys::Close(file);
+            Close(file);
         }
 
         // Generate the full file name
@@ -504,7 +503,7 @@ namespace Studio
         F32 t = ((x & 1) ? 0.04F : 0.0F) + ((z & 1) ? 0.04F : 0.0F);
 
         // Context contains a pointer to the foot editor
-        FootEditor* editor = (FootEditor*)context;
+        FootEditor* editor = static_cast<FootEditor*>(context);
 
         FootPrint::Type::Cell* typeCell;
         FootPrint::Layer::Cell* layerCell;
@@ -514,48 +513,48 @@ namespace Studio
         {
             switch (editor->mode)
             {
-            case EM_HIDE:
-                g = typeCell->GetFlag(FootPrint::Type::HIDE) ? 0.0F : 0.6F;
-                break;
+                case EM_HIDE:
+                    g = typeCell->GetFlag(FootPrint::Type::HIDE) ? 0.0F : 0.6F;
+                    break;
 
-            case EM_SETBASE:
-                g = typeCell->GetFlag(FootPrint::Type::SETBASE) ? 0.6F : 0.0F;
-                break;
+                case EM_SETBASE:
+                    g = typeCell->GetFlag(FootPrint::Type::SETBASE) ? 0.6F : 0.0F;
+                    break;
 
-            case EM_CLAIMLO:
-                g = typeCell->GetFlag(FootPrint::Type::CLAIMLO) ? 0.6F : 0.0F;
-                break;
+                case EM_CLAIMLO:
+                    g = typeCell->GetFlag(FootPrint::Type::CLAIMLO) ? 0.6F : 0.0F;
+                    break;
 
-            case EM_CLAIMHI:
-                g = typeCell->GetFlag(FootPrint::Type::CLAIMHI) ? 0.6F : 0.0F;
-                break;
+                case EM_CLAIMHI:
+                    g = typeCell->GetFlag(FootPrint::Type::CLAIMHI) ? 0.6F : 0.0F;
+                    break;
 
-            case EM_SURFACE:
-                if (MoveTable::SurfaceCount() && typeCell->GetFlag(FootPrint::Type::SURFACE))
-                {
-                    b = 0.6F * (F32(typeCell->surface + 1) / F32(MoveTable::SurfaceCount()));
-                }
-                else
-                {
-                    b = 0.0F;
-                }
-                break;
+                case EM_SURFACE:
+                    if (MoveTable::SurfaceCount() && typeCell->GetFlag(FootPrint::Type::SURFACE))
+                    {
+                        b = 0.6F * (F32(typeCell->surface + 1) / F32(MoveTable::SurfaceCount()));
+                    }
+                    else
+                    {
+                        b = 0.0F;
+                    }
+                    break;
 
-            case EM_SECOND:
-                b = typeCell->GetFlag(FootPrint::Type::SECOND) ? 0.6F : 0.0F;
-                break;
+                case EM_SECOND:
+                    b = typeCell->GetFlag(FootPrint::Type::SECOND) ? 0.6F : 0.0F;
+                    break;
 
-            case EM_BLOCKLOS:
-                b = typeCell->GetFlag(FootPrint::Type::BLOCKLOS) ? 0.6F : 0.0F;
-                break;
+                case EM_BLOCKLOS:
+                    b = typeCell->GetFlag(FootPrint::Type::BLOCKLOS) ? 0.6F : 0.0F;
+                    break;
 
-            case EM_ZIP:
-                g = layerCell->GetFlag(FootPrint::Layer::ZIP) ? 0.6F : 0.0F;
-                break;
+                case EM_ZIP:
+                    g = layerCell->GetFlag(FootPrint::Layer::ZIP) ? 0.6F : 0.0F;
+                    break;
 
-            case EM_DIRECTIONS:
-                b = typeCell->dirs * (1.0F / 15.0F);
-                break;
+                case EM_DIRECTIONS:
+                    b = typeCell->dirs * (1.0F / 15.0F);
+                    break;
             }
         }
         else
@@ -577,7 +576,7 @@ namespace Studio
         ASSERT(context);
 
         // Context contains a pointer to the foot editor
-        FootEditor* editor = (FootEditor*)context;
+        FootEditor* editor = static_cast<FootEditor*>(context);
         FootPrint::Type::Cell* typeCell;
         FootPrint::Layer::Cell* layerCell;
 
@@ -586,48 +585,48 @@ namespace Studio
         {
             switch (event)
             {
-            case 0x90E4DA5D: // "LeftClick"
-            {
-                // Selection has changed
-                editor->UpdateSelectedInfo();
-
-                switch (editor->mode)
+                case 0x90E4DA5D: // "LeftClick"
                 {
-                case EM_HIDE:
-                    typeCell->SetFlag(FootPrint::Type::HIDE, !typeCell->GetFlag(FootPrint::Type::HIDE));
-                    break;
+                    // Selection has changed
+                    editor->UpdateSelectedInfo();
 
-                case EM_SETBASE:
-                    typeCell->SetFlag(FootPrint::Type::SETBASE, !typeCell->GetFlag(FootPrint::Type::SETBASE));
-                    break;
+                    switch (editor->mode)
+                    {
+                        case EM_HIDE:
+                            typeCell->SetFlag(FootPrint::Type::HIDE, !typeCell->GetFlag(FootPrint::Type::HIDE));
+                            break;
 
-                case EM_CLAIMLO:
-                    typeCell->SetFlag(FootPrint::Type::CLAIMLO, !typeCell->GetFlag(FootPrint::Type::CLAIMLO));
-                    break;
+                        case EM_SETBASE:
+                            typeCell->SetFlag(FootPrint::Type::SETBASE, !typeCell->GetFlag(FootPrint::Type::SETBASE));
+                            break;
 
-                case EM_CLAIMHI:
-                    typeCell->SetFlag(FootPrint::Type::CLAIMHI, !typeCell->GetFlag(FootPrint::Type::CLAIMHI));
-                    break;
+                        case EM_CLAIMLO:
+                            typeCell->SetFlag(FootPrint::Type::CLAIMLO, !typeCell->GetFlag(FootPrint::Type::CLAIMLO));
+                            break;
 
-                case EM_SECOND:
-                    typeCell->SetFlag(FootPrint::Type::SECOND, !typeCell->GetFlag(FootPrint::Type::SECOND));
-                    break;
+                        case EM_CLAIMHI:
+                            typeCell->SetFlag(FootPrint::Type::CLAIMHI, !typeCell->GetFlag(FootPrint::Type::CLAIMHI));
+                            break;
 
-                case EM_BLOCKLOS:
-                    typeCell->SetFlag(FootPrint::Type::BLOCKLOS, !typeCell->GetFlag(FootPrint::Type::BLOCKLOS));
-                    break;
+                        case EM_SECOND:
+                            typeCell->SetFlag(FootPrint::Type::SECOND, !typeCell->GetFlag(FootPrint::Type::SECOND));
+                            break;
 
-                case EM_ZIP:
-                    layerCell->SetFlag(FootPrint::Layer::ZIP, !layerCell->GetFlag(FootPrint::Layer::ZIP));
+                        case EM_BLOCKLOS:
+                            typeCell->SetFlag(FootPrint::Type::BLOCKLOS, !typeCell->GetFlag(FootPrint::Type::BLOCKLOS));
+                            break;
+
+                        case EM_ZIP:
+                            layerCell->SetFlag(FootPrint::Layer::ZIP, !layerCell->GetFlag(FootPrint::Layer::ZIP));
+                            break;
+                    }
                     break;
                 }
-                break;
-            }
 
-            // Apply current settings
-            case 0x173F5F78: // "RightClick"
-                editor->ModifySelectedCell();
-                break;
+                    // Apply current settings
+                case 0x173F5F78: // "RightClick"
+                    editor->ModifySelectedCell();
+                    break;
             }
         }
     }
@@ -644,22 +643,22 @@ namespace Studio
         {
             switch (e.subType)
             {
-            case IFace::NOTIFY:
-            {
-                // Do specific handling
-                switch (e.iface.p1)
+                case IFace::NOTIFY:
                 {
-                case 0x65B6B742: // "Export"
-                    if (type) { Export(); }
-                    break;
+                    // Do specific handling
+                    switch (e.iface.p1)
+                    {
+                        case 0x65B6B742: // "Export"
+                            if (type) { Export(); }
+                            break;
 
-                default:
-                    ICWindow::HandleEvent(e);
-                    break;
+                        default:
+                            ICWindow::HandleEvent(e);
+                            break;
+                    }
+
+                    return (TRUE);
                 }
-
-                return (TRUE);
-            }
             }
         }
 
@@ -716,12 +715,12 @@ namespace Studio
                 MoveTable::MoveBalanceTable& table = MoveTable::GetTable();
 
                 // Use this item to apply no surface change
-                listBox->AddTextItem("[No Surface]", NULL);
+                listBox->AddTextItem("[No Surface]", nullptr);
 
                 // Iterate the surface tree
-                for (NBinTree<MoveTable::MoveBalanceTable::KeyInfo>::Iterator s(&table.GetXTree()); *s; s++)
+                for (NBinTree<MoveTable::MoveBalanceTable::KeyInfo>::Iterator s(&table.GetXTree()); *s; ++s)
                 {
-                    listBox->AddTextItem((*s)->ident.str, NULL);
+                    listBox->AddTextItem((*s)->ident.str, nullptr);
                 }
 
                 // Sort the list

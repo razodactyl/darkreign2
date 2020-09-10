@@ -48,38 +48,39 @@ struct MeshConfig
         F32 moveSpeed;
     };
 
-    List<Animation>   animations;
+    List<Animation> animations;
 
-    F32               texTimer;
+    F32 texTimer;
 
     MeshRoot* meshRoot;
 
-    BuffString        name;
-    BuffString        fileName;
+    BuffString name;
+    BuffString fileName;
 
-    F32               scale;
-    F32               shadowRadius;
-    F32               treadPerMeter;
+    F32 scale;
+    F32 shadowRadius;
+    F32 treadPerMeter;
 
-    F32               mrmFactor;
-    F32               mrmMaxFactor;
-    U32               mrmMax;
-    U32               mrmMin;
+    F32 mrmFactor;
+    F32 mrmMaxFactor;
+    U32 mrmMax;
+    U32 mrmMin;
 
-    U32               mrm : 1;
-    U32               envMap : 1;
-    U32               quickLight : 1;
-    U32               chunkify : 1;
-    U32               lock : 1;
-    U32               isNullMesh : 1;
-    U32               shadowGeneric : 1;
-    U32               shadowSemiLive : 1;
-    U32               shadowLive : 1;
+    U32 mrm : 1;
+    U32 envMap : 1;
+    U32 quickLight : 1;
+    U32 chunkify : 1;
+    U32 lock : 1;
+    U32 isNullMesh : 1;
+    U32 shadowGeneric : 1;
+    U32 shadowSemiLive: 1;
+    U32 shadowLive : 1;
 
     MeshConfig()
     {
         ClearData();
     }
+
     ~MeshConfig()
     {
         Release();
@@ -95,6 +96,7 @@ struct MeshConfig
     MeshRoot* Load(const char* _fileName);
     MeshRoot* LoadXSI(const char* _fileName);
     Bool Save(const char* _fileName);
+
     Bool Save()
     {
         return Save(name.str);

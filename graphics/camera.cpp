@@ -26,6 +26,7 @@ void Camera::Mirror(const Plane& plane)
 
     SetWorldAll(matrix);
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::ClearData()
@@ -38,11 +39,11 @@ void Camera::ClearData()
     SetState(state);
 
 #ifdef DOOCCULSION
-    Occlusion = NULL;
+  Occlusion = NULL;
 #endif
 
 #ifdef __DO_XMM_BUILD
-    xmmMem = FALSE;
+  xmmMem = FALSE;
 #endif
 
     memset(&rect, 0, sizeof(rect));
@@ -62,6 +63,7 @@ void Camera::ClearData()
 
     isIso = FALSE;
 }
+
 //-----------------------------------------------------------------------------
 
 Camera::Camera(const char* _name)
@@ -72,19 +74,21 @@ Camera::Camera(const char* _name)
 
     SetProjTransform(STARTNEARPLANE, STARTFARPLANE, STARTFOV);
 }
+
 //-----------------------------------------------------------------------------
 
 Camera::~Camera()
 {
 #ifdef __DO_XMM_BUILD
-    FreeXmm();
+  FreeXmm();
 #endif
 
 #ifdef DOOCCULSION
-    // destroy Occlusion struct
-    ReleaseOcclusion();
+  // destroy Occlusion struct
+  ReleaseOcclusion();
 #endif
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::SetProjTransformIso(F32 n, F32 f, F32 fv, F32 w, F32 h)
@@ -122,6 +126,7 @@ void Camera::SetProjTransformIso(F32 n, F32 f, F32 fv, F32 w, F32 h)
     SetupMatrix();
     SetupView();
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::SetProjTransform(F32 n, F32 f, F32 fv)
@@ -152,6 +157,7 @@ void Camera::SetProjTransform(F32 n, F32 f, F32 fv)
     SetupMatrix();
     SetupView();
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::Setup(const Camera& cam)
@@ -161,12 +167,14 @@ void Camera::Setup(const Camera& cam)
     Setup(cam.rect);
     SetWorldAll(cam.WorldMatrix());
 }
+
 //-----------------------------------------------------------------------------
 
 Matrix& Camera::GetProjTransform()
 {
     return projMatrix;
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::SetZoom(F32 z)
@@ -192,6 +200,7 @@ void Camera::SetZoom(F32 z)
     SetupMatrix();
     SetupView();
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::Setup(const Area<S32>& r)
@@ -213,12 +222,13 @@ void Camera::Setup(const Area<S32>& r)
     SetupView();
 
 #ifdef DOOCCULSION
-    if (Occlusion)
-    {
-        Occlusion->Setup();
-    }
+  if (Occlusion)
+  {
+	  Occlusion->Setup ();
+  }
 #endif
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::OnModeChange()
@@ -230,6 +240,7 @@ void Camera::OnModeChange()
 
     SetupView();
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::SetupView()
@@ -275,8 +286,8 @@ void Camera::SetupView()
         invProjY *= proj23;
 
 #ifdef __DO_XMM_BUILD
-        AllocXmm();
-        SetupXmm();
+    AllocXmm();
+    SetupXmm();
 #endif
 
         F32 guard = (F32)Vid::renderState.clipGuardSize;
@@ -403,12 +414,12 @@ void Camera::SetupView()
         frustrum[0].y = (-halfHeight) * ky;
         frustrum[0].z = z;
 
-        frustrum[1].x = (halfWidth)*kx;
+        frustrum[1].x = (halfWidth) * kx;
         frustrum[1].y = frustrum[0].y;
         frustrum[1].z = z;
 
         frustrum[2].x = frustrum[1].x;
-        frustrum[2].y = (halfHeight)*ky;
+        frustrum[2].y = (halfHeight) * ky;
         frustrum[2].z = z;
 
         frustrum[3].x = frustrum[0].x;
@@ -431,12 +442,12 @@ void Camera::SetupView()
         frustrum[4].y = (-halfHeight) * ky;
         frustrum[4].z = z;
 
-        frustrum[5].x = (halfWidth)*kx;
+        frustrum[5].x = (halfWidth) * kx;
         frustrum[5].y = frustrum[4].y;
         frustrum[5].z = z;
 
         frustrum[6].x = frustrum[5].x;
-        frustrum[6].y = (halfHeight)*ky;
+        frustrum[6].y = (halfHeight) * ky;
         frustrum[6].z = z;
 
         frustrum[7].x = frustrum[4].x;
@@ -492,6 +503,7 @@ void Camera::SetupView()
         Vid::SetCamera(*this, TRUE);
     }
 }
+
 //----------------------------------------------------------------------------
 
 Bool Camera::SetupView(const Area<F32>& mirrorRect, F32 y, Area<F32>& mRect)
@@ -553,7 +565,7 @@ Bool Camera::SetupView(const Area<F32>& mirrorRect, F32 y, Area<F32>& mRect)
         verts[3].vv.y = y;
         verts[3].vv.z = mRect.p1.z;
 
-        VertexTL* v, * ve = verts + 4;
+        VertexTL *v, *ve = verts + 4;
         for (v = verts; v < ve; v++)
         {
             viewMatrix.Transform(v->vv);
@@ -598,8 +610,8 @@ Bool Camera::SetupView(const Area<F32>& mirrorRect, F32 y, Area<F32>& mRect)
         frustrum[0].y = (-halfHeight) * ky;
         frustrum[0].z = z;
 
-        frustrum[2].x = (halfWidth)*kx;
-        frustrum[2].y = (halfHeight)*ky;
+        frustrum[2].x = (halfWidth) * kx;
+        frustrum[2].y = (halfHeight) * ky;
         frustrum[2].z = z;
 
         Area<F32> cRect(mRect.p0.x * kx, mRect.p0.y * ky, mRect.p1.x * kx, mRect.p1.y * ky);
@@ -635,8 +647,8 @@ Bool Camera::SetupView(const Area<F32>& mirrorRect, F32 y, Area<F32>& mRect)
         frustrum[4].y = (-halfHeight) * ky;
         frustrum[4].z = z;
 
-        frustrum[6].x = (halfWidth)*kx;
-        frustrum[6].y = (halfHeight)*ky;
+        frustrum[6].x = (halfWidth) * kx;
+        frustrum[6].y = (halfHeight) * ky;
         frustrum[6].z = z;
 
         cRect.Set(mRect.p0.x * kx, mRect.p0.y * ky, mRect.p1.x * kx, mRect.p1.y * ky);
@@ -712,10 +724,13 @@ Bool Camera::SetupView(const Area<F32>& mirrorRect, F32 y, Area<F32>& mRect)
     mRect.p1.y += Origin().y;
 
     return frustrum[6].x < frustrum[4].x
-        || frustrum[4].x > frustrum[6].x
-        || frustrum[6].y > frustrum[4].y
-        || frustrum[4].y < frustrum[6].y ? FALSE : TRUE;
+           || frustrum[4].x > frustrum[6].x
+           || frustrum[6].y > frustrum[4].y
+           || frustrum[4].y < frustrum[6].y
+               ? FALSE
+               : TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 Bool Camera::SetupMatrix()
@@ -749,26 +764,27 @@ Bool Camera::SetupMatrix()
             boxMax.z = pyramid[i].z;
         }
 #if 0
-        if (boxMin.y > pyramid[i].y)
-        {
-            boxMin.y = pyramid[i].y;
-        }
-        if (boxMax.y < pyramid[i].y)
-        {
-            boxMax.y = pyramid[i].y;
-        }
+		if (boxMin.y > pyramid[i].y)
+    {
+			boxMin.y = pyramid[i].y;
+    }
+		if (boxMax.y < pyramid[i].y)
+    {
+      boxMax.y = pyramid[i].y;
+    }
 #endif
     }
 
 #ifdef DOOCCULSION
-    if (Occlusion)
-    {
-        Occlusion->Setup();
-    }
+	if (Occlusion)
+  {
+		Occlusion->Setup();
+	}
 #endif
 
     return TRUE;
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::ClearBorders(Color color)
@@ -777,25 +793,26 @@ void Camera::ClearBorders(Color color)
 #if 1
     Vid::ClearBack(0);
 #else
-    if (rect.p0.y > last.p0.y)
-    {
-        Area<S32> r = last;
-        r.p1 = rect.p0;
-        Vid::ClearBack(color, &r);
-    }
-    if (rect.p1.y < last.p1.y)
-    {
-        Area<S32> r;
-        r.p0 = rect.p1;
-        r.p1 = last.p1;
-        Vid::ClearBack(color, &r);
-    }
-    if (clearCount > 0)
-    {
-        clearCount--;
-    }
+  if (rect.p0.y > last.p0.y)
+  {
+    Area<S32> r = last;
+    r.p1 = rect.p0;
+    Vid::ClearBack( color, &r);
+  }
+  if (rect.p1.y < last.p1.y)
+  {
+    Area<S32> r;
+    r.p0 = rect.p1;
+    r.p1 = last.p1;
+    Vid::ClearBack( color, &r);
+  }
+  if (clearCount > 0)
+  {
+    clearCount--;
+  }
 #endif
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::SetWorldRecurse(const Matrix& world)
@@ -804,6 +821,7 @@ void Camera::SetWorldRecurse(const Matrix& world)
 
     SetupMatrix();
 }
+
 //-----------------------------------------------------------------------------
 
 void Camera::SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray)
@@ -819,75 +837,75 @@ void Camera::SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray)
 
     SetupMatrix();
 }
+
 //-----------------------------------------------------------------------------
 
 #ifdef DOOCCULSION
 void Camera::CreateOcclusion()
 {
-    if (Occlusion)
-    {
-        return;
-    }
-    Occlusion = new OcclusionClass(this);
+	if (Occlusion)
+  {
+		return ;
+	}
+	Occlusion = new OcclusionClass(this);
 
 #if 0
-    //now that everything is initilize try to create the occlusion camera
-    Camera* OcclusionCam = NULL;
-    try {
-        // Attent to create a harware occlusion camera
-        OcclusionCam = new CameraOcclusionHardware("occlusion");
-    }
-    catch (char* Message)
+	//now that everything is initilize try to create the occlusion camera
+    Camera *OcclusionCam = NULL;
+	try {
+		// Attent to create a harware occlusion camera
+		OcclusionCam = new CameraOcclusionHardware( "occlusion");
+	}	catch (char *Message)
+  {
+		LOG_DIAG( (Message) );
+		
+		// No hardware occlusion support create a software emulation
+		// occlusion
+		OcclusionCam = new CameraOcclusion( "occlusion");
+		if (!OcclusionCam)
     {
-        LOG_DIAG((Message));
-
-        // No hardware occlusion support create a software emulation
-        // occlusion
-        OcclusionCam = new CameraOcclusion("occlusion");
-        if (!OcclusionCam)
-        {
-            ERR_FATAL(("can't create OcclusionCamera"));
-        }
-    }
+			ERR_FATAL( ("can't create OcclusionCamera") );
+		}
+	}
 #endif
 }
 //-----------------------------------------------------------------------------
 
 void Camera::ReleaseOcclusion()
 {
-    if (!Occlusion)
-    {
-        return;
-    }
-    delete Occlusion;
+	if (!Occlusion)
+  {
+		return;
+	}
+	delete Occlusion;
 }
 //-----------------------------------------------------------------------------
 
-Bool Camera::SetOcclusion(Bool OnOff)
+Bool Camera::SetOcclusion (Bool OnOff)
 {
-    if (Occlusion)
-    {
-        return Occlusion->SetOcclusion(OnOff);
-    }
-    return FALSE;
+	if (Occlusion)
+  {
+	  return Occlusion->SetOcclusion(OnOff);
+  }
+	return FALSE;
 }
 //-----------------------------------------------------------------------------
 
-void Camera::RenderToOcclusion(OCCLUSION_PLANE_DATA* Context)
+void Camera::RenderToOcclusion(OCCLUSION_PLANE_DATA *Context)
 {
-    if (Occlusion)
-    {
-        Occlusion->RenderToOcclusion(Context);
-    }
+	if (Occlusion)
+  {
+		Occlusion->RenderToOcclusion(Context);		
+	}
 }
 //-----------------------------------------------------------------------------
 
-void Camera::RenderToOcclusion(MeshEnt* Ent)
+void Camera::RenderToOcclusion(MeshEnt *Ent) 
 {
-    if (Occlusion)
-    {
-        Occlusion->RenderToOcclusion(Ent);
-    }
-}
+	if (Occlusion)
+  {
+		Occlusion->RenderToOcclusion(Ent);		
+	}
+}		
 //-----------------------------------------------------------------------------
 #endif

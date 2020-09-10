@@ -27,27 +27,29 @@ class EmberSimulateClass : public ParticleClass
 {
 public:
 
-  // Drag coefficient
-  F32 drag;
+    // Drag coefficient
+    F32 drag;
 
-  // Gravity coefficient
-  F32 gravity;
+    // Gravity coefficient
+    F32 gravity;
 
 public:
-	// ember simulator class constructor
-	EmberSimulateClass();
+    // ember simulator class constructor
+    EmberSimulateClass();
 
-  // Configure the class
-  void Setup(FScope *fScope);
+    // Configure the class
+    void Setup(FScope* fScope);
 
-	// build a new ember simulator
-	virtual Particle *Build(
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
+    // build a new ember simulator
+    virtual Particle* Build
+    (
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,21 +59,23 @@ public:
 class EmberSimulate : public Particle
 {
 public:
-	Vector vel;
+    Vector vel;
 
 public:
-	// ember simulator constructor
-	EmberSimulate(
-    EmberSimulateClass *proto, 
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
+    // ember simulator constructor
+    EmberSimulate
+    (
+        EmberSimulateClass* proto,
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 
-	// apply ember simulator
-	virtual Bool Simulate( F32 dt);
+    // apply ember simulator
+    virtual Bool Simulate(F32 dt);
 };
 
 #endif

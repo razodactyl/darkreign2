@@ -25,21 +25,20 @@
 //
 namespace Client
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TimeOfDay - Time of day display
-  //
-  class TimeOfDay : public IControl
-  {
-  public:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TimeOfDay - Time of day display
+    //
+    class TimeOfDay : public IControl
+    {
+    public:
 
-    // Constructor
-    TimeOfDay(IControl *parent);
-    ~TimeOfDay();
+        // Constructor
+        TimeOfDay(IControl* parent);
+        ~TimeOfDay();
 
-    void DrawSelf(PaintInfo &pi);
-  };
+        void DrawSelf(PaintInfo& pi);
+    };
 }
 
 #endif
-

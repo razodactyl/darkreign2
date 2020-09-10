@@ -37,7 +37,6 @@ struct ICTetris::Rotation
 
     // Constructor
     Rotation(FScope* fScope);
-
 };
 
 
@@ -56,7 +55,6 @@ struct ICTetris::Piece
     // Constructor and Destructor
     Piece(FScope* fScope);
     ~Piece();
-
 };
 
 
@@ -71,11 +69,11 @@ struct ICTetris::Piece
 //
 ICTetris::ICTetris(IControl* parent)
     : IControl(parent),
-    current(NULL),
-    next(NULL),
-    rotation(NULL),
-    state(DROP),
-    timer(0)
+      current(nullptr),
+      next(nullptr),
+      rotation(nullptr),
+      state(DROP),
+      timer(0)
 {
     // Set the poll interval to 20x per second
     SetPollInterval(50);
@@ -142,21 +140,20 @@ void ICTetris::DrawSelf(PaintInfo& pi)
 
     switch (state)
     {
-    case DROP:
-        ClipRect c;
+        case DROP:
+            ClipRect c;
 
-        // Draw the current piece at the current location
-        c.p0 = pi.client.p0 + pitOffset + Point<S32>((currentLocation.x - 11) * 16, currentLocation.y * 16);
-        c.p1 = c.p0 + Point<S32>(64, 64);
-        IFace::RenderRectangle(c, current->color, &rotation->texture);
+            // Draw the current piece at the current location
+            c.p0 = pi.client.p0 + pitOffset + Point<S32>((currentLocation.x - 11) * 16, currentLocation.y * 16);
+            c.p1 = c.p0 + Point<S32>(64, 64);
+            IFace::RenderRectangle(c, current->color, &rotation->texture);
 
-        // Draw the next piece at the next location
-        c.p0 = pi.client.p0 + nextOffset;
-        c.p1 = c.p0 + Point<S32>(64, 64);
-        IFace::RenderRectangle(c, next->color, &next->rotations.GetHead()->texture);
-        break;
+            // Draw the next piece at the next location
+            c.p0 = pi.client.p0 + nextOffset;
+            c.p1 = c.p0 + Point<S32>(64, 64);
+            IFace::RenderRectangle(c, next->color, &next->rotations.GetHead()->texture);
+            break;
     }
-
 }
 
 
@@ -208,35 +205,35 @@ void ICTetris::Setup(FScope* fScope)
 {
     switch (fScope->NameCrc())
     {
-    case 0xE29F5FFC: // "BlockTexture"
-        IFace::FScopeToTextureInfo(fScope, blockTexture);
-        break;
+        case 0xE29F5FFC: // "BlockTexture"
+            IFace::FScopeToTextureInfo(fScope, blockTexture);
+            break;
 
-    case 0xEAB21734: // "PitOffset"
-        StdLoad::TypePoint<S32>(fScope, pitOffset);
-        break;
+        case 0xEAB21734: // "PitOffset"
+            StdLoad::TypePoint<S32>(fScope, pitOffset);
+            break;
 
-    case 0xD35E79B0: // "NextOffset"
-        StdLoad::TypePoint<S32>(fScope, nextOffset);
-        break;
+        case 0xD35E79B0: // "NextOffset"
+            StdLoad::TypePoint<S32>(fScope, nextOffset);
+            break;
 
-    case 0xE677A8AB: // "AddPiece"
-        pieces.Append(new Piece(fScope));
-        break;
+        case 0xE677A8AB: // "AddPiece"
+            pieces.Append(new Piece(fScope));
+            break;
 
-    case 0xBD9E1D75: // "Bonus"
-        bonus[0] = StdLoad::TypeU32(fScope);
-        bonus[1] = StdLoad::TypeU32(fScope);
-        bonus[2] = StdLoad::TypeU32(fScope);
-        bonus[3] = StdLoad::TypeU32(fScope);
-        break;
+        case 0xBD9E1D75: // "Bonus"
+            bonus[0] = StdLoad::TypeU32(fScope);
+            bonus[1] = StdLoad::TypeU32(fScope);
+            bonus[2] = StdLoad::TypeU32(fScope);
+            bonus[3] = StdLoad::TypeU32(fScope);
+            break;
 
-    default:
-    {
-        // Pass it to the previous level in the hierarchy
-        IControl::Setup(fScope);
-        break;
-    }
+        default:
+        {
+            // Pass it to the previous level in the hierarchy
+            IControl::Setup(fScope);
+            break;
+        }
     }
 }
 
@@ -253,139 +250,139 @@ U32 ICTetris::HandleEvent(Event& e)
         // Interface events
         switch (e.subType)
         {
-            // Notification events
-        case IFace::NOTIFY:
-        {
-            switch (e.iface.p1)
+                // Notification events
+            case IFace::NOTIFY:
             {
-            case ICTetrisMsg::Left:
-                // Attempt to move left
-                if (!TestRotation(*rotation, currentLocation + Point<S32>(-1, 0)))
+                switch (e.iface.p1)
                 {
-                    currentLocation.x--;
-                }
-                break;
-
-            case ICTetrisMsg::Right:
-                // Attempt to move right
-                if (!TestRotation(*rotation, currentLocation + Point<S32>(1, 0)))
-                {
-                    currentLocation.x++;
-                }
-                break;
-
-            case ICTetrisMsg::Drop:
-                timer = 0;
-                break;
-
-            case ICTetrisMsg::Clockwise:
-            {
-                // Attempt to rotate clockwise
-                NList<Rotation>::Node* node = &current->rotations.GetNode(*rotation);
-                if (node->GetNext())
-                {
-                    node = node->GetNext();
-                }
-                else
-                {
-                    node = current->rotations.GetHeadNode();
-                }
-                Rotation* nextRotation = node->GetData();
-
-                // Does the piece fit using this rotation ?
-                if (!TestRotation(*nextRotation, currentLocation))
-                {
-                    rotation = nextRotation;
-                }
-                else
-                    // Does the piece fit one to the right
-                    if (!TestRotation(*nextRotation, currentLocation + Point<S32>(1, 0)))
-                    {
-                        rotation = nextRotation;
-                        currentLocation.x++;
-                    }
-                    else
-                        // Does the piece fit one to the left
-                        if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-1, 0)))
+                    case ICTetrisMsg::Left:
+                        // Attempt to move left
+                        if (!TestRotation(*rotation, currentLocation + Point<S32>(-1, 0)))
                         {
-                            rotation = nextRotation;
                             currentLocation.x--;
                         }
-                        else
-                            // Does the piece fit two to the right
-                            if (!TestRotation(*nextRotation, currentLocation + Point<S32>(2, 0)))
-                            {
-                                rotation = nextRotation;
-                                currentLocation.x += 2;
-                            }
-                            else
-                                // Does the piece fit two to the left
-                                if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-2, 0)))
-                                {
-                                    rotation = nextRotation;
-                                    currentLocation.x -= 2;
-                                }
-                break;
-            }
+                        break;
 
-            case ICTetrisMsg::AntiClockwise:
-            {
-                // Attempt to rotate anitclockwise
-                NList<Rotation>::Node* node = &current->rotations.GetNode(*rotation);
-                if (node->GetPrev())
-                {
-                    node = node->GetPrev();
-                }
-                else
-                {
-                    node = current->rotations.GetTailNode();
-                }
-                Rotation* nextRotation = node->GetData();
-
-                // Does the piece fit using this rotation ?
-                if (!TestRotation(*nextRotation, currentLocation))
-                {
-                    rotation = nextRotation;
-                }
-                else
-                    // Does the piece fit one to the right
-                    if (!TestRotation(*nextRotation, currentLocation + Point<S32>(1, 0)))
-                    {
-                        rotation = nextRotation;
-                        currentLocation.x++;
-                    }
-                    else
-                        // Does the piece fit one to the left
-                        if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-1, 0)))
+                    case ICTetrisMsg::Right:
+                        // Attempt to move right
+                        if (!TestRotation(*rotation, currentLocation + Point<S32>(1, 0)))
                         {
-                            rotation = nextRotation;
-                            currentLocation.x--;
+                            currentLocation.x++;
+                        }
+                        break;
+
+                    case ICTetrisMsg::Drop:
+                        timer = 0;
+                        break;
+
+                    case ICTetrisMsg::Clockwise:
+                    {
+                        // Attempt to rotate clockwise
+                        NList<Rotation>::Node* node = &current->rotations.GetNode(*rotation);
+                        if (node->GetNext())
+                        {
+                            node = node->GetNext();
                         }
                         else
-                            // Does the piece fit two to the right
-                            if (!TestRotation(*nextRotation, currentLocation + Point<S32>(2, 0)))
+                        {
+                            node = current->rotations.GetHeadNode();
+                        }
+                        Rotation* nextRotation = node->GetData();
+
+                        // Does the piece fit using this rotation ?
+                        if (!TestRotation(*nextRotation, currentLocation))
+                        {
+                            rotation = nextRotation;
+                        }
+                        else
+                            // Does the piece fit one to the right
+                            if (!TestRotation(*nextRotation, currentLocation + Point<S32>(1, 0)))
                             {
                                 rotation = nextRotation;
-                                currentLocation.x += 2;
+                                currentLocation.x++;
                             }
                             else
-                                // Does the piece fit two to the left
-                                if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-2, 0)))
+                                // Does the piece fit one to the left
+                                if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-1, 0)))
                                 {
                                     rotation = nextRotation;
-                                    currentLocation.x -= 2;
+                                    currentLocation.x--;
                                 }
-                break;
-            }
+                                else
+                                    // Does the piece fit two to the right
+                                    if (!TestRotation(*nextRotation, currentLocation + Point<S32>(2, 0)))
+                                    {
+                                        rotation = nextRotation;
+                                        currentLocation.x += 2;
+                                    }
+                                    else
+                                        // Does the piece fit two to the left
+                                        if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-2, 0)))
+                                        {
+                                            rotation = nextRotation;
+                                            currentLocation.x -= 2;
+                                        }
+                        break;
+                    }
 
-            case ICTetrisMsg::Reset:
-            {
-                Clear();
+                    case ICTetrisMsg::AntiClockwise:
+                    {
+                        // Attempt to rotate anitclockwise
+                        NList<Rotation>::Node* node = &current->rotations.GetNode(*rotation);
+                        if (node->GetPrev())
+                        {
+                            node = node->GetPrev();
+                        }
+                        else
+                        {
+                            node = current->rotations.GetTailNode();
+                        }
+                        Rotation* nextRotation = node->GetData();
+
+                        // Does the piece fit using this rotation ?
+                        if (!TestRotation(*nextRotation, currentLocation))
+                        {
+                            rotation = nextRotation;
+                        }
+                        else
+                            // Does the piece fit one to the right
+                            if (!TestRotation(*nextRotation, currentLocation + Point<S32>(1, 0)))
+                            {
+                                rotation = nextRotation;
+                                currentLocation.x++;
+                            }
+                            else
+                                // Does the piece fit one to the left
+                                if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-1, 0)))
+                                {
+                                    rotation = nextRotation;
+                                    currentLocation.x--;
+                                }
+                                else
+                                    // Does the piece fit two to the right
+                                    if (!TestRotation(*nextRotation, currentLocation + Point<S32>(2, 0)))
+                                    {
+                                        rotation = nextRotation;
+                                        currentLocation.x += 2;
+                                    }
+                                    else
+                                        // Does the piece fit two to the left
+                                        if (!TestRotation(*nextRotation, currentLocation + Point<S32>(-2, 0)))
+                                        {
+                                            rotation = nextRotation;
+                                            currentLocation.x -= 2;
+                                        }
+                        break;
+                    }
+
+                    case ICTetrisMsg::Reset:
+                    {
+                        Clear();
+                        break;
+                    }
+                }
                 break;
             }
-            }
-            break;
-        }
         }
     }
 
@@ -403,138 +400,138 @@ void ICTetris::Poll()
 {
     switch (state)
     {
-    case START:
-        // Thumb twiddlin
-        break;
+        case START:
+            // Thumb twiddlin
+            break;
 
-    case DROP:
-        // Dropping a piece into the pit
+        case DROP:
+            // Dropping a piece into the pit
 
-        // Has the drop time expired ?
-        if (timer)
-        {
-            timer--;
-        }
-        else
-        {
-            // Reset timer
-            timer = speed->GetIntegerValue();
-
-            // Can the current piece be dropped ?
-
-            // Test a rotation in the pit
-            if (TestRotation(*rotation, currentLocation + Point<S32>(0, 1)))
+            // Has the drop time expired ?
+            if (timer)
             {
-                // If the current location is above the pit then its game over
-                if (currentLocation.y < 2)
-                {
-                    state = START;
-                }
-                else
-                {
-                    // Split the piece at the current location
-                    SplitPiece(*current, *rotation, currentLocation);
-
-                    U32 numLines = 0;
-
-                    // Check to see if any bonus should be collected
-                    for (int i = 0; i < 4; i++)
-                    {
-                        if (TestRow(currentLocation.y + i))
-                        {
-                            numLines++;
-                            collect[i] = currentLocation.y + i;
-                            state = COLLECT_MARK;
-                            timer = speed->GetIntegerValue();
-                        }
-                        else
-                        {
-                            collect[i] = 0;
-                        }
-                    }
-
-                    U32 s;
-
-                    // Compute the drop score (based on fraction of the drop at high speed)
-                    U32 level = 11 - speed->GetIntegerValue();
-                    s = level * (22 - currentLocation.y) + level * 2;
-                    //s = ((s * drop_count[1]) / (drop_count[0] + drop_count[1])) + s;
-
-                    if (numLines)
-                    {
-                        // Add in any bonus
-                        s += bonus[numLines - 1];
-
-                        // Adjust lines
-                        lines->SetIntegerValue(lines->GetIntegerValue() + numLines);
-
-                        // Adjust speed
-                        speed->SetIntegerValue(10 - Min((S32)10, lines->GetIntegerValue() / 10));
-                    }
-                    score->SetIntegerValue(score->GetIntegerValue() + s);
-
-                    // Get a new piece
-                    NextPiece();
-                }
+                timer--;
             }
             else
             {
-                currentLocation.y++;
-            }
-        }
+                // Reset timer
+                timer = speed->GetIntegerValue();
 
-        break;
+                // Can the current piece be dropped ?
 
-    case COLLECT_MARK:
-    {
-        // Change the color of the collect lines to be brighter and semi-translucent
-        for (int i = 0; i < 4; i++)
-        {
-            if (collect[i])
-            {
-                for (S32 x = 0; x < 10; x++)
+                // Test a rotation in the pit
+                if (TestRotation(*rotation, currentLocation + Point<S32>(0, 1)))
                 {
-                    pit[collect[i] - 2][x].Lighten(192);
-                    //pit[collect[i] - 2][x].a = 192;
-                }
-            }
-        }
-        state = COLLECT_DROP;
-        break;
-    }
+                    // If the current location is above the pit then its game over
+                    if (currentLocation.y < 2)
+                    {
+                        state = START;
+                    }
+                    else
+                    {
+                        // Split the piece at the current location
+                        SplitPiece(*current, *rotation, currentLocation);
 
-    case COLLECT_DROP:
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            if (collect[i])
-            {
-                // Has this row faded out ?
-                if (pit[collect[i] - 2][0].a <= 32)
-                {
-                    // Remove that row
-                    RemoveRow(collect[i]);
-                    collect[i] = 0;
+                        U32 numLines = 0;
+
+                        // Check to see if any bonus should be collected
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (TestRow(currentLocation.y + i))
+                            {
+                                numLines++;
+                                collect[i] = currentLocation.y + i;
+                                state = COLLECT_MARK;
+                                timer = speed->GetIntegerValue();
+                            }
+                            else
+                            {
+                                collect[i] = 0;
+                            }
+                        }
+
+                        U32 s;
+
+                        // Compute the drop score (based on fraction of the drop at high speed)
+                        U32 level = 11 - speed->GetIntegerValue();
+                        s = level * (22 - currentLocation.y) + level * 2;
+                        //s = ((s * drop_count[1]) / (drop_count[0] + drop_count[1])) + s;
+
+                        if (numLines)
+                        {
+                            // Add in any bonus
+                            s += bonus[numLines - 1];
+
+                            // Adjust lines
+                            lines->SetIntegerValue(lines->GetIntegerValue() + numLines);
+
+                            // Adjust speed
+                            speed->SetIntegerValue(10 - Min(static_cast<S32>(10), lines->GetIntegerValue() / 10));
+                        }
+                        score->SetIntegerValue(score->GetIntegerValue() + s);
+
+                        // Get a new piece
+                        NextPiece();
+                    }
                 }
                 else
                 {
-                    // Fade out the row
+                    currentLocation.y++;
+                }
+            }
+
+            break;
+
+        case COLLECT_MARK:
+        {
+            // Change the color of the collect lines to be brighter and semi-translucent
+            for (int i = 0; i < 4; i++)
+            {
+                if (collect[i])
+                {
                     for (S32 x = 0; x < 10; x++)
                     {
-                        pit[collect[i] - 2][x].a -= 32;
+                        pit[collect[i] - 2][x].Lighten(192);
+                        //pit[collect[i] - 2][x].a = 192;
                     }
                 }
-                return;
             }
+            state = COLLECT_DROP;
+            break;
         }
-        state = DROP;
 
-        break;
-    }
+        case COLLECT_DROP:
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (collect[i])
+                {
+                    // Has this row faded out ?
+                    if (pit[collect[i] - 2][0].a <= 32)
+                    {
+                        // Remove that row
+                        RemoveRow(collect[i]);
+                        collect[i] = 0;
+                    }
+                    else
+                    {
+                        // Fade out the row
+                        for (S32 x = 0; x < 10; x++)
+                        {
+                            pit[collect[i] - 2][x].a -= 32;
+                        }
+                    }
+                    return;
+                }
+            }
+            state = DROP;
 
-    case BONUS:
-        // Collecting bonus from completed level
-        break;
+            break;
+        }
+
+        case BONUS:
+            // Collecting bonus from completed level
+            break;
     }
 }
 
@@ -559,10 +556,10 @@ void ICTetris::NextPiece()
     // Get the next piece
     current = next;
 
-    ASSERT(current)
+    ASSERT(current);
 
-        // Setup the default rotation
-        rotation = current->rotations.GetHead();
+    // Setup the default rotation
+    rotation = current->rotations.GetHead();
 
     // Get another piece for the next piece
     next = pieces[Random::nonSync.Integer(pieces.GetCount())];
@@ -570,7 +567,6 @@ void ICTetris::NextPiece()
     // Set the initial current position
     currentLocation.x = 14;
     currentLocation.y = 0;
-
 }
 
 
@@ -716,19 +712,19 @@ ICTetris::Piece::Piece(FScope* fScope)
 {
     FScope* sScope;
 
-    while ((sScope = fScope->NextFunction()) != NULL)
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
         switch (sScope->NameCrc())
         {
-        case 0xDD6D8CBC: // "AddRotation"
-            rotations.Append(new Rotation(sScope));
-            break;
+            case 0xDD6D8CBC: // "AddRotation"
+                rotations.Append(new Rotation(sScope));
+                break;
 
-        case 0x0FF7F7A4: // "SetColor"
-            StdLoad::TypeColor(sScope, color);
+            case 0x0FF7F7A4: // "SetColor"
+                StdLoad::TypeColor(sScope, color);
 
-        default:
-            break;
+            default:
+                break;
         }
     }
 }

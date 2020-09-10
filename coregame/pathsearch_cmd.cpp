@@ -34,7 +34,6 @@ namespace PathSearch
     static U8 tractionType;
 
 
-
     //
     // SurfaceColor
     //
@@ -79,63 +78,64 @@ namespace PathSearch
 
         switch (data.searchType)
         {
-        case ST_ASTAR:
-        {
-            // From current search
-            if (pCell->zMark == data.zMarks[z])
+            case ST_ASTAR:
             {
-                // No alpha
-                a = 1.0F;
+                // From current search
+                if (pCell->zMark == data.zMarks[z])
+                {
+                    // No alpha
+                    a = 1.0F;
 
-                // Closed set
-                if (pCell->closed)
-                {
-                    r = 0.4F;
+                    // Closed set
+                    if (pCell->closed)
+                    {
+                        r = 0.4F;
+                    }
+                    else
+                    {
+                        // In open set
+                        g = 0.4F;
+                    }
                 }
-                else
-                {
-                    // In open set
-                    g = 0.4F;
-                }
+
+                b = SurfaceColor(data.request.tractionType, tCell);
+                break;
             }
 
-            b = SurfaceColor(data.request.tractionType, tCell);
-            break;
-        }
-
-        case ST_TRACE:
-        {
-            F32 sense[2] = { 0.0F, 0.0F };
-
-            if (pCell->zMark == data.zMarks[z])
+            case ST_TRACE:
             {
-                // No alpha
-                a = 1.0F;
+                F32 sense[2] = {0.0F, 0.0F};
 
-                for (U32 l = 0; l < 2; l++)
+                if (pCell->zMark == data.zMarks[z])
                 {
-                    if (pCell->sense[l].visited)
+                    // No alpha
+                    a = 1.0F;
+
+                    for (U32 l = 0; l < 2; l++)
                     {
-                        sense[l] = 0.4F;
-                        if (x == data.trace.sense[l].curPos.x && z == data.trace.sense[l].curPos.z)
+                        if (pCell->sense[l].visited)
                         {
-                            sense[l] += 0.4F;
+                            sense[l] = 0.4F;
+                            if (x == data.trace.sense[l].curPos.x && z == data.trace.sense[l].curPos.z)
+                            {
+                                sense[l] += 0.4F;
+                            }
                         }
                     }
                 }
-            }
 
-            F32 box =
+                F32 box =
                 (
                     x >= data.trace.minBound.x && x <= data.trace.maxBound.x &&
                     z >= data.trace.minBound.z && z <= data.trace.maxBound.z
-                    )
-                ? 0.2F : 0.0F;
+                )
+                    ? 0.2F
+                    : 0.0F;
 
-            r = sense[0] + box;
-            g = sense[1] + box;
-            b = SurfaceColor(data.request.tractionType, tCell);
-        }
+                r = sense[0] + box;
+                g = sense[1] + box;
+                b = SurfaceColor(data.request.tractionType, tCell);
+            }
         }
 
         return (Color(r, g, b, a));
@@ -197,44 +197,44 @@ namespace PathSearch
     {
         switch (pathCrc)
         {
-        case 0x87CEC309: // "coregame.psearch.cellspercycle"
-        {
-            S32 count;
-            if (Console::GetArgInteger(1, count))
+            case 0x87CEC309: // "coregame.psearch.cellspercycle"
             {
-                data.cellsPerCycle = (U32)count;
+                S32 count;
+                if (Console::GetArgInteger(1, count))
+                {
+                    data.cellsPerCycle = (U32)count;
+                }
+                break;
             }
-            break;
-        }
 
-        case 0xCAC71605: // "coregame.psearch.pathwatch"
-        {
-            // Create the control
-            if (pathGrid.Alive())
+            case 0xCAC71605: // "coregame.psearch.pathwatch"
             {
-                pathGrid->Deactivate();
+                // Create the control
+                if (pathGrid.Alive())
+                {
+                    pathGrid->Deactivate();
+                }
+                else
+                {
+                    U32 xc = 200 / WorldCtrl::CellMapX();
+                    U32 zc = 200 / WorldCtrl::CellMapZ();
+                    U32 c = Max<U32>(1, Min<U32>(xc, zc));
+
+                    // Allocate the control
+                    pathGrid = new ICGridWindow("Path Map", WorldCtrl::CellMapX(), WorldCtrl::CellMapZ(), c, c);
+
+                    // Setup the grid
+                    ICGrid& grid = pathGrid->Grid();
+                    grid.SetCellCallBack(PathCellCallBack);
+                    grid.SetPostCallBack(PathPostCallBack);
+                    grid.SetAxisFlip(FALSE, TRUE);
+
+                    // Setup the window
+                    pathGrid->SetGeometry("top", "right", NULL);
+                    pathGrid->Activate();
+                }
+                break;
             }
-            else
-            {
-                U32 xc = 200 / WorldCtrl::CellMapX();
-                U32 zc = 200 / WorldCtrl::CellMapZ();
-                U32 c = Max<U32>(1, Min<U32>(xc, zc));
-
-                // Allocate the control
-                pathGrid = new ICGridWindow("Path Map", WorldCtrl::CellMapX(), WorldCtrl::CellMapZ(), c, c);
-
-                // Setup the grid
-                ICGrid& grid = pathGrid->Grid();
-                grid.SetCellCallBack(PathCellCallBack);
-                grid.SetPostCallBack(PathPostCallBack);
-                grid.SetAxisFlip(FALSE, TRUE);
-
-                // Setup the window
-                pathGrid->SetGeometry("top", "right", NULL);
-                pathGrid->Activate();
-            }
-            break;
-        }
         }
     }
 

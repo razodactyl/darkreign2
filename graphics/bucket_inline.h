@@ -26,23 +26,25 @@ inline void BucketLock::LightCamInline(VertexTL& dst, const Vector& src, const V
         {
             switch (light->GetType())
             {
-            case Vid::Light::lightPOINT:
-                light->PointLightCamera(src, norm, diff, *material, d, s);
-                break;
-            case Vid::Light::lightSPOT:
-                light->SpotLightCamera(src, norm, diff, *material, d, s);
-                break;
-            case Vid::Light::lightDIRECTION:
-                light->DirectLightCamera(src, norm, diff, *material, d, s);
-                break;
+                case Vid::Light::lightPOINT:
+                    light->PointLightCamera(src, norm, diff, *material, d, s);
+                    break;
+                case Vid::Light::lightSPOT:
+                    light->SpotLightCamera(src, norm, diff, *material, d, s);
+                    break;
+                case Vid::Light::lightDIRECTION:
+                    light->DirectLightCamera(src, norm, diff, *material, d, s);
+                    break;
             }
         }
         // set the colors
-        dst.diffuse.SetNoExpandInline(
+        dst.diffuse.SetNoExpandInline
+        (
             color.r * d.r,
             color.g * d.g,
             color.b * d.b,
-            color.a * diffInitF32.a);
+            color.a * diffInitF32.a
+        );
         //      diffInitC);
 
         dst.specular.Set(s.r, s.g, s.b, (U32)255);
@@ -53,6 +55,7 @@ inline void BucketLock::LightCamInline(VertexTL& dst, const Vector& src, const V
         dst.specular = 0xff000000;
     }
 }
+
 //-----------------------------------------------------------------------------
 
 inline void BucketLock::LightModInline(VertexTL& dst, const Vector& src, const Vector& norm, Color color) const
@@ -67,23 +70,25 @@ inline void BucketLock::LightModInline(VertexTL& dst, const Vector& src, const V
         {
             switch (light->GetType())
             {
-            case Vid::Light::lightPOINT:
-                light->PointLightModel(src, norm, diff, *material, d, s);
-                break;
-            case Vid::Light::lightSPOT:
-                light->SpotLightModel(src, norm, diff, *material, d, s);
-                break;
-            case Vid::Light::lightDIRECTION:
-                light->DirectLightModel(src, norm, diff, *material, d, s);
-                break;
+                case Vid::Light::lightPOINT:
+                    light->PointLightModel(src, norm, diff, *material, d, s);
+                    break;
+                case Vid::Light::lightSPOT:
+                    light->SpotLightModel(src, norm, diff, *material, d, s);
+                    break;
+                case Vid::Light::lightDIRECTION:
+                    light->DirectLightModel(src, norm, diff, *material, d, s);
+                    break;
             }
         }
         // set the colors
-        dst.diffuse.SetNoExpandInline(
+        dst.diffuse.SetNoExpandInline
+        (
             color.r * d.r,
             color.g * d.g,
             color.b * d.b,
-            color.a * diffInitF32.a);
+            color.a * diffInitF32.a
+        );
         //      diffInitC);
 
         dst.specular.Set(s.r, s.g, s.b, (U32)255);
@@ -94,6 +99,7 @@ inline void BucketLock::LightModInline(VertexTL& dst, const Vector& src, const V
         dst.specular = 0xff000000;
     }
 }
+
 //-----------------------------------------------------------------------------
 
 #endif // __BUCKETINLINE_H

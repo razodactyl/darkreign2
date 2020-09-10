@@ -44,7 +44,7 @@
 // Forward declaration
 namespace FileSys
 {
-  class DataFile;
+    class DataFile;
 }
 
 class BlockFile;
@@ -60,109 +60,108 @@ class BlockFile;
 #pragma pack(push, 1)
 
 class PTree
-{ 
+{
 public:
 
-  // Binary file information
-  struct BinaryInfo
-  {
-    U32 fScopeSize;
-    U32 symbolSize;
-    U32 symbolCount;
-  };
+    // Binary file information
+    struct BinaryInfo
+    {
+        U32 fScopeSize;
+        U32 symbolSize;
+        U32 symbolCount;
+    };
 
 private:
 
-  // binary file keys
-  enum 
-  {
-    BK_ARGSTRING,
-    BK_ARGINTEGER,
-    BK_ARGFLOAT
-  };
+    // binary file keys
+    enum
+    {
+        BK_ARGSTRING,
+        BK_ARGINTEGER,
+        BK_ARGFLOAT
+    };
 
-  // crc all the files added to the ptree
-  Bool useCrc;
-  U32 crc;
+    // crc all the files added to the ptree
+    Bool useCrc;
+    U32 crc;
 
-  // last error string
-  char lastError[256];
+    // last error string
+    char lastError[256];
 
-  // global scope
-  FScope gScope;
+    // global scope
+    FScope gScope;
 
-  // current token buffer being processed, on top of file stack
-  TBuf *tBuf;
+    // current token buffer being processed, on top of file stack
+    TBuf* tBuf;
 
-  // List of symbols, indexed by crc
-  BinTree<const char> symbols;
+    // List of symbols, indexed by crc
+    BinTree<const char> symbols;
 
-  // parse a text file, adding to 'fScope'
-  Bool AddFileToScope(const char *fName, FScope *fScope);
+    // parse a text file, adding to 'fScope'
+    Bool AddFileToScope(const char* fName, FScope* fScope);
 
-  // file syntax parsing functions
-  TBufResult ParseFunctionContents(FScope *fScope);
-  void ParseFunctionConstruct(FScope *fScope);
-  void ParseDirective(FScope *fScope);
-  FScope* ParseFunctionArguments(FScope *fScope);
-  void ParseVariable(FScope *fScope);
-  VNode* ParseVNodeData(FScope *fScope);
-  VNode* ParseNumericVNode(FScope *fScope);
-  VNode* ParseStringVNode(FScope *fScope);
-  void ParseEnumeration(FScope *fScope);
-  VNode* ParseVariableReference(FScope *fScope);
-  VNode* ParsePointerVNode(FScope *fScope);
-  void PeekPunctuation();
-  void CheckLegalIdent(const char *ident);
+    // file syntax parsing functions
+    TBufResult ParseFunctionContents(FScope* fScope);
+    void ParseFunctionConstruct(FScope* fScope);
+    void ParseDirective(FScope* fScope);
+    FScope* ParseFunctionArguments(FScope* fScope);
+    void ParseVariable(FScope* fScope);
+    VNode* ParseVNodeData(FScope* fScope);
+    VNode* ParseNumericVNode(FScope* fScope);
+    VNode* ParseStringVNode(FScope* fScope);
+    void ParseEnumeration(FScope* fScope);
+    VNode* ParseVariableReference(FScope* fScope);
+    VNode* ParsePointerVNode(FScope* fScope);
+    void PeekPunctuation();
+    void CheckLegalIdent(const char* ident);
 
-  // for saving trees as text
-  void Indent(File &file, U32 i);
-  void NextLine(File &file);
-  void WriteString(File &file, const char *str);
-  void WriteFunctionContents(File &file, FScope *fScope, U32 indent);
+    // for saving trees as text
+    void Indent(File& file, U32 i);
+    void NextLine(File& file);
+    void WriteString(File& file, const char* str);
+    void WriteFunctionContents(File& file, FScope* fScope, U32 indent);
 
-  // for saving trees as binary
-  char *binaryData;
-  char *binaryPos;
-  U32 binaryRemaining;
-  void ReadBinaryData(void *dest, U32 size);
-  void BinWriteFunctionContents(BlockFile *file, FScope *fScope);
-  void BinReadFunctionContents(FScope *fScope);
-  void BinWriteSymbols(BlockFile *file, BinTree<const char> &symbols);
-  void BinReadSymbols(BinTree<const char> &symbols);
+    // for saving trees as binary
+    char* binaryData;
+    char* binaryPos;
+    U32 binaryRemaining;
+    void ReadBinaryData(void* dest, U32 size);
+    void BinWriteFunctionContents(BlockFile* file, FScope* fScope);
+    void BinReadFunctionContents(FScope* fScope);
+    void BinWriteSymbols(BlockFile* file, BinTree<const char>& symbols);
+    void BinReadSymbols(BinTree<const char>& symbols);
 
-  // temporary buffer available for parsing functions
-  char workBuf[PTREE_WORKBUF_LEN];
-  
+    // temporary buffer available for parsing functions
+    char workBuf[PTREE_WORKBUF_LEN];
+
 public:
 
-  PTree(Bool useCrc = FALSE, U32 crc = 0);
-  ~PTree();
+    PTree(Bool useCrc = FALSE, U32 crc = 0);
+    ~PTree();
 
-  // parse a text file, adding to the global scope
-  Bool AddFile(const char *fName);
+    // parse a text file, adding to the global scope
+    Bool AddFile(const char* fName);
 
-  // returns a pointer to the global scope, and resets all iterators within it.
-  FScope * GetGlobalScope();
+    // returns a pointer to the global scope, and resets all iterators within it.
+    FScope* GetGlobalScope();
 
-  // save tree as text to 'fName'
-  Bool WriteTreeText(const char *fName);
+    // save tree as text to 'fName'
+    Bool WriteTreeText(const char* fName);
 
-  // save tree as binary to 'fName'
-  Bool WriteTreeBinary(const char *fName, Bool symbols = TRUE, BinaryInfo *info = NULL);
+    // save tree as binary to 'fName'
+    Bool WriteTreeBinary(const char* fName, Bool symbols = TRUE, BinaryInfo* info = nullptr);
 
-  // return the last error string
-  const char * LastError() 
-  { 
-    return lastError; 
-  }
+    // return the last error string
+    const char* LastError()
+    {
+        return lastError;
+    }
 
-  // get the crc
-  U32 GetCrc()
-  {
-    return (crc);
-  }
-
+    // get the crc
+    U32 GetCrc()
+    {
+        return (crc);
+    }
 };
 
 #pragma pack(pop)

@@ -25,24 +25,23 @@
 //
 namespace Studio
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TagListBox
-  //
-  class TagListBox : public ICListBox
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TagListBox
+    //
+    class TagListBox : public ICListBox
+    {
     PROMOTE_LINK(TagListBox, ICListBox, 0xB9F62A1C) // "TagListBox"
 
-  public:
+    public:
 
-    // Constructor
-    TagListBox(IControl *parent);
-    ~TagListBox();
+        // Constructor
+        TagListBox(IControl* parent);
+        ~TagListBox();
 
-    // Event handling function
-    U32 HandleEvent(Event &e);
-  };
+        // Event handling function
+        U32 HandleEvent(Event& e);
+    };
 }
 
 #endif

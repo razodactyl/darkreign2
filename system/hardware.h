@@ -18,14 +18,12 @@
 //
 namespace Hardware
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Hardware
     //
     namespace CPU
     {
-
         // CPU Type
         enum Type
         {
@@ -94,7 +92,6 @@ namespace Hardware
 
         // Test for a CPU feature
         Bool HasFeature(Features f);
-
     }
 
 
@@ -104,16 +101,14 @@ namespace Hardware
     //
     namespace Memory
     {
-
         // Physical memory in bytes
-        U32  GetPhysical();
+        U32 GetPhysical();
 
         // Virtual memory in bytes
-        U32  GetVirtual();
+        U32 GetVirtual();
 
         // Description
         const char* GetDesc();
-
     }
 
 
@@ -123,13 +118,11 @@ namespace Hardware
     //
     namespace Device
     {
-
         // Get number
         U32 GetNum();
 
         // Enumerate devices
         const char* Enum(U32 number);
-
     }
 
 
@@ -139,7 +132,6 @@ namespace Hardware
     //
     namespace OS
     {
-
         // OS Type
         enum Type
         {
@@ -165,9 +157,7 @@ namespace Hardware
 
         // Logged in user
         const char* GetUser();
-
     }
-
 }
 
 #endif

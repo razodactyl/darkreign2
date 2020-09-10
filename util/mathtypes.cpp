@@ -611,10 +611,12 @@ F32 Matrix::Trace() const
 
 Vector Matrix::Dot(const Vector& v)
 {
-    return Vector(
+    return Vector
+    (
         v.x * right.x + v.y * up.x + v.z * front.x,
         v.x * right.y + v.y * up.y + v.z * front.y,
-        v.x * right.z + v.y * up.z + v.z * front.z);
+        v.x * right.z + v.y * up.z + v.z * front.z
+    );
 }
 
 //----------------------------------------------------------------------------
@@ -711,14 +713,16 @@ void Bounds::SetBoxTest()
 
 #define SPHERE_EPSILON	1e-5f
 
-static inline void ROT(
+static inline void ROT
+(
     Matrix& a,
     S32 i,
     S32 j,
     S32 k,
     S32 l,
     F64 s,
-    F64 tau)
+    F64 tau
+)
 {
     F64 g;
     F64 h;
@@ -758,12 +762,14 @@ void Sphere::SetBoxTest()
 //----------------------------------------------------------------------------
 #endif
 
-void Sphere::Calculate_Dimensions(
+void Sphere::Calculate_Dimensions
+(
     Vector* VertexList,
     U32 VertexCount,
     U16* IndexList,
     U32 IndexCount,
-    const Matrix* Basis) // = NULL
+    const Matrix* Basis
+)  // = NULL
 {
     U32 i;
     U32 j;
@@ -1087,9 +1093,12 @@ void Sphere::Eigen_Vectors(Vector& Eigen_Value)
 }
 
 
-Vector Sphere::Calculate_Principal_Axis(Vector& Scale,
-                                        Vector* VertexList, U32 VertCount,
-                                        U16* IndexList, U32 IndexCount)
+Vector Sphere::Calculate_Principal_Axis
+(
+    Vector& Scale,
+    Vector* VertexList, U32 VertCount,
+    U16* IndexList, U32 IndexCount
+)
 {
     VertCount;
 
@@ -1114,19 +1123,28 @@ Vector Sphere::Calculate_Principal_Axis(Vector& Scale,
     for (i = 0; i < static_cast<S32>(IndexCount); i += 3)
     {
         index = IndexList[i];
-        Vector P0(VertexList[index].x * Scale.x,
-                  VertexList[index].y * Scale.y,
-                  VertexList[index].z * Scale.z);
+        Vector P0
+        (
+            VertexList[index].x * Scale.x,
+            VertexList[index].y * Scale.y,
+            VertexList[index].z * Scale.z
+        );
 
         index = IndexList[i + 1];
-        Vector P1(VertexList[index].x * Scale.x,
-                  VertexList[index].y * Scale.y,
-                  VertexList[index].z * Scale.z);
+        Vector P1
+        (
+            VertexList[index].x * Scale.x,
+            VertexList[index].y * Scale.y,
+            VertexList[index].z * Scale.z
+        );
 
         index = IndexList[i + 2];
-        Vector P2(VertexList[index].x * Scale.x,
-                  VertexList[index].y * Scale.y,
-                  VertexList[index].z * Scale.z);
+        Vector P2
+        (
+            VertexList[index].x * Scale.x,
+            VertexList[index].y * Scale.y,
+            VertexList[index].z * Scale.z
+        );
 
         Vector Normal((P1 - P0) * (P2 - P0));
 
@@ -1181,9 +1199,12 @@ Vector Sphere::Calculate_Principal_Axis(Vector& Scale,
     Ixz = Cov.y - Center_Mass.x * Center_Mass.z;
     Iyz = Cov.z - Center_Mass.y * Center_Mass.z;
 
-    Matrix::Set(Vector(static_cast<F32>(Ixx), static_cast<F32>(Ixy), static_cast<F32>(Ixz)),
-                Vector(static_cast<F32>(Ixy), static_cast<F32>(Iyy), static_cast<F32>(Iyz)),
-                Vector(static_cast<F32>(Ixz), static_cast<F32>(Iyz), static_cast<F32>(Izz)));
+    Matrix::Set
+    (
+        Vector(static_cast<F32>(Ixx), static_cast<F32>(Ixy), static_cast<F32>(Ixz)),
+        Vector(static_cast<F32>(Ixy), static_cast<F32>(Iyy), static_cast<F32>(Iyz)),
+        Vector(static_cast<F32>(Ixz), static_cast<F32>(Iyz), static_cast<F32>(Izz))
+    );
 
     Vector Eigen_Value;
     Eigen_Vectors(Eigen_Value);
@@ -1192,10 +1213,12 @@ Vector Sphere::Calculate_Principal_Axis(Vector& Scale,
 }
 
 
-void Matrix::Transform_H_Vectors(
+void Matrix::Transform_H_Vectors
+(
     const F32* Dst,
     F32& W,
-    const F32* Src) const
+    const F32* Src
+) const
 {
     F32 x;
     F32 y;
@@ -1214,11 +1237,13 @@ void Matrix::Transform_H_Vectors(
     W = rightw * x + upw * y + frontw * z + positw;
 }
 
-void Matrix::Rotate_Vectors(
+void Matrix::Rotate_Vectors
+(
     const F32* Dst,
     const F32* Src,
     S32 Stride,
-    S32 Count) const
+    S32 Count
+) const
 {
     S32 i;
     F32 x;
@@ -1244,11 +1269,13 @@ void Matrix::Rotate_Vectors(
 }
 
 
-void Matrix::Unrotate_Vectors(
+void Matrix::Unrotate_Vectors
+(
     const F32* Dst,
     const F32* Src,
     S32 Stride,
-    S32 Count) const
+    S32 Count
+) const
 {
     S32 i;
     F32 x;
@@ -1275,16 +1302,22 @@ void Matrix::Unrotate_Vectors(
 
 Vector Matrix::Vector_Rotate(const Vector& v) const
 {
-    return Vector(right.x * v.x + up.x * v.y + front.x * v.z,
-                  right.y * v.x + up.y * v.y + front.y * v.z,
-                  right.z * v.x + up.z * v.y + front.z * v.z);
+    return Vector
+    (
+        right.x * v.x + up.x * v.y + front.x * v.z,
+        right.y * v.x + up.y * v.y + front.y * v.z,
+        right.z * v.x + up.z * v.y + front.z * v.z
+    );
 }
 
 Vector Matrix::Vector_RotateInv(const Vector& v) const
 {
-    return Vector(right.x * v.x + right.y * v.y + right.z * v.z,
-                  up.x * v.x + up.y * v.y + up.z * v.z,
-                  front.x * v.x + front.y * v.y + front.z * v.z);
+    return Vector
+    (
+        right.x * v.x + right.y * v.y + right.z * v.z,
+        up.x * v.x + up.y * v.y + up.z * v.z,
+        front.x * v.x + front.y * v.y + front.z * v.z
+    );
 }
 
 Vector Matrix::Vector_TransformInv(const Vector& v) const
@@ -1296,9 +1329,12 @@ Vector Matrix::Vector_TransformInv(const Vector& v) const
     x = v.x - posit.x;
     y = v.y - posit.y;
     z = v.z - posit.z;
-    return Vector(right.x * x + right.y * y + right.z * z,
-                  up.x * x + up.y * y + up.z * z,
-                  front.x * x + front.y * y + front.z * z);
+    return Vector
+    (
+        right.x * x + right.y * y + right.z * z,
+        up.x * x + up.y * y + up.z * z,
+        front.x * x + front.y * y + front.z * z
+    );
 }
 
 
@@ -1306,8 +1342,7 @@ ostream& operator<<(ostream& o, const Matrix& m)
 {
     return
     (
-        o << 'p' << m.posit << m.positw << 'f' << m.front << m.frontw << 'r' << m.right << m.rightw << 'u' << m.up << m.
-        upw
+        o << 'p' << m.posit << m.positw << 'f' << m.front << m.frontw << 'r' << m.right << m.rightw << 'u' << m.up << m.upw
     );
 }
 
@@ -1386,21 +1421,21 @@ void Matrix::Transform_Vectors (
 static NAKED void Transform_Component_Sparse()
 {
     __asm {
-        fld (MATRIX_STRUCT [ecx]).right.x // a00
-        fmul dword ptr (VectorData [edx]).x // x*a00
+        fld (MATRIX_STRUCT [ecx]).right.x				 // a00
+        fmul dword ptr (VectorData [edx]).x			  	 // x*a00
 
-        fld (MATRIX_STRUCT [ecx]).up.x // a10 x*a00
-        fmul dword ptr (VectorData [edx]).y // y*a10 x*a00
+        fld (MATRIX_STRUCT [ecx]).up.x				 // a10 x*a00
+        fmul dword ptr (VectorData [edx]).y			  	 // y*a10 x*a00
 
-        fxch st(1) // x*a00 y*a10 
-        fadd dword ptr (MATRIX_STRUCT [ecx]).posit.x // x*a00+a30 y*a10 
+        fxch st(1)										// x*a00 y*a10 
+        fadd dword ptr (MATRIX_STRUCT [ecx]).posit.x	// x*a00+a30 y*a10 
 
-        fld (MATRIX_STRUCT [ecx]).front.x // a20 x*a00+a30 y*a10 
-        fmul dword ptr (VectorData [edx]).z // a20*z x*a00+a30 y*a10 
+        fld (MATRIX_STRUCT [ecx]).front.x				// a20 x*a00+a30 y*a10 
+        fmul dword ptr (VectorData [edx]).z			  	// a20*z x*a00+a30 y*a10 
 
-        fxch st(2) // y*a10 x*a00+a30  a20*z 
-        faddp st(1), st(0) // x*a00+y*a10+a30  a20*z 
-        faddp st(1), st(0) // x*a00+y*a10+a20*z+a30  
+        fxch st(2)										// y*a10 x*a00+a30  a20*z 
+        faddp st(1), st(0)								// x*a00+y*a10+a30  a20*z 
+        faddp st(1), st(0)								// x*a00+y*a10+a20*z+a30  
         ret
         }
 }
@@ -1408,84 +1443,84 @@ static NAKED void Transform_Component_Sparse()
 static NAKED void Transform_Dense_Vector()
 {
     __asm {
-        fld (MATRIX_STRUCT [eax]).right.x // a00
-        fmul dword ptr (QUADRUPLET [edx]).x // x*a00
+        fld (MATRIX_STRUCT [eax]).right.x				 // a00
+        fmul dword ptr (QUADRUPLET [edx]).x			 // x*a00
 
-        fld (MATRIX_STRUCT [eax]).up.x // a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).y // y*a10 x*a00
+        fld (MATRIX_STRUCT [eax]).up.x				 // a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).y			 // y*a10 x*a00
 
-        fld (MATRIX_STRUCT [eax]).front.x // a20 y*a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).z // z*a20 y*a10 x*a00
+        fld (MATRIX_STRUCT [eax]).front.x				 // a20 y*a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).z			 // z*a20 y*a10 x*a00
 
-        fxch st(1) // y*a10 z*a20 x*a00
-        faddp st(2), st(0) // z*a20 x*a00+y*a10 
+        fxch st(1)										 // y*a10 z*a20 x*a00
+        faddp st(2), st(0) 								 // z*a20 x*a00+y*a10 
 
-        fld (MATRIX_STRUCT [eax]).posit.x // a31 z*a20 x*a00+y*a10 
-        fmul dword ptr (QUADRUPLET [edx]).w // w*a31 z*a20 x*a00+y*a10 
+        fld (MATRIX_STRUCT [eax]).posit.x				 // a31 z*a20 x*a00+y*a10 
+        fmul dword ptr (QUADRUPLET [edx]).w			 // w*a31 z*a20 x*a00+y*a10 
 
-        fxch st(1) // z*a20 w*a31  x*a00+y*a10 
-        faddp st(1), st(0) // w*a31  x*a00+y*a10+z*a20  
-        faddp st(1), st(0) // x*a00+y*a10+z*a20+w*a31    
-
-
-        fld (MATRIX_STRUCT [eax]).right.y // a00
-        fmul dword ptr (QUADRUPLET [edx]).x // x*a00
-
-        fld (MATRIX_STRUCT [eax]).up.y // a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).y // y*a10 x*a00
-
-        fld (MATRIX_STRUCT [eax]).front.y // a20 y*a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).z // z*a20 y*a10 x*a00
-
-        fxch st(1) // y*a10 z*a20 x*a00
-        faddp st(2), st(0) // z*a20 x*a00+y*a10 
-
-        fld (MATRIX_STRUCT [eax]).posit.y // a31 z*a20 x*a00+y*a10 
-        fmul dword ptr (QUADRUPLET [edx]).w // w*a31 z*a20 x*a00+y*a10 
-
-        fxch st(1) // z*a20 w*a31  x*a00+y*a10 
-        faddp st(1), st(0) // w*a31  x*a00+y*a10+z*a20  
-        faddp st(1), st(0) // x*a00+y*a10+z*a20+w*a31    
+        fxch st(1)										// z*a20 w*a31  x*a00+y*a10 
+        faddp st(1), st(0)								// w*a31  x*a00+y*a10+z*a20  
+        faddp st(1), st(0)								// x*a00+y*a10+z*a20+w*a31    
 
 
-        fld (MATRIX_STRUCT [eax]).right.z // a00
-        fmul dword ptr (QUADRUPLET [edx]).x // x*a00
+        fld (MATRIX_STRUCT [eax]).right.y				 // a00
+        fmul dword ptr (QUADRUPLET [edx]).x			 // x*a00
 
-        fld (MATRIX_STRUCT [eax]).up.z // a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).y // y*a10 x*a00
+        fld (MATRIX_STRUCT [eax]).up.y				 // a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).y			 // y*a10 x*a00
 
-        fld (MATRIX_STRUCT [eax]).front.z // a20 y*a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).z // z*a20 y*a10 x*a00
+        fld (MATRIX_STRUCT [eax]).front.y				 // a20 y*a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).z			 // z*a20 y*a10 x*a00
 
-        fxch st(1) // y*a10 z*a20 x*a00
-        faddp st(2), st(0) // z*a20 x*a00+y*a10 
+        fxch st(1)										 // y*a10 z*a20 x*a00
+        faddp st(2), st(0) 								 // z*a20 x*a00+y*a10 
 
-        fld (MATRIX_STRUCT [eax]).posit.z // a31 z*a20 x*a00+y*a10 
-        fmul dword ptr (QUADRUPLET [edx]).w // w*a31 z*a20 x*a00+y*a10 
+        fld (MATRIX_STRUCT [eax]).posit.y				 // a31 z*a20 x*a00+y*a10 
+        fmul dword ptr (QUADRUPLET [edx]).w			 // w*a31 z*a20 x*a00+y*a10 
 
-        fxch st(1) // z*a20 w*a31  x*a00+y*a10 
-        faddp st(1), st(0) // w*a31  x*a00+y*a10+z*a20  
-        faddp st(1), st(0) // x*a00+y*a10+z*a20+w*a31    
+        fxch st(1)										// z*a20 w*a31  x*a00+y*a10 
+        faddp st(1), st(0)								// w*a31  x*a00+y*a10+z*a20  
+        faddp st(1), st(0)								// x*a00+y*a10+z*a20+w*a31    
 
 
-        fld (MATRIX_STRUCT [eax]).right.w // a00
-        fmul dword ptr (QUADRUPLET [edx]).x // x*a00
+        fld (MATRIX_STRUCT [eax]).right.z				 // a00
+        fmul dword ptr (QUADRUPLET [edx]).x			 // x*a00
 
-        fld (MATRIX_STRUCT [eax]).up.w // a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).y // y*a10 x*a00
+        fld (MATRIX_STRUCT [eax]).up.z				 // a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).y			 // y*a10 x*a00
 
-        fld (MATRIX_STRUCT [eax]).front.w // a20 y*a10 x*a00
-        fmul dword ptr (QUADRUPLET [edx]).z // z*a20 y*a10 x*a00
+        fld (MATRIX_STRUCT [eax]).front.z				 // a20 y*a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).z			 // z*a20 y*a10 x*a00
 
-        fxch st(1) // y*a10 z*a20 x*a00
-        faddp st(2), st(0) // z*a20 x*a00+y*a10 
+        fxch st(1)										 // y*a10 z*a20 x*a00
+        faddp st(2), st(0) 								 // z*a20 x*a00+y*a10 
 
-        fld (MATRIX_STRUCT [eax]).posit.w // a31 z*a20 x*a00+y*a10 
-        fmul dword ptr (QUADRUPLET [edx]).w // w*a31 z*a20 x*a00+y*a10 
+        fld (MATRIX_STRUCT [eax]).posit.z				 // a31 z*a20 x*a00+y*a10 
+        fmul dword ptr (QUADRUPLET [edx]).w			 // w*a31 z*a20 x*a00+y*a10 
 
-        fxch st(1) // z*a20 w*a31  x*a00+y*a10 
-        faddp st(1), st(0) // w*a31  x*a00+y*a10+z*a20  
-        faddp st(1), st(0) // x*a00+y*a10+z*a20+w*a31    
+        fxch st(1)										// z*a20 w*a31  x*a00+y*a10 
+        faddp st(1), st(0)								// w*a31  x*a00+y*a10+z*a20  
+        faddp st(1), st(0)								// x*a00+y*a10+z*a20+w*a31    
+
+
+        fld (MATRIX_STRUCT [eax]).right.w				 // a00
+        fmul dword ptr (QUADRUPLET [edx]).x			 // x*a00
+
+        fld (MATRIX_STRUCT [eax]).up.w				 // a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).y			 // y*a10 x*a00
+
+        fld (MATRIX_STRUCT [eax]).front.w				 // a20 y*a10 x*a00
+        fmul dword ptr (QUADRUPLET [edx]).z			 // z*a20 y*a10 x*a00
+
+        fxch st(1)										 // y*a10 z*a20 x*a00
+        faddp st(2), st(0) 								 // z*a20 x*a00+y*a10 
+
+        fld (MATRIX_STRUCT [eax]).posit.w				 // a31 z*a20 x*a00+y*a10 
+        fmul dword ptr (QUADRUPLET [edx]).w			 // w*a31 z*a20 x*a00+y*a10 
+
+        fxch st(1)										// z*a20 w*a31  x*a00+y*a10 
+        faddp st(1), st(0)								// w*a31  x*a00+y*a10+z*a20  
+        faddp st(1), st(0)								// x*a00+y*a10+z*a20+w*a31    
 
         ret
         }
@@ -1502,26 +1537,28 @@ NAKED Vector Matrix::Vector_Transform(const Vector& v) const
     __asm {
         mov eax, [esp + STACK_FRAME(0)]
         mov edx, [esp + STACK_FRAME(0) + 4]
-        call Transform_Component_Sparse //x0
+        call Transform_Component_Sparse							//x0
         lea ecx, (MATRIX_STRUCT [ecx]).right.y
-        call Transform_Component_Sparse //y0 x0
+        call Transform_Component_Sparse							//y0 x0
         lea ecx, (MATRIX_STRUCT [ecx]).right.y
-        call Transform_Component_Sparse //z0 y0 x0
+        call Transform_Component_Sparse							//z0 y0 x0
         mov edx, [eax]
-        fxch st(2) //x0 y0 z0
-        fstp dword ptr (VectorData [eax]).x //y0 z0
-        fstp dword ptr (VectorData [eax]).y //z0
+        fxch st(2)										//x0 y0 z0
+        fstp dword ptr (VectorData [eax]).x					//y0 z0
+        fstp dword ptr (VectorData [eax]).y					//z0
         fstp dword ptr (VectorData [eax]).z
         ret 8
         }
 }
 
 
-NAKED void Matrix::Transform_Vectors(
+NAKED void Matrix::Transform_Vectors
+(
     const F32* Dst,
     const F32* Src,
     S32 Stride,
-    S32 Count) const
+    S32 Count
+) const
 {
     //	S32 i;
     //	F32 x;
@@ -1549,10 +1586,10 @@ NAKED void Matrix::Transform_Vectors(
         push edi
         push ebx
 
-        mov eax, [esp + STACK_FRAME(3)] //	Get Dst
-        mov edx, [esp + STACK_FRAME(3) + 4] //	Get Src
-        mov edi, [esp + STACK_FRAME(3) + 8] //	Get Stride
-        mov ebx, [esp + STACK_FRAME(3) + 12] //	Get Count
+        mov eax, [esp + STACK_FRAME(3)]			//	Get Dst
+        mov edx, [esp + STACK_FRAME(3) + 4]		//	Get Src
+        mov edi, [esp + STACK_FRAME(3) + 8]		//	Get Stride
+        mov ebx, [esp + STACK_FRAME(3) + 12]	 //	Get Count
 
         mov esi, [eax]
         mov esi, [eax + edi]
@@ -1562,17 +1599,17 @@ NAKED void Matrix::Transform_Vectors(
         jmp End_Transform_Loop
         Begin_Transform_Loop:
 
-        call Transform_Component_Sparse //x0
+        call Transform_Component_Sparse							//x0
         lea ecx, (MATRIX_STRUCT [ecx]).right.y
-        call Transform_Component_Sparse //y0 x0
+        call Transform_Component_Sparse							//y0 x0
         lea ecx, (MATRIX_STRUCT [ecx]).right.y
-        call Transform_Component_Sparse //z0 y0 x0
-        mov ecx, [eax + edi * 2] // preload cache-line; can crash on end+1 element
+        call Transform_Component_Sparse							//z0 y0 x0
+        mov ecx, [eax + edi * 2]                    // preload cache-line; can crash on end+1 element
         add edx, edi
 
         mov ecx, esi
-        fstp dword ptr (VectorData [eax]).z //y0 z0
-        fstp dword ptr (VectorData [eax]).y //z0
+        fstp dword ptr (VectorData [eax]).z					//y0 z0
+        fstp dword ptr (VectorData [eax]).y					//z0
         fstp dword ptr (VectorData [eax]).x
 
         add eax, edi
@@ -1627,10 +1664,10 @@ NAKED Matrix operator*(const Matrix& A, const Matrix& B)
         mov eax, [ecx + size QUADRUPLET]
 
         mov eax, [esp + STACK_FRAME(1)]
-        call Transform_Dense_Vector // w z y x
+        call Transform_Dense_Vector						  // w z y x
         add edx, size QUADRUPLET
 
-        fxch st(3) // x z y w
+        fxch st(3)										  // x z y w
         fstp dword ptr (QUADRUPLET [ecx]).x
         fstp dword ptr (QUADRUPLET [ecx]).z
         fstp dword ptr (QUADRUPLET [ecx]).y

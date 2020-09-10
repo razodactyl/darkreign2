@@ -18,6 +18,7 @@
 //
 #include "mesheffect_base_color.h"
 #include "lopassfilter.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class MeshLiquidMetalType
@@ -25,27 +26,27 @@
 class MeshLiquidMetalType : public MeshColorType
 {
 public:
-  KeyList<ScaleKey> paramKeys;
-  KeyList<ColorKey> colorKeys2;
+    KeyList<ScaleKey> paramKeys;
+    KeyList<ColorKey> colorKeys2;
 
-  F32 wiggle, wiggleSpeed;
+    F32 wiggle, wiggleSpeed;
 
 public:
 
-  MeshLiquidMetalType();
+    MeshLiquidMetalType();
 
-	virtual ~MeshLiquidMetalType();
+    virtual ~MeshLiquidMetalType();
 
-  // Configure the class
-  virtual Bool Configure(FScope *fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-  // Postload
-  virtual void PostLoad();
+    // Postload
+    virtual void PostLoad();
 
-	// build a new mesh effect
-	virtual MeshEffect * Build( MeshEnt & _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    // build a new mesh effect
+    virtual MeshEffect* Build(MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-  virtual U32 GetMem() const;
+    virtual U32 GetMem() const;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,29 +56,28 @@ public:
 class MeshLiquidMetal : public MeshBaseColor
 {
 public:
-  KeyAnim<ScaleKey>         paramAnim;
-  KeyAnim<ColorKey>         colorAnim2;
+    KeyAnim<ScaleKey> paramAnim;
+    KeyAnim<ColorKey> colorAnim2;
 
 #ifdef X__DO_XMM_BUILD
   Array4<Vector4, 4>        vertices;
   Array4<Vector4, 4>        normals;
 #else
-  Array4<Vector, 4>         vertices;
-  Array4<Vector, 4>         normals;
+    Array4<Vector, 4> vertices;
+    Array4<Vector, 4> normals;
 #endif
 
-  Array<LoPassFilterF32>    vibrations;
+    Array<LoPassFilterF32> vibrations;
 
-  F32                       maxy;
+    F32 maxy;
 
 public:
 
-	MeshLiquidMetal( MeshLiquidMetalType * _type, MeshEnt * _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshLiquidMetal(MeshLiquidMetalType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-	virtual ~MeshLiquidMetal();
+    virtual ~MeshLiquidMetal();
 
-	virtual Bool Simulate( F32 dt, MeshFX::CallBackData * cbd = NULL);
-
+    virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
 };
 
 #endif

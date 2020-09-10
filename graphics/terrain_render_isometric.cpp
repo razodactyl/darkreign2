@@ -12,12 +12,16 @@
 #include "console.h"
 #include "statistics.h"
 #include "terrain_priv.h"
+
 //----------------------------------------------------------------------------
 
 namespace Terrain
 {
-
-    void RenderCellIsometric(Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1, U32 clipFlags, Bool doColor, Bool doOverlay) // = clipALL, FALSE
+    void RenderCellIsometric
+    (
+        Cluster& clus, Cell& c0, Cell& c1, Cell& c2, Cell& c3, S32 x0, S32 z0, S32 x1, S32 z1,
+        U32 clipFlags, Bool doColor, Bool doOverlay
+    ) // = clipALL, FALSE
     {
         clipFlags;
 
@@ -30,29 +34,29 @@ namespace Terrain
         }
         UVPair* uvList = &cellUVList[c0.uv];
 
-        vertmem0[0].vv.x = (F32)x0;
-        vertmem0[0].vv.z = (F32)z0;
+        vertmem0[0].vv.x = static_cast<F32>(x0);
+        vertmem0[0].vv.z = static_cast<F32>(z0);
         vertmem0[0].vv.y = c0.height;
         vertmem0[0].uv = uvList[0];
         vertmem0[0].specular = 0xff000000;
         Vid::ProjectIsoFromWorld(vertmem0[0]);
 
-        vertmem0[1].vv.x = (F32)x0;
-        vertmem0[1].vv.z = (F32)z1;
+        vertmem0[1].vv.x = static_cast<F32>(x0);
+        vertmem0[1].vv.z = static_cast<F32>(z1);
         vertmem0[1].vv.y = c1.height;
         vertmem0[1].uv = uvList[1];
         vertmem0[1].specular = 0xff000000;
         Vid::ProjectIsoFromWorld(vertmem0[1]);
 
-        vertmem0[2].vv.x = (F32)x1;
-        vertmem0[2].vv.z = (F32)z1;
+        vertmem0[2].vv.x = static_cast<F32>(x1);
+        vertmem0[2].vv.z = static_cast<F32>(z1);
         vertmem0[2].vv.y = c2.height;
         vertmem0[2].uv = uvList[2];
         vertmem0[2].specular = 0xff000000;
         Vid::ProjectIsoFromWorld(vertmem0[2]);
 
-        vertmem0[3].vv.x = (F32)x1;
-        vertmem0[3].vv.z = (F32)z0;
+        vertmem0[3].vv.x = static_cast<F32>(x1);
+        vertmem0[3].vv.z = static_cast<F32>(z0);
         vertmem0[3].vv.y = c3.height;
         vertmem0[3].uv = uvList[3];
         vertmem0[3].specular = 0xff000000;
@@ -62,28 +66,40 @@ namespace Terrain
         if (doColor)
         {
             Color c = normLights[c0.normal];
-            vertmem0[0].diffuse.Modulate(c0.color,
+            vertmem0[0].diffuse.Modulate
+            (
+                c0.color,
                 F32(c.r) * U8toNormF32,
                 F32(c.g) * U8toNormF32,
-                F32(c.b) * U8toNormF32);
+                F32(c.b) * U8toNormF32
+            );
 
             c = normLights[c1.normal];
-            vertmem0[1].diffuse.Modulate(c1.color,
-                (F32)c.r * U8toNormF32,
-                (F32)c.g * U8toNormF32,
-                (F32)c.b * U8toNormF32);
+            vertmem0[1].diffuse.Modulate
+            (
+                c1.color,
+                static_cast<F32>(c.r) * U8toNormF32,
+                static_cast<F32>(c.g) * U8toNormF32,
+                static_cast<F32>(c.b) * U8toNormF32
+            );
 
             c = normLights[c2.normal];
-            vertmem0[2].diffuse.Modulate(c2.color,
-                (F32)c.r * U8toNormF32,
-                (F32)c.g * U8toNormF32,
-                (F32)c.b * U8toNormF32);
+            vertmem0[2].diffuse.Modulate
+            (
+                c2.color,
+                static_cast<F32>(c.r) * U8toNormF32,
+                static_cast<F32>(c.g) * U8toNormF32,
+                static_cast<F32>(c.b) * U8toNormF32
+            );
 
             c = normLights[c3.normal];
-            vertmem0[3].diffuse.Modulate(c3.color,
-                (F32)c.r * U8toNormF32,
-                (F32)c.g * U8toNormF32,
-                (F32)c.b * U8toNormF32);
+            vertmem0[3].diffuse.Modulate
+            (
+                c3.color,
+                static_cast<F32>(c.r) * U8toNormF32,
+                static_cast<F32>(c.g) * U8toNormF32,
+                static_cast<F32>(c.b) * U8toNormF32
+            );
         }
         else
         {
@@ -99,13 +115,13 @@ namespace Terrain
 
         if (doOverlay && (c0.flags & Cell::cellOVERLAY))
         {
-            ASSERT(c0.texture1 < overlayCount&& c0.overlay < overlays.count);
+            ASSERT(c0.texture1 < overlayCount && c0.overlay < overlays.count);
 
             Overlay& overlay = overlays[c0.overlay];
             Bitmap* tex = overlayList[c0.texture1];
             Bool bright = (overlay.blend & RS_TEX_MASK) == RS_TEX_DECAL ? TRUE : FALSE;
 
-            Vid::SetTranBucketZMax(Vid::sortTERRAIN0);
+            SetTranBucketZMax(Vid::sortTERRAIN0);
             Vid::SetBucketTexture(tex, TRUE, 0, RS_BLEND_MODULATE | renderFlags);
 
             VertexTL* vertmem;
@@ -115,7 +131,7 @@ namespace Terrain
                 return;
             }
 
-            VertexTL* dv = vertmem, * de = dv + 4, * src = vertmem0;
+            VertexTL *dv = vertmem, *de = dv + 4, *src = vertmem0;
             for (; dv < de; dv++)
             {
                 dv->vv = src->vv;
@@ -142,9 +158,14 @@ namespace Terrain
             Vid::UnlockIndexedPrimitiveMem(4, 6);
         }
     }
+
     //----------------------------------------------------------------------------
 
-    void RenderCellIsometric(Cluster& clus, S32 x0, S32 z0, S32 x1, S32 z1, F32 y, UVPair* uvList, U32 clipFlags) // = clipALL
+    void RenderCellIsometric
+    (
+        Cluster& clus, S32 x0, S32 z0, S32 x1, S32 z1, F32 y, UVPair* uvList,
+        U32 clipFlags
+    ) // = clipALL
     {
         clipFlags;
 
@@ -158,8 +179,8 @@ namespace Terrain
 
         Color c = *Vid::Var::Terrain::waterColorBottom;
 
-        vertmem[0].vv.x = (F32)x0;
-        vertmem[0].vv.z = (F32)z0;
+        vertmem[0].vv.x = static_cast<F32>(x0);
+        vertmem[0].vv.z = static_cast<F32>(z0);
         vertmem[0].vv.y = y;
         vertmem[0].uv = uvList[0];
         vertmem[0].diffuse = normLights[0];
@@ -167,8 +188,8 @@ namespace Terrain
         vertmem[0].specular = 0xff000000;
         Vid::ProjectIsoFromWorld(vertmem[0]);
 
-        vertmem[1].vv.x = (F32)x0;
-        vertmem[1].vv.z = (F32)z1;
+        vertmem[1].vv.x = static_cast<F32>(x0);
+        vertmem[1].vv.z = static_cast<F32>(z1);
         vertmem[1].vv.y = y;
         vertmem[1].uv = uvList[20];
         vertmem[1].diffuse = normLights[0];
@@ -176,8 +197,8 @@ namespace Terrain
         vertmem[1].specular = 0xff000000;
         Vid::ProjectIsoFromWorld(vertmem[1]);
 
-        vertmem[2].vv.x = (F32)x1;
-        vertmem[2].vv.z = (F32)z1;
+        vertmem[2].vv.x = static_cast<F32>(x1);
+        vertmem[2].vv.z = static_cast<F32>(z1);
         vertmem[2].vv.y = y;
         vertmem[2].uv = uvList[24];
         vertmem[2].diffuse = normLights[0];
@@ -185,8 +206,8 @@ namespace Terrain
         vertmem[2].specular = 0xff000000;
         Vid::ProjectIsoFromWorld(vertmem[2]);
 
-        vertmem[3].vv.x = (F32)x1;
-        vertmem[3].vv.z = (F32)z0;
+        vertmem[3].vv.x = static_cast<F32>(x1);
+        vertmem[3].vv.z = static_cast<F32>(z0);
         vertmem[3].vv.y = y;
         vertmem[3].uv = uvList[4];
         vertmem[3].diffuse = normLights[0];
@@ -198,11 +219,16 @@ namespace Terrain
 
         Vid::UnlockIndexedPrimitiveMem(4, 6);
     }
+
     //----------------------------------------------------------------------------
 
     // draw a single cluster
     //
-    void RenderClusterIsometric(Cluster& clus, S32 x, S32 z, U32 cellOffset, U32 cellStride, U32 clipFlags, Bool doColor, Bool doOverlay) // = 1, = clipALL
+    void RenderClusterIsometric
+    (
+        Cluster& clus, S32 x, S32 z, U32 cellOffset, U32 cellStride, U32 clipFlags,
+        Bool doColor, Bool doOverlay
+    ) // = 1, = clipALL
     {
         clipFlags;
         Vid::Light::SetActiveList(clus.bounds.Offset(), clus.bounds);
@@ -223,9 +249,9 @@ namespace Terrain
             for (x0 = x, x1 = x + meterStride; x0 < xend; x0 += meterStride, x1 += meterStride)
             {
                 Bitmap* tex = texList[c0->texture];
-                ASSERT(tex)
+                ASSERT(tex);
 
-                    Vid::SetBucketTexture(tex, FALSE, 0, RS_BLEND_DEF | renderFlags);
+                Vid::SetBucketTexture(tex, FALSE, 0, RS_BLEND_DEF | renderFlags);
 
                 RenderCellIsometric(clus, *c0, *c1, *c2, *c3, x0, z0, x1, z1, clipFlags, doColor, doOverlay);
 
@@ -246,14 +272,17 @@ namespace Terrain
             RenderCellIsometric(clus, x, z, xend, zend, clus.waterHeight, waterUVList0, clipFlags);
         }
     }
+
     //----------------------------------------------------------------------------
 
     void RenderIsometric(Bool doColor, Bool doOverlay) // = FALSE
     {
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_DEF);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | RS_BLEND_DEF
+        );
 
         Vid::SetWorldTransform(Matrix::I);
         Vid::SetBucketMaterial(Vid::defMaterial);
@@ -264,16 +293,16 @@ namespace Terrain
         Area<S32> rect;
         Vid::CurCamera().GetVisibleRect(rect);
 
-        rect.p0.x += (S32)OffsetX();
-        rect.p1.x += (S32)OffsetX();
-        rect.p0.y += (S32)OffsetZ();
-        rect.p1.y += (S32)OffsetZ();
+        rect.p0.x += static_cast<S32>(OffsetX());
+        rect.p1.x += static_cast<S32>(OffsetX());
+        rect.p0.y += static_cast<S32>(OffsetZ());
+        rect.p1.y += static_cast<S32>(OffsetZ());
 
         // convert it to cluster coords 
-        rect.p0.x = (S32)((F32)rect.p0.x * clusPerMeter);
-        rect.p1.x = (S32)((F32)rect.p1.x * clusPerMeter);
-        rect.p0.y = (S32)((F32)rect.p0.y * clusPerMeter);
-        rect.p1.y = (S32)((F32)rect.p1.y * clusPerMeter);
+        rect.p0.x = static_cast<S32>(static_cast<F32>(rect.p0.x) * clusPerMeter);
+        rect.p1.x = static_cast<S32>(static_cast<F32>(rect.p1.x) * clusPerMeter);
+        rect.p0.y = static_cast<S32>(static_cast<F32>(rect.p0.y) * clusPerMeter);
+        rect.p1.y = static_cast<S32>(static_cast<F32>(rect.p1.y) * clusPerMeter);
 
         // increase bounds by one along each edge to be sure everything gets drawn
         rect.p0.x--;
@@ -286,7 +315,7 @@ namespace Terrain
         {
             rect.p0.x = 0;
         }
-        if (rect.p1.x > (S32) clusWidth)
+        if (rect.p1.x > static_cast<S32>(clusWidth))
         {
             rect.p1.x = clusWidth;
         }
@@ -294,7 +323,7 @@ namespace Terrain
         {
             rect.p0.y = 0;
         }
-        if (rect.p1.y > (S32) clusHeight)
+        if (rect.p1.y > static_cast<S32>(clusHeight))
         {
             rect.p1.y = clusHeight;
         }
@@ -308,10 +337,10 @@ namespace Terrain
         rect.p0.x *= meterPerClus;
         rect.p1.x *= meterPerClus;
 
-        rect.p0.y -= (S32)OffsetZ();
-        rect.p1.y -= (S32)OffsetZ();
-        rect.p0.x -= (S32)OffsetX();
-        rect.p1.x -= (S32)OffsetX();
+        rect.p0.y -= static_cast<S32>(OffsetZ());
+        rect.p1.y -= static_cast<S32>(OffsetZ());
+        rect.p0.x -= static_cast<S32>(OffsetX());
+        rect.p1.x -= static_cast<S32>(OffsetX());
 
         U32 cellClusWidth = heightField.cellPitch * cellPerClus;
         while (rect.p0.y < rect.p1.y)
@@ -332,7 +361,7 @@ namespace Terrain
                         }
                         Vid::Light::SetActiveList( Sky::sun);
                         Vid::Light::SetupLightsModel();
-
+                
                         RenderClusterIsometric( clus, x, rect.p0.y, cellOffset, 1, clipFlags);
                 */
                 RenderClusterIsometric(clus, x, rect.p0.y, cellOffset, 1, clipALL, doColor, doOverlay);
@@ -342,6 +371,7 @@ namespace Terrain
             cellOffsetStart += cellClusWidth;
         }
     }
+
     //----------------------------------------------------------------------------
 
 
@@ -353,7 +383,7 @@ namespace Terrain
         size = Min<U32>(size, Vid::caps.maxTexHgt);
 
         const F32 MAPVIEWNEAR = 2000.0f;
-        F32 viewfar = MAPVIEWNEAR + Terrain::terrMaxHeight - Terrain::terrMinHeight + 20;
+        F32 viewfar = MAPVIEWNEAR + terrMaxHeight - terrMinHeight + 20;
         F32 fov = STARTFOV * VALDEGTORAD;
         Area<S32> rect;
 
@@ -361,16 +391,17 @@ namespace Terrain
         Camera* mainCam = &Vid::CurCamera();
         Camera* camera = new Camera("map");
 
-        F32 twid = (F32)Terrain::MeterWidth();
-        F32 thgt = (F32)Terrain::MeterHeight();
+        F32 twid = static_cast<F32>(MeterWidth());
+        F32 thgt = static_cast<F32>(MeterHeight());
 
         // set up normal camera parameters
         camera->SetProjTransformIso(MAPVIEWNEAR, viewfar, fov, twid, thgt);
 
         // set its orientation (pointing strait down)
-        camera->SetWorld(
+        camera->SetWorld
+        (
             Quaternion(-PIBY2, Matrix::I.right),
-            Vector(0, MAPVIEWNEAR + Terrain::terrMaxHeight, 0)
+            Vector(0, MAPVIEWNEAR + terrMaxHeight, 0)
         );
 
         // set the camera viewport
@@ -404,7 +435,7 @@ namespace Terrain
         Bool shroud = Vid::Var::Terrain::shroud;
         Vid::Var::Terrain::shroud = FALSE;
 
-        Terrain::RenderIsometric(doColor, doOverlay);
+        RenderIsometric(doColor, doOverlay);
         Vid::Var::Terrain::shroud = shroud;
 
         Vid::RenderEnd();
@@ -432,4 +463,5 @@ namespace Terrain
         delete camera;
     }
 }
+
 //----------------------------------------------------------------------------

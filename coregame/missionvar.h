@@ -15,23 +15,21 @@
 //
 namespace MissionVar
 {
+    // Char to dereference mission vars
+#define MISSION_VARCHAR '~'
 
-  // Char to dereference mission vars
-  #define MISSION_VARCHAR '~'
 
+    // Init
+    void Init();
 
-  // Init
-  void Init();
+    // Done
+    void Done();
 
-  // Done
-  void Done();
+    // Save the mission vars
+    void Save(FScope* fScope);
 
-  // Save the mission vars
-  void Save(FScope *fScope);
-
-  // Load the mission vars
-  void Load(FScope *fScope);
-
+    // Load the mission vars
+    void Load(FScope* fScope);
 }
 
 

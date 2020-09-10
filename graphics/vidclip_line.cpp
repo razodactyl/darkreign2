@@ -11,6 +11,7 @@
 #include "vidclip.h"
 #include "vidclip_priv.h"
 #include "statistics.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -84,6 +85,7 @@ namespace Vid
 
                 return TRUE;
             }
+
             //-----------------------------------------------------------------------------
 
             // load bucket from tempmem
@@ -93,20 +95,20 @@ namespace Vid
                 if (vCount == 0)
                 {
                     RestoreTempMem();
-                    return NULL;
+                    return nullptr;
                 }
-                Vid::SetBucketVertexType(FVF_TLVERTEX);
+                SetBucketVertexType(FVF_TLVERTEX);
 
                 VertexTL* vertmem;
-                U16* indexmem = NULL;
-                Bucket* bucket = iCount ?
-                    Vid::LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id)
-                    : Vid::LockPrimitiveMem((void**)&vertmem, vCount, id);
+                U16* indexmem = nullptr;
+                Bucket* bucket = iCount
+                                     ? LockIndexedPrimitiveMem((void**)&vertmem, vCount, &indexmem, iCount, id)
+                                     : LockPrimitiveMem((void**)&vertmem, vCount, id);
 
                 if (!bucket)
                 {
                     RestoreTempMem();
-                    return NULL;
+                    return nullptr;
                 }
 
                 // FIXME: use function pointers
@@ -137,7 +139,7 @@ namespace Vid
                         VertexTL& dv = vertmem[i];
 
                         // finish the projection
-                        Vid::ProjectFromHomogeneous_I(dv, *(tmpVertPtrs[i]));
+                        ProjectFromHomogeneous_I(dv, *(tmpVertPtrs[i]));
 
                         if (calcFog)
                         {
@@ -150,22 +152,27 @@ namespace Vid
                 {
                     // copy the indices
                     Utils::Memcpy(indexmem, tmpIndices0, iCount * sizeof(U16));
-                    Vid::UnlockIndexedPrimitiveMem(vCount, iCount);
+                    UnlockIndexedPrimitiveMem(vCount, iCount);
                 }
                 else
                 {
-                    Vid::UnlockPrimitiveMem(vCount);
+                    UnlockPrimitiveMem(vCount);
                 }
 
                 RestoreTempMem();
 
                 return bucket;
             }
+
             //-----------------------------------------------------------------------------
 
             // clip indexed lines to bucket
             //
-            Bucket* ToBucket(VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog, U32 clipFlags) // = (void *)0xcdcdcdcd, = TRUE, = clipALL, 0
+            Bucket* ToBucket
+            (
+                VertexTL* srcV, U32 vCount, const U16* srcI, U32 iCount, const void* id, U32 calcFog,
+                U32 clipFlags
+            ) // = (void *)0xcdcdcdcd, = TRUE, = clipALL, 0
             {
                 ASSERT(srcV && srcI);
                 ASSERT(vCount <= renderState.maxVerts && iCount <= renderState.maxIndices);
@@ -180,7 +187,7 @@ namespace Vid
                     if (!Xtra::Line::ToBuffer(clipPool1, tmpIndices0, srcV, vCount, srcI, iCount, clipFlags))
                     {
                         RestoreTempMem();
-                        return NULL;
+                        return nullptr;
                     }
 
                     ASSERT(vCount <= renderState.maxVerts && iCount <= renderState.maxIndices);
@@ -194,7 +201,7 @@ namespace Vid
 
                 // initialize
                 //
-                Utils::Memset((void*)idx, 0xff, vCount * sizeof(U16));
+                Utils::Memset(static_cast<void*>(idx), 0xff, vCount * sizeof(U16));
                 U32 iCountIn = iCount;
                 vCount = iCount = 0;
                 clipDst = clipPool0;
@@ -214,17 +221,17 @@ namespace Vid
                         //
                         if ((clipFlagA[i0] | clipFlagA[i1]) != 0)
                         {
-                            VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                            VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                             SetupPool(vp0, vp1);
 
                             inPoolCount = 2;
-                            inPool[0] = (VertexTL*)&srcV[i0];
-                            inPool[1] = (VertexTL*)&srcV[i1];
+                            inPool[0] = static_cast<VertexTL*>(&srcV[i0]);
+                            inPool[1] = static_cast<VertexTL*>(&srcV[i1]);
 
                             // clip to all planes
                             //
                             for (U32 sign = 0x80000000, index = 0; index < 3 && inPoolCount == 2;
-                                sign = 0x80000000 & (~sign), index += sign >> 31)
+                                 sign = 0x80000000 & (~sign), index += sign >> 31)
                             {
                                 if (ClipToPlane(sign | index))
                                 {
@@ -242,27 +249,27 @@ namespace Vid
                                 tmpVertPtrs[vCount + 0] = inPool[0];
                                 tmpVertPtrs[vCount + 1] = inPool[1];
 
-                                tmpIndices0[iCount + 0] = (U16)(vCount + 0);
-                                tmpIndices0[iCount + 1] = (U16)(vCount + 1);
+                                tmpIndices0[iCount + 0] = static_cast<U16>(vCount + 0);
+                                tmpIndices0[iCount + 1] = static_cast<U16>(vCount + 1);
 
                                 vCount += 2;
                                 iCount += 2;
                             }
                         }
-                        // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
-                        //
+                            // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
+                            //
                         else
                         {
                             if (idx[i0] == 0xffff)
                             {
                                 tmpVertPtrs[vCount] = &srcV[i0];
-                                idx[i0] = (U16)vCount;
+                                idx[i0] = static_cast<U16>(vCount);
                                 vCount++;
                             }
                             if (idx[i1] == 0xffff)
                             {
                                 tmpVertPtrs[vCount] = &srcV[i1];
-                                idx[i1] = (U16)vCount;
+                                idx[i1] = static_cast<U16>(vCount);
                                 vCount++;
                             }
                             tmpIndices0[iCount] = idx[i0];
@@ -274,11 +281,16 @@ namespace Vid
                 }
                 return FillBucket(vCount, id, calcFog, iCount);
             }
+
             //-----------------------------------------------------------------------------
 
             // clip non-indexed lines to bucket
             //
-            Bucket* ToBucket(VertexTL* srcV, U32 vCount, const void* id, U32 calcFog, U32 clipFlags) // = (void *)0xcdcdcdcd, = TRUE, = clipALL
+            Bucket* ToBucket
+            (
+                VertexTL* srcV, U32 vCount, const void* id, U32 calcFog,
+                U32 clipFlags
+            ) // = (void *)0xcdcdcdcd, = TRUE, = clipALL
             {
                 ASSERT(srcV);
                 ASSERT(vCount <= renderState.maxVerts);
@@ -293,7 +305,7 @@ namespace Vid
                     if (!Xtra::Line::ToBuffer(clipPool1, srcV, vCount, clipFlags))
                     {
                         RestoreTempMem();
-                        return NULL;
+                        return nullptr;
                     }
 
                     ASSERT(vCount <= renderState.maxVerts);
@@ -325,17 +337,17 @@ namespace Vid
                         //
                         if ((clipFlagA[i0] | clipFlagA[i1]) != 0)
                         {
-                            VertexTL* vp0[MAXCLIPCOUNT], * vp1[MAXCLIPCOUNT];
+                            VertexTL *vp0[MAXCLIPCOUNT], *vp1[MAXCLIPCOUNT];
                             SetupPool(vp0, vp1);
 
                             inPoolCount = 2;
-                            inPool[0] = (VertexTL*)&srcV[i0];
-                            inPool[1] = (VertexTL*)&srcV[i1];
+                            inPool[0] = static_cast<VertexTL*>(&srcV[i0]);
+                            inPool[1] = static_cast<VertexTL*>(&srcV[i1]);
 
                             // clip to all planes
                             //
                             for (U32 sign = 0x80000000, index = 0; index < 3 && inPoolCount == 2;
-                                sign = 0x80000000 & (~sign), index += sign >> 31)
+                                 sign = 0x80000000 & (~sign), index += sign >> 31)
                             {
                                 if (ClipToPlane(sign | index))
                                 {
@@ -353,8 +365,8 @@ namespace Vid
                                 vCount++;
                             }
                         }
-                        // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
-                        //
+                            // if or_cf == 0 then the whole line is in the frustum --> just copy it to dst
+                            //
                         else
                         {
                             tmpVertPtrs[vCount] = &srcV[i0];
@@ -367,6 +379,7 @@ namespace Vid
 
                 return FillBucket(vCount, id, calcFog);
             }
+
             //-----------------------------------------------------------------------------
         };
     };

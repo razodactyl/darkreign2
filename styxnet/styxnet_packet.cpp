@@ -27,7 +27,6 @@
 //
 namespace StyxNet
 {
-
     // Must be on the front of all packets!
     const U32 magic = 0xFEED2BAD;
 
@@ -43,7 +42,7 @@ namespace StyxNet
     //
     Packet::Buffer* Packet::Buffer::Create(U32 length)
     {
-        U32 size = length + sizeof(StyxNet::Packet::Buffer::Header);
+        U32 size = length + sizeof(Header);
         U8* raw = new U8[size];
         Buffer* buffer = reinterpret_cast<Buffer*>(raw);
         buffer->header.size = size;
@@ -109,11 +108,11 @@ namespace StyxNet
     {
         // Add the CRC
         header.crc = 0;
-        header.crc = Crc::Calc((U8*)this, header.length + sizeof(StyxNet::Packet::Header));
-        Bool rval = socket.Send((U8*)this, header.length + sizeof(StyxNet::Packet::Header));
+        header.crc = Crc::Calc((U8*)this, header.length + sizeof(Header));
+        Bool rval = socket.Send((U8*)this, header.length + sizeof(Header));
 
         // Gather stats on this packet
-        socket.SampleSent(header.length + sizeof(StyxNet::Packet::Header));
+        socket.SampleSent(header.length + sizeof(Header));
 
         if (del)
         {
@@ -136,9 +135,9 @@ namespace StyxNet
         S32 remaining = buffer.header.size - (buffer.header.offset - buffer.data);
 
         // Does the amount used cover a packet header ?
-        S32 diffHeader = sizeof(StyxNet::Packet::Header) - used;
+        S32 diffHeader = sizeof(Header) - used;
 
-        // LPACKET("Packet accept: used " << used << " remaining " << remaining << " diffheader " << diffHeader);
+        LPACKET("Packet accept: used " << used << " remaining " << remaining << " diffheader " << diffHeader);
 
         // Continue until we exhaust the data waiting in the socket or the buffer becomes full
         for (;;)
@@ -146,9 +145,9 @@ namespace StyxNet
             if (diffHeader <= 0)
             {
                 // What's the length of the data
-                U32 length = reinterpret_cast<Packet::Header*>(buffer.header.packet)->length;
+                U32 length = reinterpret_cast<Header*>(buffer.header.packet)->length;
 
-                // LPACKET("Header: length " << length << " command " << HEX(reinterpret_cast<Packet::Header*>(buffer.header.packet)->command, 8));
+                LPACKET("Header: length " << length << " command " << HEX(reinterpret_cast<Packet::Header*>(buffer.header.packet)->command, 8));
 
                 // Is there any length to the data ?
                 if (length)
@@ -203,11 +202,11 @@ namespace StyxNet
                 CRC crc = packet->header.crc;
                 packet->header.crc = 0;
 
-                CRC calcCrc = Crc::Calc(packet, length + sizeof(StyxNet::Packet::Header));
+                CRC calcCrc = Crc::Calc(packet, length + sizeof(Header));
                 if (crc == calcCrc)
                 {
                     // Gather stats on this packet
-                    socket.SampleRecv(length + sizeof(StyxNet::Packet::Header));
+                    socket.SampleRecv(length + sizeof(Header));
 
                     // Set packet pointer to the next packet
                     buffer.header.packet = buffer.header.offset;
@@ -227,7 +226,7 @@ namespace StyxNet
                 used = 0;
 
                 // The header remaining at this point is an entire header
-                diffHeader = sizeof(StyxNet::Packet::Header);
+                diffHeader = sizeof(Header);
             }
 
             // If the remaining space in the buffer isn't enough then bail
@@ -247,7 +246,7 @@ namespace StyxNet
             // We're expecting diffHeader from the socket
             S32 received = socket.Recv(buffer.header.offset, diffHeader);
 
-            // LPACKET("Getting from socket: received " << received << " diffHeader " << diffHeader);
+            LPACKET("Getting from socket: received " << received << " diffHeader " << diffHeader);
 
             buffer.header.offset += received;
             remaining -= received;
@@ -263,7 +262,7 @@ namespace StyxNet
             // A valid header has;
             // - the right magic 
             // - an acceptable length
-            Packet::Header* header = reinterpret_cast<Packet::Header*>(buffer.header.packet);
+            Header* header = reinterpret_cast<Header*>(buffer.header.packet);
 
             if (header->magic != magic)
             {
@@ -273,7 +272,7 @@ namespace StyxNet
                 // Reset our stats
                 used = buffer.header.offset - buffer.header.packet;
                 remaining = buffer.header.size - (buffer.header.offset - buffer.data);
-                diffHeader = sizeof(StyxNet::Packet::Header) - used;
+                diffHeader = sizeof(Header) - used;
             }
             else if (header->length > 2048)
             {
@@ -283,7 +282,7 @@ namespace StyxNet
                 // Reset our stats
                 used = buffer.header.offset - buffer.header.packet;
                 remaining = buffer.header.size - (buffer.header.offset - buffer.data);
-                diffHeader = sizeof(StyxNet::Packet::Header) - used;
+                diffHeader = sizeof(Header) - used;
             }
             else
             {
@@ -316,7 +315,7 @@ namespace StyxNet
             Packet* packet = reinterpret_cast<Packet*>(buffer.header.packet);
 
             // Advance the packet pointer to the next packet
-            buffer.header.packet += sizeof(StyxNet::Packet::Header) + packet->header.length;
+            buffer.header.packet += sizeof(Header) + packet->header.length;
 
             // Decrement the number of completed packets
             buffer.header.packets--;
@@ -324,43 +323,40 @@ namespace StyxNet
             // Return the complete packet
             return (packet);
         }
+        // Clear processing flag
+        buffer.header.processed = FALSE;
+
+        // Clear completed packets count
+        buffer.header.packets = 0;
+
+        // Move any remaining data to the front of the buffer
+        S32 size = buffer.header.offset - buffer.header.packet;
+        U32 offset = buffer.header.packet - buffer.data;
+
+        if (size > 0)
+        {
+            if (offset > 0)
+            {
+                // We have remaining data offset from the start
+
+                // Move the remaining data
+                Utils::Memmove(buffer.data, buffer.header.packet, size);
+
+                // Adjust offset and reset packet
+                buffer.header.offset -= offset;
+                buffer.header.packet = buffer.data;
+            }
+
+            // At this stage the packet pointer should be pointing at the buffer
+            ASSERT(buffer.header.packet == buffer.data);
+        }
         else
         {
-            // Clear processing flag
-            buffer.header.processed = FALSE;
-
-            // Clear completed packets count
-            buffer.header.packets = 0;
-
-            // Move any remaining data to the front of the buffer
-            S32 size = buffer.header.offset - buffer.header.packet;
-            U32 offset = buffer.header.packet - buffer.data;
-
-            if (size > 0)
-            {
-                if (offset > 0)
-                {
-                    // We have remaining data offset from the start
-
-                    // Move the remaining data
-                    Utils::Memmove(buffer.data, buffer.header.packet, size);
-
-                    // Adjust offset and reset packet
-                    buffer.header.offset -= offset;
-                    buffer.header.packet = buffer.data;
-                }
-
-                // At this stage the packet pointer should be pointing at the buffer
-                ASSERT(buffer.header.packet == buffer.data)
-            }
-            else
-            {
-                // The packet pointer should be reset
-                buffer.header.packet = buffer.data;
-                buffer.header.offset = buffer.data;
-            }
-            return (NULL);
+            // The packet pointer should be reset
+            buffer.header.packet = buffer.data;
+            buffer.header.offset = buffer.data;
         }
+        return (nullptr);
     }
 
 
@@ -369,7 +365,7 @@ namespace StyxNet
     //
     Packet& Packet::Create(CRC command, U32 length)
     {
-        U32 size = length + sizeof(StyxNet::Packet::Header);
+        U32 size = length + sizeof(Header);
         U8* raw = new U8[size];
         Packet* pkt = reinterpret_cast<Packet*>(raw);
         ASSERT(length < U16_MAX);
@@ -390,5 +386,4 @@ namespace StyxNet
         Utils::Memcpy(pkt.GetData(), packet.GetData(), packet.GetLength());
         return (pkt);
     }
-
 }

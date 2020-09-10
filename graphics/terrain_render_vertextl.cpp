@@ -13,6 +13,7 @@
 #include "console.h"
 #include "statistics.h"
 #include "terrain_priv.h"
+
 //----------------------------------------------------------------------------
 
 namespace Terrain
@@ -20,36 +21,36 @@ namespace Terrain
     UVPair overlayUVList[256] = {
         // row by row, from front to back (0 - 1)
 
-          // 4x4
-          UVPair(0,0), UVPair(.25f,0), UVPair(.5f,0), UVPair(.75f,0), UVPair(1,0),
-          UVPair(0,.25f), UVPair(.25f,.25f), UVPair(.5f,.25f), UVPair(.75f,.25f), UVPair(1,.25f),
-          UVPair(0,.5f), UVPair(.25f,.5f), UVPair(.5f,.5f), UVPair(.75f,.5f), UVPair(1,.5f),
-          UVPair(0,.75f), UVPair(.25f,.75f), UVPair(.5f,.75f), UVPair(.75f,.75f), UVPair(1,.75f),
-          UVPair(0,1), UVPair(.25f,1), UVPair(.5f,1), UVPair(.75f,1), UVPair(1,1),
+        // 4x4
+        UVPair(0, 0), UVPair(.25f, 0), UVPair(.5f, 0), UVPair(.75f, 0), UVPair(1, 0),
+        UVPair(0, .25f), UVPair(.25f, .25f), UVPair(.5f, .25f), UVPair(.75f, .25f), UVPair(1, .25f),
+        UVPair(0, .5f), UVPair(.25f, .5f), UVPair(.5f, .5f), UVPair(.75f, .5f), UVPair(1, .5f),
+        UVPair(0, .75f), UVPair(.25f, .75f), UVPair(.5f, .75f), UVPair(.75f, .75f), UVPair(1, .75f),
+        UVPair(0, 1), UVPair(.25f, 1), UVPair(.5f, 1), UVPair(.75f, 1), UVPair(1, 1),
     };
     //----------------------------------------------------------------------------
 
     U16 clusterI[96] =
     {
-      0, 5, 6, 0, 6, 1,         // row0
-      1, 6, 7, 1, 7, 2,
-      2, 7, 8, 2, 8, 3,
-      3, 8, 9, 3, 9, 4,
+        0, 5, 6, 0, 6, 1,         // row0
+        1, 6, 7, 1, 7, 2,
+        2, 7, 8, 2, 8, 3,
+        3, 8, 9, 3, 9, 4,
 
-      5, 10, 11, 5, 11, 6,      // row1
-      6, 11, 12, 6, 12, 7,
-      7, 12, 13, 7, 13, 8,
-      8, 13, 14, 8, 14, 9,
+        5, 10, 11, 5, 11, 6,      // row1
+        6, 11, 12, 6, 12, 7,
+        7, 12, 13, 7, 13, 8,
+        8, 13, 14, 8, 14, 9,
 
-      10, 15, 16, 10, 16, 11,   // row2
-      11, 16, 17, 11, 17, 12,
-      12, 17, 18, 12, 18, 13,
-      13, 18, 19, 13, 19, 14,
+        10, 15, 16, 10, 16, 11,   // row2
+        11, 16, 17, 11, 17, 12,
+        12, 17, 18, 12, 18, 13,
+        13, 18, 19, 13, 19, 14,
 
-      15, 20, 21, 15, 21, 16,   // row3
-      16, 21, 22, 16, 22, 17,
-      17, 22, 23, 17, 23, 18,
-      18, 23, 24, 18, 24, 19,
+        15, 20, 21, 15, 21, 16,   // row3
+        16, 21, 22, 16, 22, 17,
+        17, 22, 23, 17, 23, 18,
+        18, 23, 24, 18, 24, 19,
     };
     //----------------------------------------------------------------------------
 
@@ -112,11 +113,12 @@ namespace Terrain
             Vid::Clip::ToBucket(vertmem, 4, Vid::rectIndices, 6, &clus, TRUE, clipFlags);
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw a single cluster
     //
-  //  void RenderClusterColor( Cluster &clus, S32 x, S32 z, U32 cellOffset, S32 cellStrideX, S32 cellStrideZ, Color color, U32 clipFlags) // = 0
+    //  void RenderClusterColor( Cluster &clus, S32 x, S32 z, U32 cellOffset, S32 cellStrideX, S32 cellStrideZ, Color color, U32 clipFlags) // = 0
 
     void RenderCellWaterVtl(VertexTL* tempmem, Cluster& clus, S32 x0, S32 z0, Vector* verts0, Color* colors, F32* fogs, U32 vcount, U32 clipFlags)
     {
@@ -144,7 +146,7 @@ namespace Terrain
         }
 
         Vector verts[25];
-        Vector* v = verts, * ve = verts + 25, * sv = verts0;
+        Vector *v = verts, *ve = verts + 25, *sv = verts0;
         F32 dw = (wave1 - wave0) / 4;
         for (; v < ve; wave0 += dw, wave1 -= dw)
         {
@@ -172,12 +174,12 @@ namespace Terrain
 #ifdef DOTERRAINCOLOR
             Vid::LightProjectVerts(tempmem, verts, waterNorms, colors, vcount);
 #else
-            Vid::LightProjectVerts(tempmem, verts, waterNorms, vcount);
+      Vid::LightProjectVerts( tempmem, verts, waterNorms, vcount);
 #endif
 
             if (*Vid::Var::Terrain::shroud)
             {
-                VertexTL* dv = tempmem, * de = tempmem + vcount;
+                VertexTL *dv = tempmem, *de = tempmem + vcount;
                 for (; dv < de; dv++, fogs++)
                 {
                     //          dv->diffuse.Modulate( c);
@@ -186,7 +188,7 @@ namespace Terrain
             }
             else
             {
-                VertexTL* dv = tempmem, * de = tempmem + vcount;
+                VertexTL *dv = tempmem, *de = tempmem + vcount;
                 for (; dv < de; dv++)
                 {
                     dv->diffuse.a = c.a;
@@ -200,8 +202,8 @@ namespace Terrain
                 return;
             }
 
-            VertexTL* dv = vertmem, * sv = tempmem;
-            UVPair* uvlist, * uve = waterUVList0 + vcount;
+            VertexTL *dv = vertmem, *sv = tempmem;
+            UVPair *uvlist, *uve = waterUVList0 + vcount;
             for (uvlist = waterUVList0; uvlist < uve; dv++, sv++, uvlist++)
             {
                 dv->vv = sv->vv;
@@ -230,8 +232,8 @@ namespace Terrain
                 }
                 c = *Vid::Var::Terrain::waterColorTop;
 
-                VertexTL* dv = vertmem1, * sv = vertmem;
-                UVPair* uvlist, * uve = waterUVList1 + vcount;
+                VertexTL *dv = vertmem1, *sv = vertmem;
+                UVPair *uvlist, *uve = waterUVList1 + vcount;
                 for (uvlist = waterUVList1; uvlist < uve; dv++, sv++, uvlist++)
                 {
                     *dv = *sv;
@@ -248,11 +250,11 @@ namespace Terrain
 #ifdef DOTERRAINCOLOR
             Vid::LightTransformFromModel(tempmem, verts, waterNorms, colors, vcount);
 #else
-            Vid::LightTransformFromModel(tempmem, verts, waterNorms, vcount);
+      Vid::LightTransformFromModel( tempmem, verts, waterNorms, vcount);
 #endif
 
             VertexTL* dv = tempmem;
-            UVPair* uvlist, * uve = waterUVList0 + vcount;
+            UVPair *uvlist, *uve = waterUVList0 + vcount;
             for (uvlist = waterUVList0; uvlist < uve; dv++, uvlist++, fogs++)
             {
                 if (*Vid::Var::Terrain::shroud)
@@ -279,7 +281,7 @@ namespace Terrain
 
                     VertexTL* dv = tempmem;
                     Vector* sv = verts;
-                    UVPair* uvlist, * uve = waterUVList1 + vcount;
+                    UVPair *uvlist, *uve = waterUVList1 + vcount;
                     for (uvlist = waterUVList1; uvlist < uve; uvlist++, dv++, sv++)
                     {
                         Vid::TransformFromModel(*dv, *sv);
@@ -291,6 +293,7 @@ namespace Terrain
             }
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw a single cluster
@@ -313,10 +316,10 @@ namespace Terrain
         */
         Cell* c0 = &heightField.cellList[cellOffset];
 
-        Vector verts[25], * dv = verts;
-        Vector norms[25], * dn = norms;
-        Color colors[25], * dc = colors;
-        F32     fogs[25], * df = fogs;
+        Vector verts[25], *dv = verts;
+        Vector norms[25], *dn = norms;
+        Color colors[25], *dc = colors;
+        F32 fogs[25], *df = fogs;
         for (z0 = z; z0 <= zend; z0 += meterStrideZ, c0 += cellStrideWidth)
         {
             Cell* c = c0;
@@ -334,7 +337,7 @@ namespace Terrain
                 *dn = normList[c->normal];
 
 #ifdef DOTERRAINCOLOR
-                * dc = c->color;
+                *dc = c->color;
 #endif
             }
         }
@@ -364,7 +367,7 @@ namespace Terrain
 #ifdef DOTERRAINCOLOR
             Vid::LightProjectVerts(tempmem, verts, norms, colors, vcount);
 #else
-            Vid::LightProjectVerts(tempmem, verts, norms, vcount);
+      Vid::LightProjectVerts( tempmem, verts, norms, vcount);
 #endif
             if (*Vid::Var::Terrain::shroud)
             {
@@ -437,10 +440,9 @@ namespace Terrain
 
                     Vid::UnlockIndexedPrimitiveMem(4, 6);
 
-                    // Decals 1
                     if (*Vid::Var::Terrain::overlay && (c->flags & Cell::cellOVERLAY))
                     {
-                        ASSERT(c->texture1 < overlayCount&& c->overlay < overlays.count);
+                        ASSERT(c->texture1 < overlayCount && c->overlay < overlays.count);
 
                         Overlay& overlay = overlays[c->overlay];
                         Bitmap* tex = overlayList[c->texture1];
@@ -510,11 +512,11 @@ namespace Terrain
                                 F32 df3 = fogs[iv[3]];
                                 F32 ddf0 = (F32) fabs( df0 - df2);
                                 F32 ddf1 = (F32) fabs( df1 - df3);
-
+                    
                                 if ((ddf0 != 0 || ddf1 != 0) && ddf0 != ddf1 && hit > 1)
                                 {
                                   Vid::SetBucketTexture( shroudTex, TRUE, 0, RS_BLEND_DEF | renderFlags);
-
+                    
                                   if (!Vid::LockIndexedPrimitiveMem( (void **)&vertmem, 4, &indexmem, 6, &clus))
                                   {
                                     LOG_WARN( ("Terrain::RenderCluster: can't lock shroud overlay bucket!") );
@@ -527,18 +529,18 @@ namespace Terrain
                                     spec = tempmem[iv[ df1 < df3 ? 3 : 1]].specular;
                                     uvi = df0 < df2 ? 1 : 3;
                                   }
-                                  else
+                                  else 
                                   {
                                     spec = tempmem[iv[ df0 < df2 ? 2 : 0]].specular;
                                     uvi = df1 < df3 ? 2 : 0;
                                   }
-
+                    
                                   UVPair * uvList = &cellUVList[uvi];
                                   VertexTL * dv = vertmem;
                                   for (U32 i = 0; i < 4; i++, dv++)
                                   {
                                     const VertexTL & sv = tempmem[iv[i]];
-
+                    
                                     dv->vv  = sv.vv;
                                     dv->rhw = sv.rhw;
                                     dv->diffuse  = sv.diffuse;
@@ -546,7 +548,7 @@ namespace Terrain
                                     dv->uv  = uvList[i];
                                   }
                                   Utils::Memcpy( indexmem, Vid::rectIndices, 12);
-
+                    
                                   Vid::UnlockIndexedPrimitiveMem( 4, 6);
                                 }
                               }
@@ -559,7 +561,7 @@ namespace Terrain
 #ifdef DOTERRAINCOLOR
             Vid::LightTransformFromModel(tempmem, verts, norms, colors, vcount);
 #else
-            Vid::LightTransformFromModel(tempmem, verts, norms, vcount);
+      Vid::LightTransformFromModel( tempmem, verts, norms, vcount);
 #endif
             if (*Vid::Var::Terrain::shroud)
             {
@@ -622,10 +624,9 @@ namespace Terrain
                         Vid::Clip::ToBucket(vertmem, 4, Vid::rectIndices, 6, &clus, TRUE, clipFlags);
                     }
 
-                    // Decals 2
                     if (*Vid::Var::Terrain::overlay && (c->flags & Cell::cellOVERLAY))
                     {
-                        ASSERT(c->texture1 < overlayCount&& c->overlay < overlays.count);
+                        ASSERT(c->texture1 < overlayCount && c->overlay < overlays.count);
 
                         Overlay& overlay = overlays[c->overlay];
                         Bitmap* tex = overlayList[c->texture1];
@@ -681,11 +682,11 @@ namespace Terrain
                                 F32 df3 = fogs[iv[3]];
                                 F32 ddf0 = (F32) fabs( df0 - df2);
                                 F32 ddf1 = (F32) fabs( df1 - df3);
-
+                    
                                 if ((ddf0 != 0 || ddf1 != 0) && ddf0 != ddf1 && hit > 1)
                                 {
                                   Vid::SetBucketTexture( shroudTex, TRUE, 0, RS_BLEND_DEF | renderFlags);
-
+                    
                                   U32 uvi;
                                   Color spec;
                                   if (ddf0 > ddf1)
@@ -693,25 +694,25 @@ namespace Terrain
                                     spec = tempmem[iv[ df1 < df3 ? 3 : 1]].specular;
                                     uvi = df0 < df2 ? 1 : 3;
                                   }
-                                  else
+                                  else 
                                   {
                                     spec = tempmem[iv[ df0 < df2 ? 2 : 0]].specular;
                                     uvi = df1 < df3 ? 2 : 0;
                                   }
-
+                    
                                   UVPair * uvList = &cellUVList[uvi];
                                   VertexTL * dv = vertmem;
                                   for (U32 i = 0; i < 4; i++, dv++)
                                   {
                                     const VertexTL & sv = tempmem[iv[i]];
-
+                    
                                     dv->vv  = sv.vv;
                                     dv->rhw = sv.rhw;
                                     dv->diffuse  = sv.diffuse;
                                     dv->specular = spec;
                                     dv->uv  = uvList[i];
                                   }
-
+                    
                                   {
                                     Vid::Clip::ToBucket( vertmem, 4, Vid::rectIndices, 6, &clus, 1, clipFlags);
                                   }
@@ -723,276 +724,277 @@ namespace Terrain
         }
         BucketMan::forceTranslucent = FALSE;
     }
+
     //----------------------------------------------------------------------------
     F32 offMapHeight = 10.0f;
 
 #if 0
-    void RenderClusterOffMapVtl(S32 x, S32 z)
+  void RenderClusterOffMapVtl( S32 x, S32 z)
+  {
+    S32 xc = x / (S32) heightField.meterPerCell;
+    S32 zc = z / (S32) heightField.meterPerCell;
+    ASSERT(xc != 0 || zc != 0);
+/*
+    if (zc > 0 || xc < heightField.cellWidth)
     {
-        S32 xc = x / (S32)heightField.meterPerCell;
-        S32 zc = z / (S32)heightField.meterPerCell;
-        ASSERT(xc != 0 || zc != 0);
-        /*
-            if (zc > 0 || xc < heightField.cellWidth)
-            {
-              return;
-            }
-        */
-        F32 xs = F32(x) - OffsetX();
-        F32 zs = F32(z) - OffsetZ();
+      return;
+    }
+*/
+    F32 xs = F32(x) - OffsetX();
+    F32 zs = F32(z) - OffsetZ();
 
-        F32 xend = xs + (F32)meterPerClus;
-        F32 zend = zs + (F32)meterPerClus;
+    F32 xend = xs + (F32) meterPerClus;
+    F32 zend = zs + (F32) meterPerClus;
 
-        F32 xy[5], zy[5], dx, dxx, dz = 0, dzz = 0;
+    F32 xy[5], zy[5], dx, dxx, dz = 0, dzz = 0;
 
-        S32 zcc = zc;
+    S32 zcc = zc;
+    S32 xcc = xc;
+
+    S32 corners = 0;
+
+    if (xc < 0)
+    {
+      for (U32 i = 0; i < 5; i++, zcc++)
+      {
+        S32 tzc = zcc < 0 ? 0 : zcc > (S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+
+        xy[i] = heightField.cellList[ tzc * heightField.cellPitch].height;
+      }
+      dx = (F32) -xc * (F32) heightField.meterPerCell;
+      dxx =  - (F32) heightField.meterPerCell;
+
+      corners |= 1;
+    }
+    else if (xc >= (S32) heightField.cellWidth)
+    {
+      for (U32 i = 0; i < 5; i++, zcc++)
+      {
+        S32 tzc = zcc < 0 ? 0 : zcc > (S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+
+        xy[i] = heightField.cellList[ tzc * heightField.cellPitch + heightField.cellWidth].height;
+      }
+      dx = (F32(xc) - F32(heightField.cellWidth)) * (F32) heightField.meterPerCell;
+      dxx = (F32) heightField.meterPerCell;
+
+      corners |= 1;
+    }
+    else
+    {
+      for (U32 i = 0; i < 5; i++, zcc++)
+      {
+        S32 tzc = zcc < 0 ? 0 : zcc > (S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+
+        xy[i] = heightField.cellList[ tzc * heightField.cellPitch + xc].height;
+      }
+      dx = 0;
+      dxx = (F32) heightField.meterPerCell;
+    }
+
+    if (zc < 0)
+    {
+      for (U32 i = 0; i < 5; i++, xcc++)
+      {
+        S32 txc = xcc < 0 ? 0 : xcc > (S32) heightField.cellWidth  ? heightField.cellWidth : xcc;
+
+        zy[i] = heightField.cellList[ txc].height;
+      }
+      dz = (F32) -zc * (F32) heightField.meterPerCell;
+      dzz = - (F32) heightField.meterPerCell;
+
+      corners |= 2;
+    }
+    else if (zc >= (S32) heightField.cellHeight)
+    {
+      for (U32 i = 0; i < 5; i++, xcc++)
+      {
+        S32 txc = xcc < 0 ? 0 : xcc > (S32) heightField.cellWidth  ? heightField.cellWidth : xcc;
+
+        zy[i] = heightField.cellList[ heightField.cellHeight * heightField.cellPitch + txc].height;
+      }
+
+      dz = F32(zc - heightField.cellHeight) * (F32) heightField.meterPerCell;
+      dzz = (F32) heightField.meterPerCell;
+
+      corners |= 2;
+    }
+
+    F32 dxy[5], dzy[5], ddx = dx, ddz = dz, ymin = F32_MAX, ymax = -F32_MAX;
+    for (U32 i = 0; i < 5; i++, ddx += dxx, ddz += dzz)
+    {
+      dxy[i] = (offMapHeight - xy[i]) / 1000;
+      dzy[i] = (offMapHeight - zy[i]) / 1000;
+
+      F32 y = zy[i] + dzy[i] * ddz;
+      
+      ymin = Min<F32>( ymin, y);
+      ymax = Max<F32>( ymax, y);
+
+      y = xy[i] + dxy[i] * ddx;
+      
+      ymin = Min<F32>( ymin, y);
+      ymax = Max<F32>( ymax, y);
+    }
+    Vector offset( xs + F32( meterPerClus) * .5f, (ymin + ymax) * .5f, zs + F32( meterPerClus) * .5f); 
+    F32 yy = ymax - ymin;
+    Bounds bounds( offset, Max<F32>( F32( meterPerClus), yy));
+    bounds.Set( F32( meterPerClus), yy * .5f, F32( meterPerClus)); 
+
+    bounds.RenderBox( Matrix::I, 0x88ff0000);
+
+    U32 clipFlags = Vid::CurCamera().BoundsTestBox( offset, bounds);
+    if (clipFlags == clipOUTSIDE)
+    {
+      // cluster is completely outside the view frustrum
+      return;
+    }
+    Vid::SetBucketFlags( DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF | renderFlags);
+    Vid::SetTranBucketZMax( Vid::sortTERRAIN0 + 1);
+    Vid::SetBucketTexture( NULL, FALSE, 0, RS_BLEND_DEF);
+
+    if (clipFlags == clipNONE)
+    {
+      VertexTL * vertmem;
+      U16 *      indexmem;
+      if (!Vid::LockIndexedPrimitiveMem( (void **)&vertmem, 25, &indexmem, 96))
+      {
+        LOG_WARN( ("Terrain::RenderCluster: can't lock bucket!") );
+        return;
+      }
+      VertexTL * v = vertmem;
+
+      U32 iz = 0;
+      for ( zs; zs <= zend; zs += heightField.meterPerCell, iz++, dz += dzz, zc++)
+      {
+        U32 ix = 0;
+        F32 ddx = dx;
         S32 xcc = xc;
-
-        S32 corners = 0;
-
-        if (xc < 0)
+        for (F32 x = xs; x <= xend; x += heightField.meterPerCell, ix++, v++, ddx += dxx, xcc++)
         {
-            for (U32 i = 0; i < 5; i++, zcc++)
+          v->vv.x = x;
+          v->vv.z = zs;
+          v->diffuse  = 0xff000000;
+          v->specular = 0xff000000;
+
+          switch (corners)
+          {
+          case 3:
+          {
+            v->vv.y = xy[iz] + dxy[iz] * ddx;
+
+            F32 zz = zs < 0 ? -zs : zs >= (S32) heightField.meterHeight ? zs - heightField.meterHeight : zs;
+            F32 xx = x  < 0 ? -x  : x  >= (S32) heightField.meterWidth  ? x  - heightField.meterWidth  : x;
+
+            if (zz > xx)
             {
-                S32 tzc = zcc < 0 ? 0 : zcc >(S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+              F32 dy = zy[ix] + dzy[ix] * dz;
+              dy = (dy - v->vv.y) / zz;
 
-                xy[i] = heightField.cellList[tzc * heightField.cellPitch].height;
+              v->vv.y += dy * (zz - xx);
             }
-            dx = (F32)-xc * (F32)heightField.meterPerCell;
-            dxx = -(F32)heightField.meterPerCell;
-
-            corners |= 1;
+            break;
+          }
+          case 2:
+            v->vv.y = zy[ix] + dzy[ix] * dz;
+            break;
+          case 1:
+            v->vv.y = xy[iz] + dxy[iz] * ddx;
+            break;
+          }
         }
-        else if (xc >= (S32)heightField.cellWidth)
+/*
+        if (xcc != 0 && xcc != heightField.cellWidth && zc != 0 && zc != heightField.cellHeight)
         {
-            for (U32 i = 0; i < 5; i++, zcc++)
-            {
-                S32 tzc = zcc < 0 ? 0 : zcc >(S32) heightField.cellHeight ? heightField.cellHeight : zcc;
-
-                xy[i] = heightField.cellList[tzc * heightField.cellPitch + heightField.cellWidth].height;
-            }
-            dx = (F32(xc) - F32(heightField.cellWidth)) * (F32)heightField.meterPerCell;
-            dxx = (F32)heightField.meterPerCell;
-
-            corners |= 1;
+          S32 xccc = xcc % S32( cellPerClus);
+          if (xccc < 0)
+          {
+            xccc += cellPerClus;
+          }
+          S32 zccc = zc % S32( cellPerClus);
+          if (zccc < 0)
+          {
+            zccc += cellPerClus;
+          }
+          v->vv.y += randomField.cellList[zccc * randomField.cellPitch + xccc].height;
         }
-        else
-        {
-            for (U32 i = 0; i < 5; i++, zcc++)
-            {
-                S32 tzc = zcc < 0 ? 0 : zcc >(S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+*/
+      }
+      Vid::ProjectVerts( vertmem, 25);
 
-                xy[i] = heightField.cellList[tzc * heightField.cellPitch + xc].height;
-            }
-            dx = 0;
-            dxx = (F32)heightField.meterPerCell;
-        }
+      Utils::Memcpy( indexmem, clusterI, 96 << 1);
 
-        if (zc < 0)
-        {
-            for (U32 i = 0; i < 5; i++, xcc++)
-            {
-                S32 txc = xcc < 0 ? 0 : xcc >(S32) heightField.cellWidth ? heightField.cellWidth : xcc;
-
-                zy[i] = heightField.cellList[txc].height;
-            }
-            dz = (F32)-zc * (F32)heightField.meterPerCell;
-            dzz = -(F32)heightField.meterPerCell;
-
-            corners |= 2;
-        }
-        else if (zc >= (S32)heightField.cellHeight)
-        {
-            for (U32 i = 0; i < 5; i++, xcc++)
-            {
-                S32 txc = xcc < 0 ? 0 : xcc >(S32) heightField.cellWidth ? heightField.cellWidth : xcc;
-
-                zy[i] = heightField.cellList[heightField.cellHeight * heightField.cellPitch + txc].height;
-            }
-
-            dz = F32(zc - heightField.cellHeight) * (F32)heightField.meterPerCell;
-            dzz = (F32)heightField.meterPerCell;
-
-            corners |= 2;
-        }
-
-        F32 dxy[5], dzy[5], ddx = dx, ddz = dz, ymin = F32_MAX, ymax = -F32_MAX;
-        for (U32 i = 0; i < 5; i++, ddx += dxx, ddz += dzz)
-        {
-            dxy[i] = (offMapHeight - xy[i]) / 1000;
-            dzy[i] = (offMapHeight - zy[i]) / 1000;
-
-            F32 y = zy[i] + dzy[i] * ddz;
-
-            ymin = Min<F32>(ymin, y);
-            ymax = Max<F32>(ymax, y);
-
-            y = xy[i] + dxy[i] * ddx;
-
-            ymin = Min<F32>(ymin, y);
-            ymax = Max<F32>(ymax, y);
-        }
-        Vector offset(xs + F32(meterPerClus) * .5f, (ymin + ymax) * .5f, zs + F32(meterPerClus) * .5f);
-        F32 yy = ymax - ymin;
-        Bounds bounds(offset, Max<F32>(F32(meterPerClus), yy));
-        bounds.Set(F32(meterPerClus), yy * .5f, F32(meterPerClus));
-
-        bounds.RenderBox(Matrix::I, 0x88ff0000);
-
-        U32 clipFlags = Vid::CurCamera().BoundsTestBox(offset, bounds);
-        if (clipFlags == clipOUTSIDE)
-        {
-            // cluster is completely outside the view frustrum
-            return;
-        }
-        Vid::SetBucketFlags(DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF | renderFlags);
-        Vid::SetTranBucketZMax(Vid::sortTERRAIN0 + 1);
-        Vid::SetBucketTexture(NULL, FALSE, 0, RS_BLEND_DEF);
-
-        if (clipFlags == clipNONE)
-        {
-            VertexTL* vertmem;
-            U16* indexmem;
-            if (!Vid::LockIndexedPrimitiveMem((void**)&vertmem, 25, &indexmem, 96))
-            {
-                LOG_WARN(("Terrain::RenderCluster: can't lock bucket!"));
-                return;
-            }
-            VertexTL* v = vertmem;
-
-            U32 iz = 0;
-            for (zs; zs <= zend; zs += heightField.meterPerCell, iz++, dz += dzz, zc++)
-            {
-                U32 ix = 0;
-                F32 ddx = dx;
-                S32 xcc = xc;
-                for (F32 x = xs; x <= xend; x += heightField.meterPerCell, ix++, v++, ddx += dxx, xcc++)
-                {
-                    v->vv.x = x;
-                    v->vv.z = zs;
-                    v->diffuse = 0xff000000;
-                    v->specular = 0xff000000;
-
-                    switch (corners)
-                    {
-                    case 3:
-                    {
-                        v->vv.y = xy[iz] + dxy[iz] * ddx;
-
-                        F32 zz = zs < 0 ? -zs : zs >= (S32)heightField.meterHeight ? zs - heightField.meterHeight : zs;
-                        F32 xx = x < 0 ? -x : x >= (S32)heightField.meterWidth ? x - heightField.meterWidth : x;
-
-                        if (zz > xx)
-                        {
-                            F32 dy = zy[ix] + dzy[ix] * dz;
-                            dy = (dy - v->vv.y) / zz;
-
-                            v->vv.y += dy * (zz - xx);
-                        }
-                        break;
-                    }
-                    case 2:
-                        v->vv.y = zy[ix] + dzy[ix] * dz;
-                        break;
-                    case 1:
-                        v->vv.y = xy[iz] + dxy[iz] * ddx;
-                        break;
-                    }
-                }
-                /*
-                        if (xcc != 0 && xcc != heightField.cellWidth && zc != 0 && zc != heightField.cellHeight)
-                        {
-                          S32 xccc = xcc % S32( cellPerClus);
-                          if (xccc < 0)
-                          {
-                            xccc += cellPerClus;
-                          }
-                          S32 zccc = zc % S32( cellPerClus);
-                          if (zccc < 0)
-                          {
-                            zccc += cellPerClus;
-                          }
-                          v->vv.y += randomField.cellList[zccc * randomField.cellPitch + xccc].height;
-                        }
-                */
-            }
-            Vid::ProjectVerts(vertmem, 25);
-
-            Utils::Memcpy(indexmem, clusterI, 96 << 1);
-
-            Vid::UnlockIndexedPrimitiveMem(25, 96);
+      Vid::UnlockIndexedPrimitiveMem( 25, 96);
 
 #ifdef DOSTATISTICS
-            Statistics::noClipTris += 32;
+      Statistics::noClipTris += 32;
 #endif
-        }
-        else
-        {
-            VertexTL vertmem[25], * v = vertmem;
-            U32 iz = 0;
-            for (zs; zs <= zend; zs += heightField.meterPerCell, iz++, dz += dzz, zc++)
-            {
-                U32 ix = 0;
-                F32 ddx = dx;
-                S32 xcc = xc;
-                for (F32 x = xs; x <= xend; x += heightField.meterPerCell, ix++, v++, ddx += dxx, xcc++)
-                {
-                    v->vv.x = x;
-                    v->vv.z = zs;
-                    v->diffuse = 0xff000000;
-                    v->specular = 0xff000000;
-
-                    switch (corners)
-                    {
-                        //            v->vv.y = zy[ix] + dzy[ix] * dz;
-                    case 3:
-                    {
-                        v->vv.y = xy[iz] + dxy[iz] * ddx;
-
-                        F32 zz = zs < 0 ? -zs : zs >= (S32)heightField.meterHeight ? zs - heightField.meterHeight : zs;
-                        F32 xx = x < 0 ? -x : x >= (S32)heightField.meterWidth ? x - heightField.meterWidth : x;
-
-                        if (zz > xx)
-                        {
-                            F32 dy = zy[ix] + dzy[ix] * dz;
-                            dy = (dy - v->vv.y) / zz;
-
-                            v->vv.y += dy * (zz - xx);
-                        }
-                        break;
-                    }
-                    case 2:
-                        v->vv.y = zy[ix] + dzy[ix] * dz;
-                        break;
-                    case 1:
-                        v->vv.y = xy[iz] + dxy[iz] * ddx;
-                        break;
-                    }
-                }
-                /*
-                        if (xcc != 0 && xcc != heightField.cellWidth && zc != 0 && zc != heightField.cellHeight)
-                        {
-                          S32 xccc = xcc % S32( cellPerClus);
-                          if (xccc < 0)
-                          {
-                            xccc += cellPerClus;
-                          }
-                          S32 zccc = zc % S32( cellPerClus);
-                          if (zccc < 0)
-                          {
-                            zccc += cellPerClus;
-                          }
-                          v->vv.y += randomField.cellList[zccc * randomField.cellPitch + xccc].height;
-                        }
-                */
-            }
-            Vid::TransformFromModel(vertmem, 25);
-
-            Vid::Clip::ToBucket(vertmem, 25, clusterI, 96, NULL, TRUE, clipFlags);
-        }
     }
-    //----------------------------------------------------------------------------
+    else
+    {
+      VertexTL vertmem[25], * v = vertmem;
+      U32 iz = 0;
+      for ( zs; zs <= zend; zs += heightField.meterPerCell, iz++, dz += dzz, zc++)
+      {
+        U32 ix = 0;
+        F32 ddx = dx;
+        S32 xcc = xc;
+        for (F32 x = xs; x <= xend; x += heightField.meterPerCell, ix++, v++, ddx += dxx, xcc++)
+        {
+          v->vv.x = x;
+          v->vv.z = zs;
+          v->diffuse  = 0xff000000;
+          v->specular = 0xff000000;
+
+          switch (corners)
+          {
+//            v->vv.y = zy[ix] + dzy[ix] * dz;
+          case 3:
+          {
+            v->vv.y = xy[iz] + dxy[iz] * ddx;
+
+            F32 zz = zs < 0 ? -zs : zs >= (S32) heightField.meterHeight ? zs - heightField.meterHeight : zs;
+            F32 xx = x  < 0 ? -x  : x  >= (S32) heightField.meterWidth  ? x  - heightField.meterWidth  : x;
+
+            if (zz > xx)
+            {
+              F32 dy = zy[ix] + dzy[ix] * dz;
+              dy = (dy - v->vv.y) / zz;
+
+              v->vv.y += dy * (zz - xx);
+            }
+            break;
+          }
+          case 2:
+            v->vv.y = zy[ix] + dzy[ix] * dz;
+            break;
+          case 1:
+            v->vv.y = xy[iz] + dxy[iz] * ddx;
+            break;
+          }
+        }
+/*
+        if (xcc != 0 && xcc != heightField.cellWidth && zc != 0 && zc != heightField.cellHeight)
+        {
+          S32 xccc = xcc % S32( cellPerClus);
+          if (xccc < 0)
+          {
+            xccc += cellPerClus;
+          }
+          S32 zccc = zc % S32( cellPerClus);
+          if (zccc < 0)
+          {
+            zccc += cellPerClus;
+          }
+          v->vv.y += randomField.cellList[zccc * randomField.cellPitch + xccc].height;
+        }
+*/
+      }
+      Vid::TransformFromModel( vertmem, 25);
+
+      Vid::Clip::ToBucket( vertmem, 25, clusterI, 96, NULL, TRUE, clipFlags);
+    }
+  }
+  //----------------------------------------------------------------------------
 
 
 #else
@@ -1028,11 +1030,11 @@ namespace Terrain
         if (xc < 0)
         {
             dx = (F32)-xc * (F32)heightField.meterPerCell;
-            dxx = -(F32)heightField.meterPerCell;
+            dxx = - (F32)heightField.meterPerCell;
 
             for (U32 i = 0; i < 5; i++, zcc++)
             {
-                S32 tzc = zcc < 0 ? 0 : zcc >(S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+                S32 tzc = zcc < 0 ? 0 : zcc > (S32)heightField.cellHeight ? heightField.cellHeight : zcc;
 
                 xy[i] = heightField.cellList[tzc * heightField.cellPitch].height;
             }
@@ -1045,7 +1047,7 @@ namespace Terrain
 
             for (U32 i = 0; i < 5; i++, zcc++)
             {
-                S32 tzc = zcc < 0 ? 0 : zcc >(S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+                S32 tzc = zcc < 0 ? 0 : zcc > (S32)heightField.cellHeight ? heightField.cellHeight : zcc;
 
                 xy[i] = heightField.cellList[tzc * heightField.cellPitch + heightField.cellWidth].height;
             }
@@ -1055,7 +1057,7 @@ namespace Terrain
         {
             for (U32 i = 0; i < 5; i++, zcc++)
             {
-                S32 tzc = zcc < 0 ? 0 : zcc >(S32) heightField.cellHeight ? heightField.cellHeight : zcc;
+                S32 tzc = zcc < 0 ? 0 : zcc > (S32)heightField.cellHeight ? heightField.cellHeight : zcc;
 
                 xy[i] = heightField.cellList[tzc * heightField.cellPitch + xc].height;
             }
@@ -1067,12 +1069,12 @@ namespace Terrain
         {
             for (U32 i = 0; i < 5; i++, xcc++)
             {
-                S32 txc = xcc < 0 ? 0 : xcc >(S32) heightField.cellWidth ? heightField.cellWidth : xcc;
+                S32 txc = xcc < 0 ? 0 : xcc > (S32)heightField.cellWidth ? heightField.cellWidth : xcc;
 
                 zy[i] = heightField.cellList[txc].height;
             }
             dz = (F32)-zc * (F32)heightField.meterPerCell;
-            dzz = -(F32)heightField.meterPerCell;
+            dzz = - (F32)heightField.meterPerCell;
 
             corners |= 2;
         }
@@ -1080,7 +1082,7 @@ namespace Terrain
         {
             for (U32 i = 0; i < 5; i++, xcc++)
             {
-                S32 txc = xcc < 0 ? 0 : xcc >(S32) heightField.cellWidth ? heightField.cellWidth : xcc;
+                S32 txc = xcc < 0 ? 0 : xcc > (S32)heightField.cellWidth ? heightField.cellWidth : xcc;
 
                 zy[i] = heightField.cellList[heightField.cellHeight * heightField.cellPitch + txc].height;
             }
@@ -1098,7 +1100,7 @@ namespace Terrain
             dxy[i] = (offMapHeight - xy[i]) / 1000;
         }
 
-        VertexTL points[25], * v = points;
+        VertexTL points[25], *v = points;
         U32 iz = 0;
         for (F32 fz = zs; fz <= zend; fz += heightField.meterPerCell, iz++, dz += dzz, zc++)
         {
@@ -1114,28 +1116,28 @@ namespace Terrain
 
                 switch (corners)
                 {
-                case 3:
-                {
-                    v->vv.y = xy[iz] + dxy[iz] * ddx;
-
-                    F32 zz = fz < 0 ? -fz : fz >= (S32)heightField.meterHeight ? fz - heightField.meterHeight : fz;
-                    F32 xx = fx < 0 ? -fx : fx >= (S32)heightField.meterWidth ? fx - heightField.meterWidth : fx;
-
-                    if (zz > xx)
+                    case 3:
                     {
-                        F32 dy = zy[ix] + dzy[ix] * dz;
-                        dy = (dy - v->vv.y) / zz;
+                        v->vv.y = xy[iz] + dxy[iz] * ddx;
 
-                        v->vv.y += dy * (zz - xx);
+                        F32 zz = fz < 0 ? -fz : fz >= (S32)heightField.meterHeight ? fz - heightField.meterHeight : fz;
+                        F32 xx = fx < 0 ? -fx : fx >= (S32)heightField.meterWidth ? fx - heightField.meterWidth : fx;
+
+                        if (zz > xx)
+                        {
+                            F32 dy = zy[ix] + dzy[ix] * dz;
+                            dy = (dy - v->vv.y) / zz;
+
+                            v->vv.y += dy * (zz - xx);
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 2:
-                    v->vv.y = zy[ix] + dzy[ix] * dz;
-                    break;
-                case 1:
-                    v->vv.y = xy[iz] + dxy[iz] * ddx;
-                    break;
+                    case 2:
+                        v->vv.y = zy[ix] + dzy[ix] * dz;
+                        break;
+                    case 1:
+                        v->vv.y = xy[iz] + dxy[iz] * ddx;
+                        break;
                 }
                 ymin = Min<F32>(ymin, v->vv.y);
                 ymax = Max<F32>(ymax, v->vv.y);
@@ -1169,7 +1171,7 @@ namespace Terrain
                 LOG_WARN(("Terrain::RenderCluster: can't lock bucket!"));
                 return;
             }
-            VertexTL* v = vertmem, * ve = v + 25, * src = points;
+            VertexTL *v = vertmem, *ve = v + 25, *src = points;
             for (; v < ve; v++, src++)
             {
                 *v = *src;
@@ -1191,11 +1193,12 @@ namespace Terrain
             Vid::Clip::ToBucket(points, 25, clusterI, 96, NULL, TRUE, clipFlags);
         }
     }
+
     //----------------------------------------------------------------------------
 #endif
 
-  // draw the terrain
-  //
+    // draw the terrain
+    //
     void RenderVtl()
     {
         if (Vid::renderState.status.mirror)
@@ -1212,11 +1215,13 @@ namespace Terrain
             lowWaterCount = 0;
         }
 
-        Vid::SetBucketPrimitiveDesc(
+        Vid::SetBucketPrimitiveDesc
+        (
             PT_TRIANGLELIST,
             FVF_TLVERTEX,
             //      DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF ,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF | renderFlags);
+            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_DEF | renderFlags
+        );
 
         Vid::SetWorldTransform(Matrix::I);
         Vid::SetBucketMaterial(Vid::defMaterial);
@@ -1242,25 +1247,25 @@ namespace Terrain
 #endif
 
         // clip to the actual terrain rectangle
-    /*
-        if (rect.p0.x < 0)
-        {
-          rect.p0.x = 0;
-        }
-        if (rect.p1.x > (S32) clusWidth)
-        {
-          rect.p1.x = clusWidth;
-        }
-        if (rect.p0.y < 0)
-        {
-          rect.p0.y = 0;
-        }
-        if (rect.p1.y > (S32) clusHeight)
-        {
-          rect.p1.y = clusHeight;
-        }
-    */
-    // re-convert to meters
+        /*
+            if (rect.p0.x < 0)
+            {
+              rect.p0.x = 0;
+            }
+            if (rect.p1.x > (S32) clusWidth)
+            {
+              rect.p1.x = clusWidth;
+            }
+            if (rect.p0.y < 0)
+            {
+              rect.p0.y = 0;
+            }
+            if (rect.p1.y > (S32) clusHeight)
+            {
+              rect.p1.y = clusHeight;
+            }
+        */
+        // re-convert to meters
         rect.p0.y *= meterPerClus;
         rect.p1.y *= meterPerClus;
         rect.p0.x *= meterPerClus;
@@ -1287,7 +1292,7 @@ namespace Terrain
                 }
 
                 Cluster& clus = clusList[clusOffz * clusWidth + clusOffx];
-                Bounds  bounds = clus.bounds;
+                Bounds bounds = clus.bounds;
 
                 if (clus.status.water)
                 {
@@ -1358,6 +1363,7 @@ namespace Terrain
         Statistics::terrainTris = Statistics::tempTris;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     // skip backface culling
@@ -1391,11 +1397,13 @@ namespace Terrain
             Statistics::noClipTris += 2;
 #endif
 
-            Vid::DrawIndexedPrimitive(
+            Vid::DrawIndexedPrimitive
+            (
                 PT_TRIANGLELIST,
                 FVF_TLVERTEX,
                 vertmem, 4, Vid::rectIndices, 6,
-                DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+            );
         }
         else
         {
@@ -1410,16 +1418,19 @@ namespace Terrain
 
             if (icount)
             {
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     vtx, vcount, idx, icount,
-                    DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                    DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                );
             }
 
             Vid::Heap::Restore(heapSize);
         }
     }
+
     //----------------------------------------------------------------------------
 
     void RenderCellMirrorMaskVtl(Cluster& clus, U32 cellOffset, S32 x, S32 z, U32 clipFlags, Bool doNearZ)
@@ -1437,14 +1448,13 @@ namespace Terrain
 
         Cell* c0 = &heightField.cellList[cellOffset];
 
-        Vector verts[25], * dv = verts;
-        F32     fogs[25], * df = fogs;
+        Vector verts[25], *dv = verts;
+        F32 fogs[25], *df = fogs;
         for (z0 = z; z0 <= zend; z0 += meterStrideZ, c0 += cellStrideWidth)
         {
             Cell* c = c0;
             for (x0 = x; x0 <= xend; x0 += meterStrideX, dv++, df++, c += 1)
             {
-
                 if (*Vid::Var::Terrain::shroud)
                 {
                     *df = (F32)c->GetFog() * U8toNormF32;
@@ -1476,7 +1486,7 @@ namespace Terrain
             Vid::LightProjectVerts(tempmem, verts, waterNorms, vcount);
 
             VertexTL* dv = tempmem;
-            UVPair* uvlist, * uve = waterUVList0 + vcount;
+            UVPair *uvlist, *uve = waterUVList0 + vcount;
             df = fogs;
             for (uvlist = waterUVList0; uvlist < uve; dv++, uvlist++, df++)
             {
@@ -1499,11 +1509,13 @@ namespace Terrain
                 }
             }
 
-            Vid::DrawIndexedPrimitive(
+            Vid::DrawIndexedPrimitive
+            (
                 PT_TRIANGLELIST,
                 FVF_TLVERTEX,
                 tempmem, 25, clusterI, 96,
-                DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+            );
 
 #ifdef DOSTATISTICS
             Statistics::tempTris += 32;
@@ -1513,21 +1525,23 @@ namespace Terrain
             {
                 // 2nd layer
                 //
-        //        color = *Vid::Var::Terrain::waterColorTop;
+                //        color = *Vid::Var::Terrain::waterColorTop;
 
                 VertexTL* dv = tempmem;
-                UVPair* uvlist, * uve = waterUVList1 + vcount;
+                UVPair *uvlist, *uve = waterUVList1 + vcount;
                 for (uvlist = waterUVList1; uvlist < uve; dv++, uvlist++)
                 {
                     dv->uv = *uvlist;
                     dv->diffuse.a = waterColorMirror.a;
                 }
 
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     tempmem, 25, clusterI, 96,
-                    DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                    DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                );
             }
         }
         else
@@ -1535,7 +1549,7 @@ namespace Terrain
             Vid::LightTransformFromModel(tempmem, verts, waterNorms, vcount);
 
             VertexTL* dv = tempmem;
-            UVPair* uvlist, * uve = waterUVList0 + vcount;
+            UVPair *uvlist, *uve = waterUVList0 + vcount;
             df = fogs;
             for (uvlist = waterUVList0; uvlist < uve; dv++, uvlist++, df++)
             {
@@ -1570,11 +1584,13 @@ namespace Terrain
 
             if (icount)
             {
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     vtx, vcount, idx, icount,
-                    DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                    DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                );
             }
             Vid::Heap::Restore(heapSize);
             /*
@@ -1585,7 +1601,7 @@ namespace Terrain
                       // 2nd layer
                       //
                       color = *Vid::Var::Terrain::waterColorTop;
-
+            
                       UVPair * uvlist, * uve = waterUVList1 + vcount;
                       for (uvlist = waterUVList1; uvlist < uve; uvlist++, dv++, sv++)
                       {
@@ -1598,6 +1614,7 @@ namespace Terrain
             */
         }
     }
+
     //----------------------------------------------------------------------------
 
     // skip backface culling
@@ -1613,24 +1630,24 @@ namespace Terrain
         // one quad covers the whole cluster with water
         //
 
-    /*
-        F32 wave0 = 0, wave1 = 0;
-        if (*Vid::Var::Terrain::waveActive)
-        {
-          // alternate wave0, wave1 in a checkerboard over the entire terrain grid
-          //
-          if ((S32(x0 * clusPerMeter) + (S32(z0 * clusPerMeter) % 2)) % 2)
-          {
-            wave0 = waterWave1;
-            wave1 = waterWave0;
-          }
-          else
-          {
-            wave0 = waterWave0;
-            wave1 = waterWave1;
-          }
-        }
-    */
+        /*
+            F32 wave0 = 0, wave1 = 0;
+            if (*Vid::Var::Terrain::waveActive)
+            {
+              // alternate wave0, wave1 in a checkerboard over the entire terrain grid
+              //
+              if ((S32(x0 * clusPerMeter) + (S32(z0 * clusPerMeter) % 2)) % 2)
+              {
+                wave0 = waterWave1;
+                wave1 = waterWave0;
+              }
+              else
+              {
+                wave0 = waterWave0;
+                wave1 = waterWave1;
+              }
+            }
+        */
         VertexTL vertmem[4];
 
         if (clipFlags == clipNONE)
@@ -1665,11 +1682,13 @@ namespace Terrain
             vertmem[3].uv = waterUVList0[4];
             vertmem[3].diffuse.a = waterColorMirror.a;
 
-            Vid::DrawIndexedPrimitive(
+            Vid::DrawIndexedPrimitive
+            (
                 PT_TRIANGLELIST,
                 FVF_TLVERTEX,
                 vertmem, 4, Vid::rectIndices, 6,
-                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+            );
 
 #ifdef DOSTATISTICS
             Statistics::tempTris += 2;
@@ -1691,11 +1710,13 @@ namespace Terrain
                 vertmem[3].uv = waterUVList1[4];
                 vertmem[3].diffuse.a = (U8)a;
 
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     vertmem, 4, Vid::rectIndices, 6,
-                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                );
 
 #ifdef DOSTATISTICS
                 Statistics::tempTris += 2;
@@ -1750,11 +1771,13 @@ namespace Terrain
 
             if (icount)
             {
-                Vid::DrawIndexedPrimitive(
+                Vid::DrawIndexedPrimitive
+                (
                     PT_TRIANGLELIST,
                     FVF_TLVERTEX,
                     vertmem, vcount, indexmem, icount,
-                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                    DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                );
 
 #ifdef DOSTATISTICS
                 icount /= 3;
@@ -1783,11 +1806,13 @@ namespace Terrain
 
                     if (icount)
                     {
-                        Vid::DrawIndexedPrimitive(
+                        Vid::DrawIndexedPrimitive
+                        (
                             PT_TRIANGLELIST,
                             FVF_TLVERTEX,
                             vertmem, vcount, indexmem, icount,
-                            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE);
+                            DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_MODULATE
+                        );
 
 #ifdef DOSTATISTICS
                         icount /= 3;
@@ -1795,12 +1820,12 @@ namespace Terrain
 #endif
                     }
                 }
-
             }
 
             Vid::Heap::Restore(heapSize);
         }
     }
+
     //----------------------------------------------------------------------------
 
     // draw just the water
@@ -1830,7 +1855,7 @@ namespace Terrain
         {
             rect.p0.x = 0;
         }
-        if (rect.p1.x > (S32) clusWidth)
+        if (rect.p1.x > (S32)clusWidth)
         {
             rect.p1.x = clusWidth;
         }
@@ -1838,7 +1863,7 @@ namespace Terrain
         {
             rect.p0.y = 0;
         }
-        if (rect.p1.y > (S32) clusHeight)
+        if (rect.p1.y > (S32)clusHeight)
         {
             rect.p1.y = clusHeight;
         }
@@ -1912,7 +1937,8 @@ namespace Terrain
 
         Vid::SetAlphaState(alpha);
     }
-    //----------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------
 }
+
 //----------------------------------------------------------------------------

@@ -25,62 +25,57 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // NameSpace ColorMsg
+    // NameSpace Controls
     //
-    namespace ColorMsg
+    namespace Controls
     {
-      const U32 SetColor = 0xEE632C05; // "MultiPlayer::Color::Message::SetColor"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // NameSpace ColorMsg
+        //
+        namespace ColorMsg
+        {
+            const U32 SetColor = 0xEE632C05; // "MultiPlayer::Color::Message::SetColor"
+        }
+
+
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Color
+        //
+        class Color : public IControl
+        {
+        private:
+
+            // Current color
+            IFaceVar* colorCurrent;
+
+            // Selected color
+            IFaceVar* colorSelected;
+
+            // Team id
+            U32 teamId;
+
+        public:
+
+            // Constructor
+            Color(IControl* parent);
+
+            // Destructor
+            ~Color();
+
+            // HandleEvent
+            U32 HandleEvent(Event& e);
+
+            // Redraw self
+            void DrawSelf(PaintInfo& pi);
+
+            // Setup the control
+            void Setup(FScope* fScope);
+        };
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Color
-    //
-    class Color : public IControl
-    {
-    private:
-
-      // Current color
-      IFaceVar *colorCurrent;
-
-      // Selected color
-      IFaceVar *colorSelected;
-
-      // Team id
-      U32 teamId;
-
-    public:
-
-      // Constructor
-      Color(IControl *parent);
-
-      // Destructor
-      ~Color();
-
-      // HandleEvent
-      U32 HandleEvent(Event &e);
-
-      // Redraw self
-      void DrawSelf(PaintInfo &pi);
-
-      // Setup the control
-      void Setup(FScope *fScope);
-
-    };
-
-  }
-
 }
 
 

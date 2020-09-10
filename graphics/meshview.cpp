@@ -59,6 +59,7 @@ const F32 MINCAMROTX = 0.26f;
 //----------------------------------------------------------------------------
 
 extern F32 moveSpeed;
+
 //----------------------------------------------------------------------------
 
 namespace MeshView
@@ -82,8 +83,13 @@ namespace MeshView
             return "";
         }
 
-        virtual void Clear() {}
-        virtual void Render() {}
+        virtual void Clear()
+        {
+        }
+
+        virtual void Render()
+        {
+        }
 
         virtual Bool FASTCALL DefaultHandler(Event& e);
         virtual void CmdHandler(U32 pathCrc) { pathCrc; }
@@ -103,6 +109,7 @@ namespace MeshView
                 }
             }
         }
+
         void Toggle()
         {
             IControl* control = IFace::FindByName(GetIFaceName());
@@ -111,7 +118,6 @@ namespace MeshView
                 Setup(!control->IsActive());
             }
         }
-
     };
 
     class ViewBrush : public Brush
@@ -166,7 +172,7 @@ namespace MeshView
         VarInteger append;
         Bool appendKey, appendLast;
 
-        U32        groupSelect : 1;
+        U32 groupSelect : 1;
 
         virtual void Init();
         virtual void Done();
@@ -211,152 +217,152 @@ namespace MeshView
         }
     };
 
-    static ViewBrush        viewBrush;
-    static AnimBrush        animBrush;
-    static TreadBrush       treadBrush;
-    static AimBrush         aimBrush;
-    static VertBrush        vertBrush;
+    static ViewBrush viewBrush;
+    static AnimBrush animBrush;
+    static TreadBrush treadBrush;
+    static AimBrush aimBrush;
+    static VertBrush vertBrush;
     static Brush* curBrush;
 
-    static Vector		        rotateObj;
-    static Vector		        moveCam;
-    static Vector		        rotateCam;
-    static Vector		        camVector;
-    static Vector		        camRotate;
-    static Vector		        camOffset;
+    static Vector rotateObj;
+    static Vector moveCam;
+    static Vector rotateCam;
+    static Vector camVector;
+    static Vector camRotate;
+    static Vector camOffset;
 
-    static Matrix		        worldCam;
-    static Matrix		        viewCam;
-    static Quaternion        attCam;
-    static Quaternion        quat;
+    static Matrix worldCam;
+    static Matrix viewCam;
+    static Quaternion attCam;
+    static Quaternion quat;
 
-    static VarInteger        moveX1;
-    static VarInteger        moveX2;
-    static VarInteger        moveY1;
-    static VarInteger        moveY2;
-    static VarInteger        moveZ1;
-    static VarInteger        moveZ2;
+    static VarInteger moveX1;
+    static VarInteger moveX2;
+    static VarInteger moveY1;
+    static VarInteger moveY2;
+    static VarInteger moveZ1;
+    static VarInteger moveZ2;
 
-    static VarInteger        rotX1;
-    static VarInteger        rotX2;
-    static VarInteger        rotY1;
-    static VarInteger        rotY2;
+    static VarInteger rotX1;
+    static VarInteger rotX2;
+    static VarInteger rotY1;
+    static VarInteger rotY2;
 
-    static VarInteger        doCamLock;
-    static VarInteger        doMouseSelect;
-    static VarInteger        doRotate;
+    static VarInteger doCamLock;
+    static VarInteger doMouseSelect;
+    static VarInteger doRotate;
 
-    static VarInteger        brushMoveX;
-    static VarInteger        brushMoveY;
-    static VarInteger        brushMoveZ;
+    static VarInteger brushMoveX;
+    static VarInteger brushMoveY;
+    static VarInteger brushMoveZ;
 
-    static VarInteger        brushMoveXKey;
-    static VarInteger        brushMoveYKey;
-    static VarInteger        brushMoveZKey;
+    static VarInteger brushMoveXKey;
+    static VarInteger brushMoveYKey;
+    static VarInteger brushMoveZKey;
 
-    static VarInteger        treadActive;
-    static VarFloat          treadSpeed;
+    static VarInteger treadActive;
+    static VarFloat treadSpeed;
 
     // settings
     //
-    static VarInteger        camLight;
-    static VarInteger        lightColor;
-    static VarInteger        lightIntensity;
-    static VarInteger        lightPoint;
-    static VarInteger        lightSpot;
+    static VarInteger camLight;
+    static VarInteger lightColor;
+    static VarInteger lightIntensity;
+    static VarInteger lightPoint;
+    static VarInteger lightSpot;
 
-    static VarInteger        sunLight;
-    static VarInteger        sunIntensity;
+    static VarInteger sunLight;
+    static VarInteger sunIntensity;
 
-    static VarInteger        ambLight;
-    static VarInteger        ambColor;
-    static VarInteger        ambIntensity;
+    static VarInteger ambLight;
+    static VarInteger ambColor;
+    static VarInteger ambIntensity;
 
-    static VarInteger        showGround;
-    static VarInteger        showWater;
-    static VarInteger        showOrigin;
-    static VarInteger        showOffset;
-    static VarInteger        showInterface;
-    static VarInteger        showShadowTex;
+    static VarInteger showGround;
+    static VarInteger showWater;
+    static VarInteger showOrigin;
+    static VarInteger showOffset;
+    static VarInteger showInterface;
+    static VarInteger showShadowTex;
 
-    static VarInteger        showSelected;
-    static VarInteger        selFaces;
-    static VarInteger        selVerts;
+    static VarInteger showSelected;
+    static VarInteger selFaces;
+    static VarInteger selVerts;
 
-    static VarInteger        mrmAbsolute;
-    static VarInteger        mrmDistance;
+    static VarInteger mrmAbsolute;
+    static VarInteger mrmDistance;
 
-    static F32               mrmFactorAbs;
-    static F32               mrmFactorDist;
+    static F32 mrmFactorAbs;
+    static F32 mrmFactorDist;
 
     static Vid::Light::Obj* light = NULL;
     static Vid::Light::Obj* sun = NULL;
-    static Vector			       lightVector;
-    static Bool              lightLock;
+    static Vector lightVector;
+    static Bool lightLock;
 
     // animation
     // 
-    static VarInteger        animActive;
-    static VarFloat          animFrame;
-    static Bool              animFrameLock;
-    static VarInteger        animLoop;
-    static U32               stepTime;
-    static VarInteger        stepHold;
+    static VarInteger animActive;
+    static VarFloat animFrame;
+    static Bool animFrameLock;
+    static VarInteger animLoop;
+    static U32 stepTime;
+    static VarInteger stepHold;
 
     // aim
     //
-    static VarInteger        aimX;
-    static VarInteger        aimY;
-    static VarInteger        aimZ;
-    static VarInteger        aimMix;
+    static VarInteger aimX;
+    static VarInteger aimY;
+    static VarInteger aimZ;
+    static VarInteger aimMix;
 
-    static VarFloat          aimFactor;
+    static VarFloat aimFactor;
 
     // load data
     //
-    static VarString         appMessage;
+    static VarString appMessage;
 
-    static NameString        defMeshName;
-    static VarString         meshName;
-    static VarString         searchPath;
-    static VarString         backName;
-    static VarString         groundName;
-    static VarInteger        doAnimCycles;
-    static VarInteger        loadMulti;
-    static VarInteger        loadAttach;
-    static VarInteger        loadCycle;
-    static VarString         curName;
-    static VarString         attachName;
-    static Bool              loadLock;
+    static NameString defMeshName;
+    static VarString meshName;
+    static VarString searchPath;
+    static VarString backName;
+    static VarString groundName;
+    static VarInteger doAnimCycles;
+    static VarInteger loadMulti;
+    static VarInteger loadAttach;
+    static VarInteger loadCycle;
+    static VarString curName;
+    static VarString attachName;
+    static Bool loadLock;
 
-    static VarFloat          scale;
+    static VarFloat scale;
     static Bitmap* background = NULL;
     static Bitmap* ground = NULL;
 
     static Material* meshmat = NULL;
-    static ColorF32        diffuse;
-    static ColorF32        specular;
-    static F32               specpower;
-    static Bool              doAttach;
+    static ColorF32 diffuse;
+    static ColorF32 specular;
+    static F32 specpower;
+    static Bool doAttach;
 
-    static VarFloat          moveRate;
+    static VarFloat moveRate;
 
-    static U32               groundColor;
-    static U32               stickColor;
-    static U32               boundsColor;
+    static U32 groundColor;
+    static U32 stickColor;
+    static U32 boundsColor;
 
-    static U32               originColor0;
-    static U32               originColor1;
-    static U32               originColor2;
+    static U32 originColor0;
+    static U32 originColor1;
+    static U32 originColor2;
 
-    static F32               quatAngle;
-    static Vector            quatAxis;
+    static F32 quatAngle;
+    static Vector quatAxis;
 
-    static Bool              isInit = FALSE;
+    static Bool isInit = FALSE;
     static MeshEnt* selMesh = NULL;
     static MeshObj* childMesh = NULL;
 
-    static F32               worldWidth;
+    static F32 worldWidth;
 
     static char lastOpenPath[MAX_PATH] = "";  // Last directory from GetOpenFilename
     static U32 statCycleID = 0;
@@ -563,25 +569,22 @@ namespace MeshView
         lastHeapVerts = Vid::renderState.maxVerts;
         lastHeapIdx = Vid::renderState.maxIndices;
 
-        //char* string = FileSys::GetSub("@vertmax");
-        //U32 maxverts = atol(string);
-        //string = FileSys::GetSub("@trimax");
-        //U32 maxtris = atol(string);
-
-        U32 maxverts = 1400;
-        U32 maxtris = 1400;
+        char* string = FileSys::GetSub("@vertmax");
+        U32 maxverts = atol(string);
+        string = FileSys::GetSub("@trimax");
+        U32 maxtris = atol(string);
 
         Vid::Heap::Init(maxverts, maxtris * 3);
 
-        //string = FileSys::GetSub("@vertmaxcheck");
-        //Vid::Var::checkMaxVerts = atol(string);
-        //string = FileSys::GetSub("@trimaxcheck");
-        //Vid::Var::checkMaxTris = atol(string);
+        string = FileSys::GetSub("@vertmaxcheck");
+        Vid::Var::checkMaxVerts = atol(string);
+        string = FileSys::GetSub("@trimaxcheck");
+        Vid::Var::checkMaxTris = atol(string);
 
-        //Main::Exec("meshview.cfg");
+        Main::Exec("meshview.cfg");
 
-        searchPath = ".";//FileSys::GetSub("@meshviewpath");
-        meshName = "engine_pandemic.god";// FileSys::GetSub("@meshviewmodel");
+        searchPath = FileSys::GetSub("@meshviewpath");
+        meshName = FileSys::GetSub("@meshviewmodel");
 
         BuffString buff;
         buff = *searchPath;
@@ -616,6 +619,7 @@ namespace MeshView
         lastShadowType = Vid::renderState.status.shadowType;
         Vid::renderState.status.shadowType = MeshRoot::shadowLIVE;
     }
+
     //----------------------------------------------------------------------------
 
     void Done()
@@ -665,6 +669,7 @@ namespace MeshView
         Vid::Heap::Init(lastHeapVerts, lastHeapIdx);
         Vid::Var::alphaNearActive = lastAlphaNear;
     }
+
     //----------------------------------------------------------------------------
     static Bool messageLock = FALSE;
 
@@ -691,6 +696,7 @@ namespace MeshView
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     void SetMessage(const char* mess0, const char* mess1, const char* mess2) // = NULL, = NULL)
@@ -704,6 +710,7 @@ namespace MeshView
             messageLock = FALSE;
         }
     }
+
     //----------------------------------------------------------------------------
 
     void SetCurrName()
@@ -712,15 +719,19 @@ namespace MeshView
 
         if (childMesh)
         {
-            SetMessageInternal(selMesh->Root().fileName.str,
+            SetMessageInternal
+            (
+                selMesh->Root().fileName.str,
                 ":  ",
-                childMesh->GetName());
+                childMesh->GetName()
+            );
         }
         else
         {
             SetMessageInternal(selMesh->Root().fileName.str);
         }
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetCurrent(MeshEnt* ent, MeshObj* child = NULL, Bool force = FALSE)
@@ -768,21 +779,21 @@ namespace MeshView
             }
 
 #if 0
-            IControl* aimbrush = IFace::FindByName("AimBrush");
-            droplist = NULL;
-            ICListBox* alistbox = NULL;
-            if (aimbrush)
-            {
-                droplist = (ICDropList*)aimbrush->Find(Crc::CalcStr("AttachName"));
-            }
-            if (droplist)
-            {
-                alistbox = droplist->GetListBox();
-            }
-            if (alistbox)
-            {
-                alistbox->DeleteAllItems();
-            }
+      IControl * aimbrush = IFace::FindByName( "AimBrush");
+      droplist = NULL;
+      ICListBox * alistbox = NULL;
+      if (aimbrush)
+      {
+        droplist = (ICDropList *) aimbrush->Find( Crc::CalcStr("AttachName"));
+      }
+      if (droplist)
+      {
+        alistbox = droplist->GetListBox();
+      }
+      if (alistbox)
+      {
+        alistbox->DeleteAllItems();
+      }
 #endif
 
             BuffString names[MAXMESHPERGROUP];
@@ -796,10 +807,10 @@ namespace MeshView
                     flistbox->AddTextItem(names[i].str, NULL);
                 }
 #if 0
-                if (alistbox)
-                {
-                    alistbox->AddTextItem(names[i].str, NULL);
-                }
+        if (alistbox)
+        {
+          alistbox->AddTextItem(names[i].str, NULL);
+        }
 #endif
 
                 /*
@@ -849,6 +860,7 @@ namespace MeshView
         }
         return FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     void SetBrush(Brush* brush = NULL)
@@ -864,6 +876,7 @@ namespace MeshView
             curBrush->Setup(TRUE);
         }
     }
+
     //----------------------------------------------------------------------------
 
     static Bool doGodFiles = FALSE;
@@ -885,1108 +898,1116 @@ namespace MeshView
 
         switch (pathCrc)
         {
-        default:
-            curBrush->CmdHandler(pathCrc);
-            break;
+            default:
+                curBrush->CmdHandler(pathCrc);
+                break;
 
-        case 0x7DA4790D: // "app.show.water"
-        {
-            if (Terrain::mapInit)
+            case 0x7DA4790D: // "app.show.water"
             {
-                U32 i, j;
-                for (i = 0; i < Terrain::ClusterHeight(); i++)
+                if (Terrain::mapInit)
                 {
-                    for (j = 0; j < Terrain::ClusterWidth(); j++)
+                    U32 i, j;
+                    for (i = 0; i < Terrain::ClusterHeight(); i++)
                     {
-                        Cluster& clus = Terrain::GetCluster(i, j);
-                        clus.status.water = *showWater;
-                        clus.waterHeight = 0.0f;
+                        for (j = 0; j < Terrain::ClusterWidth(); j++)
+                        {
+                            Cluster& clus = Terrain::GetCluster(i, j);
+                            clus.status.water = *showWater;
+                            clus.waterHeight = 0.0f;
+                        }
+                    }
+
+                    for (i = 0; i < Terrain::CellMax(); i++)
+                    {
+                        Terrain::SetCellHeight(i, *showWater ? -1.0f : 0.0f);
+                    }
+                    Terrain::Recalc();
+                }
+                break;
+            }
+
+            case 0x26F00408: // "aim.x"
+                if (*aimMix)
+                {
+                    break;
+                }
+
+                lockout = TRUE;
+                if (*aimX)
+                {
+                    aimY = FALSE;
+                    aimZ = FALSE;
+                }
+                else
+                {
+                    aimY = TRUE;
+                    aimZ = FALSE;
+                }
+                lockout = FALSE;
+                break;
+            case 0x223119BF: // "aim.y"
+                if (*aimMix)
+                {
+                    break;
+                }
+
+                lockout = TRUE;
+                if (*aimY)
+                {
+                    aimX = FALSE;
+                    aimZ = FALSE;
+                }
+                else
+                {
+                    aimX = TRUE;
+                    aimZ = FALSE;
+                }
+                lockout = FALSE;
+                break;
+            case 0x2F723F66: // "aim.z"
+                if (*aimMix)
+                {
+                    break;
+                }
+
+                lockout = TRUE;
+                if (*aimZ)
+                {
+                    aimY = FALSE;
+                    aimX = FALSE;
+                }
+                else
+                {
+                    aimY = TRUE;
+                    aimX = FALSE;
+                }
+                lockout = FALSE;
+                break;
+
+            case 0xE4793DCD: // "app.quit"
+                Console::ProcessCmd("sys.runcode quit");
+                break;
+
+            case 0x006C9DC3: // "app.meshName"
+                Load();
+                break;
+            case 0x01966885: // "app.dialog"
+                LoadListBox();
+                break;
+
+            case 0xD794D6FB: // "app.delete"
+                if (selMesh->Parent())
+                {
+                    MeshEnt* ent = Mesh::Manager::curParent;
+                    delete selMesh;
+                    SetCurrent(ent);
+                }
+                break;
+            case 0x6C31720B: // "app.saved"
+                SetCurrent(Mesh::Manager::curEnt, NULL, TRUE);
+                break;
+
+            case 0x48FF65CA: // "app.attach.light"
+            {
+                const char* p = *attachName;
+                while (*p == ' ')
+                {
+                    p++;
+                }
+
+                FamilyNode* node = (FamilyNode*)selMesh->Find(p);
+                if (!node)
+                {
+                    break;
+                }
+                Vid::Light::Obj* light = new Vid::Light::Obj("spot", Vid::Light::lightSPOT);
+                selMesh->AttachAt(*node, *light);
+                break;
+            }
+
+            case 0x84277DEC: // "app.list.delete"
+            {
+                ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
+                if (listBox)
+                {
+                    S32 sel = listBox->GetSelectedIndex();
+                    if (sel > 0)
+                    {
+                        char na[256];
+                        Utils::Unicode2Ansi(na, 256, listBox->GetSelectedItem()->GetTextString());
+
+                        // Open a file using its file name
+                        FileSys::DataFile* file = FileSys::Open(na);
+
+                        if (file)
+                        {
+                            char buff1[MAX_BUFFLEN + 1];
+                            Utils::MakePath(buff1, MAX_BUFFLEN, file->Path(), na, NULL);
+
+                            _unlink(buff1);
+                        }
                     }
                 }
+                break;
+            }
+            case 0x76A5D2B8: // "app.list.scale"
+                Vid::Var::scaleFactor = *scale;
+                break;
+            case 0xFEF01D15: // "app.list.path"
+            {
+                FilePath absolute;
+                Dir::PathAbsolute(absolute, *searchPath);
 
-                for (i = 0; i < Terrain::CellMax(); i++)
+                FileSys::DeleteStream("search");
+                FileSys::AddSrcDirRecurse("search", absolute.str);
+                // fall through
+            }
+            case 0x4ED39ECF: // "app.list.fill"
+
+                SetMessage("Filling file list from ", *searchPath, "...");
+
+                if (doGodFiles == 2)
                 {
-                    Terrain::SetCellHeight(i, *showWater ? -1.0f : 0.0f);
-                }
-                Terrain::Recalc();
-            }
-            break;
-        }
-
-        case 0x26F00408: // "aim.x"
-            if (*aimMix)
-            {
-                break;
-            }
-
-            lockout = TRUE;
-            if (*aimX)
-            {
-                aimY = FALSE;
-                aimZ = FALSE;
-            }
-            else
-            {
-                aimY = TRUE;
-                aimZ = FALSE;
-            }
-            lockout = FALSE;
-            break;
-        case 0x223119BF: // "aim.y"
-            if (*aimMix)
-            {
-                break;
-            }
-
-            lockout = TRUE;
-            if (*aimY)
-            {
-                aimX = FALSE;
-                aimZ = FALSE;
-            }
-            else
-            {
-                aimX = TRUE;
-                aimZ = FALSE;
-            }
-            lockout = FALSE;
-            break;
-        case 0x2F723F66: // "aim.z"
-            if (*aimMix)
-            {
-                break;
-            }
-
-            lockout = TRUE;
-            if (*aimZ)
-            {
-                aimY = FALSE;
-                aimX = FALSE;
-            }
-            else
-            {
-                aimY = TRUE;
-                aimX = FALSE;
-            }
-            lockout = FALSE;
-            break;
-
-        case 0xE4793DCD: // "app.quit"
-            Console::ProcessCmd("sys.runcode quit");
-            break;
-
-        case 0x006C9DC3: // "app.meshName"
-            Load();
-            break;
-        case 0x01966885: // "app.dialog"
-            LoadListBox();
-            break;
-
-        case 0xD794D6FB: // "app.delete"
-            if (selMesh->Parent())
-            {
-                MeshEnt* ent = Mesh::Manager::curParent;
-                delete selMesh;
-                SetCurrent(ent);
-            }
-            break;
-        case 0x6C31720B: // "app.saved"
-            SetCurrent(Mesh::Manager::curEnt, NULL, TRUE);
-            break;
-
-        case 0x48FF65CA: // "app.attach.light"
-        {
-            const char* p = *attachName;
-            while (*p == ' ')
-            {
-                p++;
-            }
-
-            FamilyNode* node = (FamilyNode*)selMesh->Find(p);
-            if (!node)
-            {
-                break;
-            }
-            Vid::Light::Obj* light = new Vid::Light::Obj("spot", Vid::Light::lightSPOT);
-            selMesh->AttachAt(*node, *light);
-            break;
-        }
-
-        case 0x84277DEC: // "app.list.delete"
-        {
-            ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
-            if (listBox)
-            {
-                S32 sel = listBox->GetSelectedIndex();
-                if (sel > 0)
-                {
-                    char na[256];
-                    Utils::Unicode2Ansi(na, 256, listBox->GetSelectedItem()->GetTextString());
-
-                    // Open a file using its file name
-                    FileSys::DataFile* file = FileSys::Open(na);
-
-                    if (file)
+                    ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
+                    if (listBox)
                     {
-                        char buff1[MAX_BUFFLEN + 1];
-                        Utils::MakePath(buff1, MAX_BUFFLEN, file->Path(), na, NULL);
-
-                        _unlink(buff1);
+                        listBox->FillFromPath(*searchPath, "*.gfg", TRUE, TRUE);
+                        listBox->Sort();
                     }
                 }
-            }
-            break;
-        }
-        case 0x76A5D2B8: // "app.list.scale"
-            Vid::Var::scaleFactor = *scale;
-            break;
-        case 0xFEF01D15: // "app.list.path"
-        {
-            FilePath absolute;
-            Dir::PathAbsolute(absolute, *searchPath);
-
-            FileSys::DeleteStream("search");
-            FileSys::AddSrcDirRecurse("search", absolute.str);
-            // fall through
-        }
-        case 0x4ED39ECF: // "app.list.fill"
-
-            SetMessage("Filling file list from ", *searchPath, "...");
-
-            if (doGodFiles == 2)
-            {
-                ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
-                if (listBox)
+                else if (doGodFiles == 1)
                 {
-                    listBox->FillFromPath(*searchPath, "*.gfg", TRUE, TRUE);
-                    listBox->Sort();
+                    ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
+                    if (listBox)
+                    {
+                        listBox->FillFromPath(*searchPath, "*.god", TRUE, TRUE);
+                        listBox->Sort();
+                    }
                 }
-            }
-            else if (doGodFiles == 1)
-            {
-                ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
-                if (listBox)
+                else
                 {
-                    listBox->FillFromPath(*searchPath, "*.god", TRUE, TRUE);
-                    listBox->Sort();
+                    ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
+                    if (listBox)
+                    {
+                        listBox->FillFromPath(*searchPath, "*.xsi", TRUE, TRUE);
+                        listBox->FillFromPath(*searchPath, "*.x", FALSE, TRUE);
+                        listBox->Sort();
+                    }
                 }
-            }
-            else
-            {
-                ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
-                if (listBox)
-                {
-                    listBox->FillFromPath(*searchPath, "*.xsi", TRUE, TRUE);
-                    listBox->FillFromPath(*searchPath, "*.x", FALSE, TRUE);
-                    listBox->Sort();
-                }
-            }
-            break;
-        case 0x7AE0618C: // "app.list.xsi"
-            doGodFiles = 0;
-            Console::ProcessCmd("app.list.fill");
-            break;
-        case 0x8254F56A: // "app.list.god"
-            doGodFiles = 1;
-            Console::ProcessCmd("app.list.fill");
-            break;
-        case 0xD746513D: // "app.list.gfg"
-            doGodFiles = 2;
-            Console::ProcessCmd("app.list.fill");
-            {
-                IControl* button = IFace::FindByName("ListBoxFile.Rebuild");
-                if (button)
-                {
-                    button->SetEnabled(doGodFiles == 2 ? TRUE : FALSE);
-                }
-            }
-            break;
-        case 0x81F25C93: // "app.list.next"
-            doGodFiles++;
-            if (doGodFiles > 2)
-            {
+                break;
+            case 0x7AE0618C: // "app.list.xsi"
                 doGodFiles = 0;
-            }
-            Console::ProcessCmd("app.list.fill");
-
-            {
-                IControl* button = IFace::FindByName("ListBoxFile.Rebuild");
-                if (button)
+                Console::ProcessCmd("app.list.fill");
+                break;
+            case 0x8254F56A: // "app.list.god"
+                doGodFiles = 1;
+                Console::ProcessCmd("app.list.fill");
+                break;
+            case 0xD746513D: // "app.list.gfg"
+                doGodFiles = 2;
+                Console::ProcessCmd("app.list.fill");
                 {
-                    button->SetEnabled(doGodFiles == 2 ? TRUE : FALSE);
+                    IControl* button = IFace::FindByName("ListBoxFile.Rebuild");
+                    if (button)
+                    {
+                        button->SetEnabled(doGodFiles == 2 ? TRUE : FALSE);
+                    }
+                }
+                break;
+            case 0x81F25C93: // "app.list.next"
+                doGodFiles++;
+                if (doGodFiles > 2)
+                {
+                    doGodFiles = 0;
+                }
+                Console::ProcessCmd("app.list.fill");
+
+                {
+                    IControl* button = IFace::FindByName("ListBoxFile.Rebuild");
+                    if (button)
+                    {
+                        button->SetEnabled(doGodFiles == 2 ? TRUE : FALSE);
+                    }
+                }
+                break;
+
+            case 0x5BD4464E: // "app.list.rebuild"
+            {
+                ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
+                if (listBox)
+                {
+                    // Get the list of children
+                    const NList<IControl>& children = listBox->GetChildren();
+                    NList<IControl>::Iterator i(&children);
+                    for (!i; *i; i++)
+                    {
+                        char na[256];
+                        Utils::Unicode2Ansi(na, 256, (*i)->GetTextString());
+                        meshName = na;
+
+                        Console::ProcessCmd("god.save");
+                    }
                 }
             }
             break;
 
-        case 0x5BD4464E: // "app.list.rebuild"
-        {
-            ICListBox* listBox = ICListBox::FindListBox("|ListBoxFile.FileList");
-            if (listBox)
-            {
-                // Get the list of children
-                const NList<IControl>& children = listBox->GetChildren();
-                NList<IControl>::Iterator i(&children);
-                for (!i; *i; i++)
+            case 0x96E1E7D2: // "app.list.multi"
+                if (!loadLock)
                 {
-                    char na[256];
-                    Utils::Unicode2Ansi(na, 256, (*i)->GetTextString());
-                    meshName = na;
+                    loadLock = TRUE;
 
-                    Console::ProcessCmd("god.save");
+                    loadAttach = FALSE;
+                    loadCycle = FALSE;
+
+                    loadLock = FALSE;
                 }
-            }
-        }
-        break;
-
-        case 0x96E1E7D2: // "app.list.multi"
-            if (!loadLock)
-            {
-                loadLock = TRUE;
-
-                loadAttach = FALSE;
-                loadCycle = FALSE;
-
-                loadLock = FALSE;
-            }
-            break;
-        case 0x26BF48FA: // "app.list.attach"
-            if (!loadLock)
-            {
-                loadLock = TRUE;
-
-                loadMulti = FALSE;
-                loadCycle = FALSE;
-
-                loadLock = FALSE;
-            }
-            break;
-        case 0x442218CA: // "app.list.cycle"
-            if (!loadLock)
-            {
-                loadLock = TRUE;
-
-                loadAttach = FALSE;
-                loadMulti = FALSE;
-
-                loadLock = FALSE;
-            }
-            break;
-        case 0x372F5FB1: // "app.list.attachname"
-        {
-            const char* p = *attachName;
-            while (*p == ' ')
-            {
-                p++;
-            }
-            const MeshObj* node = selMesh->FindMeshObj(Crc::CalcStr(p));
-            if (node)
-            {
-                childMesh = (MeshObj*)node;
-            }
-            break;
-        }
-        case 0x12A098E5: // "app.move.x1"
-            moveCam.x = *moveRate;
-            if (Input::KeyState(Input::CTRLDOWN))
-            {
-                moveCam *= FASTFACTOR;
-            }
-            else if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                moveCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0x1FE3BE3C: // "app.move.x2"
-            moveCam.x = -*moveRate;
-            if (Input::KeyState(Input::CTRLDOWN))
-            {
-                moveCam *= FASTFACTOR;
-            }
-            else if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                moveCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0xC0B95939: // "app.move.y1"
-            moveCam.y = *moveRate;
-            if (Input::KeyState(Input::CTRLDOWN))
-            {
-                moveCam *= FASTFACTOR;
-            }
-            else if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                moveCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0xCDFA7FE0: // "app.move.y2"
-            moveCam.y = -*moveRate;
-            if (Input::KeyState(Input::CTRLDOWN))
-            {
-                moveCam *= FASTFACTOR;
-            }
-            else if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                moveCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0xB25206EA: // "app.move.z1"
-            moveCam.z = *moveRate;
-            if (Input::KeyState(Input::CTRLDOWN))
-            {
-                moveCam *= FASTFACTOR;
-            }
-            else if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                moveCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0xBF112033: // "app.move.z2"
-            moveCam.z = -*moveRate;
-            if (Input::KeyState(Input::CTRLDOWN))
-            {
-                moveCam *= FASTFACTOR;
-            }
-            else if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                moveCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0x38504138: // "app.rot.x1"
-            rotateCam.x = CAMROTATERATE;
-            if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                rotateCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0x351367E1: // "app.rot.x2"
-            rotateCam.x = -CAMROTATERATE;
-            if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                rotateCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0xEA4980E4: // "app.rot.y1"
-            rotateCam.y = CAMROTATERATE;
-            if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                rotateCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0xE70AA63D: // "app.rot.y2"
-            rotateCam.y = -CAMROTATERATE;
-            if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                rotateCam *= NUDGEFACTOR;
-            }
-            break;
-        case 0x6DBA0F78: // "app.view.reset"
-        {
-            doRotate = FALSE;
-
-            quatAngle = PI * 0.25f;
-            quatAxis = Matrix::I.Front();
-            quat.Set(quatAngle, quatAxis);
-
-            moveCam.Zero();
-            rotateCam.Zero();
-            rotateObj.Zero();
-            rotateObj.y = PI * 0.5f;
-
-            camOffset.Zero();
-            camRotate.Zero();
-            camRotate.x = MINCAMROTX;
-            camRotate.y = PI;
-
-            F32 width = 0.0f, maxrad = 0.0f;
-            Bool hit = FALSE;
-            NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
-            while (MeshEnt* ent = li++)
-            {
-                if (ent->Parent())
+                break;
+            case 0x26BF48FA: // "app.list.attach"
+                if (!loadLock)
                 {
-                    continue;
-                }
-                ent->SetFrame();
+                    loadLock = TRUE;
 
-                if (ent->ObjectBounds().Radius() > maxrad)
-                {
-                    maxrad = ent->ObjectBounds().Radius();
-                }
-                width += ent->ObjectBounds().Radius() * 2.0f;
-                if (hit)
-                {
-                    width += 0.5f;
-                }
-                else
-                {
-                    hit = TRUE;
-                }
-            }
-            width *= -0.5f;
+                    loadMulti = FALSE;
+                    loadCycle = FALSE;
 
-            hit = FALSE;
-            !li;  while (MeshEnt* ent = li++)
+                    loadLock = FALSE;
+                }
+                break;
+            case 0x442218CA: // "app.list.cycle"
+                if (!loadLock)
+                {
+                    loadLock = TRUE;
+
+                    loadAttach = FALSE;
+                    loadMulti = FALSE;
+
+                    loadLock = FALSE;
+                }
+                break;
+            case 0x372F5FB1: // "app.list.attachname"
             {
-                if (ent->Parent())
+                const char* p = *attachName;
+                while (*p == ' ')
                 {
-                    continue;
+                    p++;
                 }
-
-                width += ent->ObjectBounds().Radius();
-
-                Vector v(Vector(width, 0, 0));
-                Quaternion q(0, Matrix::I.up);
-                ent->SetSimCurrent(q, v);
-
-                width += ent->ObjectBounds().Radius();
-
-                if (hit)
+                const MeshObj* node = selMesh->FindMeshObj(Crc::CalcStr(p));
+                if (node)
                 {
-                    width += 0.5f;
+                    childMesh = (MeshObj*)node;
                 }
-                else
-                {
-                    hit = TRUE;
-                }
+                break;
             }
-            worldWidth = width;
-
-            camVector.x = 0.0f;
-            camVector.y = 0.0f;
-            camVector.z = -(maxrad * RADMULT + Vid::Math::nearPlane);
-
-            camOffset.y = maxrad * 0.6666f;
-
-            attCam.ClearData();
-            Quaternion q(-camRotate.x, Matrix::I.Right());
-            attCam = q;
-            q.Set(camRotate.y, Matrix::I.Up());
-            attCam *= q;
-            worldCam.Set(attCam);
-            Vid::CurCamera().SetWorld(attCam, camVector);
-
-            F32 rad = selMesh->ObjectBounds().Radius();
-            lightVector.Set(rad * 2, 0, -rad / 4.0f);
-            Vector lv;
-            Vid::CurCamera().WorldMatrix().Transform(lv, lightVector);
-            light->SetWorld(lv);
-            light->SetRange(maxrad * 10.0f);
-
-            MeshRoot* root = Mesh::Manager::FindLoad("engine_pandemic.god");
-            if (Mesh::Manager::entList.GetCount() == 1 && root == &selMesh->Root())
-            {
-                doRotate = TRUE;
-                camLight = TRUE;
-                //          showWater = TRUE;
-            }
-            else
+            case 0x12A098E5: // "app.move.x1"
+                moveCam.x = *moveRate;
+                if (Input::KeyState(Input::CTRLDOWN))
+                {
+                    moveCam *= FASTFACTOR;
+                }
+                else if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    moveCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0x1FE3BE3C: // "app.move.x2"
+                moveCam.x = -*moveRate;
+                if (Input::KeyState(Input::CTRLDOWN))
+                {
+                    moveCam *= FASTFACTOR;
+                }
+                else if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    moveCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0xC0B95939: // "app.move.y1"
+                moveCam.y = *moveRate;
+                if (Input::KeyState(Input::CTRLDOWN))
+                {
+                    moveCam *= FASTFACTOR;
+                }
+                else if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    moveCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0xCDFA7FE0: // "app.move.y2"
+                moveCam.y = -*moveRate;
+                if (Input::KeyState(Input::CTRLDOWN))
+                {
+                    moveCam *= FASTFACTOR;
+                }
+                else if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    moveCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0xB25206EA: // "app.move.z1"
+                moveCam.z = *moveRate;
+                if (Input::KeyState(Input::CTRLDOWN))
+                {
+                    moveCam *= FASTFACTOR;
+                }
+                else if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    moveCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0xBF112033: // "app.move.z2"
+                moveCam.z = -*moveRate;
+                if (Input::KeyState(Input::CTRLDOWN))
+                {
+                    moveCam *= FASTFACTOR;
+                }
+                else if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    moveCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0x38504138: // "app.rot.x1"
+                rotateCam.x = CAMROTATERATE;
+                if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    rotateCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0x351367E1: // "app.rot.x2"
+                rotateCam.x = -CAMROTATERATE;
+                if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    rotateCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0xEA4980E4: // "app.rot.y1"
+                rotateCam.y = CAMROTATERATE;
+                if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    rotateCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0xE70AA63D: // "app.rot.y2"
+                rotateCam.y = -CAMROTATERATE;
+                if (Input::KeyState(Input::SHIFTDOWN))
+                {
+                    rotateCam *= NUDGEFACTOR;
+                }
+                break;
+            case 0x6DBA0F78: // "app.view.reset"
             {
                 doRotate = FALSE;
-                camLight = FALSE;
-                showWater = FALSE;
-            }
-            /*
-                    F32 farp = Max<F32>( 100.0f, worldWidth * 4);
-                    Vid::SetFarPlane( farp);
-                    Vid::SetFogDepth( farp / 4);
-            */
-        }
-        break;
-        case 0x0B5566DB: // "app.view.x"
-            if (doCamLock)
-            {
+
+                quatAngle = PI * 0.25f;
+                quatAxis = Matrix::I.Front();
+                quat.Set(quatAngle, quatAxis);
+
+                moveCam.Zero();
+                rotateCam.Zero();
                 rotateObj.Zero();
-                Quaternion q(0.5f * PI, Matrix::I.up);
-                selMesh->SetSimCurrent(q);
-            }
-            else
-            {
-                attCam.Set(PIBY2, Matrix::I.Up());
-                worldCam.Set(attCam);
-                Vector pos = Matrix::I.Front();
-                pos *= (-Mesh::Manager::curParent->ObjectBounds().Radius() * RADMULT);
-                worldCam.Rotate(worldCam.Position(), pos);
-                worldCam.Position() += Mesh::Manager::curParent->Origin();
-            }
-            break;
+                rotateObj.y = PI * 0.5f;
 
-        case 0x0F947B6C: // "app.view.y"
-            if (doCamLock)
-            {
-                rotateObj.Zero();
-            }
-            else
-            {
-                attCam.Set(-PIBY2, Matrix::I.Right());
-                worldCam.Set(attCam);
-                Vector pos = Matrix::I.Front();
-                pos *= (-Mesh::Manager::curParent->ObjectBounds().Radius() * RADMULT);
-                worldCam.Rotate(worldCam.Position(), pos);
-                worldCam.Position() += Mesh::Manager::curParent->Origin();
-            }
-            break;
-        case 0x02D75DB5: // "app.view.z" 
-            if (doCamLock)
-            {
-                rotateObj.Zero();
-            }
-            else
-            {
-                attCam.Zero();
-                worldCam.Set(attCam);
-                Vector pos = Matrix::I.Front();
-                pos *= (-Mesh::Manager::curParent->ObjectBounds().Radius() * RADMULT);
-                worldCam.Rotate(worldCam.Position(), pos);
-                worldCam.Position() += Mesh::Manager::curParent->Origin();
-            }
-            break;
-        case 0xB1AC1E26: // "app.view.cam"
-            doCamLock = !*doCamLock;
-            break;
+                camOffset.Zero();
+                camRotate.Zero();
+                camRotate.x = MINCAMROTX;
+                camRotate.y = PI;
 
-        case 0xE14AFC75: // "app.rotate"
-            doRotate = !doRotate;
-            break;
-
-        case 0xE6C39FFF: // "app.control.reset"
-            break;
-        case 0x8D6D7E99: // "app.control.toggle"
-        {
-            IControl* ctrl = IFace::FindByName("AnimControl");
-            Bool active = FALSE;
-            if (ctrl)
-            {
-                if (ctrl->IsActive())
+                F32 width = 0.0f, maxrad = 0.0f;
+                Bool hit = FALSE;
+                NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
+                while (MeshEnt* ent = li++)
                 {
-                    IFace::Deactivate(ctrl);
-                }
-                else
-                {
-                    IFace::Activate(ctrl);
-                    active = TRUE;
-                }
-            }
-            ctrl = IFace::FindByName("MrmControl");
-
-            if (ctrl)
-            {
-                if (active)
-                {
-                    IFace::Deactivate(ctrl);
-                }
-                else
-                {
-                    IFace::Activate(ctrl);
-                }
-            }
-            break;
-        }
-
-        case 0x79580743: // "app.anim.play"
-        {
-            //      animFrame = 1.0f;
-
-            NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
-            while (MeshEnt* ent = li++)
-            {
-                if (ent->curCycle && !ent->AnimIsActive())
-                {
-                    ent->ActivateAnim();
-                }
-            }
-            break;
-        }
-        case 0xFD1695D5: // "app.anim.active"
-            selMesh->ActivateAnim(*animActive);
-            break;
-        case 0xFA5CB556: // "app.anim.toggle"
-            animActive = !*animActive;
-            break;
-        case 0x3AB56A05: // "app.anim.frame"
-            if (!animFrameLock)
-            {
-                selMesh->SetFrame(*animFrame - 1.0f);
-            }
-            break;
-        case 0xFA2D93BE: // "app.anim.nextcycle"
-            if (selMesh->Root().animCycles.GetCount())
-            {
-                NBinTree<AnimList>::Iterator li(&selMesh->Root().animCycles);
-                for (!li; *li; li++)
-                {
-                    AnimList* animCycle = (*li);
-
-                    if (selMesh->curCycle == animCycle)
+                    if (ent->Parent())
                     {
-                        li++;
-                        break;
+                        continue;
                     }
-                }
-                if (!*li)
-                {
-                    !li;
-                }
-                if (selMesh->curCycle != (*li))
-                {
-                    if (*MeshOptions::animBlend)
+                    ent->SetFrame();
+
+                    if (ent->ObjectBounds().Radius() > maxrad)
                     {
-                        selMesh->BlendAnimCycle((*li)->name.str, Vid::renderState.animBlendTime);
+                        maxrad = ent->ObjectBounds().Radius();
+                    }
+                    width += ent->ObjectBounds().Radius() * 2.0f;
+                    if (hit)
+                    {
+                        width += 0.5f;
                     }
                     else
                     {
-                        selMesh->SetAnimCycle((*li)->name.str);
+                        hit = TRUE;
                     }
-                    selMesh->fps = *MeshOptions::animFactor * selMesh->curCycle->animSpeed;
-                    SetCurrent(selMesh);
-
-                    LOG_DIAG(("Animation Cycle = %s", (*li)->name.str));
                 }
-            }
-            break;
+                width *= -0.5f;
 
-        case 0xCE1C4F13: // "app.r"
-        case 0x95C8FF08: // "app.g"
-        case 0x820D9463: // "app.b"
-            Setup();
-            break;
-        case 0x7F194214: // "app.toggle.ground"
-            showGround = !*showGround;
-            break;
-
-        case 0xF9EA605A: // "app.toggle.camlight"
-            camLight = !*camLight;
-            break;
-        case 0xA6A49A26: // "app.toggle.sunlight"
-            sunLight = !*sunLight;
-            break;
-        case 0x2229A155: // "app.toggle.lighttype"
-            lightPoint = !*lightPoint;
-            break;
-        case 0xD51FB08A: // "app.toggle.res"
-        {
-            F32 r = 1.0f;
-            static F32 res = 0.6f;
-            if (!Console::GetArgFloat(1, r))
-            {
-                const MeshRoot& root = selMesh->Root();
-                if (root.vertices.count == selMesh->vertCount)
+                hit = FALSE;
+                !li;
+                while (MeshEnt* ent = li++)
                 {
-                    r = res;
+                    if (ent->Parent())
+                    {
+                        continue;
+                    }
+
+                    width += ent->ObjectBounds().Radius();
+
+                    Vector v(Vector(width, 0, 0));
+                    Quaternion q(0, Matrix::I.up);
+                    ent->SetSimCurrent(q, v);
+
+                    width += ent->ObjectBounds().Radius();
+
+                    if (hit)
+                    {
+                        width += 0.5f;
+                    }
+                    else
+                    {
+                        hit = TRUE;
+                    }
+                }
+                worldWidth = width;
+
+                camVector.x = 0.0f;
+                camVector.y = 0.0f;
+                camVector.z = -(maxrad * RADMULT + Vid::Math::nearPlane);
+
+                camOffset.y = maxrad * 0.6666f;
+
+                attCam.ClearData();
+                Quaternion q(-camRotate.x, Matrix::I.Right());
+                attCam = q;
+                q.Set(camRotate.y, Matrix::I.Up());
+                attCam *= q;
+                worldCam.Set(attCam);
+                Vid::CurCamera().SetWorld(attCam, camVector);
+
+                F32 rad = selMesh->ObjectBounds().Radius();
+                lightVector.Set(rad * 2, 0, -rad / 4.0f);
+                Vector lv;
+                Vid::CurCamera().WorldMatrix().Transform(lv, lightVector);
+                light->SetWorld(lv);
+                light->SetRange(maxrad * 10.0f);
+
+                MeshRoot* root = Mesh::Manager::FindLoad("engine_pandemic.god");
+                if (Mesh::Manager::entList.GetCount() == 1 && root == &selMesh->Root())
+                {
+                    doRotate = TRUE;
+                    camLight = TRUE;
+                    //          showWater = TRUE;
                 }
                 else
                 {
-                    res = (F32)selMesh->vertCount / (F32)selMesh->Root().vertices.count;
-                    r = 1.0f;
+                    doRotate = FALSE;
+                    camLight = FALSE;
+                    showWater = FALSE;
                 }
-                Vid::renderState.mrmFactor1 = (1.0f - r) * 10.0f;
+                /*
+                        F32 farp = Max<F32>( 100.0f, worldWidth * 4);
+                        Vid::SetFarPlane( farp);
+                        Vid::SetFogDepth( farp / 4);
+                */
+            }
+            break;
+            case 0x0B5566DB: // "app.view.x"
+                if (doCamLock)
+                {
+                    rotateObj.Zero();
+                    Quaternion q(0.5f * PI, Matrix::I.up);
+                    selMesh->SetSimCurrent(q);
+                }
+                else
+                {
+                    attCam.Set(PIBY2, Matrix::I.Up());
+                    worldCam.Set(attCam);
+                    Vector pos = Matrix::I.Front();
+                    pos *= (-Mesh::Manager::curParent->ObjectBounds().Radius() * RADMULT);
+                    worldCam.Rotate(worldCam.Position(), pos);
+                    worldCam.Position() += Mesh::Manager::curParent->Origin();
+                }
+                break;
+
+            case 0x0F947B6C: // "app.view.y"
+                if (doCamLock)
+                {
+                    rotateObj.Zero();
+                }
+                else
+                {
+                    attCam.Set(-PIBY2, Matrix::I.Right());
+                    worldCam.Set(attCam);
+                    Vector pos = Matrix::I.Front();
+                    pos *= (-Mesh::Manager::curParent->ObjectBounds().Radius() * RADMULT);
+                    worldCam.Rotate(worldCam.Position(), pos);
+                    worldCam.Position() += Mesh::Manager::curParent->Origin();
+                }
+                break;
+            case 0x02D75DB5: // "app.view.z" 
+                if (doCamLock)
+                {
+                    rotateObj.Zero();
+                }
+                else
+                {
+                    attCam.Zero();
+                    worldCam.Set(attCam);
+                    Vector pos = Matrix::I.Front();
+                    pos *= (-Mesh::Manager::curParent->ObjectBounds().Radius() * RADMULT);
+                    worldCam.Rotate(worldCam.Position(), pos);
+                    worldCam.Position() += Mesh::Manager::curParent->Origin();
+                }
+                break;
+            case 0xB1AC1E26: // "app.view.cam"
+                doCamLock = !*doCamLock;
+                break;
+
+            case 0xE14AFC75: // "app.rotate"
+                doRotate = !doRotate;
+                break;
+
+            case 0xE6C39FFF: // "app.control.reset"
+                break;
+            case 0x8D6D7E99: // "app.control.toggle"
+            {
+                IControl* ctrl = IFace::FindByName("AnimControl");
+                Bool active = FALSE;
+                if (ctrl)
+                {
+                    if (ctrl->IsActive())
+                    {
+                        IFace::Deactivate(ctrl);
+                    }
+                    else
+                    {
+                        IFace::Activate(ctrl);
+                        active = TRUE;
+                    }
+                }
+                ctrl = IFace::FindByName("MrmControl");
+
+                if (ctrl)
+                {
+                    if (active)
+                    {
+                        IFace::Deactivate(ctrl);
+                    }
+                    else
+                    {
+                        IFace::Activate(ctrl);
+                    }
+                }
                 break;
             }
-            if (r <= 1.0)
+
+            case 0x79580743: // "app.anim.play"
             {
-                res = r;
-            }
-            else
-            {
-                res = r / selMesh->Root().vertices.count;
-                if (res < 0.0f)
+                //      animFrame = 1.0f;
+
+                NList<MeshEnt>::Iterator li(&Mesh::Manager::entList);
+                while (MeshEnt* ent = li++)
                 {
-                    res = 0.0f;
+                    if (ent->curCycle && !ent->AnimIsActive())
+                    {
+                        ent->ActivateAnim();
+                    }
                 }
-                else if (res > 1.0f)
-                {
-                    res = 1.0f;
-                }
-            }
-            Vid::renderState.mrmFactor1 = (1.0f - res) * 10.0f;
-            break;
-        }
-
-        case 0xF84E0E50: // "app.light.cam"
-            if (light)
-            {
-                light->SetActive(*camLight);
-            }
-            break;
-        case 0xBDF25A43: // "app.light.sun"
-            if (sun)
-            {
-                sun->SetActive(*sunLight);
-            }
-            break;
-        case 0x1B0934B8: // "app.light.point"
-            if (!lightLock)
-            {
-                lightLock = TRUE;
-                lightSpot = !*lightPoint;
-                lightLock = FALSE;
-
-                if (light)
-                {
-                    light->SetType(*lightPoint ? Vid::Light::lightPOINT : Vid::Light::lightSPOT);
-                }
-            }
-            break;
-        case 0xE84DBC9A: // "app.light.spot"
-            if (!lightLock)
-            {
-                lightLock = TRUE;
-                lightPoint = !*lightSpot;
-                lightLock = FALSE;
-
-                if (light)
-                {
-                    light->SetType(*lightPoint ? Vid::Light::lightPOINT : Vid::Light::lightSPOT);
-                }
-            }
-            break;
-        case 0x8DE900D6: // "app.light.color"
-            if (light)
-            {
-                Color color = *lightColor;
-                light->SetColor(color);
-            }
-            break;
-
-        case 0xF95B919A: // "app.light.ambient"
-        case 0xD5615797: // "app.light.ambcolor"
-            if (*ambLight)
-            {
-                Color color = *ambColor;
-                F32 r = (F32)color.r / 255.0f;
-                F32 g = (F32)color.g / 255.0f;
-                F32 b = (F32)color.b / 255.0f;
-                Vid::SetAmbientColor(r, g, b);
-            }
-            else
-            {
-                Vid::SetAmbientColor(0.0f, 0.0f, 0.0f);
-            }
-            break;
-
-        case 0x63A6A13B: // "app.diffuse"
-        {
-            F32 r = 1.0f, g, b, a = 1.0f;
-            if (!Console::GetArgFloat(1, r))
-            {
-                CON_DIAG(("diffuse = %f %f %f %f",
-                    diffuse.r, diffuse.g, diffuse.b, diffuse.a));
                 break;
             }
-            if (!Console::GetArgFloat(2, g))
-            {
-                g = r;
-            }
-            if (!Console::GetArgFloat(3, b))
-            {
-                b = r;
-            }
-            Console::GetArgFloat(4, a);
+            case 0xFD1695D5: // "app.anim.active"
+                selMesh->ActivateAnim(*animActive);
+                break;
+            case 0xFA5CB556: // "app.anim.toggle"
+                animActive = !*animActive;
+                break;
+            case 0x3AB56A05: // "app.anim.frame"
+                if (!animFrameLock)
+                {
+                    selMesh->SetFrame(*animFrame - 1.0f);
+                }
+                break;
+            case 0xFA2D93BE: // "app.anim.nextcycle"
+                if (selMesh->Root().animCycles.GetCount())
+                {
+                    NBinTree<AnimList>::Iterator li(&selMesh->Root().animCycles);
+                    for (!li; *li; li++)
+                    {
+                        AnimList* animCycle = (*li);
 
-            diffuse.r = r;
-            diffuse.g = g;
-            diffuse.b = b;
-            diffuse.a = a;
+                        if (selMesh->curCycle == animCycle)
+                        {
+                            li++;
+                            break;
+                        }
+                    }
+                    if (!*li)
+                    {
+                        !li;
+                    }
+                    if (selMesh->curCycle != (*li))
+                    {
+                        if (*MeshOptions::animBlend)
+                        {
+                            selMesh->BlendAnimCycle((*li)->name.str, Vid::renderState.animBlendTime);
+                        }
+                        else
+                        {
+                            selMesh->SetAnimCycle((*li)->name.str);
+                        }
+                        selMesh->fps = *MeshOptions::animFactor * selMesh->curCycle->animSpeed;
+                        SetCurrent(selMesh);
 
-            if (meshmat)
+                        LOG_DIAG(("Animation Cycle = %s", (*li)->name.str));
+                    }
+                }
+                break;
+
+            case 0xCE1C4F13: // "app.r"
+            case 0x95C8FF08: // "app.g"
+            case 0x820D9463: // "app.b"
+                Setup();
+                break;
+            case 0x7F194214: // "app.toggle.ground"
+                showGround = !*showGround;
+                break;
+
+            case 0xF9EA605A: // "app.toggle.camlight"
+                camLight = !*camLight;
+                break;
+            case 0xA6A49A26: // "app.toggle.sunlight"
+                sunLight = !*sunLight;
+                break;
+            case 0x2229A155: // "app.toggle.lighttype"
+                lightPoint = !*lightPoint;
+                break;
+            case 0xD51FB08A: // "app.toggle.res"
             {
-                meshmat->SetDiffuse(r, g, b, a);
-            }
-            break;
-        }
-        case 0xB907CC4F: // "app.specular"
-        {
-            F32 r = 1.0f, g, b, a = 1.0f, p = 50.0f;
-            if (!Console::GetArgFloat(1, r))
-            {
-                CON_DIAG(("specular = %f %f %f %f %f",
-                    specular.r, specular.g, specular.b, specular.a, specpower))
+                F32 r = 1.0f;
+                static F32 res = 0.6f;
+                if (!Console::GetArgFloat(1, r))
+                {
+                    const MeshRoot& root = selMesh->Root();
+                    if (root.vertices.count == selMesh->vertCount)
+                    {
+                        r = res;
+                    }
+                    else
+                    {
+                        res = (F32)selMesh->vertCount / (F32)selMesh->Root().vertices.count;
+                        r = 1.0f;
+                    }
+                    Vid::renderState.mrmFactor1 = (1.0f - r) * 10.0f;
                     break;
-            }
-            if (!Console::GetArgFloat(2, g))
-            {
-                g = r;
-            }
-            if (!Console::GetArgFloat(3, b))
-            {
-                b = r;
-            }
-            Console::GetArgFloat(4, a);
-            Console::GetArgFloat(5, p);
-
-            specular.r = r;
-            specular.g = g;
-            specular.b = b;
-            specular.a = a;
-            specpower = p;
-
-            if (meshmat)
-            {
-                meshmat->SetSpecular(r, g, b, a, specpower);
-            }
-            break;
-        }
-        case 0x6198EA4F: // "app.specinc"
-        {
-            F32 f1 = 1.0f;
-            Console::GetArgFloat(1, f1);
-            specpower += f1;
-            if (specpower < 0.0f)
-            {
-                specpower = 0.0f;
-            }
-            if (meshmat)
-            {
-                meshmat->SetSpecular(specular.r, specular.g, specular.b, specular.a, specpower);
-            }
-        }
-        break;
-
-        case 0x1F8C6C0B: // "app.groundcolor"
-        {
-            S32 r = 0, g = 255, b = 0, a = 122;
-            Console::GetArgInteger(1, r);
-            Console::GetArgInteger(2, g);
-            Console::GetArgInteger(3, b);
-            Console::GetArgInteger(4, a);
-            groundColor = RGBA_MAKE(r, g, b, a);
-        }
-        break;
-        case 0x28D258F6: // "app.stickcolor"
-        {
-            S32 r = 255, g = 0, b = 0, a = 122;
-            Console::GetArgInteger(1, r);
-            Console::GetArgInteger(2, g);
-            Console::GetArgInteger(3, b);
-            Console::GetArgInteger(4, a);
-            stickColor = RGBA_MAKE(r, g, b, a);
-        }
-        break;
-        case 0x477D5B9E: // "app.boundscolor"
-        {
-            S32 r = 255, g = 0, b = 0, a = 122;
-            Console::GetArgInteger(1, r);
-            Console::GetArgInteger(2, g);
-            Console::GetArgInteger(3, b);
-            Console::GetArgInteger(4, a);
-            boundsColor = RGBA_MAKE(r, g, b, a);
-        }
-        break;
-
-        /*
-            case 0x068E946F: // "app.backname"
-              {
-                Material *mat = Material::Manager::FindCreate( *backName);
-                if (mat)
-                {
-                  mat->GetTexture();
-
-                  background = mat;
-
-                  Mesh::Manager::envMap = background->GetTexture();
                 }
-              }
-              break;
-        */
-        case 0x1F096402: // "app.groundname"
-        {
-        }
-        break;
+                if (r <= 1.0)
+                {
+                    res = r;
+                }
+                else
+                {
+                    res = r / selMesh->Root().vertices.count;
+                    if (res < 0.0f)
+                    {
+                        res = 0.0f;
+                    }
+                    else if (res > 1.0f)
+                    {
+                        res = 1.0f;
+                    }
+                }
+                Vid::renderState.mrmFactor1 = (1.0f - res) * 10.0f;
+                break;
+            }
 
-        case 0x3FE9644A: // "app.moveanim"
-        case 0x2CD81382: // "app.indexed"
-            Load();
+            case 0xF84E0E50: // "app.light.cam"
+                if (light)
+                {
+                    light->SetActive(*camLight);
+                }
+                break;
+            case 0xBDF25A43: // "app.light.sun"
+                if (sun)
+                {
+                    sun->SetActive(*sunLight);
+                }
+                break;
+            case 0x1B0934B8: // "app.light.point"
+                if (!lightLock)
+                {
+                    lightLock = TRUE;
+                    lightSpot = !*lightPoint;
+                    lightLock = FALSE;
+
+                    if (light)
+                    {
+                        light->SetType(*lightPoint ? Vid::Light::lightPOINT : Vid::Light::lightSPOT);
+                    }
+                }
+                break;
+            case 0xE84DBC9A: // "app.light.spot"
+                if (!lightLock)
+                {
+                    lightLock = TRUE;
+                    lightPoint = !*lightSpot;
+                    lightLock = FALSE;
+
+                    if (light)
+                    {
+                        light->SetType(*lightPoint ? Vid::Light::lightPOINT : Vid::Light::lightSPOT);
+                    }
+                }
+                break;
+            case 0x8DE900D6: // "app.light.color"
+                if (light)
+                {
+                    Color color = *lightColor;
+                    light->SetColor(color);
+                }
+                break;
+
+            case 0xF95B919A: // "app.light.ambient"
+            case 0xD5615797: // "app.light.ambcolor"
+                if (*ambLight)
+                {
+                    Color color = *ambColor;
+                    F32 r = (F32)color.r / 255.0f;
+                    F32 g = (F32)color.g / 255.0f;
+                    F32 b = (F32)color.b / 255.0f;
+                    Vid::SetAmbientColor(r, g, b);
+                }
+                else
+                {
+                    Vid::SetAmbientColor(0.0f, 0.0f, 0.0f);
+                }
+                break;
+
+            case 0x63A6A13B: // "app.diffuse"
+            {
+                F32 r = 1.0f, g, b, a = 1.0f;
+                if (!Console::GetArgFloat(1, r))
+                {
+                    CON_DIAG
+                    (
+                        ("diffuse = %f %f %f %f",
+                            diffuse.r, diffuse.g, diffuse.b, diffuse.a)
+                    );
+                    break;
+                }
+                if (!Console::GetArgFloat(2, g))
+                {
+                    g = r;
+                }
+                if (!Console::GetArgFloat(3, b))
+                {
+                    b = r;
+                }
+                Console::GetArgFloat(4, a);
+
+                diffuse.r = r;
+                diffuse.g = g;
+                diffuse.b = b;
+                diffuse.a = a;
+
+                if (meshmat)
+                {
+                    meshmat->SetDiffuse(r, g, b, a);
+                }
+                break;
+            }
+            case 0xB907CC4F: // "app.specular"
+            {
+                F32 r = 1.0f, g, b, a = 1.0f, p = 50.0f;
+                if (!Console::GetArgFloat(1, r))
+                {
+                    CON_DIAG
+                    (
+                        ( "specular = %f %f %f %f %f",
+                            specular.r, specular.g, specular.b, specular.a, specpower)
+                    )
+                    break;
+                }
+                if (!Console::GetArgFloat(2, g))
+                {
+                    g = r;
+                }
+                if (!Console::GetArgFloat(3, b))
+                {
+                    b = r;
+                }
+                Console::GetArgFloat(4, a);
+                Console::GetArgFloat(5, p);
+
+                specular.r = r;
+                specular.g = g;
+                specular.b = b;
+                specular.a = a;
+                specpower = p;
+
+                if (meshmat)
+                {
+                    meshmat->SetSpecular(r, g, b, a, specpower);
+                }
+                break;
+            }
+            case 0x6198EA4F: // "app.specinc"
+            {
+                F32 f1 = 1.0f;
+                Console::GetArgFloat(1, f1);
+                specpower += f1;
+                if (specpower < 0.0f)
+                {
+                    specpower = 0.0f;
+                }
+                if (meshmat)
+                {
+                    meshmat->SetSpecular(specular.r, specular.g, specular.b, specular.a, specpower);
+                }
+            }
             break;
 
-        case 0x94BFAC47: // "app.mrm.absolute"
-            if (!lockMrm)
+            case 0x1F8C6C0B: // "app.groundcolor"
             {
-                lockMrm = TRUE;
-                mrmDistance = !*mrmAbsolute;
-                lockMrm = FALSE;
+                S32 r = 0, g = 255, b = 0, a = 122;
+                Console::GetArgInteger(1, r);
+                Console::GetArgInteger(2, g);
+                Console::GetArgInteger(3, b);
+                Console::GetArgInteger(4, a);
+                groundColor = RGBA_MAKE(r, g, b, a);
+            }
+            break;
+            case 0x28D258F6: // "app.stickcolor"
+            {
+                S32 r = 255, g = 0, b = 0, a = 122;
+                Console::GetArgInteger(1, r);
+                Console::GetArgInteger(2, g);
+                Console::GetArgInteger(3, b);
+                Console::GetArgInteger(4, a);
+                stickColor = RGBA_MAKE(r, g, b, a);
+            }
+            break;
+            case 0x477D5B9E: // "app.boundscolor"
+            {
+                S32 r = 255, g = 0, b = 0, a = 122;
+                Console::GetArgInteger(1, r);
+                Console::GetArgInteger(2, g);
+                Console::GetArgInteger(3, b);
+                Console::GetArgInteger(4, a);
+                boundsColor = RGBA_MAKE(r, g, b, a);
+            }
+            break;
 
-                Vid::Var::doMRM = !*mrmAbsolute;
+                /*
+                    case 0x068E946F: // "app.backname"
+                      {
+                        Material *mat = Material::Manager::FindCreate( *backName);
+                        if (mat)
+                        {
+                          mat->GetTexture();
+                
+                          background = mat;
+                
+                          Mesh::Manager::envMap = background->GetTexture();
+                        }
+                      }
+                      break;
+                */
+            case 0x1F096402: // "app.groundname"
+            {
+            }
+            break;
+
+            case 0x3FE9644A: // "app.moveanim"
+            case 0x2CD81382: // "app.indexed"
+                Load();
+                break;
+
+            case 0x94BFAC47: // "app.mrm.absolute"
+                if (!lockMrm)
+                {
+                    lockMrm = TRUE;
+                    mrmDistance = !*mrmAbsolute;
+                    lockMrm = FALSE;
+
+                    Vid::Var::doMRM = !*mrmAbsolute;
+                    Vid::renderState.mrmFactor1 = *mrmAbsolute ? mrmFactorAbs : mrmFactorDist;
+                }
+                break;
+            case 0x717E8E4A: // "app.mrm.distance"
+                if (!lockMrm)
+                {
+                    lockMrm = TRUE;
+                    mrmAbsolute = !*mrmDistance;
+                    lockMrm = FALSE;
+
+                    Vid::Var::doMRM = !*mrmAbsolute;
+                    Vid::renderState.mrmFactor1 = *mrmAbsolute ? mrmFactorAbs : mrmFactorDist;
+                }
+                break;
+            case 0x340C18F5: // "app.mrm.reset"
+                if (*mrmAbsolute)
+                {
+                    mrmFactorAbs = 0.0f;
+                }
+                else
+                {
+                    mrmFactorDist = 1.0f;
+                }
                 Vid::renderState.mrmFactor1 = *mrmAbsolute ? mrmFactorAbs : mrmFactorDist;
-            }
-            break;
-        case 0x717E8E4A: // "app.mrm.distance"
-            if (!lockMrm)
-            {
-                lockMrm = TRUE;
-                mrmAbsolute = !*mrmDistance;
-                lockMrm = FALSE;
+                break;
+            case 0x6F41DDD7: // "app.mrm.gen"
+                if (selMesh)
+                {
+                    MeshView::SetMessage("Generating MRM data for ", selMesh->Root().fileName.str, "...");
 
-                Vid::Var::doMRM = !*mrmAbsolute;
-                Vid::renderState.mrmFactor1 = *mrmAbsolute ? mrmFactorAbs : mrmFactorDist;
-            }
-            break;
-        case 0x340C18F5: // "app.mrm.reset"
-            if (*mrmAbsolute)
-            {
-                mrmFactorAbs = 0.0f;
-            }
-            else
-            {
-                mrmFactorDist = 1.0f;
-            }
-            Vid::renderState.mrmFactor1 = *mrmAbsolute ? mrmFactorAbs : mrmFactorDist;
-            break;
-        case 0x6F41DDD7: // "app.mrm.gen"
-            if (selMesh)
-            {
-                MeshView::SetMessage("Generating MRM data for ", selMesh->Root().fileName.str, "...");
+                    selMesh->MRMGen(curBrush == &vertBrush);
 
-                selMesh->MRMGen(curBrush == &vertBrush);
+                    MeshOptions::reset = TRUE;
+                }
+                break;
+            case 0xF2462CF9: // "app.select.all"
+                selMesh->SelectVerts();
+                break;
 
-                MeshOptions::reset = TRUE;
-            }
-            break;
-        case 0xF2462CF9: // "app.select.all"
-            selMesh->SelectVerts();
-            break;
+            case 0xE6B90EE0: // "brush.next"
+                if (curBrush == &viewBrush)
+                {
+                    SetBrush(&animBrush);
+                }
+                else if (curBrush == &animBrush)
+                {
+                    SetBrush(&aimBrush);
+                }
+                else if (curBrush == &aimBrush)
+                {
+                    SetBrush(&treadBrush);
+                }
+                else if (curBrush == &treadBrush)
+                {
+                    SetBrush(&vertBrush);
+                }
+                else
+                {
+                    SetBrush(&viewBrush);
+                }
+                break;
+            case 0xFA344BEA: // "brush.toggle"
+                curBrush->Toggle();
+                break;
 
-        case 0xE6B90EE0: // "brush.next"
-            if (curBrush == &viewBrush)
-            {
-                SetBrush(&animBrush);
-            }
-            else if (curBrush == &animBrush)
-            {
-                SetBrush(&aimBrush);
-            }
-            else if (curBrush == &aimBrush)
-            {
-                SetBrush(&treadBrush);
-            }
-            else if (curBrush == &treadBrush)
-            {
-                SetBrush(&vertBrush);
-            }
-            else
-            {
-                SetBrush(&viewBrush);
-            }
-            break;
-        case 0xFA344BEA: // "brush.toggle"
-            curBrush->Toggle();
-            break;
+            case 0x02C25363: // "brush.moveXKey"
+                if (*brushMoveXKey)
+                {
+                    lastMX = brushMoveX;
+                    brushMoveX = *brushMoveXKey;
+                }
+                else
+                {
+                    brushMoveX = lastMX;
+                }
+                break;
+            case 0xDEAFC9D4: // "brush.moveYKey"
+                if (*brushMoveYKey)
+                {
+                    lastMY = brushMoveY;
+                    brushMoveY = *brushMoveYKey;
+                }
+                else
+                {
+                    brushMoveY = lastMY;
+                }
+                break;
+            case 0xBED87BBA: // "brush.moveZKey"
+                if (*brushMoveZKey)
+                {
+                    lastMZ = brushMoveZ;
+                    brushMoveZ = *brushMoveZKey;
+                }
+                else
+                {
+                    brushMoveZ = lastMZ;
+                }
+                break;
 
-        case 0x02C25363: // "brush.moveXKey"
-            if (*brushMoveXKey)
+            case 0x829AB27F: // "app.toggle.interface"
+                showInterface = !*showInterface;
+                break;
+            case 0x9B5D3CD4: // "app.show.interface"
             {
-                lastMX = brushMoveX;
-                brushMoveX = *brushMoveXKey;
-            }
-            else
-            {
-                brushMoveX = lastMX;
-            }
-            break;
-        case 0xDEAFC9D4: // "brush.moveYKey"
-            if (*brushMoveYKey)
-            {
-                lastMY = brushMoveY;
-                brushMoveY = *brushMoveYKey;
-            }
-            else
-            {
-                brushMoveY = lastMY;
-            }
-            break;
-        case 0xBED87BBA: // "brush.moveZKey"
-            if (*brushMoveZKey)
-            {
-                lastMZ = brushMoveZ;
-                brushMoveZ = *brushMoveZKey;
-            }
-            else
-            {
-                brushMoveZ = lastMZ;
-            }
-            break;
+                static Bool actives[11] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        case 0x829AB27F: // "app.toggle.interface"
-            showInterface = !*showInterface;
+                if (*showInterface)
+                {
+                    if (actives[0])
+                    {
+                        IFace::Activate("ListBoxFile");
+                        actives[0] = 0;
+                    }
+                    if (actives[1])
+                    {
+                        IFace::Activate("MeshOptions");
+                        actives[1] = 0;
+                    }
+                    if (actives[2])
+                    {
+                        IFace::Activate("View::Graphics");
+                        actives[2] = 0;
+                    }
+                    if (actives[3])
+                    {
+                        IFace::Activate("Vid::Graphics");
+                        actives[3] = 0;
+                    }
+                    if (actives[4])
+                    {
+                        IFace::Activate("Vid::Mesh");
+                        actives[4] = 0;
+                    }
+                    if (actives[5])
+                    {
+                        IFace::Activate("AnimControl");
+                        actives[5] = 0;
+                    }
+                    if (actives[6])
+                    {
+                        IFace::Activate("ViewBrushControl");
+                        actives[6] = 0;
+                    }
+                    if (actives[7])
+                    {
+                        IFace::Activate("VertBrushControl");
+                        actives[7] = 0;
+                    }
+                    if (actives[8])
+                    {
+                        IFace::Activate("ViewerErrors");
+                        actives[8] = 0;
+                    }
+                    if (actives[9])
+                    {
+                        IFace::Activate("TreadBrushControl");
+                        actives[9] = 0;
+                    }
+                    if (actives[10])
+                    {
+                        IFace::Activate("AimBrush");
+                        actives[10] = 0;
+                    }
+                }
+                else
+                {
+                    actives[0] = IFace::Deactivate("ListBoxFile");
+                    actives[1] = IFace::Deactivate("MeshOptions");
+                    actives[2] = IFace::Deactivate("View::Graphics");
+                    actives[3] = IFace::Deactivate("Vid::Graphics");
+                    actives[4] = IFace::Deactivate("Vid::Mesh");
+                    actives[5] = IFace::Deactivate("AnimControl");
+                    actives[6] = IFace::Deactivate("ViewBrushControl");
+                    actives[7] = IFace::Deactivate("VertBrushControl");
+                    actives[8] = IFace::Deactivate("ViewerErrors");
+                    actives[9] = IFace::Deactivate("TreadBrushControl");
+                    actives[10] = IFace::Deactivate("AimBrush");
+                }
+            }
             break;
-        case 0x9B5D3CD4: // "app.show.interface"
-        {
-            static Bool actives[11] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-            if (*showInterface)
-            {
-                if (actives[0])
-                {
-                    IFace::Activate("ListBoxFile");
-                    actives[0] = 0;
-                }
-                if (actives[1])
-                {
-                    IFace::Activate("MeshOptions");
-                    actives[1] = 0;
-                }
-                if (actives[2])
-                {
-                    IFace::Activate("View::Graphics");
-                    actives[2] = 0;
-                }
-                if (actives[3])
-                {
-                    IFace::Activate("Vid::Graphics");
-                    actives[3] = 0;
-                }
-                if (actives[4])
-                {
-                    IFace::Activate("Vid::Mesh");
-                    actives[4] = 0;
-                }
-                if (actives[5])
-                {
-                    IFace::Activate("AnimControl");
-                    actives[5] = 0;
-                }
-                if (actives[6])
-                {
-                    IFace::Activate("ViewBrushControl");
-                    actives[6] = 0;
-                }
-                if (actives[7])
-                {
-                    IFace::Activate("VertBrushControl");
-                    actives[7] = 0;
-                }
-                if (actives[8])
-                {
-                    IFace::Activate("ViewerErrors");
-                    actives[8] = 0;
-                }
-                if (actives[9])
-                {
-                    IFace::Activate("TreadBrushControl");
-                    actives[9] = 0;
-                }
-                if (actives[10])
-                {
-                    IFace::Activate("AimBrush");
-                    actives[10] = 0;
-                }
-            }
-            else
-            {
-                actives[0] = IFace::Deactivate("ListBoxFile");
-                actives[1] = IFace::Deactivate("MeshOptions");
-                actives[2] = IFace::Deactivate("View::Graphics");
-                actives[3] = IFace::Deactivate("Vid::Graphics");
-                actives[4] = IFace::Deactivate("Vid::Mesh");
-                actives[5] = IFace::Deactivate("AnimControl");
-                actives[6] = IFace::Deactivate("ViewBrushControl");
-                actives[7] = IFace::Deactivate("VertBrushControl");
-                actives[8] = IFace::Deactivate("ViewerErrors");
-                actives[9] = IFace::Deactivate("TreadBrushControl");
-                actives[10] = IFace::Deactivate("AimBrush");
-            }
-        }
-        break;
         }
     }
+
     //----------------------------------------------------------------------------
 
     void ClearData()
@@ -2030,6 +2051,7 @@ namespace MeshView
         isInit = FALSE;
         loadLock = FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     static bool attach = FALSE;
@@ -2113,7 +2135,7 @@ namespace MeshView
 
             /*
                   char *dashp = name.str + strlen(name.str) - 1;
-                  while (*dashp != '-' && dashp > name.str)
+                  while (*dashp != '-' && dashp > name.str) 
                   {
                     dashp--;
                   }
@@ -2264,16 +2286,22 @@ namespace MeshView
         {
             BucketLock& bucky = meshEnt->Root().buckys[i];
 
-            LOG_DIAG(("mat%d: texture0: %s  stage:%d",
-                i,
-                bucky.texture0 ? bucky.texture0->GetName() : "null",
-                bucky.texture0 ? bucky.texture0->GetDesc().dwTextureStage : 0
-                ));
-            LOG_DIAG(("mat%d: texture1: %s  stage:%d",
-                i,
-                bucky.texture1 ? bucky.texture1->GetName() : "null",
-                bucky.texture1 ? bucky.texture1->GetDesc().dwTextureStage : 0
-                ));
+            LOG_DIAG
+            (
+                ("mat%d: texture0: %s  stage:%d",
+                    i,
+                    bucky.texture0 ? bucky.texture0->GetName() : "null",
+                    bucky.texture0 ? bucky.texture0->GetDesc().dwTextureStage : 0
+                )
+            );
+            LOG_DIAG
+            (
+                ("mat%d: texture1: %s  stage:%d",
+                    i,
+                    bucky.texture1 ? bucky.texture1->GetName() : "null",
+                    bucky.texture1 ? bucky.texture1->GetDesc().dwTextureStage : 0
+                )
+            );
         }
 
         if (Mesh::Manager::readErrors)
@@ -2307,6 +2335,7 @@ namespace MeshView
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     Bool Setup()
@@ -2368,6 +2397,7 @@ namespace MeshView
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     void AddAnimToRoot(MeshRoot& root, const char* meshName, const char* path)
@@ -2418,7 +2448,8 @@ namespace MeshView
                         }
                     }
                 }
-            } while (Dir::FindNext(find));
+            }
+            while (Dir::FindNext(find));
         }
 
         // Finish find operation
@@ -2436,12 +2467,14 @@ namespace MeshView
 
                     AddAnimToRoot(root, meshName, buffer);
                 }
-            } while (Dir::FindNext(find));
+            }
+            while (Dir::FindNext(find));
 
             // Finish find operation
             Dir::FindClose(find);
         }
     }
+
     //----------------------------------------------------------------------------
 
     void LoadListBox()
@@ -2474,6 +2507,7 @@ namespace MeshView
             }
         }
     }
+
     //----------------------------------------------------------------------------
 
     Bool LoadDialog(Bool _doAttach) // = FALSE)
@@ -2486,55 +2520,56 @@ namespace MeshView
         }
         return TRUE;
 #if 0
-        OPENFILENAME ofn;
-        char path[MAX_BUFFLEN + 1], name[MAX_BUFFLEN + 1];
+	  OPENFILENAME ofn;
+    char path[MAX_BUFFLEN + 1], name[MAX_BUFFLEN + 1];
 
-        // char dir[MAX_BUFFLEN + 1];
+    // char dir[MAX_BUFFLEN + 1];
         //_getcwd( dir, MAX_BUFFLEN);
 
-        // Save current working directory
-        char origPath[MAX_PATH];
-        getcwd(origPath, MAX_PATH);
+    // Save current working directory
+    char origPath[MAX_PATH];
+    getcwd(origPath, MAX_PATH);
 
-        strcpy(path, *meshName);
-        strcpy(name, *meshName);
+    strcpy( path, *meshName);
+    strcpy( name, *meshName);
 
-        Utils::Memset(&ofn, 0, sizeof(ofn));
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.lpstrFile = path;
-        ofn.nMaxFile = MAX_BUFFLEN;
-        ofn.lpstrFileTitle = name;
-        ofn.nMaxFileTitle = MAX_BUFFLEN;
-        ofn.lpstrInitialDir = lastOpenPath;
-        //  ofn.lpstrFilter       = "Mesh Files\0*.xsi;*.x\0\0"; 
-        ofn.lpstrFilter = "Mesh Files\0*.xsi;*.god\0\0";
+    Utils::Memset( &ofn, 0, sizeof( ofn));
+    ofn.lStructSize       = sizeof( OPENFILENAME);
+    ofn.lpstrFile			    = path;
+    ofn.nMaxFile			    = MAX_BUFFLEN;
+    ofn.lpstrFileTitle		= name;
+	  ofn.nMaxFileTitle		  = MAX_BUFFLEN;
+    ofn.lpstrInitialDir   = lastOpenPath;
+  //  ofn.lpstrFilter       = "Mesh Files\0*.xsi;*.x\0\0"; 
+    ofn.lpstrFilter       = "Mesh Files\0*.xsi;*.god\0\0"; 
 
-        ofn.nFilterIndex = 1;
+	  ofn.nFilterIndex      = 1;
 
-        ofn.hwndOwner = Vid::hWnd;
-        ofn.hInstance = Vid::hInst;
-        //	ofn.Flags             = OFN_FILEMUSTEXIST;
-        ofn.lpstrDefExt = "xsi";
-        ofn.lpstrTitle = "Load a mesh file";
+    ofn.hwndOwner         = Vid::hWnd;
+    ofn.hInstance         = Vid::hInst;
+  //	ofn.Flags             = OFN_FILEMUSTEXIST;
+	  ofn.lpstrDefExt       = "xsi";
+	  ofn.lpstrTitle  	    = "Load a mesh file";
 
-        Bool rc = GetOpenFileName(&ofn);
+    Bool rc = GetOpenFileName( &ofn);
 
-        if (rc)
-        {
-            // Save working directory
-            getcwd(lastOpenPath, MAX_PATH);
+    if (rc)
+    {
+      // Save working directory
+      getcwd(lastOpenPath, MAX_PATH);
 
-            doAttach = _doAttach;
-            meshName = ofn.lpstrFile + ofn.nFileOffset;
-            //meshName = ofn.lpstrFile;
-        }
+      doAttach = _doAttach;
+      meshName = ofn.lpstrFile + ofn.nFileOffset;
+      //meshName = ofn.lpstrFile;
+	  }	
 
-        // Restore original working dir
-        chdir(origPath);
+    // Restore original working dir
+    chdir(origPath);
 
-        return rc;
+    return rc;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     Bool SaveDialog()
@@ -2546,57 +2581,58 @@ namespace MeshView
         return TRUE;
 
 #if 0
-        OPENFILENAME ofn;
-        char path[MAX_BUFFLEN + 1], name[MAX_BUFFLEN + 1];
+	  OPENFILENAME ofn;
+    char path[MAX_BUFFLEN + 1], name[MAX_BUFFLEN + 1];
 
-        //char dir[MAX_BUFFLEN + 1];
+    //char dir[MAX_BUFFLEN + 1];
         //_getcwd( dir, MAX_BUFFLEN);
 
-        // Save current working directory
-        char origPath[MAX_PATH];
-        getcwd(origPath, MAX_PATH);
+    // Save current working directory
+    char origPath[MAX_PATH];
+    getcwd(origPath, MAX_PATH);
 
-        strcpy(path, *meshName);
-        strcpy(name, *meshName);
+    strcpy( path, *meshName);
+    strcpy( name, *meshName);
 
-        Utils::Memset(&ofn, 0, sizeof(ofn));
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.lpstrFile = path;
-        ofn.nMaxFile = MAX_BUFFLEN;
-        ofn.lpstrFileTitle = name;
-        ofn.nMaxFileTitle = MAX_BUFFLEN;
-        ofn.lpstrInitialDir = lastOpenPath;
-        //  ofn.lpstrFilter       = "Mesh Files\0*.xsi;*.x\0\0"; 
-        ofn.lpstrFilter = "Mesh Files\0*.xsi;*.god\0\0";
+    Utils::Memset( &ofn, 0, sizeof( ofn));
+    ofn.lStructSize       = sizeof( OPENFILENAME);
+    ofn.lpstrFile			    = path;
+    ofn.nMaxFile			    = MAX_BUFFLEN;
+    ofn.lpstrFileTitle		= name;
+	  ofn.nMaxFileTitle		  = MAX_BUFFLEN;
+    ofn.lpstrInitialDir   = lastOpenPath;
+  //  ofn.lpstrFilter       = "Mesh Files\0*.xsi;*.x\0\0"; 
+    ofn.lpstrFilter       = "Mesh Files\0*.xsi;*.god\0\0"; 
 
-        ofn.nFilterIndex = 1;
+	  ofn.nFilterIndex      = 1;
 
-        ofn.hwndOwner = Vid::hWnd;
-        ofn.hInstance = Vid::hInst;
-        //	ofn.Flags             = OFN_FILEMUSTEXIST;
-        ofn.lpstrDefExt = "god";
-        ofn.lpstrTitle = "Save a mesh file";
+    ofn.hwndOwner         = Vid::hWnd;
+    ofn.hInstance         = Vid::hInst;
+  //	ofn.Flags             = OFN_FILEMUSTEXIST;
+	  ofn.lpstrDefExt       = "god";
+	  ofn.lpstrTitle  	    = "Save a mesh file";
 
-        Bool rc = GetSaveFileName(&ofn);
+    Bool rc = GetSaveFileName( &ofn);
 
-        if (rc)
-        {
-            // Save working directory
-            getcwd(lastOpenPath, MAX_PATH);
+    if (rc)
+    {
+      // Save working directory
+      getcwd(lastOpenPath, MAX_PATH);
 
-            //selMesh->mesh->Save( ofn.lpstrFile);
-            selMesh->Root().Save(ofn.lpstrFile);
+      //selMesh->mesh->Save( ofn.lpstrFile);
+      selMesh->Root().Save(ofn.lpstrFile);
 
-            // reset file system for new saved god files
-            FileSys::BuildIndexes();
-        }
+      // reset file system for new saved god files
+      FileSys::BuildIndexes();
+	  }	
 
-        // Restore original working dir
-        chdir(origPath);
+    // Restore original working dir
+    chdir(origPath);
 
-        return rc;
+    return rc;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     Bool AddCycleDialog()
@@ -2608,63 +2644,64 @@ namespace MeshView
         return TRUE;
 
 #if 0
-        OPENFILENAME ofn;
-        char path[MAX_BUFFLEN + 1], name[MAX_BUFFLEN + 1];
+	  OPENFILENAME ofn;
+    char path[MAX_BUFFLEN + 1], name[MAX_BUFFLEN + 1];
 
-        //char dir[MAX_BUFFLEN + 1];
+    //char dir[MAX_BUFFLEN + 1];
         //_getcwd( dir, MAX_BUFFLEN);
 
-        // Save current working directory
-        char origPath[MAX_PATH];
-        getcwd(origPath, MAX_PATH);
+    // Save current working directory
+    char origPath[MAX_PATH];
+    getcwd(origPath, MAX_PATH);
 
-        strcpy(path, *meshName);
-        strcpy(name, *meshName);
+    strcpy( path, *meshName);
+    strcpy( name, *meshName);
 
-        Utils::Memset(&ofn, 0, sizeof(ofn));
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.lpstrFile = path;
-        ofn.nMaxFile = MAX_BUFFLEN;
-        ofn.lpstrFileTitle = name;
-        ofn.nMaxFileTitle = MAX_BUFFLEN;
-        ofn.lpstrInitialDir = lastOpenPath;
-        ofn.lpstrFilter = "Mesh Files\0*.xsi\0\0";
+    Utils::Memset( &ofn, 0, sizeof( ofn) );
+    ofn.lStructSize       = sizeof( OPENFILENAME);
+    ofn.lpstrFile			    = path;
+    ofn.nMaxFile			    = MAX_BUFFLEN;
+    ofn.lpstrFileTitle		= name;
+	  ofn.nMaxFileTitle		  = MAX_BUFFLEN;
+    ofn.lpstrInitialDir   = lastOpenPath;
+    ofn.lpstrFilter       = "Mesh Files\0*.xsi\0\0"; 
 
-        ofn.nFilterIndex = 1;
+	  ofn.nFilterIndex      = 1;
 
-        ofn.hwndOwner = Vid::hWnd;
-        ofn.hInstance = Vid::hInst;
-        //	ofn.Flags             = OFN_FILEMUSTEXIST;
-        ofn.lpstrDefExt = "x";
+    ofn.hwndOwner         = Vid::hWnd;
+    ofn.hInstance         = Vid::hInst;
+  //	ofn.Flags             = OFN_FILEMUSTEXIST;
+	  ofn.lpstrDefExt       = "x";
 
-        char buffer[MAX_BUFFLEN];
-        Utils::Sprintf(buffer, MAX_BUFFLEN, "Add a mesh file as the %s cycle", *cycleName);
-        ofn.lpstrTitle = buffer;
+    char buffer[MAX_BUFFLEN];
+    Utils::Sprintf(buffer, MAX_BUFFLEN, "Add a mesh file as the %s cycle", *cycleName);
+	  ofn.lpstrTitle  	    = buffer;
 
-        Bool rc = GetOpenFileName(&ofn);
+    Bool rc = GetOpenFileName( &ofn);
 
-        if (rc)
-        {
-            // Save working dir
-            getcwd(lastOpenPath, MAX_PATH);
-        }
+    if (rc)
+    {
+      // Save working dir
+      getcwd(lastOpenPath, MAX_PATH);
+    }
 
-        // Restore original working dir
-        chdir(origPath);
+    // Restore original working dir
+    chdir(origPath);
 
-        if (rc)
-        {
-            if (!Mesh::Manager::ReadAnimCycle(ofn.lpstrFile, selMesh->Root(), *cycleName))
-            {
-                return FALSE;
-            }
-            selMesh->SetAnimCycle(*cycleName);
-            selMesh->fps = *MeshOptions::animFactor * selMesh->curCycle->animSpeed;
-        }
+    if (rc)
+    {
+      if (!Mesh::Manager::ReadAnimCycle( ofn.lpstrFile, selMesh->Root(), *cycleName))
+      {
+        return FALSE;
+      }
+      selMesh->SetAnimCycle( *cycleName);
+      selMesh->fps = *MeshOptions::animFactor * selMesh->curCycle->animSpeed;
+	  }	
 
-        return rc;
+    return rc;
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     void OnModeChange()
@@ -2678,6 +2715,7 @@ namespace MeshView
         Setup();
         Vid::InitResources(TRUE);
     }
+
     //----------------------------------------------------------------------------
 
     void DrawBack()
@@ -2721,21 +2759,26 @@ namespace MeshView
 
         Vid::SetTexture(background);
 
-        Vid::DrawFanStripPrimitive(
+        Vid::DrawFanStripPrimitive
+        (
             PT_TRIANGLEFAN,
             FVF_TLVERTEX,
             vertmem,
             4,
-            DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | RS_BLEND_DEF);
-
+            DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | RS_BLEND_DEF
+        );
     }
+
     //----------------------------------------------------------------------------
 
     void DrawGround()
     {
         // set bucket primitive description
-        Vid::SetBucketPrimitiveDesc(PT_TRIANGLELIST, FVF_TLVERTEX,
-            DP_DONOTUPDATEEXTENTS | RS_2SIDED | RS_BLEND_DEF);
+        Vid::SetBucketPrimitiveDesc
+        (
+            PT_TRIANGLELIST, FVF_TLVERTEX,
+            DP_DONOTUPDATEEXTENTS | RS_2SIDED | RS_BLEND_DEF
+        );
 
         Vid::SetBucketMaterial(Vid::defMaterial);
         Vid::SetBucketTexture(ground, (groundColor & 0xff000000) < 0xff000000);
@@ -2746,7 +2789,7 @@ namespace MeshView
         F32 radius = Mesh::Manager::curParent->ObjectBounds().Radius() + 10.0f;
 
         VertexTL vertmem[4];
-        U16 indexmem[] = { 0, 1, 2, 0, 2, 3 };
+        U16 indexmem[] = {0, 1, 2, 0, 2, 3};
 
         vertmem[0].vv.x = origin.x - radius;
         vertmem[0].vv.y = origin.y;
@@ -2805,6 +2848,7 @@ namespace MeshView
 
         Vid::ProjectClip(vertmem, 4, indexmem, 6);
     }
+
     //----------------------------------------------------------------------------
 
     void DrawOrigin()
@@ -2845,6 +2889,7 @@ namespace MeshView
             root->RenderColor(matrix, originColor2);
         }
     }
+
     //----------------------------------------------------------------------------
 
     static U32 pvcount, ptcount, cvcount, ctcount;
@@ -2934,7 +2979,7 @@ namespace MeshView
                 {
                     // update auto mrm error factor
                     //
-            //        Mesh::Manager::UpdateMRMFactor();
+                    //        Mesh::Manager::UpdateMRMFactor();
                 }
 
                 //      MSWRITEV(22, (0, 5, "mrmFactor %f, vertCount %d", 
@@ -2978,7 +3023,8 @@ namespace MeshView
 
                     // render mirrored meshes
                     // 
-                    !li;  while (MeshEnt* ent = li++)
+                    !li;
+                    while (MeshEnt* ent = li++)
                     {
                         ent->Render();
                     }
@@ -2998,7 +3044,7 @@ namespace MeshView
 
             // render background, ground
             //
-      //      DrawBack();
+            //      DrawBack();
             if (*showGround)
             {
                 Terrain::Sky::Render();
@@ -3011,7 +3057,8 @@ namespace MeshView
 
             // render shadows
             //
-            !li;  while (MeshEnt* ent = li++)
+            !li;
+            while (MeshEnt* ent = li++)
             {
                 if (*showGround && Vid::renderState.status.showShadows && (*sunLight || *camLight))
                 {
@@ -3058,7 +3105,8 @@ namespace MeshView
 
             // render meshes
             // 
-            !li;  while (MeshEnt* ent = li++)
+            !li;
+            while (MeshEnt* ent = li++)
             {
                 ent->Render();
             }
@@ -3138,8 +3186,8 @@ namespace MeshView
             Vid::RenderEnd();
             Vid::RenderFlush();
         }
-
     }
+
     //----------------------------------------------------------------------------
 
     void Update()
@@ -3220,8 +3268,8 @@ namespace MeshView
             }
         }
 
-        // render interpolated frame
-        //
+            // render interpolated frame
+            //
         else if (Vid::Var::doInterpolate)
         {
             if (*animActive)
@@ -3298,26 +3346,26 @@ namespace MeshView
         if (curBrush == &aimBrush && childMesh && childMesh != (MeshObj*)selMesh)
         {
 #if 0
-            Bool hit = FALSE;
-            if (selMesh->curCycle)
-            {
-                List<Animation>::Iterator li(selMesh->curCycle);
+      Bool hit = FALSE;
+      if (selMesh->curCycle)
+      {
+        List<Animation>::Iterator li(selMesh->curCycle); 
 
-                for (!li; *li; li++)
-                {
-                    Animation& anim = *(*li);
-                    if (anim.index == childMesh->GetIndex())
-                    {
-                        hit = TRUE;
-                        break;
-                    }
-                }
-            }
-            if (!hit)
-            {
-                //        selMesh->states0[childMesh->GetIndex()].SetSlaveObject( selMesh->Root().states[childMesh->GetIndex()]);
-                //        selMesh->statesR[childMesh->GetIndex()].SetSlaveObject( selMesh->Root().states[childMesh->GetIndex()]);
-            }
+        for (!li; *li; li++)
+        {
+          Animation & anim = *(*li);
+          if (anim.index == childMesh->GetIndex())
+          {
+            hit = TRUE;
+            break;
+          }
+        }
+      }
+      if (!hit)
+      {
+//        selMesh->states0[childMesh->GetIndex()].SetSlaveObject( selMesh->Root().states[childMesh->GetIndex()]);
+//        selMesh->statesR[childMesh->GetIndex()].SetSlaveObject( selMesh->Root().states[childMesh->GetIndex()]);
+      }
 #endif
 
             Quaternion q;
@@ -3346,25 +3394,25 @@ namespace MeshView
             //      selMesh->SetSimTarget( ident, mat);
             selMesh->SetSimTarget(ident, q);
 #else
-            AnimKey* key = &selMesh->states1[childMesh->GetIndex()];
-            key->Set(key->quaternion * q);
-            key = &selMesh->statesR[childMesh->GetIndex()];
-            key->Set(key->quaternion * q);
+      AnimKey * key = &selMesh->states1[childMesh->GetIndex()];
+      key->Set( key->quaternion * q);
+      key = &selMesh->statesR[childMesh->GetIndex()];
+      key->Set( key->quaternion * q);
 
-            // setup render states
-            //
-            FamilyState* ss, * es = &selMesh->statesR[selMesh->statesR.count];
-            for (ss = &selMesh->statesR[1]; ss < es; ss++)
-            {
-                if (ss->type & animDIRTY)
-                {
-                    ss->SetObject();
-                    ss->SetObjectScale();
+      // setup render states
+      //
+      FamilyState * ss, * es = &selMesh->statesR[selMesh->statesR.count];
+      for (ss = &selMesh->statesR[1]; ss < es; ss++)
+      {
+        if (ss->type & animDIRTY)
+        {
+          ss->SetObject();
+          ss->SetObjectScale();
 
-                    ss->type &= ~animALLDIRTY;
-                }
-            }
-            selMesh->SetWorldRecurseRender(selMesh->statesR[0].WorldMatrix(), &selMesh->statesR[0]);
+          ss->type &= ~animALLDIRTY;
+        }
+      }
+      selMesh->SetWorldRecurseRender( selMesh->statesR[0].WorldMatrix(), &selMesh->statesR[0]);
 #endif
         }
 
@@ -3441,12 +3489,14 @@ namespace MeshView
             light->SetWorld(lv);
         }
     }
+
     //----------------------------------------------------------------------------
 
     Bool FASTCALL DefaultHandler(Event& e)
     {
         return curBrush->DefaultHandler(e);
     }
+
     //----------------------------------------------------------------------------
 
     Bool DoCommand(DWORD id)
@@ -3454,85 +3504,88 @@ namespace MeshView
         id;
 
 #if 0
-        switch (id) {
-        default:
-            if (LOWORD(id) >= ID_DISPLAY_3DDRIVER && LOWORD(id) < ID_DISPLAY_3DDRIVER + MAXD3DDRIVERS)
-            {
-                Vid::InitD3D(LOWORD(id) - ID_DISPLAY_3DDRIVER);
-                break;
-            }
-            if (LOWORD(id) >= ID_DISPLAY_VIDMODE && LOWORD(id) <= ID_DISPLAY_VIDMODE + MAXVIDMODES)
-            {
-                Vid::SetMode(LOWORD(id) - ID_DISPLAY_VIDMODE);
-                break;
-            }
-            return FALSE;
+	  switch (id) {
+	  default:
+		  if (LOWORD( id) >= ID_DISPLAY_3DDRIVER && LOWORD( id) < ID_DISPLAY_3DDRIVER + MAXD3DDRIVERS)
+		  {
+			  Vid::InitD3D( LOWORD( id) - ID_DISPLAY_3DDRIVER);
+			  break;
+		  }
+		  if (LOWORD( id) >= ID_DISPLAY_VIDMODE && LOWORD( id) <= ID_DISPLAY_VIDMODE + MAXVIDMODES)
+		  {
+			  Vid::SetMode( LOWORD( id) - ID_DISPLAY_VIDMODE);
+			  break;
+		  }
+		  return FALSE;
 
-        case ID_FILE_EXIT:
-            PostMessage(Vid::hWnd, WM_CLOSE, NULL, NULL);
-            break;
+	  case ID_FILE_EXIT:
+		  PostMessage( Vid::hWnd, WM_CLOSE, NULL, NULL);
+		  break;
 
-        case ID_FILE_OPEN:
-            LoadDialog(FALSE);
-            break;
+	  case ID_FILE_OPEN:
+      LoadDialog( FALSE);
+		  break;
 
-        case ID_FILE_SAVE:
-            SaveDialog();
-            break;
+	  case ID_FILE_SAVE:
+      SaveDialog();
+		  break;
 
-        case ID_EDIT_ADDCYCLE:
-            AddCycleDialog();
-            break;
+	  case ID_EDIT_ADDCYCLE:
+      AddCycleDialog();
+		  break;
 
-        case ID_EDIT_ATTACHMESH:
-            LoadDialog(childMesh ? TRUE : FALSE);
-            break;
+    case ID_EDIT_ATTACHMESH:
+      LoadDialog( childMesh ? TRUE : FALSE);
+		  break;
 
-        case ID_EDIT_DETACHMESH:
-            if (childMesh)
-            {
-                childMesh->Detach();
-                //      Mesh::Delete( childMesh);
-                //      childMesh = NULL;
-                //      EnableMenuItem( hm, ID_EDIT_ATTACHMESH, MF_BYCOMMAND | MF_GRAYED);
-                //      EnableMenuItem( hm, ID_EDIT_DETACHMESH, MF_BYCOMMAND | MF_GRAYED);
-            }
-            break;
+    case ID_EDIT_DETACHMESH:
+      if (childMesh)
+      {
+        childMesh->Detach();
+  //      Mesh::Delete( childMesh);
+        //      childMesh = NULL;
+        //      EnableMenuItem( hm, ID_EDIT_ATTACHMESH, MF_BYCOMMAND | MF_GRAYED);
+  //      EnableMenuItem( hm, ID_EDIT_DETACHMESH, MF_BYCOMMAND | MF_GRAYED);
+      }
+		  break;
 
-        case ID_DISPLAY_FULLSCREEN:
-            Vid::ToggleWindowedMode();
-            break;
-        case ID_DISPLAY_640X480:
-            Vid::SetSize(640, 480);
-            break;
-        case ID_DISPLAY_640X400:
-            Vid::SetSize(640, 400);
-            break;
-        case ID_DISPLAY_400X300:
-            Vid::SetSize(400, 300);
-            break;
-        case ID_DISPLAY_320X240:
-            Vid::SetSize(320, 240);
-            break;
-        case ID_DISPLAY_320X200:
-            Vid::SetSize(700, 500);
-            break;
-        }
+    case ID_DISPLAY_FULLSCREEN:
+      Vid::ToggleWindowedMode();
+      break;
+    case ID_DISPLAY_640X480:
+		  Vid::SetSize( 640, 480);
+      break;
+    case ID_DISPLAY_640X400:
+		  Vid::SetSize( 640, 400);
+      break;
+    case ID_DISPLAY_400X300:
+		  Vid::SetSize( 400, 300);
+      break;
+    case ID_DISPLAY_320X240:
+	    Vid::SetSize( 320, 240);
+      break;
+    case ID_DISPLAY_320X200:
+		  Vid::SetSize( 700, 500);
+      break;
+    }
 #endif
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     void Brush::Init()
     {
         VarSys::RegisterHandler("brush.def", MeshView::CmdHandler);
     }
+
     //----------------------------------------------------------------------------
 
     void Brush::Done()
     {
         VarSys::DeleteItem("brush.def");
     }
+
     //----------------------------------------------------------------------------
 
     Bool FASTCALL Brush::DefaultHandler(Event& e)
@@ -3541,101 +3594,102 @@ namespace MeshView
         {
             switch (e.subType)
             {
-            case Input::MOUSEBUTTONDOWN:
-            {
-                startPosObj = camOffset;
-                startPosCam = camVector;
-                startRotCam = camRotate;
-
-                IFace::SetMouseCapture((IControl*)IFace::GameWindow());
-
-                // Save mouse code
-                captureCode = e.input.code;
-
-                startMouse = Input::MousePos();
-                curMouse = Input::MousePos();
-
-                if (e.input.state & Input::LBUTTONDOWN)
+                case Input::MOUSEBUTTONDOWN:
                 {
-                    MeshObj* child = NULL;
-                    MeshEnt* mesh = Mesh::Manager::PickAtScreenPos(startMouse.x, startMouse.y, &child);
-                    if (mesh)
+                    startPosObj = camOffset;
+                    startPosCam = camVector;
+                    startRotCam = camRotate;
+
+                    IFace::SetMouseCapture((IControl*)IFace::GameWindow());
+
+                    // Save mouse code
+                    captureCode = e.input.code;
+
+                    startMouse = Input::MousePos();
+                    curMouse = Input::MousePos();
+
+                    if (e.input.state & Input::LBUTTONDOWN)
                     {
-                        return SetCurrent(mesh, child);
-                    }
-                }
-                break;
-            }
-
-            case Input::MOUSEMOVE:
-            {
-                if (e.input.state & Input::RBUTTONDOWN)
-                {
-                    Camera& cam = Vid::CurCamera();
-                    Vector pos;
-                    Vid::TransformFromWorld(pos, selMesh->WorldMatrix().Position());
-                    F32 factor = pos.z * cam.ProjInvConstY();
-
-                    Bool hit = FALSE;
-                    if (*brushMoveZ)
-                    {
-                        // zoom the object in the camera's view - Z
-                        //
-                        S32 dy = -startMouse.y + Input::MousePos().y;
-
-                        camVector.z = startPosCam.z + F32(dy) * 0.02f * *moveRate;
-
-                        hit = TRUE;
-                    }
-                    else if (*brushMoveY)
-                    {
-                        // move the object in the camera's view - only in Y
-                        //
-
-                        S32 dy = startMouse.y - Input::MousePos().y;
-
-                        //              worldObj.Position().y = startPosObj.y - (F32) (dy * factor);
-                        camOffset.y = startPosObj.y + F32(dy) * factor;
-
-                        hit = TRUE;
-                    }
-
-                    if (*brushMoveX)
-                    {
-                        // move the object in the camera's view - in X and Y
-                        //                
-                        S32 dx = startMouse.x - Input::MousePos().x;
-                        const Vector& v = cam.WorldMatrix().Right();
-
-                        camOffset.x = startPosObj.x - F32(dx) * factor * v.x;
-                        camOffset.z = startPosObj.z - F32(dx) * factor * v.z;
-                    }
-                    else
-                    {
-                        S32 dx = startMouse.x - Input::MousePos().x;
-                        S32 dy = startMouse.y - Input::MousePos().y;
-
-                        // rotate the object in the camera's view
-                        //
-                        if (!hit)
+                        MeshObj* child = NULL;
+                        MeshEnt* mesh = Mesh::Manager::PickAtScreenPos(startMouse.x, startMouse.y, &child);
+                        if (mesh)
                         {
-                            camRotate.x = startRotCam.x - F32(dy) * PI * 0.003f;
+                            return SetCurrent(mesh, child);
                         }
-                        camRotate.y = startRotCam.y + F32(dx) * PI * 0.003f;
                     }
+                    break;
                 }
-                break;
-            }
-            case Input::MOUSEBUTTONUP:
-            {
-                IFace::ReleaseMouseCapture((IControl*)IFace::GameWindow());
 
-                break;
-            }
+                case Input::MOUSEMOVE:
+                {
+                    if (e.input.state & Input::RBUTTONDOWN)
+                    {
+                        Camera& cam = Vid::CurCamera();
+                        Vector pos;
+                        Vid::TransformFromWorld(pos, selMesh->WorldMatrix().Position());
+                        F32 factor = pos.z * cam.ProjInvConstY();
+
+                        Bool hit = FALSE;
+                        if (*brushMoveZ)
+                        {
+                            // zoom the object in the camera's view - Z
+                            //
+                            S32 dy = -startMouse.y + Input::MousePos().y;
+
+                            camVector.z = startPosCam.z + F32(dy) * 0.02f * *moveRate;
+
+                            hit = TRUE;
+                        }
+                        else if (*brushMoveY)
+                        {
+                            // move the object in the camera's view - only in Y
+                            //
+
+                            S32 dy = startMouse.y - Input::MousePos().y;
+
+                            //              worldObj.Position().y = startPosObj.y - (F32) (dy * factor);
+                            camOffset.y = startPosObj.y + F32(dy) * factor;
+
+                            hit = TRUE;
+                        }
+
+                        if (*brushMoveX)
+                        {
+                            // move the object in the camera's view - in X and Y
+                            //                
+                            S32 dx = startMouse.x - Input::MousePos().x;
+                            const Vector& v = cam.WorldMatrix().Right();
+
+                            camOffset.x = startPosObj.x - F32(dx) * factor * v.x;
+                            camOffset.z = startPosObj.z - F32(dx) * factor * v.z;
+                        }
+                        else
+                        {
+                            S32 dx = startMouse.x - Input::MousePos().x;
+                            S32 dy = startMouse.y - Input::MousePos().y;
+
+                            // rotate the object in the camera's view
+                            //
+                            if (!hit)
+                            {
+                                camRotate.x = startRotCam.x - F32(dy) * PI * 0.003f;
+                            }
+                            camRotate.y = startRotCam.y + F32(dx) * PI * 0.003f;
+                        }
+                    }
+                    break;
+                }
+                case Input::MOUSEBUTTONUP:
+                {
+                    IFace::ReleaseMouseCapture((IControl*)IFace::GameWindow());
+
+                    break;
+                }
             }
         }
         return FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     void ViewBrush::Init()
@@ -3643,6 +3697,7 @@ namespace MeshView
         Brush::Init();
         VarSys::RegisterHandler("brush.nav", MeshView::CmdHandler);
     }
+
     //----------------------------------------------------------------------------
 
     void ViewBrush::Done()
@@ -3650,6 +3705,7 @@ namespace MeshView
         VarSys::DeleteItem("brush.nav");
         Brush::Done();
     }
+
     //----------------------------------------------------------------------------
 
     Bool FASTCALL ViewBrush::DefaultHandler(Event& e)
@@ -3660,26 +3716,27 @@ namespace MeshView
 
             switch (e.subType)
             {
-            case Input::MOUSEBUTTONDOWN:
-            {
-                if (retValue)
+                case Input::MOUSEBUTTONDOWN:
                 {
-                    const MeshRoot& root = selMesh->Root();
-
-                    if (root.mrm && !*Vid::Var::doMRM)
+                    if (retValue)
                     {
-                        const MeshRoot* r = &selMesh->Root();
-                        F32 count = (F32)r->vertices.count - r->mrm->minVertCount;
-                        Vid::renderState.mrmFactor1 = (F32)(r->vertices.count - selMesh->vertCount) * 10.0f / count;
+                        const MeshRoot& root = selMesh->Root();
+
+                        if (root.mrm && !*Vid::Var::doMRM)
+                        {
+                            const MeshRoot* r = &selMesh->Root();
+                            F32 count = (F32)r->vertices.count - r->mrm->minVertCount;
+                            Vid::renderState.mrmFactor1 = (F32)(r->vertices.count - selMesh->vertCount) * 10.0f / count;
+                        }
                     }
+                    break;
                 }
-                break;
-            }
             }
         }
 
         return FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     void VertBrush::Init()
@@ -3693,12 +3750,14 @@ namespace MeshView
         groupSelect = FALSE;
         Clear();
     }
+
     //----------------------------------------------------------------------------
 
     void VertBrush::Done()
     {
         VarSys::DeleteItem("brush.vert");
     }
+
     //----------------------------------------------------------------------------
 
     void VertBrush::Clear()
@@ -3706,12 +3765,16 @@ namespace MeshView
         appendKey = FALSE;
         appendLast = *append;
     }
+
     //----------------------------------------------------------------------------
 
     void VertBrush::Render()
     {
-        selMesh->RenderSelVerts(Color(U32(255), U32(0), U32(0), U32(222)),
-            *showverts, Color(U32(255), U32(255), U32(0), U32(222)));
+        selMesh->RenderSelVerts
+        (
+            Color(U32(255), U32(0), U32(0), U32(222)),
+            *showverts, Color(U32(255), U32(255), U32(0), U32(222))
+        );
 
         if (groupSelect)
         {
@@ -3719,6 +3782,7 @@ namespace MeshView
             Vid::RenderRectangleOutline(rect, Color(U32(255), U32(0), U32(0), U32(222)));
         }
     }
+
     //----------------------------------------------------------------------------
 
     Bool FASTCALL VertBrush::DefaultHandler(Event& e)
@@ -3728,73 +3792,73 @@ namespace MeshView
             Brush::DefaultHandler(e);
 
 #if 0
-            if (Input::KeyState(Input::SHIFTDOWN))
-            {
-                appendLast = *append;
-                append = appendKey = TRUE;
-            }
-            else
-            {
-                append = appendLast;
-                appendKey = FALSE;
-            }
+      if (Input::KeyState( Input::SHIFTDOWN))
+      {
+        appendLast = *append;
+        append = appendKey = TRUE;
+      }
+      else
+      {
+        append = appendLast;
+        appendKey = FALSE;
+      }
 #endif
 
             switch (e.subType)
             {
-            case Input::MOUSEMOVE:
-            {
-                if (e.input.state & Input::LBUTTONDOWN)
+                case Input::MOUSEMOVE:
                 {
-                    curMouse = Input::MousePos();
-                    if (abs(curMouse.x - startMouse.x) >= 2 || abs(curMouse.y - startMouse.y) >= 2)
+                    if (e.input.state & Input::LBUTTONDOWN)
                     {
-                        groupSelect = TRUE;
+                        curMouse = Input::MousePos();
+                        if (abs(curMouse.x - startMouse.x) >= 2 || abs(curMouse.y - startMouse.y) >= 2)
+                        {
+                            groupSelect = TRUE;
+                        }
                     }
+                    break;
                 }
-                break;
-            }
-            case Input::MOUSEBUTTONUP:
-            {
-                Bool toggle = FALSE;
-
-                if (abs(curMouse.x - startMouse.x) < 8 && abs(curMouse.y - startMouse.y) < 8)
+                case Input::MOUSEBUTTONUP:
                 {
-                    curMouse.x = startMouse.x + 4;
-                    curMouse.y = startMouse.y + 4;
-                    startMouse.x -= 4;
-                    startMouse.y -= 4;
+                    Bool toggle = FALSE;
 
-                    toggle = TRUE;
+                    if (abs(curMouse.x - startMouse.x) < 8 && abs(curMouse.y - startMouse.y) < 8)
+                    {
+                        curMouse.x = startMouse.x + 4;
+                        curMouse.y = startMouse.y + 4;
+                        startMouse.x -= 4;
+                        startMouse.y -= 4;
+
+                        toggle = TRUE;
+                    }
+                    Area<S32> rect(startMouse.x, startMouse.y, curMouse.x, curMouse.y);
+                    selMesh->SelectVerts(&rect, *append || appendKey ? TRUE : FALSE, toggle);
+
+                    groupSelect = FALSE;
+
+                    break;
                 }
-                Area<S32> rect(startMouse.x, startMouse.y, curMouse.x, curMouse.y);
-                selMesh->SelectVerts(&rect, *append || appendKey ? TRUE : FALSE, toggle);
-
-                groupSelect = FALSE;
-
-                break;
-            }
             }
         }
 
         return FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     void VertBrush::CmdHandler(U32 pathCrc)
     {
         switch (pathCrc)
         {
-        case 0xC9C1BA61: // "brush.vert.selectnone"
-            selMesh->UnSelectVerts();
-            break;
+            case 0xC9C1BA61: // "brush.vert.selectnone"
+                selMesh->UnSelectVerts();
+                break;
 
-        case 0x7A4B9B91: // "brush.vert.selectall"
-            selMesh->SelectVerts();
-            break;
+            case 0x7A4B9B91: // "brush.vert.selectall"
+                selMesh->SelectVerts();
+                break;
         }
-
     }
-    //----------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------
 }

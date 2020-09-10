@@ -25,48 +25,45 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitIdle
+    //
+    class UnitIdle : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitIdle)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitIdle
-  //
-  class UnitIdle : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitIdle)
+        // Animation timer
+        GameTime::Timer timer;
 
-    // Animation timer
-    GameTime::Timer timer;
+        // Crc of the last animation started
+        U32 animationCrc;
 
-    // Crc of the last animation started
-    U32 animationCrc;
+    public:
 
-  public:
+        // Constructor
+        UnitIdle(GameObj* subject);
 
-    // Constructor
-    UnitIdle(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateTime();
-    void StateIdle();
-
-  };
-
+        // State machine procedures
+        void StateInit();
+        void StateTime();
+        void StateIdle();
+    };
 }
 
 #endif

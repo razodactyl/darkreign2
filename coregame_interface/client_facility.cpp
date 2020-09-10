@@ -42,7 +42,7 @@ namespace Client
     FacilityIcon::FacilityIcon(IControl* parent, UnitObj* facility) :
         IControl(parent),
         facility(facility),
-        textureOverlay(NULL),
+        textureOverlay(nullptr),
         pointCount(0, 0),
         areaProgress(0, 0, 0, 0),
         areaHealth(0, 0, 0, 0),
@@ -93,36 +93,36 @@ namespace Client
     {
         switch (fScope->NameCrc())
         {
-        case 0x4CF287CE: // "TextureOverlay"
-        {
-            if (textureOverlay)
+            case 0x4CF287CE: // "TextureOverlay"
             {
-                delete textureOverlay;
+                if (textureOverlay)
+                {
+                    delete textureOverlay;
+                }
+                textureOverlay = new TextureInfo;
+                IFace::FScopeToTextureInfo(fScope, *textureOverlay);
+                break;
             }
-            textureOverlay = new TextureInfo;
-            IFace::FScopeToTextureInfo(fScope, *textureOverlay);
-            break;
-        }
 
-        case 0x8494CA0F: // "PointCount"
-            StdLoad::TypePoint(fScope, pointCount);
-            break;
+            case 0x8494CA0F: // "PointCount"
+                StdLoad::TypePoint(fScope, pointCount);
+                break;
 
-        case 0xC84F46D4: // "AreaProgress"
-            StdLoad::TypeArea(fScope, areaProgress);
-            break;
+            case 0xC84F46D4: // "AreaProgress"
+                StdLoad::TypeArea(fScope, areaProgress);
+                break;
 
-        case 0x76FD5325: // "AreaHealth"
-            StdLoad::TypeArea(fScope, areaHealth);
-            break;
+            case 0x76FD5325: // "AreaHealth"
+                StdLoad::TypeArea(fScope, areaHealth);
+                break;
 
-        case 0x4C7418A3: // "BarAlphas"
-            StdLoad::TypePoint(fScope, alphas);
-            break;
+            case 0x4C7418A3: // "BarAlphas"
+                StdLoad::TypePoint(fScope, alphas);
+                break;
 
-            // Pass it to the previous level in the hierarchy
-        default:
-            IControl::Setup(fScope);
+                // Pass it to the previous level in the hierarchy
+            default:
+                IControl::Setup(fScope);
         }
     }
 
@@ -177,7 +177,7 @@ namespace Client
                     (
                         pi.client,
                         Color::Std[Color::YELLOW],
-                        NULL,
+                        nullptr,
                         data.clientAlpha.GetValue() * IFace::data.alphaScale * 0.5F
                     );
                 }
@@ -199,7 +199,7 @@ namespace Client
             F32 pct;
             Color color;
             facility->GetHealthInfo(color, pct);
-            IFace::RenderRectangle(areaHealth + pi.client.p0, color, NULL, IFace::data.alphaScale);
+            IFace::RenderRectangle(areaHealth + pi.client.p0, color, nullptr, IFace::data.alphaScale);
 
             // Display progress bar
             if (progress > 0.0F)
@@ -208,9 +208,9 @@ namespace Client
                 color = HUD::GetColorEntry(progressType);
 
                 ClipRect clip = areaProgress + pi.client.p0;
-                IFace::RenderRectangle(clip, color, NULL, alphas.x * IFace::data.alphaScale);
+                IFace::RenderRectangle(clip, color, nullptr, alphas.x * IFace::data.alphaScale);
                 clip.p1.x = clip.p0.x + S32(progress * F32(clip.p1.x - clip.p0.x));
-                IFace::RenderRectangle(clip, color, NULL, alphas.y * IFace::data.alphaScale);
+                IFace::RenderRectangle(clip, color, nullptr, alphas.y * IFace::data.alphaScale);
             }
 
             // Display count
@@ -236,20 +236,20 @@ namespace Client
     {
         switch (event)
         {
-        case 0xCCEDD540: // "Primary"
-        {
-            // Jump to facility if already selected
-            if (data.cInfo.oneUnit.GetPointer() == facility)
+            case 0xCCEDD540: // "Primary"
             {
-                Viewer::GetCurrent()->LookAt(facility->Position().x, facility->Position().z);
+                // Jump to facility if already selected
+                if (data.cInfo.oneUnit.GetPointer() == facility)
+                {
+                    Viewer::GetCurrent()->LookAt(facility->Position().x, facility->Position().z);
+                }
+                else
+                {
+                    // Just select the facility
+                    Events::SelectUnit(facility);
+                }
+                break;
             }
-            else
-            {
-                // Just select the facility
-                Events::SelectUnit(facility);
-            }
-            break;
-        }
         }
     }
 
@@ -262,31 +262,29 @@ namespace Client
     U32 FacilityIcon::HandleEvent(Event& e)
     {
         // Input events
-        if (e.type == ::Input::EventID())
+        if (e.type == Input::EventID())
         {
             // Process event 
             switch (e.subType)
             {
-            case ::Input::MOUSEBUTTONDOWN:
-            case ::Input::MOUSEBUTTONDBLCLKUP:
-            {
-                if (facility.Alive())
+                case Input::MOUSEBUTTONDOWN:
+                case Input::MOUSEBUTTONDBLCLKUP:
                 {
-                    // Send events to parent
-                    if (e.input.code == ::Input::LeftButtonCode())
+                    if (facility.Alive())
                     {
-                        if (Common::Input::GetModifierKey(3))
+                        // Send events to parent
+                        if (e.input.code == Input::LeftButtonCode())
                         {
-                            ProcessOperation(0x7C13A54E); // "PrimaryShift"
+                            if (Common::Input::GetModifierKey(3))
+                            {
+                                ProcessOperation(0x7C13A54E); // "PrimaryShift"
+                            }
+                            else
+                            {
+                                ProcessOperation(0xCCEDD540); // "Primary"
+                            }
                         }
-                        else
-                        {
-                            ProcessOperation(0xCCEDD540); // "Primary"
-                        }
-                    }
-                    else
-
-                        if (e.input.code == ::Input::RightButtonCode())
+                        else if (e.input.code == Input::RightButtonCode())
                         {
                             if (Common::Input::GetModifierKey(3))
                             {
@@ -297,18 +295,16 @@ namespace Client
                                 ProcessOperation(0xBD34689F); // "Secondary"
                             }
                         }
-                }
+                    }
 
-                return (TRUE);
-            }
+                    return (TRUE);
+                }
             }
         }
-        else
-
-            if (e.type == IFace::EventID())
+        else if (e.type == IFace::EventID())
+        {
+            switch (e.subType)
             {
-                switch (e.subType)
-                {
                 case IFace::DISPLAYTIP:
                 {
                     // Set the tool tip
@@ -317,8 +313,8 @@ namespace Client
                     // Pass down to the icontrol display function
                     break;
                 }
-                }
             }
+        }
 
         // Allow parent to process this event
         return IControl::HandleEvent(e);
@@ -349,9 +345,8 @@ namespace Client
     //
     UnitObj* FacilityIcon::GetFacility()
     {
-        return (facility.Alive() ? facility.GetData() : NULL);
+        return (facility.Alive() ? facility.GetData() : nullptr);
     }
-
 
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -415,22 +410,22 @@ namespace Client
     //
     FacilityIcon* Facility::GetIcon(UnitObj* facility)
     {
-        ASSERT(facility)
+        ASSERT(facility);
 
-            // Check each icon
-            for (List<IControl>::Iterator i(&icons); *i; i++)
+        // Check each icon
+        for (List<IControl>::Iterator i(&icons); *i; ++i)
+        {
+            // Promote to a facility icon
+            FacilityIcon* icon = IFace::Promote<FacilityIcon>(*i);
+
+            // Is this the one we're after
+            if (icon && icon->GetFacility() == facility)
             {
-                // Promote to a facility icon
-                FacilityIcon* icon = IFace::Promote<FacilityIcon>(*i);
-
-                // Is this the one we're after
-                if (icon && icon->GetFacility() == facility)
-                {
-                    return (icon);
-                }
+                return (icon);
             }
+        }
 
-        return (NULL);
+        return (nullptr);
     }
 
 

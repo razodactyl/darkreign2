@@ -35,7 +35,7 @@ void ParticleRenderClass::Setup(FScope* fScope)
 {
     FScope* sScope;
 
-    while ((sScope = fScope->NextFunction()) != NULL)
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
         Configure(sScope);
     }
@@ -74,7 +74,7 @@ ParticleRender* ParticleRenderClass::Build(Particle* particle, void* data) // = 
 // Constructor
 //
 ParticleRender::ParticleRender(ParticleRenderClass* prc, Particle* p, void* data) // = NULL)
-    : proto(prc), particle(p), texture(NULL), texTime(0)
+    : proto(prc), particle(p), texture(nullptr), texTime(0)
 {
     //  frameAnim.Setup( particle->proto->lifeTime, NULL, &proto->data);
 
@@ -132,6 +132,7 @@ void ParticleRender::Simulate(F32 dt)
 {
     TexAnim(dt * proto->data.animRate);
 }
+
 //----------------------------------------------------------------------------
 
 //
@@ -140,6 +141,7 @@ void ParticleRender::Simulate(F32 dt)
 void ParticleRender::Render()
 {
 }
+
 //----------------------------------------------------------------------------
 
 Bitmap* ParticleRender::TexAnim(F32 dt)
@@ -162,6 +164,7 @@ Bitmap* ParticleRender::TexAnim(F32 dt)
     }
     return texture;
 }
+
 //----------------------------------------------------------------------------
 
 U32 ParticleRender::Visible(Vector* p0, Vector* p1, F32 radius) //  = NULL, NULL, 0
@@ -182,4 +185,5 @@ U32 ParticleRender::Visible(Vector* p0, Vector* p1, F32 radius) //  = NULL, NULL
     }
     return clipOUTSIDE;
 }
+
 //----------------------------------------------------------------------------

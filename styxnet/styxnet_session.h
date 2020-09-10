@@ -89,8 +89,11 @@ namespace StyxNet
         }
 
         // Initializing constructor
-        Session(const SessionName& name, U16 flags, U16 version, U32 numUsers, U32 maxUsers,
-                const Win32::Socket::Address& address)
+        Session
+        (
+            const SessionName& name, U16 flags, U16 version, U32 numUsers, U32 maxUsers,
+            const Win32::Socket::Address& address
+        )
             : SessionData(name, flags, version, numUsers, maxUsers),
               address(address)
         {

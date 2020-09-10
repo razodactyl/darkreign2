@@ -18,15 +18,14 @@
 #include "common.h"
 
 
-
 //
 // Constructor
 //
 GeometryRenderClass::GeometryRenderClass()
-: ParticleRenderClass()
+    : ParticleRenderClass()
 {
-  hasShadow = TRUE;
-  noRotate = FALSE;
+    hasShadow = TRUE;
+    noRotate = FALSE;
 }
 
 
@@ -35,35 +34,35 @@ GeometryRenderClass::GeometryRenderClass()
 //
 GeometryRenderClass::~GeometryRenderClass()
 {
-  colorKeys.Release();
+    colorKeys.Release();
 }
 
 
 //
 // Configure the class
 //
-Bool GeometryRenderClass::Configure(FScope *fScope)
+Bool GeometryRenderClass::Configure(FScope* fScope)
 {
-  switch (fScope->NameCrc())
-  {
-  default:
-    if (!data.Configure( fScope, colorKeys))
+    switch (fScope->NameCrc())
     {
-      return ParticleRenderClass::Configure( fScope);
-    }
-    break;
+        default:
+            if (!data.Configure(fScope, colorKeys))
+            {
+                return ParticleRenderClass::Configure(fScope);
+            }
+            break;
 
-//    case 0xC939D9B6: // "GeometryName"
-//      meshId = StdLoad::TypeString( sScope);
-//      break;
-  case 0x930082A0: // "HasShadow"
-    hasShadow = (U32) fScope->NextArgInteger();
-    break;
-  case 0x4D6C4ED6: // "NoRotate"
-    noRotate = StdLoad::TypeU32( fScope);
-    break;
-  }
-  return TRUE;
+            //    case 0xC939D9B6: // "GeometryName"
+            //      meshId = StdLoad::TypeString( sScope);
+            //      break;
+        case 0x930082A0: // "HasShadow"
+            hasShadow = (U32)fScope->NextArgInteger();
+            break;
+        case 0x4D6C4ED6: // "NoRotate"
+            noRotate = StdLoad::TypeU32(fScope);
+            break;
+    }
+    return TRUE;
 }
 
 
@@ -72,25 +71,25 @@ Bool GeometryRenderClass::Configure(FScope *fScope)
 //
 void GeometryRenderClass::PostLoad()
 {
-  ParticleRenderClass::PostLoad();
+    ParticleRenderClass::PostLoad();
 
-  data.PostLoad( colorKeys);
+    data.PostLoad(colorKeys);
 }
 
 //
 // Build a new 
 //
-ParticleRender *GeometryRenderClass::Build( Particle *particle, void *data) // = NULL)
+ParticleRender* GeometryRenderClass::Build(Particle* particle, void* data) // = NULL)
 {
-	// return the new geometry renderer
-	return new GeometryRender(this, particle, data);
+    // return the new geometry renderer
+    return new GeometryRender(this, particle, data);
 }
 
 //
 // Constructor
 //
 GeometryScaleRenderClass::GeometryScaleRenderClass()
-: GeometryRenderClass()
+    : GeometryRenderClass()
 {
 }
 
@@ -99,19 +98,19 @@ GeometryScaleRenderClass::GeometryScaleRenderClass()
 //
 GeometryScaleRenderClass::~GeometryScaleRenderClass()
 {
-  scaleKeys.Release();
+    scaleKeys.Release();
 }
 
 //
 // Configure the class
 //
-Bool GeometryScaleRenderClass::Configure(FScope *fScope)
+Bool GeometryScaleRenderClass::Configure(FScope* fScope)
 {
-  if (!data.Configure( fScope, scaleKeys))
-  {
-    return GeometryRenderClass::Configure( fScope);
-  }
-  return TRUE;
+    if (!data.Configure(fScope, scaleKeys))
+    {
+        return GeometryRenderClass::Configure(fScope);
+    }
+    return TRUE;
 }
 
 //
@@ -119,67 +118,66 @@ Bool GeometryScaleRenderClass::Configure(FScope *fScope)
 //
 void GeometryScaleRenderClass::PostLoad()
 {
-  GeometryRenderClass::PostLoad();
+    GeometryRenderClass::PostLoad();
 
-  data.PostLoad( scaleKeys);
+    data.PostLoad(scaleKeys);
 }
 
 //
 // Build a new 
 //
-ParticleRender *GeometryScaleRenderClass::Build( Particle *particle, void *data) // = NULL)
+ParticleRender* GeometryScaleRenderClass::Build(Particle* particle, void* data) // = NULL)
 {
-	// return the new geometry renderer
-	return new GeometryScaleRender(this, particle, data);
+    // return the new geometry renderer
+    return new GeometryScaleRender(this, particle, data);
 }
-
 
 
 //
 // Constructor
 //
-GeometryRender::GeometryRender( GeometryRenderClass *p, Particle *particle, void *data) // = NULL)
-  : ParticleRender(p, particle, data)
+GeometryRender::GeometryRender(GeometryRenderClass* p, Particle* particle, void* data) // = NULL)
+    : ParticleRender(p, particle, data)
 {
-  colorAnim.Setup( particle->proto->lifeTime, &p->colorKeys, &p->data, p->data.animFlags);
+    colorAnim.Setup(particle->proto->lifeTime, &p->colorKeys, &p->data, p->data.animFlags);
 
-  matrix.ClearData();
+    matrix.ClearData();
 
-  ent = NULL;
+    ent = NULL;
 
-  MeshRoot * root = data ? (MeshRoot *) data : p->data.root;
-  if (root)
-  {
-    if (!root->faces.count || !root->vertices.count)
+    MeshRoot* root = data ? (MeshRoot*)data : p->data.root;
+    if (root)
     {
-      LOG_WARN( ("chunk particle has empty root %s", root->xsiName.str));
+        if (!root->faces.count || !root->vertices.count)
+        {
+            LOG_WARN(("chunk particle has empty root %s", root->xsiName.str));
+        }
+        else
+        {
+            // ChunkSimulate may pass in a chunk; 
+            // otherwise data should be NULL and GeometryRenderClass->mesh is used
+            ent = new MeshEnt(root);
+            ASSERT(ent);
+
+            ent->SetTeamColor(root->chunkColor);
+
+            if (ent->curCycle)
+            {
+                // animate the full cycle in 'lifeTime'
+                ent->fps = ent->curCycle->maxFrame * particle->proto->lifeTimeInv;
+                // stop at the end
+                ent->SetAnimType(anim2WAY);
+                // start animation from the beginning
+                ent->SetFrame(0.0f);
+            }
+
+            ent->SetSimCurrent(particle->matrix);
+        }
     }
     else
     {
-  	  // ChunkSimulate may pass in a chunk; 
-      // otherwise data should be NULL and GeometryRenderClass->mesh is used
-      ent = new MeshEnt( root);
-      ASSERT( ent);
-
-      ent->SetTeamColor( root->chunkColor);
-
-      if (ent->curCycle)
-      {
-        // animate the full cycle in 'lifeTime'
-        ent->fps = ent->curCycle->maxFrame * particle->proto->lifeTimeInv;
-        // stop at the end
-        ent->SetAnimType( anim2WAY);
-        // start animation from the beginning
-        ent->SetFrame( 0.0f);
-      }
-
-      ent->SetSimCurrent( particle->matrix);
+        LOG_WARN(("GeometryRender particle with no mesh root!"))
     }
-  }
-  else
-  {
-    LOG_WARN(("GeometryRender particle with no mesh root!"))
-  }
 }
 
 
@@ -188,10 +186,10 @@ GeometryRender::GeometryRender( GeometryRenderClass *p, Particle *particle, void
 //
 GeometryRender::~GeometryRender()
 {
-  if (ent)
-  {
-  	delete ent;
-  }
+    if (ent)
+    {
+        delete ent;
+    }
 }
 
 //
@@ -199,65 +197,65 @@ GeometryRender::~GeometryRender()
 //
 void GeometryRender::Render()
 {
-  if (ent && Visible() != clipOUTSIDE)
-  {
-	  // get rendering class
-	  GeometryRenderClass *pclass = (GeometryRenderClass *)proto;
-
-    ent->RenderColor( colorAnim.Current().color);
-
-    if (Vid::renderState.status.showShadows && pclass->hasShadow)
+    if (ent && Visible() != clipOUTSIDE)
     {
-      // FIXME: ent and shadow display are actually unrelated
+        // get rendering class
+        GeometryRenderClass* pclass = (GeometryRenderClass*)proto;
 
-//      TerrainData::RenderShadow( ent->WorldMatrixRender().Position(), ent->Root().shadowRadius);
-      TerrainData::RenderShadowWithWater( *ent);
+        ent->RenderColor(colorAnim.Current().color);
+
+        if (Vid::renderState.status.showShadows && pclass->hasShadow)
+        {
+            // FIXME: ent and shadow display are actually unrelated
+
+            //      TerrainData::RenderShadow( ent->WorldMatrixRender().Position(), ent->Root().shadowRadius);
+            TerrainData::RenderShadowWithWater(*ent);
+        }
     }
-  }
 }
 
 //
 // Simulate renderer
 //
-void GeometryRender::Simulate( F32 dt)
+void GeometryRender::Simulate(F32 dt)
 {
-	ParticleRender::Simulate( dt);
+    ParticleRender::Simulate(dt);
 
-  GeometryRenderClass * pclass = (GeometryRenderClass *)proto;
+    GeometryRenderClass* pclass = (GeometryRenderClass*)proto;
 
-  if (dt != 0)      // FIXME : why the pre-simulate with dt = 0?
-  {
-    colorAnim.Simulate( dt, pclass->data.animRate);
-
-    if (ent)
+    if (dt != 0)      // FIXME : why the pre-simulate with dt = 0?
     {
-      ent->UpdateSim( dt);
-      ent->SimulateInt( dt);
+        colorAnim.Simulate(dt, pclass->data.animRate);
 
-      ent->SetSimTarget( particle->matrix);
+        if (ent)
+        {
+            ent->UpdateSim(dt);
+            ent->SimulateInt(dt);
+
+            ent->SetSimTarget(particle->matrix);
+        }
     }
-  }
 }
 
 //
 // Constructor
 //
-GeometryScaleRender::GeometryScaleRender( GeometryScaleRenderClass *p, Particle *particle, void *data) // = NULL)
-  : GeometryRender(p, particle, data)
+GeometryScaleRender::GeometryScaleRender(GeometryScaleRenderClass* p, Particle* particle, void* data) // = NULL)
+    : GeometryRender(p, particle, data)
 {
-  matrix.ClearData();
+    matrix.ClearData();
 
-  scaleAnim.Setup( particle->proto->lifeTime, &p->scaleKeys, NULL, p->data.animFlags);
+    scaleAnim.Setup(particle->proto->lifeTime, &p->scaleKeys, NULL, p->data.animFlags);
 
-  if (ent)
-  {
-    matrix.right.x = scaleAnim.Current().scale;
-    matrix.up.y    = scaleAnim.Current().scale;
-    matrix.front.z = scaleAnim.Current().scale;
-  //  ent->SetWorldBoundsRadius( ent->ObjectBounds().Radius() * scaleAnim.Current().scale);
+    if (ent)
+    {
+        matrix.right.x = scaleAnim.Current().scale;
+        matrix.up.y = scaleAnim.Current().scale;
+        matrix.front.z = scaleAnim.Current().scale;
+        //  ent->SetWorldBoundsRadius( ent->ObjectBounds().Radius() * scaleAnim.Current().scale);
 
-    ent->SetSimCurrent( particle->matrix);
-  }
+        ent->SetSimCurrent(particle->matrix);
+    }
 }
 
 
@@ -266,55 +264,55 @@ GeometryScaleRender::GeometryScaleRender( GeometryScaleRenderClass *p, Particle 
 //
 void GeometryScaleRender::Render()
 {
-  if (ent && Visible() != clipOUTSIDE)
-  {
-	  // get rendering class
-	  GeometryRenderClass *pclass = (GeometryRenderClass *)proto;
-
-    ent->RenderColor( colorAnim.Current().color);
-
-    if (Vid::renderState.status.showShadows && pclass->hasShadow)
+    if (ent && Visible() != clipOUTSIDE)
     {
-      // FIXME: ent and shadow display are actually unrelated
+        // get rendering class
+        GeometryRenderClass* pclass = (GeometryRenderClass*)proto;
 
-//      TerrainData::RenderShadow( ent->WorldMatrixRender().Position(), ent->Root().shadowRadius * scale);
-      TerrainData::RenderShadowWithWater( *ent);
+        ent->RenderColor(colorAnim.Current().color);
+
+        if (Vid::renderState.status.showShadows && pclass->hasShadow)
+        {
+            // FIXME: ent and shadow display are actually unrelated
+
+            //      TerrainData::RenderShadow( ent->WorldMatrixRender().Position(), ent->Root().shadowRadius * scale);
+            TerrainData::RenderShadowWithWater(*ent);
+        }
     }
-  }
 }
 
 //
 // Simulate renderer
 //
-void GeometryScaleRender::Simulate( F32 dt)
+void GeometryScaleRender::Simulate(F32 dt)
 {
-  GeometryRender::Simulate( dt);
+    GeometryRender::Simulate(dt);
 
-  scaleAnim.SetSlave( colorAnim.Current().frame);
+    scaleAnim.SetSlave(colorAnim.Current().frame);
 
-  GeometryScaleRenderClass *p = (GeometryScaleRenderClass *)proto;
+    GeometryScaleRenderClass* p = (GeometryScaleRenderClass*)proto;
 
-  if (p->noRotate)
-  {
-    matrix.right.x = scaleAnim.Current().scale;
-    matrix.up.y    = scaleAnim.Current().scale;
-    matrix.front.z = scaleAnim.Current().scale;
-    matrix.posit = particle->matrix.posit;
-  }
-  else
-  {
-    matrix.ClearData();
-    matrix.right.x = scaleAnim.Current().scale;
-    matrix.up.y    = scaleAnim.Current().scale;
-    matrix.front.z = scaleAnim.Current().scale;
-    matrix = matrix * particle->matrix;
-  }
+    if (p->noRotate)
+    {
+        matrix.right.x = scaleAnim.Current().scale;
+        matrix.up.y = scaleAnim.Current().scale;
+        matrix.front.z = scaleAnim.Current().scale;
+        matrix.posit = particle->matrix.posit;
+    }
+    else
+    {
+        matrix.ClearData();
+        matrix.right.x = scaleAnim.Current().scale;
+        matrix.up.y = scaleAnim.Current().scale;
+        matrix.front.z = scaleAnim.Current().scale;
+        matrix = matrix * particle->matrix;
+    }
 
-  if (ent)
-  {
-    ent->UpdateSim( dt);
-    ent->SimulateInt( dt);
-    ent->SetSimTarget( matrix);
-//  ent->SetWorldBoundsRadius( ent->ObjectBounds().Radius() * scaleAnim.Current().scale);
-  }
+    if (ent)
+    {
+        ent->UpdateSim(dt);
+        ent->SimulateInt(dt);
+        ent->SetSimTarget(matrix);
+        //  ent->SetWorldBoundsRadius( ent->ObjectBounds().Radius() * scaleAnim.Current().scale);
+    }
 }

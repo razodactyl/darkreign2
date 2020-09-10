@@ -94,7 +94,6 @@ namespace GameGod
     //
     namespace Loader
     {
-
         // Max Redraw rate
         static const int MaxRedrawFps = 20;
         static const int MaxRedrawUs = 1000000 / MaxRedrawFps;
@@ -203,7 +202,7 @@ namespace GameGod
 
         //#else
 
-          // Have we seen the original, or we can see it now
+        // Have we seen the original, or we can see it now
         if (!seenOriginal && Setup::FindOriginalCD())
         {
             // Remember that we've seen it
@@ -225,171 +224,173 @@ namespace GameGod
     {
         switch (pathCrc)
         {
-        case 0x41878DEC: // "gamegod.verify"
-        {
-            char* controlName;
-
-            if (Console::GetArgString(1, (const char*&)controlName))
+            case 0x41878DEC: // "gamegod.verify"
             {
-                if (IControl* control = IFace::FindByName(controlName))
+                char* controlName;
+
+                if (Console::GetArgString(1, (const char*&)controlName))
                 {
-                    if (FindOriginalCD())
+                    if (IControl* control = IFace::FindByName(controlName))
                     {
-                        IFace::PostEvent(control, NULL, IFace::NOTIFY, 0x9FF2D5A9); // "Verify::Valid"
+                        if (FindOriginalCD())
+                        {
+                            PostEvent(control, nullptr, IFace::NOTIFY, 0x9FF2D5A9); // "Verify::Valid"
+                        }
+                        else
+                        {
+                            PostEvent(control, nullptr, IFace::NOTIFY, 0x412CB189); // "Verify::Invalid"
+                        }
+                    }
+                }
+                break;
+            }
+
+            case 0xC9FB8050: // "gamegod.dosafeload"
+            {
+                Missions::SetSafeLoad(TRUE);
+                CON_DIAG(("Filtering objects for next load only..."))
+                break;
+            }
+
+            case 0x05A5D04A: // "gamegod.setterraingroup"
+            {
+                const char* group;
+
+                if (Console::GetArgString(1, group))
+                {
+                    TerrainGroup::SetDefaultGroup(group);
+                }
+                break;
+            }
+
+            case 0xC04E77FC: // "gamegod.setnewmapsize"
+            {
+                F32 metreX;
+                F32 metreZ;
+                char* controlName = "|DlgStudioNewMap";
+
+                if (Console::GetArgFloat(1, metreX) && Console::GetArgFloat(2, metreZ))
+                {
+                    // Get optional control name
+                    Console::GetArgString(3, (const char*&)controlName);
+
+                    // Calculate the closest cell values
+                    S32 cellX = U32(metreX / WorldCtrl::CellSize());
+                    S32 cellZ = U32(metreZ / WorldCtrl::CellSize());
+
+                    // If using default values, check to see they are valid
+                    if (WorldCtrl::SetDefaultMapSize(cellX, cellZ))
+                    {
+                        if (IControl* ic = IFace::FindByName(controlName))
+                        {
+                            PostEvent(ic, nullptr, IFace::NOTIFY, 0x07984B08); // "New"
+                        }
+                        break;
+                    }
+                    CON_ERR(("Map size (%.0f x %.0f) is invalid", metreX, metreZ))
+                }
+                break;
+            }
+
+            case 0x68946F46: // "gamegod.missions.select"
+            {
+                const char* missionName;
+
+                if (Console::GetArgString(1, missionName))
+                {
+                    // Get optional group path
+                    const char* groupPath = nullptr;
+                    Console::GetArgString(2, groupPath);
+
+                    if (const Missions::Mission* mission = Missions::FindMission(missionName, groupPath))
+                    {
+                        SetSelected(mission);
                     }
                     else
                     {
-                        IFace::PostEvent(control, NULL, IFace::NOTIFY, 0x412CB189); // "Verify::Invalid"
+                        CON_ERR(("Unable to find mission [%s] in any group", missionName))
                     }
                 }
-            }
-            break;
-        }
+                else
+                {
+                    Missions::SetSelected();
+                }
 
-        case 0xC9FB8050: // "gamegod.dosafeload"
-        {
-            Missions::SetSafeLoad(TRUE);
-            CON_DIAG(("Filtering objects for next load only..."))
                 break;
-        }
-
-        case 0x05A5D04A: // "gamegod.setterraingroup"
-        {
-            const char* group;
-
-            if (Console::GetArgString(1, group))
-            {
-                TerrainGroup::SetDefaultGroup(group);
             }
-            break;
-        }
 
-        case 0xC04E77FC: // "gamegod.setnewmapsize"
-        {
-            F32 metreX;
-            F32 metreZ;
-            char* controlName = "|DlgStudioNewMap";
-
-            if (Console::GetArgFloat(1, metreX) && Console::GetArgFloat(2, metreZ))
+            case 0xC19B91E1: // "gamegod.missions.launch"
             {
-                // Get optional control name
-                Console::GetArgString(3, (const char*&)controlName);
+                Missions::LaunchMission(TRUE);
+                break;
+            }
 
-                // Calculate the closest cell values
-                S32 cellX = U32(metreX / WorldCtrl::CellSize());
-                S32 cellZ = U32(metreZ / WorldCtrl::CellSize());
+            case 0x9F954BF1: // "gamegod.missions.replay"
+            {
+                Missions::ReplayMission(TRUE);
+                break;
+            }
 
-                // If using default values, check to see they are valid
-                if (WorldCtrl::SetDefaultMapSize(cellX, cellZ))
+            case 0x7B8211C1: // "gamegod.missions.next"
+            {
+                Missions::NextMission(TRUE);
+                break;
+            }
+
+            case 0xA9CD40A3: // "gamegod.missions.current"
+            {
+                if (const Missions::Mission* m = Missions::GetSelected())
                 {
-                    if (IControl* ic = IFace::FindByName(controlName))
+                    CON_DIAG(("Selected : [%s] [%s]", m->GetName().str, m->GetGroup().GetPath().str));
+                }
+                else
+                {
+                    CON_DIAG(("Selected : None"));
+                }
+
+                if (const Missions::Mission* m = Missions::GetActive())
+                {
+                    CON_DIAG(("Active   : [%s] [%s]", m->GetName().str, m->GetGroup().GetPath().str));
+                }
+                else
+                {
+                    CON_DIAG(("Active   : None"));
+                }
+                break;
+            }
+
+            case 0xC9AEF64F: // "gamegod.missions.progress"
+            {
+                const char* name;
+
+                // Are we completing a campaign
+                if (Console::GetArgString(1, name))
+                {
+                    // Find the campaign
+                    if (Campaigns::Campaign* campaign = Campaigns::Find(name))
                     {
-                        IFace::PostEvent(ic, NULL, IFace::NOTIFY, 0x07984B08); // "New"
+                        // Complete each mission
+                        Campaigns::GetProgress().CompleteCampaign(campaign);
                     }
-                    break;
                 }
                 else
                 {
-                    CON_ERR(("Map size (%.0f x %.0f) is invalid", metreX, metreZ))
+                    // Display each mission record
+                    for (NBinTree<Campaigns::Progress::Mission>::Iterator i(&Campaigns::GetProgress().GetMissions()); *i
+                         ; ++i)
+                    {
+                        // Get the record
+                        Campaigns::Progress::Mission& r = **i;
+
+                        CON_DIAG
+                        (
+                            ("[%s] [%s] %s", r.GetPath().str, r.GetMission().str, r.MissionCompleted(TRUE) ? "Completed"
+                                : "")
+                        );
+                    }
                 }
+                break;
             }
-            break;
-        }
-
-        case 0x68946F46: // "gamegod.missions.select"
-        {
-            const char* missionName;
-
-            if (Console::GetArgString(1, missionName))
-            {
-                // Get optional group path
-                const char* groupPath = NULL;
-                Console::GetArgString(2, groupPath);
-
-                if (const Missions::Mission* mission = Missions::FindMission(missionName, groupPath))
-                {
-                    Missions::SetSelected(mission);
-                }
-                else
-                {
-                    CON_ERR(("Unable to find mission [%s] in any group", missionName))
-                }
-            }
-            else
-            {
-                Missions::SetSelected();
-            }
-
-            break;
-        }
-
-        case 0xC19B91E1: // "gamegod.missions.launch"
-        {
-            Missions::LaunchMission(TRUE);
-            break;
-        }
-
-        case 0x9F954BF1: // "gamegod.missions.replay"
-        {
-            Missions::ReplayMission(TRUE);
-            break;
-        }
-
-        case 0x7B8211C1: // "gamegod.missions.next"
-        {
-            Missions::NextMission(TRUE);
-            break;
-        }
-
-        case 0xA9CD40A3: // "gamegod.missions.current"
-        {
-            if (const Missions::Mission* m = Missions::GetSelected())
-            {
-                CON_DIAG(("Selected : [%s] [%s]", m->GetName().str, m->GetGroup().GetPath().str));
-            }
-            else
-            {
-                CON_DIAG(("Selected : None"));
-            }
-
-            if (const Missions::Mission* m = Missions::GetActive())
-            {
-                CON_DIAG(("Active   : [%s] [%s]", m->GetName().str, m->GetGroup().GetPath().str));
-            }
-            else
-            {
-                CON_DIAG(("Active   : None"));
-            }
-            break;
-        }
-
-        case 0xC9AEF64F: // "gamegod.missions.progress"
-        {
-            const char* name;
-
-            // Are we completing a campaign
-            if (Console::GetArgString(1, name))
-            {
-                // Find the campaign
-                if (Campaigns::Campaign* campaign = Campaigns::Find(name))
-                {
-                    // Complete each mission
-                    Campaigns::GetProgress().CompleteCampaign(campaign);
-                }
-            }
-            else
-            {
-                // Display each mission record
-                for (NBinTree<Campaigns::Progress::Mission>::Iterator i(&Campaigns::GetProgress().GetMissions()); *i; ++i)
-                {
-                    // Get the record
-                    Campaigns::Progress::Mission& r = **i;
-
-                    CON_DIAG(("[%s] [%s] %s", r.GetPath().str, r.GetMission().str, r.MissionCompleted(TRUE) ? "Completed" : ""));
-                }
-            }
-            break;
-        }
         }
     }
 
@@ -488,7 +489,10 @@ namespace GameGod
         VarSys::CreateString("gamegod.flow.state", "", VarSys::DEFAULT, &flowState);
 
         VarSys::CreateString("gamegod.loader.system", "", VarSys::DEFAULT, &Loader::system);
-        VarSys::CreateFloat("gamegod.loader.percent", 0.0F, VarSys::DEFAULT, &Loader::percent)->SetFloatRange(0.0F, 1.0F);
+        VarSys::CreateFloat("gamegod.loader.percent", 0.0F, VarSys::DEFAULT, &Loader::percent)->SetFloatRange
+        (
+            0.0F, 1.0F
+        );
 
         // System now initialized
         initialized = TRUE;
@@ -514,7 +518,7 @@ namespace GameGod
         Mods::Init();
         MultiPlayer::Init();
 
-        //Win32Reg::Update();
+        // Win32Reg::Update();
 
         Vid::InitIFace();
         Mesh::Manager::InitIFace();
@@ -675,37 +679,35 @@ namespace GameGod
     //
     IControl* CreateHandler(U32 crc, IControl* parent, U32)
     {
-        IControl* ctrl = NULL;
+        IControl* ctrl = nullptr;
 
         switch (crc)
         {
-        case 0xE337E09C: // "Game::Login"
-            ctrl = new Game::Login(parent);
-            break;
+            case 0xE337E09C: // "Game::Login"
+                ctrl = new Game::Login(parent);
+                break;
 
-        case 0x736F39B6: // "Game::MissionSelection"
-            ctrl = new Game::MissionSelection(parent);
-            break;
+            case 0x736F39B6: // "Game::MissionSelection"
+                ctrl = new Game::MissionSelection(parent);
+                break;
 
-        case 0x0E88D05B: // "Game::CampaignSelection"
-            ctrl = new Game::CampaignSelection(parent);
-            break;
+            case 0x0E88D05B: // "Game::CampaignSelection"
+                ctrl = new Game::CampaignSelection(parent);
+                break;
 
-        case 0xA436C580: // "Game::SaveLoad"
-            ctrl = new Game::SaveLoad(parent);
-            break;
+            case 0xA436C580: // "Game::SaveLoad"
+                ctrl = new Game::SaveLoad(parent);
+                break;
 
-        case 0x6CEDB7EF: // "Game::DifficultyList"
-            ctrl = new Game::DifficultyList(parent);
-            break;
+            case 0x6CEDB7EF: // "Game::DifficultyList"
+                ctrl = new Game::DifficultyList(parent);
+                break;
 
-        case 0x1331C1AA: // "Game::AddonList"
-            ctrl = new Game::AddonList(parent);
-            break;
-
+            case 0x1331C1AA: // "Game::AddonList"
+                ctrl = new Game::AddonList(parent);
+                break;
         }
 
         return ctrl;
     }
 }
-

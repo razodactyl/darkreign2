@@ -26,12 +26,10 @@
 //
 namespace Common
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class TypePreview
     //
-
 
 
     //
@@ -52,7 +50,7 @@ namespace Common
     //
     TypePreview::TypePreview(IControl* parent, MapObjType* type, const char* anim)
         : ICMesh(parent),
-        type(type)
+          type(type)
     {
         // Default control style
         controlStyle |= STYLE_FADEIN;
@@ -213,10 +211,11 @@ namespace Common
                         (
                             pi.client.p0.x + 6,
                             pi.client.p1.y - height - 5 -
-                            ((ArmourClass::Lookup(
-                                weapon->GetDamage().GetDamageId(),
-                                ArmourClass::Crc2ArmourClassId(0x236B9FE8) // "armor_infantry"
-                            ) * 40) >> 16),
+                            ((ArmourClass::Lookup
+                                (
+                                    weapon->GetDamage().GetDamageId(),
+                                    ArmourClass::Crc2ArmourClassId(0x236B9FE8) // "armor_infantry"
+                                ) * 40) >> 16),
                             pi.client.p0.x + 11,
                             pi.client.p1.y - height - 5
                         ),
@@ -232,10 +231,11 @@ namespace Common
                         (
                             pi.client.p0.x + 12,
                             pi.client.p1.y - height - 5 -
-                            ((ArmourClass::Lookup(
-                                weapon->GetDamage().GetDamageId(),
-                                ArmourClass::Crc2ArmourClassId(0x27244F22) // "armor_vehicle"
-                            ) * 40) >> 16),
+                            ((ArmourClass::Lookup
+                                (
+                                    weapon->GetDamage().GetDamageId(),
+                                    ArmourClass::Crc2ArmourClassId(0x27244F22) // "armor_vehicle"
+                                ) * 40) >> 16),
                             pi.client.p0.x + 17,
                             pi.client.p1.y - height - 5
                         ),
@@ -251,10 +251,11 @@ namespace Common
                         (
                             pi.client.p0.x + 18,
                             pi.client.p1.y - height - 5 -
-                            ((ArmourClass::Lookup(
-                                weapon->GetDamage().GetDamageId(),
-                                ArmourClass::Crc2ArmourClassId(0x9C0F0A88) // "armor_structure"
-                            ) * 40) >> 16),
+                            ((ArmourClass::Lookup
+                                (
+                                    weapon->GetDamage().GetDamageId(),
+                                    ArmourClass::Crc2ArmourClassId(0x9C0F0A88) // "armor_structure"
+                                ) * 40) >> 16),
                             pi.client.p0.x + 23,
                             pi.client.p1.y - height - 5
                         ),
@@ -270,10 +271,11 @@ namespace Common
                         (
                             pi.client.p0.x + 24,
                             pi.client.p1.y - height - 5 -
-                            ((ArmourClass::Lookup(
-                                weapon->GetDamage().GetDamageId(),
-                                ArmourClass::Crc2ArmourClassId(0x0C7486D1) // "armor_flyer"
-                            ) * 40) >> 16),
+                            ((ArmourClass::Lookup
+                                (
+                                    weapon->GetDamage().GetDamageId(),
+                                    ArmourClass::Crc2ArmourClassId(0x0C7486D1) // "armor_flyer"
+                                ) * 40) >> 16),
                             pi.client.p0.x + 29,
                             pi.client.p1.y - height - 5
                         ),
@@ -289,10 +291,11 @@ namespace Common
                         (
                             pi.client.p0.x + 30,
                             pi.client.p1.y - height - 5 -
-                            ((ArmourClass::Lookup(
-                                weapon->GetDamage().GetDamageId(),
-                                ArmourClass::Crc2ArmourClassId(0x2A9AB611) // "armor_naval"
-                            ) * 40) >> 16),
+                            ((ArmourClass::Lookup
+                                (
+                                    weapon->GetDamage().GetDamageId(),
+                                    ArmourClass::Crc2ArmourClassId(0x2A9AB611) // "armor_naval"
+                                ) * 40) >> 16),
                             pi.client.p0.x + 35,
                             pi.client.p1.y - height - 5
                         ),
@@ -307,7 +310,6 @@ namespace Common
                         Point<S32>(pi.client.p0.x + 37, pi.client.p1.y - height - 5),
                         Color(1.0f, 1.0f, 1.0f, 0.5f), pi.alphaScale
                     );
-
                 }
             }
         }

@@ -25,34 +25,33 @@
 //
 namespace Game
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class DifficultyList
-  //
-  class DifficultyList : public ICListBox
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class DifficultyList
+    //
+    class DifficultyList : public ICListBox
+    {
     PROMOTE_LINK(DifficultyList, ICListBox, 0xE9B06655); // "DifficultyList"
 
-  private:
+    private:
 
-    Bool selectDefault;
+        Bool selectDefault;
 
-  public:
+    public:
 
-    // Constructor
-    DifficultyList(IControl *parent);
-    ~DifficultyList();
+        // Constructor
+        DifficultyList(IControl* parent);
+        ~DifficultyList();
 
-    // Setup
-    void Setup(FScope *fScope);
+        // Setup
+        void Setup(FScope* fScope);
 
-    // Handle Event
-    U32 HandleEvent(Event &e);
+        // Handle Event
+        U32 HandleEvent(Event& e);
 
-    // Called after Configure() is completed
-    void PostConfigure();
-
-  };
+        // Called after Configure() is completed
+        void PostConfigure();
+    };
 }
 
 #endif
