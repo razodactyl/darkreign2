@@ -23,74 +23,72 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class PowerDown
+    // NameSpace Game
     //
-    U32 PowerDown::orderId;
-
-
-    //
-    // Generate
-    //
-    void PowerDown::Generate(Player &player, Bool down)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.down = down;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PowerDown
+        //
+        U32 PowerDown::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 PowerDown::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
+        //
+        // Generate
+        //
+        void PowerDown::Generate(Player& player, Bool down)
+        {
+            Data data;
 
-      // Are we powering down or up
-      if (d->down)
-      {
-        // Check each selected object
-        for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-        { 
-          UnitObj *subject = **i;
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.down = down;
 
-          // Can this unit power down ?
-          if (subject->UnitType()->GetPower().GetRequired())
-          {
-            IssueTask(FLUSH, subject, new Tasks::UnitPowerDown(subject), player);
-          }
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
-      else
-      {
-        // Check each selected object
-        for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-        { 
-          UnitObj *subject = **i;
 
-          // Is this unit powered down ?
-          if (Tasks::UnitPowerDown *task = TaskCtrl::Promote<Tasks::UnitPowerDown>(subject))
-          {
-            task->ProcessEvent(Task::Event(0x57BE223A)); // "PowerUp"
-          }
+
+        //
+        // Execute
+        //
+        U32 PowerDown::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Are we powering down or up
+            if (d->down)
+            {
+                // Check each selected object
+                for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+                {
+                    UnitObj* subject = **i;
+
+                    // Can this unit power down ?
+                    if (subject->UnitType()->GetPower().GetRequired())
+                    {
+                        IssueTask(FLUSH, subject, new Tasks::UnitPowerDown(subject), player);
+                    }
+                }
+            }
+            else
+            {
+                // Check each selected object
+                for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+                {
+                    UnitObj* subject = **i;
+
+                    // Is this unit powered down ?
+                    if (Tasks::UnitPowerDown* task = TaskCtrl::Promote<Tasks::UnitPowerDown>(subject))
+                    {
+                        task->ProcessEvent(Task::Event(0x57BE223A)); // "PowerUp"
+                    }
+                }
+            }
+
+            return (sizeof(Data));
         }
-      }
-
-      return (sizeof (Data));
     }
-  }
 }

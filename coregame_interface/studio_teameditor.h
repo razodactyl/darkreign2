@@ -35,126 +35,124 @@ class Team;
 //
 namespace Studio
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace TeamEditorMsg
+    //
+    namespace TeamEditorMsg
+    {
+        const U32 FilterTypeChange = 0xC930963B; // "TeamEditor::Message::FilterTypeChange"
+        const U32 FilterTypeClear = 0xE8F0A527; // "TeamEditor::Message::FilterTypeClear"
+        const U32 FilterPropertyChange = 0xBD7B2E1C; // "TeamEditor::Message::FilterPropertyChange"
+        const U32 FilterPropertyClear = 0xD9541DEF; // "TeamEditor::Message::FilterPropertyClear"
+        const U32 Rebuild = 0x9067C82E; // "TeamEditor::Message::Rebuild"
+        const U32 PickStartRegion = 0x0D14605F; // "TeamEditor::Message::PickStartRegion"
+        const U32 TestStartRegion = 0xB898E983; // "TeamEditor::Message::TestStartRegion"
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace TeamEditorMsg
-  //
-  namespace TeamEditorMsg
-  {
-    const U32 FilterTypeChange      = 0xC930963B; // "TeamEditor::Message::FilterTypeChange"
-    const U32 FilterTypeClear       = 0xE8F0A527; // "TeamEditor::Message::FilterTypeClear"
-    const U32 FilterPropertyChange  = 0xBD7B2E1C; // "TeamEditor::Message::FilterPropertyChange"
-    const U32 FilterPropertyClear   = 0xD9541DEF; // "TeamEditor::Message::FilterPropertyClear"
-    const U32 Rebuild               = 0x9067C82E; // "TeamEditor::Message::Rebuild"
-    const U32 PickStartRegion       = 0x0D14605F; // "TeamEditor::Message::PickStartRegion"
-    const U32 TestStartRegion       = 0xB898E983; // "TeamEditor::Message::TestStartRegion"
-
-    const U32 Download              = 0x3CE0AEE6; // "TeamEditor::Message::Download"
-  }
+        const U32 Download = 0x3CE0AEE6; // "TeamEditor::Message::Download"
+    }
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TeamEditor
-  //
-  class TeamEditor : public ICWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TeamEditor
+    //
+    class TeamEditor : public ICWindow
+    {
     PROMOTE_LINK(TeamEditor, ICWindow, 0xBB81F7D0) // "TeamEditor"
 
-  protected:
+    protected:
 
-    // Team being edited
-    Team *team;
+        // Team being edited
+        Team* team;
 
-    // Team Name
-    ICStaticPtr teamName;
+        // Team Name
+        ICStaticPtr teamName;
 
-    // Team Color
-    IFaceVar *teamColor;
+        // Team Color
+        IFaceVar* teamColor;
 
-    // Team Resource Store
-    IFaceVar *resourceStore;
+        // Team Resource Store
+        IFaceVar* resourceStore;
 
-    // Start Region
-    IFaceVar *startRegion;
+        // Start Region
+        IFaceVar* startRegion;
 
-    // Start yaw
-    IFaceVar *startYaw;
+        // Start yaw
+        IFaceVar* startYaw;
 
-    // Default AI
-    IFaceVar *defaultAI;
+        // Default AI
+        IFaceVar* defaultAI;
 
-    // Default AI list
-    ICDropListPtr defaultAIList;
+        // Default AI list
+        ICDropListPtr defaultAIList;
 
-    // Filtering enabled
-    IFaceVar *filteringEnabled;
+        // Filtering enabled
+        IFaceVar* filteringEnabled;
 
-    // Filtering properties
-    ICListBoxPtr filteringPropertyList;
+        // Filtering properties
+        ICListBoxPtr filteringPropertyList;
 
-    // Filtering types
-    ICListBoxPtr filteringTypeList;
+        // Filtering types
+        ICListBoxPtr filteringTypeList;
 
-    // Objectives list
-    ICListBoxPtr objectivesList;
+        // Objectives list
+        ICListBoxPtr objectivesList;
 
-    // Side list
-    ICDropListPtr sideList;
+        // Side list
+        ICDropListPtr sideList;
 
-    // Toggles
-    IFaceVar *defaultClient;
-    IFaceVar *availablePlay;
-    IFaceVar *hasStats;
-    IFaceVar *permanentRadar;
-    IFaceVar *side;
-    IFaceVar *sideFixed;
-    IFaceVar *requireAI;
+        // Toggles
+        IFaceVar* defaultClient;
+        IFaceVar* availablePlay;
+        IFaceVar* hasStats;
+        IFaceVar* permanentRadar;
+        IFaceVar* side;
+        IFaceVar* sideFixed;
+        IFaceVar* requireAI;
 
-  protected:
+    protected:
 
-    // Notification that a local var has changed value
-    void Notify(IFaceVar *var);
+        // Notification that a local var has changed value
+        void Notify(IFaceVar* var);
 
-    // Build the list of selected filter types
-    void BuildFilteringTypeList(UnitObjTypeList &types, Bool selected = TRUE);
+        // Build the list of selected filter types
+        void BuildFilteringTypeList(UnitObjTypeList& types, Bool selected = TRUE);
 
-    // Callback for building the selected filter types
-    static void GetFilteringTypesCallback(const char *key, const CH *display, void *context);
+        // Callback for building the selected filter types
+        static void GetFilteringTypesCallback(const char* key, const CH* display, void* context);
 
-  public:
+    public:
 
-    // Constructor
-    TeamEditor(IControl *parent);
-    ~TeamEditor();
+        // Constructor
+        TeamEditor(IControl* parent);
+        ~TeamEditor();
 
-    // Setup this control from one scope function
-    void Setup(FScope *fScope);
+        // Setup this control from one scope function
+        void Setup(FScope* fScope);
 
-    // Checks that control was setup
-    void PostConfigure();
- 
-    // Event handling
-    U32 HandleEvent(Event &e);
+        // Checks that control was setup
+        void PostConfigure();
 
-    // Control draws itself
-    void DrawSelf(PaintInfo &pi);
+        // Event handling
+        U32 HandleEvent(Event& e);
 
-    // Activate and deactivate this control
-    Bool Activate();
-    Bool Deactivate();
+        // Control draws itself
+        void DrawSelf(PaintInfo& pi);
 
-    // Set the team to use
-    void SetTeam(Team *team);
+        // Activate and deactivate this control
+        Bool Activate();
+        Bool Deactivate();
 
-    // Upload
-    void Upload();
+        // Set the team to use
+        void SetTeam(Team* team);
 
-    // Download
-    void Download();
-  };
+        // Upload
+        void Upload();
 
+        // Download
+        void Download();
+    };
 }
 
 #endif

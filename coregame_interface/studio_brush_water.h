@@ -24,41 +24,41 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Water - Used to edit water heights
+    // Namespace Brush - Contains all available brushes
     //
-    class Water : public AreaBase
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Water - Used to edit water heights
+        //
+        class Water : public AreaBase
+        {
+        protected:
 
-      // Vars
-      IFaceVar *varHeight;
+            // Vars
+            IFaceVar* varHeight;
 
-    protected:
+        protected:
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Water(const char *name);
-      ~Water();
+            // Constructor and destructor
+            Water(const char* name);
+            ~Water();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

@@ -28,7 +28,6 @@
 #define SCOPE_CONFIG   "TagObj"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class TagObjType - A list of objects that forms a 'tagged' group
@@ -40,7 +39,7 @@
 //
 // Constructor
 //
-TagObjType::TagObjType(const char *name, FScope *fScope) : GameObjType(name, fScope)
+TagObjType::TagObjType(const char* name, FScope* fScope) : GameObjType(name, fScope)
 {
 }
 
@@ -52,8 +51,8 @@ TagObjType::TagObjType(const char *name, FScope *fScope) : GameObjType(name, fSc
 //
 void TagObjType::PostLoad()
 {
-  // Call parent scope first
-  GameObjType::PostLoad();
+    // Call parent scope first
+    GameObjType::PostLoad();
 }
 
 
@@ -64,8 +63,8 @@ void TagObjType::PostLoad()
 //
 GameObj* TagObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new TagObj(this, id));
+    // Allocate new object instance
+    return (new TagObj(this, id));
 }
 
 
@@ -81,16 +80,15 @@ GameObj* TagObjType::NewInstance(U32 id)
 NBinTree<TagObj> TagObj::allTags(&TagObj::node);
 
 
-
 //
 // TagObj::FindTag
 //
 // Find a tag by name crc
 //
-TagObj * TagObj::FindTag(U32 tagNameCrc)
+TagObj* TagObj::FindTag(U32 tagNameCrc)
 {
-  // Find the tag
-  return (allTags.Find(tagNameCrc));
+    // Find the tag
+    return (allTags.Find(tagNameCrc));
 }
 
 
@@ -99,9 +97,9 @@ TagObj * TagObj::FindTag(U32 tagNameCrc)
 //
 // Find a tag by name
 //
-TagObj* TagObj::FindTag(const char *tagName)
+TagObj* TagObj::FindTag(const char* tagName)
 {
-  return (FindTag(Crc::CalcStr(tagName)));
+    return (FindTag(Crc::CalcStr(tagName)));
 }
 
 
@@ -110,27 +108,27 @@ TagObj* TagObj::FindTag(const char *tagName)
 //
 // Create tag using 'list' (NULL if invalid type, tag exists, or list empty)
 //
-TagObj * TagObj::CreateTag(const char *tagName, const MapObjList &list)
+TagObj* TagObj::CreateTag(const char* tagName, const MapObjList& list)
 {
-  // Is there already a tag with this name ?
-  TagObj *obj = FindTag(tagName);
+    // Is there already a tag with this name ?
+    TagObj* obj = FindTag(tagName);
 
-  if (!obj)
-  {
-    // Create a new tag
-    obj = CreateTag(tagName);
-  }
+    if (!obj)
+    {
+        // Create a new tag
+        obj = CreateTag(tagName);
+    }
 
-  // Clear out the list
-  obj->list.Clear();
+    // Clear out the list
+    obj->list.Clear();
 
-  // Copy the target list
-  obj->list.Dup(list);
+    // Copy the target list
+    obj->list.Dup(list);
 
-  // Purge dead from the list
-  obj->list.PurgeDead();
+    // Purge dead from the list
+    obj->list.PurgeDead();
 
-  return (obj);
+    return (obj);
 }
 
 
@@ -139,27 +137,27 @@ TagObj * TagObj::CreateTag(const char *tagName, const MapObjList &list)
 //
 // Create an empty tag
 //
-TagObj * TagObj::CreateTag(const char *tagName)
+TagObj* TagObj::CreateTag(const char* tagName)
 {
-  // Find the type 
-  TagObjType *type = GameObjCtrl::FindType<TagObjType>("Tag");
+    // Find the type 
+    TagObjType* type = GameObjCtrl::FindType<TagObjType>("Tag");
 
-  // Were we successful
-  if (type)
-  {
-    // Create a new tag object (safe cast)
-    TagObj *obj = (TagObj *) type->NewInstance(0);
-  
-    // Set the name of the tag
-    obj->name = tagName;
+    // Were we successful
+    if (type)
+    {
+        // Create a new tag object (safe cast)
+        TagObj* obj = static_cast<TagObj*>(type->NewInstance(0));
 
-    // Add to the tag list
-    allTags.Add(obj->name.crc, obj);
+        // Set the name of the tag
+        obj->name = tagName;
 
-    return (obj);
-  }
+        // Add to the tag list
+        allTags.Add(obj->name.crc, obj);
 
-  return (NULL);
+        return (obj);
+    }
+
+    return (nullptr);
 }
 
 
@@ -168,11 +166,11 @@ TagObj * TagObj::CreateTag(const char *tagName)
 //
 // Constructor
 //
-TagObj::TagObj(TagObjType *objType, U32 id) 
-: GameObj(objType, id)
+TagObj::TagObj(TagObjType* objType, U32 id)
+    : GameObj(objType, id)
 {
-  // Set default tag name
-  name = "No Name";
+    // Set default tag name
+    name = "No Name";
 }
 
 
@@ -183,11 +181,11 @@ TagObj::TagObj(TagObjType *objType, U32 id)
 //
 TagObj::~TagObj()
 {
-  // Remove from the tag list
-  allTags.Unlink(this);
+    // Remove from the tag list
+    allTags.Unlink(this);
 
-  // Make sure we clear the reaper list
-  list.Clear();
+    // Make sure we clear the reaper list
+    list.Clear();
 }
 
 
@@ -198,33 +196,32 @@ TagObj::~TagObj()
 //
 void TagObj::PreDelete()
 {
-
-  // Call parent scope last
-  GameObj::PreDelete();
+    // Call parent scope last
+    GameObj::PreDelete();
 }
 
-  
+
 //
 // TagObj::LoadState
 //
 // Load a state configuration scope
 //
-void TagObj::LoadState(FScope *fScope)
+void TagObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  GameObj::LoadState(fScope);
+    // Call parent scope first
+    GameObj::LoadState(fScope);
 
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Get tag name
-  name = StdLoad::TypeString(fScope);
+    // Get tag name
+    name = StdLoad::TypeString(fScope);
 
-  // Now that the name is know add it to the all tags list
-  allTags.Add(name.crc, this);
+    // Now that the name is know add it to the all tags list
+    allTags.Add(name.crc, this);
 
-  // Load the object list
-  StdLoad::TypeReaperList(fScope, "ReaperList", list);
+    // Load the object list
+    StdLoad::TypeReaperList(fScope, "ReaperList", list);
 }
 
 
@@ -233,16 +230,16 @@ void TagObj::LoadState(FScope *fScope)
 //
 // Save a state configuration scope
 //
-void TagObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void TagObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  GameObj::SaveState(fScope);
+    // Call parent scope first
+    GameObj::SaveState(fScope);
 
-  // Save config scope with tag name
-  fScope = StdSave::TypeString(fScope, SCOPE_CONFIG, name.str);
-  
-  // Save the object list
-  StdSave::TypeReaperList(fScope, "ReaperList", list);
+    // Save config scope with tag name
+    fScope = StdSave::TypeString(fScope, SCOPE_CONFIG, name.str);
+
+    // Save the object list
+    StdSave::TypeReaperList(fScope, "ReaperList", list);
 }
 
 
@@ -253,11 +250,11 @@ void TagObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 void TagObj::PostLoad()
 {
-  // Call parent scope first
-  GameObj::PostLoad();
+    // Call parent scope first
+    GameObj::PostLoad();
 
-  // Resolve the object list
-  Resolver::ObjList<MapObj, MapObjType, MapObjListNode>(list);
+    // Resolve the object list
+    Resolver::ObjList<MapObj, MapObjType, MapObjListNode>(list);
 }
 
 
@@ -266,77 +263,31 @@ void TagObj::PostLoad()
 //
 // Get the locationMessage of the tag
 //
-Bool TagObj::GetLocation(Vector &location)
+Bool TagObj::GetLocation(Vector& location)
 {
-  location.ClearData();
-  U32 count = 0;
+    location.ClearData();
+    U32 count = 0;
 
-  // Iterate over the objects and for each one which is on the map average the location
-  for (MapObjList::Iterator i(&list); *i; i++)
-  {
-    if ((*i)->Alive())
+    // Iterate over the objects and for each one which is on the map average the location
+    for (MapObjList::Iterator i(&list); *i; ++i)
     {
-      if ((**i)->OnMap())
-      {
-        count++;
-        location += (**i)->Origin();
-      }
+        if ((*i)->Alive())
+        {
+            if ((**i)->OnMap())
+            {
+                count++;
+                location += (**i)->Origin();
+            }
+        }
     }
-  }
 
-  // If there were any objects calculate the average
-  if (count)
-  {
-    location /= (F32) count;
-    return (TRUE);
-  }
-  else
-  {
+    // If there were any objects calculate the average
+    if (count)
+    {
+        location /= static_cast<F32>(count);
+        return (TRUE);
+    }
     return (FALSE);
-  }
-}
-
-
-
-//
-// TagObj::CheckTeamProximity
-//
-// Check to see if enough units of the types described are within the proximity of the tag
-//
-Bool TagObj::CheckTeamProximity(F32 range, Team *team, U32 amount, RelationalOperator<U32> &oper)
-{
-  ASSERT(team)
-
-  Vector location;
-  U32 count = 0;
-  F32 range2 = range * range;
-
-  if (GetLocation(location))
-  {
-    List<MapCluster> clusters;
-    WorldCtrl::BuildClusterList(clusters, Point<F32>(location.x, location.z), range);
-
-    for (List<MapCluster>::Iterator cluster(&clusters); *cluster; cluster++)
-    {
-      for (NList<UnitObj>::Iterator o(&(*cluster)->unitList); *o; o++)
-      {
-        UnitObj *unit = *o;
-
-        if (
-          (unit->GetActiveTeam() == team) && 
-          (unit->Origin() - location).Magnitude2() < range2)
-        {
-          count++;
-        }
-      }
-    }
-
-    // Clean up clusters
-    clusters.UnlinkAll();
-  }
-
-  // Perform the test
-  return (oper(count, amount));
 }
 
 
@@ -345,41 +296,40 @@ Bool TagObj::CheckTeamProximity(F32 range, Team *team, U32 amount, RelationalOpe
 //
 // Check to see if enough units of the types described are within the proximity of the tag
 //
-Bool TagObj::CheckTeamProximity(F32 range, Team *team, U32 amount, RelationalOperator<U32> &oper, MapObjType *type)
+Bool TagObj::CheckTeamProximity(F32 range, Team* team, U32 amount, RelationalOperator<U32>& oper)
 {
-  ASSERT(team)
+    ASSERT(team);
 
-  Vector location;
-  U32 count = 0;
-  F32 range2 = range * range;
+    Vector location;
+    U32 count = 0;
+    F32 range2 = range * range;
 
-  if (GetLocation(location))
-  {
-    List<MapCluster> clusters;
-    WorldCtrl::BuildClusterList(clusters, Point<F32>(location.x, location.z), range);
-
-    for (List<MapCluster>::Iterator cluster(&clusters); *cluster; cluster++)
+    if (GetLocation(location))
     {
-      for (NList<UnitObj>::Iterator o(&(*cluster)->unitList); *o; o++)
-      {
-        UnitObj *unit = *o;
+        List<MapCluster> clusters;
+        WorldCtrl::BuildClusterList(clusters, Point<F32>(location.x, location.z), range);
 
-        if (
-          (unit->GetActiveTeam() == team) && 
-          (unit->MapType()->Id() == type->Id()) && 
-          (unit->Origin() - location).Magnitude2() < range2)
+        for (List<MapCluster>::Iterator cluster(&clusters); *cluster; ++cluster)
         {
-          count++;
+            for (NList<UnitObj>::Iterator o(&(*cluster)->unitList); *o; ++o)
+            {
+                UnitObj* unit = *o;
+
+                if (
+                    (unit->GetActiveTeam() == team) &&
+                    (unit->Origin() - location).Magnitude2() < range2)
+                {
+                    count++;
+                }
+            }
         }
-      }
+
+        // Clean up clusters
+        clusters.UnlinkAll();
     }
 
-    // Clean up clusters
-    clusters.UnlinkAll();
-  }
-
-  // Perform the test
-  return (oper(count, amount));
+    // Perform the test
+    return (oper(count, amount));
 }
 
 
@@ -388,39 +338,82 @@ Bool TagObj::CheckTeamProximity(F32 range, Team *team, U32 amount, RelationalOpe
 //
 // Check to see if enough units of the types described are within the proximity of the tag
 //
-Bool TagObj::CheckTeamProximity(F32 range, Team *team, U32 amount, RelationalOperator<U32> &oper, U32 property)
+Bool TagObj::CheckTeamProximity(F32 range, Team* team, U32 amount, RelationalOperator<U32>& oper, MapObjType* type)
 {
-  ASSERT(team)
+    ASSERT(team);
 
-  Vector location;
-  U32 count = 0;
-  F32 range2 = range * range;
+    Vector location;
+    U32 count = 0;
+    F32 range2 = range * range;
 
-  if (GetLocation(location))
-  {
-    List<MapCluster> clusters;
-    WorldCtrl::BuildClusterList(clusters, Point<F32>(location.x, location.z), range);
-
-    for (List<MapCluster>::Iterator cluster(&clusters); *cluster; cluster++)
+    if (GetLocation(location))
     {
-      for (NList<UnitObj>::Iterator o(&(*cluster)->unitList); *o; o++)
-      {
-        UnitObj *unit = *o;
+        List<MapCluster> clusters;
+        WorldCtrl::BuildClusterList(clusters, Point<F32>(location.x, location.z), range);
 
-        if (
-          (unit->GetActiveTeam() == team) && 
-          (unit->MapType()->HasProperty(property)) && 
-          (unit->Origin() - location).Magnitude2() < range2)
+        for (List<MapCluster>::Iterator cluster(&clusters); *cluster; ++cluster)
         {
-          count++;
+            for (NList<UnitObj>::Iterator o(&(*cluster)->unitList); *o; ++o)
+            {
+                UnitObj* unit = *o;
+
+                if (
+                    (unit->GetActiveTeam() == team) &&
+                    (unit->MapType()->Id() == type->Id()) &&
+                    (unit->Origin() - location).Magnitude2() < range2)
+                {
+                    count++;
+                }
+            }
         }
-      }
+
+        // Clean up clusters
+        clusters.UnlinkAll();
     }
 
-    // Clean up clusters
-    clusters.UnlinkAll();
-  }
+    // Perform the test
+    return (oper(count, amount));
+}
 
-  // Perform the test
-  return (oper(count, amount));
+
+//
+// TagObj::CheckTeamProximity
+//
+// Check to see if enough units of the types described are within the proximity of the tag
+//
+Bool TagObj::CheckTeamProximity(F32 range, Team* team, U32 amount, RelationalOperator<U32>& oper, U32 property)
+{
+    ASSERT(team);
+
+    Vector location;
+    U32 count = 0;
+    F32 range2 = range * range;
+
+    if (GetLocation(location))
+    {
+        List<MapCluster> clusters;
+        WorldCtrl::BuildClusterList(clusters, Point<F32>(location.x, location.z), range);
+
+        for (List<MapCluster>::Iterator cluster(&clusters); *cluster; ++cluster)
+        {
+            for (NList<UnitObj>::Iterator o(&(*cluster)->unitList); *o; ++o)
+            {
+                UnitObj* unit = *o;
+
+                if (
+                    (unit->GetActiveTeam() == team) &&
+                    (unit->MapType()->HasProperty(property)) &&
+                    (unit->Origin() - location).Magnitude2() < range2)
+                {
+                    count++;
+                }
+            }
+        }
+
+        // Clean up clusters
+        clusters.UnlinkAll();
+    }
+
+    // Perform the test
+    return (oper(count, amount));
 }

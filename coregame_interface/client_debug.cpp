@@ -38,13 +38,13 @@ namespace Client
 
 
     //
-    // Render
-    //
-    // General client side debugging
+// Render
+//
+// General client side debugging
     //
     void Render()
     {
-      #ifndef MONO_DISABLED
+#ifndef MONO_DISABLED
 
       S32 rem = monoSelectedList->Height() - 1;
       char buff[128];
@@ -52,7 +52,7 @@ namespace Client
       U32 n;
       U32 y = 0;
 
-      #endif
+#endif
 
       Common::Display::RenderDebug();
 
@@ -73,7 +73,7 @@ namespace Client
         // Unit specific debug rendering
         u->RenderDebug();
 
-        #ifndef MONO_DISABLED
+#ifndef MONO_DISABLED
 
         if (rem > 0)
         {
@@ -137,7 +137,7 @@ namespace Client
           }
         }
 
-        #endif
+#endif
 
       }
 
@@ -147,7 +147,7 @@ namespace Client
         mouseOver->RenderDebug();
       }
 
-      #ifndef MONO_DISABLED
+#ifndef MONO_DISABLED
 
       MapObj *first = FirstSelected();
 
@@ -219,7 +219,7 @@ namespace Client
         }
      
         // Skip separator
-        //row++;
+//row++;
         // Camera position
         const Vector &camPos = Vid::CurCamera().WorldMatrix().Position();
         MonoBufWriteV(monoClientInfo, (row++, col, "%.2f, %.2f, %.2f       ", camPos.x, camPos.y, camPos.z));
@@ -363,14 +363,14 @@ namespace Client
         MonoBufWriteV(monoClientInfo, (row++, col, "* None *          "));
       }
 
-      #endif
+#endif
     }
 
 
     //
-    // Init
-    //
-    // Initialize this sub-system
+// Init
+//
+// Initialize this sub-system
     //
     void Init()
     {
@@ -420,9 +420,9 @@ namespace Client
 
 
     //
-    // Done
-    //
-    // Shutdown this sub-system
+// Done
+//
+// Shutdown this sub-system
     //
     void Done()
     {

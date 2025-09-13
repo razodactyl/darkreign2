@@ -32,7 +32,7 @@ typedef Reaper<ICTabGroup> ICTabGroupPtr;
 //
 namespace ICTabGroupMsg
 {
-  const U32 Select = 0x3AC403CF; // "TabGroup::Message::Select"
+    const U32 Select = 0x3AC403CF; // "TabGroup::Message::Select"
 }
 
 
@@ -42,31 +42,30 @@ namespace ICTabGroupMsg
 //
 class ICTabGroup : public IControl
 {
-  PROMOTE_LINK(ICTabGroup, IControl, 0x2D40CF01) // "ICTabGroup"
+PROMOTE_LINK(ICTabGroup, IControl, 0x2D40CF01) // "ICTabGroup"
 
 protected:
 
-  // Currently selected tab
-  IControlPtr current;
+    // Currently selected tab
+    IControlPtr current;
 
-  // Currently selected id
-  U32 currentId;
+    // Currently selected id
+    U32 currentId;
 
 public:
 
-  ICTabGroup(IControl *parent);
-  ~ICTabGroup();
+    ICTabGroup(IControl* parent);
+    ~ICTabGroup();
 
-  // Configure control from an FScope
-  void Setup(FScope *fScope);
+    // Configure control from an FScope
+    void Setup(FScope* fScope);
 
-  // Activate and deactivate this menu
-  Bool Activate();
-  Bool Deactivate();
+    // Activate and deactivate this menu
+    Bool Activate();
+    Bool Deactivate();
 
-  // Event handler 
-  U32 HandleEvent(Event &e);
-
+    // Event handler 
+    U32 HandleEvent(Event& e);
 };
 
 

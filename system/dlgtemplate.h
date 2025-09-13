@@ -27,38 +27,40 @@ class DlgTemplate
 {
 private:
 
-  U16 buffer[DLGTEMPLATE_BUFFSIZE];
-  U16 *ptr;
-  U16 *numItems;
+    U16 buffer[DLGTEMPLATE_BUFFSIZE];
+    U16* ptr;
+    U16* numItems;
 
-  // Align Pointer
-  void AlignPtr();
+    // Align Pointer
+    void AlignPtr();
 
 public:
 
-  // Constructor & Destructor
-  DlgTemplate(const char *title, U16 x, U16 y, U16 width, U16 height, U32 style);
-  ~DlgTemplate();
+    // Constructor & Destructor
+    DlgTemplate(const char* title, U16 x, U16 y, U16 width, U16 height, U32 style);
+    ~DlgTemplate();
 
-  // AddItem
-  void AddItem(
-    U16 x, U16 y, 
-    U16 width, U16 height, 
-    U16 id, U32 style, const char *type, const char *text, U32 exStyle = 0);
+    // AddItem
+    void AddItem
+    (
+        U16 x, U16 y,
+        U16 width, U16 height,
+        U16 id, U32 style, const char* type, const char* text, U32 exStyle = 0
+    );
 
-  // AddItem
-  void AddItem(
-    U16 x, U16 y,
-    U16 width, U16 height,
-    U16 id, U32 style, U16 typeClass, const char *text, U32 exStyle = 0);
+    // AddItem
+    void AddItem
+    (
+        U16 x, U16 y,
+        U16 width, U16 height,
+        U16 id, U32 style, U16 typeClass, const char* text, U32 exStyle = 0
+    );
 
-  // Get
-  void * Get() 
-  { 
-    return (buffer); 
-  }
-
+    // Get
+    void* Get()
+    {
+        return (buffer);
+    }
 };
 
 #endif
-

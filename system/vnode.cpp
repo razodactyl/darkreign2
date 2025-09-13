@@ -27,9 +27,9 @@
 //
 // string representations of atomic types
 //
-char* VNode::aTypeStrings[AT_MAX] = 
+char* VNode::aTypeStrings[AT_MAX] =
 {
-  "none", "integer", "floating point", "string", "scope"
+    "none", "integer", "floating point", "string", "scope"
 };
 
 
@@ -40,9 +40,9 @@ char* VNode::aTypeStrings[AT_MAX] =
 //
 VNode::VNode()
 {
-  // set initial types
-  nType = NT_NONE;
-  aType = AT_NONE;
+    // set initial types
+    nType = NT_NONE;
+    aType = AT_NONE;
 }
 
 
@@ -53,8 +53,8 @@ VNode::VNode()
 //
 VNode::~VNode()
 {
-  // free type specific data
-  Clear();
+    // free type specific data
+    Clear();
 }
 
 
@@ -67,35 +67,35 @@ VNode::~VNode()
 //
 void VNode::Clear()
 {
-  // free type specific data
-  switch (nType)
-  {
-    case NT_NONE:
-    case NT_INTEGER:
-    case NT_FPOINT:
-    case NT_POINTER:
-      break;
+    // free type specific data
+    switch (nType)
+    {
+        case NT_NONE:
+        case NT_INTEGER:
+        case NT_FPOINT:
+        case NT_POINTER:
+            break;
 
-    case NT_STRING:
-      delete [] string.s;
-      break;
+        case NT_STRING:
+            delete [] string.s;
+            break;
 
-    case NT_VARIABLE:
-      delete [] variable.ident;
-      delete variable.vNode;
-      break;
+        case NT_VARIABLE:
+            delete [] variable.ident;
+            delete variable.vNode;
+            break;
 
-    case NT_SCOPE:
-      delete scope.fScope;
-      break;
+        case NT_SCOPE:
+            delete scope.fScope;
+            break;
 
-    default:
-      ERR_FATAL(("Missing case"));
-  }
+        default:
+        ERR_FATAL(("Missing case"));
+    }
 
-  // reset types
-  nType = NT_NONE;
-  aType = AT_NONE;
+    // reset types
+    nType = NT_NONE;
+    aType = AT_NONE;
 }
 
 
@@ -108,36 +108,35 @@ void VNode::Clear()
 //
 VNode* VNode::NewAtomicNode()
 {
-  // allocate a new node
-  VNode *newNode = 0;
-  
-  // check the atomic type
-  switch (aType)
-  {
-    case AT_INTEGER:
-      newNode = new VNode;
-      newNode->SetupInteger(GetInteger());              
-      break;
+    // allocate a new node
+    VNode* newNode = nullptr;
 
-    case AT_FPOINT:
-      newNode = new VNode;
-      newNode->SetupFPoint(GetFPoint());              
-      break;
+    // check the atomic type
+    switch (aType)
+    {
+        case AT_INTEGER:
+            newNode = new VNode;
+            newNode->SetupInteger(GetInteger());
+            break;
 
-    case AT_STRING:
-      newNode = new VNode;
-      newNode->SetupString(GetString());              
-      break;
+        case AT_FPOINT:
+            newNode = new VNode;
+            newNode->SetupFPoint(GetFPoint());
+            break;
 
-    case AT_SCOPE:
-      break;
+        case AT_STRING:
+            newNode = new VNode;
+            newNode->SetupString(GetString());
+            break;
 
-    default:
-      ERR_FATAL(("Missing case"));
+        case AT_SCOPE:
+            break;
 
-  }
+        default:
+        ERR_FATAL(("Missing case"));
+    }
 
-  return (newNode);
+    return (newNode);
 }
 
 
@@ -148,11 +147,11 @@ VNode* VNode::NewAtomicNode()
 //
 void VNode::SetupInteger(S32 intVal)
 {
-  Clear();
-  
-  nType = NT_INTEGER;
-  aType = AT_INTEGER;
-  integer.i = intVal;
+    Clear();
+
+    nType = NT_INTEGER;
+    aType = AT_INTEGER;
+    integer.i = intVal;
 }
 
 
@@ -163,11 +162,11 @@ void VNode::SetupInteger(S32 intVal)
 //
 void VNode::SetupFPoint(F32 dVal)
 {
-  Clear();
-  
-  nType = NT_FPOINT;
-  aType = AT_FPOINT;
-  fpoint.f = dVal;
+    Clear();
+
+    nType = NT_FPOINT;
+    aType = AT_FPOINT;
+    fpoint.f = dVal;
 }
 
 
@@ -176,16 +175,16 @@ void VNode::SetupFPoint(F32 dVal)
 //
 // set up NT_STRING type
 //
-void VNode::SetupString(const char *strVal)
+void VNode::SetupString(const char* strVal)
 {
-  ASSERT(strVal);
+    ASSERT(strVal);
 
-  Clear();
-  
-  nType = NT_STRING;
-  aType = AT_STRING;
-  string.s = Utils::Strdup(strVal);
-  string.crc = Crc::CalcStr(string.s);
+    Clear();
+
+    nType = NT_STRING;
+    aType = AT_STRING;
+    string.s = Utils::Strdup(strVal);
+    string.crc = Crc::CalcStr(string.s);
 }
 
 
@@ -194,18 +193,18 @@ void VNode::SetupString(const char *strVal)
 //
 // set up NT_VARIABLE type
 //
-void VNode::SetupVariable(const char *identVal, VNode *node)
+void VNode::SetupVariable(const char* identVal, VNode* node)
 {
-  ASSERT(*identVal != '\0');
-  ASSERT(node);
+    ASSERT(*identVal != '\0');
+    ASSERT(node);
 
-  Clear();
+    Clear();
 
-  nType = NT_VARIABLE;
-  aType = node->aType;
-  variable.ident = Utils::Strdup(identVal);
-  variable.crc = Crc::CalcStr(variable.ident);
-  variable.vNode = node;
+    nType = NT_VARIABLE;
+    aType = node->aType;
+    variable.ident = Utils::Strdup(identVal);
+    variable.crc = Crc::CalcStr(variable.ident);
+    variable.vNode = node;
 }
 
 
@@ -214,16 +213,16 @@ void VNode::SetupVariable(const char *identVal, VNode *node)
 //
 // set up NT_POINTER type
 //
-void VNode::SetupPointer(VNode *node)
+void VNode::SetupPointer(VNode* node)
 {
-  ASSERT(node);
-  ASSERT(node->nType == NT_VARIABLE);
+    ASSERT(node);
+    ASSERT(node->nType == NT_VARIABLE);
 
-  Clear();
-  
-  nType = NT_POINTER;
-  aType = node->aType;
-  pointer.vNode = node;
+    Clear();
+
+    nType = NT_POINTER;
+    aType = node->aType;
+    pointer.vNode = node;
 }
 
 
@@ -232,15 +231,15 @@ void VNode::SetupPointer(VNode *node)
 //
 // set up NT_SCOPE type
 //
-void VNode::SetupScope(FScope *fScope)
+void VNode::SetupScope(FScope* fScope)
 {
-  ASSERT(fScope);
+    ASSERT(fScope);
 
-  Clear();
-  
-  nType = NT_SCOPE;
-  aType = AT_SCOPE;
-  scope.fScope = fScope;
+    Clear();
+
+    nType = NT_SCOPE;
+    aType = AT_SCOPE;
+    scope.fScope = fScope;
 }
 
 
@@ -250,30 +249,30 @@ void VNode::SetupScope(FScope *fScope)
 // get data for atomic type AT_INTEGER
 //
 S32 VNode::GetInteger()
-{ 
-  ASSERT(aType == AT_INTEGER);
+{
+    ASSERT(aType == AT_INTEGER);
 
-  S32 rVal = 0;
+    S32 rVal = 0;
 
-  switch (nType)
-  {
-    case NT_INTEGER:
-      rVal = integer.i;
-      break;
+    switch (nType)
+    {
+        case NT_INTEGER:
+            rVal = integer.i;
+            break;
 
-    case NT_VARIABLE:
-      rVal = variable.vNode->GetInteger();
-      break;
+        case NT_VARIABLE:
+            rVal = variable.vNode->GetInteger();
+            break;
 
-    case NT_POINTER:
-      rVal = pointer.vNode->GetInteger();
-      break;
+        case NT_POINTER:
+            rVal = pointer.vNode->GetInteger();
+            break;
 
-    default:
-      ERR_FATAL(("Unknown integer node type (%d)", nType));
-  }
+        default:
+        ERR_FATAL(("Unknown integer node type (%d)", nType));
+    }
 
-  return (rVal);
+    return (rVal);
 }
 
 
@@ -284,31 +283,30 @@ S32 VNode::GetInteger()
 //
 F32 VNode::GetFPoint()
 {
-  ASSERT(aType == AT_FPOINT);
+    ASSERT(aType == AT_FPOINT);
 
-  F32 rVal = 0;
+    F32 rVal = 0;
 
-  switch (nType)
-  {
-    case NT_FPOINT:
-      rVal = fpoint.f;
-      break;
+    switch (nType)
+    {
+        case NT_FPOINT:
+            rVal = fpoint.f;
+            break;
 
-    case NT_VARIABLE:
-      rVal = variable.vNode->GetFPoint();
-      break;
+        case NT_VARIABLE:
+            rVal = variable.vNode->GetFPoint();
+            break;
 
-    case NT_POINTER:
-      rVal = pointer.vNode->GetFPoint();
-      break;
+        case NT_POINTER:
+            rVal = pointer.vNode->GetFPoint();
+            break;
 
-    default:
-      ERR_FATAL(("Unknown fpoint node type (%d)", nType));
-  }
+        default:
+        ERR_FATAL(("Unknown fpoint node type (%d)", nType));
+    }
 
-  return (rVal);
+    return (rVal);
 }
-
 
 
 //
@@ -318,29 +316,29 @@ F32 VNode::GetFPoint()
 //
 const char* VNode::GetString()
 {
-  ASSERT(aType == AT_STRING);
+    ASSERT(aType == AT_STRING);
 
-  const char *rVal = 0;
+    const char* rVal = nullptr;
 
-  switch (nType)
-  {
-    case NT_STRING:
-      rVal = string.s;
-      break;
+    switch (nType)
+    {
+        case NT_STRING:
+            rVal = string.s;
+            break;
 
-    case NT_VARIABLE:
-      rVal = variable.vNode->GetString();
-      break;
+        case NT_VARIABLE:
+            rVal = variable.vNode->GetString();
+            break;
 
-    case NT_POINTER:
-      rVal = pointer.vNode->GetString();
-      break;
+        case NT_POINTER:
+            rVal = pointer.vNode->GetString();
+            break;
 
-    default:
-      ERR_FATAL(("Unknown string node type (%d)", nType));
-  }
+        default:
+        ERR_FATAL(("Unknown string node type (%d)", nType));
+    }
 
-  return (rVal);
+    return (rVal);
 }
 
 
@@ -351,29 +349,29 @@ const char* VNode::GetString()
 //
 FScope* VNode::GetScope(Bool reset)
 {
-  ASSERT(aType == AT_SCOPE);
+    ASSERT(aType == AT_SCOPE);
 
-  FScope *rVal = NULL;
+    FScope* rVal = nullptr;
 
-  switch (nType)
-  {
-    case NT_SCOPE:
+    switch (nType)
+    {
+        case NT_SCOPE:
 
-      ASSERT(scope.fScope);
-           
-      // get scope and initialize iterators
-      rVal = scope.fScope;
-      if (reset)
-      {
-        rVal->InitIterators();
-      }
-      break;
+            ASSERT(scope.fScope);
 
-    default:
-      ERR_FATAL(("Unknown scope node type (%d)", nType));
-  }
+            // get scope and initialize iterators
+            rVal = scope.fScope;
+            if (reset)
+            {
+                rVal->InitIterators();
+            }
+            break;
 
-  return (rVal);
+        default:
+        ERR_FATAL(("Unknown scope node type (%d)", nType));
+    }
+
+    return (rVal);
 }
 
 
@@ -385,35 +383,35 @@ FScope* VNode::GetScope(Bool reset)
 //
 const char* VNode::StringForm()
 {
-  static char strBuf[256];
+    static char strBuf[256];
 
-  switch (aType)
-  {
-    case AT_NONE:     
-      Utils::Sprintf(strBuf, 256, "no atomic type");
-      break;
+    switch (aType)
+    {
+        case AT_NONE:
+            Utils::Sprintf(strBuf, 256, "no atomic type");
+            break;
 
-    case AT_INTEGER:     
-      Utils::Sprintf(strBuf, 256, "%d", GetInteger());
-      break;
+        case AT_INTEGER:
+            Utils::Sprintf(strBuf, 256, "%d", GetInteger());
+            break;
 
-    case AT_FPOINT:
-      Utils::Sprintf(strBuf, 256, "%f", GetFPoint());
-      break;
+        case AT_FPOINT:
+            Utils::Sprintf(strBuf, 256, "%f", GetFPoint());
+            break;
 
-    case AT_STRING:
-      Utils::Sprintf(strBuf, 256, "\"%s\"", GetString());
-      break;
+        case AT_STRING:
+            Utils::Sprintf(strBuf, 256, "\"%s\"", GetString());
+            break;
 
-    case AT_SCOPE:
-      Utils::Sprintf(strBuf, 256, "%s", GetScope()->NameStr());
-      break;
+        case AT_SCOPE:
+            Utils::Sprintf(strBuf, 256, "%s", GetScope()->NameStr());
+            break;
 
-    default:
-      Utils::Sprintf(strBuf, 256, "unknown atomic type (%d)", aType);
-  }
+        default:
+            Utils::Sprintf(strBuf, 256, "unknown atomic type (%d)", aType);
+    }
 
-  return (strBuf);
+    return (strBuf);
 }
 
 
@@ -424,8 +422,8 @@ const char* VNode::StringForm()
 //
 U32 VNode::GetStringCrc()
 {
-  ASSERT(nType == NT_STRING);
-  return (string.crc);
+    ASSERT(nType == NT_STRING);
+    return (string.crc);
 };
 
 
@@ -436,8 +434,8 @@ U32 VNode::GetStringCrc()
 //
 const char* VNode::GetVariableStr()
 {
-  ASSERT(nType == NT_VARIABLE);
-  return (variable.ident);
+    ASSERT(nType == NT_VARIABLE);
+    return (variable.ident);
 };
 
 
@@ -448,8 +446,8 @@ const char* VNode::GetVariableStr()
 //
 U32 VNode::GetVariableCrc()
 {
-  ASSERT(nType == NT_VARIABLE);
-  return (variable.crc);
+    ASSERT(nType == NT_VARIABLE);
+    return (variable.crc);
 };
 
 
@@ -460,7 +458,7 @@ U32 VNode::GetVariableCrc()
 //
 const char* VNode::GetAtomicString(VNodeAtomicType aType)
 {
-  ASSERT(aType < AT_MAX);
+    ASSERT(aType < AT_MAX);
 
-  return(aTypeStrings[aType]);
+    return (aTypeStrings[aType]);
 }

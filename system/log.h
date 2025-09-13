@@ -62,9 +62,9 @@
 #define LOG_WARN(y) LOG(Log::WARN, y)
 #define LOG_DIAG(y) LOG(Log::DIAG, y)
 #ifdef DEVELOPMENT
-  #define LOG_DEV(y) LOG(Log::DEV, y)
+#define LOG_DEV(y) LOG(Log::DEV, y)
 #else
-  #define LOG_DEV(y)
+#define LOG_DEV(y)
 #endif
 
 
@@ -74,108 +74,105 @@
 //
 namespace Log
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Logging Levels
-  //
-  enum Level
-  {
-    DISABLED = 0,
-    ERR      = 1,
-    WARN     = 2,
-    DIAG     = 3,
-    DEV      = 4
-  };
-
-
-  ///////////////////////////////////////////////////////////////////////////////  
-  //
-  // Class Client
-  //
-  class Client
-  {
-  private:
-
-    // name
-    StrBuf<LOG_LABEL_MAX> name;
-
-    // module source is in
-    const char *module;
-    
-    // time when source was compiled
-    U32 line;
-    
-    // time when source was compiled
-    const char *timestamp;
-
-    // log level
-    Level level;
-
-    // formatting enable
-    Bool formatting;
-
-  public:
-
-    // Constructor
-    Client(const char *name);
-
-    // Destructor
-    ~Client();
-
-    // Write
-    void CDECL Write(const char *format, ...);
-
-    // Set
-    void Set(const char *time, const char *mod, U32 ln, Level lev);
-
-    // Formatting: Enable/Disable Formatting
-    void Formatting(Bool);
-
-  public:
-    
-    // Get the name of the client
-    const StrBuf<LOG_LABEL_MAX> & GetName()
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Logging Levels
+    //
+    enum Level
     {
-      return (name);
-    }
+        DISABLED = 0,
+        ERR = 1,
+        WARN = 2,
+        DIAG = 3,
+        DEV = 4
+    };
 
-  };
+
+    ///////////////////////////////////////////////////////////////////////////////  
+    //
+    // Class Client
+    //
+    class Client
+    {
+    private:
+
+        // name
+        StrBuf<LOG_LABEL_MAX> name;
+
+        // module source is in
+        const char* module;
+
+        // time when source was compiled
+        U32 line;
+
+        // time when source was compiled
+        const char* timestamp;
+
+        // log level
+        Level level;
+
+        // formatting enable
+        Bool formatting;
+
+    public:
+
+        // Constructor
+        Client(const char* name);
+
+        // Destructor
+        ~Client();
+
+        // Write
+        void CDECL Write(const char* format, ...);
+
+        // Set
+        void Set(const char* time, const char* mod, U32 ln, Level lev);
+
+        // Formatting: Enable/Disable Formatting
+        void Formatting(Bool);
+
+    public:
+
+        // Get the name of the client
+        const StrBuf<LOG_LABEL_MAX>& GetName()
+        {
+            return (name);
+        }
+    };
 
 
-  // Init
-  void Init();
+    // Init
+    void Init();
 
-  // Done
-  void Done();
+    // Done
+    void Done();
 
-  // CheckErrors
-  void CheckErrors();
- 
-  // Perform a Flush
-  void Flush();
+    // CheckErrors
+    void CheckErrors();
 
-  // Set flush behavior
-  void SetFlush( Bool _flush);
+    // Perform a Flush
+    void Flush();
 
-  // Toggle File
-  void ToFile(Bool);
+    // Set flush behavior
+    void SetFlush(Bool _flush);
 
-  // Get File Name
-  const char *GetFileName();
+    // Toggle File
+    void ToFile(Bool);
 
-  // Toggle Buffer
-  void ToBuffer(char *buffer);
+    // Get File Name
+    const char* GetFileName();
 
-  // Fill the given window with all the errors
-  void ErrorsFill(void *hlist);
+    // Toggle Buffer
+    void ToBuffer(char* buffer);
 
-  // Handle notification
-  void ErrorsNotify(char *buffer, U32 lParam, U32 subItem);
+    // Fill the given window with all the errors
+    void ErrorsFill(void* hlist);
 
-  // Submit the log file
-  void Submit(const char *subject);
+    // Handle notification
+    void ErrorsNotify(char* buffer, U32 lParam, U32 subItem);
 
+    // Submit the log file
+    void Submit(const char* subject);
 };
 
 

@@ -52,4 +52,3 @@ using std::setprecision;
 #define HEX(n, w) setfill('0') << setw(w) << std::hex << setiosflags(ios::right | ios::uppercase) << n << 'h'
 
 #endif
-

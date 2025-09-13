@@ -23,17 +23,16 @@
 // Defines
 //
 #ifdef DEVELOPMENT
-  #define FSCOPE_CHECK(x) x->CheckDirty();
-  #define FSCOPE_DIRTY(x) x->Dirty();
-  #define FSCOPE_DIRTYALL(x) x->DirtyAll();
-  #define FSCOPE_CLEANALL(x) x->CleanAll();
+#define FSCOPE_CHECK(x) x->CheckDirty();
+#define FSCOPE_DIRTY(x) x->Dirty();
+#define FSCOPE_DIRTYALL(x) x->DirtyAll();
+#define FSCOPE_CLEANALL(x) x->CleanAll();
 #else
-  #define FSCOPE_CHECK(x)
-  #define FSCOPE_DIRTY(x)
-  #define FSCOPE_DIRTYALL(x)
-  #define FSCOPE_CLEANALL(x)
+#define FSCOPE_CHECK(x)
+#define FSCOPE_DIRTY(x)
+#define FSCOPE_DIRTYALL(x)
+#define FSCOPE_CLEANALL(x)
 #endif
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,167 +47,167 @@ class FScope
 {
 protected:
 
-  // Name of this function, or NULL if binary
-  char *nameStr;
+    // Name of this function, or NULL if binary
+    char* nameStr;
 
-  // Crc of the name
-  U32 nameCrc;
+    // Crc of the name
+    U32 nameCrc;
 
-  // Parent scope
-  FScope *parentScope;
+    // Parent scope
+    FScope* parentScope;
 
-  // Function arguments
-  NList<VNode> argList;
-  NList<VNode>::Iterator argItr;
+    // Function arguments
+    NList<VNode> argList;
+    NList<VNode>::Iterator argItr;
 
-  // Function body
-  NList<VNode> bodyList;
-  NList<VNode>::Iterator bodyItr;
-  NList<VNode>::Iterator scopeItr;
-  
+    // Function body
+    NList<VNode> bodyList;
+    NList<VNode>::Iterator bodyItr;
+    NList<VNode>::Iterator scopeItr;
+
 protected:
 
-  // Find a variable type VNode within this scope only
-  VNode* FindVariableInScope(U32 crcVal);
+    // Find a variable type VNode within this scope only
+    VNode* FindVariableInScope(U32 crcVal);
 
-  // Find a variable type VNode visible from this scope
-  VNode* FindVariableVisible(U32 crcVal);
+    // Find a variable type VNode visible from this scope
+    VNode* FindVariableVisible(U32 crcVal);
 
-  // Works close with
-  friend class PTree;
+    // Works close with
+    friend class PTree;
 
 public:
 
-  // Constructor and destructor
-  FScope(FScope *parent, const char *name, U32 crc = 0);
-  ~FScope();
+    // Constructor and destructor
+    FScope(FScope* parent, const char* name, U32 crc = 0);
+    ~FScope();
 
-  // true if 'ident' is a legal identifier name
-  static Bool IsLegalIdent(const char *ident);
+    // true if 'ident' is a legal identifier name
+    static Bool IsLegalIdent(const char* ident);
 
-  // for fatal errors in this scope, displays with context information
-  void NORETURN CDECL ScopeError(const char *fmt, ...);  
+    // for fatal errors in this scope, displays with context information
+    void NORETURN CDECL ScopeError(const char* fmt, ...);
 
-  // returns the string name of this function
-  const char * NameStr();
+    // returns the string name of this function
+    const char* NameStr();
 
-  // resets all iterators in the scope
-  void InitIterators();
+    // resets all iterators in the scope
+    void InitIterators();
 
-  // duplicate the current scope
-  FScope *Dup(FScope *parent = NULL);
+    // duplicate the current scope
+    FScope* Dup(FScope* parent = nullptr);
 
-  // Returns the number of arguments
-  U32 GetArgCount();
+    // Returns the number of arguments
+    U32 GetArgCount();
 
-  // Returns the number of items in the body
-  U32 GetBodyCount();
+    // Returns the number of items in the body
+    U32 GetBodyCount();
 
-  // generates error if not 'count' function arguments
-  void ExpectArgCount(U32 count);
+    // generates error if not 'count' function arguments
+    void ExpectArgCount(U32 count);
 
-  // returns the VNode for the next argument, returning NULL if no more and not required
-  VNode* NextArgument(Bool required = FALSE);
+    // returns the VNode for the next argument, returning NULL if no more and not required
+    VNode* NextArgument(Bool required = FALSE);
 
-  // returns the VNode for the next argument, error if type is not 'aType'
-  VNode* NextArgument(VNode::VNodeAtomicType aType, Bool required = TRUE);
+    // returns the VNode for the next argument, error if type is not 'aType'
+    VNode* NextArgument(VNode::VNodeAtomicType aType, Bool required = TRUE);
 
-  // returns the atomic types for the next argument
-  const char* NextArgString();
-  S32 NextArgInteger();
-  F32 NextArgFPoint();
+    // returns the atomic types for the next argument
+    const char* NextArgString();
+    S32 NextArgInteger();
+    F32 NextArgFPoint();
 
-  // peek at the VNode for the next argument
-  VNode* PeekArgument();
+    // peek at the VNode for the next argument
+    VNode* PeekArgument();
 
-  // tests to see if there is a next argument
-  Bool IsNextArgString();
-  Bool IsNextArgInteger();
-  Bool IsNextArgFPoint();
+    // tests to see if there is a next argument
+    Bool IsNextArgString();
+    Bool IsNextArgInteger();
+    Bool IsNextArgFPoint();
 
-  // returns the next body VNode
-  VNode* NextBodyVNode();
+    // returns the next body VNode
+    VNode* NextBodyVNode();
 
-  // get REQUIRED variable (error if not found)
-  S32 GetVarInteger(const char *ident);
-  F32 GetVarFPoint(const char *ident);
-  const char* GetVarString(const char *ident);
-  
-  // get OPTIONAL variable (return 'dVal' if not found)
-  S32 GetVarInteger(const char *ident, S32 dVal);
-  F32 GetVarFPoint(const char *ident, F32 dVal);
-  const char* GetVarString(const char *ident, const char *dVal);
+    // get REQUIRED variable (error if not found)
+    S32 GetVarInteger(const char* ident);
+    F32 GetVarFPoint(const char* ident);
+    const char* GetVarString(const char* ident);
 
-  // get OPTIONAL variable (returns FALSE and 'dest' unchanged if not found)
-  Bool GetVarIntegerRef(const char *ident, S32 &dest);
-  Bool GetVarFPointRef(const char *ident, F32 &dest);
-  Bool GetVarStringRef(const char *ident, const char * &dest);
+    // get OPTIONAL variable (return 'dVal' if not found)
+    S32 GetVarInteger(const char* ident, S32 dVal);
+    F32 GetVarFPoint(const char* ident, F32 dVal);
+    const char* GetVarString(const char* ident, const char* dVal);
 
-  // returns the next function in the list
-  FScope* NextFunction();
+    // get OPTIONAL variable (returns FALSE and 'dest' unchanged if not found)
+    Bool GetVarIntegerRef(const char* ident, S32& dest);
+    Bool GetVarFPointRef(const char* ident, F32& dest);
+    Bool GetVarStringRef(const char* ident, const char* & dest);
 
-  // returns the next function in the list but doesn't move forward
-  FScope* PeekFunction();
+    // returns the next function in the list
+    FScope* NextFunction();
 
-  // returns the parent function 
-  FScope* ParentFunction();
+    // returns the next function in the list but doesn't move forward
+    FScope* PeekFunction();
 
-  // returns first occurence of a specific function
-  FScope* GetFunction(const char *name, Bool required = TRUE);
+    // returns the parent function 
+    FScope* ParentFunction();
 
-  // add a function to this scope
-  FScope* AddFunction(const char *name, U32 crc = 0);
+    // returns first occurence of a specific function
+    FScope* GetFunction(const char* name, Bool required = TRUE);
 
-  // add a dup of 'src' to this scope
-  FScope* AddDup(FScope *src);
+    // add a function to this scope
+    FScope* AddFunction(const char* name, U32 crc = 0);
 
-  // add a variable to this scope
-  VNode* AddVar(const char *vName, VNode *valNode);
-  VNode* AddVarInteger(const char *vName, S32 data);
-  VNode* AddVarFPoint(const char *vName, F32 data);
-  VNode* AddVarString(const char *vName, const char *data);
+    // add a dup of 'src' to this scope
+    FScope* AddDup(FScope* src);
 
-  // add a parameter to this scope
-  VNode* AddArgInteger(S32 data);
-  VNode* AddArgFPoint(F32 data);
-  VNode* AddArgString(const char *data);
+    // add a variable to this scope
+    VNode* AddVar(const char* vName, VNode* valNode);
+    VNode* AddVarInteger(const char* vName, S32 data);
+    VNode* AddVarFPoint(const char* vName, F32 data);
+    VNode* AddVarString(const char* vName, const char* data);
 
-  // Print out a scope and its arguments
-  void DumpScope();
+    // add a parameter to this scope
+    VNode* AddArgInteger(S32 data);
+    VNode* AddArgFPoint(F32 data);
+    VNode* AddArgString(const char* data);
 
-  // Recursive function for dumping fscope callstacks
-  void StackRecurse();
+    // Print out a scope and its arguments
+    void DumpScope();
+
+    // Recursive function for dumping fscope callstacks
+    void StackRecurse();
 
 #ifdef DEVELOPMENT
 
-  // Is the scope dirty
-  Bool dirty;
+    // Is the scope dirty
+    Bool dirty;
 
-  // Dirty this scope and all parent scopes
-  void Dirty();
+    // Dirty this scope and all parent scopes
+    void Dirty();
 
-  // Dirty this scope and all child scopes
-  void DirtyAll();
+    // Dirty this scope and all child scopes
+    void DirtyAll();
 
-  // Clear this scope and all child scopes
-  void CleanAll();
+    // Clear this scope and all child scopes
+    void CleanAll();
 
-  // Check to see if this scope is entirely dirtied
-  void CheckDirty();
+    // Check to see if this scope is entirely dirtied
+    void CheckDirty();
 
 #endif
 
-  // Returns the crc of the string name 
-  U32 NameCrc()
-  {
-    return (nameCrc);
-  }
+    // Returns the crc of the string name 
+    U32 NameCrc()
+    {
+        return (nameCrc);
+    }
 
-  // Does function have a body (ie. vars or sub-functions)
-  Bool HasBody()
-  {
-    return (bodyList.GetCount() > 0);
-  }
+    // Does function have a body (ie. vars or sub-functions)
+    Bool HasBody()
+    {
+        return (bodyList.GetCount() > 0);
+    }
 };
 
 

@@ -26,53 +26,51 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class SquadFormation
+    //
+    class SquadFormation : public GameTask<SquadObjType, SquadObj>
+    {
+        TASK_CLASS(SquadFormation)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class SquadFormation
-  //
-  class SquadFormation : public GameTask<SquadObjType, SquadObj>
-  {
-    TASK_CLASS(SquadFormation)
+    private:
 
-  private:
+        // Name of the formation to form
+        U32 formation;
 
-    // Name of the formation to form
-    U32 formation;
+        // Location to form the formation
+        Vector location;
 
-    // Location to form the formation
-    Vector location;
+        // Direction to face the formation
+        F32 direction;
 
-    // Direction to face the formation
-    F32 direction;
+    public:
 
-  public:
+        // Constructor
+        SquadFormation(GameObj* subject);
+        SquadFormation(GameObj* subject, U32 formation, const Vector& location, F32 direction);
+        ~SquadFormation();
 
-    // Constructor
-    SquadFormation(GameObj *subject);
-    SquadFormation(GameObj *subject, U32 formation, const Vector &location, F32 direction);
-    ~SquadFormation();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateMoving();
-
-  };
+        // State machine procedures
+        void StateInit();
+        void StateMoving();
+    };
 }
 
 #endif

@@ -23,54 +23,53 @@
 //
 namespace Studio
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class BookmarkListBox
+    //
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class BookmarkListBox
-  //
 
-
-  //
-  // HandleEvent
-  //
-  // Pass any events to the registered handler
-  //
-  U32 BookmarkListBox::HandleEvent(Event &e)
-  {
-    if (e.type == IFace::EventID())
+    //
+    // HandleEvent
+    //
+    // Pass any events to the registered handler
+    //
+    U32 BookmarkListBox::HandleEvent(Event& e)
     {
-      switch (e.subType)
-      {
-        case IFace::NOTIFY:
+        if (e.type == IFace::EventID())
         {
-          // Do specific handling
-          switch (e.iface.p1)
-          {
-            case ICListBoxMsg::Rebuild:
+            switch (e.subType)
             {
-              // Rebuild the list
-              DeleteAllItems();
-
-              for (NBinTree<BookmarkObj>::Iterator i(&BookmarkObj::allBookmarks); *i; i++)
-              {
-                if (!(*i)->deathNode.InUse())
+                case IFace::NOTIFY:
                 {
-                  if ((*i)->GetType() == BookmarkObj::CURVE)
-                  {
-                    AddTextItem((*i)->GetName(), NULL);
-                  }
-                }
-              }
-              // Handled
-              return (TRUE);
-            }
-          }
+                    // Do specific handling
+                    switch (e.iface.p1)
+                    {
+                        case ICListBoxMsg::Rebuild:
+                        {
+                            // Rebuild the list
+                            DeleteAllItems();
 
-          // Not handled
-          break;
+                            for (NBinTree<BookmarkObj>::Iterator i(&BookmarkObj::allBookmarks); *i; i++)
+                            {
+                                if (!(*i)->deathNode.InUse())
+                                {
+                                    if ((*i)->GetType() == BookmarkObj::CURVE)
+                                    {
+                                        AddTextItem((*i)->GetName(), NULL);
+                                    }
+                                }
+                            }
+                            // Handled
+                            return (TRUE);
+                        }
+                    }
+
+                    // Not handled
+                    break;
+                }
+            }
         }
-      }
+        return (ICListBox::HandleEvent(e));
     }
-    return (ICListBox::HandleEvent(e));  
-  }
 }

@@ -23,49 +23,48 @@
 //
 namespace Game
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace RC
+    //
+    namespace RC
+    {
+        // Initialize GameRunCodes system
+        void Init();
 
-	///////////////////////////////////////////////////////////////////////////////
-	//
-	// NameSpace RC
-	//
-  namespace RC
-  {
-    // Initialize GameRunCodes system
-    void Init();
+        // Shutdown GameRunCodes system
+        void Done();
 
-    // Shutdown GameRunCodes system
-    void Done();
+        // Set the RunCode
+        void Set(const char*);
 
-    // Set the RunCode
-    void Set(const char *);
+        // Check the runcode
+        Bool In(const char*);
 
-    // Check the runcode
-    Bool In(const char *);
+        // Clear the RunCode
+        void Clear();
 
-    // Clear the RunCode
-    void Clear();
+        // Process the RunCode
+        void Process();
 
-    // Process the RunCode
-    void Process();
+        // Is the current RunCode NULL ?
+        Bool IsClear();
 
-    // Is the current RunCode NULL ?
-    Bool IsClear();
+        // Get average framerate of the game
+        F32 AvgFrameRate();
 
-    // Get average framerate of the game
-    F32 AvgFrameRate();
+        // Get average display framerate of the game
+        F32 AvgDisplayRate();
 
-    // Get average display framerate of the game
-    F32 AvgDisplayRate();
+        // Get average triangle count
+        U32 AvgTriCount();
 
-    // Get average triangle count
-    U32 AvgTriCount();
+        // Get total triangle count
+        U32 TriCount();
 
-    // Get total triangle count
-    U32 TriCount();
-
-    // Reset framerate
-    void ResetFrameRate();
-  }
+        // Reset framerate
+        void ResetFrameRate();
+    }
 }
 
 

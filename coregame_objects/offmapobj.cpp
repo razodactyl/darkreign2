@@ -39,15 +39,15 @@
 //
 // Constructor
 //
-OffMapObjType::OffMapObjType(const char *name, FScope *fScope) : UnitObjType(name, fScope)
+OffMapObjType::OffMapObjType(const char* name, FScope* fScope) : UnitObjType(name, fScope)
 {
-  thinkInterval = 10;
+    thinkInterval = 10;
 
-  // Get specific config scope
-  if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
-  {
-    checkTraction = StdLoad::TypeU32(fScope, "CheckTraction", TRUE);
-  }
+    // Get specific config scope
+    if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
+    {
+        checkTraction = StdLoad::TypeU32(fScope, "CheckTraction", TRUE);
+    }
 }
 
 
@@ -66,14 +66,14 @@ OffMapObjType::~OffMapObjType()
 //
 void OffMapObjType::PostLoad()
 {
-  // Call parent scope first
-  UnitObjType::PostLoad();
+    // Call parent scope first
+    UnitObjType::PostLoad();
 
-  // If we have a constructor type, set some
-  if (GetConstructorType())
-  {
-    GetConstructorType()->AddProperty("Provide::Offmap");
-  }
+    // If we have a constructor type, set some
+    if (GetConstructorType())
+    {
+        GetConstructorType()->AddProperty("Provide::Offmap");
+    }
 }
 
 
@@ -84,10 +84,9 @@ void OffMapObjType::PostLoad()
 //
 GameObj* OffMapObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new OffMapObj(this, id));
+    // Allocate new object instance
+    return (new OffMapObj(this, id));
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,9 +97,9 @@ GameObj* OffMapObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-OffMapObj::OffMapObj(OffMapObjType *objType, U32 id) 
-: UnitObj(objType, id), 
-  executed(FALSE)
+OffMapObj::OffMapObj(OffMapObjType* objType, U32 id)
+    : UnitObj(objType, id),
+      executed(FALSE)
 {
 }
 
@@ -120,9 +119,8 @@ OffMapObj::~OffMapObj()
 //
 void OffMapObj::PreDelete()
 {
-
-  // Call parent scope last
-  UnitObj::PreDelete();
+    // Call parent scope last
+    UnitObj::PreDelete();
 }
 
 
@@ -131,20 +129,20 @@ void OffMapObj::PreDelete()
 //
 // Save a state configuration scope
 //
-void OffMapObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void OffMapObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  UnitObj::SaveState(fScope);
+    // Call parent scope first
+    UnitObj::SaveState(fScope);
 
-  if (SaveGame::SaveActive())
-  {
-    // Create specific config scope
-    fScope = fScope->AddFunction(SCOPE_CONFIG);
+    if (SaveGame::SaveActive())
+    {
+        // Create specific config scope
+        fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-    // Save data
-    StdSave::TypeU32(fScope, "Executed", executed);
-    StdSave::TypeReaper(fScope, "Facility", facility);
-  }
+        // Save data
+        StdSave::TypeU32(fScope, "Executed", executed);
+        StdSave::TypeReaper(fScope, "Facility", facility);
+    }
 }
 
 
@@ -153,29 +151,29 @@ void OffMapObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 // Load a state configuration scope
 //
-void OffMapObj::LoadState(FScope *fScope)
+void OffMapObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  UnitObj::LoadState(fScope);
+    // Call parent scope first
+    UnitObj::LoadState(fScope);
 
-  if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
-  {
-    FScope *sScope;
-
-    while ((sScope = fScope->NextFunction()) != NULL)
+    if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
     {
-      switch (sScope->NameCrc())
-      {
-        case 0xEC456344: // "Executed"
-          executed = StdLoad::TypeU32(sScope);
-          break;
+        FScope* sScope;
 
-        case 0x2B4A9F8C: // "Facility"
-          StdLoad::TypeReaper(sScope, facility);
-          break;
-      }
+        while ((sScope = fScope->NextFunction()) != NULL)
+        {
+            switch (sScope->NameCrc())
+            {
+                case 0xEC456344: // "Executed"
+                    executed = StdLoad::TypeU32(sScope);
+                    break;
+
+                case 0x2B4A9F8C: // "Facility"
+                    StdLoad::TypeReaper(sScope, facility);
+                    break;
+            }
+        }
     }
-  }
 }
 
 
@@ -186,10 +184,10 @@ void OffMapObj::LoadState(FScope *fScope)
 //
 void OffMapObj::PostLoad()
 {
-  // Call parent scope first
-  UnitObj::PostLoad();
+    // Call parent scope first
+    UnitObj::PostLoad();
 
-  Resolver::Object<UnitObj, UnitObjType>(facility);
+    Resolver::Object<UnitObj, UnitObjType>(facility);
 }
 
 
@@ -198,9 +196,9 @@ void OffMapObj::PostLoad()
 //
 // Setup the facility
 //
-void OffMapObj::SetFacility(UnitObj *unit)
+void OffMapObj::SetFacility(UnitObj* unit)
 {
-  facility = unit;
+    facility = unit;
 }
 
 
@@ -209,37 +207,37 @@ void OffMapObj::SetFacility(UnitObj *unit)
 //
 // Check execution position
 //
-Bool OffMapObj::Check(const Vector &pos)
+Bool OffMapObj::Check(const Vector& pos)
 {
-  // Check traction
-  if (OffMapType()->GetCheckTraction())
-  {
-    // Convert to cells
-    U32 x = WorldCtrl::MetresToCellX(pos.x);
-    U32 z = WorldCtrl::MetresToCellZ(pos.z);
-
-    if (!PathSearch::CanMoveToCell(UnitType()->GetTractionIndex(Claim::LAYER_LOWER), x, z))
+    // Check traction
+    if (OffMapType()->GetCheckTraction())
     {
-      return (FALSE);
-    }
-  }
+        // Convert to cells
+        U32 x = WorldCtrl::MetresToCellX(pos.x);
+        U32 z = WorldCtrl::MetresToCellZ(pos.z);
 
-  // Must be on a team that can see the location
-  if (GetTeam())
-  {
-    if (GetTeam()->IsAI())
-    {
-      return (TRUE);
+        if (!PathSearch::CanMoveToCell(UnitType()->GetTractionIndex(Claim::LAYER_LOWER), x, z))
+        {
+            return (FALSE);
+        }
     }
 
-    if (Sight::Visible(WorldCtrl::MetresToCellX(pos.x), WorldCtrl::MetresToCellZ(pos.z), GetTeam()))
+    // Must be on a team that can see the location
+    if (GetTeam())
     {
-      // No disruptors in the area
-      return (UnitObjType::FindDisruptor(GetTeam(), pos) == NULL);
-    }
-  }
+        if (GetTeam()->IsAI())
+        {
+            return (TRUE);
+        }
 
-  return (FALSE);
+        if (Sight::Visible(WorldCtrl::MetresToCellX(pos.x), WorldCtrl::MetresToCellZ(pos.z), GetTeam()))
+        {
+            // No disruptors in the area
+            return (UnitObjType::FindDisruptor(GetTeam(), pos) == NULL);
+        }
+    }
+
+    return (FALSE);
 }
 
 
@@ -248,9 +246,9 @@ Bool OffMapObj::Check(const Vector &pos)
 //
 // Execute an operation (TRUE if accepted)
 //
-Bool OffMapObj::Execute(U32, const Vector &)
+Bool OffMapObj::Execute(U32, const Vector&)
 {
-  return (FALSE);  
+    return (FALSE);
 }
 
 
@@ -261,16 +259,15 @@ Bool OffMapObj::Execute(U32, const Vector &)
 //
 Bool OffMapObj::Done()
 {
-  // Notify the facility
-  if (facility.Alive())
-  {
-    facility->PostEvent(Task::Event(0xC44A7A13, Id())); // "Order::UnitConstructor::ClearOffMap"   
-  }
+    // Notify the facility
+    if (facility.Alive())
+    {
+        facility->PostEvent(Task::Event(0xC44A7A13, Id())); // "Order::UnitConstructor::ClearOffMap"   
+    }
 
-  // Delete this object
-  MarkForDeletion();
+    // Delete this object
+    MarkForDeletion();
 
-  // Mark as completed incase of duplicate orders
-  return (executed = TRUE);
+    // Mark as completed incase of duplicate orders
+    return (executed = TRUE);
 }
-

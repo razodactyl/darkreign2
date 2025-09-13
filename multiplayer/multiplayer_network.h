@@ -22,92 +22,87 @@
 //
 namespace MultiPlayer
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Definitions
+    //
+    typedef StrCrc<16> UserName;
+    typedef StrCrc<32> SessionName;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Definitions
-  //
-  typedef StrCrc<16> UserName;
-  typedef StrCrc<32> SessionName;
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Network
-  //
-  namespace Network
-  {
 
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Struct Player
+    // NameSpace Network
     //
-    struct Player
+    namespace Network
     {
-      // List node
-      NBinTree<Player, CRC>::Node node;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Struct Player
+        //
+        struct Player
+        {
+            // List node
+            NBinTree<Player, CRC>::Node node;
 
-      // Name of the player
-      UserName name;
+            // Name of the player
+            UserName name;
 
-      // Entry number
-      U32 entryNumber;
-
-
-      // Constructor
-      Player(const UserName &name)
-      : name(name),
-        entryNumber(0)
-      {
-      }
-
-      // Get the id
-      U32 GetId() const
-      {
-        return (name.crc);
-      }
-      
-      // Get the name
-      const char * GetName() const
-      {
-        return (name.str);
-      }
-
-    };
+            // Entry number
+            U32 entryNumber;
 
 
-    // Initialization
-    void Init();
+            // Constructor
+            Player(const UserName& name)
+                : name(name),
+                  entryNumber(0)
+            {
+            }
 
-    // Shutdown
-    void Done();
+            // Get the id
+            U32 GetId() const
+            {
+                return (name.crc);
+            }
 
-    // Reset
-    void Reset();
+            // Get the name
+            const char* GetName() const
+            {
+                return (name.str);
+            }
+        };
 
-    // Process
-    void Process();
 
-    // Get the tree of players
-    const NBinTree<Player, CRC> & GetPlayers();
+        // Initialization
+        void Init();
 
-    // Get the ident of the current player
-    const UserName & GetCurrentName();
+        // Shutdown
+        void Done();
 
-    // Get the current player
-    const Player & GetCurrentPlayer();
+        // Reset
+        void Reset();
 
-    // Create the current player (only for instant action!)
-    void CreateCurrentPlayer();
+        // Process
+        void Process();
 
-    // Do we have a current player yet ?
-    Bool HaveCurrentPlayer();
+        // Get the tree of players
+        const NBinTree<Player, CRC>& GetPlayers();
 
-    // Start migration
-    void StartMigration();
+        // Get the ident of the current player
+        const UserName& GetCurrentName();
 
-  }
-  
+        // Get the current player
+        const Player& GetCurrentPlayer();
+
+        // Create the current player (only for instant action!)
+        void CreateCurrentPlayer();
+
+        // Do we have a current player yet ?
+        Bool HaveCurrentPlayer();
+
+        // Start migration
+        void StartMigration();
+    }
 }
 
 

@@ -24,86 +24,82 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Recycler
+    //
 
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Recycler
-  //
-
-  
-  //
-  // Base::Recycler::Recycler
-  //
-  Base::Recycler::Recycler(Base::State &state, FScope *fScope) 
-  : state(state),
-    types(&Type::nodeList)
-  {
-    cash = StdLoad::TypeU32(fScope);
-
-    while (FScope *sScope = fScope->NextFunction())
+    //
+    // Base::Recycler::Recycler
+    //
+    Base::Recycler::Recycler(Base::State& state, FScope* fScope)
+        : state(state),
+          types(&Type::nodeList)
     {
-      switch (sScope->NameCrc())
-      {
-        case 0x9F1D54D0: // "Add"
+        cash = StdLoad::TypeU32(fScope);
+
+        while (FScope* sScope = fScope->NextFunction())
         {
-          UnitObjType *type = Util::LoadType(sScope, state.GetBase().GetObject().GetTeam());
-          types.Append(new Type(type, StdLoad::TypeU32(sScope)));
-          break;
+            switch (sScope->NameCrc())
+            {
+                case 0x9F1D54D0: // "Add"
+                {
+                    UnitObjType* type = Util::LoadType(sScope, state.GetBase().GetObject().GetTeam());
+                    types.Append(new Type(type, StdLoad::TypeU32(sScope)));
+                    break;
+                }
+            }
         }
-      }
-    }
-  }
-
-
-  //
-  // Base::Recycler::~Recycler
-  //
-  // Destructor
-  //
-  Base::Recycler::~Recycler()
-  {
-    // Delete all of the types
-    types.DisposeAll();
-  }
-
-
-  //
-  // Process the recycler
-  //
-  void Base::Recycler::Process()
-  {
-    // Work out how much resource is pending from refunds
-    U32 refund = 0;
-    for (UnitObjList::Iterator u(&state.GetBase().GetManager().GetRefunds()); *u; ++u)
-    {
-      refund += U32(F32((**u)->GetResourceValue() * (**u)->UnitType()->GetRecyclePercentage()));
     }
 
-    Object &object = state.GetBase().GetObject();
-    Team *team = object.GetTeam();
-    U32 resource = team->GetResourceStore();
 
-    // Do we have less cash now than the limit ?
-    if ((resource + refund) < cash)
+    //
+    // Base::Recycler::~Recycler
+    //
+    // Destructor
+    //
+    Base::Recycler::~Recycler()
     {
-      for (NList<Type>::Iterator t(&types); *t; ++t)
-      {
-        const NList<UnitObj> *units = team->GetUnitObjects((*t)->type->GetNameCrc());
+        // Delete all of the types
+        types.DisposeAll();
+    }
 
-        if (units && units->GetCount() > (*t)->minimum)
+
+    //
+    // Process the recycler
+    //
+    void Base::Recycler::Process()
+    {
+        // Work out how much resource is pending from refunds
+        U32 refund = 0;
+        for (UnitObjList::Iterator u(&state.GetBase().GetManager().GetRefunds()); *u; ++u)
         {
-          // Order this unit to be recycled
-          UnitObj *unit = units->GetHead();
-          Orders::Game::ClearSelected::Generate(object);
-          Orders::Game::AddSelected::Generate(object, unit);
-          Orders::Game::Recycle::Generate(object);
-          state.GetBase().GetManager().AddRefund(unit);
-          break;
+            refund += U32(F32((**u)->GetResourceValue() * (**u)->UnitType()->GetRecyclePercentage()));
         }
-      }
+
+        Object& object = state.GetBase().GetObject();
+        Team* team = object.GetTeam();
+        U32 resource = team->GetResourceStore();
+
+        // Do we have less cash now than the limit ?
+        if ((resource + refund) < cash)
+        {
+            for (NList<Type>::Iterator t(&types); *t; ++t)
+            {
+                const NList<UnitObj>* units = team->GetUnitObjects((*t)->type->GetNameCrc());
+
+                if (units && units->GetCount() > (*t)->minimum)
+                {
+                    // Order this unit to be recycled
+                    UnitObj* unit = units->GetHead();
+                    Orders::Game::ClearSelected::Generate(object);
+                    Orders::Game::AddSelected::Generate(object, unit);
+                    Orders::Game::Recycle::Generate(object);
+                    state.GetBase().GetManager().AddRefund(unit);
+                    break;
+                }
+            }
+        }
     }
-
-  }
-
 }

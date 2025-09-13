@@ -32,29 +32,29 @@ namespace Version
 #ifdef DEVELOPMENT
 #define _dev "DEVELOPMENT "
 #else
-    #define _dev ""
+#define _dev ""
 #endif
 
 #ifdef ASSERTIONS_ACTIVE
 #define _ass "ASSERTIONS "
 #else
-    #define _ass ""
+#define _ass ""
 #endif
 
 #ifdef SYNC_BRUTAL_ACTIVE
-    #define _sync "SYNC_BRUTAL "
+#define _sync "SYNC_BRUTAL "
 #else
 #define _sync ""
 #endif
 
 #ifdef DEMO
-    #define _demo "DEMO "
+#define _demo "DEMO "
 #else
 #define _demo ""
 #endif
 
 #ifdef __DO_XMM_BUILD
-    #define _xmm "XMM "
+#define _xmm "XMM "
 #else
 #define _xmm ""
 #endif
@@ -62,7 +62,7 @@ namespace Version
 #ifdef STATIC_GUARD_BLOCK_ENABLED
 #define _guard "STATIC_GUARD "
 #else
-    #define _guard ""
+#define _guard ""
 #endif
 
 #define __BUILD_DEF _dev _ass _sync _demo _xmm _guard
@@ -113,10 +113,6 @@ namespace Version
         VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Machine"), (void**)&buildMachine, &size);
         VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build OS"), (void**)&buildOS, &size);
 
-        const char* buildNumberString;
-        VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Number"), (void**)&buildNumberString, &size);
-        buildNumber = Utils::AtoI(buildNumberString);
-
         VS_FIXEDFILEINFO* vs;
         VerQueryValue(data, TEXT("\\"), (void**)&vs, &size);
         Utils::Sprintf
@@ -125,6 +121,20 @@ namespace Version
             HIWORD(vs->dwFileVersionMS), LOWORD(vs->dwFileVersionMS),
             HIWORD(vs->dwFileVersionLS), LOWORD(vs->dwFileVersionLS)
         );
+
+        // const char* buildNumberString;
+        // VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Number"), (void**)&buildNumberString, &size);
+        // buildNumber = Utils::AtoI(buildNumberString);
+
+        char buildNumberString[20];
+        Utils::Sprintf
+        (
+            buildNumberString, 80, "%d%d%d%d",
+            HIWORD(vs->dwFileVersionMS), LOWORD(vs->dwFileVersionMS),
+            HIWORD(vs->dwFileVersionLS), LOWORD(vs->dwFileVersionLS)
+        );
+
+        buildNumber = Utils::AtoI(buildNumberString);
 
         initialized = TRUE;
     }

@@ -27,9 +27,9 @@
 //
 // Load statistic state
 //
-void Stats::Base::LoadState(FScope *fScope)
+void Stats::Base::LoadState(FScope* fScope)
 {
-  name = fScope->NextArgString();
+    name = fScope->NextArgString();
 }
 
 
@@ -38,9 +38,9 @@ void Stats::Base::LoadState(FScope *fScope)
 //
 // Save statistic state
 //
-void Stats::Base::SaveState(FScope *fScope)
+void Stats::Base::SaveState(FScope* fScope)
 {
-  fScope->AddArgString(name.str);
+    fScope->AddArgString(name.str);
 }
 
 
@@ -55,12 +55,12 @@ void Stats::Base::SaveState(FScope *fScope)
 //
 // Load statistic state
 //
-void Stats::Count::LoadState(FScope *fScope)
+void Stats::Count::LoadState(FScope* fScope)
 {
-  // Call parent first
-  Base::LoadState(fScope);
+    // Call parent first
+    Base::LoadState(fScope);
 
-  count = StdLoad::TypeU32(fScope, "Count");
+    count = StdLoad::TypeU32(fScope, "Count");
 }
 
 
@@ -69,12 +69,12 @@ void Stats::Count::LoadState(FScope *fScope)
 //
 // Save statistic state
 //
-void Stats::Count::SaveState(FScope *fScope)
+void Stats::Count::SaveState(FScope* fScope)
 {
-  // Call parent first
-  Base::SaveState(fScope);
+    // Call parent first
+    Base::SaveState(fScope);
 
-  StdSave::TypeU32(fScope, "Count", count);
+    StdSave::TypeU32(fScope, "Count", count);
 }
 
 
@@ -89,11 +89,11 @@ void Stats::Count::SaveState(FScope *fScope)
 //
 // Category
 //
-Stats::Category::Category(const char *name) 
-: Base(name), 
-  categories(&CategoryNode::node)
+Stats::Category::Category(const char* name)
+    : Base(name),
+      categories(&CategoryNode::node)
 {
-  Reset();
+    Reset();
 }
 
 
@@ -102,7 +102,7 @@ Stats::Category::Category(const char *name)
 //
 Stats::Category::~Category()
 {
-  Reset();
+    Reset();
 }
 
 
@@ -111,8 +111,8 @@ Stats::Category::~Category()
 //
 void Stats::Category::Reset()
 {
-  categories.DisposeAll();
-  total = 0;
+    categories.DisposeAll();
+    total = 0;
 }
 
 
@@ -121,41 +121,41 @@ void Stats::Category::Reset()
 //
 // Load statistic state
 //
-void Stats::Category::LoadState(FScope *fScope)
+void Stats::Category::LoadState(FScope* fScope)
 {
-  // Call parent first
-  Base::LoadState(fScope);
+    // Call parent first
+    Base::LoadState(fScope);
 
-  // Load Categories
+    // Load Categories
 
-  FScope *sScope;
-  while ((sScope = fScope->NextFunction()) != NULL)
-  {
-    switch (sScope->NameCrc())
+    FScope* sScope;
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
-      case 0xF4B13FD3: // "Category"
-      {
-        // Create the node
-        CategoryNode *node = new CategoryNode(StdLoad::TypeString(sScope, "Name"));
+        switch (sScope->NameCrc())
+        {
+            case 0xF4B13FD3: // "Category"
+            {
+                // Create the node
+                CategoryNode* node = new CategoryNode(StdLoad::TypeString(sScope, "Name"));
 
-        // Set the count
-        node->count = StdLoad::TypeU32(sScope, "Count");
+                // Set the count
+                node->count = StdLoad::TypeU32(sScope, "Count");
 
-        // Add the new node to the tree
-        categories.Add(node->name.crc, node);
-        break;
-      }
+                // Add the new node to the tree
+                categories.Add(node->name.crc, node);
+                break;
+            }
 
-      case 0xBD7776D1: // "Total"
-      {
-        total = StdLoad::TypeU32(sScope);
-        break;
-      }
+            case 0xBD7776D1: // "Total"
+            {
+                total = StdLoad::TypeU32(sScope);
+                break;
+            }
 
-      default:
-        break;
+            default:
+                break;
+        }
     }
-  }
 }
 
 
@@ -164,93 +164,90 @@ void Stats::Category::LoadState(FScope *fScope)
 //
 // Save statistic state
 //
-void Stats::Category::SaveState(FScope *fScope)
+void Stats::Category::SaveState(FScope* fScope)
 {
-  // Call parent first
-  Base::SaveState(fScope);
+    // Call parent first
+    Base::SaveState(fScope);
 
-  // Save categories
-  for (NBinTree<CategoryNode>::Iterator i(&categories); *i; i++)
-  {
-    // Create our specific config scope
-    FScope *sScope = fScope->AddFunction("Category");
+    // Save categories
+    for (NBinTree<CategoryNode>::Iterator i(&categories); *i; ++i)
+    {
+        // Create our specific config scope
+        FScope* sScope = fScope->AddFunction("Category");
 
-    StdSave::TypeString(sScope, "Name", (*i)->name.str);
-    StdSave::TypeU32(sScope, "Count", (*i)->count);
-  }
+        StdSave::TypeString(sScope, "Name", (*i)->name.str);
+        StdSave::TypeU32(sScope, "Count", (*i)->count);
+    }
 
-  StdSave::TypeU32(fScope, "Total", total);
+    StdSave::TypeU32(fScope, "Total", total);
 }
 
 
 //
 // Sample : Take a sample
 //
-void Stats::Category::Sample(const char *name, U32 amount)
+void Stats::Category::Sample(const char* name, U32 amount)
 {
-  U32 crcName = Crc::CalcStr(name);
+    U32 crcName = Crc::CalcStr(name);
 
-  CategoryNode *node = categories.Find(crcName);
+    CategoryNode* node = categories.Find(crcName);
 
-  if (!node)
-  {
-    // Node did not exist .. make a new one
-    categories.Add(crcName, node = new CategoryNode(name));
-  }
+    if (!node)
+    {
+        // Node did not exist .. make a new one
+        categories.Add(crcName, node = new CategoryNode(name));
+    }
 
-  // Increment the node count
-  node->count += amount;
+    // Increment the node count
+    node->count += amount;
 
-  // Increament total
-  total += amount;
+    // Increament total
+    total += amount;
 }
 
 
 //
 // Clear : Clear a sample
 //
-void Stats::Category::Clear(const char *name)
+void Stats::Category::Clear(const char* name)
 {
-  U32 crcName = Crc::CalcStr(name);
+    U32 crcName = Crc::CalcStr(name);
 
-  CategoryNode *node = categories.Find(crcName);
+    CategoryNode* node = categories.Find(crcName);
 
-  if (node)
-  {
-    total -= node->count;
-    node->count = 0;
-  }
+    if (node)
+    {
+        total -= node->count;
+        node->count = 0;
+    }
 }
 
 
 //
 // ResetEnum: Reset Enumerator
 //
-void Stats::Category::ResetIterator(Iterator &iterator) const
+void Stats::Category::ResetIterator(Iterator& iterator) const
 {
-  iterator.SetTree(&categories);
+    iterator.SetTree(&categories);
 }
 
 
 //
 // Iterate: Enumerate through the catagories
 //
-Bool Stats::Category::Iterate(Iterator &iterator, const char *&name, U32 &num, U32 &totalNum, F32 &percentage) const
+Bool Stats::Category::Iterate(Iterator& iterator, const char*& name, U32& num, U32& totalNum, F32& percentage) const
 {
-  CategoryNode *node = iterator++;
+    CategoryNode* node = iterator++;
 
-  if (node)
-  {
-    name = node->name.str;
-    num = node->count;
-    totalNum = total;
-    percentage = (F32) ((F32) num) * 100 / ((F32) totalNum);
-    return (TRUE);
-  }
-  else
-  {
+    if (node)
+    {
+        name = node->name.str;
+        num = node->count;
+        totalNum = total;
+        percentage = static_cast<F32>(static_cast<F32>(num)) * 100 / static_cast<F32>(totalNum);
+        return (TRUE);
+    }
     return (FALSE);
-  }
 }
 
 
@@ -267,17 +264,17 @@ Bool Stats::Category::Iterate(Iterator &iterator, const char *&name, U32 &num, U
 //
 // Load statistic state
 //
-void Stats::Stat::LoadState(FScope *fScope)
+void Stats::Stat::LoadState(FScope* fScope)
 {
-  // Call parent first
-  Base::LoadState(fScope);
+    // Call parent first
+    Base::LoadState(fScope);
 
-  last = StdLoad::TypeF32(fScope, "Last");
-  sum = StdLoad::TypeF32(fScope, "Sum");
-  sumSq = StdLoad::TypeF32(fScope, "SumSq");
-  samples = StdLoad::TypeU32(fScope, "Samples");
-  smooth = StdLoad::TypeF32(fScope, "Smooth");
-  smoothDev = StdLoad::TypeF32(fScope, "SmoothDev");
+    last = StdLoad::TypeF32(fScope, "Last");
+    sum = StdLoad::TypeF32(fScope, "Sum");
+    sumSq = StdLoad::TypeF32(fScope, "SumSq");
+    samples = StdLoad::TypeU32(fScope, "Samples");
+    smooth = StdLoad::TypeF32(fScope, "Smooth");
+    smoothDev = StdLoad::TypeF32(fScope, "SmoothDev");
 }
 
 
@@ -286,17 +283,17 @@ void Stats::Stat::LoadState(FScope *fScope)
 //
 // Save statistic state
 //
-void Stats::Stat::SaveState(FScope *fScope)
+void Stats::Stat::SaveState(FScope* fScope)
 {
-  // Call parent first
-  Base::SaveState(fScope);
+    // Call parent first
+    Base::SaveState(fScope);
 
-  StdSave::TypeF32(fScope, "Last", last);
-  StdSave::TypeF32(fScope, "Sum", sum);
-  StdSave::TypeF32(fScope, "SumSq", sumSq);
-  StdSave::TypeU32(fScope, "Samples", samples);
-  StdSave::TypeF32(fScope, "Smooth", smooth);
-  StdSave::TypeF32(fScope, "SmoothDev", smoothDev);
+    StdSave::TypeF32(fScope, "Last", last);
+    StdSave::TypeF32(fScope, "Sum", sum);
+    StdSave::TypeF32(fScope, "SumSq", sumSq);
+    StdSave::TypeU32(fScope, "Samples", samples);
+    StdSave::TypeF32(fScope, "Smooth", smooth);
+    StdSave::TypeF32(fScope, "SmoothDev", smoothDev);
 }
 
 
@@ -305,14 +302,14 @@ void Stats::Stat::SaveState(FScope *fScope)
 //
 void Stats::Stat::Sample(F32 sample)
 {
-  last = sample;
-  sum += sample;
-  sumSq += sample * sample;
-  samples++;
-  smoothDev = smoothDev * 0.90f + (F32) fabs(smooth - sample) * 0.10f;
-  smooth = smooth * 0.90f + sample * 0.10f;
-  min = Min<F32>(min, sample);
-  max = Max<F32>(max, sample);
+    last = sample;
+    sum += sample;
+    sumSq += sample * sample;
+    samples++;
+    smoothDev = smoothDev * 0.90f + static_cast<F32>(fabs(smooth - sample)) * 0.10f;
+    smooth = smooth * 0.90f + sample * 0.10f;
+    min = Min<F32>(min, sample);
+    max = Max<F32>(max, sample);
 }
 
 
@@ -321,14 +318,11 @@ void Stats::Stat::Sample(F32 sample)
 //
 F32 Stats::Stat::GetAverage() const
 {
-  if (samples)
-  {
-    return (sum / ((F32) samples));
-  }
-  else
-  {
+    if (samples)
+    {
+        return (sum / static_cast<F32>(samples));
+    }
     return (0);
-  }
 }
 
 
@@ -337,13 +331,10 @@ F32 Stats::Stat::GetAverage() const
 //
 F32 Stats::Stat::GetStdDev() const
 {
-  if (samples > 1)
-  {
-    F32 average = GetAverage();
-    return ((F32) (sqrt((sumSq - average * average) / ((F32) (samples - 1)))));
-  }
-  else
-  {
+    if (samples > 1)
+    {
+        F32 average = GetAverage();
+        return static_cast<F32>(sqrt((sumSq - average * average) / static_cast<F32>(samples - 1)));
+    }
     return (0);
-  }
 }

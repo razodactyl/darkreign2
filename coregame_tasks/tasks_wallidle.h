@@ -27,51 +27,50 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class WallIdle
+    //
+    class WallIdle : public GameTask<WallObjType, WallObj>
+    {
+        TASK_CLASS(WallIdle)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class WallIdle
-  //
-  class WallIdle : public GameTask<WallObjType, WallObj>
-  {
-    TASK_CLASS(WallIdle)
+    protected:
 
-  protected:
+        // The list of walls to link to
+        WallObjList linkTargets;
 
-    // The list of walls to link to
-    WallObjList linkTargets;
+    public:
 
-  public:
+        // Constructor and destructor
+        WallIdle(GameObj* subject);
+        ~WallIdle();
 
-    // Constructor and destructor
-    WallIdle(GameObj *subject);
-    ~WallIdle();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    protected:
 
-  protected:
+        // State machine procedures
+        void StateInit();
+        void StateLink();
+        void StateIdle();
 
-    // State machine procedures
-    void StateInit();
-    void StateLink();
-    void StateIdle();
+    public:
 
-  public:
-
-    // Set targets and enter init state
-    void SetLinkTargets(const WallObjList &list);
-  };
+        // Set targets and enter init state
+        void SetLinkTargets(const WallObjList& list);
+    };
 }
 
 #endif

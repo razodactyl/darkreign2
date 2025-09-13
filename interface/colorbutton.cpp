@@ -30,16 +30,16 @@
 //
 // ColorButton::ColorButton
 //
-ColorButton::ColorButton(IControl *parent) : ICButton(parent)
+ColorButton::ColorButton(IControl* parent) : ICButton(parent)
 {
-  // Clear the var
-  var = NULL;
+    // Clear the var
+    var = nullptr;
 
-  // Styles
-  SetTabStop(FALSE);
+    // Styles
+    SetTabStop(nullptr);
 
-  // Set the default size of the button
-  SetSize(30, 20);
+    // Set the default size of the button
+    SetSize(30, 20);
 }
 
 
@@ -48,11 +48,11 @@ ColorButton::ColorButton(IControl *parent) : ICButton(parent)
 //
 ColorButton::~ColorButton()
 {
-  // Dispose of var
-  if (var)
-  {
-    delete var;
-  }
+    // Dispose of var
+    if (var)
+    {
+        delete var;
+    }
 }
 
 
@@ -61,13 +61,13 @@ ColorButton::~ColorButton()
 //
 // Draw the button control into the specified bitmap
 //
-void ColorButton::DrawSelf(PaintInfo &pi)
+void ColorButton::DrawSelf(PaintInfo& pi)
 {
-  // Draw basic button style
-  ICButton::DrawSelf(pi);
+    // Draw basic button style
+    ICButton::DrawSelf(pi);
 
-  // Draw the color
-  IFace::RenderRectangle(pi.client, Color(var->GetIntegerValue()));
+    // Draw the color
+    IFace::RenderRectangle(pi.client, Color(var->GetIntegerValue()));
 }
 
 
@@ -76,19 +76,19 @@ void ColorButton::DrawSelf(PaintInfo &pi)
 //
 // Setup this control from one scope function
 //
-void ColorButton::Setup(FScope *fScope)
+void ColorButton::Setup(FScope* fScope)
 {
-  switch (fScope->NameCrc())
-  {
-    case 0x742EA048: // "UseVar"
-      ConfigureVar(var, fScope);
-      break;
+    switch (fScope->NameCrc())
+    {
+        case 0x742EA048: // "UseVar"
+            ConfigureVar(var, fScope);
+            break;
 
-    default:
-      // Unknown scopes get passed down
-      ICButton::Setup(fScope);
-      break;
-  }
+        default:
+            // Unknown scopes get passed down
+            ICButton::Setup(fScope);
+            break;
+    }
 }
 
 
@@ -97,14 +97,14 @@ void ColorButton::Setup(FScope *fScope)
 //
 Bool ColorButton::Activate()
 {
-  if (ICButton::Activate())
-  {
-    // Check and setup the var
-    ActivateVar(var, VarSys::VI_INTEGER);
-    return (TRUE);
-  }
+    if (ICButton::Activate())
+    {
+        // Check and setup the var
+        ActivateVar(var, VarSys::VI_INTEGER);
+        return (TRUE);
+    }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -113,16 +113,15 @@ Bool ColorButton::Activate()
 //
 Bool ColorButton::Deactivate()
 {
-  if (ICButton::Deactivate())
-  {
-    // Deactivate and clear the var
-    var->Deactivate();
-    return (TRUE);
-  }
+    if (ICButton::Deactivate())
+    {
+        // Deactivate and clear the var
+        var->Deactivate();
+        return (TRUE);
+    }
 
-  return (FALSE);
+    return (FALSE);
 }
-
 
 
 //
@@ -132,17 +131,17 @@ Bool ColorButton::Deactivate()
 //
 void ColorButton::EditColor()
 {
-  if (var)
-  {
-    // Promote
-    ColorEditor *editor = IFace::Find<ColorEditor>("ColorEditor", NULL, TRUE);
+    if (var)
+    {
+        // Promote
+        ColorEditor* editor = IFace::Find<ColorEditor>("ColorEditor", nullptr, TRUE);
 
-    // Set the color var to our own
-    editor->SetColorVar(var);
+        // Set the color var to our own
+        editor->SetColorVar(var);
 
-    // Activate it
-    IFace::Activate(editor);
-  }
+        // Activate it
+        IFace::Activate(editor);
+    }
 }
 
 
@@ -151,32 +150,32 @@ void ColorButton::EditColor()
 //
 // Pass any events to the registered handler
 //
-U32 ColorButton::HandleEvent(Event &e)
+U32 ColorButton::HandleEvent(Event& e)
 {
-  if (e.type == IFace::EventID())
-  {
-    // Interface events
-    switch (e.subType)
+    if (e.type == IFace::EventID())
     {
-      case IFace::NOTIFY:
-      {
-        switch (e.iface.p1)
+        // Interface events
+        switch (e.subType)
         {
-          case ICButtonMsg::Press:
-          {
-            // Edit color
-            EditColor();
+            case IFace::NOTIFY:
+            {
+                switch (e.iface.p1)
+                {
+                    case ICButtonMsg::Press:
+                    {
+                        // Edit color
+                        EditColor();
 
-            // Default processing
-            break;
-          }
+                        // Default processing
+                        break;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
-  // Allow IControl class to process this event
-  return (ICButton::HandleEvent(e));
+    // Allow IControl class to process this event
+    return (ICButton::HandleEvent(e));
 }
 
 
@@ -185,7 +184,7 @@ U32 ColorButton::HandleEvent(Event &e)
 //
 // Var changed
 //
-void ColorButton::Notify(IFaceVar *)
+void ColorButton::Notify(IFaceVar*)
 {
 }
 
@@ -195,14 +194,14 @@ void ColorButton::Notify(IFaceVar *)
 //
 // Set the var to use
 //
-void ColorButton::UseVar(IFaceVar *varIn)
+void ColorButton::UseVar(IFaceVar* varIn)
 {
-  ASSERT(varIn)
+    ASSERT(varIn);
 
-  if (var)
-  {
-    delete var;
-  }
+    if (var)
+    {
+        delete var;
+    }
 
-  var = new IFaceVar(this, &varIn->GetItem());
+    var = new IFaceVar(this, &varIn->GetItem());
 }

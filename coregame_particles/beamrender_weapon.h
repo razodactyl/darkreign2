@@ -28,9 +28,9 @@ class BeamRenderWeaponClass : public BeamRenderBaseClass
 {
 public:
 
-  BeamRenderWeaponClass();
+    BeamRenderWeaponClass();
 
-	virtual ParticleRender * Build( Particle * particle, void * data = NULL);
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,35 +40,35 @@ public:
 class BeamRenderWeapon : public BeamRenderBase
 {
 protected:
-  CubicSpline           spline;
-  Quaternion            rotation, rotate, beamTwist, twist;
+    CubicSpline spline;
+    Quaternion rotation, rotate, beamTwist, twist;
 
-  Array<F32>            randoms;
-  LoPassFilter<Vector>  random0, random1;
+    Array<F32> randoms;
+    LoPassFilter<Vector> random0, random1;
 
-  Vid::Light::Obj *     light;
+    Vid::Light::Obj* light;
 
-  Color                 flareColor;
+    Color flareColor;
 
-  F32                   uvRotate, distance;
+    F32 uvRotate, distance;
 
-  // primitive stats
-  U32                   vcount, icount;
+    // primitive stats
+    U32 vcount, icount;
 
-  virtual void SetPoints();
+    virtual void SetPoints();
 
 public:
-	// beam renderer constructor
-	BeamRenderWeapon( BeamRenderWeaponClass *proto, Particle *particle, void *data = NULL);
+    // beam renderer constructor
+    BeamRenderWeapon(BeamRenderWeaponClass* proto, Particle* particle, void* data = NULL);
 
-	// beam renderer destructor
-	virtual ~BeamRenderWeapon();
+    // beam renderer destructor
+    virtual ~BeamRenderWeapon();
 
-	// apply beam renderer
-	virtual void Render();
+    // apply beam renderer
+    virtual void Render();
 
-	// simulate beam renderer
-	virtual void Simulate( F32 dt);
+    // simulate beam renderer
+    virtual void Simulate(F32 dt);
 };
 
 #endif

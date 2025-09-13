@@ -25,75 +25,73 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Board
+    // NameSpace Squad
     //
-
-    U32 Board::orderId;
-
-
-    //
-    // Generate
-    //
-    void Board::Generate(Player &player, U32 squad, Bool attack, Modifier mod)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Board
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
-
-      // Pack the squad
-      data.squad = squad;
-
-      // Pack the modifier
-      data.mod = mod;
-
-      // Pack the attack flag
-      data.attack = attack;
-
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
-    }
+        U32 Board::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Board::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        // Get the selected units and pass them to the board task
-        TransportObjList transports;
-
-        for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+        //
+        // Generate
+        //
+        void Board::Generate(Player& player, U32 squad, Bool attack, Modifier mod)
         {
-          if (TransportObj *transport = Promote::Object<TransportObjType, TransportObj>(**i))
-          {
-            transports.Append(transport);
-          }
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Pack the squad
+            data.squad = squad;
+
+            // Pack the modifier
+            data.mod = mod;
+
+            // Pack the attack flag
+            data.attack = attack;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
         }
 
-        // Issue the task for the squad to board the transports
-        IssueTask(d->mod, squadObj, new Tasks::SquadBoard(squadObj, transports), player, d->attack ? Task::TF_FLAG1 : 0);
 
-        // Clear out the temp list
-        transports.Clear();
-      }
-  
-      return (sizeof (Data));
+        //
+        // Execute
+        //
+        U32 Board::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                // Get the selected units and pass them to the board task
+                TransportObjList transports;
+
+                for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+                {
+                    if (TransportObj* transport = Promote::Object<TransportObjType, TransportObj>(**i))
+                    {
+                        transports.Append(transport);
+                    }
+                }
+
+                // Issue the task for the squad to board the transports
+                IssueTask(d->mod, squadObj, new Tasks::SquadBoard(squadObj, transports), player, d->attack ? Task::TF_FLAG1 : 0);
+
+                // Clear out the temp list
+                transports.Clear();
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

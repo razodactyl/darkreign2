@@ -20,26 +20,27 @@
 
 // Constructor
 //
-MeshTextCrossFade::MeshTextCrossFade( MeshTextCrossFadeType *_type, MeshEnt *_ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
- : MeshBaseColor( _type, _ent, _lifeTime, _flags)
+MeshTextCrossFade::MeshTextCrossFade(MeshTextCrossFadeType* _type, MeshEnt* _ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+    : MeshBaseColor(_type, _ent, _lifeTime, _flags)
 {
-  _flags |= _type->data.animFlags;
+    _flags |= _type->data.animFlags;
 
-  if (_lifeTime <= 0.0f)
-  {
-    _lifeTime = _type->data.lifeTime;
-  }
+    if (_lifeTime <= 0.0f)
+    {
+        _lifeTime = _type->data.lifeTime;
+    }
 
-  colorAnim2.Setup( _lifeTime, &_type->colorKeys2, &_type->data, _flags);
+    colorAnim2.Setup(_lifeTime, &_type->colorKeys2, &_type->data, _flags);
 
-  List<MeshEnt>::Iterator i(&ents);
-  for (!i; *i; i++)
-  {
-    MeshEnt &ent = *(*i);
+    List<MeshEnt>::Iterator i(&ents);
+    for (!i; *i; i++)
+    {
+        MeshEnt& ent = *(*i);
 
-    ent.SetRenderProc( &MeshEnt::RenderTextCrossFadeEffect);
-  }
+        ent.SetRenderProc(&MeshEnt::RenderTextCrossFadeEffect);
+    }
 }
+
 //----------------------------------------------------------------------------
 
 // Destuctor
@@ -47,82 +48,85 @@ MeshTextCrossFade::MeshTextCrossFade( MeshTextCrossFadeType *_type, MeshEnt *_en
 MeshTextCrossFade::~MeshTextCrossFade()
 {
 }
+
 //----------------------------------------------------------------------------
 
 // Simulation function
 //
-Bool MeshTextCrossFade::Simulate(F32 dt, MeshFX::CallBackData * cbd) // = NULL
+Bool MeshTextCrossFade::Simulate(F32 dt, MeshFX::CallBackData* cbd) // = NULL
 {
-  if (!MeshBaseColor::Simulate( dt, cbd))
-  {
-    // timer has expired
-    // destroy the effect
-    //
-    return FALSE;
-  }
-//  MeshTextCrossFadeType * type = GetType();
+    if (!MeshBaseColor::Simulate(dt, cbd))
+    {
+        // timer has expired
+        // destroy the effect
+        //
+        return FALSE;
+    }
+    //  MeshTextCrossFadeType * type = GetType();
 
-  colorAnim2.SetSlave( timer.Current().frame);
+    colorAnim2.SetSlave(timer.Current().frame);
 
-  return TRUE;
+    return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 void MeshEnt::RenderTextCrossFadeEffect()
 {
-  MeshTextCrossFade *fx = (MeshTextCrossFade *)effect;
-  MeshTextCrossFadeType * type = fx->GetType();
+    MeshTextCrossFade* fx = (MeshTextCrossFade*)effect;
+    MeshTextCrossFadeType* type = fx->GetType();
 
-  Color c = fx->colorAnim.Current().color;
-  Color last = baseColor;
+    Color c = fx->colorAnim.Current().color;
+    Color last = baseColor;
 
-  baseColor.Modulate( c.r * U8toNormF32, c.g * U8toNormF32, c.b * U8toNormF32, c.a * U8toNormF32);
+    baseColor.Modulate(c.r * U8toNormF32, c.g * U8toNormF32, c.b * U8toNormF32, c.a * U8toNormF32);
 
-  controlFlags &= ~(controlOVERLAY1PASS | controlOVERLAY2PASS);
-    
-  // call the base render
-  (this->*renderProcSave)();
+    controlFlags &= ~(controlOVERLAY1PASS | controlOVERLAY2PASS);
 
-  baseColor = last;
+    // call the base render
+    (this->*renderProcSave)();
 
-  Vid::SetBucketFlags( (BucketMan::GetPrimitiveDesc().flags & ~RS_BLEND_MASK) | type->data.blend | RS_NOSORT);
-  Vid::SetBucketTexture( fx->texture, TRUE, 0, type->data.blend);
+    baseColor = last;
 
-  U32 i, count = buckys.count;
-  for (i = 0; i < count; i++)
-  {
-    BucketLock &bucky = buckys[i];
+    Vid::SetBucketFlags((BucketMan::GetPrimitiveDesc().flags & ~RS_BLEND_MASK) | type->data.blend | RS_NOSORT);
+    Vid::SetBucketTexture(fx->texture, TRUE, 0, type->data.blend);
 
-    if (bucky.vCount == 0)
+    U32 i, count = buckys.count;
+    for (i = 0; i < count; i++)
     {
-      continue;
+        BucketLock& bucky = buckys[i];
+
+        if (bucky.vCount == 0)
+        {
+            continue;
+        }
+
+        VertexTL* vmem;
+        U16* imem;
+
+        if (!Vid::LockIndexedPrimitiveMem((void**)&vmem, bucky.vCount, &imem, bucky.iCount, &statesR))
+        {
+            return;
+        }
+        Color color = fx->colorAnim2.Current().color;
+
+        VertexTL *sv, *ev = bucky.vert + bucky.vCount;
+        for (sv = bucky.vert; sv < ev; sv++, vmem++)
+        {
+            *vmem = *sv;
+            vmem->diffuse = color;
+        }
+
+        U16 offset = (U16)bucky.offset;
+
+        U16 *si, *ei = bucky.index + bucky.iCount;
+        for (si = bucky.index; si < ei; si++, imem++)
+        {
+            *imem = (U16)(*si - offset);       // FIXME build in new offset
+        }
+
+        Vid::UnlockIndexedPrimitiveMem(bucky.vCount, bucky.iCount);
     }
-
-    VertexTL *vmem;
-    U16 *imem;
-
-    if (!Vid::LockIndexedPrimitiveMem( (void **)&vmem, bucky.vCount, &imem, bucky.iCount, &statesR))
-    {
-      return;
-    }
-    Color color = fx->colorAnim2.Current().color;
-
-    VertexTL *sv, *ev = bucky.vert + bucky.vCount;
-    for ( sv = bucky.vert; sv < ev; sv++, vmem++)
-    {
-      *vmem = *sv;
-      vmem->diffuse  = color;
-    }
-
-    U16 offset = (U16) bucky.offset;
-
-    U16 *si, *ei = bucky.index + bucky.iCount;
-    for ( si = bucky.index; si < ei; si++, imem++ )
-    {
-      *imem = (U16) (*si - offset);       // FIXME build in new offset
-    }
-
-    Vid::UnlockIndexedPrimitiveMem( bucky.vCount, bucky.iCount);
-  }
 }
+
 //----------------------------------------------------------------------------

@@ -22,32 +22,32 @@
 //
 namespace Statistics
 {
-  extern U32 terrainTris;
-  extern U32 groundSpriteTris;
-  extern U32 spriteTris;
+    extern U32 terrainTris;
+    extern U32 groundSpriteTris;
+    extern U32 spriteTris;
 
-  extern U32 objectTris;
-  extern U32 overlayTris;
+    extern U32 objectTris;
+    extern U32 overlayTris;
 
-  extern U32 mrmTris;
-  extern U32 nonMRMTris;
+    extern U32 mrmTris;
+    extern U32 nonMRMTris;
 
-  extern U32 ifaceTris;
-  extern U32 totalTris;
+    extern U32 ifaceTris;
+    extern U32 totalTris;
 
-  extern U32 clipTris;
-  extern U32 noClipTris;
+    extern U32 clipTris;
+    extern U32 noClipTris;
 
-  // used to gather tri data from low level routines
-  extern U32 tempTris;
+    // used to gather tri data from low level routines
+    extern U32 tempTris;
 
-  // reset the values at the beginning of frame
-  void Reset();
+    // reset the values at the beginning of frame
+    void Reset();
 
-  void SetTotal();
+    void SetTotal();
 
-  void Init();
-  void Done();
+    void Init();
+    void Done();
 }
 
 #endif

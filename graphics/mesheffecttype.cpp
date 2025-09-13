@@ -21,14 +21,14 @@
 //
 // MeshEffect simulator configuration
 //
-void MeshEffectType::Setup(FScope *fScope)
+void MeshEffectType::Setup(FScope* fScope)
 {
-  FScope *sScope;
+    FScope* sScope;
 
-  while ((sScope = fScope->NextFunction()) != NULL)
-  {
-    Configure( sScope);
-  }
+    while ((sScope = fScope->NextFunction()) != NULL)
+    {
+        Configure(sScope);
+    }
 }
 
 
@@ -53,9 +53,9 @@ MeshEffectType::~MeshEffectType()
 //
 // Construct a new effect
 //
-MeshEffect *MeshEffectType::Build( MeshEnt &_ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+MeshEffect* MeshEffectType::Build(MeshEnt& _ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
 {
-  return new MeshEffect(this, &_ent, _lifeTime, _flags);
+    return new MeshEffect(this, &_ent, _lifeTime, _flags);
 }
 
 
@@ -63,9 +63,9 @@ MeshEffect *MeshEffectType::Build( MeshEnt &_ent, F32 _lifeTime, U32 _flags) // 
 // Handle a scope
 //
 //
-Bool MeshEffectType::Configure(FScope *fScope)
+Bool MeshEffectType::Configure(FScope* fScope)
 {
-  return data.Configure( fScope);
+    return data.Configure(fScope);
 }
 
 
@@ -76,11 +76,11 @@ Bool MeshEffectType::Configure(FScope *fScope)
 //
 void MeshEffectType::PostLoad()
 {
-  data.PostLoad();
+    data.PostLoad();
 }
 
 
 U32 MeshEffectType::GetMem() const
 {
-  return sizeof ( this);
+    return sizeof (this);
 }

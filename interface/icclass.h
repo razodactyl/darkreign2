@@ -35,25 +35,27 @@ class IControl;
 class ICClass
 {
 public:
-  // Handler function that is able to instantiate a control of a specified type
-  typedef IControl* (CREATEPROC)(U32, IControl *, U32);
+    // Handler function that is able to instantiate a control of a specified type
+    typedef IControl* (CREATEPROC)(U32, IControl*, U32);
 
-  GameIdent       type;
-  GameIdent       base;
-  Bool            derived;
-  FScope         *scope;
-  CREATEPROC     *createProc;
+    GameIdent type;
+    GameIdent base;
+    Bool derived;
+    FScope* scope;
+    CREATEPROC* createProc;
 
 public:
-  ICClass() : derived(FALSE), scope(NULL), createProc(NULL) {}
-
-  ~ICClass()
-  {
-    if (scope)
+    ICClass() : derived(FALSE), scope(NULL), createProc(NULL)
     {
-      delete scope;
     }
-  }
+
+    ~ICClass()
+    {
+        if (scope)
+        {
+            delete scope;
+        }
+    }
 };
 
 #endif

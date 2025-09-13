@@ -25,19 +25,17 @@
 //
 namespace Strategic
 {
+    // RegisterObject
+    void RegisterObject(class Object* object);
 
-  // RegisterObject
-  void RegisterObject(class Object *object);
+    // RegisterPersonality
+    void RegisterPersonality(class Personality* personality);
 
-  // RegisterPersonality
-  void RegisterPersonality(class Personality *personality);
+    // Register the construction of an AI item
+    void RegisterConstruction(DTrack::Info& info);
 
-  // Register the construction of an AI item
-  void RegisterConstruction(DTrack::Info &info);
-
-  // Register the destruction of the AI item 'info'
-  void RegisterDestruction(DTrack::Info &info);
-
+    // Register the destruction of the AI item 'info'
+    void RegisterDestruction(DTrack::Info& info);
 }
 
 

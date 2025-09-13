@@ -37,9 +37,8 @@ MoviePlayer::MoviePlayer() : bitmap(NULL)
 //
 MoviePlayer::~MoviePlayer()
 {
-  Stop();
+    Stop();
 }
-
 
 
 //
@@ -47,40 +46,40 @@ MoviePlayer::~MoviePlayer()
 //
 // Start the given movie
 //
-Bool MoviePlayer::Start(const char *file, Bool stretch)
+Bool MoviePlayer::Start(const char* file, Bool stretch)
 {
-  // Stop any current movie
-  Stop();
-
-  // Allocate a bitmap
-  bitmap = new Bitmap(bitmapSURFACE);
-
-  // Match the pixel format
-  bitmap->SetPixFormat(Vid::backBmp.PixelFormat());
-
-  // Attempt to load the bink
-  if (bitmap->LoadBink(file, TRUE, stretch))
-  {
-    // Activate it
-    bitmap->BinkSetActive(1);
-
-    // Clear the screen
-    Vid::ClearBack();
-    Vid::RenderFlush();
-    Vid::ClearBack();
-    Vid::RenderFlush();
-    Vid::ClearBack();
-
-    // Success
-    return (TRUE);
-  }
-  else
-  {
+    // Stop any current movie
     Stop();
 
-    // Failed
-    return (FALSE);
-  }
+    // Allocate a bitmap
+    bitmap = new Bitmap(bitmapSURFACE);
+
+    // Match the pixel format
+    bitmap->SetPixFormat(Vid::backBmp.PixelFormat());
+
+    // Attempt to load the bink
+    if (bitmap->LoadBink(file, TRUE, stretch))
+    {
+        // Activate it
+        bitmap->BinkSetActive(1);
+
+        // Clear the screen
+        Vid::ClearBack();
+        Vid::RenderFlush();
+        Vid::ClearBack();
+        Vid::RenderFlush();
+        Vid::ClearBack();
+
+        // Success
+        return (TRUE);
+    }
+    else
+    {
+        Stop();
+
+        // Failed
+        return (FALSE);
+    }
 }
 
 
@@ -91,11 +90,11 @@ Bool MoviePlayer::Start(const char *file, Bool stretch)
 //
 void MoviePlayer::Stop()
 {
-  if (bitmap)
-  {
-    delete bitmap;
-    bitmap = NULL;
-  }
+    if (bitmap)
+    {
+        delete bitmap;
+        bitmap = NULL;
+    }
 }
 
 
@@ -106,5 +105,5 @@ void MoviePlayer::Stop()
 //
 Bool MoviePlayer::Active()
 {
-  return (bitmap && !bitmap->BinkDone());
+    return (bitmap && !bitmap->BinkDone());
 }

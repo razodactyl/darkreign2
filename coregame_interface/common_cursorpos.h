@@ -25,35 +25,33 @@
 //
 namespace Common
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TerrainCursorPos
-  //
-  class TerrainCursorPos : public ICStatic
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TerrainCursorPos
+    //
+    class TerrainCursorPos : public ICStatic
+    {
     PROMOTE_LINK(TerrainCursorPos, ICStatic, 0xF8E8F42E) // "TerrainCursorPos"
 
-  protected:
+    protected:
 
-    // Buffer for text
-    CH buf[128];
+        // Buffer for text
+        CH buf[128];
 
-    // Units of display
-    U32 units;
+        // Units of display
+        U32 units;
 
-    // Update cursor position and redraw self
-    void DrawSelf(PaintInfo &pi);
+        // Update cursor position and redraw self
+        void DrawSelf(PaintInfo& pi);
 
-  public:
+    public:
 
-    // Constructor
-    TerrainCursorPos(IControl *parent);
-    
-    // Setup
-    void Setup(FScope *fScope);
-  };
+        // Constructor
+        TerrainCursorPos(IControl* parent);
 
+        // Setup
+        void Setup(FScope* fScope);
+    };
 }
 
 #endif

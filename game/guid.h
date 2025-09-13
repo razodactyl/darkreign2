@@ -25,10 +25,8 @@
 //
 namespace Guid
 {
-
-  // Application GUID
-  extern const GUID Application;
-
+    // Application GUID
+    extern const GUID Application;
 };
 
 

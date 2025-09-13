@@ -17,7 +17,7 @@
 #include "stdload.h"
 
 
-static Bool ConsoleHook(const CH *text, U32 &type, void *context);
+static Bool ConsoleHook(const CH* text, U32& type, void* context);
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,16 +26,16 @@ static Bool ConsoleHook(const CH *text, U32 &type, void *context);
 //
 
 // Control names
-static const char *ConsoleItemCtrlName = "[ConsoleItem]";
+static const char* ConsoleItemCtrlName = "[ConsoleItem]";
 
 
 //
 // Constructor
 //
-ConsoleViewer::ConsoleViewer(IControl *parent) 
-: ICListBox(parent)
+ConsoleViewer::ConsoleViewer(IControl* parent)
+    : ICListBox(parent)
 {
-  listBoxStyle |= STYLE_WRAP;
+    listBoxStyle |= STYLE_WRAP;
 }
 
 
@@ -44,33 +44,33 @@ ConsoleViewer::ConsoleViewer(IControl *parent)
 //
 ConsoleViewer::~ConsoleViewer()
 {
-  filters.DisposeAll();
+    filters.DisposeAll();
 }
 
 
 //
 // ConsoleViewer::Setup
 //
-void ConsoleViewer::Setup(FScope *fScope)
+void ConsoleViewer::Setup(FScope* fScope)
 {
-  switch (fScope->NameCrc())
-  {
-    case 0x5C5656F8: // "Filters"
+    switch (fScope->NameCrc())
     {
-      List<GameIdent> idents;
-      StdLoad::TypeStrCrcList(fScope, idents);
-      for (List<GameIdent>::Iterator i(&idents); *i; i++)
-      {
-        filters.Add((*i)->crc);
-      }
-      idents.DisposeAll();
-      break;
-    }
+        case 0x5C5656F8: // "Filters"
+        {
+            List<GameIdent> idents;
+            StdLoad::TypeStrCrcList(fScope, idents);
+            for (List<GameIdent>::Iterator i(&idents); *i; i++)
+            {
+                filters.Add((*i)->crc);
+            }
+            idents.DisposeAll();
+            break;
+        }
 
-    default:
-      ICListBox::Setup(fScope);
-      break;
-  }
+        default:
+            ICListBox::Setup(fScope);
+            break;
+    }
 }
 
 
@@ -81,7 +81,7 @@ void ConsoleViewer::Setup(FScope *fScope)
 //
 void ConsoleViewer::ClearFilters()
 {
-  filters.DisposeAll();
+    filters.DisposeAll();
 }
 
 
@@ -92,7 +92,7 @@ void ConsoleViewer::ClearFilters()
 //
 void ConsoleViewer::AddFilter(U32 filter)
 {
-  filters.Add(filter);
+    filters.Add(filter);
 }
 
 
@@ -103,7 +103,7 @@ void ConsoleViewer::AddFilter(U32 filter)
 //
 void ConsoleViewer::DelFilter(U32 filter)
 {
-  filters.Dispose(filter);
+    filters.Dispose(filter);
 }
 
 
@@ -114,13 +114,13 @@ void ConsoleViewer::DelFilter(U32 filter)
 //
 void ConsoleViewer::Rebuild()
 {
-  BinTree<U32> *pf = filters.GetCount() ? &filters : NULL;
+    BinTree<U32>* pf = filters.GetCount() ? &filters : NULL;
 
-  // Empty the list
-  DeleteAllItems();
+    // Empty the list
+    DeleteAllItems();
 
-  // Rebuild list
-  Console::EnumStrings(pf, ConsoleHook, this);
+    // Rebuild list
+    Console::EnumStrings(pf, ConsoleHook, this);
 }
 
 
@@ -129,14 +129,14 @@ void ConsoleViewer::Rebuild()
 //
 Bool ConsoleViewer::Activate()
 {
-  if (CanActivate())
-  {
-    // Install message hook
-    BinTree<U32> *pf = filters.GetCount() ? &filters : NULL;
-    Console::RegisterMsgHook(pf, ConsoleHook, this);
-  }
+    if (CanActivate())
+    {
+        // Install message hook
+        BinTree<U32>* pf = filters.GetCount() ? &filters : NULL;
+        Console::RegisterMsgHook(pf, ConsoleHook, this);
+    }
 
-  return (ICListBox::Activate());
+    return (ICListBox::Activate());
 }
 
 
@@ -145,20 +145,20 @@ Bool ConsoleViewer::Activate()
 //
 Bool ConsoleViewer::Deactivate()
 {
-  if (ICListBox::Deactivate())
-  {
-    // Uninstall message hook
-    Console::UnregisterMsgHook(ConsoleHook, this);
+    if (ICListBox::Deactivate())
+    {
+        // Uninstall message hook
+        Console::UnregisterMsgHook(ConsoleHook, this);
 
-    // Delete all items
-    DeleteAllItems();
+        // Delete all items
+        DeleteAllItems();
 
-    return (TRUE);
-  }
-  else
-  {
-    return (FALSE);
-  }
+        return (TRUE);
+    }
+    else
+    {
+        return (FALSE);
+    }
 }
 
 
@@ -167,55 +167,55 @@ Bool ConsoleViewer::Deactivate()
 //
 // Event handling function
 //
-U32 ConsoleViewer::HandleEvent(Event &e)
+U32 ConsoleViewer::HandleEvent(Event& e)
 {
-  if (e.type == IFace::EventID())
-  {
-    switch (e.subType)
+    if (e.type == IFace::EventID())
     {
-      case IFace::NOTIFY:
-        switch (e.iface.p1)
+        switch (e.subType)
         {
-          case ConsoleViewerMsg::Rebuild:
-          case ICListBoxMsg::Rebuild:
-          {
-            Rebuild();
-            return (TRUE);
-          }
+            case IFace::NOTIFY:
+                switch (e.iface.p1)
+                {
+                    case ConsoleViewerMsg::Rebuild:
+                    case ICListBoxMsg::Rebuild:
+                    {
+                        Rebuild();
+                        return (TRUE);
+                    }
 
-          case ConsoleViewerMsg::Clear:
-          {
-            // Clear the console
-            Console::ClearScrollBack();
+                    case ConsoleViewerMsg::Clear:
+                    {
+                        // Clear the console
+                        Console::ClearScrollBack();
 
-            // Change the message to a delete all message so that it is cleared
-            e.iface.p1 = ICListBoxMsg::DeleteAll;
-            break;
-          }
+                        // Change the message to a delete all message so that it is cleared
+                        e.iface.p1 = ICListBoxMsg::DeleteAll;
+                        break;
+                    }
 
-          case ConsoleViewerMsg::ClearFilters:
-          {
-            ClearFilters();
-            return (TRUE);
-          }
+                    case ConsoleViewerMsg::ClearFilters:
+                    {
+                        ClearFilters();
+                        return (TRUE);
+                    }
 
-          case ConsoleViewerMsg::AddFilter:
-          {
-            AddFilter(e.iface.p2);
-            return (TRUE);
-          }
+                    case ConsoleViewerMsg::AddFilter:
+                    {
+                        AddFilter(e.iface.p2);
+                        return (TRUE);
+                    }
 
-          case ConsoleViewerMsg::DelFilter:
-          {
-            DelFilter(e.iface.p2);
-            return (TRUE);
-          }
+                    case ConsoleViewerMsg::DelFilter:
+                    {
+                        DelFilter(e.iface.p2);
+                        return (TRUE);
+                    }
+                }
+                break;
         }
-        break;
     }
-  }
 
-  return (ICListBox::HandleEvent(e));
+    return (ICListBox::HandleEvent(e));
 }
 
 
@@ -224,12 +224,12 @@ U32 ConsoleViewer::HandleEvent(Event &e)
 //
 // Message hook callback for ConsoleViewer objects
 //
-static Bool ConsoleHook(const CH *text, U32 &type, void *context)
+static Bool ConsoleHook(const CH* text, U32& type, void* context)
 {
-  ConsoleViewer *cv = (ConsoleViewer *)context;
+    ConsoleViewer* cv = (ConsoleViewer*)context;
 
-  // Construct a new text item
-  cv->AddTextItem(ConsoleItemCtrlName, text, &IFace::GetConsoleColor(type));
+    // Construct a new text item
+    cv->AddTextItem(ConsoleItemCtrlName, text, &IFace::GetConsoleColor(type));
 
-  return (TRUE);
+    return (TRUE);
 }

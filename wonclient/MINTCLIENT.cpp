@@ -26,7 +26,8 @@ namespace MINTCLIENT
     {
         Client* client = static_cast<Client*>(context);
 
-        if (host) {
+        if (host)
+        {
             client->config.address = *host->GetAddress();
             client->config.address.SetPort(client->config._address.GetPortI());
 
@@ -41,9 +42,9 @@ namespace MINTCLIENT
     // Constructor
     Client::Client(const Config& config)
         : config(config)
-        , flags(0)
-        , socket(Win32::Socket::TCP, TRUE)
-        , packetBuffer(StyxNet::Packet::Buffer::Create(StyxNet::clientBufferSize))
+          , flags(0)
+          , socket(Win32::Socket::TCP, TRUE)
+          , packetBuffer(StyxNet::Packet::Buffer::Create(StyxNet::clientBufferSize))
     {
         StyxNet::AddClient();
 
@@ -304,7 +305,7 @@ namespace MINTCLIENT
             }
             break;
 
-            // For a known packet, if it's the response to a command, pull up command context and deal with it.
+                // For a known packet, if it's the response to a command, pull up command context and deal with it.
             case MINTCLIENT::Message::DirectoryListServers: // 0x77712BCE
             {
                 auto* cmd = this->GetCommandById(packet.GetCommand());
@@ -341,13 +342,16 @@ namespace MINTCLIENT
             case MINTCLIENT::Message::IdentityUpdate: // 0xB6CFD48E
             case MINTCLIENT::Message::IdentityAuthenticate: // 0xCD5AF72B
             {
+                // For this to work, the struct needs to be consistently sent back from the server, which it's not.
                 const auto r = *(MINTCLIENT::Identity::Result*)(packet.GetData());
 
                 auto* cmd = this->GetCommandById(packet.GetCommand());
 
                 if (cmd)
                 {
-                    cmd->SetDataFromStruct(r);
+                    // For this to work, the struct needs to be consistently sent back from the server, which it's not.
+                    // cmd->SetDataFromStruct(r);
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
                     cmd->Done();
                 }
                 else
@@ -355,25 +359,10 @@ namespace MINTCLIENT
                     _DebugShowMissingContext(packet, this);
                 }
             }
-            break;
+                break;
 
             case MINTCLIENT::Message::RoutingServerRoomConnect: // 0xEE37226B
             case MINTCLIENT::Message::RoutingServerRoomRegister: // 0x59938A8D
-            {
-                auto* cmd = this->GetCommandById(packet.GetCommand());
-
-                if (cmd)
-                {
-                    cmd->Done();
-                }
-                else
-                {
-                    _DebugShowMissingContext(packet, this);
-                }
-            }
-            break;
-
-            case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
             {
                 auto* cmd = this->GetCommandById(packet.GetCommand());
 
@@ -387,7 +376,24 @@ namespace MINTCLIENT
                     _DebugShowMissingContext(packet, this);
                 }
             }
-            break;
+                break;
+
+            case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
+            case MINTCLIENT::Message::RoutingServerGetNumUsers: // 0xACCD008F
+            {
+                auto* cmd = this->GetCommandById(packet.GetCommand());
+
+                if (cmd)
+                {
+                    cmd->SetDataBytes(packet.GetData(), packet.GetLength());
+                    cmd->Done();
+                }
+                else
+                {
+                    _DebugShowMissingContext(packet, this);
+                }
+            }
+                break;
 
             case MINTCLIENT::Message::RoutingServerBroadcastChat: // 0xC79C5EB4
             {
@@ -420,7 +426,7 @@ namespace MINTCLIENT
                     _DebugShowMissingContext(packet, this);
                 }
             }
-            break;
+                break;
 
             case MINTCLIENT::Message::RoutingServerUpdateGame: // 0xB04C290F
             case MINTCLIENT::Message::RoutingServerCreateGame: // 0x2A0FB0FD
@@ -436,7 +442,7 @@ namespace MINTCLIENT
                     _DebugShowMissingContext(packet, this);
                 }
             }
-            break;
+                break;
 
             case MINTCLIENT::Message::RoutingServerGetGameList: // 0x41D50E29
             {
@@ -471,7 +477,7 @@ namespace MINTCLIENT
                     _DebugShowMissingContext(packet, this);
                 }
             }
-            break;
+                break;
 
             case MINTCLIENT::Message::RoutingServerDisconnect: // 0xF9CE798B
             case MINTCLIENT::Message::ServerShutdown: // 0xD26E9A5C
@@ -490,11 +496,11 @@ namespace MINTCLIENT
 
                 eventQuit.Signal();
             }
-            break;
+                break;
 
             default:
                 // Unknown packet command
-                LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
+            LDIAG("Unknown Packet Command " << HEX(packet.GetCommand(), 8) << " from server");
                 break;
         }
     }

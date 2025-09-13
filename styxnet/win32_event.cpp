@@ -20,7 +20,6 @@
 //
 namespace Win32
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Event
@@ -34,7 +33,7 @@ namespace Win32
     //
     Event::Event(const char* name)
     {
-        event = CreateEvent(NULL, FALSE, FALSE, name);
+        event = CreateEvent(nullptr, FALSE, FALSE, name);
         primary = name && (GetLastError() == ERROR_ALREADY_EXISTS) ? FALSE : TRUE;
     }
 
@@ -105,7 +104,6 @@ namespace Win32
     }
 
 
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class EventIndex
@@ -114,7 +112,4 @@ namespace Win32
         : Event(name)
     {
     }
-
-
 }
-

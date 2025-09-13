@@ -1,0 +1,3 @@
+[FILENAMES]
+Open="F:/Games/Dark Regin 2/dr2_Release.exe"
+Log="output.txt"

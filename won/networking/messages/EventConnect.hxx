@@ -5,8 +5,8 @@
 class EventConnect
 {
 public:
-	UniqueClassId_Declare(EventConnect);
+    UniqueClassId_Declare(EventConnect);
 
-	ENetPeer* peer;
-	EventConnect(ENetPeer* peer);
+    ENetPeer* peer;
+    EventConnect(ENetPeer* peer);
 };

@@ -24,82 +24,80 @@
 
 namespace Client
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Resource
-  //
-
-
-  //
-  // Constructor
-  //
-  Resource::Resource(IControl *parent) 
-  : IControl(parent)
-  {
-    resource = new IFaceVar(this, CreateInteger("resource", 0));
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Resource
+    //
 
 
-  //
-  // Destructor
-  //
-  Resource::~Resource()
-  {
-    delete resource;
-  }
-
-
-  //
-  // Activate
-  //
-  // Activate this control
-  //
-  Bool Resource::Activate()
-  {
-    if (IControl::Activate())
+    //
+    // Constructor
+    //
+    Resource::Resource(IControl* parent)
+        : IControl(parent)
     {
-      ActivateVar(resource);
-      return (TRUE);
-    }
-    return (FALSE);
-  }
-
-
-  //
-  // Deactivate
-  //
-  // Deactivate this control
-  //
-  Bool Resource::Deactivate()
-  {
-    if (IControl::Deactivate())
-    {
-      resource->Deactivate();
-      return (TRUE);
-    }
-    return (FALSE);
-  }
-
-
-  //
-  // Draw this control
-  //
-  void Resource::DrawSelf(PaintInfo &pi)
-  {
-    // Get the display team
-    Team *team = Team::GetDisplayTeam();
-    if (team)
-    {
-      resource->SetIntegerValue(team->GetResourceStore());
-    }
-    else
-    {
-      resource->SetIntegerValue(0);
+        resource = new IFaceVar(this, CreateInteger("resource", 0));
     }
 
-    DrawCtrlBackground(pi, GetTexture());
-    DrawCtrlFrame(pi);
-  }
 
+    //
+    // Destructor
+    //
+    Resource::~Resource()
+    {
+        delete resource;
+    }
+
+
+    //
+    // Activate
+    //
+    // Activate this control
+    //
+    Bool Resource::Activate()
+    {
+        if (IControl::Activate())
+        {
+            ActivateVar(resource);
+            return (TRUE);
+        }
+        return (FALSE);
+    }
+
+
+    //
+    // Deactivate
+    //
+    // Deactivate this control
+    //
+    Bool Resource::Deactivate()
+    {
+        if (IControl::Deactivate())
+        {
+            resource->Deactivate();
+            return (TRUE);
+        }
+        return (FALSE);
+    }
+
+
+    //
+    // Draw this control
+    //
+    void Resource::DrawSelf(PaintInfo& pi)
+    {
+        // Get the display team
+        Team* team = Team::GetDisplayTeam();
+        if (team)
+        {
+            resource->SetIntegerValue(team->GetResourceStore());
+        }
+        else
+        {
+            resource->SetIntegerValue(0);
+        }
+
+        DrawCtrlBackground(pi, GetTexture());
+        DrawCtrlFrame(pi);
+    }
 }

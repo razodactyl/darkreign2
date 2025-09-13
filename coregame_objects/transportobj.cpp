@@ -42,18 +42,18 @@
 //
 // Constructor
 //
-TransportObjType::TransportObjType(const char *name, FScope *fScope) : UnitObjType(name, fScope)
+TransportObjType::TransportObjType(const char* name, FScope* fScope) : UnitObjType(name, fScope)
 {
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load config
-  propertyList.Load(fScope, "Properties", FALSE);
-  spaces = StdLoad::TypeU32(fScope, "Spaces", 0);
-  distance = StdLoad::TypeF32(fScope, "Distance", 10.0F);
-  chargeTime = StdLoad::TypeF32(fScope, "ChargeTime", 10.0F);
-  StdLoad::TypeReaperObjType(fScope, "PortalType", portalType);
-  portalTime = StdLoad::TypeF32(fScope, "PortalTime", chargeTime);
+    // Load config
+    propertyList.Load(fScope, "Properties", FALSE);
+    spaces = StdLoad::TypeU32(fScope, "Spaces", 0);
+    distance = StdLoad::TypeF32(fScope, "Distance", 10.0F);
+    chargeTime = StdLoad::TypeF32(fScope, "ChargeTime", 10.0F);
+    StdLoad::TypeReaperObjType(fScope, "PortalType", portalType);
+    portalTime = StdLoad::TypeF32(fScope, "PortalTime", chargeTime);
 }
 
 
@@ -72,10 +72,10 @@ TransportObjType::~TransportObjType()
 //
 void TransportObjType::PostLoad()
 {
-  // Call parent scope first
-  UnitObjType::PostLoad();
+    // Call parent scope first
+    UnitObjType::PostLoad();
 
-  Resolver::Type(portalType);
+    Resolver::Type(portalType);
 }
 
 
@@ -84,18 +84,18 @@ void TransportObjType::PostLoad()
 //
 Bool TransportObjType::InitializeResources()
 {
-  // Are we allowed to initialize resources ?
-  if (UnitObjType::InitializeResources())
-  {
-    if (portalType.Alive())
+    // Are we allowed to initialize resources ?
+    if (UnitObjType::InitializeResources())
     {
-      portalType->InitializeResources();
+        if (portalType.Alive())
+        {
+            portalType->InitializeResources();
+        }
+
+        return (TRUE);
     }
 
-    return (TRUE);
-  }
-
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -106,8 +106,8 @@ Bool TransportObjType::InitializeResources()
 //
 GameObj* TransportObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new TransportObj(this, id));
+    // Allocate new object instance
+    return (new TransportObj(this, id));
 }
 
 
@@ -116,11 +116,10 @@ GameObj* TransportObjType::NewInstance(U32 id)
 //
 // Can the given type be transported by this transport
 //
-Bool TransportObjType::CheckTransport(UnitObjType *type)
+Bool TransportObjType::CheckTransport(UnitObjType* type)
 {
-  return (propertyList.Test(type));
+    return (propertyList.Test(type));
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,7 +130,7 @@ Bool TransportObjType::CheckTransport(UnitObjType *type)
 //
 // Constructor
 //
-TransportObj::TransportObj(TransportObjType *objType, U32 id) : UnitObj(objType, id)
+TransportObj::TransportObj(TransportObjType* objType, U32 id) : UnitObj(objType, id)
 {
 }
 
@@ -141,7 +140,7 @@ TransportObj::TransportObj(TransportObjType *objType, U32 id) : UnitObj(objType,
 //
 TransportObj::~TransportObj()
 {
-  cargo.Clear();
+    cargo.Clear();
 }
 
 
@@ -152,17 +151,17 @@ TransportObj::~TransportObj()
 //
 void TransportObj::PreDelete()
 {
-  // Delete all passengers
-  for (UnitObjList::Iterator i(&cargo); *i; i++)
-  {
-    if ((*i)->Alive())
+    // Delete all passengers
+    for (UnitObjList::Iterator i(&cargo); *i; ++i)
     {
-      (**i)->MarkForDeletion();
+        if ((*i)->Alive())
+        {
+            (**i)->MarkForDeletion();
+        }
     }
-  }
 
-  // Call parent scope last
-  UnitObj::PreDelete();
+    // Call parent scope last
+    UnitObj::PreDelete();
 }
 
 
@@ -171,22 +170,22 @@ void TransportObj::PreDelete()
 //
 // Save a state configuration scope
 //
-void TransportObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void TransportObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  UnitObj::SaveState(fScope);
+    // Call parent scope first
+    UnitObj::SaveState(fScope);
 
-  // Create specific config scope
-  fScope = fScope->AddFunction(SCOPE_CONFIG);
+    // Create specific config scope
+    fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-  cargo.PurgeDead();
+    cargo.PurgeDead();
 
-  if (cargo.GetCount())
-  {
-    StdSave::TypeReaperList(fScope, "Cargo", cargo);
-  }
+    if (cargo.GetCount())
+    {
+        StdSave::TypeReaperList(fScope, "Cargo", cargo);
+    }
 
-  StdSave::TypeReaper(fScope, "TelepadLink", telepadLink);
+    StdSave::TypeReaper(fScope, "TelepadLink", telepadLink);
 }
 
 
@@ -195,28 +194,28 @@ void TransportObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 // Load a state configuration scope
 //
-void TransportObj::LoadState(FScope *fScope)
+void TransportObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  UnitObj::LoadState(fScope);
+    // Call parent scope first
+    UnitObj::LoadState(fScope);
 
-  // Get the config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
-  FScope *sScope;
+    // Get the config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
+    FScope* sScope;
 
-  while ((sScope = fScope->NextFunction()) != NULL)
-  {
-    switch (sScope->NameCrc())
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
-      case 0x1005DD72: // "Cargo"
-        StdLoad::TypeReaperList(sScope, cargo);
-        break;
+        switch (sScope->NameCrc())
+        {
+            case 0x1005DD72: // "Cargo"
+                StdLoad::TypeReaperList(sScope, cargo);
+                break;
 
-      case 0x56257E63: // "TelepadLink"
-        StdLoad::TypeReaper(sScope, telepadLink);
-        break;
+            case 0x56257E63: // "TelepadLink"
+                StdLoad::TypeReaper(sScope, telepadLink);
+                break;
+        }
     }
-  }
 }
 
 
@@ -227,17 +226,17 @@ void TransportObj::LoadState(FScope *fScope)
 //
 void TransportObj::PostLoad()
 {
-  // Call parent scope first
-  UnitObj::PostLoad();
+    // Call parent scope first
+    UnitObj::PostLoad();
 
-  Resolver::Object<TransportObj, TransportObjType>(telepadLink);
-  Resolver::ObjList<UnitObj, UnitObjType, UnitObjListNode>(cargo);
+    Resolver::Object<TransportObj, TransportObjType>(telepadLink);
+    Resolver::ObjList<UnitObj, UnitObjType, UnitObjListNode>(cargo);
 
-  // If no telepad link, try and use linked unit
-  if (telepadLink.Dead() && GetLinkedUnit())
-  {
-    telepadLink = Promote::Object<TransportObjType, TransportObj>(GetLinkedUnit());
-  }
+    // If no telepad link, try and use linked unit
+    if (telepadLink.Dead() && GetLinkedUnit())
+    {
+        telepadLink = Promote::Object<TransportObjType, TransportObj>(GetLinkedUnit());
+    }
 }
 
 
@@ -248,8 +247,8 @@ void TransportObj::PostLoad()
 //
 U32 TransportObj::GetUsedSpaces()
 {
-  cargo.PurgeDead();
-  return (cargo.GetCount());
+    cargo.PurgeDead();
+    return (cargo.GetCount());
 }
 
 
@@ -260,9 +259,9 @@ U32 TransportObj::GetUsedSpaces()
 //
 U32 TransportObj::GetFreeSpaces()
 {
-  ASSERT(TransportType()->GetSpaces() >= GetUsedSpaces())
-  
-  return (TransportType()->GetSpaces() - GetUsedSpaces());
+    ASSERT(TransportType()->GetSpaces() >= GetUsedSpaces());
+
+    return (TransportType()->GetSpaces() - GetUsedSpaces());
 }
 
 
@@ -271,38 +270,38 @@ U32 TransportObj::GetFreeSpaces()
 //
 // Can the given unit be transported by this type
 //
-Bool TransportObj::CheckType(UnitObj *unit)
+Bool TransportObj::CheckType(UnitObj* unit)
 {
-  // Can never transport footprinted objects
-  if (unit->UnitType()->GetFootPrintType())
-  {
+    // Can never transport footprinted objects
+    if (unit->UnitType()->GetFootPrintType())
+    {
+        return (FALSE);
+    }
+
+    // Does this transport allow this type
+    if (TransportType()->CheckTransport(unit->UnitType()))
+    {
+        // Is there a telepad link
+        if (telepadLink.Alive())
+        {
+            // Telepad is active and ready for zap-o-rama
+            return (telepadLink->GetPadTask() && telepadLink->GetPadTask()->CheckPortalEntry(unit));
+        }
+
+        // Is this a death machine
+        if (GetPadTask() && !GetTeam())
+        {
+            return (TRUE);
+        }
+
+        // Is the unit on the transporters team
+        if (unit->GetTeam() == GetTeam())
+        {
+            return (TRUE);
+        }
+    }
+
     return (FALSE);
-  }
-
-  // Does this transport allow this type
-  if (TransportType()->CheckTransport(unit->UnitType()))
-  {
-    // Is there a telepad link
-    if (telepadLink.Alive())
-    {
-      // Telepad is active and ready for zap-o-rama
-      return (telepadLink->GetPadTask() && telepadLink->GetPadTask()->CheckPortalEntry(unit));
-    }
-
-    // Is this a death machine
-    if (GetPadTask() && !GetTeam())
-    {
-      return (TRUE);
-    }
- 
-    // Is the unit on the transporters team
-    if (unit->GetTeam() == GetTeam())
-    {
-      return (TRUE);
-    }
-  }
-
-  return (FALSE);
 }
 
 
@@ -311,10 +310,10 @@ Bool TransportObj::CheckType(UnitObj *unit)
 //
 // Can the given unit currently fit inside this transport
 //
-Bool TransportObj::CheckSpace(UnitObj *)
+Bool TransportObj::CheckSpace(UnitObj*)
 {
-  // Death machine, telepad link, or spaces available
-  return (!TransportType()->GetSpaces() || telepadLink.Alive() || GetFreeSpaces());
+    // Death machine, telepad link, or spaces available
+    return (!TransportType()->GetSpaces() || telepadLink.Alive() || GetFreeSpaces());
 }
 
 
@@ -323,9 +322,9 @@ Bool TransportObj::CheckSpace(UnitObj *)
 //
 // Checks both type and space
 //
-Bool TransportObj::CheckCargo(UnitObj *unit)
+Bool TransportObj::CheckCargo(UnitObj* unit)
 {
-  return (CheckType(unit) && CheckSpace(unit) && !cargo.Find(unit));
+    return (CheckType(unit) && CheckSpace(unit) && !cargo.Find(unit));
 }
 
 
@@ -334,54 +333,54 @@ Bool TransportObj::CheckCargo(UnitObj *unit)
 //
 // Pickup the given cargo item
 //
-void TransportObj::PickupCargo(UnitObj *unit)
+void TransportObj::PickupCargo(UnitObj* unit)
 {
-  ASSERT(unit)
-   
-  if (CheckCargo(unit))
-  {
-    // Trigger transport enter fx
-    StartGenericFX(0xE9BB373F); // "Transport::Pickup"
+    ASSERT(unit);
 
-    // Is the unit on the map
-    if (unit->OnMap())
+    if (CheckCargo(unit))
     {
-      if (telepadLink.Dead())
-      {
-        MapType()->StartGenericFX(unit, 0x8CE85CE5, NULL, TRUE); // "Transport::Cargo::Board"
-      }
+        // Trigger transport enter fx
+        StartGenericFX(0xE9BB373F); // "Transport::Pickup"
 
-      // Remove the object from the map
-      MapObjCtrl::RemoveFromMap(unit);
+        // Is the unit on the map
+        if (unit->OnMap())
+        {
+            if (telepadLink.Dead())
+            {
+                MapType()->StartGenericFX(unit, 0x8CE85CE5, nullptr, TRUE); // "Transport::Cargo::Board"
+            }
+
+            // Remove the object from the map
+            MapObjCtrl::RemoveFromMap(unit);
+        }
+
+        // Is this a portal transfer
+        if (telepadLink.Alive() && telepadLink->GetPadTask())
+        {
+            // Attempt to transfer the unit
+            if (!telepadLink->GetPadTask()->TransferPortalUnit(unit))
+            {
+                unit->MarkForDeletion();
+            }
+        }
+        else
+
+            // Is this a death machine
+            if (!TransportType()->GetSpaces())
+            {
+                unit->MarkForDeletion();
+            }
+            else
+            {
+                // Add this unit to our cargo
+                AddCargo(unit);
+            }
     }
-
-    // Is this a portal transfer
-    if (telepadLink.Alive() && telepadLink->GetPadTask())
+    else
     {
-      // Attempt to transfer the unit
-      if (!telepadLink->GetPadTask()->TransferPortalUnit(unit))
-      {
+        // Unit is no longer welcome
         unit->MarkForDeletion();
-      }
     }
-    else
-
-    // Is this a death machine
-    if (!TransportType()->GetSpaces())
-    {
-      unit->MarkForDeletion();
-    }
-    else
-    {
-      // Add this unit to our cargo
-      AddCargo(unit);
-    }
-  }
-  else
-  {
-    // Unit is no longer welcome
-    unit->MarkForDeletion();
-  }
 }
 
 
@@ -390,22 +389,22 @@ void TransportObj::PickupCargo(UnitObj *unit)
 //
 // Add the given cargo
 //
-void TransportObj::AddCargo(UnitObj *unit)
+void TransportObj::AddCargo(UnitObj* unit)
 {
-  ASSERT(unit)
-  ASSERT(CheckSpace(unit))
+    ASSERT(unit);
+    ASSERT(CheckSpace(unit));
 
-  // This ain't for portal transfers
-  ASSERT(!telepadLink.Alive())
+    // This ain't for portal transfers
+    ASSERT(!telepadLink.Alive());
 
-  // Make sure that its not on the map
-  ASSERT(!unit->OnMap())
+    // Make sure that its not on the map
+    ASSERT(!unit->OnMap());
 
-  // Add it to the cargo list
-  cargo.Append(unit);
+    // Add it to the cargo list
+    cargo.Append(unit);
 
-  // Set the cargo flag in the unit
-  unit->SetFlag(FLAG_CARGO, TRUE);
+    // Set the cargo flag in the unit
+    unit->SetFlag(FLAG_CARGO, TRUE);
 }
 
 
@@ -416,19 +415,19 @@ void TransportObj::AddCargo(UnitObj *unit)
 //
 Bool TransportObj::UnloadAvailable()
 {
-  // Is there any carge
-  if (GetUsedSpaces())
-  {
-    // Is there an active telepad task
-    Tasks::TransportPad *pad = GetPadTask();
-
-    if (!pad || pad->UnloadAvailable())
+    // Is there any carge
+    if (GetUsedSpaces())
     {
-      return (TRUE);
-    }
-  }
+        // Is there an active telepad task
+        Tasks::TransportPad* pad = GetPadTask();
 
-  return (FALSE);
+        if (!pad || pad->UnloadAvailable())
+        {
+            return (TRUE);
+        }
+    }
+
+    return (FALSE);
 }
 
 
@@ -439,33 +438,33 @@ Bool TransportObj::UnloadAvailable()
 //
 Bool TransportObj::CheckUnload(U32 x, U32 z)
 {
-  // Can see the destination and have cargo
-  if (Sight::Visible(x, z, GetTeam()))
-  {
-    // Is there an active telepad task
-    Tasks::TransportPad *pad = GetPadTask();
-
-    // No telepad, or telepad is cool with cell
-    if (!pad || pad->CheckUnload(x, z))
+    // Can see the destination and have cargo
+    if (Sight::Visible(x, z, GetTeam()))
     {
-      // Iterate the current cargo
-      for (UnitObjList::Iterator i(&cargo); *i; i++)
-      {
-        // Is unit alive
-        if ((*i)->Alive())
-        {
-          // Can this unit move on the location
-          if (PathSearch::CanMoveToCell((**i)->UnitType()->GetTractionIndex((**i)->GetCurrentLayer()), x, z))
-          {
-            return (TRUE);
-          }     
-        }
-      }
-    }
-  }
+        // Is there an active telepad task
+        Tasks::TransportPad* pad = GetPadTask();
 
-  // Unable to unload here
-  return (FALSE);
+        // No telepad, or telepad is cool with cell
+        if (!pad || pad->CheckUnload(x, z))
+        {
+            // Iterate the current cargo
+            for (UnitObjList::Iterator i(&cargo); *i; ++i)
+            {
+                // Is unit alive
+                if ((*i)->Alive())
+                {
+                    // Can this unit move on the location
+                    if (PathSearch::CanMoveToCell((**i)->UnitType()->GetTractionIndex((**i)->GetCurrentLayer()), x, z))
+                    {
+                        return (TRUE);
+                    }
+                }
+            }
+        }
+    }
+
+    // Unable to unload here
+    return (FALSE);
 }
 
 
@@ -474,36 +473,36 @@ Bool TransportObj::CheckUnload(U32 x, U32 z)
 //
 // Unload a single unit at the given location
 //
-Bool TransportObj::Unload(const Vector &destination, UnitObj *unit)
+Bool TransportObj::Unload(const Vector& destination, UnitObj* unit)
 {
-  Vector closest;
- 
-  // Get the closest position this type can move on
-  if (unit->UnitType()->FindClosestPos(destination, closest, 5))
-  {
-    Vector linked;
+    Vector closest;
 
-    // Get the closest linked location
-    if (unit->UnitType()->FindLinkedPos(closest, linked))
+    // Get the closest position this type can move on
+    if (unit->UnitType()->FindClosestPos(destination, closest, 5))
     {
-      // Generate new position
-      Matrix m = unit->WorldMatrix();
-      m.posit = linked;
+        Vector linked;
 
-      // Move unit
-      unit->SetSimCurrent(m);
+        // Get the closest linked location
+        if (unit->UnitType()->FindLinkedPos(closest, linked))
+        {
+            // Generate new position
+            Matrix m = unit->WorldMatrix();
+            m.posit = linked;
 
-      // Add the object to the map
-      MapObjCtrl::AddToMap(unit);
+            // Move unit
+            unit->SetSimCurrent(m);
 
-      // Trigger boarding effects on the unit
-      MapType()->StartGenericFX(unit, 0xDF24FD46); // "Transport::Cargo::Unload" 
+            // Add the object to the map
+            MapObjCtrl::AddToMap(unit);
 
-      return (TRUE);
+            // Trigger boarding effects on the unit
+            MapType()->StartGenericFX(unit, 0xDF24FD46); // "Transport::Cargo::Unload" 
+
+            return (TRUE);
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -512,42 +511,42 @@ Bool TransportObj::Unload(const Vector &destination, UnitObj *unit)
 //
 // Unload cargo at the given location (TRUE if any unloaded)
 //
-Bool TransportObj::Unload(const Vector &destination, Bool single)
+Bool TransportObj::Unload(const Vector& destination, Bool single)
 {
-  // Remove all dead reapers
-  cargo.PurgeDead();
+    // Remove all dead reapers
+    cargo.PurgeDead();
 
-  // Have any objects been unloaded
-  Bool success = FALSE;
+    // Have any objects been unloaded
+    Bool success = FALSE;
 
-  // Unload each unit in the cargo bay
-  for (UnitObjList::Iterator i(&cargo); *i; ++i)
-  {
-    if (Unload(destination, **i))
+    // Unload each unit in the cargo bay
+    for (UnitObjList::Iterator i(&cargo); *i; ++i)
     {
-      // Clear the cargo flag in the unit
-      (**i)->SetFlag(FLAG_CARGO, FALSE);
+        if (Unload(destination, **i))
+        {
+            // Clear the cargo flag in the unit
+            (**i)->SetFlag(FLAG_CARGO, FALSE);
 
-      // Remove from cargo
-      (*i)->Clear();
+            // Remove from cargo
+            (*i)->Clear();
 
-      // Successfully dropped off unit
-      success = TRUE;
+            // Successfully dropped off unit
+            success = TRUE;
 
-      // Are we done
-      if (single)
-      {
-        break;
-      }
+            // Are we done
+            if (single)
+            {
+                break;
+            }
+        }
     }
-  }
 
-  if (success)
-  {
-    StartGenericFX(0x8DBAE7D8); // "Transport::Unload"
-  }
+    if (success)
+    {
+        StartGenericFX(0x8DBAE7D8); // "Transport::Unload"
+    }
 
-  return (success);
+    return (success);
 }
 
 
@@ -556,7 +555,7 @@ Bool TransportObj::Unload(const Vector &destination, Bool single)
 //
 // Get the transport pad task, or NULL
 //
-Tasks::TransportPad * TransportObj::GetPadTask()
+Tasks::TransportPad* TransportObj::GetPadTask()
 {
-  return (TaskCtrl::Promote<Tasks::TransportPad>(this));
+    return (TaskCtrl::Promote<Tasks::TransportPad>(this));
 }

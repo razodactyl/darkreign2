@@ -24,123 +24,118 @@
 //
 namespace Studio
 {
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace ObjectTweak
-  //
-  namespace ObjectTweak
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class MapObj
+    // NameSpace ObjectTweak
     //
-
-
-    //
-    // MapObj::MapObj
-    //
-    MapObj::MapObj(IControl *parent)
-    : BaseObj(parent)
+    namespace ObjectTweak
     {
-      // Create IFace Vars
-      hitPoints = new IFaceVar(this, CreateFloat("hitPoints", 0.0f, 0.0f, 1.0f));
-      armour = new IFaceVar(this, CreateFloat("armour", 0.0f, 0.0f, 1.0f));
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class MapObj
+        //
 
 
-    //
-    // MapObj::~MapObj
-    //
-    MapObj::~MapObj()
-    {
-      // Delete IFace Vars
-      delete hitPoints;
-      delete armour;
-    }
-
-
-    //
-    // MapObj::Notify
-    //
-    void MapObj::Notify(IFaceVar *var)
-    {
-      if (var == hitPoints)
-      {
-        // Iterate the selected objects
-        for (MapObjList::Iterator i(&data.sList); *i; i++)
+        //
+        // MapObj::MapObj
+        //
+        MapObj::MapObj(IControl* parent)
+            : BaseObj(parent)
         {
-          if ((*i)->Alive())
-          {
-            ::MapObj *mapObj = **i;
-
-            // Modify the hitpoints of the object
-            mapObj->ModifyHitPoints(-mapObj->GetHitPoints());
-            mapObj->ModifyHitPoints(S32(hitPoints->GetFloatValue() * F32(mapObj->MapType()->GetHitPoints())));
-          }
+            // Create IFace Vars
+            hitPoints = new IFaceVar(this, CreateFloat("hitPoints", 0.0f, 0.0f, 1.0f));
+            armour = new IFaceVar(this, CreateFloat("armour", 0.0f, 0.0f, 1.0f));
         }
-      }
-      else if (var == armour)
-      {
-        // Iterate the selected objects
-        for (MapObjList::Iterator i(&data.sList); *i; i++)
+
+
+        //
+        // MapObj::~MapObj
+        //
+        MapObj::~MapObj()
         {
-          if ((*i)->Alive())
-          {
-            ::MapObj *mapObj = **i;
-
-            // Modify the armour of the object
-            mapObj->ModifyArmour(-mapObj->GetArmour());
-            mapObj->ModifyArmour(S32(armour->GetFloatValue() * F32(mapObj->MapType()->GetArmour())));
-          }
+            // Delete IFace Vars
+            delete hitPoints;
+            delete armour;
         }
-      }
-      else
-      {
-        IControl::Notify(var);
-      }
+
+
+        //
+        // MapObj::Notify
+        //
+        void MapObj::Notify(IFaceVar* var)
+        {
+            if (var == hitPoints)
+            {
+                // Iterate the selected objects
+                for (MapObjList::Iterator i(&data.sList); *i; i++)
+                {
+                    if ((*i)->Alive())
+                    {
+                        ::MapObj* mapObj = **i;
+
+                        // Modify the hitpoints of the object
+                        mapObj->ModifyHitPoints(-mapObj->GetHitPoints());
+                        mapObj->ModifyHitPoints(S32(hitPoints->GetFloatValue() * F32(mapObj->MapType()->GetHitPoints())));
+                    }
+                }
+            }
+            else if (var == armour)
+            {
+                // Iterate the selected objects
+                for (MapObjList::Iterator i(&data.sList); *i; i++)
+                {
+                    if ((*i)->Alive())
+                    {
+                        ::MapObj* mapObj = **i;
+
+                        // Modify the armour of the object
+                        mapObj->ModifyArmour(-mapObj->GetArmour());
+                        mapObj->ModifyArmour(S32(armour->GetFloatValue() * F32(mapObj->MapType()->GetArmour())));
+                    }
+                }
+            }
+            else
+            {
+                IControl::Notify(var);
+            }
+        }
+
+
+        //
+        // MapObj::Activate
+        //
+        Bool MapObj::Activate()
+        {
+            if (IControl::Activate())
+            {
+                ActivateVar(hitPoints);
+                ActivateVar(armour);
+
+                return (TRUE);
+            }
+            else
+            {
+                return (FALSE);
+            }
+        }
+
+
+        //
+        // MapObj::Deactivate
+        //
+        Bool MapObj::Deactivate()
+        {
+            if (IControl::Deactivate())
+            {
+                hitPoints->Deactivate();
+                armour->Deactivate();
+
+                return (TRUE);
+            }
+            else
+            {
+                return (FALSE);
+            }
+        }
     }
-
-
-    //
-    // MapObj::Activate
-    //
-    Bool MapObj::Activate()
-    {
-      if (IControl::Activate())
-      {
-        ActivateVar(hitPoints);
-        ActivateVar(armour);
-
-        return (TRUE);
-      }
-      else
-      {
-        return (FALSE);
-      }
-    }
-
-
-    //
-    // MapObj::Deactivate
-    //
-    Bool MapObj::Deactivate()
-    {
-      if (IControl::Deactivate())
-      {
-        hitPoints->Deactivate();
-        armour->Deactivate();
-
-        return (TRUE);
-      }
-      else
-      {
-        return (FALSE);
-      }
-    }
-
-  }
-
 }

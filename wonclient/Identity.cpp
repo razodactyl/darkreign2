@@ -6,6 +6,7 @@
 namespace MINTCLIENT
 {
     Win32::Thread identityThread;
+
     U32 STDCALL Process(void* context)
     {
         auto* command_list = static_cast<Client::CommandList*>(context);
@@ -88,7 +89,8 @@ namespace MINTCLIENT
 
         command_list->Add(cmd);
 
-        if (!identityThread.IsAlive()) {
+        if (!identityThread.IsAlive())
+        {
             identityThread.Start(Process, command_list);
         }
 
@@ -112,7 +114,8 @@ namespace MINTCLIENT
 
         command_list->Add(cmd);
 
-        if (!identityThread.IsAlive()) {
+        if (!identityThread.IsAlive())
+        {
             identityThread.Start(Process, command_list);
         }
 
@@ -137,7 +140,8 @@ namespace MINTCLIENT
 
         command_list->Add(cmd);
 
-        if (!identityThread.IsAlive()) {
+        if (!identityThread.IsAlive())
+        {
             identityThread.Start(Process, command_list);
         }
 

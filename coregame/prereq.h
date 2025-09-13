@@ -35,35 +35,34 @@ class Prereq
 {
 private:
 
-  UnitObjTypeList prereqs;
+    UnitObjTypeList prereqs;
 
 public:
 
-  // Destructor
-  ~Prereq();
+    // Destructor
+    ~Prereq();
 
-  // Configure
-  void Configure(FScope *fScope);
+    // Configure
+    void Configure(FScope* fScope);
 
-  // PostLoad
-  void PostLoad();
+    // PostLoad
+    void PostLoad();
 
-  // Add a type (TRUE if added, FALSE if already present)
-  void Add(UnitObjType *type);
+    // Add a type (TRUE if added, FALSE if already present)
+    void Add(UnitObjType* type);
 
-  // Get the prereqs
-  const UnitObjTypeList & Get() const;
-  
-  // Get all of the prereqs
-  void GetAll(UnitObjTypeList &list) const;
+    // Get the prereqs
+    const UnitObjTypeList& Get() const;
 
-  // Does the given team have the prereqs
-  Bool Have(Team *team) const;
+    // Get all of the prereqs
+    void GetAll(UnitObjTypeList& list) const;
 
-  // Does the given team have any of the given type 
-  // (which are valid for prereq purposes)
-  static Bool HaveType(Team *team, UnitObjType *type);
+    // Does the given team have the prereqs
+    Bool Have(Team* team) const;
 
+    // Does the given team have any of the given type 
+    // (which are valid for prereq purposes)
+    static Bool HaveType(Team* team, UnitObjType* type);
 };
 
 #endif

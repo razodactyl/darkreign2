@@ -40,277 +40,280 @@
 //
 namespace Client
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Cmd
-  //
-  namespace Cmd
-  {
-
+    ///////////////////////////////////////////////////////////////////////////////
     //
-    // LogTasks
+    // NameSpace Cmd
     //
-    // Logs the tasks for the given unit
-    // 
-    static void LogTasks(MapObj *obj)
+    namespace Cmd
     {
-      LOG_DIAG(("Tasks for [%s][%d] (%d)", obj->TypeName(), obj->Id(), obj->GetTaskList().GetCount()));
-
-      for (NList<Task>::Iterator t(&obj->GetTaskList()); *t; t++)
-      {
-        LOG_DIAG((" - %s (%s)", (*t)->GetName(), (*t)->Info()));
-      }     
-    }
-
-
-    //
-    // CmdHandler
-    //
-    // Handles commands 
-    //
-    static void CmdHandler(U32 pathCrc)
-    {
-      S32 i1, i2, i3;
-      const char *s1, *s2, *s3;
-
-      switch (pathCrc)
-      {
-        case 0xF4909AFB: // "client.groupop"
+        //
+        // LogTasks
+        //
+        // Logs the tasks for the given unit
+        // 
+        static void LogTasks(MapObj* obj)
         {
-          if (Console::GetArgString(1, s1) && Console::GetArgInteger(2, i1))
-          {
-            Group::Operation op = Group::O_MAX;
+            LOG_DIAG(("Tasks for [%s][%d] (%d)", obj->TypeName(), obj->Id(), obj->GetTaskList().GetCount()));
 
-            // Convert the operation name
-            switch (Crc::CalcStr(s1))
+            for (NList<Task>::Iterator t(&obj->GetTaskList()); *t; t++)
             {
-              case 0x07984B08: // "new"
-                op = Group::O_NEWGROUP; break;
-              case 0x5243C5BB: // "newremove"
-                op = Group::O_NEWGROUP_REMOVE; break; 
-              case 0x9FF22134: // "select"
-                op = Group::O_SELECTGROUP; break;
-              case 0xBC7FC0D3: // "selectscroll"
-                op = Group::O_SELECTGROUP_SCROLL; break;
-              case 0xC9FCFE2A: // "clear"
-                op = Group::O_CLEAR; break;
+                LOG_DIAG((" - %s (%s)", (*t)->GetName(), (*t)->Info()));
             }
+        }
 
-            // Did we recognize the operation
-            if (op != Group::O_MAX)
+
+        //
+        // CmdHandler
+        //
+        // Handles commands 
+        //
+        static void CmdHandler(U32 pathCrc)
+        {
+            S32 i1, i2, i3;
+            const char *s1, *s2, *s3;
+
+            switch (pathCrc)
             {
-              if (!Group::DoOperation(i1 - 1, op))
-              {
-                CON_ERR(("Group operation failed, invalid index? (%d)", i1))
-              }
-            }
-            else
-            {
-              CON_ERR(("Unknown group operation (%s)", s1))
-            }
-          }
-          else
-          {
-            CON_ERR((Console::ARGS))       
-          }
-          break;
-        }
+                case 0xF4909AFB: // "client.groupop"
+                {
+                    if (Console::GetArgString(1, s1) && Console::GetArgInteger(2, i1))
+                    {
+                        Group::Operation op = Group::O_MAX;
 
-        case 0x462D7266: // "client.event"
-        {
-          if (Console::GetArgString(1, s1))
-          {
-            U32 param1 = Console::GetArgString(2, s2) ? Crc::CalcStr(s2) : (Console::GetArgInteger(2, i2) ? i2 : 0);
-            U32 param2 = Console::GetArgString(3, s3) ? Crc::CalcStr(s3) : (Console::GetArgInteger(3, i3) ? i3 : 0);
-            Events::HandleDiscreteEvent(NULL, Crc::CalcStr(s1), param1, param2);
-          }
-          else
-          {
-            CON_ERR((Console::ARGS))       
-          }
-          break;
-        }
+                        // Convert the operation name
+                        switch (Crc::CalcStr(s1))
+                        {
+                            case 0x07984B08: // "new"
+                                op = Group::O_NEWGROUP;
+                                break;
+                            case 0x5243C5BB: // "newremove"
+                                op = Group::O_NEWGROUP_REMOVE;
+                                break;
+                            case 0x9FF22134: // "select"
+                                op = Group::O_SELECTGROUP;
+                                break;
+                            case 0xBC7FC0D3: // "selectscroll"
+                                op = Group::O_SELECTGROUP_SCROLL;
+                                break;
+                            case 0xC9FCFE2A: // "clear"
+                                op = Group::O_CLEAR;
+                                break;
+                        }
 
-        case 0x713D0C6B: // "client.giveunits"
-        {
-          if (Console::GetArgString(1, s1))
-          {
-            Player *player = Player::Id2Player(Utils::AtoI(s1));
-            if (player)
-            {
-              Events::UpdateSelectedLists();
-              Orders::Game::GiveUnits::Generate(GetPlayer(), player);
-            }
-          }
-          break;
-        }
+                        // Did we recognize the operation
+                        if (op != Group::O_MAX)
+                        {
+                            if (!Group::DoOperation(i1 - 1, op))
+                            {
+                                CON_ERR(("Group operation failed, invalid index? (%d)", i1))
+                            }
+                        }
+                        else
+                        {
+                            CON_ERR(("Unknown group operation (%s)", s1))
+                        }
+                    }
+                    else
+                    {
+                        CON_ERR((Console::ARGS))
+                    }
+                    break;
+                }
 
-        case 0x35E1FC17: // "client.giveresource"
-        {
-          if (Console::GetArgString(1, s1) && Console::GetArgInteger(2, i1))
-          {
-            Player *player = Player::Id2Player(Utils::AtoI(s1));
-            if (player)
-            {
-              Events::UpdateSelectedLists();
-              Orders::Game::GiveResource::Generate(GetPlayer(), player, i1);
-            }
-          }
-          break;
-        }
+                case 0x462D7266: // "client.event"
+                {
+                    if (Console::GetArgString(1, s1))
+                    {
+                        U32 param1 = Console::GetArgString(2, s2) ? Crc::CalcStr(s2) : (Console::GetArgInteger(2, i2) ? i2 : 0);
+                        U32 param2 = Console::GetArgString(3, s3) ? Crc::CalcStr(s3) : (Console::GetArgInteger(3, i3) ? i3 : 0);
+                        Events::HandleDiscreteEvent(NULL, Crc::CalcStr(s1), param1, param2);
+                    }
+                    else
+                    {
+                        CON_ERR((Console::ARGS))
+                    }
+                    break;
+                }
 
-        case 0x9E2395E0: // "client.triggermode"
-        {
-          if (Console::GetArgString(1, s1))
-          {
-            Events::TriggerClientMode(s1);
-          }
-          break;
-        }       
+                case 0x713D0C6B: // "client.giveunits"
+                {
+                    if (Console::GetArgString(1, s1))
+                    {
+                        Player* player = Player::Id2Player(Utils::AtoI(s1));
+                        if (player)
+                        {
+                            Events::UpdateSelectedLists();
+                            Orders::Game::GiveUnits::Generate(GetPlayer(), player);
+                        }
+                    }
+                    break;
+                }
 
-        case 0x627A1F63: // "client.selected"
-        {
-          Events::UnitsSelected();
-          break;
-        }
-       
-        case 0x1FEE7D2F: // "client.pause"
-        {
-          Orders::Game::Pause::Generate(GetPlayer());
-          break;
-        }
+                case 0x35E1FC17: // "client.giveresource"
+                {
+                    if (Console::GetArgString(1, s1) && Console::GetArgInteger(2, i1))
+                    {
+                        Player* player = Player::Id2Player(Utils::AtoI(s1));
+                        if (player)
+                        {
+                            Events::UpdateSelectedLists();
+                            Orders::Game::GiveResource::Generate(GetPlayer(), player, i1);
+                        }
+                    }
+                    break;
+                }
 
-        case 0x97EA8F5C: // "client.steponce"
-        {
-          Orders::Game::StepOnce::Generate(GetPlayer());
-          break;
-        }
+                case 0x9E2395E0: // "client.triggermode"
+                {
+                    if (Console::GetArgString(1, s1))
+                    {
+                        Events::TriggerClientMode(s1);
+                    }
+                    break;
+                }
 
-        case 0x17ECFD36: // "client.listselected"
-        {
-          for (UnitObjList::Iterator i(&data.sList); *i; i++)
-          {
-            if ((*i)->Alive())
-            {
-              CON_DIAG(("%s (%d)", (**i)->TypeName(), (**i)->Id()))
-            }
-            else
-            {
-              CON_DIAG(("Dead object"))
-            }
-          }
-          break;
-        }
+                case 0x627A1F63: // "client.selected"
+                {
+                    Events::UnitsSelected();
+                    break;
+                }
 
-        case 0xB5A2EE79: // "client.settactical"
-        {
-          if (Console::GetArgString(1, s1) && Console::GetArgString(2, s2))
-          { 
-            U8 m, s;
+                case 0x1FEE7D2F: // "client.pause"
+                {
+                    Orders::Game::Pause::Generate(GetPlayer());
+                    break;
+                }
 
-            // Get the modifier index
-            if (Tactical::FindModifier(Crc::CalcStr(s1), &m))
-            {
-              // Get the setting index
-              if (Tactical::FindSetting(m, Crc::CalcStr(s2), &s))
-              {
-                Events::ModifyTacticalSetting(m, s);
-              }
-            }
-          }
+                case 0x97EA8F5C: // "client.steponce"
+                {
+                    Orders::Game::StepOnce::Generate(GetPlayer());
+                    break;
+                }
 
-          break;
-        }
+                case 0x17ECFD36: // "client.listselected"
+                {
+                    for (UnitObjList::Iterator i(&data.sList); *i; i++)
+                    {
+                        if ((*i)->Alive())
+                        {
+                            CON_DIAG(("%s (%d)", (**i)->TypeName(), (**i)->Id()))
+                        }
+                        else
+                        {
+                            CON_DIAG(("Dead object"))
+                        }
+                    }
+                    break;
+                }
 
-        case 0xEBFBDD9C: // "client.savegame"
-        {
-          // Set default slot
-          char *slot = "Slot0";
+                case 0xB5A2EE79: // "client.settactical"
+                {
+                    if (Console::GetArgString(1, s1) && Console::GetArgString(2, s2))
+                    {
+                        U8 m, s;
 
-          // Get user slot
-          Console::GetArgString(1, (const char *&)slot);
+                        // Get the modifier index
+                        if (Tactical::FindModifier(Crc::CalcStr(s1), &m))
+                        {
+                            // Get the setting index
+                            if (Tactical::FindSetting(m, Crc::CalcStr(s2), &s))
+                            {
+                                Events::ModifyTacticalSetting(m, s);
+                            }
+                        }
+                    }
 
-          // Set default description
-          const char *desc = Clock::GetDateAndTime();
+                    break;
+                }
 
-          // Get user description
-          Console::GetArgString(2, desc);
+                case 0xEBFBDD9C: // "client.savegame"
+                {
+                    // Set default slot
+                    char* slot = "Slot0";
 
-          // Attempt to save the game
-          if (SaveGame::Save(slot, desc))
-          {
-            CON_MSG(("Game successfully saved [%s]", slot))
-          }
-          else
-          {
-            CON_ERR(("Failed saving game [%s]", slot));
-          }           
-          break;
-        }
+                    // Get user slot
+                    Console::GetArgString(1, (const char*&)slot);
 
-        case 0x7E94354D: // "client.loadgame"
-        {
-          // Set default slot
-          char *slot = "Slot0";
+                    // Set default description
+                    const char* desc = Clock::GetDateAndTime();
 
-          // Get user slot
-          Console::GetArgString(1, (const char *&)slot);
+                    // Get user description
+                    Console::GetArgString(2, desc);
 
-          // Attempt to load the game
-          if (!SaveGame::Load(slot))
-          {
-            CON_ERR(("Failed loading save game [%s]", slot));
-          }
-          break;
-        }
+                    // Attempt to save the game
+                    if (SaveGame::Save(slot, desc))
+                    {
+                        CON_MSG(("Game successfully saved [%s]", slot))
+                    }
+                    else
+                    {
+                        CON_ERR(("Failed saving game [%s]", slot));
+                    }
+                    break;
+                }
 
-        case 0x463AD946: // "client.viewregion"
-        {
-          if (!Console::GetArgString(1, s1))
-          {
-            CON_ERR(("client.viewregion region"))
-          }
-          else
-          {
-            RegionObj *region = RegionObj::FindRegion(s1);
-            if (region)
-            {
-              // Set the region
-              data.paintRegion = region;
+                case 0x7E94354D: // "client.loadgame"
+                {
+                    // Set default slot
+                    char* slot = "Slot0";
 
-              // Move to that location on the map
-              Viewer::GetCurrent()->LookAt(region->GetMidPoint().x, region->GetMidPoint().y);
-            }
-            else
-            {
-              CON_ERR(("Could not find region '%s'", s1))
-            }
-          }
-          break;
-        }
+                    // Get user slot
+                    Console::GetArgString(1, (const char*&)slot);
 
-        case 0xFAE1F9CE: // "client.clearview"
-        {
-          data.paintRegion = NULL;
-          break;
-        }
+                    // Attempt to load the game
+                    if (!SaveGame::Load(slot))
+                    {
+                        CON_ERR(("Failed loading save game [%s]", slot));
+                    }
+                    break;
+                }
 
-        case 0xB364AC40: // "client.autopilot"
-        {
-          char *pilot;
-          if (Console::GetArgString(1, (const char *&)pilot))
-          {
-            Player::SetAutoPilot(pilot);
-          }
-          else
-          {
-            CON_ERR(("client.autopilot pilot(ai type)"))
-          }
-          break;
-        }
+                case 0x463AD946: // "client.viewregion"
+                {
+                    if (!Console::GetArgString(1, s1))
+                    {
+                        CON_ERR(("client.viewregion region"))
+                    }
+                    else
+                    {
+                        RegionObj* region = RegionObj::FindRegion(s1);
+                        if (region)
+                        {
+                            // Set the region
+                            data.paintRegion = region;
 
-        #ifdef DEVELOPMENT
+                            // Move to that location on the map
+                            Viewer::GetCurrent()->LookAt(region->GetMidPoint().x, region->GetMidPoint().y);
+                        }
+                        else
+                        {
+                            CON_ERR(("Could not find region '%s'", s1))
+                        }
+                    }
+                    break;
+                }
+
+                case 0xFAE1F9CE: // "client.clearview"
+                {
+                    data.paintRegion = NULL;
+                    break;
+                }
+
+                case 0xB364AC40: // "client.autopilot"
+                {
+                    char* pilot;
+                    if (Console::GetArgString(1, (const char*&)pilot))
+                    {
+                        Player::SetAutoPilot(pilot);
+                    }
+                    else
+                    {
+                        CON_ERR(("client.autopilot pilot(ai type)"))
+                    }
+                    break;
+                }
+
+#ifdef DEVELOPMENT
 
         case 0x2185FED7: // "client.development.blastthosebastards"
         {
@@ -471,56 +474,56 @@ namespace Client
           }
         }
 
-        #endif
-      }
-    }
+#endif
+            }
+        }
 
 
-    //
-    // Init
-    //
-    // Initialize the client command system
-    //
-    void Init()
-    {
-      // Register command handlers
-      VarSys::RegisterHandler("client", CmdHandler);
- 
-      // Create commands
-      VarSys::CreateCmd("client.groupop");    
-      VarSys::CreateCmd("client.event");
-      VarSys::CreateCmd("client.triggermode");
-      VarSys::CreateCmd("client.selected");
+        //
+        // Init
+        //
+        // Initialize the client command system
+        //
+        void Init()
+        {
+            // Register command handlers
+            VarSys::RegisterHandler("client", CmdHandler);
 
-      VarSys::CreateCmd("client.giveunits");
-      VarSys::CreateCmd("client.giveresource");
+            // Create commands
+            VarSys::CreateCmd("client.groupop");
+            VarSys::CreateCmd("client.event");
+            VarSys::CreateCmd("client.triggermode");
+            VarSys::CreateCmd("client.selected");
 
-      VarSys::CreateCmd("client.pause");
-      VarSys::CreateCmd("client.steponce");
+            VarSys::CreateCmd("client.giveunits");
+            VarSys::CreateCmd("client.giveresource");
 
-      VarSys::CreateCmd("client.listselected");
-      VarSys::CreateCmd("client.showsettings");
-      VarSys::CreateCmd("client.settactical");
-      
-      VarSys::CreateCmd("client.savegame");
-      VarSys::CreateCmd("client.loadgame");
+            VarSys::CreateCmd("client.pause");
+            VarSys::CreateCmd("client.steponce");
 
-      VarSys::CreateCmd("client.viewregion");
-      VarSys::CreateCmd("client.clearview");
+            VarSys::CreateCmd("client.listselected");
+            VarSys::CreateCmd("client.showsettings");
+            VarSys::CreateCmd("client.settactical");
 
-      VarSys::CreateCmd("client.autopilot");
+            VarSys::CreateCmd("client.savegame");
+            VarSys::CreateCmd("client.loadgame");
 
-      VarSys::CreateInteger("client.trackobject", TRUE, VarSys::DEFAULT, &data.trackObject);
-      VarSys::CreateInteger("client.trackdistance", 40, VarSys::DEFAULT, &data.trackDistance);
-      VarSys::CreateInteger("client.giveamount", 1000, VarSys::DEFAULT, &data.giveAmount);
-      VarSys::CreateInteger("client.fullsquadhud", TRUE, VarSys::DEFAULT, &data.fullSquadHud);
+            VarSys::CreateCmd("client.viewregion");
+            VarSys::CreateCmd("client.clearview");
 
-      VarSys::CreateInteger("client.sundialdir", 1, VarSys::DEFAULT, &data.sundialDir);
+            VarSys::CreateCmd("client.autopilot");
 
-      VarSys::CreateInteger("client.squad.reset", FALSE, VarSys::DEFAULT, &data.squadReset);
+            VarSys::CreateInteger("client.trackobject", TRUE, VarSys::DEFAULT, &data.trackObject);
+            VarSys::CreateInteger("client.trackdistance", 40, VarSys::DEFAULT, &data.trackDistance);
+            VarSys::CreateInteger("client.giveamount", 1000, VarSys::DEFAULT, &data.giveAmount);
+            VarSys::CreateInteger("client.fullsquadhud", TRUE, VarSys::DEFAULT, &data.fullSquadHud);
 
-      // Commands for development only (ie. will get the game oos!)
-      #ifdef DEVELOPMENT
+            VarSys::CreateInteger("client.sundialdir", 1, VarSys::DEFAULT, &data.sundialDir);
+
+            VarSys::CreateInteger("client.squad.reset", FALSE, VarSys::DEFAULT, &data.squadReset);
+
+            // Commands for development only (ie. will get the game oos!)
+#ifdef DEVELOPMENT
         VarSys::RegisterHandler("client.development", CmdHandler);
         VarSys::CreateCmd("client.development.setteam");
         VarSys::CreateCmd("client.development.blastthosebastards");
@@ -531,25 +534,25 @@ namespace Client
         VarSys::CreateCmd("client.development.directmodeoff");
         VarSys::CreateCmd("client.development.directturn");
         VarSys::CreateCmd("client.development.debug");
-      #endif
+#endif
 
-      // ClusterMap
-      ClusterMap::CreateCommands();
+            // ClusterMap
+            ClusterMap::CreateCommands();
+        }
+
+
+        //
+        // Done
+        //
+        // Shutdown the client command system
+        //
+        void Done()
+        {
+            // ClusterMap
+            ClusterMap::DeleteCommands();
+
+            // Delete the command scope
+            VarSys::DeleteItem("client");
+        }
     }
-
-
-    //
-    // Done
-    //
-    // Shutdown the client command system
-    //
-    void Done()
-    {
-      // ClusterMap
-      ClusterMap::DeleteCommands();
-
-      // Delete the command scope
-      VarSys::DeleteItem("client");
-    }
-  }
 }

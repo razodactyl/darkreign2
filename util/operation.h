@@ -25,13 +25,11 @@
 //
 namespace Operation
 {
+    // Console operation
+    void Console(const char* var, const char* op, VarSys::VarItem* param);
 
-  // Console operation
-  void Console(const char *var, const char *op, VarSys::VarItem *param);
-
-  // FScope operation
-  void Function(FScope *fScope, void *context);
-
+    // FScope operation
+    void Function(FScope* fScope, void* context);
 }
 
 

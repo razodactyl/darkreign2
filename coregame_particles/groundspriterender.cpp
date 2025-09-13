@@ -22,49 +22,49 @@
 //
 GroundSpriteRenderClass::GroundSpriteRenderClass() : SpriteRenderClass()
 {
-  water = FALSE;
+    water = FALSE;
 }
 
-  // Configure the class
+// Configure the class
 //
 // Particle Renderer configuration
 //
-Bool GroundSpriteRenderClass::Configure(FScope *fScope)
+Bool GroundSpriteRenderClass::Configure(FScope* fScope)
 {
-  if (!SpriteRenderClass::Configure( fScope))
-  {
-    if (fScope->NameCrc() != 0x65E32E47) // "MakeOnWater"
+    if (!SpriteRenderClass::Configure(fScope))
     {
-      return FALSE;
+        if (fScope->NameCrc() != 0x65E32E47) // "MakeOnWater"
+        {
+            return FALSE;
+        }
+        water = StdLoad::TypeU32(fScope, water);
     }
-    water = StdLoad::TypeU32(fScope, water);
-  }
-  return TRUE;
+    return TRUE;
 }
 
 //
 // Build a new renderer
 //
-ParticleRender *GroundSpriteRenderClass::Build( Particle *particle, void *data) // = NULL)
+ParticleRender* GroundSpriteRenderClass::Build(Particle* particle, void* data) // = NULL)
 {
-	// return the new sprite renderer
-	return new GroundSpriteRender(this, particle, data);
+    // return the new sprite renderer
+    return new GroundSpriteRender(this, particle, data);
 }
 
 //
 // Build a new renderer
 //
-ParticleRender *AirGroundSpriteRenderClass::Build( Particle *particle, void *data) // = NULL)
+ParticleRender* AirGroundSpriteRenderClass::Build(Particle* particle, void* data) // = NULL)
 {
-	// return the new sprite renderer
-	return new AirGroundSpriteRender(this, particle, data);
+    // return the new sprite renderer
+    return new AirGroundSpriteRender(this, particle, data);
 }
 
 //
 // GroundSpriteRender::GroundSpriteRender
 //
-GroundSpriteRender::GroundSpriteRender( GroundSpriteRenderClass *p, Particle *particle, void *data)
- : SpriteRender(p, particle, data)
+GroundSpriteRender::GroundSpriteRender(GroundSpriteRenderClass* p, Particle* particle, void* data)
+    : SpriteRender(p, particle, data)
 {
 }
 
@@ -74,33 +74,37 @@ GroundSpriteRender::GroundSpriteRender( GroundSpriteRenderClass *p, Particle *pa
 //
 void GroundSpriteRender::Render()
 {
-  if (Visible() != clipOUTSIDE)
-  {
-	  GroundSpriteRenderClass *pclass = (GroundSpriteRenderClass *)proto;
+    if (Visible() != clipOUTSIDE)
+    {
+        GroundSpriteRenderClass* pclass = (GroundSpriteRenderClass*)proto;
 
-    if (pclass->water)
-    {
-      TerrainData::RenderGroundSpriteWithWater( 
-        particle->matrix.posit, scaleAnim.Current().scale, particle->matrix.front,
-        texture, colorAnim.Current().color, proto->data.blend,
-        UVPair(0,0), UVPair(1,0), UVPair(1,1), proto->data.sorting);
+        if (pclass->water)
+        {
+            TerrainData::RenderGroundSpriteWithWater
+            (
+                particle->matrix.posit, scaleAnim.Current().scale, particle->matrix.front,
+                texture, colorAnim.Current().color, proto->data.blend,
+                UVPair(0, 0), UVPair(1, 0), UVPair(1, 1), proto->data.sorting
+            );
+        }
+        else
+        {
+            TerrainData::RenderGroundSprite
+            (
+                particle->matrix.posit, scaleAnim.Current().scale, particle->matrix.front,
+                texture, colorAnim.Current().color, proto->data.blend,
+                UVPair(0, 0), UVPair(1, 0), UVPair(1, 1), proto->data.sorting
+            );
+        }
     }
-    else
-    {
-      TerrainData::RenderGroundSprite( 
-        particle->matrix.posit, scaleAnim.Current().scale, particle->matrix.front,
-        texture, colorAnim.Current().color, proto->data.blend, 
-        UVPair(0,0), UVPair(1,0), UVPair(1,1), proto->data.sorting);
-    }
-  }
 }
 
 
 //
 // GroundSpriteRender::GroundSpriteRender
 //
-AirGroundSpriteRender::AirGroundSpriteRender( AirGroundSpriteRenderClass *p, Particle *particle, void *data)
- : GroundSpriteRender(p, particle, data)
+AirGroundSpriteRender::AirGroundSpriteRender(AirGroundSpriteRenderClass* p, Particle* particle, void* data)
+    : GroundSpriteRender(p, particle, data)
 {
 }
 
@@ -110,38 +114,44 @@ AirGroundSpriteRender::AirGroundSpriteRender( AirGroundSpriteRenderClass *p, Par
 //
 void AirGroundSpriteRender::Render()
 {
-  if (Visible() != clipOUTSIDE)
-  {
-	  // get sprite rendering class
-	  AirGroundSpriteRenderClass *pclass = (AirGroundSpriteRenderClass *)proto;
+    if (Visible() != clipOUTSIDE)
+    {
+        // get sprite rendering class
+        AirGroundSpriteRenderClass* pclass = (AirGroundSpriteRenderClass*)proto;
 
-    Matrix & m = particle->matrix;
+        Matrix& m = particle->matrix;
 
 
-    // if the blood collides with the ground...
-    if (particle->stopped)
-	  {
-      if (pclass->water)
-      {
-        TerrainData::RenderGroundSpriteWithWater( 
-          m.posit, scaleAnim.Current().scale, m.front,
-          texture, colorAnim.Current().color, proto->data.blend,
-          UVPair(0,0), UVPair(1,0), UVPair(1,1), proto->data.sorting);
-      }
-      else
-      {
-        TerrainData::RenderGroundSprite(
-          m.posit, scaleAnim.Current().scale, m.front,
-          texture, colorAnim.Current().color, proto->data.blend, 
-          UVPair(0,0), UVPair(1,0), UVPair(1,1), proto->data.sorting);
+        // if the blood collides with the ground...
+        if (particle->stopped)
+        {
+            if (pclass->water)
+            {
+                TerrainData::RenderGroundSpriteWithWater
+                (
+                    m.posit, scaleAnim.Current().scale, m.front,
+                    texture, colorAnim.Current().color, proto->data.blend,
+                    UVPair(0, 0), UVPair(1, 0), UVPair(1, 1), proto->data.sorting
+                );
+            }
+            else
+            {
+                TerrainData::RenderGroundSprite
+                (
+                    m.posit, scaleAnim.Current().scale, m.front,
+                    texture, colorAnim.Current().color, proto->data.blend,
+                    UVPair(0, 0), UVPair(1, 0), UVPair(1, 1), proto->data.sorting
+                );
+            }
+        }
+        else
+        {
+            Vid::RenderSprite
+            (
+                TRUE, m.posit, scaleAnim.Current().scale,
+                texture, colorAnim.Current().color, pclass->data.blend, U16(pclass->data.sorting),
+                m.right.x != 0 || m.right.y != 0 ? m.right : m.front
+            );
         }
     }
-    else
-    {
-      Vid::RenderSprite( TRUE, m.posit, scaleAnim.Current().scale, 
-        texture, colorAnim.Current().color, pclass->data.blend, U16(pclass->data.sorting),
-        m.right.x != 0 || m.right.y != 0 ? m.right : m.front);
-    }
-  }
 }
-

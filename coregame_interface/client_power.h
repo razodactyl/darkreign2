@@ -25,43 +25,40 @@
 //
 namespace Client
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Power
-  //
-  class Power : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Power
+    //
+    class Power : public IControl
+    {
     PROMOTE_LINK(Power, IControl, 0x5DC0415F); // "Client::Power"
 
-  private:
+    private:
 
-    // How much a notch is worth
-    U32 notchValue;
+        // How much a notch is worth
+        U32 notchValue;
 
-    // Maximum pixels a notch can use
-    U32 notchPixelMax;
+        // Maximum pixels a notch can use
+        U32 notchPixelMax;
 
-    // Minimum pixels a notch can use
-    U32 notchPixelMin;
+        // Minimum pixels a notch can use
+        U32 notchPixelMin;
 
-    // Notch width
-    U32 notchWidth;
+        // Notch width
+        U32 notchWidth;
 
-  public:
+    public:
 
-    // Constructor and destructor
-    Power(IControl *parent);
-    ~Power();
+        // Constructor and destructor
+        Power(IControl* parent);
+        ~Power();
 
-    // Configure this control with an FScope
-    void Setup(FScope *fScope);
+        // Configure this control with an FScope
+        void Setup(FScope* fScope);
 
-    // Draw this control
-    void DrawSelf(PaintInfo &pi);
-
-  };
-
+        // Draw this control
+        void DrawSelf(PaintInfo& pi);
+    };
 }
 
 #endif

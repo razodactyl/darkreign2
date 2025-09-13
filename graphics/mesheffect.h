@@ -20,17 +20,17 @@
 
 namespace MeshFX
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Struct CallBackData
-  //
-  struct CallBackData
-  {
-    F32 intensity;
-    F32 percent;
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Struct CallBackData
+    //
+    struct CallBackData
+    {
+        F32 intensity;
+        F32 percent;
 
-    CallBackData();
-  };
+        CallBackData();
+    };
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,45 +40,43 @@ namespace MeshFX
 class MeshEffect
 {
 public:
-  NList<MeshEffect>::Node listNode;     // node for MeshEffectSystem manager list
+    NList<MeshEffect>::Node listNode;     // node for MeshEffectSystem manager list
 
-  List<MeshEnt> ents;
-	MeshEffectType * type;
+    List<MeshEnt> ents;
+    MeshEffectType* type;
 
-  FrameAnim timer;
+    FrameAnim timer;
 
-  U32 flags;
+    U32 flags;
 
-  Bitmap * texture;
-  F32 texTime;
+    Bitmap* texture;
+    F32 texTime;
 
 public:
 
-  MeshEffect( MeshEffectType *_type, MeshEnt *_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshEffect(MeshEffectType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-	virtual ~MeshEffect();
+    virtual ~MeshEffect();
 
-	virtual Bool Simulate(F32 dt, MeshFX::CallBackData * cbd = NULL);
-  
-  Bitmap * TexAnim( F32 dt);
+    virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
 
-  void Attach( MeshEnt * me);    // connect to attached MeshEnts
-  void Detach( MeshEnt * me);    // unconnect to attached MeshEnts
+    Bitmap* TexAnim(F32 dt);
 
-  void SwapMesh( MeshEnt * oldEnt, MeshEnt * newEnt);
+    void Attach(MeshEnt* me);    // connect to attached MeshEnts
+    void Detach(MeshEnt* me);    // unconnect to attached MeshEnts
 
-
-  inline F32 LifeTime() const
-  {
-    return timer.LifeTime();
-  }
-
-  MeshEnt * Ent()
-  {
-    return ents.GetHead();
-  }
+    void SwapMesh(MeshEnt* oldEnt, MeshEnt* newEnt);
 
 
+    inline F32 LifeTime() const
+    {
+        return timer.LifeTime();
+    }
+
+    MeshEnt* Ent()
+    {
+        return ents.GetHead();
+    }
 };
 
 #endif

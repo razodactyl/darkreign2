@@ -22,27 +22,27 @@
 class TrackSys
 {
 private:
- 
-  // Has the system been initialized
-  static Bool sysInit;
 
-  // The death tracker itself
-  static DTrack *dTracker;
+    // Has the system been initialized
+    static Bool sysInit;
+
+    // The death tracker itself
+    static DTrack* dTracker;
 
 
 public:
 
-  // Initialize system
-  static void Init();
+    // Initialize system
+    static void Init();
 
-  // Shutdown system
-  static void Done();
+    // Shutdown system
+    static void Done();
 
-  // Register the construction of an item
-  static void RegisterConstruction(DTrack::Info &info);
+    // Register the construction of an item
+    static void RegisterConstruction(DTrack::Info& info);
 
-  // Register the destruction of the item 'info'
-  static void RegisterDestruction(DTrack::Info &info);
+    // Register the destruction of the item 'info'
+    static void RegisterDestruction(DTrack::Info& info);
 };
 
 #endif

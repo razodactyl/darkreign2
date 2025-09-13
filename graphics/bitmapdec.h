@@ -17,6 +17,6 @@
 // Forward declarations
 //
 struct Pix;
-class  Bitmap;
+class Bitmap;
 
 #endif

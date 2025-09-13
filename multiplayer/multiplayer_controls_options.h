@@ -24,46 +24,41 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Options
+    // NameSpace Controls
     //
-    class Options : public ICWindow
+    namespace Controls
     {
-    public:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Options
+        //
+        class Options : public ICWindow
+        {
+        public:
 
-      // Constructor
-      Options(IControl *parent);
+            // Constructor
+            Options(IControl* parent);
 
-      // Destructor
-      ~Options();
+            // Destructor
+            ~Options();
 
-      // Activate
-      Bool Activate();
+            // Activate
+            Bool Activate();
 
-      // Deactivate
-      Bool Deactivate();
+            // Deactivate
+            Bool Deactivate();
 
-    protected:
+        protected:
 
-      // Upload values
-      void Upload();
+            // Upload values
+            void Upload();
 
-      // Download values
-      void Download();
-
-    };
-
-  }
-
+            // Download values
+            void Download();
+        };
+    }
 }
 
 

@@ -27,20 +27,20 @@ class MeshTextCrossFade : public MeshBaseColor
 {
 public:
 
-  KeyAnim<ColorKey>   colorAnim2;
+    KeyAnim<ColorKey> colorAnim2;
 
 public:
 
-	MeshTextCrossFade( MeshTextCrossFadeType *_type, MeshEnt *_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshTextCrossFade(MeshTextCrossFadeType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-	virtual ~MeshTextCrossFade();
+    virtual ~MeshTextCrossFade();
 
-	virtual Bool Simulate(F32 dt, MeshFX::CallBackData * cbd = NULL);
+    virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
 
-  MeshTextCrossFadeType *GetType()
-  {
-    return (MeshTextCrossFadeType *) type;
-  }
+    MeshTextCrossFadeType* GetType()
+    {
+        return (MeshTextCrossFadeType*)type;
+    }
 };
 
 #endif

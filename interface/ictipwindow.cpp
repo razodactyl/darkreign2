@@ -18,21 +18,21 @@
 //
 // ICTipWindow::ICTipWindow
 //
-ICTipWindow::ICTipWindow(IControl *parent) 
-: IControl(parent)
+ICTipWindow::ICTipWindow(IControl* parent)
+    : IControl(parent)
 {
-  // Force fading in
-  controlStyle |= STYLE_FADEIN;
+    // Force fading in
+    controlStyle |= STYLE_FADEIN;
 }
 
 
 //
 // Draw control
 //
-void ICTipWindow::DrawSelf(PaintInfo &pi)
+void ICTipWindow::DrawSelf(PaintInfo& pi)
 {
-  // Draw the control
-  DrawCtrlBackground(pi, GetTexture());
-  DrawCtrlFrame(pi);
-  DrawCtrlText(pi);
+    // Draw the control
+    DrawCtrlBackground(pi, GetTexture());
+    DrawCtrlFrame(pi);
+    DrawCtrlText(pi);
 }

@@ -22,45 +22,43 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Pause
+    // NameSpace Game
     //
-
-    U32 Pause::orderId;
-
-    //
-    // Generate
-    //
-    void Pause::Generate(Player &player)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Pause
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 Pause::orderId;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+        //
+        // Generate
+        //
+        void Pause::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Pause::Execute(const U8*, Player&)
+        {
+            // Toggle the pause in gametime
+            GameTime::Pause();
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Pause::Execute(const U8 *, Player &)
-    {
-      // Toggle the pause in gametime
-      GameTime::Pause();
-
-      return (sizeof(Data));
-    }
-  }
 }

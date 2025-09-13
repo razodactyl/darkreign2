@@ -24,66 +24,64 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Formation
+    // NameSpace Squad
     //
-
-    U32 Formation::orderId;
-
-
-    //
-    // Generate
-    //
-    void Formation::Generate(Player &player, U32 squad, U32 formation, const Vector &location, F32 direction, Modifier mod)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Formation
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 Formation::orderId;
 
-      // Pack the squad
-      data.squad = squad;
 
-      // Pack the formation
-      data.formation = formation;
+        //
+        // Generate
+        //
+        void Formation::Generate(Player& player, U32 squad, U32 formation, const Vector& location, F32 direction, Modifier mod)
+        {
+            Data data;
 
-      // Pack the location
-      location.Convert(data.location);
+            // Setup data structure
+            data.Setup(orderId, player);
 
-      // Pack the direction
-      data.direction = direction;
+            // Pack the squad
+            data.squad = squad;
 
-      // Pack the modifier
-      data.mod = mod;
+            // Pack the formation
+            data.formation = formation;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+            // Pack the location
+            location.Convert(data.location);
+
+            // Pack the direction
+            data.direction = direction;
+
+            // Pack the modifier
+            data.mod = mod;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Formation::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                IssueTask(d->mod, squadObj, new Tasks::SquadFormation(squadObj, d->formation, d->location, d->direction), player);
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Formation::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        IssueTask(d->mod, squadObj, new Tasks::SquadFormation(squadObj, d->formation, d->location, d->direction), player);
-      }
-  
-      return (sizeof (Data));
-    }
-  }
 }

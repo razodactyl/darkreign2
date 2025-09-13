@@ -56,10 +56,10 @@ namespace Strategic
     //
     void Init()
     {
-        ASSERT(!initialized)
+        ASSERT(!initialized);
 
-            // Allocate a death tracker
-            dTracker = new DTrack("AI", 1024);
+        // Allocate a death tracker
+        dTracker = new DTrack("AI", 1024);
 
         // Initialize Script
         Script::Init();
@@ -88,10 +88,10 @@ namespace Strategic
     //
     void Done()
     {
-        ASSERT(initialized)
+        ASSERT(initialized);
 
-            // Initialize Water Decomposition
-            Water::Decomposition::Done();
+        // Initialize Water Decomposition
+        Water::Decomposition::Done();
 
         // Shutdown Resource Decomposition
         Resource::Decomposition::Done();
@@ -124,10 +124,10 @@ namespace Strategic
     //
     Object* Create(U32 personality, Bool route)
     {
-        ASSERT(initialized)
+        ASSERT(initialized);
 
-            // Find the named personality mod
-            Mods::Mod* mod = NULL;
+        // Find the named personality mod
+        Mods::Mod* mod = nullptr;
         if (personality)
         {
             mod = Mods::GetMod(Mods::Types::Personality, personality);
@@ -177,37 +177,37 @@ namespace Strategic
     {
         FScope* sScope;
 
-        while ((sScope = scope->NextFunction()) != NULL)
+        while ((sScope = scope->NextFunction()) != nullptr)
         {
             switch (sScope->NameCrc())
             {
-            case 0xEC92967E: // "Objects"
-            {
-                FScope* ssScope;
-
-                while ((ssScope = sScope->NextFunction()) != NULL)
+                case 0xEC92967E: // "Objects"
                 {
-                    switch (ssScope->NameCrc())
+                    FScope* ssScope;
+
+                    while ((ssScope = sScope->NextFunction()) != nullptr)
                     {
-                    case 0xA75FFAEB: // "Object"
-                    {
-                        if (Team* team = Team::Name2Team(StdLoad::TypeString(ssScope)))
+                        switch (ssScope->NameCrc())
                         {
-                            if (Object* object = team->GetStrategicObject())
+                            case 0xA75FFAEB: // "Object"
                             {
-                                object->LoadState(ssScope);
+                                if (Team* team = Team::Name2Team(StdLoad::TypeString(ssScope)))
+                                {
+                                    if (Object* object = team->GetStrategicObject())
+                                    {
+                                        object->LoadState(ssScope);
+                                    }
+                                }
+                                break;
                             }
                         }
-                        break;
                     }
-                    }
+                    break;
                 }
-                break;
-            }
 
-            case 0x8810AE3C: // "Script"
-                Script::Load(sScope);
-                break;
+                case 0x8810AE3C: // "Script"
+                    Script::Load(sScope);
+                    break;
             }
         }
     }
@@ -220,14 +220,14 @@ namespace Strategic
     //
     void Reset()
     {
-        ASSERT(initialized)
+        ASSERT(initialized);
 
-            // Perform operations which aren't specific to an object
-            Resource::Decomposition::Reset();
+        // Perform operations which aren't specific to an object
+        Resource::Decomposition::Reset();
         Water::Decomposition::Reset();
 
         // Reset each of the strategic objects
-        for (List<Object>::Iterator i(&objects); *i; i++)
+        for (List<Object>::Iterator i(&objects); *i; ++i)
         {
             (*i)->Reset();
         }
@@ -239,12 +239,12 @@ namespace Strategic
     //
     void Process()
     {
-        ASSERT(initialized)
-            ASSERT(objects.GetCount() <= Game::MAX_TEAMS)
-            ASSERT(GameTime::SimCycle() > 0)
+        ASSERT(initialized);
+        ASSERT(objects.GetCount() <= Game::MAX_TEAMS);
+        ASSERT(GameTime::SimCycle() > 0);
 
-            // Schedule each AI to process on the 8th sim cycle
-            U32 ai = (GameTime::SimCycle() - 1) & (Game::MAX_TEAMS - 1);
+        // Schedule each AI to process on the 8th sim cycle
+        U32 ai = (GameTime::SimCycle() - 1) & (Game::MAX_TEAMS - 1);
 
         if (ai < objects.GetCount())
         {
@@ -258,8 +258,8 @@ namespace Strategic
     //
     void RegisterObject(Object* object)
     {
-        ASSERT(initialized)
-            objects.Append(object);
+        ASSERT(initialized);
+        objects.Append(object);
     }
 
 
@@ -270,10 +270,10 @@ namespace Strategic
     //
     void RegisterConstruction(DTrack::Info& info)
     {
-        ASSERT(initialized)
+        ASSERT(initialized);
 
-            // Call the death tracker object
-            dTracker->RegisterConstruction(info);
+        // Call the death tracker object
+        dTracker->RegisterConstruction(info);
     }
 
 
@@ -284,10 +284,9 @@ namespace Strategic
     //
     void RegisterDestruction(DTrack::Info& info)
     {
-        ASSERT(initialized)
+        ASSERT(initialized);
 
-            // Call the death tracker object
-            dTracker->RegisterDestruction(info);
+        // Call the death tracker object
+        dTracker->RegisterDestruction(info);
     }
-
 }

@@ -26,47 +26,45 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitExplore
+    //
+    class UnitExplore : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitExplore)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitExplore
-  //
-  class UnitExplore : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitExplore)
+        // Movement request handle
+        Movement::Handle moveHandle;
 
-    // Movement request handle
-    Movement::Handle moveHandle;
+        // wait time
+        U32 hangUntil;
 
-    // wait time
-    U32 hangUntil;
+    public:
 
-  public:
+        // Constructor
+        UnitExplore(GameObj* subject);
 
-    // Constructor
-    UnitExplore(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateMoving();
-    void StateLoitering(StateMachineNotify notify);
-  };
-
+        // State machine procedures
+        void StateInit();
+        void StateMoving();
+        void StateLoitering(StateMachineNotify notify);
+    };
 }
 
 #endif

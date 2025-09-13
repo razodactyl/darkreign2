@@ -17,7 +17,7 @@
 //
 namespace TerrainData
 {
-  struct Cell;
+    struct Cell;
 }
 
 #endif

@@ -29,37 +29,37 @@
 //
 
 // Control names
-static const char *DecBtnCtrlName = "[Decrement]";
-static const char *IncBtnCtrlName = "[Increment]";
-static const char *ThumbCtrlName  = "[Thumb]";
+static const char* DecBtnCtrlName = "[Decrement]";
+static const char* IncBtnCtrlName = "[Increment]";
+static const char* ThumbCtrlName = "[Thumb]";
 
 
 //
 // ICSlider::ICSlider
 //
-ICSlider::ICSlider(IControl *parent) 
-: IControl(parent), 
-  sliderVar(NULL),
-  sliderStyle(0),
-  horizontal(TRUE),
-  minVal(0.0F),
-  maxVal(0.0F),
-  rangeLo(0.0F),
-  rangeHi(100.0F),
-  useRange(FALSE),
-  moveKnob(TRUE),
-  decBtnCfg(NULL),
-  incBtnCfg(NULL),
-  thumbCfg(NULL)
+ICSlider::ICSlider(IControl* parent)
+    : IControl(parent),
+      sliderStyle(0),
+      horizontal(TRUE),
+      moveKnob(TRUE),
+      useRange(FALSE),
+      sliderVar(nullptr),
+      minVal(0.0F),
+      maxVal(0.0F),
+      rangeHi(100.0F),
+      rangeLo(0.0F),
+      decBtnCfg(nullptr),
+      incBtnCfg(nullptr),
+      thumbCfg(nullptr)
 {
-  // Default slider style
-  sliderStyle = STYLE_SQUARETHUMB;
+    // Default slider style
+    sliderStyle = STYLE_SQUARETHUMB;
 
-  // Default style
-  controlStyle |= STYLE_TABSTOP | STYLE_TRANSPARENT;
+    // Default style
+    controlStyle |= STYLE_TABSTOP | STYLE_TRANSPARENT;
 
-  // Default color
-  SetColorGroup(IFace::data.cgClient);
+    // Default color
+    SetColorGroup(IFace::data.cgClient);
 }
 
 
@@ -68,12 +68,12 @@ ICSlider::ICSlider(IControl *parent)
 //
 ICSlider::~ICSlider()
 {
-  // Dispose of var
-  if (sliderVar)
-  {
-    delete sliderVar;
-    sliderVar = NULL;
-  }
+    // Dispose of var
+    if (sliderVar)
+    {
+        delete sliderVar;
+        sliderVar = nullptr;
+    }
 }
 
 
@@ -84,25 +84,25 @@ ICSlider::~ICSlider()
 //
 ClipRect ICSlider::GetAdjustmentRect()
 {
-  ClipRect r(0, 0, 0, 0);
+    ClipRect r(0, 0, 0, 0);
 
-  // Adjust geometry to compensate for slider
-  if (skin == NULL)
-  {
-    if (sliderStyle & STYLE_BUTTONS)
+    // Adjust geometry to compensate for slider
+    if (skin == nullptr)
     {
-      if (horizontal)
-      {
-        r.Set(size.y, 0, -size.y, 0);
-      }
-      else
-      {
-        r.Set(0, size.x, 0, -size.x);
-      }
+        if (sliderStyle & STYLE_BUTTONS)
+        {
+            if (horizontal)
+            {
+                r.Set(size.y, 0, -size.y, 0);
+            }
+            else
+            {
+                r.Set(0, size.x, 0, -size.x);
+            }
+        }
     }
-  }
 
-  return (r + IControl::GetAdjustmentRect());
+    return (r + IControl::GetAdjustmentRect());
 }
 
 
@@ -113,69 +113,69 @@ ClipRect ICSlider::GetAdjustmentRect()
 //
 void ICSlider::PostConfigure()
 {
-  // PostConfigure base class first
-  IControl::PostConfigure();
+    // PostConfigure base class first
+    IControl::PostConfigure();
 
-  // Create buttons
-  if (sliderStyle & STYLE_BUTTONS)
-  {
-    if (decBtnCfg && incBtnCfg)
+    // Create buttons
+    if (sliderStyle & STYLE_BUTTONS)
     {
-      // Create customised buttons
-      IFace::CreateControl(DecBtnCtrlName, decBtnCfg, this);
-      IFace::CreateControl(IncBtnCtrlName, incBtnCfg, this);
+        if (decBtnCfg && incBtnCfg)
+        {
+            // Create customised buttons
+            IFace::CreateControl(DecBtnCtrlName, decBtnCfg, this);
+            IFace::CreateControl(IncBtnCtrlName, incBtnCfg, this);
+        }
+        else
+        {
+            IControl *dec, *inc;
+
+            // Create generic buttons
+            if (horizontal)
+            {
+                // Left
+                dec = new ICSystemButton(ICSystemButton::SLIDER_LEFT, this);
+                dec->SetGeometry("WinParentHeight", "WinParentWidth", "WinLeft", "Square", NULL);
+
+                // Right
+                inc = new ICSystemButton(ICSystemButton::SLIDER_RIGHT, this);
+                inc->SetGeometry("WinParentHeight", "WinParentWidth", "WinRight", "Square", NULL);
+            }
+            else
+            {
+                // Up
+                dec = new ICSystemButton(ICSystemButton::SLIDER_UP, this);
+                dec->SetGeometry("WinParentHeight", "WinParentWidth", "WinTop", "Square", NULL);
+
+                // Down
+                inc = new ICSystemButton(ICSystemButton::SLIDER_DOWN, this);
+                inc->SetGeometry("WinParentHeight", "WinParentWidth", "WinBottom", "Square", NULL);
+            }
+
+            dec->SetName(DecBtnCtrlName);
+            inc->SetName(IncBtnCtrlName);
+        }
+    }
+
+    if (thumbCfg)
+    {
+        // Create custom thumb track
+        thumbBtn = IFace::CreateControl(ThumbCtrlName, thumbCfg, this);
     }
     else
     {
-      IControl *dec, *inc;
+        // Create generic thumb track
+        thumbBtn = new ICSliderThumb(this);
+        thumbBtn->SetName(ThumbCtrlName);
 
-      // Create generic buttons
-      if (horizontal)
-      {
-        // Left
-        dec = new ICSystemButton(ICSystemButton::SLIDER_LEFT, this);
-        dec->SetGeometry("WinParentHeight", "WinParentWidth","WinLeft", "Square", NULL);
-
-        // Right
-        inc = new ICSystemButton(ICSystemButton::SLIDER_RIGHT, this);
-        inc->SetGeometry("WinParentHeight", "WinParentWidth", "WinRight", "Square", NULL);
-      }
-      else
-      {
-        // Up
-        dec = new ICSystemButton(ICSystemButton::SLIDER_UP, this);
-        dec->SetGeometry("WinParentHeight", "WinParentWidth", "WinTop", "Square", NULL);
-
-        // Down
-        inc = new ICSystemButton(ICSystemButton::SLIDER_DOWN, this);
-        inc->SetGeometry("WinParentHeight", "WinParentWidth", "WinBottom", "Square", NULL);
-      }
-
-      dec->SetName(DecBtnCtrlName);
-      inc->SetName(IncBtnCtrlName);
+        if (sliderStyle & STYLE_SQUARETHUMB)
+        {
+            thumbBtn->SetGeometry("ParentHeight", "ParentWidth", "Square", NULL);
+        }
+        else
+        {
+            thumbBtn->SetGeometry(horizontal ? "ParentHeight" : "ParentWidth", NULL);
+        }
     }
-  }
-
-  if (thumbCfg)
-  {
-    // Create custom thumb track
-    thumbBtn = IFace::CreateControl(ThumbCtrlName, thumbCfg, this);
-  }
-  else
-  {
-    // Create generic thumb track
-    thumbBtn = new ICSliderThumb(this);
-    thumbBtn->SetName(ThumbCtrlName);
-
-    if (sliderStyle & STYLE_SQUARETHUMB)
-    {
-      thumbBtn->SetGeometry("ParentHeight", "ParentWidth", "Square", NULL);
-    }
-    else
-    {
-      thumbBtn->SetGeometry(horizontal ? "ParentHeight" : "ParentWidth", NULL);
-    }
-  }
 }
 
 
@@ -186,19 +186,19 @@ void ICSlider::PostConfigure()
 //
 void ICSlider::GetSliderValue()
 {
-  VALIDATE(sliderVar)
+    VALIDATE(sliderVar)
 
-  // Read current var value
-  if (sliderVar->Type() == VarSys::VI_INTEGER)
-  {
-    curVal = F32(sliderVar->GetIntegerValue());
-  }
-  else
-  {
-    curVal = F32(sliderVar->GetFloatValue());
-  }
+    // Read current var value
+    if (sliderVar->Type() == VarSys::VI_INTEGER)
+    {
+        curVal = F32(sliderVar->GetIntegerValue());
+    }
+    else
+    {
+        curVal = F32(sliderVar->GetFloatValue());
+    }
 
-  curVal = Clamp<F32>(minVal, curVal, maxVal);
+    curVal = Clamp<F32>(minVal, curVal, maxVal);
 }
 
 
@@ -209,19 +209,19 @@ void ICSlider::GetSliderValue()
 //
 void ICSlider::SetSliderValue(F32 value)
 {
-  VALIDATE(sliderVar)
+    VALIDATE(sliderVar)
 
-  value = Clamp<F32>(minVal, value, maxVal);
+    value = Clamp<F32>(minVal, value, maxVal);
 
-  // Update internal value
-  if (sliderVar->Type() == VarSys::VI_INTEGER)
-  {
-    sliderVar->SetIntegerValue(Utils::FtoL(value));
-  }
-  else
-  {
-    sliderVar->SetFloatValue(value);
-  }
+    // Update internal value
+    if (sliderVar->Type() == VarSys::VI_INTEGER)
+    {
+        sliderVar->SetIntegerValue(Utils::FtoL(value));
+    }
+    else
+    {
+        sliderVar->SetFloatValue(value);
+    }
 }
 
 
@@ -230,135 +230,135 @@ void ICSlider::SetSliderValue(F32 value)
 //
 // Var notification
 //
-void ICSlider::Notify(IFaceVar *)
+void ICSlider::Notify(IFaceVar*)
 {
-  // Flag knob as dirty
-  moveKnob = TRUE;
+    // Flag knob as dirty
+    moveKnob = TRUE;
 }
 
 
 //
 // ICSlider::DrawSelf
 //
-void ICSlider::DrawSelf(PaintInfo &pi)
+void ICSlider::DrawSelf(PaintInfo& pi)
 {
-  // Knob position was changed
-  if (moveKnob)
-  {
-    VALIDATE(sliderVar)
-
-    // Update slider value
-    GetSliderValue();
-
-    // Update the knob position
-    if (thumbBtn.Alive())
+    // Knob position was changed
+    if (moveKnob)
     {
-      ClipRect thumbRange = GetThumbRange();
-      S32 thumbW = thumbBtn->GetPaintInfo().window.Width();
-      S32 thumbH = thumbBtn->GetPaintInfo().window.Height();
+        VALIDATE(sliderVar)
 
-      if (horizontal)
-      {
-        S32 pos = range 
-                  ? Utils::FtoL(((curVal - minVal) / range) * F32(thumbRange.Width() - thumbW)) 
-                  : 0;
+        // Update slider value
+        GetSliderValue();
 
-        thumbBtn->MoveTo(thumbRange.p0 + Point<S32>(pos, 0));
-      }
-      else
-      {
-        S32 pos = range 
-                  ? Utils::FtoL(((curVal - minVal) / range) * F32(thumbRange.Height() - thumbH)) 
-                  : 0;
+        // Update the knob position
+        if (thumbBtn.Alive())
+        {
+            ClipRect thumbRange = GetThumbRange();
+            S32 thumbW = thumbBtn->GetPaintInfo().window.Width();
+            S32 thumbH = thumbBtn->GetPaintInfo().window.Height();
 
-        thumbBtn->MoveTo(thumbRange.p0 + Point<S32>(0, pos));
-      }
+            if (horizontal)
+            {
+                S32 pos = range
+                              ? Utils::FtoL(((curVal - minVal) / range) * F32(thumbRange.Width() - thumbW))
+                              : 0;
+
+                thumbBtn->MoveTo(thumbRange.p0 + Point<S32>(pos, 0));
+            }
+            else
+            {
+                S32 pos = range
+                              ? Utils::FtoL(((curVal - minVal) / range) * F32(thumbRange.Height() - thumbH))
+                              : 0;
+
+                thumbBtn->MoveTo(thumbRange.p0 + Point<S32>(0, pos));
+            }
+        }
+
+        moveKnob = FALSE;
     }
 
-    moveKnob = FALSE;
-  }
+    // Draw frame
+    DrawCtrlFrame(pi);
 
-  // Draw frame
-  DrawCtrlFrame(pi);
+    // Draw background
+    DrawCtrlBackground(pi, GetTexture());
 
-  // Draw background
-  DrawCtrlBackground(pi, GetTexture());
-
-  // Draw client area
-  if (!(sliderStyle & STYLE_NODRAWCLIENT))
-  {
-    if (thumbBtn.Alive())
+    // Draw client area
+    if (!(sliderStyle & STYLE_NODRAWCLIENT))
     {
-      const Point<S32> &tPos  = thumbBtn->GetPos();
-      const Point<S32> &tSize = thumbBtn->GetSize();
-
-      S32 shadow = (controlStyle & STYLE_DROPSHADOW) ? IFace::GetMetric(IFace::DROPSHADOW_UP) : 0;
-
-      // Draw left side
-      if 
-      (
-        (horizontal && (tPos.x > shadow + 1)) 
-        ||
-        (!horizontal && (tPos.y > shadow + 1))
-      )
-      {
-        ClipRect r = pi.client;
-
-        if (horizontal)
+        if (thumbBtn.Alive())
         {
-          r.p1.x = r.p0.x + tPos.x;
+            const Point<S32>& tPos = thumbBtn->GetPos();
+            const Point<S32>& tSize = thumbBtn->GetSize();
+
+            S32 shadow = (controlStyle & STYLE_DROPSHADOW) ? GetMetric(IFace::DROPSHADOW_UP) : 0;
+
+            // Draw left side
+            if
+            (
+                (horizontal && (tPos.x > shadow + 1))
+                ||
+                (!horizontal && (tPos.y > shadow + 1))
+            )
+            {
+                ClipRect r = pi.client;
+
+                if (horizontal)
+                {
+                    r.p1.x = r.p0.x + tPos.x;
+                }
+                else
+                {
+                    r.p1.y = r.p0.y + tPos.y;
+                }
+
+                // Adjust for shadow
+                r.p1 -= shadow;
+
+                // Render client
+                IFace::RenderRectangle(r, pi.colors->bg[ColorIndex()]);
+
+                // Render shadow
+                if (shadow)
+                {
+                    IFace::RenderShadow(r, r + shadow, Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
+                }
+            }
+
+            // Draw right side
+            if
+            (
+                (horizontal && (tPos.x + tSize.x < pi.client.Width()))
+                ||
+                (!horizontal && (tPos.y + tSize.x < pi.client.Height()))
+            )
+            {
+                ClipRect r = pi.client;
+
+                if (horizontal)
+                {
+                    r.p0.x += (tPos.x + tSize.x);
+                }
+                else
+                {
+                    r.p0.y += (tPos.y + tSize.y);
+                }
+
+                // Adjust for shadow
+                r.p1 -= shadow;
+
+                // Render client
+                IFace::RenderRectangle(r, pi.colors->bg[ColorIndex()]);
+
+                // Render shadow
+                if (shadow)
+                {
+                    IFace::RenderShadow(r, r + shadow, Color(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA)), 0);
+                }
+            }
         }
-        else
-        {
-          r.p1.y = r.p0.y + tPos.y;
-        }
-
-        // Adjust for shadow
-        r.p1 -= shadow;
-
-        // Render client
-        IFace::RenderRectangle(r, pi.colors->bg[ColorIndex()]);
-
-        // Render shadow
-        if (shadow)
-        {
-          IFace::RenderShadow(r, r + shadow, Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
-        }
-      }
-
-      // Draw right side
-      if 
-      (
-        (horizontal && (tPos.x + tSize.x < pi.client.Width()))
-        ||
-        (!horizontal && (tPos.y + tSize.x < pi.client.Height()))
-      )
-      {
-        ClipRect r = pi.client;
-
-        if (horizontal)
-        {
-          r.p0.x += (tPos.x + tSize.x);
-        }
-        else
-        {
-          r.p0.y += (tPos.y + tSize.y);
-        }
-
-        // Adjust for shadow
-        r.p1 -= shadow;
-
-        // Render client
-        IFace::RenderRectangle(r, pi.colors->bg[ColorIndex()]);
-
-        // Render shadow
-        if (shadow)
-        {
-          IFace::RenderShadow(r, r + shadow, Color(0, 0, 0, IFace::GetMetric(IFace::SHADOW_ALPHA)), 0);
-        }
-      }
     }
-  }
 }
 
 
@@ -369,60 +369,60 @@ void ICSlider::DrawSelf(PaintInfo &pi)
 //
 void ICSlider::InitRange()
 {
-  ASSERT(sliderVar);
-  ASSERT(IsActive());
+    ASSERT(sliderVar);
+    ASSERT(IsActive());
 
-  // Set up ranges
-  VarSys::VarItem &item = sliderVar->GetItem();
+    // Set up ranges
+    VarSys::VarItem& item = sliderVar->GetItem();
 
-  if (useRange || (!(item.flags & VarSys::CLAMP)))
-  {
-    // Var override, or no var clamping, so use rangeLo and rangeHi
-    minVal = rangeLo;
-    maxVal = rangeHi;
-  }
-  else
-  {
-    switch (sliderVar->Type())
+    if (useRange || (!(item.flags & VarSys::CLAMP)))
     {
-      case VarSys::VI_INTEGER:
-      {
-        minVal = F32(item.integer.lo);
-        maxVal = F32(item.integer.hi);
-        break;
-      }
-
-      case VarSys::VI_FPOINT:
-      {
-        minVal = F32(item.fpoint.lo);
-        maxVal = F32(item.fpoint.hi);
-        break;
-      }
+        // Var override, or no var clamping, so use rangeLo and rangeHi
+        minVal = rangeLo;
+        maxVal = rangeHi;
     }
-  }
+    else
+    {
+        switch (sliderVar->Type())
+        {
+            case VarSys::VI_INTEGER:
+            {
+                minVal = F32(item.integer.lo);
+                maxVal = F32(item.integer.hi);
+                break;
+            }
 
-  // Incremental step
-  range = maxVal - minVal;
+            case VarSys::VI_FPOINT:
+            {
+                minVal = F32(item.fpoint.lo);
+                maxVal = F32(item.fpoint.hi);
+                break;
+            }
+        }
+    }
 
-  // Ensure range is ok
-  ClipRect thumbRange = GetThumbRange();
+    // Incremental step
+    range = maxVal - minVal;
 
-  if ((thumbRange.Width() <= 0) || (thumbRange.Height() <= 0))
-  {
-    ERR_FATAL(("Slider [%s] is too small, make it bigger", Name()))
-  }
+    // Ensure range is ok
+    ClipRect thumbRange = GetThumbRange();
 
-  // Calculate increment step for one notch
-  if (sliderVar->Type() == VarSys::VI_INTEGER)
-  {
-    // Ensure increment step is always 1 for integral vars
-    incStep = 1.0F;
-  }
-  else
-  {
-    // Otherwise make the increment smooth
-    incStep = range / F32(horizontal ? thumbRange.Width() - size.y : thumbRange.Height() - size.x);
-  }
+    if ((thumbRange.Width() <= 0) || (thumbRange.Height() <= 0))
+    {
+        ERR_FATAL(("Slider [%s] is too small, make it bigger", Name()))
+    }
+
+    // Calculate increment step for one notch
+    if (sliderVar->Type() == VarSys::VI_INTEGER)
+    {
+        // Ensure increment step is always 1 for integral vars
+        incStep = 1.0F;
+    }
+    else
+    {
+        // Otherwise make the increment smooth
+        incStep = range / F32(horizontal ? thumbRange.Width() - size.y : thumbRange.Height() - size.x);
+    }
 }
 
 
@@ -433,28 +433,25 @@ void ICSlider::InitRange()
 //
 Bool ICSlider::Activate()
 {
-  if (IControl::Activate())
-  {
-    // Setup and check the var
-    ActivateVar(sliderVar);
-
-    if ((sliderVar->Type() != VarSys::VI_INTEGER) && (sliderVar->Type() != VarSys::VI_FPOINT))
+    if (IControl::Activate())
     {
-      ERR_FATAL(("Integer or Float var expected for slider [%s]", Name()));
+        // Setup and check the var
+        ActivateVar(sliderVar);
+
+        if ((sliderVar->Type() != VarSys::VI_INTEGER) && (sliderVar->Type() != VarSys::VI_FPOINT))
+        {
+            ERR_FATAL(("Integer or Float var expected for slider [%s]", Name()));
+        }
+
+        // Initialise sliding range
+        InitRange();
+
+        // Get current values of the var
+        GetSliderValue();
+
+        return (TRUE);
     }
-
-    // Initialise sliding range
-    InitRange();
-
-    // Get current values of the var
-    GetSliderValue();
-
-    return (TRUE);
-  }
-  else
-  {
     return (FALSE);
-  }
 }
 
 
@@ -465,66 +462,63 @@ Bool ICSlider::Activate()
 //
 Bool ICSlider::Deactivate()
 {
-  if (IControl::Deactivate())
-  {
-    // Unlink from slider var
-    sliderVar->Deactivate();
-    return (TRUE);
-  }
-  else
-  {
+    if (IControl::Deactivate())
+    {
+        // Unlink from slider var
+        sliderVar->Deactivate();
+        return (TRUE);
+    }
     return (FALSE);
-  }
 }
 
 
 //
 // ICSlider::Setup
 //
-void ICSlider::Setup(FScope *fScope)
+void ICSlider::Setup(FScope* fScope)
 {
-  switch (fScope->NameCrc())
-  {
-    case 0x742EA048: // "UseVar"
+    switch (fScope->NameCrc())
     {
-      ConfigureVar(sliderVar, fScope);
-      break;
+        case 0x742EA048: // "UseVar"
+        {
+            ConfigureVar(sliderVar, fScope);
+            break;
+        }
+
+        case 0xEE2D2689: // "Orientation"
+        {
+            SetOrientation(fScope->NextArgString());
+            break;
+        }
+
+        case 0xE17D7C71: // "Range"
+        {
+            // Override range
+            rangeLo = fScope->NextArgFPoint();
+            rangeHi = fScope->NextArgFPoint();
+            useRange = TRUE;
+            break;
+        }
+
+        case 0x87AC33D3: // "DecButtonConfig"
+            decBtnCfg = IFace::FindRegData(fScope->NextArgString());
+            break;
+
+        case 0x2F0229B7: // "IncButtonConfig"
+            incBtnCfg = IFace::FindRegData(fScope->NextArgString());
+            break;
+
+        case 0x1B1A0247: // "ThumbConfig"
+            thumbCfg = IFace::FindRegData(fScope->NextArgString());
+            break;
+
+        default:
+        {
+            // Pass it to the previous level in the hierarchy
+            IControl::Setup(fScope);
+            break;
+        }
     }
-
-    case 0xEE2D2689: // "Orientation"
-    {
-      SetOrientation(fScope->NextArgString());
-      break;
-    }
-
-    case 0xE17D7C71: // "Range"
-    {
-      // Override range
-      rangeLo = fScope->NextArgFPoint();
-      rangeHi = fScope->NextArgFPoint();
-      useRange = TRUE;
-      break;
-    }
-
-    case 0x87AC33D3: // "DecButtonConfig"
-      decBtnCfg = IFace::FindRegData(fScope->NextArgString());
-      break;
-
-    case 0x2F0229B7: // "IncButtonConfig"
-      incBtnCfg = IFace::FindRegData(fScope->NextArgString());
-      break;
-
-    case 0x1B1A0247: // "ThumbConfig"
-      thumbCfg = IFace::FindRegData(fScope->NextArgString());
-      break;
-
-    default:
-    {
-      // Pass it to the previous level in the hierarchy
-      IControl::Setup(fScope);
-      break;
-    }
-  }
 }
 
 
@@ -533,28 +527,28 @@ void ICSlider::Setup(FScope *fScope)
 //
 // Change a style setting
 //
-Bool ICSlider::SetStyleItem(const char *s, Bool toggle)
+Bool ICSlider::SetStyleItem(const char* s, Bool toggle)
 {
-  U32 style;
+    U32 style;
 
-  switch (Crc::CalcStr(s))
-  {
-    case 0x7619B2C8: // "Buttons"
-      style = STYLE_BUTTONS;
-      break;
+    switch (Crc::CalcStr(s))
+    {
+        case 0x7619B2C8: // "Buttons"
+            style = STYLE_BUTTONS;
+            break;
 
-    case 0xDB928D52: // "NoDrawClient"
-      style = STYLE_NODRAWCLIENT;
-      break;
-    
-    default:
-      return (IControl::SetStyleItem(s, toggle));
-  }
+        case 0xDB928D52: // "NoDrawClient"
+            style = STYLE_NODRAWCLIENT;
+            break;
 
-  // Toggle the style
-  sliderStyle = (toggle) ? (sliderStyle | style) : (sliderStyle & ~style);
+        default:
+            return (IControl::SetStyleItem(s, toggle));
+    }
 
-  return (TRUE);
+    // Toggle the style
+    sliderStyle = (toggle) ? (sliderStyle | style) : (sliderStyle & ~style);
+
+    return (TRUE);
 }
 
 
@@ -563,9 +557,9 @@ Bool ICSlider::SetStyleItem(const char *s, Bool toggle)
 //
 // Set the orientation of the slider
 //
-void ICSlider::SetOrientation(ICSlider::Orientation o)
+void ICSlider::SetOrientation(Orientation o)
 {
-  horizontal = (o == HORIZONTAL) ? TRUE : FALSE;
+    horizontal = (o == HORIZONTAL) ? TRUE : FALSE;
 }
 
 
@@ -574,11 +568,11 @@ void ICSlider::SetOrientation(ICSlider::Orientation o)
 //
 // Setup the var for this slider to use
 //
-void ICSlider::UseVar(VarSys::VarItem *item)
+void ICSlider::UseVar(VarSys::VarItem* item)
 {
-  ASSERT(!sliderVar);
+    ASSERT(!sliderVar);
 
-  sliderVar = new IFaceVar(this, item);
+    sliderVar = new IFaceVar(this, item);
 }
 
 
@@ -587,22 +581,22 @@ void ICSlider::UseVar(VarSys::VarItem *item)
 //
 // Set the orientation of the slider using the string representation
 //
-void ICSlider::SetOrientation(const char *s)
+void ICSlider::SetOrientation(const char* s)
 {
-  switch (Crc::CalcStr(s))
-  {
-    case 0x2942B3CD: // "Horizontal"
-      SetOrientation(HORIZONTAL);
-      break;
+    switch (Crc::CalcStr(s))
+    {
+        case 0x2942B3CD: // "Horizontal"
+            SetOrientation(HORIZONTAL);
+            break;
 
-    case 0xC8F18F06: // "Vertical"
-      SetOrientation(VERTICAL);
-      break;
+        case 0xC8F18F06: // "Vertical"
+            SetOrientation(VERTICAL);
+            break;
 
-    default:
-      ERR_FATAL(("Invalid orientation [%s]", s));
-      break;
-  }
+        default:
+        ERR_FATAL(("Invalid orientation [%s]", s));
+            break;
+    }
 }
 
 
@@ -611,92 +605,90 @@ void ICSlider::SetOrientation(const char *s)
 //
 // Event handler
 //
-U32 ICSlider::HandleEvent(Event &e)
+U32 ICSlider::HandleEvent(Event& e)
 {
-  VALIDATE(sliderVar);
+    VALIDATE(sliderVar);
 
-  if (e.type == Input::EventID())
-  {
-    switch (e.subType)
+    if (e.type == Input::EventID())
     {
-      case Input::MOUSEAXIS:
-      {
-        S16 amount = S16(e.input.ch);
-
-        // Increment or decrement
-        SetSliderValue(curVal - F32(amount / 120) * incStep);
-
-        // Handled
-        return TRUE;
-      }
-
-      case Input::KEYDOWN:
-      case Input::KEYREPEAT:
-      {
-        switch (e.input.code)
+        switch (e.subType)
         {
-          case DIK_UP:
-          case DIK_LEFT:
-          {
-            // Decrement
-            SetSliderValue(curVal - incStep);
+            case Input::MOUSEAXIS:
+            {
+                S16 amount = S16(e.input.ch);
 
-            // Handled
-            return TRUE;
-          }
+                // Increment or decrement
+                SetSliderValue(curVal - F32(amount / 120) * incStep);
 
-          case DIK_DOWN:
-          case DIK_RIGHT:
-          {
-            // Increment
-            SetSliderValue(curVal + incStep);
+                // Handled
+                return TRUE;
+            }
 
-            // Handled
-            return TRUE;
-          }
+            case Input::KEYDOWN:
+            case Input::KEYREPEAT:
+            {
+                switch (e.input.code)
+                {
+                    case DIK_UP:
+                    case DIK_LEFT:
+                    {
+                        // Decrement
+                        SetSliderValue(curVal - incStep);
+
+                        // Handled
+                        return TRUE;
+                    }
+
+                    case DIK_DOWN:
+                    case DIK_RIGHT:
+                    {
+                        // Increment
+                        SetSliderValue(curVal + incStep);
+
+                        // Handled
+                        return TRUE;
+                    }
+                }
+
+                // Not handled
+                break;
+            }
         }
-
-        // Not handled
-        break;
-      }
     }
-  }
-  else
-
-  if (e.type == IFace::EventID())
-  {
-    switch (e.subType)
+    else if (e.type == IFace::EventID())
     {
-      case IFace::NOTIFY:
-      {
-        U32 event = e.iface.p1;
-
-        switch (event)
+        switch (e.subType)
         {
-          case ICSliderMsg::Decrement:
-          {
-            // Decrement button was pressed
-            SetSliderValue(curVal - incStep);
+            case IFace::NOTIFY:
+            {
+                U32 event = e.iface.p1;
 
-            // Handled
-            return (TRUE);
-          }
+                switch (event)
+                {
+                    case ICSliderMsg::Decrement:
+                    {
+                        // Decrement button was pressed
+                        SetSliderValue(curVal - incStep);
 
-          case ICSliderMsg::Increment:
-          {
-            // Increment button was pressed
-            SetSliderValue(curVal + incStep);
+                        // Handled
+                        return (TRUE);
+                    }
 
-            // Handled
-            return (TRUE);
-          }
+                    case ICSliderMsg::Increment:
+                    {
+                        // Increment button was pressed
+                        SetSliderValue(curVal + incStep);
+
+                        // Handled
+                        return (TRUE);
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
-  // Allow IControl class to process this event
-  return (IControl::HandleEvent(e));
+    // Allow IControl class to process this event
+    return (IControl::HandleEvent(e));
 }
 
 
@@ -707,7 +699,7 @@ U32 ICSlider::HandleEvent(Event &e)
 //
 ClipRect ICSlider::GetThumbRange()
 {
-  return (paintInfo.client - paintInfo.client.p0);
+    return (paintInfo.client - paintInfo.client.p0);
 }
 
 
@@ -720,9 +712,9 @@ ClipRect ICSlider::GetThumbRange()
 //
 // Constructor
 //
-ICSliderThumb::ICSliderThumb(IControl *parent)
-: ICButton(parent), 
-  slider(NULL) 
+ICSliderThumb::ICSliderThumb(IControl* parent)
+    : ICButton(parent),
+      slider(nullptr)
 {
 }
 
@@ -732,92 +724,92 @@ ICSliderThumb::ICSliderThumb(IControl *parent)
 //
 void ICSliderThumb::PostConfigure()
 {
-  // PostConfigure base class first
-  ICButton::PostConfigure();
+    // PostConfigure base class first
+    ICButton::PostConfigure();
 
-  // Ensure thumb's parent is a slider
-  slider = IFace::Promote<ICSlider>(parent);
+    // Ensure thumb's parent is a slider
+    slider = IFace::Promote<ICSlider>(parent);
 
-  if (slider == NULL)
-  {
-    ERR_FATAL(("SliderThumb [%s] must be placed on a slider", Name()))
-  }
+    if (slider == nullptr)
+    {
+        ERR_FATAL(("SliderThumb [%s] must be placed on a slider", Name()))
+    }
 }
 
 
 //
 // ICSliderThumb::HandleEvent
 //
-U32 ICSliderThumb::HandleEvent(Event &e)
+U32 ICSliderThumb::HandleEvent(Event& e)
 {
-  ASSERT(slider)
+    ASSERT(slider);
 
-  if (e.type == Input::EventID())
-  {
-    // Input events
-    switch (e.subType)
+    if (e.type == Input::EventID())
     {
-      case Input::MOUSEBUTTONDOWN:
-      {
-        if (e.input.code == Input::LeftButtonCode())
+        // Input events
+        switch (e.subType)
         {
-          // Offset of cursor within thumb
-          dragPos = ScreenToWindow(Point<S32>(e.input.mouseX, e.input.mouseY));
+            case Input::MOUSEBUTTONDOWN:
+            {
+                if (e.input.code == Input::LeftButtonCode())
+                {
+                    // Offset of cursor within thumb
+                    dragPos = ScreenToWindow(Point<S32>(e.input.mouseX, e.input.mouseY));
+                }
+                break;
+            }
+
+            case Input::MOUSEAXIS:
+            {
+                if (!HasMouseCapture())
+                {
+                    // Pass event to parent
+                    parent->HandleEvent(e);
+
+                    return (TRUE);
+                }
+                break;
+            }
+
+            case Input::MOUSEMOVE:
+            {
+                if (HasMouseCapture())
+                {
+                    // Get movement rectangle from parent
+                    ClipRect moveRect = slider->GetThumbRange();
+
+                    // Track the mouse
+                    Point<S32> newPos = slider->ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)) - dragPos;
+
+                    // Update slider value
+                    F32 fSize;
+                    F32 fPos;
+
+                    if (slider->horizontal)
+                    {
+                        fSize = F32(moveRect.Width() - GetPaintInfo().window.Width());
+                        fPos = F32(newPos.x);
+                    }
+                    else
+                    {
+                        fSize = F32(moveRect.Height() - GetPaintInfo().window.Height());
+                        fPos = F32(newPos.y);
+                    }
+
+                    if (fSize > 1e-4F)
+                    {
+                        F32 fVal = (fPos * slider->range / fSize) + slider->minVal;
+                        slider->SetSliderValue(fVal);
+                    }
+
+                    // Don't allow button to process this
+                    return (TRUE);
+                }
+                break;
+            }
         }
-        break;
-      }
-
-      case Input::MOUSEAXIS:
-      {
-        if (!HasMouseCapture())
-        {
-          // Pass event to parent
-          parent->HandleEvent(e);
-
-          return (TRUE);
-        }
-        break;
-      }
-
-      case Input::MOUSEMOVE:
-      {
-        if (HasMouseCapture())
-        {
-          // Get movement rectangle from parent
-          ClipRect moveRect = slider->GetThumbRange();
-
-          // Track the mouse
-          Point<S32> newPos = slider->ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY)) - dragPos;
-
-          // Update slider value
-          F32 fSize;
-          F32 fPos;
-
-          if (slider->horizontal)
-          {
-            fSize = F32(moveRect.Width() - GetPaintInfo().window.Width());
-            fPos = F32(newPos.x);
-          }
-          else
-          {
-            fSize = F32(moveRect.Height() - GetPaintInfo().window.Height());
-            fPos = F32(newPos.y);
-          }
-
-          if (fSize > 1e-4F)
-          {
-            F32 fVal = (fPos * slider->range / fSize) + slider->minVal;
-            slider->SetSliderValue(fVal);
-          }
-
-          // Don't allow button to process this
-          return (TRUE);
-        }
-        break;
-      }
     }
-  }
 
-  // This event can't be handled by this control, so pass it to the parent class
-  return (ICButton::HandleEvent(e));
+    // This event can't be handled by this control, so pass it to the parent class
+    return (ICButton::HandleEvent(e));
 }

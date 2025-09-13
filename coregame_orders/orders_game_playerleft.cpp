@@ -20,43 +20,41 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class PlayerLeft
+    // NameSpace Game
     //
-    U32 PlayerLeft::orderId;
-
-
-    //
-    // Generate
-    //
-    void PlayerLeft::Generate(Player &player)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PlayerLeft
+        //
+        U32 PlayerLeft::orderId;
 
-      // Setup data structure
-      data.Setup(orderId, player);
 
-      Add(data, sizeof (Data), player.IsRoute());
+        //
+        // Generate
+        //
+        void PlayerLeft::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 PlayerLeft::Execute(const U8*, Player& player)
+        {
+            Team::PlayerDeparted(&player);
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 PlayerLeft::Execute(const U8 *, Player &player)
-    {
-      Team::PlayerDeparted(&player);
-
-      return (sizeof (Data));
-    }
-  }
 }

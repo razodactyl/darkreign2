@@ -24,7 +24,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Packet
@@ -100,14 +99,16 @@ namespace StyxNet
         }
 
         // Get the data via template
-        template <class DATA> Bool GetData(DATA*& ptr)
+        template <class DATA>
+        Bool GetData(DATA*& ptr)
         {
             ptr = reinterpret_cast<DATA*>(data);
             return ((header.length == sizeof(DATA)) ? TRUE : FALSE);
         }
 
         // Get the data via template
-        template <class DATA> Bool GetData(const DATA*& ptr) const
+        template <class DATA>
+        Bool GetData(const DATA*& ptr) const
         {
             ptr = reinterpret_cast<const DATA*>(data);
             return ((header.length == sizeof(DATA)) ? TRUE : FALSE);
@@ -131,7 +132,8 @@ namespace StyxNet
         static Packet& Create(CRC command, U32 length = 0);
 
         // Create a new packet for the given data type
-        template <class DATA> static Packet& Create(CRC command, DATA*& data)
+        template <class DATA>
+        static Packet& Create(CRC command, DATA*& data)
         {
             Packet& packet = Create(command, sizeof(DATA));
             data = reinterpret_cast<DATA*>(packet.GetData());
@@ -140,7 +142,6 @@ namespace StyxNet
 
         // Copy a packet from an existing packet
         static Packet& Copy(const Packet& packet);
-
     };
 
 
@@ -172,7 +173,6 @@ namespace StyxNet
 
             // Have we processed this buffer ?
             Bool processed;
-
         } header;
 
 #pragma warning(push)
@@ -194,9 +194,7 @@ namespace StyxNet
     public:
 
         friend class Packet;
-
     };
-
 }
 
 #endif

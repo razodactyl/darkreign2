@@ -13,6 +13,7 @@
 #include "mesh.h"
 #include "perfstats.h"
 #include "statistics.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -24,7 +25,7 @@ namespace Vid
 
     Bool AreVerticesInRange(const VertexTL* vertex, S32 vertexCount, const U16* index, S32 indexCount, U32 clipFlags, Bool guard) // = TRUE
     {
-        int	result = 1;
+        int result = 1;
 
         Area<S32> range = viewRect;
         if (guard && Vid::renderState.status.clipGuard)
@@ -35,7 +36,7 @@ namespace Vid
             range.p1.y += renderState.clipGuardSize;
         }
 
-        const VertexTL* v, * ve = vertex + vertexCount;
+        const VertexTL *v, *ve = vertex + vertexCount;
         for (v = vertex; v < ve; v++)
         {
             if (clipFlags & DP_DONOTCLIP)
@@ -44,7 +45,7 @@ namespace Vid
                     S32(v->vv.x) >= range.p0.x && S32(v->vv.x) <= range.p1.x
                     && S32(v->vv.y) >= range.p0.y && S32(v->vv.y) <= range.p1.y
                     && S32(v->vv.z) >= 0 && S32(v->vv.z) <= 1
-                    )
+                )
                 {
                     continue;
                 }
@@ -69,7 +70,7 @@ namespace Vid
         }
         if (index)
         {
-            const U16* i, * ie = index + indexCount;
+            const U16 *i, *ie = index + indexCount;
             for (i = index; i < ie; i++)
             {
                 if (*i >= vertexCount)
@@ -84,6 +85,7 @@ namespace Vid
 
         return result;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetZBufferState(Bool doZBuffer)
@@ -102,6 +104,7 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetZWriteState(Bool doZWrite)
@@ -114,6 +117,7 @@ namespace Vid
 
         return (Bool)retValue;
     }
+
     //----------------------------------------------------------------------------
 
     void SetCullStateD3D(Bool doCull)
@@ -121,6 +125,7 @@ namespace Vid
         dxError = device->SetRenderState(D3DRENDERSTATE_CULLMODE, doCull ? D3DCULL_CCW : D3DCULL_NONE);
         LOG_DXERR(("SetCullState"));
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetAlphaState(Bool doAlpha)
@@ -134,6 +139,7 @@ namespace Vid
 
         return retValue;
     }
+
     //----------------------------------------------------------------------------
 
     U32 SetSrcBlendState(U32 flags)
@@ -150,6 +156,7 @@ namespace Vid
 
         return lastflags;
     }
+
     //-----------------------------------------------------------------------------
 
     U32 SetDstBlendState(U32 flags)
@@ -166,6 +173,7 @@ namespace Vid
 
         return lastflags;
     }
+
     //-----------------------------------------------------------------------------
     //----------------------------------------------------------------------------
 
@@ -183,6 +191,7 @@ namespace Vid
 
         return lastFlags;
     }
+
     //----------------------------------------------------------------------------
 
     void TexDecal(U32 stage)
@@ -215,6 +224,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexDecalSimple(U32 stage)
@@ -244,6 +254,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexDecalAlpha(U32 stage)
@@ -273,6 +284,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexModulate(U32 stage)
@@ -306,6 +318,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexModulateAlpha(U32 stage)
@@ -339,6 +352,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexModulateAlpha2x(U32 stage)
@@ -372,6 +386,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexModulateAlpha4x(U32 stage)
@@ -405,6 +420,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexAddAlpha(U32 stage)
@@ -437,6 +453,7 @@ namespace Vid
             LOG_DXERR(("SetTextureStageState: alpha"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void TexAddSignedAlpha(U32 stage)
@@ -453,32 +470,33 @@ namespace Vid
 
         LOG_DXERR(("SetTextureStageState: alpha"));
     }
+
     //----------------------------------------------------------------------------
 
     typedef void (*TexBlendProcP)(U32 stage);    // texture blend setup function
     static TexBlendProcP blendToOp[] =
     {
-      0,
-      TexDecal,            //  RS_TEX_DECAL          
-      TexDecalAlpha,       //  RS_TEX_DECALALPHA
-      TexModulateAlpha,    //  RS_TEX_MODULATE
-      TexModulateAlpha2x,  //  RS_TEX_MODULATE2X
-      TexModulateAlpha4x,  //  RS_TEX_MODULATE4X
-      TexModulateAlpha,    //  RS_TEX_MODULATEALPHA
-      TexAddAlpha          //  RS_TEX_ADD
+        0,
+        TexDecal,            //  RS_TEX_DECAL          
+        TexDecalAlpha,       //  RS_TEX_DECALALPHA
+        TexModulateAlpha,    //  RS_TEX_MODULATE
+        TexModulateAlpha2x,  //  RS_TEX_MODULATE2X
+        TexModulateAlpha4x,  //  RS_TEX_MODULATE4X
+        TexModulateAlpha,    //  RS_TEX_MODULATEALPHA
+        TexAddAlpha          //  RS_TEX_ADD
     };
 
     static Bool blendValidation[8][2];
     static char* blendName[8] =
     {
-      "",
-      "decal",
-      "decalAlpha",
-      "modulate",
-      "modulate2x",
-      "modulate4x",
-      "modulateAlpha",
-      "add"
+        "",
+        "decal",
+        "decalAlpha",
+        "modulate",
+        "modulate2x",
+        "modulate4x",
+        "modulateAlpha",
+        "add"
     };
     //----------------------------------------------------------------------------
 
@@ -502,6 +520,7 @@ namespace Vid
 
         return lastflags;
     }
+
     //-----------------------------------------------------------------------------
 
     void ValidateBlends()
@@ -641,6 +660,7 @@ namespace Vid
             LOG_DIAG((""));
         }
     }
+
     //-----------------------------------------------------------------------------
 
     Bool ValidateBlend(U32 blend, U32 stage) // = 0)
@@ -649,14 +669,19 @@ namespace Vid
         ASSERT(blend > 0);
         return blendValidation[blend][stage];
     }
+
     //-----------------------------------------------------------------------------
 
     void SetTextureFactor(Color color)
     {
-        dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREFACTOR,
-            D3DRGBA(color.r, color.g, color.b, color.a));
+        dxError = device->SetRenderState
+        (
+            D3DRENDERSTATE_TEXTUREFACTOR,
+            D3DRGBA(color.r, color.g, color.b, color.a)
+        );
         LOG_DXERR(("SetTextureFactor"));
     }
+
     //-----------------------------------------------------------------------------
 
     Bool SetCamera(Camera& cam, Bool force) // = FALSE)
@@ -731,6 +756,7 @@ namespace Vid
 
         return TRUE;
     }
+
     //-----------------------------------------------------------------------------
 
     void ClipScreen()
@@ -751,6 +777,7 @@ namespace Vid
             Vid::clipRect.Set((F32)viewRect.p0.x, (F32)viewRect.p0.y, (F32)viewRect.p1.x, (F32)viewRect.p1.y);
         }
     }
+
     //-----------------------------------------------------------------------------
 
     void ClipRestore()
@@ -762,6 +789,7 @@ namespace Vid
             Vid::clipRect.SetSize((F32)Vid::viewDesc.dwX, (F32)Vid::viewDesc.dwY, (F32)Vid::viewDesc.dwWidth, (F32)Vid::viewDesc.dwHeight);
         }
     }
+
     //-----------------------------------------------------------------------------
 
     void RenderState::ClearData()
@@ -820,6 +848,7 @@ namespace Vid
 
         texMinimapSize = 64;
     }
+
     //----------------------------------------------------------------------------
 
     void SetFogColor(F32 r, F32 g, F32 b)
@@ -834,6 +863,7 @@ namespace Vid
         );
         SetFogColorD3D(renderState.fogColor);
     }
+
     //----------------------------------------------------------------------------
 
     void SetFogColorD3D(U32 fogColor)
@@ -844,6 +874,7 @@ namespace Vid
             LOG_DXERR(("SetFogColorD3D"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void SetFogRange(F32 min, F32 max, F32 density)
@@ -889,6 +920,7 @@ namespace Vid
         }
 #endif
     }
+
     //----------------------------------------------------------------------------
 
     void SetAmbientColor(F32 r, F32 g, F32 b)
@@ -904,6 +936,7 @@ namespace Vid
 #endif
         }
     }
+
     //----------------------------------------------------------------------------
 
     void GetAmbientColor(F32& r, F32& g, F32& b)
@@ -912,6 +945,7 @@ namespace Vid
         g = renderState.ambientColorF32.g;
         b = renderState.ambientColorF32.b;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetRenderState(Bool checkInit) // TRUE
@@ -943,8 +977,8 @@ namespace Vid
         //    dxError = device->SetRenderState( D3DRENDERSTATE_COLORVERTEX, renderState.status.dxTL );
         //    LOG_DXERR( ("device->SetRenderState( COLORVERTEX)") );
 
-            // vid system features
-            //
+        // vid system features
+        //
         SetAmbientColor(renderState.ambientColorF32.r, renderState.ambientColorF32.g, renderState.ambientColorF32.b);
 
         SetShadeState(renderState.status.shade);
@@ -996,6 +1030,7 @@ namespace Vid
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     Bool RenderBegin()
@@ -1012,6 +1047,7 @@ namespace Vid
 
         return dxError == DD_OK;
     }
+
     //----------------------------------------------------------------------------
 
     Bool RenderEnd()
@@ -1070,11 +1106,13 @@ namespace Vid
             vertmem[3].u = 0.0f;
             vertmem[3].v = 1.0f;
 
-            Vid::DrawIndexedPrimitive(
+            Vid::DrawIndexedPrimitive
+            (
                 PT_TRIANGLELIST,
                 FVF_TLVERTEX,
                 vertmem, 4, Vid::rectIndices, 6,
-                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_ADD);
+                DP_DONOTUPDATEEXTENTS | DP_DONOTLIGHT | DP_DONOTCLIP | RS_BLEND_ADD
+            );
         }
 
 
@@ -1083,6 +1121,7 @@ namespace Vid
 
         return dxError == DD_OK;
     }
+
     //----------------------------------------------------------------------------
 
     void SetMaterialDX(const Material* mat)
@@ -1099,9 +1138,9 @@ namespace Vid
 
             dxError = device->SetMaterial((MaterialDescD3D*)&matD3D);
             LOG_DXERR(("device->SetMaterial"));
-
         }
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetTexture(Bitmap* tex, U32 stage, U32 blend) // = 0, = RS_BLEND_DEF
@@ -1150,6 +1189,7 @@ namespace Vid
 
         return dxError == DD_OK;
     }
+
     //----------------------------------------------------------------------------
 
     Bool SetTextureDX(const Bitmap* tex, U32 stage, U32 blend) // = 0, = RS_BLEND_DEF
@@ -1173,6 +1213,7 @@ namespace Vid
 
         return dxError == DD_OK;
     }
+
     //----------------------------------------------------------------------------
 
     void SetBucketMaterialProc(const Material* material)
@@ -1195,6 +1236,7 @@ namespace Vid
             currentBucketMan = &bucket;
         }
     }
+
     //----------------------------------------------------------------------------
 
     // stage 0 MUST be set first!!!
@@ -1218,18 +1260,22 @@ namespace Vid
         }
         BucketMan::SetTexture(texture, stage, blend);
     }
+
     //----------------------------------------------------------------------------
 
-    Bool DrawPrimitive(
+    Bool DrawPrimitive
+    (
         PRIMITIVE_TYPE prim_type,
         VERTEX_TYPE vert_type,
         LPVOID verts,
         DWORD vert_count,
-        DWORD flags)
+        DWORD flags
+    )
     {
         // sanity check vertex count
         ASSERT(vert_count >= 1);
-        ASSERT(
+        ASSERT
+        (
             ((prim_type == PT_POINTLIST)) ||
             ((prim_type == PT_LINELIST) && (vert_count % 2 == 0)) ||
             ((prim_type == PT_LINESTRIP) && (vert_count >= 2)) ||
@@ -1265,31 +1311,37 @@ namespace Vid
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-              // do the d3d call
-        dxError = device->DrawPrimitive(
+        // do the d3d call
+        dxError = device->DrawPrimitive
+        (
             (D3DPRIMITIVETYPE)prim_type,
             vert_type,
             verts,
             vert_count,
-            flags);
+            flags
+        );
         LOG_DXERR(("device->DrawPrimitive: trilist"));
 
         indexCount += vert_count;
 
         return (dxError == D3D_OK);
     }
+
     //----------------------------------------------------------------------------
 
-    Bool DrawFanStripPrimitive(
+    Bool DrawFanStripPrimitive
+    (
         PRIMITIVE_TYPE prim_type,
         VERTEX_TYPE vert_type,
         LPVOID verts,
         DWORD vert_count,
-        DWORD flags)
+        DWORD flags
+    )
     {
         // sanity check vertex count
         ASSERT(vert_count >= 1);
-        ASSERT(
+        ASSERT
+        (
             ((prim_type == PT_POINTLIST)) ||
             ((prim_type == PT_LINELIST) && (vert_count % 2 == 0)) ||
             ((prim_type == PT_LINESTRIP) && (vert_count >= 2)) ||
@@ -1325,33 +1377,39 @@ namespace Vid
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-              // do the d3d call
-        dxError = device->DrawPrimitive(
+        // do the d3d call
+        dxError = device->DrawPrimitive
+        (
             (D3DPRIMITIVETYPE)prim_type,
             vert_type,
             verts,
             vert_count,
-            flags);
+            flags
+        );
         LOG_DXERR(("device->DrawPrimitive: trilist"));
 
         indexCount += vert_count - 2;
 
         return (dxError == D3D_OK);
     }
+
     //----------------------------------------------------------------------------
 
-    Bool DrawIndexedPrimitive(
+    Bool DrawIndexedPrimitive
+    (
         PRIMITIVE_TYPE prim_type,
         VERTEX_TYPE vert_type,
         LPVOID verts,
         DWORD vert_count,
         LPWORD indices,
         DWORD index_count,
-        DWORD flags)
+        DWORD flags
+    )
     {
         // sanity check vertex count
         ASSERT(index_count >= 1);
-        ASSERT(
+        ASSERT
+        (
             ((prim_type == PT_POINTLIST)) ||
             ((prim_type == PT_LINELIST) && (index_count % 2 == 0)) ||
             ((prim_type == PT_LINESTRIP) && (index_count >= 2)) ||
@@ -1424,14 +1482,16 @@ namespace Vid
         }
 
         // do the d3d call
-        dxError = device->DrawIndexedPrimitive(
+        dxError = device->DrawIndexedPrimitive
+        (
             (D3DPRIMITIVETYPE)prim_type,
             vert_type,
             verts,
             vert_count,
             (LPWORD)indices,
             index_count,
-            flags);
+            flags
+        );
 #ifdef DEVELOPMENT
         if (dxError)
         {
@@ -1445,9 +1505,10 @@ namespace Vid
 
         return (dxError == D3D_OK);
     }
-    //----------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------
 }
+
 //----------------------------------------------------------------------------
 
 // stage 0 MUST be set first!!!
@@ -1477,6 +1538,7 @@ void Bitmap::Manager::SetTexture(Bitmap* texture, U32 stage) // = 0)
         texture->frameNumber = Main::frameNumber;
     }
 }
+
 //----------------------------------------------------------------------------
 
 void VertexTL::SetFog()
@@ -1510,6 +1572,7 @@ void VertexTL::SetFog()
       }
     */
 }
+
 //----------------------------------------------------------------------------
 
 void VertexTL::SetFogX()
@@ -1542,6 +1605,7 @@ void VertexTL::SetFogX()
       }
     */
 }
+
 //----------------------------------------------------------------------------
 
 void VertexTL::SetFogH()
@@ -1554,4 +1618,5 @@ void VertexTL::SetFogH()
         specular.a = (U8)Utils::FtoL(255.f - (fog * 255.0f));
     }
 }
+
 //----------------------------------------------------------------------------

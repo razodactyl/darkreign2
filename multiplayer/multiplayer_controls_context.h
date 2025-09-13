@@ -26,81 +26,76 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
-    namespace ContextMsg
-    {
-      const U32 SetTeam     = 0xA9119C46; // "SetTeam"
-      const U32 ClearTeam   = 0x21C827ED; // "ClearTeam"
-    }
-
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class TeamPlayerOptions
+    // NameSpace Controls
     //
-    class TeamPlayerOptions : public ICWindow
+    namespace Controls
     {
-    private:
+        namespace ContextMsg
+        {
+            const U32 SetTeam = 0xA9119C46; // "SetTeam"
+            const U32 ClearTeam = 0x21C827ED; // "ClearTeam"
+        }
 
-      enum
-      {
-        CFG_TEAM      = (1 << 0),
-        CFG_AITEAM    = (1 << 1)
-      };
 
-      U32 type;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class TeamPlayerOptions
+        //
+        class TeamPlayerOptions : public ICWindow
+        {
+        private:
 
-      // Start location
-      IFaceVar *startLocationCurrent;
-      IFaceVar *startLocationSelected;
+            enum
+            {
+                CFG_TEAM = (1 << 0),
+                CFG_AITEAM = (1 << 1)
+            };
 
-      // Team color
-      IFaceVar *colorCurrent;
-      IFaceVar *colorSelected;
+            U32 type;
 
-      // Side
-      IFaceVar *side;
+            // Start location
+            IFaceVar* startLocationCurrent;
+            IFaceVar* startLocationSelected;
 
-      // Difficulty
-      IFaceVar *difficulty;
+            // Team color
+            IFaceVar* colorCurrent;
+            IFaceVar* colorSelected;
 
-      // Personality
-      IFaceVar *aiPersonality;
+            // Side
+            IFaceVar* side;
 
-      // Online
-      Bool online;
+            // Difficulty
+            IFaceVar* difficulty;
 
-      // Team id
-      U32 teamId;
+            // Personality
+            IFaceVar* aiPersonality;
 
-    public:
+            // Online
+            Bool online;
 
-      // Constructor
-      TeamPlayerOptions(IControl *parent);
+            // Team id
+            U32 teamId;
 
-      // Destructor
-      ~TeamPlayerOptions();
+        public:
 
-      // Activate
-      Bool Activate();
+            // Constructor
+            TeamPlayerOptions(IControl* parent);
 
-      // Deactivate
-      Bool Deactivate();
+            // Destructor
+            ~TeamPlayerOptions();
 
-      // Handle notifications
-      void Notify(IFaceVar *var);
+            // Activate
+            Bool Activate();
 
-    };
+            // Deactivate
+            Bool Deactivate();
 
-  }
-
+            // Handle notifications
+            void Notify(IFaceVar* var);
+        };
+    }
 }
 
 

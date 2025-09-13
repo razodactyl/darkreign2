@@ -28,11 +28,11 @@ class WaterSpriteRenderClass : public SpriteRenderClass
 public:
 
 public:
-	// sprite renderer class constructor
-	WaterSpriteRenderClass();
+    // sprite renderer class constructor
+    WaterSpriteRenderClass();
 
-	// build a new sprite renderer
-	virtual ParticleRender * Build( Particle * particle, void * data = NULL);
+    // build a new sprite renderer
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,11 +42,11 @@ public:
 class WaterSpriteRender : public SpriteRender
 {
 public:
-	// sprite renderer constructor
-	WaterSpriteRender( WaterSpriteRenderClass * proto, Particle * particle, void * data = NULL);
+    // sprite renderer constructor
+    WaterSpriteRender(WaterSpriteRenderClass* proto, Particle* particle, void* data = NULL);
 
-	// apply sprite renderer
-	virtual void Render();
+    // apply sprite renderer
+    virtual void Render();
 };
 
 

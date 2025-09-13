@@ -27,61 +27,61 @@
 //
 namespace Client
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace UnitSelectionMsg
-  //
-  namespace UnitSelectionMsg
-  {
-    const U32 Select = 0x013BB31D; // "Game::UnitSelection::Message::Select"
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace UnitSelectionMsg
+    //
+    namespace UnitSelectionMsg
+    {
+        const U32 Select = 0x013BB31D; // "Game::UnitSelection::Message::Select"
+    }
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitSelection
-  //
-  class UnitSelection : public ICWindow
-  {
-  protected:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitSelection
+    //
+    class UnitSelection : public ICWindow
+    {
+    protected:
 
-    // The lists of unit types
-    ICListBoxPtr typeListP;
-    ICListBoxPtr typeListS;
+        // The lists of unit types
+        ICListBoxPtr typeListP;
+        ICListBoxPtr typeListS;
 
-    // Is the list currently being built
-    Bool building;
+        // Is the list currently being built
+        Bool building;
 
-    // List of last selected units
-    UnitObjList lastSelected;
+        // List of last selected units
+        UnitObjList lastSelected;
 
-    // Select all units of each type in a list
-    static void SelectTypesCallback(const char *key, const CH *, void *context);
+        // Select all units of each type in a list
+        static void SelectTypesCallback(const char* key, const CH*, void* context);
 
-    // Fill a list with the selected unit types
-    void GetSelectedTypes(UnitObjTypeList &dst, ICListBox *src);
+        // Fill a list with the selected unit types
+        void GetSelectedTypes(UnitObjTypeList& dst, ICListBox* src);
 
-    // Get all selected types
-    void GetAllSelectedTypes(UnitObjTypeList &dst);
-    
-    // Build one of the type lists
-    void BuildList(ICListBox *list);
+        // Get all selected types
+        void GetAllSelectedTypes(UnitObjTypeList& dst);
 
-    // Build all type lists
-    void Rebuild();
+        // Build one of the type lists
+        void BuildList(ICListBox* list);
 
-  public:
+        // Build all type lists
+        void Rebuild();
 
-    // Constructor
-    UnitSelection(IControl *parent);
-    ~UnitSelection();
+    public:
 
-    // Draw this control
-    void DrawSelf(PaintInfo &pi);
+        // Constructor
+        UnitSelection(IControl* parent);
+        ~UnitSelection();
 
-    // Event handling function
-    U32 HandleEvent(Event &e);
-  };
+        // Draw this control
+        void DrawSelf(PaintInfo& pi);
+
+        // Event handling function
+        U32 HandleEvent(Event& e);
+    };
 }
 
 #endif

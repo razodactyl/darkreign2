@@ -17,12 +17,12 @@
 //
 namespace UnitLimits
 {
-  // Initialize and shutdown system
-  void Init();
-  void Done();
+    // Initialize and shutdown system
+    void Init();
+    void Done();
 
-  // Returns the per team command point limit
-  U32 GetLimit();
+    // Returns the per team command point limit
+    U32 GetLimit();
 }
 
 #endif

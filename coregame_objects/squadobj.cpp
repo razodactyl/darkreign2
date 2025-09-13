@@ -42,10 +42,10 @@
 //
 // Constructor
 //
-SquadObjType::SquadObjType(const char *name, FScope *fScope) 
-: GameObjType(name, fScope)
+SquadObjType::SquadObjType(const char* name, FScope* fScope)
+    : GameObjType(name, fScope)
 {
-  thinkInterval = 10;
+    thinkInterval = 10;
 }
 
 
@@ -56,8 +56,8 @@ SquadObjType::SquadObjType(const char *name, FScope *fScope)
 //
 void SquadObjType::PostLoad()
 {
-  // Call parent scope first
-  GameObjType::PostLoad();
+    // Call parent scope first
+    GameObjType::PostLoad();
 }
 
 
@@ -68,8 +68,8 @@ void SquadObjType::PostLoad()
 //
 GameObj* SquadObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new SquadObj(this, id));
+    // Allocate new object instance
+    return (new SquadObj(this, id));
 }
 
 
@@ -84,10 +84,10 @@ GameObj* SquadObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-SquadObj::SquadObj(SquadObjType *objType, U32 id) 
-: GameObj(objType, id)
+SquadObj::SquadObj(SquadObjType* objType, U32 id)
+    : GameObj(objType, id)
 {
-  team = NULL;
+    team = nullptr;
 }
 
 
@@ -98,8 +98,8 @@ SquadObj::SquadObj(SquadObjType *objType, U32 id)
 //
 SquadObj::~SquadObj()
 {
-  // Make sure we clear the reaper list
-  list.Clear();
+    // Make sure we clear the reaper list
+    list.Clear();
 }
 
 
@@ -110,9 +110,8 @@ SquadObj::~SquadObj()
 //
 void SquadObj::PreDelete()
 {
-
-  // Call parent scope last
-  GameObj::PreDelete();
+    // Call parent scope last
+    GameObj::PreDelete();
 }
 
 
@@ -121,31 +120,31 @@ void SquadObj::PreDelete()
 //
 // Save a state configuration scope
 //
-void SquadObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void SquadObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  GameObj::SaveState(fScope);
+    // Call parent scope first
+    GameObj::SaveState(fScope);
 
-  // Create our specific config scope
-  fScope = fScope->AddFunction(SCOPE_CONFIG);
+    // Create our specific config scope
+    fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-  // Save the team
-  if (team)
-  {
-    StdSave::TypeString(fScope, "Team", team->GetName());
-  }
-
-  // Save Tactical Modifier Settings
-  settings.SaveState(fScope->AddFunction("ModifierSettings"));
-
-  // Save each list node
-  for (UnitList::Iterator i(&list); *i; i++)
-  {
-    if (FScope *sScope = StdSave::TypeReaper(fScope, "Node", **i))
+    // Save the team
+    if (team)
     {
-      (*i)->SaveState(sScope);
+        StdSave::TypeString(fScope, "Team", team->GetName());
     }
-  }
+
+    // Save Tactical Modifier Settings
+    settings.SaveState(fScope->AddFunction("ModifierSettings"));
+
+    // Save each list node
+    for (UnitList::Iterator i(&list); *i; ++i)
+    {
+        if (FScope* sScope = StdSave::TypeReaper(fScope, "Node", **i))
+        {
+            (*i)->SaveState(sScope);
+        }
+    }
 }
 
 
@@ -154,36 +153,36 @@ void SquadObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 // Load a state configuration scope
 //
-void SquadObj::LoadState(FScope *fScope)
+void SquadObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  GameObj::LoadState(fScope);
+    // Call parent scope first
+    GameObj::LoadState(fScope);
 
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
-  FScope *sScope;
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
+    FScope* sScope;
 
-  while ((sScope = fScope->NextFunction()) != NULL)
-  {
-    switch (sScope->NameCrc())
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
-      case 0xEDF0E1CF: // "Team"
-        SetTeam(Team::Name2Team(StdLoad::TypeString(sScope)));
-        break;
+        switch (sScope->NameCrc())
+        {
+            case 0xEDF0E1CF: // "Team"
+                SetTeam(Team::Name2Team(StdLoad::TypeString(sScope)));
+                break;
 
-      case 0x2F382D90: // "ModifierSettings"
-        settings.LoadState(sScope);
-        break;
+            case 0x2F382D90: // "ModifierSettings"
+                settings.LoadState(sScope);
+                break;
 
-      case 0xE3554C44: // "Node"
-      {
-        ListNode *node = list.Append();
-        StdLoad::TypeReaper(sScope, *node);
-        node->LoadState(sScope);
-        break;
-      }
+            case 0xE3554C44: // "Node"
+            {
+                ListNode* node = list.Append();
+                StdLoad::TypeReaper(sScope, *node);
+                node->LoadState(sScope);
+                break;
+            }
+        }
     }
-  }
 }
 
 
@@ -194,11 +193,11 @@ void SquadObj::LoadState(FScope *fScope)
 //
 void SquadObj::PostLoad()
 {
-  // Call parent scope first
-  GameObj::PostLoad();
+    // Call parent scope first
+    GameObj::PostLoad();
 
-  // Resolve the object list
-  Resolver::ObjList<UnitObj, UnitObjType, ListNode>(list);
+    // Resolve the object list
+    Resolver::ObjList<UnitObj, UnitObjType, ListNode>(list);
 }
 
 
@@ -207,9 +206,9 @@ void SquadObj::PostLoad()
 //
 // Set the team this squad belongs to
 //
-void SquadObj::SetTeam(Team *t)
+void SquadObj::SetTeam(Team* t)
 {
-  team = t;
+    team = t;
 }
 
 
@@ -218,9 +217,9 @@ void SquadObj::SetTeam(Team *t)
 //
 // Get the team this squad belongs to
 //
-Team * SquadObj::GetTeam()
+Team* SquadObj::GetTeam()
 {
-  return (team);
+    return (team);
 }
 
 
@@ -229,25 +228,25 @@ Team * SquadObj::GetTeam()
 //
 // Add a single map object
 //
-void SquadObj::AddUnitObj(UnitObj *obj)
+void SquadObj::AddUnitObj(UnitObj* obj)
 {
-  ASSERT(obj)
+    ASSERT(obj);
 
-  // Check to see if the unit is alread in a squad
-  if (obj->GetSquad())
-  {
-    // Remove it from that squad
-    obj->ClearSquad();
-  }
+    // Check to see if the unit is alread in a squad
+    if (obj->GetSquad())
+    {
+        // Remove it from that squad
+        obj->ClearSquad();
+    }
 
-  // Force our tactical settings upon this unit
-  obj->settings = settings;
+    // Force our tactical settings upon this unit
+    obj->settings = settings;
 
-  // Set the squad of the object
-  obj->SetSquad(this);
+    // Set the squad of the object
+    obj->SetSquad(this);
 
-  // Append the given object
-  list.Append(obj);
+    // Append the given object
+    list.Append(obj);
 }
 
 
@@ -256,18 +255,18 @@ void SquadObj::AddUnitObj(UnitObj *obj)
 //
 // Add a list of map objects
 //
-void SquadObj::AddUnitObjList(UnitObjList *objList)
+void SquadObj::AddUnitObjList(UnitObjList* objList)
 {
-  ASSERT(objList)
+    ASSERT(objList);
 
-  // Add each unit in the list
-  for (UnitObjList::Iterator u(objList); *u; u++)
-  {
-    if ((*u)->Alive())
+    // Add each unit in the list
+    for (UnitObjList::Iterator u(objList); *u; ++u)
     {
-      AddUnitObj(**u); 
+        if ((*u)->Alive())
+        {
+            AddUnitObj(**u);
+        }
     }
-  }
 }
 
 
@@ -276,10 +275,10 @@ void SquadObj::AddUnitObjList(UnitObjList *objList)
 //
 // Remove a single unit from the squad
 //
-void SquadObj::RemoveUnitObj(UnitObj *obj)
+void SquadObj::RemoveUnitObj(UnitObj* obj)
 {
-  // Remove the unit from the list
-  list.Remove(obj);
+    // Remove the unit from the list
+    list.Remove(obj);
 }
 
 
@@ -290,21 +289,21 @@ void SquadObj::RemoveUnitObj(UnitObj *obj)
 //
 void SquadObj::Empty()
 {
-  // Remove each of the objects from the squad
-  UnitList::Iterator u(&list); 
-  
-  ListNode *ptr;
+    // Remove each of the objects from the squad
+    UnitList::Iterator u(&list);
 
-  while ((ptr = u++) != NULL)
-  {
-    if (ptr->Alive())
+    ListNode* ptr;
+
+    while ((ptr = u++) != nullptr)
     {
-      (*ptr)->ClearSquad();
+        if (ptr->Alive())
+        {
+            (*ptr)->ClearSquad();
+        }
     }
-  }
 
-  // Clear out the list
-  list.Clear();
+    // Clear out the list
+    list.Clear();
 }
 
 
@@ -313,13 +312,13 @@ void SquadObj::Empty()
 //
 // Get the unit list inside the squad
 //
-const SquadObj::UnitList & SquadObj::GetList()
+const SquadObj::UnitList& SquadObj::GetList()
 {
-  // Purge dead from the list
-  list.PurgeDead();
+    // Purge dead from the list
+    list.PurgeDead();
 
-  // Return whats left
-  return (list);
+    // Return whats left
+    return (list);
 }
 
 
@@ -328,29 +327,26 @@ const SquadObj::UnitList & SquadObj::GetList()
 //
 // Get the central location of the squad
 //
-Bool SquadObj::GetLocation(Vector &location)
+Bool SquadObj::GetLocation(Vector& location)
 {
-  // Purge dead from the list
-  list.PurgeDead();
+    // Purge dead from the list
+    list.PurgeDead();
 
-  location = Vector(0.0f, 0.0f, 0.0f);
-  F32 count = 0.0f;
+    location = Vector(0.0f, 0.0f, 0.0f);
+    F32 count = 0.0f;
 
-  for (UnitList::Iterator u(&list); *u; u++)
-  {
-    location += (**u)->Origin();
-    count += 1.0f;
-  }
+    for (UnitList::Iterator u(&list); *u; ++u)
+    {
+        location += (**u)->Origin();
+        count += 1.0f;
+    }
 
-  if (count)
-  {
-    location /= count;
-    return (TRUE);
-  }
-  else
-  {
+    if (count)
+    {
+        location /= count;
+        return (TRUE);
+    }
     return (FALSE);
-  }
 }
 
 
@@ -361,15 +357,15 @@ Bool SquadObj::GetLocation(Vector &location)
 //
 S32 SquadObj::GetHitPoints()
 {
-  S32 total = 0;
-  for (UnitList::Iterator u(&list); *u; u++)
-  {
-    if ((*u)->Alive())
+    S32 total = 0;
+    for (UnitList::Iterator u(&list); *u; ++u)
     {
-      total += (**u)->GetHitPoints();
+        if ((*u)->Alive())
+        {
+            total += (**u)->GetHitPoints();
+        }
     }
-  }
-  return (total);
+    return (total);
 }
 
 
@@ -380,15 +376,15 @@ S32 SquadObj::GetHitPoints()
 //
 S32 SquadObj::GetMaxHitPoints()
 {
-  S32 total = 0;
-  for (UnitList::Iterator u(&list); *u; u++)
-  {
-    if ((*u)->Alive())
+    S32 total = 0;
+    for (UnitList::Iterator u(&list); *u; ++u)
     {
-      total += (**u)->MapType()->GetHitPoints();
+        if ((*u)->Alive())
+        {
+            total += (**u)->MapType()->GetHitPoints();
+        }
     }
-  }
-  return (total);
+    return (total);
 }
 
 
@@ -399,25 +395,25 @@ S32 SquadObj::GetMaxHitPoints()
 //
 F32 SquadObj::GetAverageHealth()
 {
-  F32 count = 0.0f;
-  F32 total = 0.0f;
-  for (UnitList::Iterator u(&list); *u; u++)
-  {
-    if ((*u)->Alive())
+    F32 count = 0.0f;
+    F32 total = 0.0f;
+    for (UnitList::Iterator u(&list); *u; ++u)
     {
-      count += 1.0f;
-      total += F32((**u)->GetHitPoints()) * (**u)->MapType()->GetHitPointsInv();
+        if ((*u)->Alive())
+        {
+            count += 1.0f;
+            total += F32((**u)->GetHitPoints()) * (**u)->MapType()->GetHitPointsInv();
+        }
     }
-  }
-  if (count > 0.0f)
-  {
-    total /= count;
-  }
-  else
-  {
-    total = 0.0f;
-  }
-  return (total);
+    if (count > 0.0f)
+    {
+        total /= count;
+    }
+    else
+    {
+        total = 0.0f;
+    }
+    return (total);
 }
 
 
@@ -428,15 +424,15 @@ F32 SquadObj::GetAverageHealth()
 //
 U32 SquadObj::GetThreat(U32 ac)
 {
-  U32 total = 0;
-  for (UnitList::Iterator u(&list); *u; u++)
-  {
-    if ((*u)->Alive())
+    U32 total = 0;
+    for (UnitList::Iterator u(&list); *u; ++u)
     {
-      total += (**u)->UnitType()->GetThreat(ac);
+        if ((*u)->Alive())
+        {
+            total += (**u)->UnitType()->GetThreat(ac);
+        }
     }
-  }
-  return (total);
+    return (total);
 }
 
 
@@ -445,43 +441,43 @@ U32 SquadObj::GetThreat(U32 ac)
 //
 // Notification sent to the squad
 //
-void SquadObj::PostEvent(const Task::Event &event, Bool idle)
+void SquadObj::PostEvent(const Task::Event& event, Bool idle)
 {
-  // Are we interested in the message
-  switch (event.message)
-  {
-    case 0x2E537947: // "Tactical::TargetFound"
+    // Are we interested in the message
+    switch (event.message)
     {
-      // Someone in the squad found a target
-      UnitObj *unit = Resolver::Object<UnitObj, UnitObjType>(event.param1);
-
-      if (unit)
-      {
-        Target target(unit);
-
-        // Suggest this target to the other squad members
-        for (UnitList::Iterator u(&list); *u; u++)
+        case 0x2E537947: // "Tactical::TargetFound"
         {
-          if ((*u)->Alive())
-          {
-            UnitObj *unit = **u;
-            Task *task = unit->GetCurrentTask();
+            // Someone in the squad found a target
+            UnitObj* unit = Resolver::Object<UnitObj, UnitObjType>(event.param1);
 
-            // If the unit has a task from an order then do not suggest the target
-            if (task && !(task->GetFlags() & Task::TF_FROM_ORDER))
+            if (unit)
             {
-              unit->SuggestTarget(target, FALSE, FALSE);
-            }
-          }
-        }
-      }
-      break;
-    }
+                Target target(unit);
 
-    default:
-      GameObj::PostEvent(event, idle);
-      break;
-  }
+                // Suggest this target to the other squad members
+                for (UnitList::Iterator u(&list); *u; ++u)
+                {
+                    if ((*u)->Alive())
+                    {
+                        UnitObj* unit = **u;
+                        Task* task = unit->GetCurrentTask();
+
+                        // If the unit has a task from an order then do not suggest the target
+                        if (task && !(task->GetFlags() & Task::TF_FROM_ORDER))
+                        {
+                            unit->SuggestTarget(target, FALSE, FALSE);
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+        default:
+            GameObj::PostEvent(event, idle);
+            break;
+    }
 }
 
 
@@ -492,7 +488,7 @@ void SquadObj::PostEvent(const Task::Event &event, Bool idle)
 //
 Bool SquadObj::NotifyPlayer(U32 message, U32 param1, U32 param2)
 {
-  return (team ? team->NotifyPlayer(this, message, param1, param2) : FALSE);
+    return (team ? team->NotifyPlayer(this, message, param1, param2) : FALSE);
 }
 
 
@@ -501,13 +497,13 @@ Bool SquadObj::NotifyPlayer(U32 message, U32 param1, U32 param2)
 //
 void SquadObj::SetTacticalModifierSetting(U8 modifier, U8 setting)
 {
-  // Apply the modifer setting to the actual squad
-  settings.Set(modifier, setting);
+    // Apply the modifer setting to the actual squad
+    settings.Set(modifier, setting);
 
-  // Apply the modifer settings to all of the units in the squad
-  for (UnitList::Iterator i(&GetList()); *i; i++)
-  {
-    // Change the tactical AI settings
-    (**i)->settings.Set(modifier, setting);
-  }
+    // Apply the modifer settings to all of the units in the squad
+    for (UnitList::Iterator i(&GetList()); *i; ++i)
+    {
+        // Change the tactical AI settings
+        (**i)->settings.Set(modifier, setting);
+    }
 }

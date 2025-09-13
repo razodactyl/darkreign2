@@ -24,23 +24,21 @@
 //
 namespace Environment
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Quake
+    //
+    namespace Quake
+    {
+        void Init();
+        void Done();
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Quake
-  //
-  namespace Quake
-  {
-	  void Init();
-	  void Done();
+        void ProcessCreate(FScope* fScope);
 
-    void ProcessCreate(FScope *fScope);
+        Bool SetWorldMatrix(FamilyNode& node, const Matrix& matrix);
 
-    Bool SetWorldMatrix( FamilyNode & node, const Matrix & matrix);
-
-    void Simulate( F32 dt);
-  }
-
+        void Simulate(F32 dt);
+    }
 }
 
 

@@ -25,49 +25,44 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class PlayerInfo
+    // NameSpace Controls
     //
-    class PlayerInfo : public ICWindow
+    namespace Controls
     {
-    private:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PlayerInfo
+        //
+        class PlayerInfo : public ICWindow
+        {
+        private:
 
-      // Ping graph rectangle
-      Area<S32> pingGraph;
+            // Ping graph rectangle
+            Area<S32> pingGraph;
 
-      // Network id
-      U32 networkId;
+            // Network id
+            U32 networkId;
 
-    public:
+        public:
 
-      // Constructor
-      PlayerInfo(IControl *parent);
+            // Constructor
+            PlayerInfo(IControl* parent);
 
-      // Destructor
-      ~PlayerInfo();
+            // Destructor
+            ~PlayerInfo();
 
-      // Activate
-      Bool Activate();
+            // Activate
+            Bool Activate();
 
-      // Setup
-      void Setup(FScope *fScope);
+            // Setup
+            void Setup(FScope* fScope);
 
-      // Draw self
-      void DrawSelf(PaintInfo &pi);
-
-    };
-
-  }
-
+            // Draw self
+            void DrawSelf(PaintInfo& pi);
+        };
+    }
 }
 
 

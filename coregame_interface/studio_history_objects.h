@@ -24,71 +24,71 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace History - Undo/Redo functionality
-  //
-  namespace History
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Objects - History functions dealing with objects
+    // Namespace History - Undo/Redo functionality
     //
-    class Objects : public Base
+    namespace History
     {
-      PROMOTE_LINK(Objects, Base, 0xEC92967E); // "Objects"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Objects - History functions dealing with objects
+        //
+        class Objects : public Base
+        {
+        PROMOTE_LINK(Objects, Base, 0xEC92967E); // "Objects"
 
-    public:
+        public:
 
-      // All possible operations
-      enum Operation 
-      { 
-        OP_CREATE,
-        OP_DELETE, 
-        OP_MOVE,
-        OP_ZIP
-      };
+            // All possible operations
+            enum Operation
+            {
+                OP_CREATE,
+                OP_DELETE,
+                OP_MOVE,
+                OP_ZIP
+            };
 
-    protected:
+        protected:
 
-      // Custom list node
-      struct Data
-      {       
-        // Object data
-        MapObjPtr object;
-        MapObjTypePtr type;
-        Matrix matrix;
-        Team *team;
-        Bool zipped;
+            // Custom list node
+            struct Data
+            {
+                // Object data
+                MapObjPtr object;
+                MapObjTypePtr type;
+                Matrix matrix;
+                Team* team;
+                Bool zipped;
 
-        // List node
-        NList<Data>::Node node;
+                // List node
+                NList<Data>::Node node;
 
-        // Constructor
-        Data(MapObj *o);
-      };
+                // Constructor
+                Data(MapObj* o);
+            };
 
-      // List for operations
-      NList<Data> dataList;
+            // List for operations
+            NList<Data> dataList;
 
-      // The operation 
-      Operation op;
+            // The operation 
+            Operation op;
 
-      // Virtual methods
-      void Undo();
-      U32 Size();
+            // Virtual methods
+            void Undo();
+            U32 Size();
 
-    public:
+        public:
 
-      // Constructors and destructor
-      Objects(Operation op, const MapObjList &list);
-      Objects(Operation op, MapObj *object);
-      ~Objects();
+            // Constructors and destructor
+            Objects(Operation op, const MapObjList& list);
+            Objects(Operation op, MapObj* object);
+            ~Objects();
 
-      // The name of this history item
-      const char * Name();
-    };
-  }
+            // The name of this history item
+            const char* Name();
+        };
+    }
 }
 
 #endif

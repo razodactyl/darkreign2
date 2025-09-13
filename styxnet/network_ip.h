@@ -17,60 +17,55 @@
 //
 namespace Network
 {
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace IP
-  //
-  namespace IP
-  {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
-    // Struct Header
+    // NameSpace IP
     //
-    struct Header 
+    namespace IP
     {
-      // Length of the header in dwords
-      U8 h_len : 4;
+        ////////////////////////////////////////////////////////////////////////////////
+        //
+        // Struct Header
+        //
+        struct Header
+        {
+            // Length of the header in dwords
+            U8 h_len : 4;
 
-      // Version of IP
-      U8 version : 4;
+            // Version of IP
+            U8 version : 4;
 
-      // Type of service
-      U8 tos;
-      
-      // Length of the packet in dwords
-      U16 total_len;
+            // Type of service
+            U8 tos;
 
-      // unique identifier
-      U16 ident;
+            // Length of the packet in dwords
+            U16 total_len;
 
-      // Flags
-      U16 flags;
+            // unique identifier
+            U16 ident;
 
-      // Time to live
-      U8 ttl;
+            // Flags
+            U16 flags;
 
-      // Protocol number (TCP, UDP etc)
-      U8 proto;
+            // Time to live
+            U8 ttl;
 
-      // IP checksum
-      U16 checksum;
+            // Protocol number (TCP, UDP etc)
+            U8 proto;
 
-      // Source IP
-      U32 source_ip;
+            // IP checksum
+            U16 checksum;
 
-      // Dest IP
-      U32 dest_ip;
+            // Source IP
+            U32 source_ip;
 
-    };
+            // Dest IP
+            U32 dest_ip;
+        };
 
-    // Compute an IP checksum
-    U16 CheckSum(U16 *buffer, U32 size);
-
-  }
-
+        // Compute an IP checksum
+        U16 CheckSum(U16* buffer, U32 size);
+    }
 }
 
 #endif

@@ -22,30 +22,28 @@
 //
 namespace ConnectedRegion
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Defenitions
+    //
+    typedef Blobs::Pixel Pixel;
+    typedef Blobs::Region Region;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Defenitions
-  //
-  typedef Blobs::Pixel Pixel;
-  typedef Blobs::Region Region;
-  
-  // Initialization and Shutdown
-  void Init();
-  void Done();
+    // Initialization and Shutdown
+    void Init();
+    void Done();
 
-  // Get the region number of a pixel in the map
-  Pixel GetValue(U8 traction, U32 x, U32 z);
+    // Get the region number of a pixel in the map
+    Pixel GetValue(U8 traction, U32 x, U32 z);
 
-  // For the given pixel get the statistical information for that region
-  const Region & GetRegion(U8 traction, Pixel pixel);
+    // For the given pixel get the statistical information for that region
+    const Region& GetRegion(U8 traction, Pixel pixel);
 
-  // Get the number of regions available for the given traction type
-  U32 GetNumRegions(U8 traction);
+    // Get the number of regions available for the given traction type
+    U32 GetNumRegions(U8 traction);
 
-  // Recalculate cre data
-  void Recalc();
-
+    // Recalculate cre data
+    void Recalc();
 }
 
 #endif

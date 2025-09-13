@@ -24,29 +24,29 @@ class Camera : public FamilyNode
 protected:
     // viewport
     //
-    Area<S32> 		              rect, last, saveRect;     // used view relative to client
-    U32                         clearCount;
-    F32                         x0, y0, x1, y1;     // window rect ratios
+    Area<S32> rect, last, saveRect;     // used view relative to client
+    U32 clearCount;
+    F32 x0, y0, x1, y1;     // window rect ratios
 
-    F32                         nearPlane, farPlane, fov, zoom, maxZ;
-    F32                         saveNear, saveFar, saveFov, saveZoom;
-    Matrix                      projMatrix;
-    F32                         halfHeight, halfWidth, aspectHW;
-    F32                         invDepth, invProjX, invProjY;
+    F32 nearPlane, farPlane, fov, zoom, maxZ;
+    F32 saveNear, saveFar, saveFov, saveZoom;
+    Matrix projMatrix;
+    F32 halfHeight, halfWidth, aspectHW;
+    F32 invDepth, invProjX, invProjY;
 
-    Plane                       planes[6];
-    Plane                       guardPlanes[6];
-    Vector                      frustrum[8];
+    Plane planes[6];
+    Plane guardPlanes[6];
+    Vector frustrum[8];
 
     // camera
     //
-    Matrix                      viewMatrix, tranMatrix, saveMatrix;
-    Vector                      pyramid[9];
-    Vector                      boxMin, boxMax;
+    Matrix viewMatrix, tranMatrix, saveMatrix;
+    Vector pyramid[9];
+    Vector boxMin, boxMax;
 
-    FamilyState                 state;
+    FamilyState state;
 
-    U32                         isIso : 1;
+    U32 isIso : 1;
 
     // private setup
     //
@@ -71,6 +71,7 @@ public:
     {
         ClearData();
     }
+
     Camera(const char* name);
     virtual ~Camera();
 
@@ -82,13 +83,14 @@ public:
     virtual void SetWorldRecurseRender(const Matrix& world, FamilyState* stateArray);
 
     // test bounds against view frustrum
-  //
-  // origin (world.posit) in world coords
-  //
+    //
+    // origin (world.posit) in world coords
+    //
     inline U32 BoundsTestOrigin(const Vector& world, Bounds& bounds, Vector* viewPos = NULL)
     {
         return BoundsTestOrigin(Matrix(world), bounds, viewPos);
     }
+
     U32 BoundsTestOrigin(const Matrix& world, Bounds& bounds, Vector* viewPos = NULL);
 
     // origin (bounds.offset) in model coords
@@ -97,6 +99,7 @@ public:
     {
         return BoundsTest(Matrix(world), bounds, viewPos);
     }
+
     U32 BoundsTest(const Matrix& world, Bounds& bounds, Vector* viewPos = NULL);
 
     // sphere only
@@ -105,6 +108,7 @@ public:
     {
         return BoundsTestSphere(Matrix(world), bounds, viewPos);
     }
+
     U32 BoundsTestSphere(const Matrix& world, Bounds& bounds, Vector* viewPos = NULL);
 
     // box only
@@ -113,6 +117,7 @@ public:
     {
         return BoundsTestBox(Matrix(world), bounds, viewPos);
     }
+
     U32 BoundsTestBox(const Matrix& world, Bounds& bounds, Vector* viewPos = NULL);
 
     // legacy
@@ -121,6 +126,7 @@ public:
     {
         return SphereTest(world.posit, bounds.Radius(), viewPos);
     }
+
     U32 SphereTest(const Vector& origin, F32 radius, Vector* viewPos = NULL);
     U32 SphereTestCamera(const Vector& origin, F32 radius);
 
@@ -133,6 +139,7 @@ public:
         vRect.p0.y = Utils::FtoL(boxMin.z);
         vRect.p1.y = Utils::FtoL(boxMax.z);
     }
+
     void OnModeChange();
 
     inline void Save()
@@ -144,6 +151,7 @@ public:
         saveFov = fov;
         saveZoom = zoom;
     }
+
     inline void Restore()
     {
         SetProjTransform(saveNear, saveFar, saveFov);
@@ -156,10 +164,12 @@ public:
     {
         saveMatrix = WorldMatrix();
     }
+
     inline void RestoreMatrix()
     {
         SetWorldAll(saveMatrix);
     }
+
     void Mirror(const Plane& plane);
 
     // setup
@@ -180,10 +190,12 @@ public:
     {
         SetProjTransform(nearPlane, f, fov);
     }
+
     inline void SetNearPlane(F32 n)
     {
         SetProjTransform(n, farPlane, fov);
     }
+
     void SetZoom(F32 z);
 
     // query
@@ -199,87 +211,108 @@ public:
     {
         return farPlane;
     }
+
     inline F32 NearPlane() const
     {
         return nearPlane;
     }
+
     inline F32 FOV() const
     {
         return fov;
     }
+
     inline F32 Zoom() const
     {
         return zoom;
     }
+
     inline F32 MaxZ() const
     {
         return maxZ;
     }
+
     inline F32 ProjInvConstX() const
     {
         return invProjX;
     }
+
     inline F32 ProjInvConstY() const
     {
         return invProjY;
     }
+
     inline const Area<S32>& ViewRect() const
     {
         return rect;
     }
+
     inline Point<F32> Origin() const
     {
         return Point<F32>((F32)rect.MidX(), (F32)rect.MidY());
     }
+
     inline F32 Width() const
     {
         return (F32)rect.Width();
     }
+
     inline F32 Height() const
     {
         return (F32)rect.Height();
     }
+
     inline F32 HalfWidth() const
     {
         return halfWidth;
     }
+
     inline F32 HalfHeight() const
     {
         return halfHeight;
     }
+
     inline const Matrix& ProjMatrix() const
     {
         return projMatrix;
     }
+
     inline const Matrix& ViewMatrix() const
     {
         return viewMatrix;
     }
+
     inline const Vector* Frustrum() const
     {
         return frustrum;
     }
+
     inline const Vector* Pyramid() const
     {
         return pyramid;
     }
+
     inline const Plane* Planes() const
     {
         return planes;
     }
+
     inline const Plane* GuardPlanes() const
     {
         return guardPlanes;
     }
+
     inline F32 AspectHW() const
     {
         return aspectHW;
     }
+
     inline F32 InvDepth() const
     {
         return invDepth;
     }
 };
+
 //-----------------------------------------------------------------------------
 
 #endif		// _CAMERA_H

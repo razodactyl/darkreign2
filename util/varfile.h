@@ -26,11 +26,11 @@
 //
 namespace VarFile
 {
-  // Save from the Var Scope into the FScope
-  void Save(FScope *fScope, VarSys::VarScope *vScope);
+    // Save from the Var Scope into the FScope
+    void Save(FScope* fScope, VarSys::VarScope* vScope);
 
-  // Load from the FScope into the Var Scope
-  void Load(FScope *fScope, const char *path);
+    // Load from the FScope into the Var Scope
+    void Load(FScope* fScope, const char* path);
 }
 
 

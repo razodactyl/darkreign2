@@ -24,26 +24,23 @@
 //
 namespace Environment
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Rain
+    //
+    namespace Rain
+    {
+        void Init();
+        void Done();
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Rain
-  //
-  namespace Rain
-  {
-	  void Init();
-	  void Done();
+        void Process();
+        void Render();
 
-    void Process();
-	  void Render();
+        void LoadInfo(FScope* fScope);
+        void SaveInfo(FScope* fScope);
 
-    void LoadInfo( FScope *fScope);
-	  void SaveInfo( FScope *fScope);
-
-    void PostLoad();
-
-  };
-
+        void PostLoad();
+    };
 }
 
 

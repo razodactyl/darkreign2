@@ -22,44 +22,42 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class StepOnce
+    // NameSpace Game
     //
-
-    U32 StepOnce::orderId;
-
-    //
-    // Generate
-    //
-    void StepOnce::Generate(Player &player)
+    namespace Game
     {
-      Data  data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class StepOnce
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
+        U32 StepOnce::orderId;
 
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
+        //
+        // Generate
+        //
+        void StepOnce::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 StepOnce::Execute(const U8*, Player&)
+        {
+            GameTime::StepOnce();
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 StepOnce::Execute(const U8 *, Player &)
-    {
-      GameTime::StepOnce();
-
-      return (sizeof(Data));
-    }
-  }
 }

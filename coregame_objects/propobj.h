@@ -30,16 +30,15 @@ class PropObj;
 
 class PropObjType : public MapObjType
 {
-  PROMOTE_LINK(PropObjType, MapObjType, 0x61FD726C); // "PropObjType"
+PROMOTE_LINK(PropObjType, MapObjType, 0x61FD726C); // "PropObjType"
 
 public:
 
-  // Constructor
-  PropObjType(const char *name, FScope *fScope);
+    // Constructor
+    PropObjType(const char* name, FScope* fScope);
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
-
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 };
 
 
@@ -52,10 +51,9 @@ class PropObj : public MapObj
 {
 public:
 
-  // Constructor and destructor
-  PropObj(PropObjType *objType, U32 id);
-  ~PropObj();
-
+    // Constructor and destructor
+    PropObj(PropObjType* objType, U32 id);
+    ~PropObj();
 };
 
 #endif

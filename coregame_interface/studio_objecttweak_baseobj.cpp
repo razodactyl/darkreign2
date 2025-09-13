@@ -22,50 +22,44 @@
 //
 namespace Studio
 {
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace ObjectTweak
-  //
-  namespace ObjectTweak
-  {
-
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class BaseObj
+    // NameSpace ObjectTweak
     //
-
-
-    //
-    // Constructor
-    //
-    BaseObj::BaseObj(IControl *parent)
-    : IControl(parent)
+    namespace ObjectTweak
     {
-      controlStyle |= STYLE_DROPSHADOW;
-      SetColorGroup(IFace::data.cgClient);
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class BaseObj
+        //
+
+
+        //
+        // Constructor
+        //
+        BaseObj::BaseObj(IControl* parent)
+            : IControl(parent)
+        {
+            controlStyle |= STYLE_DROPSHADOW;
+            SetColorGroup(IFace::data.cgClient);
+        }
+
+
+        //
+        // Destructor
+        //
+        BaseObj::~BaseObj()
+        {
+        }
+
+
+        //
+        // Draw the control
+        //
+        void BaseObj::DrawSelf(PaintInfo& pi)
+        {
+            DrawCtrlBackground(pi, GetTexture());
+            DrawCtrlFrame(pi);
+        }
     }
-
-
-    //
-    // Destructor
-    //
-    BaseObj::~BaseObj()
-    {
-    }
-
-
-    //
-    // Draw the control
-    //
-    void BaseObj::DrawSelf(PaintInfo &pi)
-    {
-      DrawCtrlBackground(pi, GetTexture());
-      DrawCtrlFrame(pi);
-    }
-
-  }
-
 }

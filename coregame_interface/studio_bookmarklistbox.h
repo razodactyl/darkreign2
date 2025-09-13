@@ -25,24 +25,24 @@
 //
 namespace Studio
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class BookmarkList
-  //
-  class BookmarkListBox : public ICListBox
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class BookmarkList
+    //
+    class BookmarkListBox : public ICListBox
+    {
     PROMOTE_LINK(BookmarkListBox, ICListBox, 0x1865D2EF); // "BookmarkListBox"
 
-  public:
+    public:
 
-    // Constructor
-    BookmarkListBox(IControl *parent) : ICListBox(parent) {}
+        // Constructor
+        BookmarkListBox(IControl* parent) : ICListBox(parent)
+        {
+        }
 
-    // Event handling
-    U32 HandleEvent(Event &e);
-
-  };
+        // Event handling
+        U32 HandleEvent(Event& e);
+    };
 }
 
 #endif

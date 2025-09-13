@@ -27,114 +27,114 @@ class RunCodes
 {
 private:
 
-  LOGDEC
+    LOGDEC
 
 public:
 
-  // Run Codes callback functions
-  typedef void (* RCPROC)(void);
+    // Run Codes callback functions
+    typedef void (* RCPROC)(void);
 
-  // Notify callback
-  typedef U32 (* NOTIFYPROC)(U32);
+    // Notify callback
+    typedef U32 (* NOTIFYPROC)(U32);
 
 private:
 
-  struct RunCode
-  {
-    // Identifier for the runcode
+    struct RunCode
+    {
+        // Identifier for the runcode
+        GameIdent ident;
+
+        // Initializing function for the runcode
+        RCPROC fnInit;
+
+        // Function called after the config is loaded
+        RCPROC fnPost;
+
+        // Shutdown function for the runcode
+        RCPROC fnDone;
+
+        // Process function for the runcode
+        RCPROC fnGame;
+
+        // Notify callback 
+        NOTIFYPROC fnNotify;
+    };
+
+    // Identifier for the runcodes
     GameIdent ident;
 
-    // Initializing function for the runcode
-    RCPROC    fnInit;
+    // Current runcode
+    RunCode* currentRC;
 
-    // Function called after the config is loaded
-    RCPROC    fnPost;
+    // Next runcode
+    RunCode* nextRC;
 
-    // Shutdown function for the runcode
-    RCPROC    fnDone;
+    // Change runcode
+    Bool changeRC;
 
-    // Process function for the runcode
-    RCPROC    fnGame;
+    // Tree of runcode states
+    BinTree<RunCode> runCodes;
 
-    // Notify callback 
-    NOTIFYPROC fnNotify;
-  };
-
-  // Identifier for the runcodes
-  GameIdent ident;
-
-  // Current runcode
-  RunCode *currentRC;
-
-  // Next runcode
-  RunCode *nextRC;
-
-  // Change runcode
-  Bool changeRC;
-
-  // Tree of runcode states
-  BinTree<RunCode> runCodes;
-
-  // Run this function once when process is called
-  RCPROC runOnceProc;
+    // Run this function once when process is called
+    RCPROC runOnceProc;
 
 public:
 
-  // Constructor
-  RunCodes(const char *);
+    // Constructor
+    RunCodes(const char*);
 
-  // Run code intialization
-  void Register(const char *name, RCPROC fnGame, RCPROC fnInit = NULL, RCPROC fnDone = NULL, RCPROC fnPost = NULL, NOTIFYPROC fnNotify = NULL);
+    // Run code intialization
+    void Register(const char* name, RCPROC fnGame, RCPROC fnInit = NULL, RCPROC fnDone = NULL, RCPROC fnPost = NULL, NOTIFYPROC fnNotify = NULL);
 
-  // Change run code to "s" or rc
-  Bool Set(const char *s);
-  Bool Set(U32 rc);
+    // Change run code to "s" or rc
+    Bool Set(const char* s);
+    Bool Set(U32 rc);
 
-  // Clear the runcode
-  void Clear();
+    // Clear the runcode
+    void Clear();
 
-  // Process
-  void Process();
+    // Process
+    void Process();
 
-  // Cleanup
-  void Cleanup();
+    // Cleanup
+    void Cleanup();
 
-  // Get information on the current runcode
-  const char *GetCurrent()
-  {
-    return (currentRC ? currentRC->ident.str : "<NONE>");
-  }
+    // Get information on the current runcode
+    const char* GetCurrent()
+    {
+        return (currentRC ? currentRC->ident.str : "<NONE>");
+    }
 
-  // Get current runcode's CRC
-  U32 GetCurrentCrc()
-  {
-    return (currentRC ? currentRC->ident.crc : 0xDF10EE67); // "<NONE>"
-  }
+    // Get current runcode's CRC
+    U32 GetCurrentCrc()
+    {
+        return (currentRC ? currentRC->ident.crc : 0xDF10EE67); // "<NONE>"
+    }
 
-  // Get information on the next runcode
-  U32 GetNextCrc()
-  {
-    return (nextRC ? nextRC->ident.crc : 0xDF10EE67); // "<NONE>"
-  }
+    // Get information on the next runcode
+    U32 GetNextCrc()
+    {
+        return (nextRC ? nextRC->ident.crc : 0xDF10EE67); // "<NONE>"
+    }
 
-  // Reset the runcode
-  void Reset()
-  {
-    currentRC = NULL;
-    nextRC = NULL;
-  }
+    // Reset the runcode
+    void Reset()
+    {
+        currentRC = NULL;
+        nextRC = NULL;
+    }
 
-  // IsClear
-  Bool IsClear()
-  {
-    return ((currentRC || nextRC) ? FALSE : TRUE);
-  }
+    // IsClear
+    Bool IsClear()
+    {
+        return ((currentRC || nextRC) ? FALSE : TRUE);
+    }
 
-  // SetRunOnceProc
-  void SetRunOnceProc(RCPROC proc)
-  {
-    runOnceProc = proc;
-  }
+    // SetRunOnceProc
+    void SetRunOnceProc(RCPROC proc)
+    {
+        runOnceProc = proc;
+    }
 };
 
 #endif

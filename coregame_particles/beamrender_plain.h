@@ -25,11 +25,11 @@
 class BeamRenderPlainClass : public BeamRenderBaseClass
 {
 public:
-	// sprite renderer class constructor
-	BeamRenderPlainClass();
+    // sprite renderer class constructor
+    BeamRenderPlainClass();
 
-	// build a new sprite renderer
-	virtual ParticleRender * Build( Particle * particle, void * data = NULL);
+    // build a new sprite renderer
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -40,18 +40,18 @@ class BeamRenderPlain : public BeamRenderBase
 {
 protected:
 
-  KeyAnim<ScaleKey>     paramAnim;
-  Vector                offset;
-  Quaternion            rotation, rotate, twist, angle;
+    KeyAnim<ScaleKey> paramAnim;
+    Vector offset;
+    Quaternion rotation, rotate, twist, angle;
 
 public:
 
-	BeamRenderPlain( BeamRenderPlainClass * proto, Particle * particle, void * data = NULL);
+    BeamRenderPlain(BeamRenderPlainClass* proto, Particle* particle, void* data = NULL);
 
-  // setup the this renderer using the current particle data
-  virtual void Setup();
+    // setup the this renderer using the current particle data
+    virtual void Setup();
 
-	virtual void Simulate( F32 dt);
+    virtual void Simulate(F32 dt);
 };
 
 

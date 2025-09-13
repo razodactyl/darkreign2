@@ -27,68 +27,66 @@
 //
 namespace FX
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Forward Declaration
-  //
-  class SingleType;
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Forward Declaration
+    //
+    class SingleType;
 
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Object
-  //
-  class Object
-  {
-  private:
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Object
+    //
+    class Object
+    {
+    private:
 
-    // if there's no callback
-    F32 lifeTime;
+        // if there's no callback
+        F32 lifeTime;
 
-    // Type configuration
-    SingleType *type;
+        // Type configuration
+        SingleType* type;
 
-    // MapObject which the effect is for
-    MapObjPtr mapObj;
+        // MapObject which the effect is for
+        MapObjPtr mapObj;
 
-    // Optional velocity to give the particles
-    Vector *velocity;
+        // Optional velocity to give the particles
+        Vector* velocity;
 
-    // Callback function to modify pitch, volume or teminate the effect
-    FXCallBack callBack;
+        // Callback function to modify pitch, volume or teminate the effect
+        FXCallBack callBack;
 
-    // Callback context
-    void *context;
+        // Callback context
+        void* context;
 
-    // Sound object
-    SoundFX::Object sound;
+        // Sound object
+        SoundFX::Object sound;
 
-    // Particle configuration
-    ParticleFX::Object particle;
+        // Particle configuration
+        ParticleFX::Object particle;
 
-    // Mesh Effect configuration
-    MeshFX::Object meshEffect;
+        // Mesh Effect configuration
+        MeshFX::Object meshEffect;
 
-    U32 hasMeshEffect : 1;
+        U32 hasMeshEffect : 1;
 
-  public:
+    public:
 
-    NList<Object>::Node node;
+        NList<Object>::Node node;
 
-  public:
+    public:
 
-    // Constructor and Destructor
-    Object(SingleType *type, MapObj *mapObj, F32 _lifeTime, FXCallBack callBack, Bool process, const Vector *velocity, void *context);
-    ~Object();
+        // Constructor and Destructor
+        Object(SingleType* type, MapObj* mapObj, F32 _lifeTime, FXCallBack callBack, Bool process, const Vector* velocity, void* context);
+        ~Object();
 
-    // Process the FX
-    void Process();
+        // Process the FX
+        void Process();
 
-    // Terminate the FX
-    void Terminate();
-
-  };
-
+        // Terminate the FX
+        void Terminate();
+    };
 };
 
 #endif

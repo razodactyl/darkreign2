@@ -25,53 +25,52 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Tag - Brush for managing tags
+    // Namespace Brush - Contains all available brushes
     //
-    class Tag : public Objects
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Tag - Brush for managing tags
+        //
+        class Tag : public Objects
+        {
+        protected:
 
-      // Number in selected list last time
-      U32 lastCount;
+            // Number in selected list last time
+            U32 lastCount;
 
-      // Vars
-      IFaceVar *varTag;
-      IFaceVar *varTagEdit;
+            // Vars
+            IFaceVar* varTag;
+            IFaceVar* varTagEdit;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Tag(const char *name);
-      ~Tag();
+            // Constructor and destructor
+            Tag(const char* name);
+            ~Tag();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
 
-      // Clear active tag
-      void Clear();
+            // Clear active tag
+            void Clear();
 
-      // Create new tag
-      void Create(const char *name);
+            // Create new tag
+            void Create(const char* name);
 
-      // Delete current tag
-      void Delete();
-
-    };
-  }
+            // Delete current tag
+            void Delete();
+        };
+    }
 }
 
 #endif

@@ -26,48 +26,47 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TransportUnload
+    //
+    class TransportUnload : public GameTask<TransportObjType, TransportObj>
+    {
+        TASK_CLASS(TransportUnload)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TransportUnload
-  //
-  class TransportUnload : public GameTask<TransportObjType, TransportObj>
-  {
-    TASK_CLASS(TransportUnload)
+    private:
 
-  private:
+        // The location to unload cargo
+        Vector destination;
 
-    // The location to unload cargo
-    Vector destination;
+        // Movement request handle
+        Movement::Handle moveHandle;
 
-    // Movement request handle
-    Movement::Handle moveHandle;
+    public:
 
-  public:
+        // Constructors
+        TransportUnload(GameObj* subject);
+        TransportUnload(GameObj* subject, const Vector& destination);
 
-    // Constructors
-    TransportUnload(GameObj *subject);
-    TransportUnload(GameObj *subject, const Vector &destination);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateMoving();
-  };
+        // State machine procedures
+        void StateInit();
+        void StateMoving();
+    };
 }
 
 #endif

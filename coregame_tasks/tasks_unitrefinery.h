@@ -26,48 +26,46 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitRefinery
+    //
+    class UnitRefinery : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitRefinery)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitRefinery
-  //
-  class UnitRefinery : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitRefinery)
+        // Pointer to the unit currently being processed
+        UnitObjPtr target;
 
-    // Pointer to the unit currently being processed
-    UnitObjPtr target;
+    public:
 
-  public:
+        // Constructor
+        UnitRefinery(GameObj* subject);
 
-    // Constructor
-    UnitRefinery(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+        // Retrieve data from the task, return TRUE if filled
+        Bool Retrieve(U32 id, RetrievedData& data);
 
-    // Retrieve data from the task, return TRUE if filled
-    Bool Retrieve(U32 id, RetrievedData &data);
+    private:
 
-  private:
+        // State machine procedures
+        void StateIdle();
 
-    // State machine procedures
-    void StateIdle();
-
-    // FX Callback
-    static Bool FXCallBack(MapObj *mapObj, FX::CallBackData &, void *);
-  };
-
+        // FX Callback
+        static Bool FXCallBack(MapObj* mapObj, FX::CallBackData&, void*);
+    };
 }
 
 #endif

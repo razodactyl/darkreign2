@@ -33,19 +33,17 @@ class ProjectileObj;
 
 namespace CollisionCtrl
 {
+    // Initialise the collision system
+    void Init();
 
-  // Initialise the collision system
-  void Init();
+    // Shutdown the collision system
+    void Done();
 
-  // Shutdown the collision system
-  void Done();
+    // Add the object to the collision list
+    void AddObject(MapObj* obj);
 
-  // Add the object to the collision list
-  void AddObject(MapObj *obj);
-
-  // Resolve collisions
-  void Resolve();
-
+    // Resolve collisions
+    void Resolve();
 };
 
 #endif

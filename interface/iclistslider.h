@@ -24,63 +24,66 @@
 //
 class ICListSlider : public ICSlider
 {
-  PROMOTE_LINK(ICListSlider, ICSlider, 0xF9186DAA); // "ICListSlider"
+PROMOTE_LINK(ICListSlider, ICSlider, 0xF9186DAA); // "ICListSlider"
 
 protected:
 
-  // List box watcher structure
-  struct ListBoxWatcher
-  {
-    IFaceVar        *count;
-    IFaceVar        *top;
-    IFaceVar        *vis;
-    ICListBoxPtr    ctrl;
+    // List box watcher structure
+    struct ListBoxWatcher
+    {
+        IFaceVar* count;
+        IFaceVar* top;
+        IFaceVar* vis;
+        ICListBoxPtr ctrl;
 
-    ListBoxWatcher() : count(NULL), top(NULL), vis(NULL) {}
-    ~ListBoxWatcher();
-  };
+        ListBoxWatcher() : count(NULL), top(NULL), vis(NULL)
+        {
+        }
 
-  // List boxes to watch over
-  List<ListBoxWatcher> listBoxes;
+        ~ListBoxWatcher();
+    };
 
-  // Knob needs to be resized
-  U32 resizeKnob : 1;
+    // List boxes to watch over
+    List<ListBoxWatcher> listBoxes;
 
-  // Knob size
-  F32 knobPct;
+    // Knob needs to be resized
+    U32 resizeKnob : 1;
+
+    // Knob size
+    F32 knobPct;
 
 protected:
 
-  // Update the value of the slider from listboxes
-  void GetSliderValue();
+    // Update the value of the slider from listboxes
+    void GetSliderValue();
 
-  // Set the value of the slider
-  void SetSliderValue(F32 value);
+    // Set the value of the slider
+    void SetSliderValue(F32 value);
 
-  // Resize the knob
-  void ResizeKnob();
+    // Resize the knob
+    void ResizeKnob();
 
-  // A var has changed
-  void Notify(IFaceVar *var);
+    // A var has changed
+    void Notify(IFaceVar* var);
 
-  // Draw self
-  void DrawSelf(PaintInfo &pi);
+    // Draw self
+    void DrawSelf(PaintInfo& pi);
 
 public:
-  ICListSlider(IControl *parent);
-  ~ICListSlider();
+    ICListSlider(IControl* parent);
+    ~ICListSlider();
 
-  // Add a listbox to be watched
-  void AddListBox(ICListBox *ctrl);
+    // Add a listbox to be watched
+    void AddListBox(ICListBox* ctrl);
 
-  // Activate the control
-  Bool Activate();
+    // Activate the control
+    Bool Activate();
 
-  // Deactivate the control
-  Bool Deactivate();
+    // Deactivate the control
+    Bool Deactivate();
 
-  // Event handler
-  U32 HandleEvent(Event &e);
+    // Event handler
+    U32 HandleEvent(Event& e);
 };
 
 

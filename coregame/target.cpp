@@ -24,11 +24,11 @@
 //
 // Constructor which copies from another target
 //
-Target::Target(const Target &target)
+Target::Target(const Target& target)
 {
-  type = target.type;
-  object = target.object;
-  location = target.location;
+    type = target.type;
+    object = target.object;
+    location = target.location;
 }
 
 
@@ -37,25 +37,25 @@ Target::Target(const Target &target)
 //
 // Constructor which loads information from an fscope
 //
-void Target::LoadState(FScope *fScope)
+void Target::LoadState(FScope* fScope)
 {
-  FScope *sScope;
-  
-  while ((sScope = fScope->NextFunction()) != NULL)
-  {
-    switch (sScope->NameCrc())
-    {
-      case 0xA75FFAEB: // "Object"
-        type = OBJECT;
-        StdLoad::TypeReaper(sScope, object);
-        break;
+    FScope* sScope;
 
-      case 0x693D5359: // "Location"
-        type = LOCATION;
-        StdLoad::TypeVector(sScope, location);
-        break;
+    while ((sScope = fScope->NextFunction()) != nullptr)
+    {
+        switch (sScope->NameCrc())
+        {
+            case 0xA75FFAEB: // "Object"
+                type = OBJECT;
+                StdLoad::TypeReaper(sScope, object);
+                break;
+
+            case 0x693D5359: // "Location"
+                type = LOCATION;
+                StdLoad::TypeVector(sScope, location);
+                break;
+        }
     }
-  }
 }
 
 
@@ -64,19 +64,19 @@ void Target::LoadState(FScope *fScope)
 //
 // Save the state of a target
 //
-void Target::SaveState(FScope *fScope)
+void Target::SaveState(FScope* fScope)
 {
-  // Save the type
-  switch (type)
-  {
-    case OBJECT:
-      StdSave::TypeReaper(fScope, "Object", object);
-      break;
+    // Save the type
+    switch (type)
+    {
+        case OBJECT:
+            StdSave::TypeReaper(fScope, "Object", object);
+            break;
 
-    case LOCATION:
-      StdSave::TypeVector(fScope, "Location", location);
-      break;
-  }
+        case LOCATION:
+            StdSave::TypeVector(fScope, "Location", location);
+            break;
+    }
 }
 
 
@@ -87,15 +87,15 @@ void Target::SaveState(FScope *fScope)
 //
 void Target::PostLoad()
 {
-  switch (type)
-  {
-    case OBJECT:
-      Resolver::Object<MapObj, MapObjType>(object);
-      break;
+    switch (type)
+    {
+        case OBJECT:
+            Resolver::Object<MapObj, MapObjType>(object);
+            break;
 
-    case LOCATION:
-      break;
-  }
+        case LOCATION:
+            break;
+    }
 }
 
 
@@ -104,22 +104,22 @@ void Target::PostLoad()
 //
 // Return the target location
 //
-const Vector & Target::GetLocation() const
+const Vector& Target::GetLocation() const
 {
-  switch (type)
-  {
-    case OBJECT:
-      return (const_cast<MapObjPtr &>(object)->Origin());
-      break;
+    switch (type)
+    {
+        case OBJECT:
+            return (const_cast<MapObjPtr&>(object)->Origin());
+            break;
 
-    case LOCATION:
-      return (location);
-      break;
+        case LOCATION:
+            return (location);
+            break;
 
-    default:
-      ERR_FATAL(("Unknown Target Type"))
-      break;
-  }
+        default:
+        ERR_FATAL(("Unknown Target Type"))
+        break;
+    }
 }
 
 
@@ -128,30 +128,30 @@ const Vector & Target::GetLocation() const
 //
 // Is this target visible to the given team
 //
-Bool Target::IsVisible(Team *team) const
+Bool Target::IsVisible(Team* team) const
 {
-  ASSERT(Valid())
-  ASSERT(team)
+    ASSERT(Valid());
+    ASSERT(team);
 
-  switch (type)
-  {
-    case OBJECT:
-      return (object->GetVisible(team));
+    switch (type)
+    {
+        case OBJECT:
+            return (object->GetVisible(team));
 
-    case LOCATION:
-      return 
-      (
-        Sight::Visible
-        (
-          WorldCtrl::MetresToCellX(location.x), 
-          WorldCtrl::MetresToCellZ(location.z), 
-          team
-        )
-      );
+        case LOCATION:
+            return
+            (
+                Sight::Visible
+                (
+                    WorldCtrl::MetresToCellX(location.x),
+                    WorldCtrl::MetresToCellZ(location.z),
+                    team
+                )
+            );
 
-    default:
-      return (FALSE);
-  }
+        default:
+            return (FALSE);
+    }
 }
 
 
@@ -160,64 +160,62 @@ Bool Target::IsVisible(Team *team) const
 //
 // Is this target visible to the given unit
 //
-Bool Target::IsVisible(UnitObj *unit) const
+Bool Target::IsVisible(UnitObj* unit) const
 {
-  ASSERT(Valid())
-  ASSERT(unit)
+    ASSERT(Valid());
+    ASSERT(unit);
 
-  switch (type)
-  {
-    case OBJECT:
-      return (unit->GetCanSee(object));
+    switch (type)
+    {
+        case OBJECT:
+            return (unit->GetCanSee(object));
 
-    case LOCATION:
-      return 
-      (
-        Sight::CanUnitSee
-        (
-          unit, 
-          WorldCtrl::MetresToCellX(location.x), 
-          WorldCtrl::MetresToCellZ(location.z)
-        )
-      );
+        case LOCATION:
+            return
+            (
+                Sight::CanUnitSee
+                (
+                    unit,
+                    WorldCtrl::MetresToCellX(location.x),
+                    WorldCtrl::MetresToCellZ(location.z)
+                )
+            );
 
-    default:
-      return (FALSE);
-  }
+        default:
+            return (FALSE);
+    }
 }
 
 
 //
 // Get info
 //
-const char * Target::GetInfo() const
+const char* Target::GetInfo() const
 {
-  static char buff[128];
+    static char buff[128];
 
-  switch (type)
-  {
-    case INVALID:
-      return ("INVALID");
+    switch (type)
+    {
+        case INVALID:
+            return ("INVALID");
 
-    case OBJECT:
+        case OBJECT:
 
-      if (Alive())
-      {
-        Utils::Sprintf(buff, 128, "OBJECT '%s' [%d]", GetObj()->TypeName(), GetObj()->Id());
-        return (buff);
-      }
-      else
-      {
-        return ("OBJECT Dead");
-      }
-      break;
+        {
+            if (Alive())
+            {
+                Utils::Sprintf(buff, 128, "OBJECT '%s' [%d]", GetObj()->TypeName(), GetObj()->Id());
+                return (buff);
+            }
+            return ("OBJECT Dead");
+        }
+        break;
 
-    case LOCATION:
-      return ("LOCATION");
+        case LOCATION:
+            return ("LOCATION");
 
-    default:
-      ERR_FATAL(("Unknown Target Type"))
-      break;
-  }
-
+        default:
+        ERR_FATAL(("Unknown Target Type"))
+        break;
+    }
 }

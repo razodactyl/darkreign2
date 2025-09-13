@@ -25,43 +25,42 @@
 //
 class ColorButton : public ICButton
 {
-  PROMOTE_LINK(ColorButton, ICButton, 0xC7175E0B); // "ColorButton"
+PROMOTE_LINK(ColorButton, ICButton, 0xC7175E0B); // "ColorButton"
 
 protected:
 
-  // Interface var being used
-  IFaceVar *var;
+    // Interface var being used
+    IFaceVar* var;
 
-  // Draw this control into the bitmap
-  void DrawSelf(PaintInfo &pi);
+    // Draw this control into the bitmap
+    void DrawSelf(PaintInfo& pi);
 
-  // Edit the color
-  void EditColor();
+    // Edit the color
+    void EditColor();
 
 public:
 
-  // Constructor and Destructor
-  ColorButton(IControl *parent);
-  ~ColorButton();
+    // Constructor and Destructor
+    ColorButton(IControl* parent);
+    ~ColorButton();
 
-  // Setup this control from one scope function
-  void Setup(FScope *fScope);
+    // Setup this control from one scope function
+    void Setup(FScope* fScope);
 
-  // Activation
-  Bool Activate();
+    // Activation
+    Bool Activate();
 
-  // Deactivate
-  Bool Deactivate();
+    // Deactivate
+    Bool Deactivate();
 
-  // Handle input and interface events
-  U32 HandleEvent(Event &e);
+    // Handle input and interface events
+    U32 HandleEvent(Event& e);
 
-  // Handle notifications
-  void Notify(IFaceVar *var);
+    // Handle notifications
+    void Notify(IFaceVar* var);
 
-  // Set the var to use
-  void UseVar(IFaceVar *varIn);
-  
+    // Set the var to use
+    void UseVar(IFaceVar* varIn);
 };
 
 #endif

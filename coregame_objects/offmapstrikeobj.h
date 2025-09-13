@@ -16,7 +16,7 @@
 // Includes
 //
 #include "offmapobj.h"
-  
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -36,23 +36,23 @@ typedef Reaper<OffMapStrikeObj> OffMapStrikeObjPtr;
 //
 class OffMapStrikeObjType : public OffMapObjType
 {
-  PROMOTE_LINK(OffMapStrikeObjType, OffMapObjType, 0xDD9107D7); // "OffMapStrikeObjType"
+PROMOTE_LINK(OffMapStrikeObjType, OffMapObjType, 0xDD9107D7); // "OffMapStrikeObjType"
 
 public:
 
-  GameIdent weaponName;
-  Weapon::Type *weapon;
-  F32 height;
+    GameIdent weaponName;
+    Weapon::Type* weapon;
+    F32 height;
 
-  // Constructor and destructor
-  OffMapStrikeObjType(const char *typeName, FScope *fScope);
-  ~OffMapStrikeObjType();
+    // Constructor and destructor
+    OffMapStrikeObjType(const char* typeName, FScope* fScope);
+    ~OffMapStrikeObjType();
 
-  // Called after all types are loaded
-  void PostLoad();
+    // Called after all types are loaded
+    void PostLoad();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 };
 
 
@@ -64,20 +64,20 @@ public:
 class OffMapStrikeObj : public OffMapObj
 {
 public:
-  
-  // Constructor and destructor
-  OffMapStrikeObj(OffMapStrikeObjType *objType, U32 id);
-  ~OffMapStrikeObj();
 
-  // Execute an operation (TRUE if accepted)
-  Bool Execute(U32 operation, const Vector &pos);
+    // Constructor and destructor
+    OffMapStrikeObj(OffMapStrikeObjType* objType, U32 id);
+    ~OffMapStrikeObj();
 
-  // Get pointer to type
-  OffMapStrikeObjType * OffMapStrikeType()
-  {
-    // This is a safe cast
-    return ((OffMapStrikeObjType *)type);
-  }
+    // Execute an operation (TRUE if accepted)
+    Bool Execute(U32 operation, const Vector& pos);
+
+    // Get pointer to type
+    OffMapStrikeObjType* OffMapStrikeType()
+    {
+        // This is a safe cast
+        return ((OffMapStrikeObjType*)type);
+    }
 };
 
 #endif

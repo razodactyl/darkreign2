@@ -25,52 +25,49 @@
 //
 namespace Studio
 {
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace RegionListBoxMsg
-  //
-  namespace RegionListBoxMsg
-  {
-    const U32 Set = 0x48ECC402; // "RegionListBox::Message::Set"
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class RegionListBox
-  //
-  class RegionListBox : public ICListBox
-  {
-    PROMOTE_LINK(RegionListBox, ICListBox, 0xE1181191) // "RegionListBox"
-
-    // Current region
-    IFaceVar *currentRegion;
-
-    // Var to use when picking regions
-    IFaceVar *pickRegion;
-
-  public:
-
-    // Constructor
-    RegionListBox(IControl *parent);
-    ~RegionListBox();
-
-    // Event handling function
-    U32 HandleEvent(Event &e);
-
-    // Activatation and Deactiviation
-    Bool Activate();
-    Bool Deactivate();
-
-    // Set the pick region
-    void SetPickRegion(IFaceVar *region)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace RegionListBoxMsg
+    //
+    namespace RegionListBoxMsg
     {
-      pickRegion = region;
+        const U32 Set = 0x48ECC402; // "RegionListBox::Message::Set"
     }
 
-  };
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class RegionListBox
+    //
+    class RegionListBox : public ICListBox
+    {
+    PROMOTE_LINK(RegionListBox, ICListBox, 0xE1181191) // "RegionListBox"
+
+        // Current region
+        IFaceVar* currentRegion;
+
+        // Var to use when picking regions
+        IFaceVar* pickRegion;
+
+    public:
+
+        // Constructor
+        RegionListBox(IControl* parent);
+        ~RegionListBox();
+
+        // Event handling function
+        U32 HandleEvent(Event& e);
+
+        // Activatation and Deactiviation
+        Bool Activate();
+        Bool Deactivate();
+
+        // Set the pick region
+        void SetPickRegion(IFaceVar* region)
+        {
+            pickRegion = region;
+        }
+    };
 }
 
 #endif

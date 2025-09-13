@@ -214,14 +214,14 @@ void SpyObj::LoadState(FScope* fScope)
         {
             switch (sScope->NameCrc())
             {
-            case 0x95B674EF: // "MorphTeam"
-                morphTeam = Team::Name2Team(StdLoad::TypeString(sScope));
-                break;
+                case 0x95B674EF: // "MorphTeam"
+                    morphTeam = Team::Name2Team(StdLoad::TypeString(sScope));
+                    break;
 
-            case 0x65DBDDCC: // "MorphType"
-                StdLoad::TypeReaperObjType(sScope, morphType);
-                Resolver::Type(morphType);
-                break;
+                case 0x65DBDDCC: // "MorphType"
+                    StdLoad::TypeReaperObjType(sScope, morphType);
+                    Resolver::Type(morphType);
+                    break;
             }
         }
     }
@@ -237,21 +237,21 @@ Bool SpyObj::SendEvent(const Task::Event& event, Bool idle)
 {
     switch (event.message)
     {
-    case 0xF874D787: // "AttackTarget"
-    {
-        // Notify the spy task that we've been found out
-        Tasks::SpyIdle* task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(this);
-
-        if (task && task->IsMorphed())
+        case 0xF874D787: // "AttackTarget"
         {
-            task->MorphDetected();
-        }
-        return (TRUE);
-    }
+            // Notify the spy task that we've been found out
+            Tasks::SpyIdle* task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(this);
 
-    default:
-        // If we don't want the event pass it down
-        return (MapObj::SendEvent(event, idle));
+            if (task && task->IsMorphed())
+            {
+                task->MorphDetected();
+            }
+            return (TRUE);
+        }
+
+        default:
+            // If we don't want the event pass it down
+            return (MapObj::SendEvent(event, idle));
     }
 }
 

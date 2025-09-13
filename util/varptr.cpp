@@ -20,10 +20,10 @@
 //
 // Constructor
 //
-VarString::VarString(const char *path, void *context)
+VarString::VarString(const char* path, void* context)
 {
-  // Point at target
-  PointAt(path, context);
+    // Point at target
+    PointAt(path, context);
 }
 
 
@@ -32,10 +32,10 @@ VarString::VarString(const char *path, void *context)
 //
 // Constructor
 //
-VarString::VarString(VarSys::VarItem *var)
+VarString::VarString(VarSys::VarItem* var)
 {
-  // Point at target
-  PointAt(var);
+    // Point at target
+    PointAt(var);
 }
 
 
@@ -44,14 +44,14 @@ VarString::VarString(VarSys::VarItem *var)
 //
 // Setup/change to point to the var 'path', which MUST exist
 //
-void VarString::PointAt(const char *path, void *context)
+void VarString::PointAt(const char* path, void* context)
 {
-  // Get the requested item
-  VarSys::VarItem *i = VarSys::FindVarItem(path, context, TRUE);
+    // Get the requested item
+    VarSys::VarItem* i = VarSys::FindVarItem(path, context, TRUE);
 
-  // Item must exist
-  ASSERT(i)
-  PointAt(i);
+    // Item must exist
+    ASSERT(i);
+    PointAt(i);
 }
 
 
@@ -60,15 +60,15 @@ void VarString::PointAt(const char *path, void *context)
 //
 // Setup/change to point to the var
 //
-void VarString::PointAt(VarSys::VarItem *var)
+void VarString::PointAt(VarSys::VarItem* var)
 {
-  if (var->type != VarSys::VI_STRING)
-  {
-    ERR_FATAL(("Attempt to point a VarString at another type (%d)", var->type))
-  }
+    if (var->type != VarSys::VI_STRING)
+    {
+        ERR_FATAL(("Attempt to point a VarString at another type (%d)", var->type))
+    }
 
-  // Point at this item
-  item = var;
+    // Point at this item
+    item = var;
 }
 
 
@@ -77,16 +77,16 @@ void VarString::PointAt(VarSys::VarItem *var)
 //
 // Setup/change to point to the VarString 'var', which MUST be setup
 //
-void VarString::PointAt(VarString &var)
+void VarString::PointAt(VarString& var)
 {
-  // Make sure target is valid
-  if (!var.Alive())
-  {
-    ERR_FATAL(("Attempt to point a VarString at an invalid VarPtr"))
-  }
+    // Make sure target is valid
+    if (!var.Alive())
+    {
+        ERR_FATAL(("Attempt to point a VarString at an invalid VarPtr"))
+    }
 
-  // Get the target item
-  item = var.item;
+    // Get the target item
+    item = var.item;
 }
 
 
@@ -95,16 +95,16 @@ void VarString::PointAt(VarString &var)
 //
 // Set the value of our target variable
 //
-VarString& VarString::operator=(const char *val)
+VarString& VarString::operator=(const char* val)
 {
-  Validate();
+    Validate();
 
-  if (item->Str() != val)
-  {
-    item->SetStr(val);
-  }
-  
-  return (*this);
+    if (item->Str() != val)
+    {
+        item->SetStr(val);
+    }
+
+    return (*this);
 }
 
 
@@ -113,13 +113,13 @@ VarString& VarString::operator=(const char *val)
 //
 // Set the value of our target variable
 //
-VarString& VarString::operator=(VarString &val)
+VarString& VarString::operator=(VarString& val)
 {
-  Validate();
+    Validate();
 
-  item->SetStr(val);
+    item->SetStr(val);
 
-  return (*this);
+    return (*this);
 }
 
 
@@ -128,11 +128,11 @@ VarString& VarString::operator=(VarString &val)
 //
 // Return string value
 //
-VarString::operator const char *() 
+VarString::operator const char*()
 {
-  Validate();
+    Validate();
 
-  return (item->Str());
+    return (item->Str());
 }
 
 
@@ -143,11 +143,10 @@ VarString::operator const char *()
 //
 const char* VarString::operator*()
 {
-  Validate();
+    Validate();
 
-  return (item->Str());
+    return (item->Str());
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -160,10 +159,10 @@ const char* VarString::operator*()
 //
 // Constructor
 //
-VarInteger::VarInteger(const char *path, void *context)
+VarInteger::VarInteger(const char* path, void* context)
 {
-  // Point at target
-  PointAt(path, context);
+    // Point at target
+    PointAt(path, context);
 }
 
 
@@ -172,10 +171,10 @@ VarInteger::VarInteger(const char *path, void *context)
 //
 // Constructor
 //
-VarInteger::VarInteger(VarSys::VarItem *var)
+VarInteger::VarInteger(VarSys::VarItem* var)
 {
-  // Point at target
-  PointAt(var);
+    // Point at target
+    PointAt(var);
 }
 
 
@@ -184,14 +183,14 @@ VarInteger::VarInteger(VarSys::VarItem *var)
 //
 // Setup/change to point to the var 'path', which MUST exist
 //
-void VarInteger::PointAt(const char *path, void *context)
+void VarInteger::PointAt(const char* path, void* context)
 {
-  // Get the requested item
-  VarSys::VarItem *i = VarSys::FindVarItem(path, context, TRUE);
+    // Get the requested item
+    VarSys::VarItem* i = VarSys::FindVarItem(path, context, TRUE);
 
-  // Item must exist
-  ASSERT(i)
-  PointAt(i);
+    // Item must exist
+    ASSERT(i);
+    PointAt(i);
 }
 
 
@@ -200,16 +199,16 @@ void VarInteger::PointAt(const char *path, void *context)
 //
 // Setup/change to point to the var
 //
-void VarInteger::PointAt(VarSys::VarItem *var)
+void VarInteger::PointAt(VarSys::VarItem* var)
 {
-  // Item must exist
-  if (var->type != VarSys::VI_INTEGER)
-  {
-    ERR_FATAL(("Attempt to point a VarInteger at another type (%d)", var->type))
-  }
+    // Item must exist
+    if (var->type != VarSys::VI_INTEGER)
+    {
+        ERR_FATAL(("Attempt to point a VarInteger at another type (%d)", var->type))
+    }
 
-  // Point at this item
-  item = var;
+    // Point at this item
+    item = var;
 }
 
 
@@ -218,16 +217,16 @@ void VarInteger::PointAt(VarSys::VarItem *var)
 //
 // Setup/change to point to the VarInteger 'var', which MUST be setup
 //
-void VarInteger::PointAt(VarInteger &var)
+void VarInteger::PointAt(VarInteger& var)
 {
-  // Make sure target is valid
-  if (!var.Alive())
-  {
-    ERR_FATAL(("Attempt to point a VarInteger at an invalid var"))
-  }
+    // Make sure target is valid
+    if (!var.Alive())
+    {
+        ERR_FATAL(("Attempt to point a VarInteger at an invalid var"))
+    }
 
-  // Get the target item
-  item = var.item;
+    // Get the target item
+    item = var.item;
 }
 
 
@@ -238,11 +237,11 @@ void VarInteger::PointAt(VarInteger &var)
 //
 VarInteger& VarInteger::operator=(S32 val)
 {
-  Validate();
+    Validate();
 
-  item->SetInteger(val);
-  
-  return (*this);
+    item->SetInteger(val);
+
+    return (*this);
 }
 
 
@@ -251,13 +250,13 @@ VarInteger& VarInteger::operator=(S32 val)
 //
 // Set the value of our target variable
 //
-VarInteger& VarInteger::operator=(VarInteger &val)
+VarInteger& VarInteger::operator=(VarInteger& val)
 {
-  Validate();
+    Validate();
 
-  item->SetInteger(val);
+    item->SetInteger(val);
 
-  return (*this);
+    return (*this);
 }
 
 
@@ -266,11 +265,11 @@ VarInteger& VarInteger::operator=(VarInteger &val)
 //
 // Return S32 value
 //
-VarInteger::operator S32 () 
+VarInteger::operator S32()
 {
-  Validate();
+    Validate();
 
-  return (item->Integer());
+    return (item->Integer());
 }
 
 
@@ -281,11 +280,10 @@ VarInteger::operator S32 ()
 //
 S32 VarInteger::operator*()
 {
-  Validate();
+    Validate();
 
-  return (item->Integer());
+    return (item->Integer());
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -298,10 +296,10 @@ S32 VarInteger::operator*()
 //
 // Constructor
 //
-VarFloat::VarFloat(const char *path, void *context)
+VarFloat::VarFloat(const char* path, void* context)
 {
-  // Point at target
-  PointAt(path, context);
+    // Point at target
+    PointAt(path, context);
 }
 
 
@@ -310,10 +308,10 @@ VarFloat::VarFloat(const char *path, void *context)
 //
 // Constructor
 //
-VarFloat::VarFloat(VarSys::VarItem *var)
+VarFloat::VarFloat(VarSys::VarItem* var)
 {
-  // Point at target
-  PointAt(var);
+    // Point at target
+    PointAt(var);
 }
 
 
@@ -322,14 +320,14 @@ VarFloat::VarFloat(VarSys::VarItem *var)
 //
 // Setup/change to point to the var 'path', which MUST exist
 //
-void VarFloat::PointAt(const char *path, void *context)
+void VarFloat::PointAt(const char* path, void* context)
 {
-  // Get the requested item
-  VarSys::VarItem *i = VarSys::FindVarItem(path, context, TRUE);
+    // Get the requested item
+    VarSys::VarItem* i = VarSys::FindVarItem(path, context, TRUE);
 
-  // Item must exist
-  ASSERT(i)
-  PointAt(i);
+    // Item must exist
+    ASSERT(i);
+    PointAt(i);
 }
 
 
@@ -338,15 +336,15 @@ void VarFloat::PointAt(const char *path, void *context)
 //
 // Setup/change to point to the var 'path', which MUST exist
 //
-void VarFloat::PointAt(VarSys::VarItem *var)
+void VarFloat::PointAt(VarSys::VarItem* var)
 {
-  if (var->type != VarSys::VI_FPOINT)
-  {
-    ERR_FATAL(("Attempt to point a VarFloat at another type (%d)", var->type))
-  }
+    if (var->type != VarSys::VI_FPOINT)
+    {
+        ERR_FATAL(("Attempt to point a VarFloat at another type (%d)", var->type))
+    }
 
-  // Point at this item
-  item = var;
+    // Point at this item
+    item = var;
 }
 
 
@@ -355,16 +353,16 @@ void VarFloat::PointAt(VarSys::VarItem *var)
 //
 // Setup/change to point to the VarFloat 'var', which MUST be setup
 //
-void VarFloat::PointAt(VarFloat &var)
+void VarFloat::PointAt(VarFloat& var)
 {
-  // Make sure target is valid
-  if (!var.Alive())
-  {
-    ERR_FATAL(("Attempt to point a VarFloat at an invalid var"))
-  }
+    // Make sure target is valid
+    if (!var.Alive())
+    {
+        ERR_FATAL(("Attempt to point a VarFloat at an invalid var"))
+    }
 
-  // Get the target item
-  item = var.item;
+    // Get the target item
+    item = var.item;
 }
 
 
@@ -375,11 +373,11 @@ void VarFloat::PointAt(VarFloat &var)
 //
 VarFloat& VarFloat::operator=(F32 val)
 {
-  Validate();
+    Validate();
 
-  item->SetFloat(val);
-  
-  return (*this);
+    item->SetFloat(val);
+
+    return (*this);
 }
 
 
@@ -388,13 +386,13 @@ VarFloat& VarFloat::operator=(F32 val)
 //
 // Set the value of our target variable
 //
-VarFloat& VarFloat::operator=(VarFloat &val)
+VarFloat& VarFloat::operator=(VarFloat& val)
 {
-  Validate();
+    Validate();
 
-  item->SetFloat(val);
+    item->SetFloat(val);
 
-  return (*this);
+    return (*this);
 }
 
 
@@ -403,11 +401,11 @@ VarFloat& VarFloat::operator=(VarFloat &val)
 //
 // Return F32 value
 //
-VarFloat::operator F32 () 
+VarFloat::operator F32()
 {
-  Validate();
+    Validate();
 
-  return (item->Float());
+    return (item->Float());
 }
 
 
@@ -418,9 +416,9 @@ VarFloat::operator F32 ()
 //
 F32 VarFloat::operator*()
 {
-  Validate();
+    Validate();
 
-  return (item->Float());
+    return (item->Float());
 }
 
 
@@ -435,10 +433,10 @@ F32 VarFloat::operator*()
 //
 // Constructor
 //
-VarBinary::VarBinary(const char *path, void *context)
+VarBinary::VarBinary(const char* path, void* context)
 {
-  // Point at target
-  PointAt(path, context);
+    // Point at target
+    PointAt(path, context);
 }
 
 
@@ -447,10 +445,10 @@ VarBinary::VarBinary(const char *path, void *context)
 //
 // Constructor
 //
-VarBinary::VarBinary(VarSys::VarItem *var)
+VarBinary::VarBinary(VarSys::VarItem* var)
 {
-  // Point at target
-  PointAt(var);
+    // Point at target
+    PointAt(var);
 }
 
 
@@ -459,14 +457,14 @@ VarBinary::VarBinary(VarSys::VarItem *var)
 //
 // Setup/change to point to the var 'path', which MUST exist
 //
-void VarBinary::PointAt(const char *path, void *context)
+void VarBinary::PointAt(const char* path, void* context)
 {
-  // Get the requested item
-  VarSys::VarItem *i = VarSys::FindVarItem(path, context, TRUE);
+    // Get the requested item
+    VarSys::VarItem* i = VarSys::FindVarItem(path, context, TRUE);
 
-  // Item must exist
-  ASSERT(i)
-  PointAt(i);
+    // Item must exist
+    ASSERT(i);
+    PointAt(i);
 }
 
 
@@ -475,15 +473,15 @@ void VarBinary::PointAt(const char *path, void *context)
 //
 // Setup/change to point to the var
 //
-void VarBinary::PointAt(VarSys::VarItem *var)
+void VarBinary::PointAt(VarSys::VarItem* var)
 {
-  if (var->type != VarSys::VI_BINARY)
-  {
-    ERR_FATAL(("Attempt to point a VarBinary at another type (%d)", var->type))
-  }
+    if (var->type != VarSys::VI_BINARY)
+    {
+        ERR_FATAL(("Attempt to point a VarBinary at another type (%d)", var->type))
+    }
 
-  // Point at this item
-  item = var;
+    // Point at this item
+    item = var;
 }
 
 
@@ -492,16 +490,16 @@ void VarBinary::PointAt(VarSys::VarItem *var)
 //
 // Setup/change to point to the VarBinary 'var', which MUST be setup
 //
-void VarBinary::PointAt(VarBinary &var)
+void VarBinary::PointAt(VarBinary& var)
 {
-  // Make sure target is valid
-  if (!var.Alive())
-  {
-    ERR_FATAL(("Attempt to point a VarFloat at an invalid var"))
-  }
+    // Make sure target is valid
+    if (!var.Alive())
+    {
+        ERR_FATAL(("Attempt to point a VarFloat at an invalid var"))
+    }
 
-  // Get the target item
-  item = var.item;
+    // Get the target item
+    item = var.item;
 }
 
 
@@ -510,11 +508,11 @@ void VarBinary::PointAt(VarBinary &var)
 //
 // Set the value of out target variable
 //
-void VarBinary::Set(U32 size, const U8 *val)
+void VarBinary::Set(U32 size, const U8* val)
 {
-  Validate();
+    Validate();
 
-  item->SetBinary(size, val);
+    item->SetBinary(size, val);
 }
 
 
@@ -523,13 +521,13 @@ void VarBinary::Set(U32 size, const U8 *val)
 //
 // Set the value of our target variable
 //
-VarBinary& VarBinary::operator=(const U8 *val)
+VarBinary& VarBinary::operator=(const U8* val)
 {
-  Validate();
+    Validate();
 
-  item->SetBinary(GetSize(), val);
-  
-  return (*this);
+    item->SetBinary(GetSize(), val);
+
+    return (*this);
 }
 
 
@@ -538,13 +536,13 @@ VarBinary& VarBinary::operator=(const U8 *val)
 //
 // Set the value of our target variable
 //
-VarBinary& VarBinary::operator=(VarBinary &val)
+VarBinary& VarBinary::operator=(VarBinary& val)
 {
-  Validate();
+    Validate();
 
-  item->SetBinary(val.GetSize(), val);
+    item->SetBinary(val.GetSize(), val);
 
-  return (*this);
+    return (*this);
 }
 
 
@@ -553,11 +551,11 @@ VarBinary& VarBinary::operator=(VarBinary &val)
 //
 // Return const U8 * value
 //
-VarBinary::operator const U8 * () 
+VarBinary::operator const U8*()
 {
-  Validate();
+    Validate();
 
-  return (item->Binary());
+    return (item->Binary());
 }
 
 
@@ -566,11 +564,11 @@ VarBinary::operator const U8 * ()
 //
 // Explicit cast to const U8 * (for printf style use)
 //
-const U8 * VarBinary::operator*()
+const U8* VarBinary::operator*()
 {
-  Validate();
+    Validate();
 
-  return (item->Binary());
+    return (item->Binary());
 }
 
 
@@ -581,9 +579,9 @@ const U8 * VarBinary::operator*()
 //
 U32 VarBinary::GetSize()
 {
-  Validate();
+    Validate();
 
-  return (item->BinarySize());
+    return (item->BinarySize());
 }
 
 
@@ -598,10 +596,10 @@ U32 VarBinary::GetSize()
 //
 // Constructor
 //
-VarCmd::VarCmd(const char *path, void *context)
+VarCmd::VarCmd(const char* path, void* context)
 {
-  // Point at target
-  PointAt(path, context);
+    // Point at target
+    PointAt(path, context);
 }
 
 
@@ -610,10 +608,10 @@ VarCmd::VarCmd(const char *path, void *context)
 //
 // Constructor
 //
-VarCmd::VarCmd(VarSys::VarItem *var)
+VarCmd::VarCmd(VarSys::VarItem* var)
 {
-  // Point at target
-  PointAt(var);
+    // Point at target
+    PointAt(var);
 }
 
 
@@ -622,20 +620,20 @@ VarCmd::VarCmd(VarSys::VarItem *var)
 //
 // Setup/change to point to the cmd 'path', which MUST exist
 //
-void VarCmd::PointAt(const char *path, void *context)
+void VarCmd::PointAt(const char* path, void* context)
 {
-  // Get the requested item
-  VarSys::VarItem *i = VarSys::FindVarItem(path, context, TRUE);
+    // Get the requested item
+    VarSys::VarItem* i = VarSys::FindVarItem(path, context, TRUE);
 
-  // Item must exist
-  ASSERT(i)
-  if (i->type != VarSys::VI_CMD)
-  {
-    ERR_FATAL(("Attempt to point a VarCmd at another type (%d)", i->type))
-  }
+    // Item must exist
+    ASSERT(i);
+    if (i->type != VarSys::VI_CMD)
+    {
+        ERR_FATAL(("Attempt to point a VarCmd at another type (%d)", i->type))
+    }
 
-  // Point at this item
-  item = i;
+    // Point at this item
+    item = i;
 }
 
 
@@ -644,15 +642,15 @@ void VarCmd::PointAt(const char *path, void *context)
 //
 // Setup/change to point to the cmd 'path', which MUST exist
 //
-void VarCmd::PointAt(VarSys::VarItem *var)
+void VarCmd::PointAt(VarSys::VarItem* var)
 {
-  if (var->type != VarSys::VI_CMD)
-  {
-    ERR_FATAL(("Attempt to point a VarCmd at another type (%d)", var->type))
-  }
+    if (var->type != VarSys::VI_CMD)
+    {
+        ERR_FATAL(("Attempt to point a VarCmd at another type (%d)", var->type))
+    }
 
-  // Point at this item
-  item = var;
+    // Point at this item
+    item = var;
 }
 
 
@@ -661,16 +659,16 @@ void VarCmd::PointAt(VarSys::VarItem *var)
 //
 // Setup/change to point to the VarCmd 'var', which MUST be setup
 //
-void VarCmd::PointAt(VarCmd &var)
+void VarCmd::PointAt(VarCmd& var)
 {
-  // Make sure target is valid
-  if (!var.Alive())
-  {
-    ERR_FATAL(("Attempt to point a VarCmd at an invalid var"))
-  }
+    // Make sure target is valid
+    if (!var.Alive())
+    {
+        ERR_FATAL(("Attempt to point a VarCmd at an invalid var"))
+    }
 
-  // Get the target item
-  item = var.item;
+    // Get the target item
+    item = var.item;
 }
 
 
@@ -681,7 +679,7 @@ void VarCmd::PointAt(VarCmd &var)
 //
 void VarCmd::Trigger()
 {
-  Validate();
+    Validate();
 
-  item->TriggerCmd();
+    item->TriggerCmd();
 }

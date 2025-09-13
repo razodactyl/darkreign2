@@ -25,47 +25,44 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class MapDeath
+    //
+    class MapDeath : public GameTask<MapObjType, MapObj>
+    {
+        TASK_CLASS(MapDeath)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class MapDeath
-  //
-  class MapDeath : public GameTask<MapObjType, MapObj>
-  {
-    TASK_CLASS(MapDeath)
+    public:
 
-  public:
+        // Constructor
+        MapDeath(GameObj* subject);
 
-    // Constructor
-    MapDeath(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
+        // State machine procedures
+        void StateInit();
+        void StateDead();
+        void StateKill();
 
-    // State machine procedures
-    void StateInit();
-    void StateDead();
-    void StateKill();
+    public:
 
-  public:
-
-    // Returns TRUE if 'obj' requires a death task
-    static Bool RequiresDeathTask(MapObj *obj);
-
-  };
-
+        // Returns TRUE if 'obj' requires a death task
+        static Bool RequiresDeathTask(MapObj* obj);
+    };
 }
 
 #endif

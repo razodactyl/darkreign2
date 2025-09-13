@@ -25,32 +25,28 @@
 //
 namespace Network
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Http
+    //
+    class Http
+    {
+    private:
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Http
-  //
-  class Http
-  {
-  private:
+        // Socket used for connecting the the http server
+        Win32::Socket socket;
 
-    // Socket used for connecting the the http server
-    Win32::Socket socket;
+    public:
 
-  public:
+        // Open a connection to the given URL
+        Bool Open(const Url& url, U32& offset, U32& size);
 
-    // Open a connection to the given URL
-    Bool Open(const Url &url, U32 &offset, U32 &size);
+        // Close a the connection
+        Bool Close();
 
-    // Close a the connection
-    Bool Close();
-
-    // Read from the HTTP connection
-    Bool Read(U8 *buf, U32 size);
-
-  };
-
+        // Read from the HTTP connection
+        Bool Read(U8* buf, U32 size);
+    };
 }
 
 #endif
-

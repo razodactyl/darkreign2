@@ -24,43 +24,40 @@
 //
 namespace Win32
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Mutex
+    //
+    class Mutex
+    {
+    private:
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Mutex
-  //
-  class Mutex
-  {
-  private:
+        // Mutex handle
+        HANDLE mutex;
 
-    // Mutex handle
-    HANDLE mutex;
+        // Is this the primary mutex (only relevent to named mutexes)
+        Bool primary;
 
-    // Is this the primary mutex (only relevent to named mutexes)
-    Bool primary;
+    public:
 
-  public:
+        // Create a new mutex
+        Mutex(const char* name = nullptr);
 
-    // Create a new mutex
-    Mutex(const char *name = NULL);
+        // ~Mutex
+        ~Mutex();
 
-    // ~Mutex
-    ~Mutex();
+        // Returns the mutex handle if you need it
+        HANDLE GetHandle() const;
 
-    // Returns the mutex handle if you need it
-    HANDLE GetHandle() const;
+        // Wait for mutex to become signaled (with optional timeout)
+        Bool Wait(U32 timeout = INFINITE);
 
-    // Wait for mutex to become signaled (with optional timeout)
-    Bool Wait(U32 timeout = INFINITE);
+        // Signal mutex
+        void Signal();
 
-    // Signal mutex
-    void Signal();
-
-    // IsPrimary
-    Bool IsPrimary();
-
-  };
-
+        // IsPrimary
+        Bool IsPrimary();
+    };
 }
 
 #endif

@@ -18,21 +18,18 @@
 //
 namespace IFace
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Controls
+    //
+    namespace Controls
+    {
+        // Register Standard Interface control creation handlers
+        void Init();
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
-    // Register Standard Interface control creation handlers
-    void Init();
-
-    // Unregister Standard Interface controls
-    void Done();
-
-  }
+        // Unregister Standard Interface controls
+        void Done();
+    }
 }
 
 #endif

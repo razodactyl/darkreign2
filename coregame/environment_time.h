@@ -26,59 +26,55 @@
 //
 namespace Environment
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Time
+    //
+    namespace Time
+    {
+        // Initialization and Shutdown
+        void Init();
+        void Done();
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Time
-  //
-  namespace Time
-  {
+        // Increment the day
+        void IncDay();
 
-    // Initialization and Shutdown
-    void Init();
-    void Done();
+        // Get the day of the month
+        U32 GetDayOfMonth();
 
-    // Increment the day
-    void IncDay();
+        // Get the day of the week
+        const CH* GetDayOfWeekStr();
 
-    // Get the day of the month
-    U32 GetDayOfMonth();
+        // Get the month of the year
+        const CH* GetMonthStr();
 
-    // Get the day of the week
-    const CH * GetDayOfWeekStr();
+        // Get the month of the year
+        U32 GetMonth();
 
-    // Get the month of the year
-    const CH * GetMonthStr();
+        // Get the year
+        U32 GetYear();
 
-    // Get the month of the year
-    U32 GetMonth();
+        // Set the day of the month
+        void SetDayOfMonth(U32 day);
 
-    // Get the year
-    U32 GetYear();
+        // Set the month of the year
+        void SetMonth(U32 month);
 
-    // Set the day of the month
-    void SetDayOfMonth(U32 day);
+        // Set the year
+        void SetYear(U32 year);
 
-    // Set the month of the year
-    void SetMonth(U32 month);
+        // Generate a game message to display the current time and date
+        void GenerateMessage();
 
-    // Set the year
-    void SetYear(U32 year);
+        // Load information
+        void LoadInfo(FScope* fScope);
 
-    // Generate a game message to display the current time and date
-    void GenerateMessage();
+        // Save information
+        void SaveInfo(FScope* fScope);
 
-    // Load information
-    void LoadInfo(FScope *fScope);
-
-    // Save information
-    void SaveInfo(FScope *fScope);
-    
-    // PostLoad
-    void PostLoad();
-
-  }
-
+        // PostLoad
+        void PostLoad();
+    }
 }
 
 

@@ -24,25 +24,21 @@
 //
 namespace Logging
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class DestConsole
+    //
+    class DestConsole : public Destination
+    {
+    public:
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class DestConsole
-  //
-  class DestConsole : public Destination
-  {
-  public:
+        // Constructor and Destructor
+        DestConsole();
+        ~DestConsole();
 
-    // Constructor and Destructor
-    DestConsole();
-    ~DestConsole();
-
-    // Write to the destination
-    void Write(Level level, const char *labelName, const char *sourceModule, U32 sourceLine, U32 elapsed, const char *message);
-
-  };
-
+        // Write to the destination
+        void Write(Level level, const char* labelName, const char* sourceModule, U32 sourceLine, U32 elapsed, const char* message) override;
+    };
 }
 
 #endif
-

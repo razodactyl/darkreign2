@@ -19,13 +19,13 @@ namespace MINTCLIENT
         //
         LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Client ENTER <<<");
 
-        RoutingServerClient* routing = (RoutingServerClient*)context;
+        RoutingServerClient* routing = static_cast<RoutingServerClient*>(context);
 
         bool done_processing = false;
 
         while (!done_processing)
         {
-            LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Client Thread <<<");
+            // LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8);<< "]" << " MINTCLIENT Routing Server Client Thread <<<");
             void* event_context;
 
             if (routing->eventQuit.Wait(0))
@@ -34,9 +34,10 @@ namespace MINTCLIENT
                 continue;
             }
 
+            // Pass any new commands to the internal client handler.
             routing->command_list->PassToClient();
 
-            if (routing->command_list->GetEvents()->Wait(event_context, FALSE, MINTCLIENT::DefaultTimeout))
+            if (routing->command_list->GetEvents()->Wait(event_context, FALSE, LoopDependentTimeout))
             {
                 auto* cmd = static_cast<Client::MINTCommand*>(event_context);
                 LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " MINTCLIENT Routing Server Received Command [" << HEX(cmd->command_id, 8) << "] (" << Message::GetCommandString(cmd->command_id) << ")");
@@ -44,12 +45,12 @@ namespace MINTCLIENT
 
                 switch (cmd->command_id)
                 {
-                    //
-                    // Connect first, then register to enter room.
-                    //
-                    case MINTCLIENT::Message::RoutingServerRoomConnect: // 0xEE37226B
+                        //
+                        // Connect first, then register to enter room.
+                        //
+                    case Message::RoutingServerRoomConnect: // 0xEE37226B
                     {
-                        RoutingServerClient::ConnectRoomResult result;
+                        ConnectRoomResult result;
                         result.error = cmd->GetError();
                         result.context = cmd->context;
 
@@ -62,12 +63,12 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    //
-                    // Allowed after connection is established.
-                    //
-                    case MINTCLIENT::Message::RoutingServerRoomRegister: // 0x59938A8D
+                        //
+                        // Allowed after connection is established.
+                        //
+                    case Message::RoutingServerRoomRegister: // 0x59938A8D
                     {
-                        RoutingServerClient::RegisterClientResult result;
+                        RegisterClientResult result;
                         result.error = cmd->GetError();
                         result.context = cmd->context;
 
@@ -79,22 +80,22 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    //
-                    // User Management.
-                    //
+                        //
+                        // User Management.
+                        //
 
-                    case MINTCLIENT::Message::RoutingServerGetUserList: // 0x82E37940
+                    case Message::RoutingServerGetUserList: // 0x82E37940
                     {
-                        RoutingServerClient::GetUserListResult result;
+                        GetUserListResult result;
                         result.error = cmd->GetError();
 
-                        if (result.error == WONAPI::Error_Success) {
-
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                        if (result.error == WONAPI::Error_Success)
+                        {
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
                             for (int i = 0; i < tlv->length; i++)
                             {
-                                auto clientEntry = MINTCLIENT::RoutingServerClient::Data::ClientData();
+                                auto clientEntry = Data::ClientData();
                                 auto* data = &tlv->items[i];
 
                                 clientEntry.clientId = data->items[0].GetU32();
@@ -118,14 +119,33 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerUserEnter: // 0x75BBABEE
+                    case Message::RoutingServerGetNumUsers:
                     {
-                        RoutingServerClient::ClientEnterResult result;
+                        GetNumUsersResult result;
+                        result.error = cmd->GetError();
+
+                        if (result.error == Errors::Success && cmd->client && cmd->data_size > 0)
+                        {
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            result.numUsers = tlv->GetU32();
+                            delete tlv;
+                        }
+
+                        result.context = cmd->context;
+                        cmd->callback(result);
+
+                        routing->command_list->Remove(cmd);
+                    }
+                    break;
+
+                    case Message::RoutingServerUserEnter: // 0x75BBABEE
+                    {
+                        ClientEnterResult result;
                         result.error = cmd->GetError();
 
                         if (result.error == WONAPI::Error_Success && cmd->client && cmd->data_size > 0)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
                             auto* data = &*tlv;
 
                             result.client.clientId = data->items[0].GetU32();
@@ -142,14 +162,14 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerUserLeave: // 0xCF1E785F
+                    case Message::RoutingServerUserLeave: // 0xCF1E785F
                     {
-                        RoutingServerClient::ClientLeaveResult result;
+                        ClientLeaveResult result;
                         result.error = cmd->GetError();
 
                         if (result.error == WONAPI::Error_Success && cmd->client && cmd->data_size > 0)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
                             auto* data = &*tlv;
 
                             result.client.clientId = data->items[0].GetU32();
@@ -163,18 +183,18 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    //
-                    // Room information / messages.
-                    //
+                        //
+                        // Room information / messages.
+                        //
 
-                    case MINTCLIENT::Message::RoutingServerBroadcastChat: // 0xC79C5EB4 <<< INBOUND ONLY
+                    case Message::RoutingServerBroadcastChat: // 0xC79C5EB4 <<< INBOUND ONLY
                     {
-                        RoutingServerClient::ASCIIChatMessageResult result;
+                        ASCIIChatMessageResult result;
                         result.error = cmd->GetError();
 
                         if (result.error == WONAPI::Error_Success && cmd->client && cmd->data_size > 0)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
                             result.chatMessage.clientId = tlv->items[0].GetU32();
                             result.chatMessage.type = tlv->items[1].GetU8();
@@ -190,49 +210,49 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    //
-                    // Game information / events.
-                    //
+                        //
+                        // Game information / events.
+                        //
 
-                    case MINTCLIENT::Message::RoutingServerCreateGame:
+                    case Message::RoutingServerCreateGame:
                     {
-                        RoutingServerClient::CreateGameResult result;
+                        CreateGameResult result;
                         result.error = cmd->GetError();
                         cmd->callback(result);
                         routing->command_list->Remove(cmd);
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerUpdateGame:
+                    case Message::RoutingServerUpdateGame:
                     {
-                        RoutingServerClient::UpdateGameResult result;
+                        UpdateGameResult result;
                         result.error = cmd->GetError();
                         cmd->callback(result);
                         routing->command_list->Remove(cmd);
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerDeleteGame:
+                    case Message::RoutingServerDeleteGame:
                     {
-                        RoutingServerClient::DeleteGameResult result;
+                        DeleteGameResult result;
                         result.error = cmd->GetError();
                         cmd->callback(result);
                         routing->command_list->Remove(cmd);
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerGetGameList:
+                    case Message::RoutingServerGetGameList:
                     {
-                        RoutingServerClient::GetGameListResult result;
+                        GetGameListResult result;
                         result.error = cmd->GetError();
 
-                        if (result.error == WONAPI::Error_Success) 
+                        if (result.error == WONAPI::Error_Success)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
                             for (int i = 0; i < tlv->length; i++)
                             {
-                                auto gameEntry = MINTCLIENT::RoutingServerClient::GameResult();
+                                auto gameEntry = GameResult();
                                 auto* data = &tlv->items[i];
 
                                 gameEntry.ownerId = data->items[0].GetU32();
@@ -243,7 +263,7 @@ namespace MINTCLIENT
 
                                 auto* data_bytes = data->items[3].GetBytes();
 
-                                // Hack: overwrite user's IP with the address they used to connect to MINT.
+                                // Hack: overwrite game's IP with the address provided by MINT.
                                 ((StyxNet::Session*)data_bytes)->address.SetIP(address.host);
 
                                 gameEntry.game_data = data_bytes;
@@ -265,22 +285,22 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerGameCreated:
+                    case Message::RoutingServerGameCreated:
                     {
-                        RoutingServerClient::CreateGameResult result;
+                        CreateGameResult result;
                         result.error = cmd->GetError();
 
                         if (result.error == WONAPI::Error_Success)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
                             result.ownerId = tlv->items[0].GetU32();
                             result.name.Set(tlv->items[1].GetString());
                             result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
-                            
+
                             auto data_bytes = tlv->items[3].GetBytes();
 
-                            // Hack: overwrite user's IP with the address they used to connect to MINT.
+                            // Hack: overwrite game's IP with the address provided by MINT.
                             ((StyxNet::Session*)data_bytes)->address.SetIP(result.address.host);
 
                             result.game_data = data_bytes;
@@ -290,7 +310,6 @@ namespace MINTCLIENT
 
                             result.context = cmd->context;
                             cmd->callback(result);
-
                         }
 
                         LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- A game was created.");
@@ -299,14 +318,14 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerGameUpdated:
+                    case Message::RoutingServerGameUpdated:
                     {
-                        RoutingServerClient::UpdateGameResult result;
+                        UpdateGameResult result;
                         result.error = cmd->GetError();
 
                         if (result.error == WONAPI::Error_Success)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
                             result.ownerId = tlv->items[0].GetU32();
                             result.name.Set(tlv->items[1].GetString());
@@ -314,7 +333,7 @@ namespace MINTCLIENT
 
                             auto data_bytes = tlv->items[3].GetBytes();
 
-                            // Hack: overwrite user's IP with the address they used to connect to MINT.
+                            // Hack: overwrite game's IP with the address provided by MINT.
                             ((StyxNet::Session*)data_bytes)->address.SetIP(result.address.host);
 
                             result.game_data = data_bytes;
@@ -332,20 +351,24 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerGameReplaced:
+                    case Message::RoutingServerGameReplaced:
                     {
-                        RoutingServerClient::ReplaceGameResult result;
+                        ReplaceGameResult result;
                         result.error = cmd->GetError();
 
                         if (result.error == WONAPI::Error_Success)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
                             result.ownerId = tlv->items[0].GetU32();
                             result.name.Set(tlv->items[1].GetString());
                             result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
 
                             auto data_bytes = tlv->items[3].GetBytes();
+
+                            // Hack: overwrite game's IP with the address provided by MINT.
+                            ((StyxNet::Session*)data_bytes)->address.SetIP(result.address.host);
+
                             result.game_data = data_bytes;
                             result.game_data_size = tlv->items[3].length;
 
@@ -353,7 +376,6 @@ namespace MINTCLIENT
 
                             result.context = cmd->context;
                             cmd->callback(result);
-
                         }
 
                         LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << " ### Routing Server Client --- A game was replaced.");
@@ -362,18 +384,17 @@ namespace MINTCLIENT
                     }
                     break;
 
-                    case MINTCLIENT::Message::RoutingServerGameDeleted:
+                    case Message::RoutingServerGameDeleted:
                     {
-                        RoutingServerClient::DeleteGameResult result;
+                        DeleteGameResult result;
                         result.error = cmd->GetError();
 
                         if (result.error == WONAPI::Error_Success)
                         {
-                            auto* tlv = new MINTCLIENT::Encoding::TLV(cmd->cmd_data, cmd->data_size);
+                            auto* tlv = new Encoding::TLV(cmd->cmd_data, cmd->data_size);
 
                             result.ownerId = tlv->items[0].GetU32();
                             result.name.Set(tlv->items[1].GetString());
-                            result.address = IPSocket::Address(Utils::Unicode2Ansi(tlv->items[2].GetString()));
 
                             delete tlv;
 
@@ -388,6 +409,29 @@ namespace MINTCLIENT
                     break;
                 }
             }
+            else
+            {
+                auto currentCommands = routing->command_list->GetAll();
+
+                for (auto& command : currentCommands)
+                {
+                    if (command->command_id == Message::RoutingServerGetNumUsers)
+                    {
+                        if (command->Overtime())
+                        {
+                            command->DropFromClient();
+                            command->Timeout();
+
+                            GetNumUsersResult result;
+                            result.error = command->GetError();
+
+                            command->callback(result);
+
+                            routing->command_list->Remove(command);
+                        }
+                    }
+                }
+            }
         }
 
         LDIAG("MINT Routing Server Client - RoutingServerClient::RoutingServerClientProcess [" << HEX(GetCurrentThreadId(), 8) << "]" << "MINTCLIENT Routing Server Client EXIT <<<");
@@ -396,13 +440,17 @@ namespace MINTCLIENT
         return TRUE;
     }
 
-    WONAPI::Error RoutingServerClient::InstallClientEnterCatcher(void (*callback)(const RoutingServerClient::ClientEnterResult& result), void* context)
+    WONAPI::Error RoutingServerClient::InstallClientEnterCatcher
+    (
+        void (*callback)(const ClientEnterResult& result),
+        void* context
+    )
     {
-        MINTCLIENT::Client::CommandList* client_enter_command = new MINTCLIENT::Client::CommandList();
+        Client::CommandList* client_enter_command = new Client::CommandList();
 
         auto* cmd = new Client::MINTCommand(nullptr);
         cmd->callback = callback;
-        cmd->command_id = MINTCLIENT::Message::RoutingServerUserEnter;
+        cmd->command_id = Message::RoutingServerUserEnter;
         cmd->recycle = true;
         cmd->listener_only = true;
         cmd->SetContext(context);
@@ -416,13 +464,17 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::InstallClientLeaveCatcher(void (*callback)(const RoutingServerClient::ClientLeaveResult& result), void* context)
+    WONAPI::Error RoutingServerClient::InstallClientLeaveCatcher
+    (
+        void (*callback)(const ClientLeaveResult& result),
+        void* context
+    )
     {
-        MINTCLIENT::Client::CommandList* client_leave_command = new MINTCLIENT::Client::CommandList();
+        Client::CommandList* client_leave_command = new Client::CommandList();
 
         auto* cmd = new Client::MINTCommand(nullptr);
         cmd->callback = callback;
-        cmd->command_id = MINTCLIENT::Message::RoutingServerUserLeave;
+        cmd->command_id = Message::RoutingServerUserLeave;
         cmd->recycle = true;
         cmd->listener_only = true;
         cmd->SetContext(context);
@@ -436,13 +488,17 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::InstallGameCreatedCatcher(void (*callback)(const RoutingServerClient::CreateGameResult& result), void *context)
+    WONAPI::Error RoutingServerClient::InstallGameCreatedCatcher
+    (
+        void (*callback)(const CreateGameResult& result),
+        void* context
+    )
     {
-        MINTCLIENT::Client::CommandList* game_created_command = new MINTCLIENT::Client::CommandList();
+        Client::CommandList* game_created_command = new Client::CommandList();
 
         auto* cmd = new Client::MINTCommand(nullptr);
         cmd->callback = callback;
-        cmd->command_id = MINTCLIENT::Message::RoutingServerGameCreated;
+        cmd->command_id = Message::RoutingServerGameCreated;
         cmd->recycle = true;
         cmd->listener_only = true;
         cmd->SetContext(context);
@@ -457,13 +513,17 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::InstallGameUpdatedCatcher(void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context)
+    WONAPI::Error RoutingServerClient::InstallGameUpdatedCatcher
+    (
+        void (*callback)(const UpdateGameResult& result),
+        void* context
+    )
     {
-        MINTCLIENT::Client::CommandList* game_updated_command = new MINTCLIENT::Client::CommandList();
+        Client::CommandList* game_updated_command = new Client::CommandList();
 
         auto* cmd = new Client::MINTCommand(nullptr);
         cmd->callback = callback;
-        cmd->command_id = MINTCLIENT::Message::RoutingServerGameUpdated;
+        cmd->command_id = Message::RoutingServerGameUpdated;
         cmd->recycle = true;
         cmd->listener_only = true;
         cmd->SetContext(context);
@@ -478,13 +538,17 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::InstallGameReplacedCatcher(void (*callback)(const RoutingServerClient::ReplaceGameResult& result), void* context)
+    WONAPI::Error RoutingServerClient::InstallGameReplacedCatcher
+    (
+        void (*callback)(const ReplaceGameResult& result),
+        void* context
+    )
     {
-        MINTCLIENT::Client::CommandList* game_replaced_command = new MINTCLIENT::Client::CommandList();
+        Client::CommandList* game_replaced_command = new Client::CommandList();
 
         auto* cmd = new Client::MINTCommand(nullptr);
         cmd->callback = callback;
-        cmd->command_id = MINTCLIENT::Message::RoutingServerGameReplaced;
+        cmd->command_id = Message::RoutingServerGameReplaced;
         cmd->recycle = true;
         cmd->listener_only = true;
         cmd->SetContext(context);
@@ -499,13 +563,17 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::InstallGameDeletedCatcher(void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context)
+    WONAPI::Error RoutingServerClient::InstallGameDeletedCatcher
+    (
+        void (*callback)(const DeleteGameResult& result),
+        void* context
+    )
     {
-        MINTCLIENT::Client::CommandList* game_deleted_command = new MINTCLIENT::Client::CommandList();
+        Client::CommandList* game_deleted_command = new Client::CommandList();
 
         auto* cmd = new Client::MINTCommand(nullptr);
         cmd->callback = callback;
-        cmd->command_id = MINTCLIENT::Message::RoutingServerGameDeleted;
+        cmd->command_id = Message::RoutingServerGameDeleted;
         cmd->recycle = true;
         cmd->listener_only = true;
         cmd->SetContext(context);
@@ -520,18 +588,21 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::InstallASCIIPeerChatCatcher(void (*callback)(const RoutingServerClient::ASCIIChatMessageResult& message), void* context)
+    WONAPI::Error RoutingServerClient::InstallASCIIPeerChatCatcher
+    (
+        void (*callback)(const ASCIIChatMessageResult& message), void* context
+    )
     {
-        MINTCLIENT::Client::CommandList* ascii_chat_command = new MINTCLIENT::Client::CommandList();
+        Client::CommandList* ascii_chat_command = new Client::CommandList();
 
         auto* ctx = new Client::MINTCommand(nullptr);
         ctx->callback = callback;
-        ctx->command_id = MINTCLIENT::Message::RoutingServerBroadcastChat;  // The command we're wired to handle.
-        ctx->recycle = true;                                                // Once processed, allow it to be handled again.
-        ctx->listener_only = true;                                          // Don't send any data to the server when this command is added to a client's command queue.
-        ctx->SetContext(context);                                           // The context of the function dealing with the callback.
+        ctx->command_id = Message::RoutingServerBroadcastChat;  // The command we're wired to handle.
+        ctx->recycle = true;                                    // Once processed, allow it to be handled again.
+        ctx->listener_only = true;                              // Don't send any data to the server when this command is added to a client's command queue.
+        ctx->SetContext(context);                               // The context of the function dealing with the callback.
 
-        ascii_chat_command->Add(ctx);                                       // Add this context to the list of contexts.
+        ascii_chat_command->Add(ctx);                           // Add this context to the list of contexts.
 
         // Queue installation for next available connection.
         this->catchers[ID_ASCIIPeerChatCatcher].push_back(ascii_chat_command);
@@ -541,21 +612,33 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::GetNumUsers(void (*callback)(const RoutingServerClient::GetNumUsersResult& result), void* context)
+    WONAPI::Error RoutingServerClient::GetNumUsers(void (*callback)(const GetNumUsersResult& result), void* context)
     {
+        ASSERT(this->client);
+
+        // Create a `MINTCommand` with the command and data to send to the server.
+        auto* cmd = new Client::MINTCommand(this->client);
+        cmd->command_id = Message::RoutingServerGetNumUsers; // 0xACCD008F
+        cmd->callback = callback;
+
+        cmd->SetContext(context);
+        command_list->Add(cmd);
+
+        command_list->PassToClient(); // Want it queued straight away.
+
         return WONAPI::Error_Pending;
     }
 
     //
     // Applicable for a current routing server.
     //
-    WONAPI::Error RoutingServerClient::GetUserList(void (*callback)(const RoutingServerClient::GetUserListResult& result), void* context)
+    WONAPI::Error RoutingServerClient::GetUserList(void (*callback)(const GetUserListResult& result), void* context)
     {
         ASSERT(this->client);
 
         // Create a `MINTCommand` with the command and data to send to the server.
         auto* cmd = new Client::MINTCommand(this->client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerGetUserList; // 0x82E37940
+        cmd->command_id = Message::RoutingServerGetUserList; // 0x82E37940
         cmd->callback = callback;
 
         cmd->SetContext(context);
@@ -572,23 +655,28 @@ namespace MINTCLIENT
     //  - 2. The client has confirmed their identity and uses it subsequently to connect to a specific routing server. (The routing server itself will also verify the identity with an authentication server)
     //  - 3. The player has connected to the server, it has verified their identity and now the player can `Register` with their `username` and the appropriate `password` for this routing server's room.
     //
-    WONAPI::Error RoutingServerClient::Connect(MINTCLIENT::IPSocket::Address address, MINTCLIENT::Identity& identity, bool isReconnect, long timeout, void (*callback)(const RoutingServerClient::ConnectRoomResult& result), void* context)
+    WONAPI::Error RoutingServerClient::Connect
+    (
+        IPSocket::Address address, Identity& identity, const CH* room_password,
+        bool isReconnect, long timeout,
+        void (*callback)(const ConnectRoomResult& result), void* context
+    )
     {
         // Let's instantiate a `MINTCLIENT` and connect it to the specified lobby.
-        MINTCLIENT::Client::Config* c = new MINTCLIENT::Client::Config(address);
-        MINTCLIENT::Client* client = new MINTCLIENT::Client(*c);
+        Client::Config* c = new Client::Config(address);
+        Client* client = new Client(*c);
 
         // We're now connected, other calls will use this `client`.
         this->client = client;
 
         // Set the command and data to send to the server.
         auto* cmd = new Client::MINTCommand(client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerRoomConnect; // 0xEE37226B
+        cmd->command_id = Message::RoutingServerRoomConnect; // 0xEE37226B
         cmd->callback = callback;
 
         auto req = ConnectRoomRequest();
         req.username.Set(identity.GetLoginName());
-        req.password.Set(identity.GetPassword());
+        req.room_password.Set(room_password);
         cmd->SetDataFromStruct(req);
 
         cmd->SetContext(context);
@@ -603,18 +691,23 @@ namespace MINTCLIENT
         return WONAPI::Error_Pending;
     }
 
-    WONAPI::Error RoutingServerClient::Register(const CH* username, const CH* room_password, bool becomeHost, bool becomeSpec, bool joinChat, void (*callback)(const RoutingServerClient::RegisterClientResult& result), void* context)
+    WONAPI::Error RoutingServerClient::Register
+    (
+        const CH* username, const CH* password, bool becomeHost,
+        bool becomeSpec, bool joinChat,
+        void (*callback)(const RegisterClientResult& result), void* context
+    )
     {
         ASSERT(this->client);
 
         // Create a `MINTCommand` with the command and data to send to the server.
         auto* cmd = new Client::MINTCommand(this->client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerRoomRegister;
+        cmd->command_id = Message::RoutingServerRoomRegister;
         cmd->callback = callback;
 
         auto req = RegisterClientRequest();
         req.username.Set(username);
-        req.room_password.Set(room_password);
+        req.password.Set(password);
         req.becomeHost = becomeHost;
         req.becomeSpec = becomeSpec;
         req.joinChat = joinChat;
@@ -629,7 +722,8 @@ namespace MINTCLIENT
             // Code isn't written to care about type at the moment, but this is an example of filtering based on catcher type.
             // if (it->first == ID_ASCIIPeerChatCatcher || it->first == ID_ClientEnterCatcher || it->first == ID_ClientLeaveCatcher || it->first == ID_GameCreatedCatcher)
             {
-                for (auto command_list_iterator = it->second.begin(); command_list_iterator != it->second.end(); ++command_list_iterator)
+                for (auto command_list_iterator = it->second.begin(); command_list_iterator != it->second.end(); ++
+                     command_list_iterator)
                 {
                     auto* catcher_command_list = *command_list_iterator;
                     for (auto* catcher_cmd : catcher_command_list->GetAll())
@@ -647,7 +741,7 @@ namespace MINTCLIENT
     WONAPI::Error RoutingServerClient::BroadcastChat(std::wstring& text, bool f)
     {
         auto* cmd = new Client::MINTCommand(this->client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerBroadcastChat;
+        cmd->command_id = Message::RoutingServerBroadcastChat;
 
         ASCIIChatMessageRequest request;
 
@@ -665,10 +759,14 @@ namespace MINTCLIENT
         return WONAPI::Error_Success;
     }
 
-    WONAPI::Error RoutingServerClient::CreateGame(const CH* name, const U32 clientId, const MINTCLIENT::Client::MINTBuffer& data, void (*callback)(const RoutingServerClient::CreateGameResult& result), void* context)
+    WONAPI::Error RoutingServerClient::CreateGame
+    (
+        const CH* name, const U32 clientId, const Client::MINTBuffer& data,
+        void (*callback)(const CreateGameResult& result), void* context
+    )
     {
         auto* cmd = new Client::MINTCommand(this->client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerCreateGame;
+        cmd->command_id = Message::RoutingServerCreateGame;
         cmd->callback = callback;
 
         auto request = CreateGameRequest();
@@ -689,10 +787,14 @@ namespace MINTCLIENT
         return WONAPI::Error_Pending;
     }
 
-    WONAPI::Error RoutingServerClient::UpdateGame(const CH* name, const U32 clientId, const MINTCLIENT::Client::MINTBuffer& data, void (*callback)(const RoutingServerClient::UpdateGameResult& result), void* context)
+    WONAPI::Error RoutingServerClient::UpdateGame
+    (
+        const CH* name, const U32 clientId, const Client::MINTBuffer& data,
+        void (*callback)(const UpdateGameResult& result), void* context
+    )
     {
         auto* cmd = new Client::MINTCommand(this->client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerUpdateGame;
+        cmd->command_id = Message::RoutingServerUpdateGame;
         cmd->callback = callback;
 
         auto request = UpdateGameRequest();
@@ -713,10 +815,14 @@ namespace MINTCLIENT
         return WONAPI::Error_Pending;
     }
 
-    WONAPI::Error RoutingServerClient::DeleteGame(const CH* name, const U32 clientId, void (*callback)(const RoutingServerClient::DeleteGameResult& result), void* context)
+    WONAPI::Error RoutingServerClient::DeleteGame
+    (
+        const CH* name, const U32 clientId,
+        void (*callback)(const DeleteGameResult& result), void* context
+    )
     {
         auto* cmd = new Client::MINTCommand(this->client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerDeleteGame;
+        cmd->command_id = Message::RoutingServerDeleteGame;
         cmd->callback = callback;
 
         auto request = DeleteGameRequest();
@@ -731,12 +837,12 @@ namespace MINTCLIENT
         return WONAPI::Error_Pending;
     }
 
-    WONAPI::Error RoutingServerClient::GetGameList(void (* callback)(const RoutingServerClient::GetGameListResult& result), void* context)
+    WONAPI::Error RoutingServerClient::GetGameList(void (*callback)(const GetGameListResult& result), void* context)
     {
         ASSERT(this->client);
 
         auto* cmd = new Client::MINTCommand(this->client);
-        cmd->command_id = MINTCLIENT::Message::RoutingServerGetGameList; // 0x41D50E29
+        cmd->command_id = Message::RoutingServerGetGameList; // 0x41D50E29
         cmd->callback = callback;
 
         cmd->SetContext(context);

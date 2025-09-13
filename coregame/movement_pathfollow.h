@@ -31,7 +31,6 @@
 //
 namespace Movement
 {
-
     // Max cycles to wait for a blockage
     const S32 MAX_GIVEUP = 20;
 
@@ -129,7 +128,9 @@ namespace Movement
         PathPoint* curr;
 
         // Constructor
-        PathPointList() : head(NULL), tail(NULL), curr(NULL) {}
+        PathPointList() : head(NULL), tail(NULL), curr(NULL)
+        {
+        }
 
         // Add a point given a metre position
         PathPoint* AddMetre(PathPoint* after, F32 mx, F32 mz, S32 gx, S32 gz, U32 flags = 0, Bool checkDup = TRUE);
@@ -205,7 +206,9 @@ namespace Movement
 
 
         // Constructor
-        StepOnceInfo() : next(0), factor(FALSE), vertical(FALSE) {}
+        StepOnceInfo() : next(0), factor(FALSE), vertical(FALSE)
+        {
+        }
     };
 
 
@@ -318,7 +321,6 @@ namespace Movement
         // Save and load
         void SaveState(FScope* fScope);
         void LoadState(FScope* fScope);
-
     };
 
     // Maximum segments per driver
@@ -338,7 +340,9 @@ namespace Movement
         U32 blockedUntil;
 
         // Constructor
-        Coordinator() : blockedUntil(0) {}
+        Coordinator() : blockedUntil(0)
+        {
+        }
 
         // Load and save
         void SaveState(FScope* fScope);
@@ -436,7 +440,6 @@ namespace Movement
             // Save and load
             void SaveState(FScope* fScope);
             void LoadState(FScope* fScope);
-
         };
 
         // Probe item
@@ -452,7 +455,6 @@ namespace Movement
             // Save and load
             void SaveState(FScope* fScope, PathPointList& pointList);
             void LoadState(FScope* fScope, PathPointList& pointList);
-
         };
 
         // Stop flags
@@ -525,19 +527,19 @@ namespace Movement
         U8 tail;
 
         // Grain quadrant offset (0..4)
-        U8  quadrant : 4,
+        U8 quadrant : 4,
 
             // Current movement direction (0..7)
             direction : 4;
 
         // Grain size of this unit type
-        U8  grainSize : 4,
+        U8 grainSize : 4,
 
             // probe buffer count
             probeCount : 4;
 
         // Apply balance data speed, should be FALSE while boarding/leaving
-        U8  applyBalanceData : 1,
+        U8 applyBalanceData : 1,
 
             // Claim cells, should be FALSE while boarding/leaving
             claimGrains : 1,
@@ -883,15 +885,15 @@ namespace Movement
         Bool IsBlocked()
         {
             return
+            (
+                state.Test(0xDCED7E12) // "Driving"
+                &&
                 (
-                    state.Test(0xDCED7E12) // "Driving"
-                    &&
-                    (
-                        moveState.Test(0xCC45C48B) // "Waiting"
-                        ||
-                        moveState.Test(0x6E5322F9) // "WaitingEntry"
-                        )
-                    );
+                    moveState.Test(0xCC45C48B) // "Waiting"
+                    ||
+                    moveState.Test(0x6E5322F9) // "WaitingEntry"
+                )
+            );
         }
 
         // Is the object in direct

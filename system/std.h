@@ -70,7 +70,7 @@
 
 // CRC (core of the game)
 #include "crc.h"
-     
+
 // Utilities
 #include "utils.h"
 
@@ -97,4 +97,3 @@
 
 
 #endif
-

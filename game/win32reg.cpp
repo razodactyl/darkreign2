@@ -21,10 +21,8 @@
 //
 namespace Win32Reg
 {
-
-  // Update all of the registy settigs
-  void Update()
-  {
-  }
-
+    // Update all of the registy settigs
+    void Update()
+    {
+    }
 }

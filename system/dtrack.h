@@ -30,141 +30,140 @@ class DTrack
 {
 public:
 
-  // Holds information pointing to one DTrack item
-  struct Info
-  {
-    // Id of the unique item
-    U32 id;
-
-    // Pointer to the id in the tracker array
-    U32 *trackPos;
-
-    // Clear this info
-    void Clear()
+    // Holds information pointing to one DTrack item
+    struct Info
     {
-      id = DTRACK_EMPTY;
-      trackPos = 0;
-    }
+        // Id of the unique item
+        U32 id;
 
-    // Is this item setup
-    Bool IsSetup() const
-    {
-      return (trackPos ? TRUE : FALSE);
-    }
+        // Pointer to the id in the tracker array
+        U32* trackPos;
 
-    // Constructor
-    Info()
-    {
-      Clear();
-    }
-  };
+        // Clear this info
+        void Clear()
+        {
+            id = DTRACK_EMPTY;
+            trackPos = nullptr;
+        }
+
+        // Is this item setup
+        Bool IsSetup() const
+        {
+            return (trackPos ? TRUE : FALSE);
+        }
+
+        // Constructor
+        Info()
+        {
+            Clear();
+        }
+    };
 
 private:
 
-  // Holds system state information
-  struct StateInfo
-  {
-    // Current number of items being tracked
-    U32 items;
-
-    // Maximum number of items ever tracked
-    U32 maxItems;
-
-    // Number of cache hits
-    U32 cacheHits;
-
-    // Number of cache misses
-    U32 cacheMisses;
-
-    // Constructor
-    StateInfo()
+    // Holds system state information
+    struct StateInfo
     {
-      cacheHits = cacheMisses = 0;
-      items = maxItems = 0;
-    }
-  };
+        // Current number of items being tracked
+        U32 items;
 
-  // A single death track block
-  struct Block
-  {
-    // Node for block list
-    NList<Block>::Node node;
+        // Maximum number of items ever tracked
+        U32 maxItems;
 
-    // Block data
-    U32 *data;
+        // Number of cache hits
+        U32 cacheHits;
 
-    // Constructor
-    Block(U32 size)
+        // Number of cache misses
+        U32 cacheMisses;
+
+        // Constructor
+        StateInfo()
+        {
+            cacheHits = cacheMisses = 0;
+            items = maxItems = 0;
+        }
+    };
+
+    // A single death track block
+    struct Block
     {
-      data = new U32[size];
-    }
+        // Node for block list
+        NList<Block>::Node node;
 
-    // Destructor
-    ~Block()
-    {
-      delete [] data;
-    }
-  };
+        // Block data
+        U32* data;
+
+        // Constructor
+        Block(U32 size)
+        {
+            data = new U32[size];
+        }
+
+        // Destructor
+        ~Block()
+        {
+            delete [] data;
+        }
+    };
 
 private:
- 
-  // Name of this object
-  StrBuf<64> name;
 
-  // Requested block size
-  U32 blockSize;
+    // Name of this object
+    StrBuf<64> name;
 
-  // Size of cache
-  U32 cacheSize;
+    // Requested block size
+    U32 blockSize;
 
-  // Current unique id count
-  U32 idCount;
+    // Size of cache
+    U32 cacheSize;
 
-  // Pointers to allocated blocks
-  NList<Block> blocks;
+    // Current unique id count
+    U32 idCount;
 
-  // Cache of available positions
-  U32** cache;
+    // Pointers to allocated blocks
+    NList<Block> blocks;
 
-  // Number of items in the cache
-  U32 cacheCount;
+    // Cache of available positions
+    U32** cache;
 
-  // Information about the system state 
-  StateInfo stateInfo;
+    // Number of items in the cache
+    U32 cacheCount;
 
-  // Add new position to cache (returns TRUE if full)
-  Bool CacheAdd(U32 *pos);
+    // Information about the system state 
+    StateInfo stateInfo;
 
-  // Allocate a new block and fill cache
-  void AllocateNewBlock();
+    // Add new position to cache (returns TRUE if full)
+    Bool CacheAdd(U32* pos);
 
-  // Get an available position from the cache
-  U32* HitCache();
+    // Allocate a new block and fill cache
+    void AllocateNewBlock();
 
-  // Private method for registering item creation
-  void RegisterConstructionPrivate(Info &info, U32 id);
+    // Get an available position from the cache
+    U32* HitCache();
 
-  // Debug routine called on destruction
-  void DebugDestruction();
+    // Private method for registering item creation
+    void RegisterConstructionPrivate(Info& info, U32 id);
+
+    // Debug routine called on destruction
+    void DebugDestruction();
 
 public:
 
-  // Constructor - if cacheSizeIn is zero, automatically calculate size
-  DTrack(const char *nameIn, U32 blockSizeIn, U32 cacheSizeIn = 0);
-  
-  // Destructor
-  ~DTrack();
+    // Constructor - if cacheSizeIn is zero, automatically calculate size
+    DTrack(const char* nameIn, U32 blockSizeIn, U32 cacheSizeIn = 0);
 
-  // Register the construction of an item
-  void RegisterConstruction(Info &info);
+    // Destructor
+    ~DTrack();
 
-  // Register the construction of an item using the supplied id
-  void RegisterConstruction(Info &info, U32 claimId);
+    // Register the construction of an item
+    void RegisterConstruction(Info& info);
 
-  // Register the destruction of the item 'info'
-  void RegisterDestruction(Info &info);
+    // Register the construction of an item using the supplied id
+    void RegisterConstruction(Info& info, U32 claimId);
+
+    // Register the destruction of the item 'info'
+    void RegisterDestruction(Info& info);
 };
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -174,203 +173,203 @@ public:
 // NOTE: Assumes DATA contains an Info member called 'dTrack'
 //
 
-template <class DATA> class Reaper
+template <class DATA>
+class Reaper
 {
 private:
 
-  // Item information
-  DTrack::Info dTrack;
+    // Item information
+    DTrack::Info dTrack;
 
-  // Pointer to target object
-  DATA *ptr;
+    // Pointer to target object
+    DATA* ptr;
 
 public:
 
-  // Clear this pointer
-  void Clear()
-  {
-    dTrack.Clear();
-    ptr = NULL;
-  }
-
-  // Constructor
-  Reaper()
-  {
-    Clear();
-  }
-
-  // Copy constructor
-  Reaper(DATA *target)
-  {
-    Setup(target);
-  }
-
-  // Point this reaper at object 'target', which can be NULL
-  void Setup(DATA *target)
-  {
-    if (target)
+    // Clear this pointer
+    void Clear()
     {
-      // Has this object been setup
-      if (!target->dTrack.IsSetup())
-      {
-        // Should NEVER point at a dead object
-        ERR_FATAL(("Attempt to point a reaper at a dead object"));
-      }
-
-      // Copy death track information
-      dTrack = target->dTrack;
-
-      // Save pointer to target
-      ptr = target;
-    }
-    else
-    {
-      Clear();
-    }
-  }
-
-  // True if the target object is still alive
-  Bool Alive()
-  {
-    // Is this info valid
-    if (dTrack.IsSetup())
-    {
-      // Are the id's the same
-      if (*dTrack.trackPos == dTrack.id)
-      {
-        // Then the item is still alive
-        return (TRUE);
-      }
-      
-      // Item is dead, so optimize subsequent calls
-      dTrack.Clear();
+        dTrack.Clear();
+        ptr = NULL;
     }
 
-    // Info was never setup or has died
-    return (FALSE);
-  }
-
-  // Const version of the alive test
-  Bool Alive() const
-  {
-    // Is this info valid
-    if (dTrack.IsSetup())
+    // Constructor
+    Reaper()
     {
-      // Are the id's the same
-      if (*dTrack.trackPos == dTrack.id)
-      {
-        // Then the item is still alive
-        return (TRUE);
-      }
+        Clear();
     }
 
-    // Info was never setup or has died
-    return (FALSE);
-  }
+    // Copy constructor
+    Reaper(DATA* target)
+    {
+        Setup(target);
+    }
 
-  // Returns TRUE if the reaper is not alive
-  Bool Dead()
-  {
-    return (!Alive());
-  }
+    // Point this reaper at object 'target', which can be NULL
+    void Setup(DATA* target)
+    {
+        if (target)
+        {
+            // Has this object been setup
+            if (!target->dTrack.IsSetup())
+            {
+                // Should NEVER point at a dead object
+                ERR_FATAL(("Attempt to point a reaper at a dead object"));
+            }
 
-  // Const version of the above method
-  Bool Dead() const
-  {
-    return (!Alive());
-  }
+            // Copy death track information
+            dTrack = target->dTrack;
 
-  // Assignment (can assign NULL)
-  Reaper<DATA>& operator=(DATA *target)
-  {
-    Setup(target);
-    return (*this);
-  }
+            // Save pointer to target
+            ptr = target;
+        }
+        else
+        {
+            Clear();
+        }
+    }
 
-  // Return target pointer, regardless of alive/dead/cleared
-  DATA* GetData() const
-  {
-    return (ptr);
-  }
+    // True if the target object is still alive
+    Bool Alive()
+    {
+        // Is this info valid
+        if (dTrack.IsSetup())
+        {
+            // Are the id's the same
+            if (*dTrack.trackPos == dTrack.id)
+            {
+                // Then the item is still alive
+                return (TRUE);
+            }
 
-  // If reaper alive, return pointer, otherwise NULL
-  DATA* GetPointer()
-  {
-    return (Alive() ? ptr : NULL);
-  }
+            // Item is dead, so optimize subsequent calls
+            dTrack.Clear();
+        }
 
-  // Const version of above method
-  DATA* GetPointer() const
-  {
-    return (Alive() ? ptr : NULL);
-  }
+        // Info was never setup or has died
+        return (FALSE);
+    }
 
-  // Return target pointer
-  DATA* operator->()
-  {
-    ASSERT(Alive());
-    return (ptr);
-  }
+    // Const version of the alive test
+    Bool Alive() const
+    {
+        // Is this info valid
+        if (dTrack.IsSetup())
+        {
+            // Are the id's the same
+            if (*dTrack.trackPos == dTrack.id)
+            {
+                // Then the item is still alive
+                return (TRUE);
+            }
+        }
 
-  // Return target pointer
-  DATA* operator->() const
-  {
-    ASSERT(Alive());
-    return (ptr);
-  }
+        // Info was never setup or has died
+        return (FALSE);
+    }
 
-  // Return target pointer
-  operator DATA*()
-  {
-    ASSERT(Alive());
-    return (ptr);
-  }
+    // Returns TRUE if the reaper is not alive
+    Bool Dead()
+    {
+        return (!Alive());
+    }
 
-  // Return target pointer
-  operator DATA*() const
-  {
-    ASSERT(Alive());
-    return (ptr);
-  }
+    // Const version of the above method
+    Bool Dead() const
+    {
+        return (!Alive());
+    }
 
-  // Returns the id of the object
-  U32 Id()
-  {
-    ASSERT(Alive());
-    return (dTrack.id);
-  }
+    // Assignment (can assign NULL)
+    Reaper<DATA>& operator=(DATA* target)
+    {
+        Setup(target);
+        return (*this);
+    }
 
-  // Returns the id, regardless of alive/dead/cleared
-  U32 DirectId() const
-  {
-    return (dTrack.id);
-  }
+    // Return target pointer, regardless of alive/dead/cleared
+    DATA* GetData() const
+    {
+        return (ptr);
+    }
 
-  // Save an id so this reaper can be resolved later
-  void SetResolveId(U32 id)
-  {
-    ASSERT(!Alive());
-    ASSERT(id != DTRACK_EMPTY);
+    // If reaper alive, return pointer, otherwise NULL
+    DATA* GetPointer()
+    {
+        return (Alive() ? ptr : nullptr);
+    }
 
-    dTrack.id = id;
-  }
+    // Const version of above method
+    DATA* GetPointer() const
+    {
+        return (Alive() ? ptr : nullptr);
+    }
 
-  // Returns TRUE if this reaper has a resolve id set
-  Bool HasResolveId()
-  {
-    // If we're not alive, but we have a non-empty id
-    return (!Alive() && dTrack.id != DTRACK_EMPTY);
-  }
+    // Return target pointer
+    DATA* operator->()
+    {
+        ASSERT(Alive());
+        return (ptr);
+    }
 
-  // Returns the id set by the above method
-  U32 GetResolveId()
-  {
-    ASSERT(!Alive());
-    ASSERT(dTrack.id != DTRACK_EMPTY);
+    // Return target pointer
+    DATA* operator->() const
+    {
+        ASSERT(Alive());
+        return (ptr);
+    }
 
-    return (dTrack.id);
-  }
+    // Return target pointer
+    operator DATA*()
+    {
+        ASSERT(Alive());
+        return (ptr);
+    }
 
+    // Return target pointer
+    operator DATA*() const
+    {
+        ASSERT(Alive());
+        return (ptr);
+    }
+
+    // Returns the id of the object
+    U32 Id()
+    {
+        ASSERT(Alive());
+        return (dTrack.id);
+    }
+
+    // Returns the id, regardless of alive/dead/cleared
+    U32 DirectId() const
+    {
+        return (dTrack.id);
+    }
+
+    // Save an id so this reaper can be resolved later
+    void SetResolveId(U32 id)
+    {
+        ASSERT(!Alive());
+        ASSERT(id != DTRACK_EMPTY);
+
+        dTrack.id = id;
+    }
+
+    // Returns TRUE if this reaper has a resolve id set
+    Bool HasResolveId()
+    {
+        // If we're not alive, but we have a non-empty id
+        return (!Alive() && dTrack.id != DTRACK_EMPTY);
+    }
+
+    // Returns the id set by the above method
+    U32 GetResolveId()
+    {
+        ASSERT(!Alive());
+        ASSERT(dTrack.id != DTRACK_EMPTY);
+
+        return (dTrack.id);
+    }
 };
 
 

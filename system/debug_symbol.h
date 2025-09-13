@@ -24,34 +24,33 @@
 //
 namespace Debug
 {
+    ///////////////////////////////////////////////////////////////////////////////
+//
+// NameSpace Symbol
+    //
+    namespace Symbol
+    {
+        // Initialize
+        void Init();
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Symbol
-  //
-  namespace Symbol
-  {
+        // Shutdown
+        void Done();
 
-    // Initialize
-    void Init();
+        // Dump all symbols
+        void Dump();
 
-    // Shutdown
-    void Done();
+        // Expand an address
+        void Expand
+        (
+            U32 address,
+            char*& functionName, U32& functionDispacement,
+            char*& fileName, U32& lineNumber, U32& lineNumberDisplacement,
+            char*& moduleName
+        );
 
-    // Dump all symbols
-    void Dump();
-
-    // Expand an address
-    void Expand(U32 address, 
-      char *&functionName, U32 &functionDispacement,
-      char *&fileName, U32 &lineNumber, U32 &lineNumberDisplacement,
-      char *&moduleName);
-
-    // Expand into a string
-    const char * Expand(U32 address);
-
-  }
-
+        // Expand into a string
+        const char* Expand(U32 address);
+    }
 }
 
 #endif

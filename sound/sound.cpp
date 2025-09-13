@@ -21,169 +21,177 @@
 
 namespace Sound
 {
-  // Is the system initialized
-  static Bool initialized = FALSE;
+    // Is the system initialized
+    static Bool initialized = FALSE;
 
-  // The sound system death tracker 
-  static DTrack *dTracker;
+    // The sound system death tracker 
+    static DTrack* dTracker;
 
 
-  //
-  // Init
-  //
-  // Initialize systems
-  //
-  void Init()
-  {
-    LOG_DIAG(("Sound::Init()"));
-
-    if (!initialized)
+    //
+    // Init
+    //
+    // Initialize systems
+    //
+    void Init()
     {
-      // Allocate a death tracker
-      dTracker = new DTrack("Sound", 128);
+        LOG_DIAG(("Sound::Init()"));
 
-      // Tell MSS where to find its files
-      AIL_set_redist_directory("library\\mss");
+        if (!initialized)
+        {
+            // Allocate a death tracker
+            dTracker = new DTrack("Sound", 128);
 
-      // Initialize MSS
-      AIL_startup();
+            // Tell MSS where to find its files
+            AIL_set_redist_directory("library\\mss");
 
-      // Initialize the digital sound system
-      Digital::Init();
+            // Initialize MSS
+            AIL_startup();
 
-      // Initialize the redbook audio system
-      Redbook::Init();
+            // Initialize the digital sound system
+            Digital::Init();
 
-      // Set init flag
-      initialized = TRUE;
+            // Initialize the redbook audio system
+            Redbook::Init();
+
+            // Initialize the vorbis audio system
+            Vorbis::Init();
+
+            // Set init flag
+            initialized = TRUE;
+        }
+
+        LOG_DIAG((" - Completed"));
     }
 
-    LOG_DIAG((" - Completed"));
-  }
 
-
-  //
-  // Done
-  //
-  // Shutdown systems
-  //
-  void Done()
-  {
-    LOG_DIAG(("Sound::Done()"));
-
-    if (initialized)
+    //
+    // Done
+    //
+    // Shutdown systems
+    //
+    void Done()
     {
-      // Shutdown the digital sound system
-      Digital::Done();
+        LOG_DIAG(("Sound::Done()"));
 
-      // Shutdown the redbook audio system
-      Redbook::Done();
+        if (initialized)
+        {
+            // Shutdown the digital sound system
+            Digital::Done();
 
-      // Shutdown MSS
-      AIL_shutdown();
+            // Shutdown the redbook audio system
+            Redbook::Done();
 
-      // Delete the death tracker
-      delete dTracker;
+            // Shutdown the vorbis audio system
+            Vorbis::Done();
 
-      // Clear init flag
-      initialized = FALSE;
+            // Shutdown MSS
+            AIL_shutdown();
+
+            // Delete the death tracker
+            delete dTracker;
+
+            // Clear init flag
+            initialized = FALSE;
+        }
+
+        LOG_DIAG((" - Completed"));
     }
 
-    LOG_DIAG((" - Completed"));
-  }
 
-
-  //
-  // Poll
-  //
-  // Poll reserved voices and cd audio
-  //
-  void Poll()
-  {
-    if (initialized)
+    //
+    // Poll
+    //
+    // Poll reserved voices and cd audio
+    //
+    void Poll()
     {
-      // Process reserved voice queues
-      Digital::Reserved::Poll();
+        if (initialized)
+        {
+            // Process reserved voice queues
+            Digital::Reserved::Poll();
 
-      // Process CD audio track changing
-      Redbook::Poll();
+            // Process CD audio track changing
+            Redbook::Poll();
+
+            // Process vorbis audio track changing
+            Vorbis::Poll();
+        }
     }
-  }
 
-  
-  //
-  // CriticalShutdown
-  //
-  // Critical shutdown function
-  //
-  void CriticalShutdown()
-  {
-    LOG_DIAG(("Entering Sound::CriticalShutdown"));
 
-    if (initialized)
+    //
+    // CriticalShutdown
+    //
+    // Critical shutdown function
+    //
+    void CriticalShutdown()
     {
-      Digital::CriticalShutdown();
-      Redbook::CriticalShutdown();
-      AIL_shutdown();
+        LOG_DIAG(("Entering Sound::CriticalShutdown"));
+
+        if (initialized)
+        {
+            Digital::CriticalShutdown();
+            Redbook::CriticalShutdown();
+            Vorbis::CriticalShutdown();
+            AIL_shutdown();
+        }
+        LOG_DIAG(("Leaving Sound::CriticalShutdown"));
     }
-    LOG_DIAG(("Leaving Sound::CriticalShutdown"));
-  }
 
 
-  //
-  // Initialized
-  //
-  // Returns TRUE if the system is initialised
-  //
-  Bool Initialized()
-  {
-    return (initialized);
-  }
+    //
+    // Initialized
+    //
+    // Returns TRUE if the system is initialised
+    //
+    Bool Initialized()
+    {
+        return (initialized);
+    }
 
 
-  //
-  // LastError
-  //
-  // Returns the last Miles error message
-  //
-  const char * LastError()
-  {
-    return (AIL_last_error());
-  }
+    //
+    // LastError
+    //
+    // Returns the last Miles error message
+    //
+    const char* LastError()
+    {
+        return (AIL_last_error());
+    }
 
 
-  //
-  // DumpInfo
-  //
-  // Log information about the current state
-  //
-  void DumpInfo()
-  {
-
-  }
-
-
-  //
-  // RegisterConstruction
-  //
-  // Register the creation of an item
-  //
-  void RegisterConstruction(DTrack::Info &info)
-  { 
-    ASSERT(initialized)
-    dTracker->RegisterConstruction(info);
-  }
+    //
+    // DumpInfo
+    //
+    // Log information about the current state
+    //
+    void DumpInfo()
+    {
+    }
 
 
-  //
-  // RegisterDestruction
-  //
-  // Register the destruction of an item
-  //
-  void RegisterDestruction(DTrack::Info &info)
-  {
-    ASSERT(initialized)
-    dTracker->RegisterDestruction(info);
-  }
+    //
+    // RegisterConstruction
+    //
+    // Register the creation of an item
+    //
+    void RegisterConstruction(DTrack::Info& info)
+    {
+        ASSERT(initialized);
+        dTracker->RegisterConstruction(info);
+    }
+
+
+    //
+    // RegisterDestruction
+    //
+    // Register the destruction of an item
+    //
+    void RegisterDestruction(DTrack::Info& info)
+    {
+        ASSERT(initialized);
+        dTracker->RegisterDestruction(info);
+    }
 }
-

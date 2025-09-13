@@ -26,7 +26,8 @@ using std::ostream;
 //
 // Template StrBuf
 //
-template <U32 STR_SIZE, class BASE = char> class StrBuf
+template <U32 STR_SIZE, class BASE = char>
+class StrBuf
 {
 public:
 
@@ -80,10 +81,9 @@ public:
 
     // operator<<
     //friend ostream & operator<<(ostream &o, const StrBuf<STR_SIZE> &s)
-   // {
-   //   return (o << s.str);
-   // }
-
+    // {
+    //   return (o << s.str);
+    // }
 };
 
 #endif

@@ -15,21 +15,21 @@
 #define DOXFLIP
 #define DOXSITEX
 
-static void SaveMeshRoot( FILE *fp, MeshRoot *mesh, char *name, char *margin) 
+static void SaveMeshRoot(FILE* fp, MeshRoot* mesh, char* name, char* margin)
 {
-  fprintf (fp, "%sFrame %s {\n\n", margin, name);
+    fprintf(fp, "%sFrame %s {\n\n", margin, name);
 
-  fprintf (fp, "%s   FrameTransformMatrix {\n", margin);
+    fprintf(fp, "%s   FrameTransformMatrix {\n", margin);
 
-  Matrix matrix = mesh->ObjectMatrix();
+    Matrix matrix = mesh->ObjectMatrix();
 
 #ifdef DOXFLIP
-  Quaternion q;
-  q.Set( matrix);
-  q.v.y *= -1.0f;
-  q.v.z *= -1.0f;
-  matrix.Set( q);
-  matrix.posit.x *= -1.0f;
+    Quaternion q;
+    q.Set(matrix);
+    q.v.y *= -1.0f;
+    q.v.z *= -1.0f;
+    matrix.Set(q);
+    matrix.posit.x *= -1.0f;
 #else
 #ifdef DOZFLIP
   Quaternion q;
@@ -41,52 +41,67 @@ static void SaveMeshRoot( FILE *fp, MeshRoot *mesh, char *name, char *margin)
 #endif
 #endif
 
-  fprintf (fp, "%s      %lf,%lf,%lf,%lf,\n", margin,
-    matrix.right.x,
-    matrix.right.y,
-    matrix.right.z,
-    matrix.rightw);
+    fprintf
+    (
+        fp, "%s      %lf,%lf,%lf,%lf,\n", margin,
+        matrix.right.x,
+        matrix.right.y,
+        matrix.right.z,
+        matrix.rightw
+    );
 
-  fprintf (fp, "%s      %lf,%lf,%lf,%lf,\n", margin,
-    matrix.up.x,
-    matrix.up.y,
-    matrix.up.z,
-    matrix.upw);
+    fprintf
+    (
+        fp, "%s      %lf,%lf,%lf,%lf,\n", margin,
+        matrix.up.x,
+        matrix.up.y,
+        matrix.up.z,
+        matrix.upw
+    );
 
-  fprintf (fp, "%s      %lf,%lf,%lf,%lf,\n", margin,
-    matrix.front.x,
-    matrix.front.y,
-    matrix.front.z,
-    matrix.frontw);
+    fprintf
+    (
+        fp, "%s      %lf,%lf,%lf,%lf,\n", margin,
+        matrix.front.x,
+        matrix.front.y,
+        matrix.front.z,
+        matrix.frontw
+    );
 
-  fprintf (fp, "%s      %lf,%lf,%lf,%lf;;\n", margin,
-    matrix.posit.x,
-    matrix.posit.y,
-    matrix.posit.z,
-    matrix.positw);
+    fprintf
+    (
+        fp, "%s      %lf,%lf,%lf,%lf;;\n", margin,
+        matrix.posit.x,
+        matrix.posit.y,
+        matrix.posit.z,
+        matrix.positw
+    );
 
-  fprintf (fp, "%s   }\n\n", margin);
+    fprintf(fp, "%s   }\n\n", margin);
 
-	U32 vCount = mesh->vertices.count;
-	U32 fCount = mesh->faces.count;
+    U32 vCount = mesh->vertices.count;
+    U32 fCount = mesh->faces.count;
 
-	// dump polygon mesh header
-	fprintf (fp, "%s   Mesh %s {\n", margin, name);
-	
-	// dump polygon vertices
-	fprintf ( fp, "%s      %d;\n", margin, vCount);
-  U32 i, j;
-	for (i = 0; i < vCount; i++)
-  {
-    Vector &vert = mesh->vertices[i];
+    // dump polygon mesh header
+    fprintf(fp, "%s   Mesh %s {\n", margin, name);
 
-    if (i != 0)
+    // dump polygon vertices
+    fprintf(fp, "%s      %d;\n", margin, vCount);
+    U32 i, j;
+    for (i = 0; i < vCount; i++)
     {
-  		fprintf ( fp, ",\n");
-    }
-		fprintf ( fp, "%s      %f;%f;%f;", margin,
+        Vector& vert = mesh->vertices[i];
+
+        if (i != 0)
+        {
+            fprintf(fp, ",\n");
+        }
+        fprintf
+        (
+            fp, "%s      %f;%f;%f;", margin,
 #ifdef DOXFLIP
-      -vert.x, vert.y, vert.z);
+            -vert.x, vert.y, vert.z
+        );
 #else
 #ifdef DOZFLIP
       vert.x, vert.y, -vert.z);
@@ -94,139 +109,157 @@ static void SaveMeshRoot( FILE *fp, MeshRoot *mesh, char *name, char *margin)
       vert.x, vert.y,  vert.z);
 #endif
 #endif
-	}
-	fprintf ( fp, ";\n\n");
-	
-	// dump polygon indices
-	fprintf (fp, "%s      %d;\n", margin, fCount);
-	if (fCount > 0)
-	{
-		for (i = 0; i < fCount; i++)
-		{
-      FaceObj &face = mesh->faces[i];
+    }
+    fprintf(fp, ";\n\n");
 
-      if (i != 0)
-      {
-  			fprintf (fp, ",\n");
-      }
-			fprintf (fp, "%s      %d;%d,%d,%d;", margin, 3, 
+    // dump polygon indices
+    fprintf(fp, "%s      %d;\n", margin, fCount);
+    if (fCount > 0)
+    {
+        for (i = 0; i < fCount; i++)
+        {
+            FaceObj& face = mesh->faces[i];
+
+            if (i != 0)
+            {
+                fprintf(fp, ",\n");
+            }
+            fprintf
+            (
+                fp, "%s      %d;%d,%d,%d;", margin, 3,
 #if (defined DOXFLIP) || (defined DOZFLIP)
-				face.verts[2], face.verts[1], face.verts[0]);
+                face.verts[2], face.verts[1], face.verts[0]
+            );
 #else
 				face.verts[0], face.verts[1],	face.verts[2]);
 #endif
-		}
-		fprintf (fp, ";\n\n");
-	}
-
-  // count materials
-  U32 mCount = 0;
-  Material *mats[MAXMATERIALS];
-  Bitmap *  texs[MAXMATERIALS];
-
-  U16 * indexList;
-  U32 heapSize = Vid::Heap::ReqU16( &indexList, fCount);
-
-  for (i = 0; i < fCount; i++)
-  {
-    BucketLock &bucky = mesh->buckys[mesh->faces[i].buckyIndex];
-
-    for (j = 0; j < mCount; j++)
-    {
-      if (bucky.material == mats[j] && bucky.texture0 == texs[j])
-      {
-        // fall out of loop early
-        break;
-      }
+        }
+        fprintf(fp, ";\n\n");
     }
-    if (j == mCount)
+
+    // count materials
+    U32 mCount = 0;
+    Material* mats[MAXMATERIALS];
+    Bitmap* texs[MAXMATERIALS];
+
+    U16* indexList;
+    U32 heapSize = Vid::Heap::ReqU16(&indexList, fCount);
+
+    for (i = 0; i < fCount; i++)
     {
-      mats[mCount] = bucky.material;
-      texs[mCount] = bucky.texture0;
-      mCount++;
+        BucketLock& bucky = mesh->buckys[mesh->faces[i].buckyIndex];
+
+        for (j = 0; j < mCount; j++)
+        {
+            if (bucky.material == mats[j] && bucky.texture0 == texs[j])
+            {
+                // fall out of loop early
+                break;
+            }
+        }
+        if (j == mCount)
+        {
+            mats[mCount] = bucky.material;
+            texs[mCount] = bucky.texture0;
+            mCount++;
+        }
+        indexList[i] = (U16)j;
     }
-    indexList[i] = (U16) j;
-  }
 
-	// dump material list header
-	fprintf (fp, "%s      MeshMaterialList {\n", margin);
-	fprintf (fp, "%s         %d;\n", margin, mCount); 
-	fprintf (fp, "%s         %d;\n", margin, fCount); 
+    // dump material list header
+    fprintf(fp, "%s      MeshMaterialList {\n", margin);
+    fprintf(fp, "%s         %d;\n", margin, mCount);
+    fprintf(fp, "%s         %d;\n", margin, fCount);
 
-	// dump polygon material indices
-  for (i = 0; i < fCount; i++)
-  {
-    if (i != 0)
+    // dump polygon material indices
+    for (i = 0; i < fCount; i++)
     {
-  		fprintf (fp, ",\n"); 
+        if (i != 0)
+        {
+            fprintf(fp, ",\n");
+        }
+        fprintf(fp, "%s         %d", margin, indexList[i]);
     }
-		fprintf (fp, "%s         %d", margin, indexList[i]); 
-  }
-	fprintf (fp, ";\n\n"); 
+    fprintf(fp, ";\n\n");
 
-  Vid::Heap::Restore( heapSize);
+    Vid::Heap::Restore(heapSize);
 
-	// dump material list
-	Bool textureFlag = FALSE;
-	for (i = 0; i < mCount; i++)
-	{
-		// get the material
-		Material *material = mats[i];
-
-		ASSERT( material);
-
-		// write out material data
-		fprintf (fp, "%s         SI_Material {\n", margin);
-		fprintf (fp, "%s            %f;%f;%f;%f;;\n", margin, 
-			material->GetDesc().diffuse.r,
-			material->GetDesc().diffuse.g,
-			material->GetDesc().diffuse.b,
-			material->GetDesc().diffuse.a);
-		fprintf (fp, "%s            %f;\n", margin,
-			material->GetDesc().power);
-		fprintf (fp, "%s            %f;%f;%f;;\n", margin,
-			material->GetDesc().specular.r,
-			material->GetDesc().specular.g,
-			material->GetDesc().specular.b);
-		fprintf (fp, "%s            %f;%f;%f;;\n", margin,
-			material->GetDesc().emissive.r,
-			material->GetDesc().emissive.g,
-			material->GetDesc().emissive.b);
-		fprintf (fp, "%s            %d;\n", margin, 2);
-		fprintf (fp, "%s            %f;%f;%f;;\n", margin, 0.7f, 0.7f, 0.7f);
-
-    if (texs[i])
+    // dump material list
+    Bool textureFlag = FALSE;
+    for (i = 0; i < mCount; i++)
     {
-  		fprintf (fp, "%s            TextureFilename {\n", margin);
-	  	fprintf (fp, "%s               \"%s\";\n", margin, texs[i]->GetName());
-  		fprintf (fp, "%s            }\n", margin);
+        // get the material
+        Material* material = mats[i];
 
-      textureFlag = TRUE;
+        ASSERT(material);
+
+        // write out material data
+        fprintf(fp, "%s         SI_Material {\n", margin);
+        fprintf
+        (
+            fp, "%s            %f;%f;%f;%f;;\n", margin,
+            material->GetDesc().diffuse.r,
+            material->GetDesc().diffuse.g,
+            material->GetDesc().diffuse.b,
+            material->GetDesc().diffuse.a
+        );
+        fprintf
+        (
+            fp, "%s            %f;\n", margin,
+            material->GetDesc().power
+        );
+        fprintf
+        (
+            fp, "%s            %f;%f;%f;;\n", margin,
+            material->GetDesc().specular.r,
+            material->GetDesc().specular.g,
+            material->GetDesc().specular.b
+        );
+        fprintf
+        (
+            fp, "%s            %f;%f;%f;;\n", margin,
+            material->GetDesc().emissive.r,
+            material->GetDesc().emissive.g,
+            material->GetDesc().emissive.b
+        );
+        fprintf(fp, "%s            %d;\n", margin, 2);
+        fprintf(fp, "%s            %f;%f;%f;;\n", margin, 0.7f, 0.7f, 0.7f);
+
+        if (texs[i])
+        {
+            fprintf(fp, "%s            TextureFilename {\n", margin);
+            fprintf(fp, "%s               \"%s\";\n", margin, texs[i]->GetName());
+            fprintf(fp, "%s            }\n", margin);
+
+            textureFlag = TRUE;
+        }
+        fprintf(fp, "%s         }\n", margin);
     }
-		fprintf (fp, "%s         }\n", margin);
-	}
-	fprintf (fp, "%s      }\n\n", margin);
+    fprintf(fp, "%s      }\n\n", margin);
 
-  U32 nCount = fCount * 3;
-	// dump mesh normals header
-	fprintf (fp, "%s      SI_MeshNormals {\n", margin);
-	fprintf (fp, "%s         %d;\n", margin, nCount);
-	
-	// dump polygon normals
-  Bool hit = FALSE;
-	for (i = 0; i < fCount; i++)
-	{
-    for (j = 0; j < 3; j++)
+    U32 nCount = fCount * 3;
+    // dump mesh normals header
+    fprintf(fp, "%s      SI_MeshNormals {\n", margin);
+    fprintf(fp, "%s         %d;\n", margin, nCount);
+
+    // dump polygon normals
+    Bool hit = FALSE;
+    for (i = 0; i < fCount; i++)
     {
-      Vector &norm = mesh->normals[mesh->faces[i].norms[j]];
+        for (j = 0; j < 3; j++)
+        {
+            Vector& norm = mesh->normals[mesh->faces[i].norms[j]];
 
-      if (hit)
-      {
-  		  fprintf ( fp, ",\n");
-      }
-		  fprintf ( fp, "%s         %f;%f;%f;", margin, 
+            if (hit)
+            {
+                fprintf(fp, ",\n");
+            }
+            fprintf
+            (
+                fp, "%s         %f;%f;%f;", margin,
 #ifdef DOXFLIP
-        -norm.x, norm.y, norm.z);
+                -norm.x, norm.y, norm.z
+            );
 #else
 #ifdef DOZFLIP
         norm.x, norm.y, -norm.z);
@@ -234,129 +267,137 @@ static void SaveMeshRoot( FILE *fp, MeshRoot *mesh, char *name, char *margin)
         norm.x, norm.y,  norm.z);
 #endif
 #endif
-      hit = TRUE;
+            hit = TRUE;
+        }
     }
-	}
-	fprintf ( fp, ";\n\n");
+    fprintf(fp, ";\n\n");
 
-	// output polygon normal indices
-	fprintf (fp, "%s         %d;\n", margin, fCount);
- 	for (i = j = 0; i < fCount; i++, j += 3)
-	{
-    if (i != 0)
+    // output polygon normal indices
+    fprintf(fp, "%s         %d;\n", margin, fCount);
+    for (i = j = 0; i < fCount; i++, j += 3)
     {
-  		fprintf ( fp, ",\n");
-    }
-		fprintf (fp, "%s         %d;%d;%d,%d,%d;", 
-      margin, i, 3,
+        if (i != 0)
+        {
+            fprintf(fp, ",\n");
+        }
+        fprintf
+        (
+            fp, "%s         %d;%d;%d,%d,%d;",
+            margin, i, 3,
 #if (defined DOXFLIP) || (defined DOZFLIP)
-      j + 2, j + 1, j + 0);
+            j + 2, j + 1, j + 0
+        );
 #else
       j + 0, j + 1, j + 2);
 #endif
-	}
-	fprintf ( fp, ";\n");
+    }
+    fprintf(fp, ";\n");
 
-  fprintf (fp, "%s      }\n\n", margin);
-	
-	if (textureFlag)
-  {
-  	// dump texture map coordinates header
-    fprintf (fp,  "%s      SI_MeshTextureCoords {\n", margin);
+    fprintf(fp, "%s      }\n\n", margin);
 
-		// dump polygon texture map coordinates
-		fprintf ( fp, "%s         %d;\n", margin, nCount);
-    hit = FALSE;
-		for (i = 0; i < fCount; i++)
-		{
-		  for (j = 0; j < 3; j++)
-		  {
-        UVPair &uv = mesh->uvs[mesh->faces[i].uvs[j]];
+    if (textureFlag)
+    {
+        // dump texture map coordinates header
+        fprintf(fp, "%s      SI_MeshTextureCoords {\n", margin);
 
-        if (hit)
+        // dump polygon texture map coordinates
+        fprintf(fp, "%s         %d;\n", margin, nCount);
+        hit = FALSE;
+        for (i = 0; i < fCount; i++)
         {
-  		    fprintf ( fp, ",\n");
-        }
+            for (j = 0; j < 3; j++)
+            {
+                UVPair& uv = mesh->uvs[mesh->faces[i].uvs[j]];
+
+                if (hit)
+                {
+                    fprintf(fp, ",\n");
+                }
 #ifdef DOXSITEX     // FIXME
-			  fprintf ( fp, "%s         %f;%f;", margin,  uv.u, 1.0f - uv.v);
+                fprintf(fp, "%s         %f;%f;", margin, uv.u, 1.0f - uv.v);
 #else
 			  fprintf ( fp, "%s         %f;%f;", margin,  uv.u, uv.v);
 #endif
 
-        hit = TRUE;
-		  }
-    }
- 		fprintf ( fp, ";\n\n");
+                hit = TRUE;
+            }
+        }
+        fprintf(fp, ";\n\n");
 
-		// dump polygon texture map indices
-		fprintf (fp, "%s         %d;\n", margin, fCount);
-		for (i = j = 0; i < fCount; i++, j += 3)
-		{
-      if (i != 0)
-      {
-  		  fprintf ( fp, ",\n");
-      }
-		  fprintf (fp, "%s         %d;%d;%d,%d,%d;", 
-        margin, i, 3,
+        // dump polygon texture map indices
+        fprintf(fp, "%s         %d;\n", margin, fCount);
+        for (i = j = 0; i < fCount; i++, j += 3)
+        {
+            if (i != 0)
+            {
+                fprintf(fp, ",\n");
+            }
+            fprintf
+            (
+                fp, "%s         %d;%d;%d,%d,%d;",
+                margin, i, 3,
 #if (defined DOXFLIP) || (defined DOZFLIP)
-      j + 2, j + 1, j + 0);
+                j + 2, j + 1, j + 0
+            );
 #else
       j + 0, j + 1, j + 2);
 #endif
-	  }
-	  fprintf ( fp, ";\n");
+        }
+        fprintf(fp, ";\n");
 
-		fprintf (fp, "%s      }\n", margin);
-	}
-	
-	fprintf (fp, "%s   }\n", margin);
+        fprintf(fp, "%s      }\n", margin);
+    }
 
-  fprintf (fp, "%s}\n", margin);
+    fprintf(fp, "%s   }\n", margin);
+
+    fprintf(fp, "%s}\n", margin);
 }
+
 //----------------------------------------------------------------------------
 
-Bool MeshRoot::WriteXSI( const char *name) 
+Bool MeshRoot::WriteXSI(const char* name)
 {
-  FILE *fp = fopen (name, "wb");
-  if (!fp)
-  {
-   ASSERT (fp);
-   return FALSE;
-  }
+    FILE* fp = fopen(name, "wb");
+    if (!fp)
+    {
+        ASSERT(fp);
+        return FALSE;
+    }
 
-  fprintf (fp, "xsi 0101txt 0032\n\n");
+    fprintf(fp, "xsi 0101txt 0032\n\n");
 
-  fprintf (fp, "SI_CoordinateSystem coord {\n");                 
-  fprintf (fp, "   1;\n");                                    
-  fprintf (fp, "   0;\n");                                    
-  fprintf (fp, "   1;\n");                                    
-  fprintf (fp, "   0;\n");                                    
-  fprintf (fp, "   2;\n");                                    
-  fprintf (fp, "   5;\n");                                    
-  fprintf (fp, "}\n\n");                                        
+    fprintf(fp, "SI_CoordinateSystem coord {\n");
+    fprintf(fp, "   1;\n");
+    fprintf(fp, "   0;\n");
+    fprintf(fp, "   1;\n");
+    fprintf(fp, "   0;\n");
+    fprintf(fp, "   2;\n");
+    fprintf(fp, "   5;\n");
+    fprintf(fp, "}\n\n");
 
-  fprintf (fp, "SI_Camera  cam_int1 {\n");                       
-  fprintf (fp, "   -594.508301; 79.008514; 893.325684;;\n");  
-  fprintf (fp, "   -589.973083; 1.795721; 750.634949;;\n");   
-  fprintf (fp, "   0;0.000000;;\n");                          
-  fprintf (fp, "   0;41.539440;;\n");                         
-  fprintf (fp, "   0.100000;\n");                             
-  fprintf (fp, "   32768.000000;\n");                         
-  fprintf (fp, "}\n\n");                                        
+    fprintf(fp, "SI_Camera  cam_int1 {\n");
+    fprintf(fp, "   -594.508301; 79.008514; 893.325684;;\n");
+    fprintf(fp, "   -589.973083; 1.795721; 750.634949;;\n");
+    fprintf(fp, "   0;0.000000;;\n");
+    fprintf(fp, "   0;41.539440;;\n");
+    fprintf(fp, "   0.100000;\n");
+    fprintf(fp, "   32768.000000;\n");
+    fprintf(fp, "}\n\n");
 
-  fprintf (fp, "SI_Ambience {\n");                               
-  fprintf (fp, "   0.300000; 0.300000; 0.300000;;\n");        
-  fprintf (fp, "}\n\n");                                        
+    fprintf(fp, "SI_Ambience {\n");
+    fprintf(fp, "   0.300000; 0.300000; 0.300000;;\n");
+    fprintf(fp, "}\n\n");
 
-  char margin[256];
-	margin[0] = '\0';
+    char margin[256];
+    margin[0] = '\0';
 
-  SaveMeshRoot( fp, this, (char *) this->GetName(), margin);
+    SaveMeshRoot(fp, this, (char*)this->GetName(), margin);
 
-  fclose (fp);
+    fclose(fp);
 
-  return TRUE;
+    return TRUE;
 }
+
 //----------------------------------------------------------------------------
 
 #ifdef SAVEIT
@@ -401,7 +442,7 @@ static void SaveMesh( FILE *fp, Mesh *mesh, char *name, char *margin)
 #else
 			mesh->VertVectorZ(i));
 #endif
-	
+
 	// dump polygon indices
 	fprintf (fp, "%s      %d;\n", margin, fCount);
 	if (fCount > 0)
@@ -543,7 +584,7 @@ static void SaveMesh( FILE *fp, Mesh *mesh, char *name, char *margin)
 #else
     mesh->VertNormalZ(mesh->indices[j]));
 #endif
-	
+
 	// output polygon normal indices
 	fprintf (fp, "%s         %d;\n", margin, fCount);
 	k = 0;

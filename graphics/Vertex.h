@@ -12,7 +12,7 @@
 
 #include "mathtypes.h"
 
-typedef DWORD					COLOR;
+typedef DWORD COLOR;
 
 // cut and pasted from d3d help file
 enum PRIMITIVE_TYPE
@@ -121,6 +121,7 @@ enum DRAWPRIMITIVE_FLAGS
     RS_BLEND_DECALALPHA = RS_SRC_SRCALPHA | RS_DST_INVSRCALPHA | RS_TEX_DECALALPHA,
     RS_BLEND_DEF = RS_BLEND_MODULATE,
 };
+
 //----------------------------------------------------------------------------
 
 // all of the supported vertex data formats
@@ -128,13 +129,15 @@ enum DRAWPRIMITIVE_FLAGS
 // based on D3DVERTEX
 struct Vertex
 {
-    Vector		vv, nv;
+    Vector vv, nv;
+
     union
     {
         struct
         {
-            F32		u, v;
+            F32 u, v;
         };
+
         UVPairS uv;
     };
 
@@ -144,11 +147,13 @@ struct Vertex
         nv.ClearData();
     }
 };
+
 //----------------------------------------------------------------------------
 
 // vertex to state matrix indexing with multiweighting
 //
 #define MAXWEIGHTS  2
+
 struct VertIndex
 {
     U32 count;
@@ -158,44 +163,53 @@ struct VertIndex
     Bool operator==(VertIndex& v1)
     {
         return (count == v1.count
-            && index[0] == v1.index[0]
-            && index[1] == v1.index[1]
-            && weight[0] == v1.weight[0]
-            && weight[1] == v1.weight[1]) ? TRUE : FALSE;
+                   && index[0] == v1.index[0]
+                   && index[1] == v1.index[1]
+                   && weight[0] == v1.weight[0]
+                   && weight[1] == v1.weight[1])
+                   ? TRUE
+                   : FALSE;
     }
 };
+
 //----------------------------------------------------------------------------
 
 struct VertexI : public Vertex
 {
-    VertIndex  vi;
+    VertIndex vi;
 };
+
 //----------------------------------------------------------------------------
 
 struct VertexI2 : public Vertex
 {
     U32 i0, i1;
-    VertIndex  vi;
+    VertIndex vi;
 };
+
 //----------------------------------------------------------------------------
 
 struct VertexT2
 {
-    Vector		vv, nv;
+    Vector vv, nv;
+
     union
     {
         struct
         {
-            F32		u, v;
+            F32 u, v;
         };
+
         UVPairS uv;
     };
+
     union
     {
         struct
         {
-            F32		u1, v1;
+            F32 u1, v1;
         };
+
         UVPairS uv1;
     };
 
@@ -209,15 +223,17 @@ struct VertexT2
 
 struct VertexC
 {
-    Vector		vv, nv;
-    Color     diffuse;
+    Vector vv, nv;
+    Color diffuse;
+
     //  Color     specular;
     union
     {
         struct
         {
-            F32		u, v;
+            F32 u, v;
         };
+
         UVPairS uv;
     };
 
@@ -230,23 +246,27 @@ struct VertexC
 
 struct VertexT2C
 {
-    Vector		vv, nv;
-    Color     diffuse;
+    Vector vv, nv;
+    Color diffuse;
+
     //  Color     specular;
     union
     {
         struct
         {
-            F32		u, v;
+            F32 u, v;
         };
+
         UVPairS uv;
     };
+
     union
     {
         struct
         {
-            F32		u1, v1;
+            F32 u1, v1;
         };
+
         UVPairS uv1;
     };
 
@@ -361,12 +381,14 @@ struct VertexL
     U32 pad;
     Color diffuse;
     Color specular;
+
     union
     {
         struct
         {
-            F32		u, v;
+            F32 u, v;
         };
+
         UVPairS uv;
     };
 
@@ -389,6 +411,7 @@ inline void Matrix::Transform(VertexL& dst, const VertexL& src) const
     //	dst.vv.z = right.z * src.vv.x + up.z * src.vv.y + front.z * src.vv.z + posit.z;
     Transform_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexL& dst, const VertexL& src) const
@@ -398,6 +421,7 @@ inline void Matrix::Rotate(VertexL& dst, const VertexL& src) const
     //	dst.vv.z = right.z * src.vv.x + up.z * src.vv.y + front.z * src.vv.z;
     Rotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexL& dst, const VertexL& src) const
@@ -407,6 +431,7 @@ inline void Matrix::RotateInv(VertexL& dst, const VertexL& src) const
     //  dst.vv.z = front.x * src.vv.x + front.y * src.vv.y + front.z * src.vv.z;
     Unrotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Transform(VertexL& dst, VertexL& src) const
@@ -417,6 +442,7 @@ inline void Matrix::Transform(VertexL& dst, VertexL& src) const
     //	dst.vv.z = right.z * temp.vv.x + up.z * temp.vv.y + front.z * temp.vv.z + posit.z;
     Transform_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexL& dst, VertexL& src) const
@@ -427,6 +453,7 @@ inline void Matrix::Rotate(VertexL& dst, VertexL& src) const
     //	dst.vv.z = right.z * temp.vv.x + up.z * temp.vv.y + front.z * temp.vv.z;
     Rotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexL& dst, VertexL& src) const
@@ -437,42 +464,49 @@ inline void Matrix::RotateInv(VertexL& dst, VertexL& src) const
     //  dst.vv.z = front.x * temp.vv.x + front.y * temp.vv.y + front.z * temp.vv.z;
     Unrotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Transform(VertexL* dst, const VertexL* src, U32 count) const
 {
     Transform_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexL* dst, const VertexL* src, U32 count) const
 {
     Rotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexL* dst, const VertexL* src, U32 count) const
 {
     Unrotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Transform(VertexL* dst, VertexL* src, U32 count) const
 {
     Transform_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexL* dst, VertexL* src, U32 count) const
 {
     Rotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexL* dst, VertexL* src, U32 count) const
 {
     Unrotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 struct VertexTL
@@ -481,13 +515,15 @@ struct VertexTL
     F32 rhw;
     Color diffuse;
     Color specular;
+
     union
     {
         struct
         {
-            F32		u, v;
+            F32 u, v;
         };
-        UVPairS  uv;
+
+        UVPairS uv;
     };
 
     void ClearData()
@@ -523,6 +559,7 @@ struct VertexTL
     // from camera vert
     void SetFogX();      // in vidrend.cpp
 };
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Transform(VertexTL& dst, const VertexTL& src) const
@@ -532,6 +569,7 @@ inline void Matrix::Transform(VertexTL& dst, const VertexTL& src) const
     //	dst.vv.z = right.z * src.vv.x + up.z * src.vv.y + front.z * src.vv.z + posit.z;
     Transform_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexTL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexTL& dst, const VertexTL& src) const
@@ -541,6 +579,7 @@ inline void Matrix::Rotate(VertexTL& dst, const VertexTL& src) const
     //	dst.vv.z = right.z * src.vv.x + up.z * src.vv.y + front.z * src.vv.z;
     Rotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexTL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexTL& dst, const VertexTL& src) const
@@ -550,6 +589,7 @@ inline void Matrix::RotateInv(VertexTL& dst, const VertexTL& src) const
     //  dst.vv.z = front.x * src.vv.x + front.y * src.vv.y + front.z * src.vv.z;
     Unrotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexTL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Transform(VertexTL& dst, VertexTL& src) const
@@ -560,6 +600,7 @@ inline void Matrix::Transform(VertexTL& dst, VertexTL& src) const
     //	dst.vv.z = right.z * temp.vv.x + up.z * temp.vv.y + front.z * temp.vv.z + posit.z;
     Transform_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexTL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexTL& dst, VertexTL& src) const
@@ -570,6 +611,7 @@ inline void Matrix::Rotate(VertexTL& dst, VertexTL& src) const
     //	dst.vv.z = right.z * temp.vv.x + up.z * temp.vv.y + front.z * temp.vv.z;
     Rotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexTL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexTL& dst, VertexTL& src) const
@@ -580,42 +622,49 @@ inline void Matrix::RotateInv(VertexTL& dst, VertexTL& src) const
     //  dst.vv.z = front.x * temp.vv.x + front.y * temp.vv.y + front.z * temp.vv.z;
     Unrotate_Vectors((F32*)&(dst.vv), (F32*)&(src.vv), sizeof(VertexTL), 1);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Transform(VertexTL* dst, const VertexTL* src, U32 count) const
 {
     Transform_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexTL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexTL* dst, const VertexTL* src, U32 count) const
 {
     Rotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexTL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexTL* dst, const VertexTL* src, U32 count) const
 {
     Unrotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexTL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Transform(VertexTL* dst, VertexTL* src, U32 count) const
 {
     Transform_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexTL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::Rotate(VertexTL* dst, VertexTL* src, U32 count) const
 {
     Rotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexTL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 inline void Matrix::RotateInv(VertexTL* dst, VertexTL* src, U32 count) const
 {
     Unrotate_Vectors((F32*)&(dst->vv), (F32*)&(src->vv), sizeof(VertexTL), count);
 }
+
 //-----------------------------------------------------------------------------
 
 struct VertexT2L
@@ -623,21 +672,25 @@ struct VertexT2L
     Vector vv;
     F32 rhw;
     Color diffuse, specular;
+
     union
     {
         struct
         {
-            F32		u, v;
+            F32 u, v;
         };
-        UVPairS  uv;
+
+        UVPairS uv;
     };
+
     union
     {
         struct
         {
-            F32		u1, v1;
+            F32 u1, v1;
         };
-        UVPairS  uv1;
+
+        UVPairS uv1;
     };
 
     void ClearData()
@@ -651,6 +704,7 @@ struct VertexT2L
         uv = v.uv;
     }
 };
+
 //-----------------------------------------------------------------------------
 
 // a single tri
@@ -659,23 +713,25 @@ struct FaceObj
 {
     // indices
     //
-    U16                     vtx[3];
-    U16                     verts[3];
-    U16                     norms[3];
-    U16                     uvs[3];
+    U16 vtx[3];
+    U16 verts[3];
+    U16 norms[3];
+    U16 uvs[3];
 
-    U16                     index;        // face
-    U16                     buckyIndex;   // material group
+    U16 index;        // face
+    U16 buckyIndex;   // material group
 
     void ClearData()
     {
         Utils::Memset(this, 0, sizeof(*this));
     }
+
     FaceObj()
     {
         ClearData();
     }
 };
+
 //----------------------------------------------------------------------------
 
 struct GeoCache
@@ -695,12 +751,14 @@ struct GeoCache
             U16 index;
             U16 value[2];   // decreasing, increasing
         };
+
         Rec* rec;
 
         Mrm()
         {
             rec = NULL;
         }
+
         ~Mrm()
         {
             if (rec)
@@ -709,6 +767,7 @@ struct GeoCache
             }
         }
     };
+
     Mrm* mrm;
 
     U32 vCount, iCount, memSize;
@@ -717,6 +776,7 @@ struct GeoCache
     {
         ClearData();
     }
+
     ~GeoCache()
     {
         Release();
@@ -731,6 +791,7 @@ struct GeoCache
         mrm = NULL;
         vCount = iCount = memSize = 0;
     }
+
     void Release()
     {
         /*
@@ -784,7 +845,7 @@ struct GeoCache
         return memSize;
     }
 
-    inline operator U16* () { return idx; }
+    inline operator U16*() { return idx; }
     /*
       inline operator Vertex    *() { return (Vertex    *) vtx; }
       inline operator VertexC   *() { return (VertexC   *) vtx; }
@@ -795,6 +856,7 @@ struct GeoCache
       inline operator VertexT2L *() { return (VertexT2L *) vtx; }
     */
 };
+
 //----------------------------------------------------------------------------
 
 #endif // _VERTEX_H

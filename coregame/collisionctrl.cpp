@@ -59,9 +59,9 @@ namespace CollisionCtrl
 #endif
 
 
-//
-// Initialise the collision system
-//
+    //
+    // Initialise the collision system
+    //
     void Init()
     {
         ASSERT(!sysInit);
@@ -93,7 +93,6 @@ namespace CollisionCtrl
     //
     namespace Resolver
     {
-
         // Max number of collisions to process for an object
         static const U32 MAX_COLLISIONS = 16;
 
@@ -139,12 +138,10 @@ namespace CollisionCtrl
             {
                 return -1;
             }
-            else
-
-                if (c1->dist > c2->dist)
-                {
-                    return 1;
-                }
+            else if (c1->dist > c2->dist)
+            {
+                return 1;
+            }
             return 0;
         }
 
@@ -168,8 +165,8 @@ namespace CollisionCtrl
             // Setup projectile
             if (obj1->MapType()->IsProjectile())
             {
-                ASSERT((Promote::Object<ProjectileObjType, ProjectileObj>(obj1)))
-                    proj1 = (ProjectileObj*)obj1;
+                ASSERT((Promote::Object<ProjectileObjType, ProjectileObj>(obj1)));
+                proj1 = (ProjectileObj*)obj1;
             }
             else
             {
@@ -271,7 +268,7 @@ namespace CollisionCtrl
 
                 // Check for object collision
                 MapCluster *cluster = obj1->currentCluster;
-                ASSERT(obj1->currentCluster == WorldCtrl::MetresToCluster(worldPos.x, worldPos.z))
+                ASSERT(obj1->currentCluster == WorldCtrl::MetresToCluster(worldPos.x, worldPos.z));
 
                 // Check collisions with each other object in the cluster
                 for (NList<MapObj>::Iterator objIt(&cluster->listObjs); *objIt; objIt++)
@@ -380,7 +377,7 @@ namespace CollisionCtrl
 
 #endif
 
-          // Sort collisions by their distance
+                // Sort collisions by their distance
                 if (collisionCount)
                 {
                     if (collisionCount > 1)

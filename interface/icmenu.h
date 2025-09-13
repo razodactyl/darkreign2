@@ -33,105 +33,105 @@ typedef Reaper<ICMenu> ICMenuPtr;
 //
 class ICMenu : public IControl
 {
-  PROMOTE_LINK(ICMenu, IControl, 0xB194F28D); // "ICMenu"
+PROMOTE_LINK(ICMenu, IControl, 0xB194F28D); // "ICMenu"
 
 public:
 
-  // Event callback for code generated menus
-  typedef Bool (EventCallBack)(void *context, U32 crc, U32 param1, U32 param2);
+    // Event callback for code generated menus
+    typedef Bool (EventCallBack)(void* context, U32 crc, U32 param1, U32 param2);
 
-  // Control styles
-  enum
-  {
-    STYLE_HORIZONTAL = 0x00000001,
-    STYLE_NOAUTOSIZE = 0x00000002,
-  };
+    // Control styles
+    enum
+    {
+        STYLE_HORIZONTAL = 0x00000001,
+        STYLE_NOAUTOSIZE = 0x00000002,
+    };
 
 protected:
 
-  // Display style
-  U32 menuStyle;
+    // Display style
+    U32 menuStyle;
 
-  // Menu edge
-  U32 menuEdge;
+    // Menu edge
+    U32 menuEdge;
 
-  // Configuration scope for the menu items
-  FScope *itemConfig;
+    // Configuration scope for the menu items
+    FScope* itemConfig;
 
-  // Used for code generated menus
-  EventCallBack *callBack;
-  void *context;
+    // Used for code generated menus
+    EventCallBack* callBack;
+    void* context;
 
-  // Draw this control
-  void DrawSelf(PaintInfo &pi);
+    // Draw this control
+    void DrawSelf(PaintInfo& pi);
 
-  // Parent menu
-  ICMenuPtr parentMenu;
+    // Parent menu
+    ICMenuPtr parentMenu;
 
-  // Attributes
-  BinTree<void> *attrib;
+    // Attributes
+    BinTree<void>* attrib;
 
 private:
 
-  // Data store for the init proc
-  static BinTree<void> *initAttrib;
-  static ICMenu *initParentMenu;
+    // Data store for the init proc
+    static BinTree<void>* initAttrib;
+    static ICMenu* initParentMenu;
 
 public:
 
-  ICMenu(IControl *parent);
-  ~ICMenu();
+    ICMenu(IControl* parent);
+    ~ICMenu();
 
-  // Style configuration
-  Bool SetStyleItem(const char *s, Bool toggle);
+    // Style configuration
+    Bool SetStyleItem(const char* s, Bool toggle);
 
-  // Configure control from an FScope
-  void Setup(FScope *fScope);
+    // Configure control from an FScope
+    void Setup(FScope* fScope);
 
-  // Configure control from the code
-  void Setup(EventCallBack *func, void *cText = NULL);
+    // Configure control from the code
+    void Setup(EventCallBack* func, void* cText = NULL);
 
-  // Used to add a menu item from within the code
-  IControl * AddItem(const char *name, const CH *text, const char *event, Bool enabled = TRUE);
+    // Used to add a menu item from within the code
+    IControl* AddItem(const char* name, const CH* text, const char* event, Bool enabled = TRUE);
 
-  // Activate and deactivate this menu
-  Bool Activate();
-  Bool Deactivate();
+    // Activate and deactivate this menu
+    Bool Activate();
+    Bool Deactivate();
 
-  // Event handler 
-  U32 HandleEvent(Event &e);
+    // Event handler 
+    U32 HandleEvent(Event& e);
 
-  // Returns the number of items
-  U32 ItemCount()
-  {
-    return (ChildCount());
-  }
+    // Returns the number of items
+    U32 ItemCount()
+    {
+        return (ChildCount());
+    }
 
-  // Return the callback function
-  EventCallBack *GetCallBack()
-  {
-    return (callBack);
-  }
+    // Return the callback function
+    EventCallBack* GetCallBack()
+    {
+        return (callBack);
+    }
 
-  // Return the context
-  void *GetContext()
-  {
-    return (context);
-  }
+    // Return the context
+    void* GetContext()
+    {
+        return (context);
+    }
 
 public:
 
-  // Create a new menu from the code
-  static ICMenu * New(const char *name, EventCallBack *func, void *context = NULL, const char *tplate = "Menu", ICMenu *parent = NULL, BinTree<void> *attrib = NULL);
- 
-  // Find an ICMenu control
-  static ICMenu * Find(const char *path);
+    // Create a new menu from the code
+    static ICMenu* New(const char* name, EventCallBack* func, void* context = NULL, const char* tplate = "Menu", ICMenu* parent = NULL, BinTree<void>* attrib = NULL);
 
-  // Initialization proc
-  static void InitProc(IControl *ctrl);
+    // Find an ICMenu control
+    static ICMenu* Find(const char* path);
+
+    // Initialization proc
+    static void InitProc(IControl* ctrl);
 
 
-  friend class SubMenuButton;
+    friend class SubMenuButton;
 };
 
 

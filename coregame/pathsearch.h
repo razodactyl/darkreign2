@@ -20,7 +20,6 @@
 //
 namespace PathSearch
 {
-
     // Enumeration of all search types
     enum SearchType
     {
@@ -205,7 +204,7 @@ namespace PathSearch
     Bool FindGrain(U32 x, U32 z, S32& gx, S32& gz, U8 traction, U32 grains, S32 area = 8);
 
     // Using the heuristic as a maximizer, return the best cell
-    Bool FindConnectedCell(U32 xStart, U32 zStart, U32& xPos, U32& zPos, UnitObj& unit, void* context, Bool(UnitObj::* heuristic)(U32& val, U32 x, U32 z, void* context));
+    Bool FindConnectedCell(U32 xStart, U32 zStart, U32& xPos, U32& zPos, UnitObj& unit, void* context, Bool (UnitObj::* heuristic)(U32& val, U32 x, U32 z, void* context));
 
     // Finds the closest movable cell within the given range
     Bool FindClosestCell(U8 tractionType, U32 xStart, U32 zStart, U32& xPos, U32& zPos, U32 range);

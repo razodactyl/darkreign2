@@ -25,37 +25,31 @@
 //
 namespace MapObjListUtil
 {
-
-  //
-  // PurgeOffMap
-  //
-  // Purge off map and dead objects from a mapobjlist
-  //
-  template <class DATA, class NODE> Bool PurgeOffMap(ReaperList<DATA, NODE> &list)
-  {
-    Bool found = FALSE;
-    NODE *node;
-    ReaperList<DATA, NODE>::Iterator i(&list);
-
-    // Step through each reaper
-    while ((node = i++) != NULL)
+    //
+    // PurgeOffMap
+    //
+    // Purge off map and dead objects from a mapobjlist
+    //
+    template <class DATA, class NODE>
+    Bool PurgeOffMap(ReaperList<DATA, NODE>& list)
     {
-      // Do we need to filter out this object
-      if (!node->Alive() || !node->GetData()->OnMap())
-      {
-        list.Dispose(node);
-        found = TRUE;
-      }
+        Bool found = FALSE;
+        NODE* node;
+        ReaperList<DATA, NODE>::Iterator i(&list);
+
+        // Step through each reaper
+        while ((node = i++) != NULL)
+        {
+            // Do we need to filter out this object
+            if (!node->Alive() || !node->GetData()->OnMap())
+            {
+                list.Dispose(node);
+                found = TRUE;
+            }
+        }
+        return (found);
     }
-    return (found);
-  }
-
 }
-
-
-
-
-
 
 
 #endif

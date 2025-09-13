@@ -582,26 +582,26 @@ NAKED void STDCALL Bitmap::PutPixel8(S32, S32, U32, const ClipRect*)
 #define STACK 16
 
     // stack usage: (modifies ebx esi edi ebp)
-    //
-    // +- edi           <-- esp
-    // |  esi
-    // |  ebx         
-    // +- ebp         
-    //    ****          <-- esp+STACK
-    //    this
-    //    x            
-    //    y
-    //    color
-    //    clip
-    //
-    // register usage:
-    //    esi = this
-    //    edi = clip,bmpData
-    //    eax = y
-    //    ebx = x
-    //    ecx = clip->p0.x,clip->p0.y
-    //    edx = clip->p1.x,clip->p1.y,color
-    //    ebp = bmpPitch
+//
+// +- edi           <-- esp
+// |  esi
+// |  ebx         
+// +- ebp         
+//    ****          <-- esp+STACK
+//    this
+//    x            
+//    y
+//    color
+//    clip
+//
+// register usage:
+//    esi = this
+//    edi = clip,bmpData
+//    eax = y
+//    ebx = x
+//    ecx = clip->p0.x,clip->p0.y
+//    edx = clip->p1.x,clip->p1.y,color
+//    ebp = bmpPitch
     //
     _asm
     {
@@ -664,7 +664,7 @@ void Bitmap::PutPixel8(S32 x, S32 y, U32 color, const ClipRect* clip)
 
     if ((x >= clip->p0.x) && (x < clip->p1.x) && (y >= clip->p0.y) && (y < clip->p1.y))
     {
-        *((U8*)(bmpData)+(y * bmpPitch + x)) = (U8)color;
+        *((U8*)(bmpData) + (y * bmpPitch + x)) = (U8)color;
     }
 }
 #endif
@@ -679,7 +679,7 @@ void Bitmap::PutPixel8Pitch640(S32 x, S32 y, U32 color, const ClipRect* clip)
 
     if ((x >= clip->p0.x) && (x < clip->p1.x) && (y >= clip->p0.y) && (y < clip->p1.y))
     {
-        *((U8*)(bmpData)+((y << 9) + (y << 7) + x)) = (U8)color;
+        *((U8*)(bmpData) + ((y << 9) + (y << 7) + x)) = (U8)color;
     }
 }
 
@@ -695,7 +695,7 @@ void Bitmap::PutPixel16(S32 x, S32 y, U32 color, const ClipRect* clip)
     {
         U32 offset = (y * bmpPitch) + (x << 1);
 
-        *(U16*)((U8*)(bmpData)+offset) = (U16)color;
+        *(U16*)((U8*)(bmpData) + offset) = (U16)color;
     }
 }
 
@@ -710,7 +710,7 @@ void Bitmap::PutPixel24(S32 x, S32 y, U32 color, const ClipRect* clip)
     {
         U32 offset = (y * bmpPitch) + (x * 3);
 
-        *((Bit24Color*)((U8*)(bmpData)+offset)) = *((Bit24Color*)&color);
+        *((Bit24Color*)((U8*)(bmpData) + offset)) = *((Bit24Color*)&color);
     }
 }
 
@@ -726,7 +726,7 @@ void Bitmap::PutPixel32(S32 x, S32 y, U32 color, const ClipRect* clip)
     {
         U32 offset = (y * bmpPitch) + (x << 2);
 
-        *(U32*)((U8*)(bmpData)+offset) = (U32)color;
+        *(U32*)((U8*)(bmpData) + offset) = (U32)color;
     }
 }
 
@@ -788,7 +788,7 @@ U32 Bitmap::GetPixel8(S32 x, S32 y) const
 {
     ASSERT(bmpData);
 
-    return (U32) * (((U8*)bmpData) + (y * bmpPitch + x));
+    return (U32)*(((U8*)bmpData) + (y * bmpPitch + x));
 }
 
 
@@ -864,7 +864,7 @@ void Bitmap::HLine8(S32 x0, S32 x1, S32 y, U32 color, const ClipRect* clip)
 
     ASSERT(x1 >= x0);
 
-    data = (U8*)(bmpData)+(y * bmpPitch + x0);
+    data = (U8*)(bmpData) + (y * bmpPitch + x0);
 
     BitmapPrim::HLine8(data, x1 - x0, color);
 }
@@ -901,7 +901,7 @@ void Bitmap::HLine16(S32 x0, S32 x1, S32 y, U32 color, const ClipRect* clip)
 
     ASSERT(x1 >= x0);
 
-    data = (U16*)((U8*)(bmpData)+(y * bmpPitch + (x0 << 1)));
+    data = (U16*)((U8*)(bmpData) + (y * bmpPitch + (x0 << 1)));
 
     BitmapPrim::HLine16(data, x1 - x0, color);
 }
@@ -937,7 +937,7 @@ void Bitmap::HLine24(S32 x0, S32 x1, S32 y, U32 color, const ClipRect* clip)
 
     ASSERT(x1 >= x0);
 
-    Bit24Color* data = (Bit24Color*)((U8*)(bmpData)+(y * bmpPitch + (x0 * 3)));
+    Bit24Color* data = (Bit24Color*)((U8*)(bmpData) + (y * bmpPitch + (x0 * 3)));
 
     BitmapPrim::HLine24(data, x1 - x0, color);
 }
@@ -974,7 +974,7 @@ void Bitmap::HLine32(S32 x0, S32 x1, S32 y, U32 color, const ClipRect* clip)
 
     ASSERT(x1 >= x0);
 
-    data = (U32*)((U8*)(bmpData)+(y * bmpPitch + (x0 << 2)));
+    data = (U32*)((U8*)(bmpData) + (y * bmpPitch + (x0 << 2)));
 
     BitmapPrim::HLine32(data, x1 - x0, color);
 }
@@ -1016,7 +1016,7 @@ void Bitmap::VLine8(S32 x, S32 y0, S32 y1, U32 color, const ClipRect* clip)
 
     ASSERT(y1 >= y0);
 
-    data = (U8*)(bmpData)+(y0 * bmpPitch + x);
+    data = (U8*)(bmpData) + (y0 * bmpPitch + x);
 
     BitmapPrim::VLine8(data, bmpPitch, y1 - y0, color);
 }
@@ -1053,7 +1053,7 @@ void Bitmap::VLine16(S32 x, S32 y0, S32 y1, U32 color, const ClipRect* clip)
 
     ASSERT(y1 >= y0);
 
-    data = (U16*)((U8*)(bmpData)+(y0 * bmpPitch + (x << 1)));
+    data = (U16*)((U8*)(bmpData) + (y0 * bmpPitch + (x << 1)));
 
     BitmapPrim::VLine16(data, bmpPitch, y1 - y0, color);
 }
@@ -1089,11 +1089,10 @@ void Bitmap::VLine24(S32 x, S32 y0, S32 y1, U32 color, const ClipRect* clip)
 
     ASSERT(y1 >= y0);
 
-    Bit24Color* data = (Bit24Color*)((U8*)(bmpData)+(y0 * bmpPitch + (x * 3)));
+    Bit24Color* data = (Bit24Color*)((U8*)(bmpData) + (y0 * bmpPitch + (x * 3)));
 
     BitmapPrim::VLine16(data, bmpPitch, y1 - y0, color);
 }
-
 
 
 //
@@ -1127,7 +1126,7 @@ void Bitmap::VLine32(S32 x, S32 y0, S32 y1, U32 color, const ClipRect* clip)
 
     ASSERT(y1 >= y0);
 
-    data = (U32*)((U8*)(bmpData)+(y0 * bmpPitch + (x << 2)));
+    data = (U32*)((U8*)(bmpData) + (y0 * bmpPitch + (x << 2)));
 
     BitmapPrim::VLine32(data, bmpPitch, y1 - y0, color);
 }
@@ -1460,16 +1459,16 @@ U32 Bitmap::MakeRGBASafe(U32 r, U32 g, U32 b, U32 a) const // = 255
 NAKED U32 STDCALL Bitmap::MakeRGBA565(U32, U32, U32, U32) const
 {
     // stack usage:
-    //
-    //    ****          <-- esp
-    //    ****
-    //    r            
-    //    g
-    //    b
-    //
-    // register usage:
-    //   ecx = red
-    //   edx = green
+//
+//    ****          <-- esp
+//    ****
+//    r            
+//    g
+//    b
+//
+// register usage:
+//   ecx = red
+//   edx = green
     //   eax = blue
     _asm
     {
@@ -1505,16 +1504,16 @@ U32 Bitmap::MakeRGBA565(U32 r, U32 g, U32 b, U32 a) const // = 255
 NAKED U32 STDCALL Bitmap::MakeRGBA555(U32, U32, U32, U32) const
 {
     // stack usage:
-    //
-    //    ****          <-- esp
-    //    ****
-    //    r            
-    //    g
-    //    b
-    //
-    // register usage:
-    //   ecx = red
-    //   edx = green
+//
+//    ****          <-- esp
+//    ****
+//    r            
+//    g
+//    b
+//
+// register usage:
+//   ecx = red
+//   edx = green
     //   eax = blue
     _asm
     {
@@ -1550,16 +1549,16 @@ U32 Bitmap::MakeRGBA555(U32 r, U32 g, U32 b, U32 a) const // = 255
 NAKED U32 STDCALL Bitmap::MakeRGBA888(U32, U32, U32, U32) const
 {
     // stack usage:
-    //
-    //    ****          <-- esp
-    //    ****
-    //    r            
-    //    g
-    //    b
-    //
-    // register usage:
-    //   ecx = red
-    //   edx = green
+//
+//    ****          <-- esp
+//    ****
+//    r            
+//    g
+//    b
+//
+// register usage:
+//   ecx = red
+//   edx = green
     //   eax = blue
     _asm
     {
@@ -1649,6 +1648,7 @@ void Pix::Setup()
     }
     SetName();
 }
+
 //----------------------------------------------------------------------------
 
 // generate a string describing the surface's pixelformat
@@ -1698,4 +1698,5 @@ void Pix::SetName()
         wsprintf(name.str, "alpha");
     }
 }
+
 //----------------------------------------------------------------------------

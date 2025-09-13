@@ -25,90 +25,91 @@
 //
 namespace Client
 {
-
-  //
-  // Constructor
-  //
-  CommandPoints::CommandPoints(IControl *parent) 
-  : IControl(parent)
-  {
-    clr1.Set(0L, 255L, 0L);
-    clr2.Set(255L, 0L, 0L);
-  }
-
-
-  //
-  // Setup
-  //
-  void CommandPoints::Setup(FScope *fScope)
-  {
-    switch (fScope->NameCrc())
+    //
+    // Constructor
+    //
+    CommandPoints::CommandPoints(IControl* parent)
+        : IControl(parent)
     {
-      case 0x163F5FFA: // "Color1"
-        IFace::FScopeToColor(fScope, clr1);
-        break;
-
-      case 0x1B7C7923: // "Color2"
-        IFace::FScopeToColor(fScope, clr2);
-        break;
-
-      default:
-        IControl::Setup(fScope);
-        break;
+        clr1.Set(0L, 255L, 0L);
+        clr2.Set(255L, 0L, 0L);
     }
-  }
 
 
-  //
-  // Event handler
-  //
-  U32 CommandPoints::HandleEvent(Event &e)
-  {
-    if (e.type == IFace::EventID())
+    //
+    // Setup
+    //
+    void CommandPoints::Setup(FScope* fScope)
     {
-      switch (e.subType)
-      {
-        case IFace::DISPLAYTIP:
+        switch (fScope->NameCrc())
         {
-          Team *team;
-          if ((team = Team::GetDisplayTeam()) != NULL)
-          {
-            // Adjust tip text string
-            SetTipText(
-              TRANSLATE(("#game.client.infogroup.unitlimit", 2, S32(team->GetUnitLimit()) - team->GetUnitLimitBalance(), team->GetUnitLimit())),
-              TRUE);
-          }
+            case 0x163F5FFA: // "Color1"
+                IFace::FScopeToColor(fScope, clr1);
+                break;
 
-          // Display the tip in base class
-          break;
+            case 0x1B7C7923: // "Color2"
+                IFace::FScopeToColor(fScope, clr2);
+                break;
+
+            default:
+                IControl::Setup(fScope);
+                break;
         }
-      }
     }
 
-    return (IControl::HandleEvent(e));
-  }
 
-
-  //
-  // DrawSelf
-  //
-  void CommandPoints::DrawSelf(PaintInfo &pi)
-  {
-    Team *team;
-
-    if (((team = Team::GetDisplayTeam()) != NULL) && team->GetUnitLimit())
+    //
+    // Event handler
+    //
+    U32 CommandPoints::HandleEvent(Event& e)
     {
-      F32 percent = Clamp<F32>(0.0F, F32(S32(team->GetUnitLimit()) - team->GetUnitLimitBalance()) / F32(team->GetUnitLimit()), 1.0F);
+        if (e.type == IFace::EventID())
+        {
+            switch (e.subType)
+            {
+                case IFace::DISPLAYTIP:
+                {
+                    Team* team;
+                    if ((team = Team::GetDisplayTeam()) != NULL)
+                    {
+                        // Adjust tip text string
+                        SetTipText
+                        (
+                            TRANSLATE(("#game.client.infogroup.unitlimit", 2, S32(team->GetUnitLimit()) - team->GetUnitLimitBalance(), team->GetUnitLimit())),
+                            TRUE
+                        );
+                    }
 
-      // Interpolate color
-      Color topColor;
-      topColor.Interpolate(clr1, clr2, percent);
+                    // Display the tip in base class
+                    break;
+                }
+            }
+        }
 
-      // Adjust top of rectangle
-      pi.client.p0.y = pi.client.p1.y - Utils::FtoL(F32(pi.client.Height()) * percent); 
-
-      // Render a gradient
-      IFace::RenderGradient(pi.client, topColor, clr1, TRUE, texture, pi.alphaScale);
+        return (IControl::HandleEvent(e));
     }
-  }
+
+
+    //
+    // DrawSelf
+    //
+    void CommandPoints::DrawSelf(PaintInfo& pi)
+    {
+        Team* team;
+
+        if (((team = Team::GetDisplayTeam()) != NULL) && team->GetUnitLimit())
+        {
+            F32 percent = Clamp<F32>(0.0F, F32(S32(team->GetUnitLimit()) - team->GetUnitLimitBalance()) / F32(team->GetUnitLimit()), 1.0F);
+
+            // Interpolate color
+            Color topColor;
+            topColor.Interpolate(clr1, clr2, percent);
+
+            // Adjust top of rectangle
+            pi.client.p0.y = pi.client.p1.y - Utils::FtoL(F32(pi.client.Height()) * percent);
+
+            // Render a gradient
+            IFace::RenderGradient(pi.client, topColor, clr1, TRUE, texture, pi.alphaScale);
+        }
+    }
 }

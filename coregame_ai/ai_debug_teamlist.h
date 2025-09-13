@@ -34,48 +34,45 @@ class Team;
 //
 namespace AI
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Debug
-  //
-  namespace Debug
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class TeamList
+    // NameSpace Debug
     //
-    class TeamList : public ICWindow
+    namespace Debug
     {
-      PROMOTE_LINK(TeamList, ICWindow, 0xA79C688D) // "AI::Debug::TeamList"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class TeamList
+        //
+        class TeamList : public ICWindow
+        {
+        PROMOTE_LINK(TeamList, ICWindow, 0xA79C688D) // "AI::Debug::TeamList"
 
-    protected:
+        protected:
 
-      // Current Team
-      IFaceVar *currentTeam;
+            // Current Team
+            IFaceVar* currentTeam;
 
-      // Team list
-      ICListBoxPtr teamList;
+            // Team list
+            ICListBoxPtr teamList;
 
-    public:
+        public:
 
-      // Constructor
-      TeamList(IControl *parent);
-      ~TeamList();
+            // Constructor
+            TeamList(IControl* parent);
+            ~TeamList();
 
-      // Event handling
-      U32 HandleEvent(Event &e);
+            // Event handling
+            U32 HandleEvent(Event& e);
 
-      // Activate and deactivate this control
-      Bool Activate();
-      Bool Deactivate();
+            // Activate and deactivate this control
+            Bool Activate();
+            Bool Deactivate();
 
-      // Build the list of teams
-      void BuildList();
-
-    };
-  }
+            // Build the list of teams
+            void BuildList();
+        };
+    }
 }
 
 #endif

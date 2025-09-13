@@ -37,14 +37,14 @@
 //
 // Constructor
 //
-OffMapStrikeObjType::OffMapStrikeObjType(const char *name, FScope *fScope) : OffMapObjType(name, fScope)
+OffMapStrikeObjType::OffMapStrikeObjType(const char* name, FScope* fScope) : OffMapObjType(name, fScope)
 {
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load config
-  weaponName = StdLoad::TypeString(fScope, "Weapon");
-  height = StdLoad::TypeF32(fScope, "Height", 20.0F);
+    // Load config
+    weaponName = StdLoad::TypeString(fScope, "Weapon");
+    height = StdLoad::TypeF32(fScope, "Height", 20.0F);
 }
 
 
@@ -63,21 +63,21 @@ OffMapStrikeObjType::~OffMapStrikeObjType()
 //
 void OffMapStrikeObjType::PostLoad()
 {
-  // Call parent scope first
-  OffMapObjType::PostLoad();
+    // Call parent scope first
+    OffMapObjType::PostLoad();
 
-  // Resolve the weapon
-  weapon = Weapon::Manager::FindType(weaponName);
+    // Resolve the weapon
+    weapon = Weapon::Manager::FindType(weaponName);
 
-  if (!weapon)
-  {
-    ERR_CONFIG(("Could not find weapon '%s' in OffMapStrike '%s'", weaponName.str, typeId.str))
-  }
+    if (!weapon)
+    {
+        ERR_CONFIG(("Could not find weapon '%s' in OffMapStrike '%s'", weaponName.str, typeId.str))
+    }
 
-  if (weapon->GetStyle() != Weapon::Style::Projectile)
-  {
-    ERR_CONFIG(("OffMapStrike '%s' must use a Projectile style weapon, '%s' is not", typeId.str, weaponName.str))
-  }
+    if (weapon->GetStyle() != Weapon::Style::Projectile)
+    {
+        ERR_CONFIG(("OffMapStrike '%s' must use a Projectile style weapon, '%s' is not", typeId.str, weaponName.str))
+    }
 }
 
 
@@ -88,10 +88,9 @@ void OffMapStrikeObjType::PostLoad()
 //
 GameObj* OffMapStrikeObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new OffMapStrikeObj(this, id));
+    // Allocate new object instance
+    return (new OffMapStrikeObj(this, id));
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,7 +101,7 @@ GameObj* OffMapStrikeObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-OffMapStrikeObj::OffMapStrikeObj(OffMapStrikeObjType *objType, U32 id) : OffMapObj(objType, id)
+OffMapStrikeObj::OffMapStrikeObj(OffMapStrikeObjType* objType, U32 id) : OffMapObj(objType, id)
 {
 }
 
@@ -120,26 +119,26 @@ OffMapStrikeObj::~OffMapStrikeObj()
 //
 // Execute an operation (TRUE if accepted)
 //
-Bool OffMapStrikeObj::Execute(U32 operation, const Vector &pos)
+Bool OffMapStrikeObj::Execute(U32 operation, const Vector& pos)
 {
-  switch (operation)
-  {
-    case 0x63417A92: // "Trigger::Positional"
+    switch (operation)
     {
-      if (GetTeam())
-      {
-        Matrix m;
-        m.ClearData();
-        m.Set(Vector(pos.x, pos.y + OffMapStrikeType()->height, pos.z));
+        case 0x63417A92: // "Trigger::Positional"
+        {
+            if (GetTeam())
+            {
+                Matrix m;
+                m.ClearData();
+                m.Set(Vector(pos.x, pos.y + OffMapStrikeType()->height, pos.z));
 
-        OffMapStrikeType()->weapon->CreateProjectile(m, GetTeam(), Target(pos));
+                OffMapStrikeType()->weapon->CreateProjectile(m, GetTeam(), Target(pos));
 
-        GetTeam()->GetRadio().Trigger(0x0B886702, Radio::Event(this, pos)); // "OffMapStrike::Executed"
-      }
+                GetTeam()->GetRadio().Trigger(0x0B886702, Radio::Event(this, pos)); // "OffMapStrike::Executed"
+            }
 
-      return (Done());
+            return (Done());
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }

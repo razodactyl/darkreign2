@@ -23,10 +23,8 @@
 //
 namespace Comparison
 {
-
-  // FScope operation
-  Bool Function(FScope *fScope, void *context);
-
+    // FScope operation
+    Bool Function(FScope* fScope, void* context);
 }
 
 

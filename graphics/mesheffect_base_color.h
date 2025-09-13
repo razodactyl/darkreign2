@@ -26,21 +26,20 @@
 class MeshBaseColor : public MeshEffect
 {
 public:
-  KeyAnim<ColorKey> colorAnim;
+    KeyAnim<ColorKey> colorAnim;
 
 public:
 
-	MeshBaseColor( MeshColorType *_type, MeshEnt *_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshBaseColor(MeshColorType* _type, MeshEnt* _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-	virtual ~MeshBaseColor();
+    virtual ~MeshBaseColor();
 
-	virtual Bool Simulate(F32 dt, MeshFX::CallBackData * cbd = NULL);
+    virtual Bool Simulate(F32 dt, MeshFX::CallBackData* cbd = NULL);
 
-  MeshColorType *GetType()
-  {
-    return (MeshColorType *) type;
-  }
-
+    MeshColorType* GetType()
+    {
+        return (MeshColorType*)type;
+    }
 };
 
 #endif

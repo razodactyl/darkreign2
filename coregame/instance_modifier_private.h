@@ -19,8 +19,11 @@
 class ApplyDamageModifier : public ApplyModifier
 {
 public:
-  ApplyDamageModifier(FScope *fScope) : ApplyModifier(fScope) {}
-  void Apply(MapObj *obj);
+    ApplyDamageModifier(FScope* fScope) : ApplyModifier(fScope)
+    {
+    }
+
+    void Apply(MapObj* obj);
 };
 
 
@@ -31,8 +34,11 @@ public:
 class ApplySpeedModifier : public ApplyModifier
 {
 public:
-  ApplySpeedModifier(FScope *fScope) : ApplyModifier(fScope) {}
-  void Apply(MapObj *obj);
+    ApplySpeedModifier(FScope* fScope) : ApplyModifier(fScope)
+    {
+    }
+
+    void Apply(MapObj* obj);
 };
 
 
@@ -43,8 +49,11 @@ public:
 class ApplyFireDelayModifier : public ApplyModifier
 {
 public:
-  ApplyFireDelayModifier(FScope *fScope) : ApplyModifier(fScope) {}
-  void Apply(MapObj *obj);
+    ApplyFireDelayModifier(FScope* fScope) : ApplyModifier(fScope)
+    {
+    }
+
+    void Apply(MapObj* obj);
 };
 
 
@@ -55,8 +64,11 @@ public:
 class ApplySightModifier : public ApplyModifier
 {
 public:
-  ApplySightModifier(FScope *fScope) : ApplyModifier(fScope) {}
-  void Apply(MapObj *obj);
+    ApplySightModifier(FScope* fScope) : ApplyModifier(fScope)
+    {
+    }
+
+    void Apply(MapObj* obj);
 };
 
 #endif

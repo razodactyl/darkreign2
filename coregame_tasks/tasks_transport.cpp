@@ -20,7 +20,8 @@
 //
 // Destructor
 //
-template <> GameTask<TransportObjType, TransportObj>::~GameTask()
+template <>
+GameTask<TransportObjType, TransportObj>::~GameTask()
 {
 }
 
@@ -30,7 +31,7 @@ template <> GameTask<TransportObjType, TransportObj>::~GameTask()
 //
 // Type specific processing
 //
-template <> void GameTask<TransportObjType, TransportObj>::GameProcess()
+template <>
+void GameTask<TransportObjType, TransportObj>::GameProcess()
 {
 }
-

@@ -23,4 +23,3 @@ OBJDEC(SquadObj)
 
 
 #endif
-

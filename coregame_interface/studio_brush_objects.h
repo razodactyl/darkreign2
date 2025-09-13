@@ -19,128 +19,127 @@
 #include "lopassfilter.h"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Namespace Studio - Mission creation environment
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Objects - Brush for management of map objects
+    // Namespace Brush - Contains all available brushes
     //
-    class Objects : public Base
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Objects - Brush for management of map objects
+        //
+        class Objects : public Base
+        {
+        protected:
 
-      // Custom list node
-      class CustomListNode : public Reaper<MapObj>
-      {
-      public:
+            // Custom list node
+            class CustomListNode : public Reaper<MapObj>
+            {
+            public:
 
-        // Original position
-        Matrix matrix;
+                // Original position
+                Matrix matrix;
 
-        // List node
-        NList<CustomListNode>::Node node;
-      };
+                // List node
+                NList<CustomListNode>::Node node;
+            };
 
-      // Custom list for object movement
-      typedef ReaperList<MapObj, CustomListNode> CustomList;
+            // Custom list for object movement
+            typedef ReaperList<MapObj, CustomListNode> CustomList;
 
-      // Current object being placed
-      MapObjTypePtr objectType;
+            // Current object being placed
+            MapObjTypePtr objectType;
 
-      // Last object created
-      MapObjPtr lastCreatedObj;
+            // Last object created
+            MapObjPtr lastCreatedObj;
 
-      // Brush mode
-      enum ObjectMode { OM_DEFAULT, OM_MOVE } mode;
+            // Brush mode
+            enum ObjectMode { OM_DEFAULT, OM_MOVE } mode;
 
-      // Snap mode
-      enum
-      { 
-        // Set Up vector
-        SNAP_SET_UP   = 0x1,
+            // Snap mode
+            enum
+            {
+                // Set Up vector
+                SNAP_SET_UP = 0x1,
 
-        // Set to identity
-        SNAP_IDENTITY = 0x2
-      };
+                // Set to identity
+                SNAP_IDENTITY = 0x2
+            };
 
-      // Starting position for object movement
-      Vector moveStart;
+            // Starting position for object movement
+            Vector moveStart;
 
-      // List of objects being moved
-      CustomList moveList;
+            // List of objects being moved
+            CustomList moveList;
 
-      // Destination vector for object movement
-      Vector moveDest;
+            // Destination vector for object movement
+            Vector moveDest;
 
-      // Filter for movement
-      LoPassFilter<Vector> moveFilter;
+            // Filter for movement
+            LoPassFilter<Vector> moveFilter;
 
-      // Quaternion for object rotation
-      Quaternion rotateSrc, rotateDest;
+            // Quaternion for object rotation
+            Quaternion rotateSrc, rotateDest;
 
-      // Direction to create new objects
-      WorldCtrl::CompassDir objectDir;
+            // Direction to create new objects
+            WorldCtrl::CompassDir objectDir;
 
-      // Interface vars
-      IFaceVar *varType;
+            // Interface vars
+            IFaceVar* varType;
 
-      // Current object to attach to
-      MapObjPtr attachRoot;
+            // Current object to attach to
+            MapObjPtr attachRoot;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-      // Create a new object (TRUE if created)
-      Bool CreateNewObject();
+            // Create a new object (TRUE if created)
+            Bool CreateNewObject();
 
-      // Create a new object and attach it to the attach root at the given hardpoint
-      Bool CreateNewObject(const char *point);
+            // Create a new object and attach it to the attach root at the given hardpoint
+            Bool CreateNewObject(const char* point);
 
-      // Check zipping positions
-      void CheckZipping(const MapObjList &list);
+            // Check zipping positions
+            void CheckZipping(const MapObjList& list);
 
-      // Toggle zipping
-      void ToggleZipping(const MapObjList &list, Bool toggle);
+            // Toggle zipping
+            void ToggleZipping(const MapObjList& list, Bool toggle);
 
-      // Toggle claiming
-      void ToggleClaiming(const MapObjList &list, Bool toggle);
+            // Toggle claiming
+            void ToggleClaiming(const MapObjList& list, Bool toggle);
 
-      // Toggle object movement
-      void ToggleMovement(Bool toggle);
+            // Toggle object movement
+            void ToggleMovement(Bool toggle);
 
-      // Move objects on the custom move list
-      void MoveObjects(const Vector &offset);
+            // Move objects on the custom move list
+            void MoveObjects(const Vector& offset);
 
-      // Rotate objects on the custom move list
-      void RotateObjects(const Quaternion &q);
+            // Rotate objects on the custom move list
+            void RotateObjects(const Quaternion& q);
 
-      // Change height of each object to terrain or object height
-      void SnapObjects(const MapObjList &list, const Matrix *matrix  = NULL, U32 flags = 0);
+            // Change height of each object to terrain or object height
+            void SnapObjects(const MapObjList& list, const Matrix* matrix = NULL, U32 flags = 0);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Objects(const char *name);
-      ~Objects();
+            // Constructor and destructor
+            Objects(const char* name);
+            ~Objects();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

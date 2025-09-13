@@ -25,64 +25,62 @@
 //
 namespace KeyBind
 {
-
-  //
-  // Binding flags
-  //
-  enum
-  {
-    READONLY  = 0x00000001,
-  };
-
-
-  //
-  // Dump flags
-  //
-  enum
-  {
-    DUMP_PRESS = 0x0001,
-    DUMP_HOLD  = 0x0002,
-    DUMP_KEYS  =  0x0004,
-    DUMP_ALL   = DUMP_PRESS | DUMP_HOLD,
-  };
+    //
+    // Binding flags
+    //
+    enum
+    {
+        READONLY = 0x00000001,
+    };
 
 
-  // Initialise keybinding system
-  void Init();
+    //
+    // Dump flags
+    //
+    enum
+    {
+        DUMP_PRESS = 0x0001,
+        DUMP_HOLD = 0x0002,
+        DUMP_KEYS = 0x0004,
+        DUMP_ALL = DUMP_PRESS | DUMP_HOLD,
+    };
 
-  // Shutdown key binding system
-  void Done();
 
-  // Read scancodes from an FScope
-  void ProcessScanCodes(FScope *fScope);
+    // Initialise keybinding system
+    void Init();
 
-  // Read modifiers from an FScope
-  void ProcessModifiers(FScope *fScope);
+    // Shutdown key binding system
+    void Done();
 
-  // Create a key binding from a key name string and command string
-  Bool Create(const char *key, const char *command, U32 flags = 0);
+    // Read scancodes from an FScope
+    void ProcessScanCodes(FScope* fScope);
 
-  // Remove a key binding with matching key name
-  Bool Remove(const char *key);
+    // Read modifiers from an FScope
+    void ProcessModifiers(FScope* fScope);
 
-  // Return the key name corresponding to the given scan code
-  Bool FindKeyByScan(U32 scanCode, const char * &name);
+    // Create a key binding from a key name string and command string
+    Bool Create(const char* key, const char* command, U32 flags = 0);
 
-  // Remove all key bindings (except read only ones)
-  void RemoveAll();
+    // Remove a key binding with matching key name
+    Bool Remove(const char* key);
 
-  // Handle input events
-  U32 HandleEvent(Event &e);
+    // Return the key name corresponding to the given scan code
+    Bool FindKeyByScan(U32 scanCode, const char* & name);
 
-  // Update hold bindings
-  void Poll();
+    // Remove all key bindings (except read only ones)
+    void RemoveAll();
 
-  // Clear the state of all polled binding, used when the game is deactivated
-  void ClearPolled();
+    // Handle input events
+    U32 HandleEvent(Event& e);
 
-  // Display key bindings on console
-  void Dump(U32 flags = DUMP_ALL, const char *keyName = NULL);
+    // Update hold bindings
+    void Poll();
 
+    // Clear the state of all polled binding, used when the game is deactivated
+    void ClearPolled();
+
+    // Display key bindings on console
+    void Dump(U32 flags = DUMP_ALL, const char* keyName = NULL);
 };
 
 

@@ -62,41 +62,41 @@ class GameIdentListWeightedNode
 {
 private:
 
-  // Identifier
-  GameIdent ident;
+    // Identifier
+    GameIdent ident;
 
-  // Weighting
-  F32 weight;
+    // Weighting
+    F32 weight;
 
 public:
 
-  // NList node
-  NList<GameIdentListWeightedNode>::Node node;
+    // NList node
+    NList<GameIdentListWeightedNode>::Node node;
 
-  // Constructor
-  GameIdentListWeightedNode(const char *ident, F32 weight)
-  : ident(ident),
-    weight(weight)
-  {
-  }
+    // Constructor
+    GameIdentListWeightedNode(const char* ident, F32 weight)
+        : ident(ident),
+          weight(weight)
+    {
+    }
 
-  // Allow to be used as a game ident
-  operator const GameIdent & ()
-  {
-    return (ident);
-  }
+    // Allow to be used as a game ident
+    operator const GameIdent&()
+    {
+        return (ident);
+    }
 
-  // Allow to be used as const char *
-  operator const char * ()
-  {
-    return (ident.str);
-  }
+    // Allow to be used as const char *
+    operator const char*()
+    {
+        return (ident.str);
+    }
 
-  // Allow to be used as F32
-  operator F32 ()
-  {
-    return (weight);
-  }
+    // Allow to be used as F32
+    operator F32()
+    {
+        return (weight);
+    }
 };
 
 
@@ -108,23 +108,22 @@ class GameIdentListWeighted : public NList<GameIdentListWeightedNode>
 {
 private:
 
-  // Total weight of all items
-  F32 total;
+    // Total weight of all items
+    F32 total;
 
 public:
 
-  // Constructor
-  GameIdentListWeighted();
+    // Constructor
+    GameIdentListWeighted();
 
-  // Destructor
-  ~GameIdentListWeighted();
+    // Destructor
+    ~GameIdentListWeighted();
 
-  // Load
-  void Load(FScope *fScope);
+    // Load
+    void Load(FScope* fScope);
 
-  // Get an identifier at random
-  const GameIdent & RandomSync();
-
+    // Get an identifier at random
+    const GameIdent& RandomSync();
 };
 
 
@@ -132,64 +131,64 @@ public:
 //
 // Template Range
 //
-template <class TYPE> class Range
+template <class TYPE>
+class Range
 {
 private:
 
-  TYPE min;
-  TYPE max;
+    TYPE min;
+    TYPE max;
 
 public:
 
-  // Constructor
-  Range(TYPE minIn, TYPE maxIn) 
-  {
-    ASSERT(minIn <= maxIn);
+    // Constructor
+    Range(TYPE minIn, TYPE maxIn)
+    {
+        ASSERT(minIn <= maxIn);
 
-    min = minIn;
-    max = maxIn;
-  }
+        min = minIn;
+        max = maxIn;
+    }
 
-  // Test for in range (exclusive)
-  Bool Exc(TYPE v) const 
-  {
-    return ((v > min && v < max) ? TRUE : FALSE);
-  }
+    // Test for in range (exclusive)
+    Bool Exc(TYPE v) const
+    {
+        return ((v > min && v < max) ? TRUE : FALSE);
+    }
 
-  // Test for in range (inclusive)
-  Bool Inc(TYPE v) const 
-  {
-    return ((v >= min && v <= max) ? TRUE : FALSE);
-  }
+    // Test for in range (inclusive)
+    Bool Inc(TYPE v) const
+    {
+        return ((v >= min && v <= max) ? TRUE : FALSE);
+    }
 
-  TYPE Min() const 
-  {
-    return (min);
-  }
+    TYPE Min() const
+    {
+        return (min);
+    }
 
-  TYPE Max() const
-  {
-    return (max);
-  }
+    TYPE Max() const
+    {
+        return (max);
+    }
 
-  // The full range for the given type
-  static const Range<TYPE> full;
+    // The full range for the given type
+    static const Range<TYPE> full;
 
-  // The full positive range for the given type
-  static const Range<TYPE> positive;
+    // The full positive range for the given type
+    static const Range<TYPE> positive;
 
-  // The full cardinal range for the given type
-  static const Range<TYPE> cardinal;
+    // The full cardinal range for the given type
+    static const Range<TYPE> cardinal;
 
-  // The full negative range for the given type
-  static const Range<TYPE> negative;
+    // The full negative range for the given type
+    static const Range<TYPE> negative;
 
-  // Range for a percentage
-  static const Range<TYPE> percentage;
+    // Range for a percentage
+    static const Range<TYPE> percentage;
 
-  // Range for a flag
-  static const Range<TYPE> flag;
-
+    // Range for a flag
+    static const Range<TYPE> flag;
 };
 
 
@@ -199,7 +198,7 @@ public:
 //
 namespace Ranges
 {
-  extern Range<F32> percentage;
+    extern Range<F32> percentage;
 }
 
 #endif

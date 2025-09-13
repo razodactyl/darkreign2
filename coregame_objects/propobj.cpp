@@ -26,14 +26,14 @@
 //
 // Constructor
 //
-PropObjType::PropObjType(const char *name, FScope *fScope) : MapObjType(name, fScope)
+PropObjType::PropObjType(const char* name, FScope* fScope) : MapObjType(name, fScope)
 {
-  // If the showSeen was not configured externally
-  if (!showSeenConfig)
-  {
-    // Set all props to appear under fog
-    showSeen = TRUE;
-  }
+    // If the showSeen was not configured externally
+    if (!showSeenConfig)
+    {
+        // Set all props to appear under fog
+        showSeen = TRUE;
+    }
 }
 
 
@@ -44,8 +44,8 @@ PropObjType::PropObjType(const char *name, FScope *fScope) : MapObjType(name, fS
 //
 GameObj* PropObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new PropObj(this, id));
+    // Allocate new object instance
+    return (new PropObj(this, id));
 }
 
 
@@ -59,7 +59,7 @@ GameObj* PropObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-PropObj::PropObj(PropObjType *objType, U32 id) : MapObj(objType, id)
+PropObj::PropObj(PropObjType* objType, U32 id) : MapObj(objType, id)
 {
 }
 

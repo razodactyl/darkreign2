@@ -26,47 +26,46 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class ParasiteBomb
+    //
+    class ParasiteBomb : public GameTask<ParasiteObjType, ParasiteObj>
+    {
+        TASK_CLASS(ParasiteBomb)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class ParasiteBomb
-  //
-  class ParasiteBomb : public GameTask<ParasiteObjType, ParasiteObj>
-  {
-    TASK_CLASS(ParasiteBomb)
+    private:
 
-  private:
+        // Time until destructorama
+        GameTime::Timer timer;
 
-    // Time until destructorama
-    GameTime::Timer timer;
+    public:
 
-  public:
+        // Constructors
+        ParasiteBomb(GameObj* subject);
 
-    // Constructors
-    ParasiteBomb(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateStage1();
-    void StateStage2();
-    void StateFizzle();
-    void StateDone();
-  };
+        // State machine procedures
+        void StateInit();
+        void StateStage1();
+        void StateStage2();
+        void StateFizzle();
+        void StateDone();
+    };
 }
 
 #endif

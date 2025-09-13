@@ -28,62 +28,60 @@
 //
 namespace Studio
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace MissionMsg
+    //
+    namespace MissionMsg
+    {
+        const U32 Done = 0x6692F0E0; // "Mission::Message::Done"
+    }
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace MissionMsg
-  //
-  namespace MissionMsg
-  {
-    const U32 Done = 0x6692F0E0; // "Mission::Message::Done"
-  }
 
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Mission
-  //
-  class Mission : public ICWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Mission
+    //
+    class Mission : public ICWindow
+    {
     PROMOTE_LINK(Mission, ICWindow, 0xA293FAEB); // "Mission"
 
-  protected:
+    protected:
 
-    // Interface vars
-    IFaceVar *defaultRule;
-    IFaceVar *fixedRule;
+        // Interface vars
+        IFaceVar* defaultRule;
+        IFaceVar* fixedRule;
 
-    // List of rules
-    ICListBoxPtr ruleList;
+        // List of rules
+        ICListBoxPtr ruleList;
 
-    // List of addons 
-    ICListBoxPtr addonList;
+        // List of addons 
+        ICListBoxPtr addonList;
 
-  protected:
+    protected:
 
-    // Callback for getting the selected addons
-    static void GetAddonCallBack(const char *key, const CH *display, void *context);
+        // Callback for getting the selected addons
+        static void GetAddonCallBack(const char* key, const CH* display, void* context);
 
-  public:
+    public:
 
-    // Constructor
-    Mission(IControl *parent);
-    ~Mission();
+        // Constructor
+        Mission(IControl* parent);
+        ~Mission();
 
-    // Event handling
-    U32 HandleEvent(Event &e);
+        // Event handling
+        U32 HandleEvent(Event& e);
 
-    // Activate and deactivate this control
-    Bool Activate();
-    Bool Deactivate();
+        // Activate and deactivate this control
+        Bool Activate();
+        Bool Deactivate();
 
-    // Download settings from the mission
-    void Download();
+        // Download settings from the mission
+        void Download();
 
-    // Upload settings to the mission
-    void Upload();
-  };
-
+        // Upload settings to the mission
+        void Upload();
+    };
 }
 
 #endif

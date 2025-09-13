@@ -26,51 +26,49 @@ class IControl;
 //
 namespace IFace
 {
-
-  ///////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Sound
-  //
-  namespace Sound
-  {
-    // Max number of sounds
-    const U32 MAX_SOUNDS = 256;
-
-    // Sound handle ID
-    typedef U8 Handle;
-
-    // Sound enumeration
-    enum SoundType
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Namespace Sound
+    //
+    namespace Sound
     {
-      NO_SOUND = 0,
+        // Max number of sounds
+        const U32 MAX_SOUNDS = 256;
 
-      // Mouse has entered or activated a control
-      MENU_POPUP,
+        // Sound handle ID
+        typedef U8 Handle;
 
-      // Mouse was clicked on a control
-      MENU_COMMAND,
+        // Sound enumeration
+        enum SoundType
+        {
+            NO_SOUND = 0,
 
-      // User defined sounds begin here
-      USER_DEFINED,
-    };
+            // Mouse has entered or activated a control
+            MENU_POPUP,
+
+            // Mouse was clicked on a control
+            MENU_COMMAND,
+
+            // User defined sounds begin here
+            USER_DEFINED,
+        };
 
 
-    // Initialise sounds
-    void Init();
+        // Initialise sounds
+        void Init();
 
-    // Shutdown sounds
-    void Done();
+        // Shutdown sounds
+        void Done();
 
-    // Load a custom sound
-    Handle Load(const char *file, F32 volume = 1.0F);
+        // Load a custom sound
+        Handle Load(const char* file, F32 volume = 1.0F);
 
-    // Play a sound
-    void Play(Handle id, IControl *control = NULL);
+        // Play a sound
+        void Play(Handle id, IControl* control = NULL);
 
-    // Configure sounds
-    void Configure(FScope *fScope);
-
-  }
+        // Configure sounds
+        void Configure(FScope* fScope);
+    }
 }
 
 #endif

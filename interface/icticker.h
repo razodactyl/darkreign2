@@ -26,114 +26,114 @@
 //
 class ICTicker : public IControl
 {
-  PROMOTE_LINK(ICTicker, IControl, 0x1F8FDFCF); // "ICTicker"
+PROMOTE_LINK(ICTicker, IControl, 0x1F8FDFCF); // "ICTicker"
 
 public:
 
-  enum Direction
-  {
-    DIR_LEFT,
-    DIR_RIGHT,
-    DIR_UP,
-    DIR_DOWN,
-    DIR_ALPHA,
-  };
+    enum Direction
+    {
+        DIR_LEFT,
+        DIR_RIGHT,
+        DIR_UP,
+        DIR_DOWN,
+        DIR_ALPHA,
+    };
 
 protected:
 
-  //
-  // Struct Message
-  //
-  struct Message
-  {
+    //
+    // Struct Message
+    //
+    struct Message
+    {
+        // Text to be displayed
+        CH* text;
+
+        // Length of the text
+        U32 length;
+
+        // Direction to scroll
+        Direction direction;
+
+        // Initializing Constructor
+        Message(const CH* text, U32 length, Direction direction) :
+            text(Utils::Strdup(text)),
+            length(length),
+            direction(direction)
+        {
+        }
+
+        // Copy Constructor
+        Message(const Message& message) :
+            text(Utils::Strdup(message.text)),
+            length(message.length),
+            direction(message.direction)
+        {
+        }
+
+        // Destructor
+        ~Message()
+        {
+            delete [] text;
+        }
+    };
+
     // Text to be displayed
-    CH *text;
+    List<Message> messages;
 
-    // Length of the text
-    U32 length;
+    // Current text item
+    List<Message>::Iterator messageIterator;
 
-    // Direction to scroll
-    Direction direction;
+    // Copy of current item
+    Message* currentMessage;
 
-    // Initializing Constructor
-    Message(const CH *text, U32 length, Direction direction) :
-      text(Utils::Strdup(text)),
-      length(length),
-      direction(direction)
-    {
-    }
+    // X Offset within current
+    int offsetX;
 
-    // Copy Constructor
-    Message(const Message &message) :
-      text(Utils::Strdup(message.text)),
-      length(message.length),
-      direction(message.direction)
-    {
-    }
+    // Y Offset within current
+    int offsetY;
 
-    // Destructor
-    ~Message()
-    {
-      delete [] text;
-    }
-  };
+    // Counter used for pauses
+    U32 counter;
 
-  // Text to be displayed
-  List<Message> messages;
+    // Alpha animation level
+    S32 alpha;
+    S32 alphaDir;
 
-  // Current text item
-  List<Message>::Iterator messageIterator;
+    // Speed of scrolling
+    U32 speed;
 
-  // Copy of current item
-  Message *currentMessage;
-
-  // X Offset within current
-  int offsetX;
-
-  // Y Offset within current
-  int offsetY;
-
-  // Counter used for pauses
-  U32 counter;
-
-  // Alpha animation level
-  S32 alpha;
-  S32 alphaDir;
-
-  // Speed of scrolling
-  U32 speed;
-
-  // Draw control
-  void DrawSelf(PaintInfo &pi);
+    // Draw control
+    void DrawSelf(PaintInfo& pi);
 
 public:
 
-  ICTicker(IControl *parent);
-  ~ICTicker();
+    ICTicker(IControl* parent);
+    ~ICTicker();
 
-  // Setup this control using a 'DefineControl' function
-  void Setup(FScope *fScope);
+    // Setup this control using a 'DefineControl' function
+    void Setup(FScope* fScope);
 
-  // Activate the control
-  Bool Activate();
+    // Activate the control
+    Bool Activate();
 
-  // Deactivate the control
-  Bool Deactivate();
+    // Deactivate the control
+    Bool Deactivate();
 
-  // Event handler
-  U32 HandleEvent(Event &e);
+    // Event handler
+    U32 HandleEvent(Event& e);
 
-  // Clear the ticker
-  void Clear();
+    // Clear the ticker
+    void Clear();
 
-  // Add text to the ticker
-  void AddText(const CH *text, Direction direction);
+    // Add text to the ticker
+    void AddText(const CH* text, Direction direction);
 
-  // Setup the next message
-  void NextMessage();
+    // Setup the next message
+    void NextMessage();
 
-  // Find a ICTicker control
-  static ICTicker *FindTicker(const char *path);
+    // Find a ICTicker control
+    static ICTicker* FindTicker(const char* path);
 };
 
 

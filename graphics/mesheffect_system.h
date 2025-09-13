@@ -24,37 +24,38 @@
 //
 namespace MeshEffectSystem
 {
-  extern NList<MeshEffect> effects;
+    extern NList<MeshEffect> effects;
 
-  void Init();
-  void Done();
+    void Init();
+    void Done();
 
-  void CloseMission();
-  
-  MeshEffectType * ProcessCreate(FScope *fScope);
-  void PostLoad();
+    void CloseMission();
 
-  MeshEffectType *Find(U32 id);
+    MeshEffectType* ProcessCreate(FScope* fScope);
+    void PostLoad();
 
-  MeshEffect *New(MeshEffectType *p, MeshEnt &_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
+    MeshEffectType* Find(U32 id);
 
-  inline MeshEffect *New( U32 id, MeshEnt &_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP)
-  {
-    MeshEffectType *t = Find( id);
+    MeshEffect* New(MeshEffectType* p, MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-    return t ? New( t, _ent, _lifeTime, _flags) : NULL;
-  }
-  inline MeshEffect *New( const char *id, MeshEnt &_ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP)
-  {
-    return New( Crc::CalcStr(id), _ent, _lifeTime, _flags);
-  }
+    inline MeshEffect* New(U32 id, MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP)
+    {
+        MeshEffectType* t = Find(id);
 
-  Bool ProcessTypeFile( const char *name);
-  Bool ProcessTypeFile( FScope *fScope);
+        return t ? New(t, _ent, _lifeTime, _flags) : NULL;
+    }
 
-  void Process( F32 dt);
+    inline MeshEffect* New(const char* id, MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 _flags = Effects::flagDESTROY | Effects::flagLOOP)
+    {
+        return New(Crc::CalcStr(id), _ent, _lifeTime, _flags);
+    }
 
-  U32 Report();
-  U32 Report( MeshEffectType & effect);
-  U32 ReportList( const char * name = NULL);
+    Bool ProcessTypeFile(const char* name);
+    Bool ProcessTypeFile(FScope* fScope);
+
+    void Process(F32 dt);
+
+    U32 Report();
+    U32 Report(MeshEffectType& effect);
+    U32 ReportList(const char* name = NULL);
 }

@@ -27,111 +27,115 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class ApplyCell - Base for all terrain cell application brushes
+    // Namespace Brush - Contains all available brushes
     //
-    class ApplyCell : public Apply
+    namespace Brush
     {
-    public:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class ApplyCell - Base for all terrain cell application brushes
+        //
+        class ApplyCell : public Apply
+        {
+        public:
 
-      // A single apply brush cell
-      struct Cell
-      {
-        // NList node
-        NList<Cell>::Node node;
+            // A single apply brush cell
+            struct Cell
+            {
+                // NList node
+                NList<Cell>::Node node;
 
-        // The cell position
-        Point<S32> pos;
+                // The cell position
+                Point<S32> pos;
 
-        // The apply value
-        S32 value;
+                // The apply value
+                S32 value;
 
-        // Constructors
-        Cell(S32 x, S32 z, S32 value) : pos(x, z), value(value) {}
-      };
- 
-      // List of cells
-      class CellList: public NList<Cell>
-      {
-      public:
+                // Constructors
+                Cell(S32 x, S32 z, S32 value) : pos(x, z), value(value)
+                {
+                }
+            };
 
-        // Constructor 
-        CellList() : NList<Cell>(&Cell::node) {}
-      };
+            // List of cells
+            class CellList : public NList<Cell>
+            {
+            public:
 
-    protected:
+                // Constructor 
+                CellList() : NList<Cell>(&Cell::node)
+                {
+                }
+            };
 
-      // The dimensions of the current brush
-      S32 xSize, zSize;
+        protected:
 
-      // The minimum size allowed for this brush
-      S32 xSizeMin, zSizeMin;
+            // The dimensions of the current brush
+            S32 xSize, zSize;
 
-      // The maximum size allowed for this brush
-      S32 xSizeMax, zSizeMax;
+            // The minimum size allowed for this brush
+            S32 xSizeMin, zSizeMin;
 
-      // The starting cell position for brush resizing
-      Point<U32> resizePoint;
+            // The maximum size allowed for this brush
+            S32 xSizeMax, zSizeMax;
 
-      // Have the brush values been setup this cycle
-      Bool brushSetup;
+            // The starting cell position for brush resizing
+            Point<U32> resizePoint;
 
-      // The centre of the brush
-      Point<S32> centre;
+            // Have the brush values been setup this cycle
+            Bool brushSetup;
 
-      // The brush points, clipped and unclipped (updated each cycle)
-      Point<S32> brushPoint0, brushPoint1;
-      Point<S32> clipPoint0, clipPoint1;
+            // The centre of the brush
+            Point<S32> centre;
 
-      // The points in rect format
-      Area<S32> brushRect;
-      Area<S32> clipRect;
+            // The brush points, clipped and unclipped (updated each cycle)
+            Point<S32> brushPoint0, brushPoint1;
+            Point<S32> clipPoint0, clipPoint1;
 
-      // The brush bitmap
-      Bitmap *bitmap;
+            // The points in rect format
+            Area<S32> brushRect;
+            Area<S32> clipRect;
 
-      // The list of cells to apply to (updated each cycle)
-      CellList cellList;
+            // The brush bitmap
+            Bitmap* bitmap;
 
-      // Interface vars
-      IFaceVar *varBrushBitmap;
-      IFaceVar *varMirrorAxes;
-      IFaceVar *varMirrorOffsetX;
-      IFaceVar *varMirrorOffsetZ;
+            // The list of cells to apply to (updated each cycle)
+            CellList cellList;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Interface vars
+            IFaceVar* varBrushBitmap;
+            IFaceVar* varMirrorAxes;
+            IFaceVar* varMirrorOffsetX;
+            IFaceVar* varMirrorOffsetZ;
 
-      // Generate a cell list (on map) using the given bitmap
-      void GenerateCellList
-      ( 
-        Point<S32> a, Point<S32> b, CellList &list, Bitmap *map = NULL
-      );
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-      // Resize this brush using the given deltas
-      void ModifySize(S32 dx, S32 dy);
-      void SetSize( S32 x, S32 y);
+            // Generate a cell list (on map) using the given bitmap
+            void GenerateCellList
+            (
+                Point<S32> a, Point<S32> b, CellList& list, Bitmap* map = NULL
+            );
 
-    public:
+            // Resize this brush using the given deltas
+            void ModifySize(S32 dx, S32 dy);
+            void SetSize(S32 x, S32 y);
 
-      // Constructor and destructor
-      ApplyCell(const char *name);
-      ~ApplyCell();
+        public:
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Constructor and destructor
+            ApplyCell(const char* name);
+            ~ApplyCell();
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
+
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

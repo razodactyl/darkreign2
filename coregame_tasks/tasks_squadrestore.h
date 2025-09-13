@@ -26,41 +26,39 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Squad
+    //
+    class SquadRestore : public GameTask<SquadObjType, SquadObj>
+    {
+        TASK_CLASS(SquadRestore)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Squad
-  //
-  class SquadRestore : public GameTask<SquadObjType, SquadObj>
-  {
-    TASK_CLASS(SquadRestore)
+    public:
 
-  public:
+        // Constructor
+        SquadRestore(GameObj* subject);
+        ~SquadRestore();
 
-    // Constructor
-    SquadRestore(GameObj *subject);
-    ~SquadRestore();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateRestoring();
-
-  };
+        // State machine procedures
+        void StateInit();
+        void StateRestoring();
+    };
 }
 
 #endif

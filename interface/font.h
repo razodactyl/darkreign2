@@ -28,165 +28,165 @@ class Font
 {
 public:
 
-  // Version 1 file header
-	enum { FILEID  = 'TNOF' };
+    // Version 1 file header
+    enum { FILEID = 'TNOF' };
 
-  // Version 2 file header
-  enum { FILEID2 = 'KROB' };
+    // Version 2 file header
+    enum { FILEID2 = 'KROB' };
 
-  // Size of hash table
-  enum { HASH_COUNT = 256 };
+    // Size of hash table
+    enum { HASH_COUNT = 256 };
 
-  // Hash table mask
-  enum { HASH_MASK = 255 };
-	
-	//
-	// File structures
-	//
+    // Hash table mask
+    enum { HASH_MASK = 255 };
+
+    //
+    // File structures
+    //
 #pragma pack(push, 1)
-	
-	// File font header
-	struct FontHeader
-	{
-    // unique font identifier
-		U32 fontIdent;	
 
-    // number of characters in the font
-		U16 numChar;
+    // File font header
+    struct FontHeader
+    {
+        // unique font identifier
+        U32 fontIdent;
 
-    // maximum height of each character
-		U8 fontHeight;
+        // number of characters in the font
+        U16 numChar;
 
-    // character ascent above the baseline
-		U8 fontAscent;
+        // maximum height of each character
+        U8 fontHeight;
 
-    // character descent below the baseline
-		U8 fontDescent;
-	};
+        // character ascent above the baseline
+        U8 fontAscent;
 
-	// File character header
-	struct CharHeader
-	{
-    // character value
-		U16 charValue;
+        // character descent below the baseline
+        U8 fontDescent;
+    };
 
-    // full character width
-		U8 fullWidth;
+    // File character header
+    struct CharHeader
+    {
+        // character value
+        U16 charValue;
 
-    // left x position in image
-		U8 rectX0;
+        // full character width
+        U8 fullWidth;
 
-    // top y position in image
-		U8 rectY0;
+        // left x position in image
+        U8 rectX0;
 
-    // right x position in image
-		U8 rectX1;
+        // top y position in image
+        U8 rectY0;
 
-    // bottom y position in image
-		U8 rectY1;
-	};
+        // right x position in image
+        U8 rectX1;
 
-  #pragma warning(disable : 4200)
+        // bottom y position in image
+        U8 rectY1;
+    };
 
-	// File character image
-	struct CharImage
-	{
-    // width of the character image
-		U8 charWidth;
+#pragma warning(disable : 4200)
 
-    // height of the character image
-		U8 charHeight;
+    // File character image
+    struct CharImage
+    {
+        // width of the character image
+        U8 charWidth;
 
-    // character pixels
-		U8 charData[0];
-	};
+        // height of the character image
+        U8 charHeight;
 
-  #pragma warning(default : 4200)
-	
+        // character pixels
+        U8 charData[0];
+    };
+
+#pragma warning(default : 4200)
+
 #pragma pack(pop)
-	
-protected:
-
-	struct CharData
-	{
-    // Character value
-    U16 charValue;
-
-    // Width in pixels
-    U16 width;
-
-    // Texture handle
-    U16 texHandle;
-
-    // Dimensions
-		ClipRect rect;
-		F32 u0;
-		F32 v0;
-		F32 u1;
-		F32 v1;
-	};
-
-  // Hash table item
-  struct HashItem
-  {
-    // Number of items
-    U16 count;
-
-    // Array of items
-    CharData *data;
-  };
 
 protected:
 
-  // Filename
-  PathString path;
+    struct CharData
+    {
+        // Character value
+        U16 charValue;
 
-  // File version
-  U32 version;
+        // Width in pixels
+        U16 width;
 
-  // Font height
-  U32 fontHeight;
+        // Texture handle
+        U16 texHandle;
 
-  // Average character width
-  U32 avgWidth;
+        // Dimensions
+        ClipRect rect;
+        F32 u0;
+        F32 v0;
+        F32 u1;
+        F32 v1;
+    };
 
-  // Hash table 
-  HashItem hashTable[HASH_COUNT];
+    // Hash table item
+    struct HashItem
+    {
+        // Number of items
+        U16 count;
 
-  // Find character data for specified character
-  CharData *FindChar(int ch);
+        // Array of items
+        CharData* data;
+    };
 
-  // Release memory
-  void Release();
+protected:
+
+    // Filename
+    PathString path;
+
+    // File version
+    U32 version;
+
+    // Font height
+    U32 fontHeight;
+
+    // Average character width
+    U32 avgWidth;
+
+    // Hash table 
+    HashItem hashTable[HASH_COUNT];
+
+    // Find character data for specified character
+    CharData* FindChar(int ch);
+
+    // Release memory
+    void Release();
 
 public:
 
-  // Constructor
-	Font();
-	~Font();
+    // Constructor
+    Font();
+    ~Font();
 
-  // Read from disk
-	Bool Read(const char *fileName);
-	Bool Read();
+    // Read from disk
+    Bool Read(const char* fileName);
+    Bool Read();
 
-  // Width 
-	S32 Width(const CH *s, S32 len);
-	S32 Width(S32 c);
+    // Width 
+    S32 Width(const CH* s, S32 len);
+    S32 Width(S32 c);
 
-  // Average width
-	S32 AvgWidth() 
-  { 
-    return (avgWidth); 
-  }
+    // Average width
+    S32 AvgWidth()
+    {
+        return (avgWidth);
+    }
 
-  // Font height
-	S32 Height() 
-  { 
-    return (fontHeight); 
-  }
+    // Font height
+    S32 Height()
+    {
+        return (fontHeight);
+    }
 
-  // Draw the font
-	void Draw(S32 x, S32 y, const CH *s, U32 len, Color color, const ClipRect *clip = NULL, F32 alphaScale = 1.0F, S32 shadow = 0);
+    // Draw the font
+    void Draw(S32 x, S32 y, const CH* s, U32 len, Color color, const ClipRect* clip = NULL, F32 alphaScale = 1.0F, S32 shadow = 0);
 };
 
 #endif

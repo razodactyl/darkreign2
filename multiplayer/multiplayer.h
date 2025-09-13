@@ -24,57 +24,56 @@
 //
 namespace MultiPlayer
 {
-  LOGEXTERN
+    LOGEXTERN
 
-  // PreInitialize multiplayer
-  void PreInit();
+    // PreInitialize multiplayer
+    void PreInit();
 
-  // Initialize multiplayer
-  void Init();
+    // Initialize multiplayer
+    void Init();
 
-  // Shutdown multiplayer
-  void Done();
+    // Shutdown multiplayer
+    void Done();
 
-  // Terminate multiplayer
-  void Terminate();
+    // Terminate multiplayer
+    void Terminate();
 
-  // Process multiplayer
-  void Process();
+    // Process multiplayer
+    void Process();
 
-  // Reset multiplayer
-  void Reset();
+    // Reset multiplayer
+    void Reset();
 
-  // Is multiplayer ready to enter the game
-  Bool IsReady();
+    // Is multiplayer ready to enter the game
+    Bool IsReady();
 
-  // Set the readyness of this player
-  void SetReady();
+    // Set the readyness of this player
+    void SetReady();
 
-  // Clear the readyness of this player
-  void ClearReady();
+    // Clear the readyness of this player
+    void ClearReady();
 
-  // Apply multiplayer data setup to the mission
-  void SetupPreMission();
+    // Apply multiplayer data setup to the mission
+    void SetupPreMission();
 
-  // Apply multiplayer data setup to the mission
-  void SetupMission();
+    // Apply multiplayer data setup to the mission
+    void SetupMission();
 
-  // Apply multiplayer data setup to the mission
-  void SetupPostMission();
+    // Apply multiplayer data setup to the mission
+    void SetupPostMission();
 
-  // Save and load multiplayer system
-  void Save(FScope *scope);
-  void Load(FScope *scope);
+    // Save and load multiplayer system
+    void Save(FScope* scope);
+    void Load(FScope* scope);
 
-  // Is this the host
-  Bool IsHost();
+    // Is this the host
+    Bool IsHost();
 
-  // Get data crc
-  U32 GetDataCrc();
+    // Get data crc
+    U32 GetDataCrc();
 
-  // Set data crc
-  void SetDataCrc(U32 crc);
-
+    // Set data crc
+    void SetDataCrc(U32 crc);
 }
 
 

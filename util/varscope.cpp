@@ -21,18 +21,18 @@
 //
 // creates a new item within this scope, setting the parent
 //
-VarSys::VarItem* VarSys::VarScope::CreateNewItem(const char *identIn, U32 pathCrcIn)
+VarSys::VarItem* VarSys::VarScope::CreateNewItem(const char* identIn, U32 pathCrcIn)
 {
-  ASSERT(!items.Find(Crc::CalcStr(identIn)));
+    ASSERT(!items.Find(Crc::CalcStr(identIn)));
 
-  // Create the item
-  VarItem *item = new VarItem(identIn, pathCrcIn, this);
+    // Create the item
+    VarItem* item = new VarItem(identIn, pathCrcIn, this);
 
-  // Add it to the item list
-  items.Add(item->itemId.crc, item);
+    // Add it to the item list
+    items.Add(item->itemId.crc, item);
 
-  // And return it
-  return (item);
+    // And return it
+    return (item);
 }
 
 
@@ -41,12 +41,12 @@ VarSys::VarItem* VarSys::VarScope::CreateNewItem(const char *identIn, U32 pathCr
 //
 // Delete an item from this scope
 //
-void VarSys::VarScope::DeleteItem(VarItem *item)
+void VarSys::VarScope::DeleteItem(VarItem* item)
 {
-  ASSERT(item);
+    ASSERT(item);
 
-  // Delete the item
-  items.Dispose(item->itemId.crc);
+    // Delete the item
+    items.Dispose(item->itemId.crc);
 }
 
 
@@ -57,10 +57,10 @@ void VarSys::VarScope::DeleteItem(VarItem *item)
 //
 VarSys::VarScope::VarScope()
 {
-  // Clear call back
-  callBack = NULL;
+    // Clear call back
+    callBack = nullptr;
 
-  flags = 0;
+    flags = 0;
 }
 
 
@@ -71,8 +71,8 @@ VarSys::VarScope::VarScope()
 //
 VarSys::VarScope::~VarScope()
 {
-  // Delete all scope items
-  items.DisposeAll();
+    // Delete all scope items
+    items.DisposeAll();
 }
 
 
@@ -83,5 +83,5 @@ VarSys::VarScope::~VarScope()
 //
 VarSys::VarItem* VarSys::VarScope::FindItem(U32 crc)
 {
-  return (items.Find(crc));
+    return (items.Find(crc));
 }

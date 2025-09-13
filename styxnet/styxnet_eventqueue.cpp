@@ -20,66 +20,60 @@
 //
 namespace StyxNet
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class EventQueue
+    //
 
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class EventQueue
-  //
 
-
-  //
-  // EventQueue::~EventQueue
-  //
-  EventQueue::~EventQueue()
-  {
-    CRC event;
-    Event::Data *data;
-    while (GetEvent(event, data))
+    //
+    // EventQueue::~EventQueue
+    //
+    EventQueue::~EventQueue()
     {
-      if (data)
-      {
-        delete [] data;
-      }
+        CRC event;
+        Event::Data* data;
+        while (GetEvent(event, data))
+        {
+            if (data)
+            {
+                delete [] data;
+            }
+        }
     }
-  }
 
 
-  //
-  // EventQueue::GetEvent
-  //
-  // Get an event from the server
-  //
-  Bool EventQueue::GetEvent(CRC &event, Event::Data *&data)
-  {
-    // Are there any events in the event queue ?
-    if (Event *e = events.RemovePre(0))
+    //
+    // EventQueue::GetEvent
+    //
+    // Get an event from the server
+    //
+    Bool EventQueue::GetEvent(CRC& event, Event::Data*& data)
     {
-      // We got one
-      event = e->message;
-      data = e->data;
-      events.RemovePost();
-      return (TRUE);
+        // Are there any events in the event queue ?
+        if (Event* e = events.RemovePre(0))
+        {
+            // We got one
+            event = e->message;
+            data = e->data;
+            events.RemovePost();
+            return (TRUE);
+        }
+        // There were no messages
+        return (FALSE);
     }
-    else
+
+
+    //
+    // EventQueue::SendEvent
+    //
+    // Send an event
+    //
+    void EventQueue::SendEvent(CRC message, Event::Data* data)
     {
-      // There were no messages
-      return (FALSE);
+        Event* e = events.AddPre();
+        e->message = message;
+        e->data = data;
+        events.AddPost();
     }
-  }
-
-
-  //
-  // EventQueue::SendEvent
-  //
-  // Send an event
-  //
-  void EventQueue::SendEvent(CRC message, Event::Data *data)
-  {
-    Event *e = events.AddPre();
-    e->message = message;
-    e->data = data;
-    events.AddPost();
-  }
-
 }
-

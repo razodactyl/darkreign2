@@ -20,66 +20,71 @@
 //
 // Constructor
 //
-void Heap::ClearData() 
+void Heap::ClearData()
 {
-  top = current = NULL;
-  size = used = 0;
+    top = current = nullptr;
+    size = used = 0;
 }
+
 //----------------------------------------------------------------------------
 
-void Heap::Alloc( U32 _size)
+void Heap::Alloc(U32 _size)
 {
-  if (!top || _size != size)
-  {
-    if (top)
+    if (!top || _size != size)
     {
-      delete [] top;
+        if (top)
+        {
+            delete [] top;
+        }
+        size = _size;
+        top = new char[size];
     }
-    size = _size;
-    top = new char[size];
-  }
-  used = 0;
-  current = top;
+    used = 0;
+    current = top;
 }
+
 //----------------------------------------------------------------------------
 
 void Heap::Release()
 {
-  if (top)
-  {
-    delete [] top;
-  }
-  ClearData();
+    if (top)
+    {
+        delete [] top;
+    }
+    ClearData();
 }
+
 //----------------------------------------------------------------------------
 
-void * Heap::Request( U32 _size)
+void* Heap::Request(U32 _size)
 {
-  ASSERT( current && current <= top + size);
+    ASSERT(current && current <= top + size);
 
-  _size += sizeof(Record);
+    _size += sizeof(Record);
 
-  if (used + _size > size)
-  {
-    LOG_DIAG(("Heap::Request: out of space"));
-    return NULL;
-  }
-  void * ret = (void *) current;
+    if (used + _size > size)
+    {
+        LOG_DIAG(("Heap::Request: out of space"));
+        return nullptr;
+    }
+    void* ret = static_cast<void*>(current);
 
-  current += _size;
-  ((Record *)(current - sizeof(Record)))->size  =_size;
-  used = _size;
+    current += _size;
+    ((Record*)(current - sizeof(Record)))->size = _size;
+    used = _size;
 
-  return ret;
+    return ret;
 }
+
 //----------------------------------------------------------------------------
 
 void Heap::Restore()
 {
-  ASSERT( current && current <= top + size);
+    ASSERT(current && current <= top + size);
 
-  U32 s = ((Record *)(current - sizeof(Record)))->size;
-  current -= s;
-  used -= s;
+    U32 s = ((Record*)(current - sizeof(Record)))->size;
+    current -= s;
+    used -= s;
 }
+
 //----------------------------------------------------------------------------

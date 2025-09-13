@@ -10,6 +10,7 @@
 #include "vid_private.h"
 #include "iface.h"
 #include "dlgtemplate.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -34,14 +35,16 @@ namespace Vid
                 || (CurDD().ident.dwVendorId == 4418 && CurDD().ident.dwDeviceId == 25661)              // rush voodoo 1
                 || (CurDD().ident.dwVendorId == 4098 && CurDD().ident.dwDeviceId == 18260)              // ati rage II
                 || (CurDD().ident.dwVendorId == 21299 && CurDD().ident.dwDeviceId == 35362)             // S3 Savage 4
-                ? TRUE : FALSE;
+                    ? TRUE
+                    : FALSE;
 
             CurDD().gamma = gammaControl =
                 (CurDD().ident.dwVendorId == 4634)                                                      // 3Dfx
                 || (CurDD().ident.dwVendorId == 4418 && CurDD().ident.dwDeviceId == 25661)              // Rush-Alliance AT25...
                 || (CurDD().ident.dwVendorId == 4313 && CurDD().ident.dwDeviceId == 34342)              // Rush-Macronix
                 || (CurDD().ident.dwVendorId == 4098)                                                   // ATI
-                ? FALSE : CurDD().gamma;
+                    ? FALSE
+                    : CurDD().gamma;
 
             noAlphaModulate =
                 (CurDD().ident.dwVendorId == 4818 && CurDD().ident.dwDeviceId == 24);                   // nvidia riva 128
@@ -80,100 +83,104 @@ namespace Vid
             {
                 switch (sScope->NameCrc())
                 {
-                case 0x7A03E6A1: // "NoTextelShift"
-                    while (FScope* ssScope = sScope->NextFunction())
-                    {
-                        U32 vendor = ssScope->NextArgInteger();
-                        U32 device = ssScope->NextArgInteger();
-
-                        if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                    case 0x7A03E6A1: // "NoTextelShift"
+                        while (FScope* ssScope = sScope->NextFunction())
                         {
-                            Vid::caps.texNoHalf = noTextelShift = ssScope->NextArgInteger();
+                            U32 vendor = ssScope->NextArgInteger();
+                            U32 device = ssScope->NextArgInteger();
+
+                            if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                            {
+                                Vid::caps.texNoHalf = noTextelShift = ssScope->NextArgInteger();
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case 0x0CFD53C3: // "GammaControl"
-                    while (FScope* ssScope = sScope->NextFunction())
-                    {
-                        U32 vendor = ssScope->NextArgInteger();
-                        U32 device = ssScope->NextArgInteger();
-
-                        if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                    case 0x0CFD53C3: // "GammaControl"
+                        while (FScope* ssScope = sScope->NextFunction())
                         {
-                            CurDD().gamma = gammaControl = ssScope->NextArgInteger();
-                        }
-                    }
-                    break;
-                case 0xD210649F: // "NoAlphaModulate"
-                    while (FScope* ssScope = sScope->NextFunction())
-                    {
-                        U32 vendor = ssScope->NextArgInteger();
-                        U32 device = ssScope->NextArgInteger();
+                            U32 vendor = ssScope->NextArgInteger();
+                            U32 device = ssScope->NextArgInteger();
 
-                        if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
-                        {
-                            CurDD().noAlphaMod = noAlphaModulate = ssScope->NextArgInteger();
+                            if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                            {
+                                CurDD().gamma = gammaControl = ssScope->NextArgInteger();
+                            }
                         }
-                    }
-                    break;
-                case 0x292D9D73: // "AntiAlias"
-                    while (FScope* ssScope = sScope->NextFunction())
-                    {
-                        U32 vendor = ssScope->NextArgInteger();
-                        U32 device = ssScope->NextArgInteger();
+                        break;
+                    case 0xD210649F: // "NoAlphaModulate"
+                        while (FScope* ssScope = sScope->NextFunction())
+                        {
+                            U32 vendor = ssScope->NextArgInteger();
+                            U32 device = ssScope->NextArgInteger();
 
-                        if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
-                        {
-                            CurDD().antiAlias = antiAlias = ssScope->NextArgInteger();
+                            if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                            {
+                                CurDD().noAlphaMod = noAlphaModulate = ssScope->NextArgInteger();
+                            }
                         }
-                    }
-                    break;
-                case 0x8C12C44C: // "TrilinearObjectOff"
-                    while (FScope* ssScope = sScope->NextFunction())
-                    {
-                        U32 vendor = ssScope->NextArgInteger();
-                        U32 device = ssScope->NextArgInteger();
+                        break;
+                    case 0x292D9D73: // "AntiAlias"
+                        while (FScope* ssScope = sScope->NextFunction())
+                        {
+                            U32 vendor = ssScope->NextArgInteger();
+                            U32 device = ssScope->NextArgInteger();
 
-                        if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
-                        {
-                            trilinearOff = ssScope->NextArgInteger();
+                            if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                            {
+                                CurDD().antiAlias = antiAlias = ssScope->NextArgInteger();
+                            }
                         }
-                    }
-                    break;
-                case 0xA12084C2: // "TriplebufOff"
-                    while (FScope* ssScope = sScope->NextFunction())
-                    {
-                        U32 vendor = ssScope->NextArgInteger();
-                        U32 device = ssScope->NextArgInteger();
+                        break;
+                    case 0x8C12C44C: // "TrilinearObjectOff"
+                        while (FScope* ssScope = sScope->NextFunction())
+                        {
+                            U32 vendor = ssScope->NextArgInteger();
+                            U32 device = ssScope->NextArgInteger();
 
-                        if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
-                        {
-                            triplebufOff = ssScope->NextArgInteger();
+                            if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                            {
+                                trilinearOff = ssScope->NextArgInteger();
+                            }
                         }
-                    }
-                    break;
+                        break;
+                    case 0xA12084C2: // "TriplebufOff"
+                        while (FScope* ssScope = sScope->NextFunction())
+                        {
+                            U32 vendor = ssScope->NextArgInteger();
+                            U32 device = ssScope->NextArgInteger();
+
+                            if (vendor == CurDD().ident.dwVendorId && device == CurDD().ident.dwDeviceId)
+                            {
+                                triplebufOff = ssScope->NextArgInteger();
+                            }
+                        }
+                        break;
                 }
             }
         }
+
         //-----------------------------------------------------------------------------
 
         Bool NoAlphaModulate()
         {
             return noAlphaModulate;
         }
+
         //-----------------------------------------------------------------------------
 
         Bool TrilinearOff()
         {
             return trilinearOff;
         }
+
         //-----------------------------------------------------------------------------
 
         Bool TriplebufOff()
         {
             return triplebufOff;
         }
+
         //-----------------------------------------------------------------------------
 
         enum
@@ -190,51 +197,59 @@ namespace Vid
         U32 SelectCard()
         {
             // Create Dialog template
-            dlg = new DlgTemplate(
+            dlg = new DlgTemplate
+            (
                 "Select Video Card Driver",
                 0, 0,
                 200, (U16)((Vid::numDDs * 12) + 40),
-                WS_CAPTION | WS_VISIBLE | DS_SETFONT | DS_CENTER);
+                WS_CAPTION | WS_VISIBLE | DS_SETFONT | DS_CENTER
+            );
 
             // Add OK button
-            dlg->AddItem(
+            dlg->AddItem
+            (
                 75, (U16)((Vid::numDDs * 12) + 20),
                 50, 15,
                 VIDEO_OK,
                 BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
                 "BUTTON",
-                "&OK");
+                "&OK"
+            );
 
             // Add some txt
-            dlg->AddItem(
+            dlg->AddItem
+            (
                 5, 5,
                 180, 15,
                 0,
                 WS_VISIBLE | WS_CHILD,
                 "STATIC",
-                "Multiple drivers detected, select one.");
+                "Multiple drivers detected, select one."
+            );
 
             // Add Video Drivers (in the form of Radio Buttons)
             for (U32 d = 0; d < Vid::numDDs; d++)
             {
-                dlg->AddItem(
+                dlg->AddItem
+                (
                     5, (U16)(d * 12 + 17),
                     180, 15,
                     (U16)(VIDEO_DRIVER + d),
                     BS_AUTORADIOBUTTON | WS_VISIBLE | WS_CHILD | ((Vid::ddDrivers[d].windowed || Vid::isStatus.fullScreen) ? 0 : WS_DISABLED),
                     "BUTTON",
                     //          Vid::ddDrivers[d].name.str);
-                    Vid::ddDrivers[d].ident.szDescription);
+                    Vid::ddDrivers[d].ident.szDescription
+                );
             }
 
             switch (DialogBoxIndirect((HINSTANCE)Debug::Inst(), (DLGTEMPLATE*)dlg->Get(), NULL, (DLGPROC)VideoDlgProc))
             {
-            case -1:
-                MessageBox(NULL, Debug::LastError(), "Error", MB_OK | MB_ICONSTOP);
-                break;
+                case -1:
+                    MessageBox(NULL, Debug::LastError(), "Error", MB_OK | MB_ICONSTOP);
+                    break;
 
-            case VIDEO_OK:
-                break;
+                case VIDEO_OK:
+                    break;
             }
 
             delete dlg;
@@ -245,47 +260,48 @@ namespace Vid
         {
             switch (msg)
             {
-            case WM_INITDIALOG:
-            {
-                // Select the current driver
-                CheckDlgButton(hdlg, VIDEO_DRIVER + Vid::curDD, BST_CHECKED);
-                return (TRUE);
-                break;
-            }
+                case WM_INITDIALOG:
+                {
+                    // Select the current driver
+                    CheckDlgButton(hdlg, VIDEO_DRIVER + Vid::curDD, BST_CHECKED);
+                    return (TRUE);
+                    break;
+                }
 
-            case WM_COMMAND:
-                switch (LOWORD(wParam))
-                {
-                case VIDEO_OK:
-                {
-                    // Figure out which button is selected
-                    for (U32 d = 0; d < Vid::numDDs; d++)
+                case WM_COMMAND:
+                    switch (LOWORD(wParam))
                     {
-                        if (SendDlgItemMessage(hdlg, VIDEO_DRIVER + d, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                        case VIDEO_OK:
                         {
-                            Vid::curDD = d;
+                            // Figure out which button is selected
+                            for (U32 d = 0; d < Vid::numDDs; d++)
+                            {
+                                if (SendDlgItemMessage(hdlg, VIDEO_DRIVER + d, BM_GETCHECK, 0, 0) == BST_CHECKED)
+                                {
+                                    Vid::curDD = d;
+                                    break;
+                                }
+                            }
+
+                            EndDialog(hdlg, TRUE);
                             break;
                         }
                     }
-
-                    EndDialog(hdlg, TRUE);
                     break;
-                }
-                }
-                break;
 
-            case WM_SYSCOMMAND:
-                switch (wParam)
-                {
-                case SC_CLOSE:
-                    EndDialog(hdlg, TRUE);
+                case WM_SYSCOMMAND:
+                    switch (wParam)
+                    {
+                        case SC_CLOSE:
+                            EndDialog(hdlg, TRUE);
+                            break;
+                    }
                     break;
-                }
-                break;
             }
 
             return (FALSE);
         }
     }
+
     //----------------------------------------------------------------------------
 };

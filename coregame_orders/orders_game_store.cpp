@@ -24,79 +24,77 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class OrdersGame::Store
+    // NameSpace Game
     //
-    U32 Store::orderId;
-
-
-    //
-    // Generate
-    //
-    void Store::Generate(Player &player, U32 object, Bool search, Bool update, Modifier mod)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.search = search;
-      data.update = update;
-      data.object = object;
-      data.mod = mod;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class OrdersGame::Store
+        //
+        U32 Store::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Store::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Create an iterator
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      {
-        // Get the unit
-        UnitObj *unit = **i;
-
-        // Is this a collector ?
-        if (Tasks::UnitCollect *task = TaskCtrl::PromoteIdle<Tasks::UnitCollect>(unit))
+        //
+        // Generate
+        //
+        void Store::Generate(Player& player, U32 object, Bool search, Bool update, Modifier mod)
         {
-          // Should we search for a place to store the resource
-          if (d->search)
-          {
-            task->Store();
-          }
-          else
-          {
-            // Convert ID into a pointer
-            if (UnitObj *storeObj = Resolver::Object<UnitObj, UnitObjType>(d->object))
-            {
-              // If not updating the position, flush tasks incase moving or something
-              if (!d->update && unit->GetActiveTask())
-              {
-                unit->FlushTasks();
-              }
+            Data data;
 
-              // Tell this task about the new storage point
-              task->SetStorageObject(storeObj, d->update);
-            }
-          }
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.search = search;
+            data.update = update;
+            data.object = object;
+            data.mod = mod;
+
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
 
-      return (sizeof (Data));
+
+        //
+        // Execute
+        //
+        U32 Store::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Create an iterator
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                // Get the unit
+                UnitObj* unit = **i;
+
+                // Is this a collector ?
+                if (Tasks::UnitCollect* task = TaskCtrl::PromoteIdle<Tasks::UnitCollect>(unit))
+                {
+                    // Should we search for a place to store the resource
+                    if (d->search)
+                    {
+                        task->Store();
+                    }
+                    else
+                    {
+                        // Convert ID into a pointer
+                        if (UnitObj* storeObj = Resolver::Object<UnitObj, UnitObjType>(d->object))
+                        {
+                            // If not updating the position, flush tasks incase moving or something
+                            if (!d->update && unit->GetActiveTask())
+                            {
+                                unit->FlushTasks();
+                            }
+
+                            // Tell this task about the new storage point
+                            task->SetStorageObject(storeObj, d->update);
+                        }
+                    }
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

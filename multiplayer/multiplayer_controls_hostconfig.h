@@ -24,37 +24,32 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class HostConfig
+    // NameSpace Controls
     //
-    class HostConfig : public Game::MissionSelection
+    namespace Controls
     {
-    public:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class HostConfig
+        //
+        class HostConfig : public Game::MissionSelection
+        {
+        public:
 
-      // Constructor
-      HostConfig(IControl *parent);
+            // Constructor
+            HostConfig(IControl* parent);
 
-      // Destructor
-      ~HostConfig();
+            // Destructor
+            ~HostConfig();
 
-    protected:
+        protected:
 
-      // Notification that a local var has changed value
-      void Notify(IFaceVar *var);
-
-    };
-
-  }
-
+            // Notification that a local var has changed value
+            void Notify(IFaceVar* var);
+        };
+    }
 }
 
 

@@ -26,11 +26,11 @@ class BeamRenderRunnerClass : public BeamRenderBaseClass
 {
 public:
 
-  // sprite renderer class constructor
-	BeamRenderRunnerClass();
+    // sprite renderer class constructor
+    BeamRenderRunnerClass();
 
-	// build a new sprite renderer
-	virtual ParticleRender *Build( Particle *particle, void *data = NULL);
+    // build a new sprite renderer
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 
@@ -41,11 +41,11 @@ public:
 class BeamRenderRunner : public BeamRenderBase
 {
 public:
-	// beam renderer constructor
-	BeamRenderRunner( BeamRenderRunnerClass * proto, Particle * particle, void * data = NULL);
+    // beam renderer constructor
+    BeamRenderRunner(BeamRenderRunnerClass* proto, Particle* particle, void* data = NULL);
 
-  // setup the this renderer using the current particle data
-  virtual void Setup();
+    // setup the this renderer using the current particle data
+    virtual void Setup();
 };
 
 #endif

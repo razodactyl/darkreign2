@@ -21,31 +21,28 @@
 //
 namespace StyxNet
 {
-
-  ////////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Server::Item
-  //
-
-
-  //
-  // Item::Item
-  //
-  Server::Item::Item(CRC user, Packet &packet)
-  : user(user),
-    packet(packet)
-  {
-  }
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Server::Item
+    //
 
 
-  //
-  // Item::~Item
-  //
-  Server::Item::~Item()
-  {
-    // Delete the packet
-    delete (&packet);
-  }
+    //
+    // Item::Item
+    //
+    Server::Item::Item(CRC user, Packet& packet)
+        : user(user),
+          packet(packet)
+    {
+    }
 
+
+    //
+    // Item::~Item
+    //
+    Server::Item::~Item()
+    {
+        // Delete the packet
+        delete (&packet);
+    }
 }
-

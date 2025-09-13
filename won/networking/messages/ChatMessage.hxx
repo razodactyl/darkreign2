@@ -5,23 +5,23 @@
 class ChatMessage
 {
 private:
-	std::wstring message;
-	size_t sender;
+    std::wstring message;
+    size_t sender;
 
 public:
-	template<class Archive>
-	void serialize(Archive & ar)
-	{
-		ar(message, sender);
-	}
+    template <class Archive>
+    void serialize(Archive& ar)
+    {
+        ar(message, sender);
+    }
 
-	UniqueClassId_Declare(ChatMessage);
+    UniqueClassId_Declare(ChatMessage);
 
-	ChatMessage();
+    ChatMessage();
 
-	const std::wstring GetContents() const;
-	const size_t GetSender() const;
+    const std::wstring GetContents() const;
+    const size_t GetSender() const;
 
-	void SetContents(const std::wstring& msg);
-	void SetSender(size_t id);
+    void SetContents(const std::wstring& msg);
+    void SetSender(size_t id);
 };

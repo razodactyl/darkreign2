@@ -25,47 +25,46 @@
 //
 class ColorBar : public IControl
 {
-  PROMOTE_LINK(ColorBar, IControl, 0x8A4ACE1C) // "ColorBar"
+PROMOTE_LINK(ColorBar, IControl, 0x8A4ACE1C) // "ColorBar"
 
 protected:
 
-  // Current value
-  IFaceVar *var;
+    // Current value
+    IFaceVar* var;
 
-  // Top Color
-  Color topColor;
+    // Top Color
+    Color topColor;
 
-  // Bottom Color
-  Color bottomColor;
+    // Bottom Color
+    Color bottomColor;
 
-  // Middle Color
-  Color middleColor;
+    // Middle Color
+    Color middleColor;
 
 public:
 
-  // Constructor 
-  ColorBar(const char *name, const ClipRect &rect, IControl *parent);
+    // Constructor 
+    ColorBar(const char* name, const ClipRect& rect, IControl* parent);
 
-  // Event handler
-  U32 HandleEvent(Event &e);
+    // Event handler
+    U32 HandleEvent(Event& e);
 
-  // Set Top Color
-  void SetTopColor(const Color &color);
+    // Set Top Color
+    void SetTopColor(const Color& color);
 
-  // Set Bottom Color
-  void SetBottomColor(const Color &color);
+    // Set Bottom Color
+    void SetBottomColor(const Color& color);
 
-  // Set Middle Color
-  void SetMiddleColor(const Color &color);
+    // Set Middle Color
+    void SetMiddleColor(const Color& color);
 
-  // Setup the var for this slider to use
-  void SetVar(IFaceVar *item);
+    // Setup the var for this slider to use
+    void SetVar(IFaceVar* item);
 
 protected:
 
-  // Control draws itself
-  void DrawSelf(PaintInfo &pi);
-
+    // Control draws itself
+    void DrawSelf(PaintInfo& pi);
 };
 
 
@@ -75,41 +74,40 @@ protected:
 //
 class ColorMap : public IControl
 {
-  PROMOTE_LINK(ColorMap, IControl, 0x8806D6DF) // "ColorMap"
+PROMOTE_LINK(ColorMap, IControl, 0x8806D6DF) // "ColorMap"
 
 protected:
 
-  // Hue
-  IFaceVar *hueVar;
+    // Hue
+    IFaceVar* hueVar;
 
-  // Saturatiom
-  IFaceVar *saturationVar;
+    // Saturatiom
+    IFaceVar* saturationVar;
 
-  // Saturation
-  IFaceVar *luminosityVar;
+    // Saturation
+    IFaceVar* luminosityVar;
 
 public:
 
-  // Constructor 
-  ColorMap(const char *name, const Point<S32> &point, IControl *parent);
+    // Constructor 
+    ColorMap(const char* name, const Point<S32>& point, IControl* parent);
 
-  // Event handler
-  U32 HandleEvent(Event &e);
+    // Event handler
+    U32 HandleEvent(Event& e);
 
-  // Setup the var for this slider to use
-  void SetHueVar(IFaceVar *item);
+    // Setup the var for this slider to use
+    void SetHueVar(IFaceVar* item);
 
-  // Setup the var for the saturation
-  void SetSaturationVar(IFaceVar *item);
+    // Setup the var for the saturation
+    void SetSaturationVar(IFaceVar* item);
 
-  // Setup the var for the luminosity
-  void SetLuminosityVar(IFaceVar *item);
+    // Setup the var for the luminosity
+    void SetLuminosityVar(IFaceVar* item);
 
 protected:
 
-  // Control draws itself
-  void DrawSelf(PaintInfo &pi);
-
+    // Control draws itself
+    void DrawSelf(PaintInfo& pi);
 };
 
 
@@ -119,57 +117,56 @@ protected:
 //
 class ColorEditor : public ICWindow
 {
-  PROMOTE_LINK(ColorEditor, ICWindow, 0x9B6B36ED) // "ColorEditor"
+PROMOTE_LINK(ColorEditor, ICWindow, 0x9B6B36ED) // "ColorEditor"
 
 protected:
 
-  IFaceVar *color;
+    IFaceVar* color;
 
-  IFaceVar *hue;
-  IFaceVar *luminosity;
-  IFaceVar *saturation;
+    IFaceVar* hue;
+    IFaceVar* luminosity;
+    IFaceVar* saturation;
 
-  IFaceVar *red;
-  IFaceVar *green;
-  IFaceVar *blue;
+    IFaceVar* red;
+    IFaceVar* green;
+    IFaceVar* blue;
 
-  ColorMap *hueSatMap;
-  ColorBar *lumBar;
-  ColorBar *redBar;
-  ColorBar *greenBar;
-  ColorBar *blueBar;
+    ColorMap* hueSatMap;
+    ColorBar* lumBar;
+    ColorBar* redBar;
+    ColorBar* greenBar;
+    ColorBar* blueBar;
 
-  ColorBar *colorDisp;
-  ColorBar *redDisp;
-  ColorBar *greenDisp;
-  ColorBar *blueDisp;
+    ColorBar* colorDisp;
+    ColorBar* redDisp;
+    ColorBar* greenDisp;
+    ColorBar* blueDisp;
 
-  Point<S32> cPoint;
+    Point<S32> cPoint;
 
 protected:
 
-  // Notification that a local var has changed value
-  void Notify(IFaceVar *var);
+    // Notification that a local var has changed value
+    void Notify(IFaceVar* var);
 
 public:
 
-  // Constructor
-  ColorEditor(IControl *parent);
-  ~ColorEditor();
+    // Constructor
+    ColorEditor(IControl* parent);
+    ~ColorEditor();
 
-  // Event handling
-  U32 HandleEvent(Event &e);
+    // Event handling
+    U32 HandleEvent(Event& e);
 
-  // Control draws itself
-  void DrawSelf(PaintInfo &pi);
+    // Control draws itself
+    void DrawSelf(PaintInfo& pi);
 
-  // Activate and deactivate this control
-  Bool Activate();
-  Bool Deactivate();
+    // Activate and deactivate this control
+    Bool Activate();
+    Bool Deactivate();
 
-  // Set the var to be used for color
-  void SetColorVar(IFaceVar *color);
-
+    // Set the var to be used for color
+    void SetColorVar(IFaceVar* color);
 };
 
 #endif

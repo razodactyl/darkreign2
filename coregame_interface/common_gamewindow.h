@@ -33,85 +33,84 @@ struct Cell;
 //
 namespace Common
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace GameWindowMsg
+    //
+    namespace GameWindowMsg
+    {
+        const U32 Refresh = 0xFB252575; // "GameWindow::Message::Refresh"
+    }
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace GameWindowMsg
-  //
-  namespace GameWindowMsg
-  {
-    const U32 Refresh     = 0xFB252575; // "GameWindow::Message::Refresh"
-  }
 
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class GameWindow
-  //
-  class GameWindow : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class GameWindow
+    //
+    class GameWindow : public IControl
+    {
     PROMOTE_LINK(GameWindow, IControl, 0xA78DC8BF); // "GameWindow"
 
-  public:
+    public:
 
-    // Handler for events
-    typedef Bool (EventCallBack)(Event &e, GameWindow *gameWindow);
+        // Handler for events
+        typedef Bool (EventCallBack)(Event& e, GameWindow* gameWindow);
 
-    // Handler for object selection
-    typedef MapObj * (SelectFilter)(MapObj *obj);
+        // Handler for object selection
+        typedef MapObj* (SelectFilter)(MapObj* obj);
 
-  private:
+    private:
 
-    // Registered event handler for ALL game windows, or NULL if none
-    static EventCallBack *handler;
+        // Registered event handler for ALL game windows, or NULL if none
+        static EventCallBack* handler;
 
-    // Returns TRUE if the given position is within the given rect
-    Bool RectTest(const Vector &position, const Area<S32> &rect, Vector &scr);
+        // Returns TRUE if the given position is within the given rect
+        Bool RectTest(const Vector& position, const Area<S32>& rect, Vector& scr);
 
-  public:
+    public:
 
-    // Register the game window event handler
-    static EventCallBack *RegisterHandler(EventCallBack *function);
+        // Register the game window event handler
+        static EventCallBack* RegisterHandler(EventCallBack* function);
 
-  public:
+    public:
 
-    // Constructor
-    GameWindow(IControl *parent);
- 
-    // Event handling
-    U32 HandleEvent(Event &e);
+        // Constructor
+        GameWindow(IControl* parent);
 
-    // Add a unit object to the given list (TRUE if added)
-    static Bool AddToSelected
-    (
-      UnitObj *obj, UnitObjList &list, Team *team = NULL, 
-      Bool allowFoot = TRUE, Bool selectParent = TRUE
-    );
+        // Event handling
+        U32 HandleEvent(Event& e);
 
-    // Find an object at the screen pixel position x,y
-    virtual MapObj * PickObject(S32 x, S32 y, SelectFilter *filter = NULL);
+        // Add a unit object to the given list (TRUE if added)
+        static Bool AddToSelected
+        (
+            UnitObj* obj, UnitObjList& list, Team* team = NULL,
+            Bool allowFoot = TRUE, Bool selectParent = TRUE
+        );
 
-    // Do a group object selection using the given screen rectangle
-    virtual Bool SelectGroup(const Area<S32> &rect, MapObjList &list, SelectFilter *filter = NULL);
+        // Find an object at the screen pixel position x,y
+        virtual MapObj* PickObject(S32 x, S32 y, SelectFilter* filter = NULL);
 
-    // Do a group object selection using the given screen rectangle
-    virtual Bool SelectGroup(const Area<S32> &rect, UnitObjList &list, Team *team = NULL);
+        // Do a group object selection using the given screen rectangle
+        virtual Bool SelectGroup(const Area<S32>& rect, MapObjList& list, SelectFilter* filter = NULL);
 
-    // Returns the closest object to the centre of, and within, 'rect'
-    virtual MapObj * FindClosest(const Area<S32> &rect);
+        // Do a group object selection using the given screen rectangle
+        virtual Bool SelectGroup(const Area<S32>& rect, UnitObjList& list, Team* team = NULL);
 
-    // Returns the terrain cell and metre position at screen x,y (or NULL)
-    virtual Bool TerrainPosition(S32 x, S32 y, Vector &pos);
+        // Returns the closest object to the centre of, and within, 'rect'
+        virtual MapObj* FindClosest(const Area<S32>& rect);
 
-    // Returns TRUE if this game window has the specified property
-    virtual Bool HasProperty(U32 propertyCrc);
+        // Returns the terrain cell and metre position at screen x,y (or NULL)
+        virtual Bool TerrainPosition(S32 x, S32 y, Vector& pos);
 
-    // String access for above method
-    Bool HasProperty(const char *propertyName)
-    {
-      return (HasProperty(Crc::CalcStr(propertyName)));
-    }
-  };
+        // Returns TRUE if this game window has the specified property
+        virtual Bool HasProperty(U32 propertyCrc);
+
+        // String access for above method
+        Bool HasProperty(const char* propertyName)
+        {
+            return (HasProperty(Crc::CalcStr(propertyName)));
+        }
+    };
 }
 
 #endif

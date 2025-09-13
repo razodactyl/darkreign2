@@ -26,7 +26,7 @@
 //
 namespace ICTimerNotify
 {
-  const U32 TimeOut = 0x021E5690; // "Timer::TimeOut"
+    const U32 TimeOut = 0x021E5690; // "Timer::TimeOut"
 }
 
 
@@ -36,24 +36,24 @@ namespace ICTimerNotify
 //
 class ICTimer : public IControl
 {
-  PROMOTE_LINK(ICTimer, IControl, 0x69DDAF19); // "ICTimer"
+PROMOTE_LINK(ICTimer, IControl, 0x69DDAF19); // "ICTimer"
 
 protected:
 
-  // One shot timers are triggered once only
-  Bool oneShot;
+    // One shot timers are triggered once only
+    Bool oneShot;
 
 public:
-  ICTimer(IControl *parent);
+    ICTimer(IControl* parent);
 
-  // Configure this control from an fscope
-  void Setup(FScope *fScope);
+    // Configure this control from an fscope
+    void Setup(FScope* fScope);
 
-  // Timer has elapsed
-  void Poll();
+    // Timer has elapsed
+    void Poll();
 
-  // Find a ICStatic control
-  static ICTimer *FindTimer(const char *path);
+    // Find a ICStatic control
+    static ICTimer* FindTimer(const char* path);
 };
 
 

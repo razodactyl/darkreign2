@@ -27,46 +27,44 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class SquadExplore
+    //
+    class SquadExplore : public GameTask<SquadObjType, SquadObj>
+    {
+        TASK_CLASS(SquadExplore)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class SquadExplore
-  //
-  class SquadExplore : public GameTask<SquadObjType, SquadObj>
-  {
-    TASK_CLASS(SquadExplore)
+    private:
 
-  private:
+        // Move task used to move the troops around
+        SquadMove* taskMove;
 
-    // Move task used to move the troops around
-    SquadMove *taskMove;
+    public:
 
-  public:
+        // Constructor
+        SquadExplore(GameObj* subject);
+        ~SquadExplore();
 
-    // Constructor
-    SquadExplore(GameObj *subject);
-    ~SquadExplore();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateMoving();
-
-  };
+        // State machine procedures
+        void StateInit();
+        void StateMoving();
+    };
 }
 
 #endif

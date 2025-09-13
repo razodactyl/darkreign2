@@ -5,4 +5,4 @@
 // Sun Position
 //
 
-void SunPosition(F64 &lat, F64 &lon);
+void SunPosition(F64& lat, F64& lon);

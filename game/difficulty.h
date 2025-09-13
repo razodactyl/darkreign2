@@ -22,85 +22,85 @@
 
 namespace Difficulty
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Setting - Configuration of a single difficulty setting
-  //
-  class Setting
-  {
-  public:
-
-    // The list node
-    NList<Setting>::Node node;
-
-  protected:
-
-    // The text identifier for this setting
-    GameIdent name;
-
-    // The difficulty value
-    F32 value;
-
-    // The localized description of this setting
-    MultiIdent description;
-
-  public:
-
-    // Constructor and destructor
-    Setting(const char *name, F32 value, const char *description) :
-      name(name),
-      value(value),
-      description(description)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Setting - Configuration of a single difficulty setting
+    //
+    class Setting
     {
-    }
+    public:
 
-    // Get the name of this setting
-    const GameIdent & GetName()
-    {
-      return (name);
-    }
+        // The list node
+        NList<Setting>::Node node;
 
-    // Get the value of this setting
-    F32 GetValue()
-    {
-      return (value);
-    }
+    protected:
 
-    // Get the multilanguage description
-    const MultiIdent & GetDescription()
-    {
-      return (description);
-    }
-  };
+        // The text identifier for this setting
+        GameIdent name;
 
-  // Initialize and shutdown system
-  void Init();
-  void Done();
+        // The difficulty value
+        F32 value;
 
-  // Find the given setting
-  Setting * FindSetting(const GameIdent &name);
-  Setting * FindSetting(U32 crc);
+        // The localized description of this setting
+        MultiIdent description;
 
-  // Get the default setting
-  Setting & GetDefaultSetting();
+    public:
 
-  // Set the current setting
-  void SetCurrentSetting(const GameIdent &name);
+        // Constructor and destructor
+        Setting(const char* name, F32 value, const char* description) :
+            name(name),
+            value(value),
+            description(description)
+        {
+        }
 
-  // Get the current setting
-  Setting & GetCurrentSetting();
-  
-  // Get the value for the given setting, or default if not found
-  F32 GetValue(const GameIdent &name);
+        // Get the name of this setting
+        const GameIdent& GetName()
+        {
+            return (name);
+        }
 
-  // Get the list of settings
-  const NList<Setting> & GetSettings();
+        // Get the value of this setting
+        F32 GetValue()
+        {
+            return (value);
+        }
 
-  // Set whether the current setting should be applied to enemy teams
-  void SetApplyEnemy(Bool flag);
+        // Get the multilanguage description
+        const MultiIdent& GetDescription()
+        {
+            return (description);
+        }
+    };
 
-  // Get the current apply enemy setting
-  Bool GetApplyEnemy();
+    // Initialize and shutdown system
+    void Init();
+    void Done();
+
+    // Find the given setting
+    Setting* FindSetting(const GameIdent& name);
+    Setting* FindSetting(U32 crc);
+
+    // Get the default setting
+    Setting& GetDefaultSetting();
+
+    // Set the current setting
+    void SetCurrentSetting(const GameIdent& name);
+
+    // Get the current setting
+    Setting& GetCurrentSetting();
+
+    // Get the value for the given setting, or default if not found
+    F32 GetValue(const GameIdent& name);
+
+    // Get the list of settings
+    const NList<Setting>& GetSettings();
+
+    // Set whether the current setting should be applied to enemy teams
+    void SetApplyEnemy(Bool flag);
+
+    // Get the current apply enemy setting
+    Bool GetApplyEnemy();
 }
 
 #endif

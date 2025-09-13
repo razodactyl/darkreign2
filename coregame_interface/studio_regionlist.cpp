@@ -25,106 +25,104 @@
 //
 namespace Studio
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class RegionListBox
+    //
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class RegionListBox
-  //
-
-  //
-  // Constructor
-  //
-  RegionListBox::RegionListBox(IControl *parent) 
-  : ICListBox(parent),
-    pickRegion(NULL)
-  {
-    currentRegion = new IFaceVar(this, CreateString("region", ""));
-  }
-
-
-  //
-  // Destructor
-  //
-  RegionListBox::~RegionListBox()
-  {
-    delete currentRegion;
-  }
-
-
-  //
-  // Build the list of bookmarks
-  //
-  U32 RegionListBox::HandleEvent(Event &e)
-  {
-    if (e.type == IFace::EventID())
+    //
+    // Constructor
+    //
+    RegionListBox::RegionListBox(IControl* parent)
+        : ICListBox(parent),
+          pickRegion(NULL)
     {
-      switch (e.subType)
-      {
-        case IFace::NOTIFY:
+        currentRegion = new IFaceVar(this, CreateString("region", ""));
+    }
+
+
+    //
+    // Destructor
+    //
+    RegionListBox::~RegionListBox()
+    {
+        delete currentRegion;
+    }
+
+
+    //
+    // Build the list of bookmarks
+    //
+    U32 RegionListBox::HandleEvent(Event& e)
+    {
+        if (e.type == IFace::EventID())
         {
-          switch (e.iface.p1)
-          {
-            case RegionListBoxMsg::Set:
+            switch (e.subType)
             {
-              // Save the pick region if there is one
-              if (pickRegion)
-              {
-                pickRegion->SetStringValue(currentRegion->GetStringValue());
-                pickRegion = NULL;
-              }
-              break;
-            }
-
-            case ICListBoxMsg::Rebuild:
-            {
-              // Rebuild the list
-              DeleteAllItems();
-
-              for (NList<RegionObj>::Iterator i(&RegionObj::allRegions); *i; i++)
-              {
-                if (!(*i)->deathNode.InUse())
+                case IFace::NOTIFY:
                 {
-                  AddTextItem((*i)->RegionName(), NULL);
+                    switch (e.iface.p1)
+                    {
+                        case RegionListBoxMsg::Set:
+                        {
+                            // Save the pick region if there is one
+                            if (pickRegion)
+                            {
+                                pickRegion->SetStringValue(currentRegion->GetStringValue());
+                                pickRegion = NULL;
+                            }
+                            break;
+                        }
+
+                        case ICListBoxMsg::Rebuild:
+                        {
+                            // Rebuild the list
+                            DeleteAllItems();
+
+                            for (NList<RegionObj>::Iterator i(&RegionObj::allRegions); *i; i++)
+                            {
+                                if (!(*i)->deathNode.InUse())
+                                {
+                                    AddTextItem((*i)->RegionName(), NULL);
+                                }
+                            }
+
+                            // Handled
+                            return (TRUE);
+                        }
+                    }
                 }
-              }
-
-              // Handled
-              return (TRUE);
             }
-          }
         }
-      }
+
+        return (ICListBox::HandleEvent(e));
     }
 
-    return (ICListBox::HandleEvent(e));
-  }
 
-
-  //
-  // Activatate
-  //
-  Bool RegionListBox::Activate()
-  {
-    if (ICListBox::Activate())
+    //
+    // Activatate
+    //
+    Bool RegionListBox::Activate()
     {
-      ActivateVar(currentRegion);
-      return (TRUE);
+        if (ICListBox::Activate())
+        {
+            ActivateVar(currentRegion);
+            return (TRUE);
+        }
+        return (FALSE);
     }
-    return (FALSE);
-  }
 
 
-  //
-  // Deactivate
-  //
-  Bool RegionListBox::Deactivate()
-  {
-    if (ICListBox::Deactivate())
+    //
+    // Deactivate
+    //
+    Bool RegionListBox::Deactivate()
     {
-      currentRegion->Deactivate();
-      return (TRUE);
+        if (ICListBox::Deactivate())
+        {
+            currentRegion->Deactivate();
+            return (TRUE);
+        }
+        return (FALSE);
     }
-    return (FALSE);
-  }
-
 }

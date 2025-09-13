@@ -22,76 +22,74 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-    
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class HostConfig
+    // NameSpace Controls
     //
-
-
-    //
-    // Constructor
-    //
-    HostConfig::HostConfig(IControl *parent)
-    : Game::MissionSelection(parent)
+    namespace Controls
     {
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class HostConfig
+        //
 
 
-    //
-    // Destructor
-    //
-    HostConfig::~HostConfig()
-    {
-    }
-
-
-    //
-    // Notification that a local var has changed value
-    //
-    void HostConfig::Notify(IFaceVar *var)
-    {
-      MissionSelection::Notify(var);
-
-      if (var == mission)
-      {
-        // Using the preview information, update the controls
-        if (preview)
+        //
+        // Constructor
+        //
+        HostConfig::HostConfig(IControl* parent)
+            : Game::MissionSelection(parent)
         {
-          // Get the mission from the preview
-          if (const Missions::Mission *m = preview->GetMission())
-          {
-            // Is this mission in a campaign
-            if (Campaigns::Find(m))
-            {
-              IFace::SendEvent(this, NULL, IFace::NOTIFY, 0xCCD6C87F); // "Mission::Campaign"
-            }
-            else
-            {
-              IFace::SendEvent(this, NULL, IFace::NOTIFY, 0x1770F44D); // "Mission::NonCampaign"
-            }
-          }
-
-          if (preview->IsRuleSetFixed())
-          {
-            IFace::SendEvent(this, NULL, IFace::NOTIFY, 0x9411D006); // "RuleSet::Fixed"
-          }
-          else
-          {
-            IFace::SendEvent(this, NULL, IFace::NOTIFY, 0x61940EEE); // "RuleSet::NonFixed"
-          }
-
-          VarString varRuleSet("$.ruleset", this);
-          varRuleSet = preview->GetRuleSet().str;
         }
-      }
+
+
+        //
+        // Destructor
+        //
+        HostConfig::~HostConfig()
+        {
+        }
+
+
+        //
+        // Notification that a local var has changed value
+        //
+        void HostConfig::Notify(IFaceVar* var)
+        {
+            MissionSelection::Notify(var);
+
+            if (var == mission)
+            {
+                // Using the preview information, update the controls
+                if (preview)
+                {
+                    // Get the mission from the preview
+                    if (const Missions::Mission* m = preview->GetMission())
+                    {
+                        // Is this mission in a campaign
+                        if (Campaigns::Find(m))
+                        {
+                            IFace::SendEvent(this, NULL, IFace::NOTIFY, 0xCCD6C87F); // "Mission::Campaign"
+                        }
+                        else
+                        {
+                            IFace::SendEvent(this, NULL, IFace::NOTIFY, 0x1770F44D); // "Mission::NonCampaign"
+                        }
+                    }
+
+                    if (preview->IsRuleSetFixed())
+                    {
+                        IFace::SendEvent(this, NULL, IFace::NOTIFY, 0x9411D006); // "RuleSet::Fixed"
+                    }
+                    else
+                    {
+                        IFace::SendEvent(this, NULL, IFace::NOTIFY, 0x61940EEE); // "RuleSet::NonFixed"
+                    }
+
+                    VarString varRuleSet("$.ruleset", this);
+                    varRuleSet = preview->GetRuleSet().str;
+                }
+            }
+        }
     }
-  }
 }

@@ -20,7 +20,7 @@
 // MeshGlowType::MeshGlowType
 //
 MeshGlowType::MeshGlowType()
-  : MeshEffectType()
+    : MeshEffectType()
 {
 }
 
@@ -30,7 +30,7 @@ MeshGlowType::MeshGlowType()
 //
 MeshGlowType::~MeshGlowType()
 {
-  colorKeys.Release();
+    colorKeys.Release();
 }
 
 
@@ -39,22 +39,22 @@ MeshGlowType::~MeshGlowType()
 //
 // Construct a new effect
 //
-MeshEffect *MeshGlowType::Build( MeshEnt &_ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+MeshEffect* MeshGlowType::Build(MeshEnt& _ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
 {
-	return new MeshGlow(this, &_ent, _lifeTime, _flags);
+    return new MeshGlow(this, &_ent, _lifeTime, _flags);
 }
 
 //
 // Handle an scope
 //
 //
-Bool MeshGlowType::Configure(FScope *fScope)
+Bool MeshGlowType::Configure(FScope* fScope)
 {
-  if (!data.Configure( fScope, colorKeys))
-  {
-    return MeshEffectType::Configure( fScope);
-  }
-  return TRUE;
+    if (!data.Configure(fScope, colorKeys))
+    {
+        return MeshEffectType::Configure(fScope);
+    }
+    return TRUE;
 }
 
 //
@@ -64,11 +64,11 @@ Bool MeshGlowType::Configure(FScope *fScope)
 //
 void MeshGlowType::PostLoad()
 {
-  data.PostLoad( colorKeys);
+    data.PostLoad(colorKeys);
 }
 
 
 U32 MeshGlowType::GetMem() const
 {
-  return MeshEffectType::GetMem() + colorKeys.GetMem();
+    return MeshEffectType::GetMem() + colorKeys.GetMem();
 }

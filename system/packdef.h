@@ -83,7 +83,6 @@
 //
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Pack Format Definitions
@@ -100,20 +99,20 @@
 
 
 // max buffer required to store an unpacked string
-typedef char PackStr[U8_MAX+1];
+typedef char PackStr[U8_MAX + 1];
 
 #pragma pack(push, 1)
 
 // pack header (written at start of file)
 struct PackInfo
 {
-  U32 packId;         // identifies a file as a pack
-  U32 verId;          // the format version of this pack
-  U32 dirCount;       // number of sub-dirs stored
-  U32 dirOffset;      // offset of the sub-dir list
-  U32 fileCount;      // number of files stored
-  U32 fileOffset;     // offset of the file list
-  U8  notUsed[32];    // for future expansion
+    U32 packId;         // identifies a file as a pack
+    U32 verId;          // the format version of this pack
+    U32 dirCount;       // number of sub-dirs stored
+    U32 dirOffset;      // offset of the sub-dir list
+    U32 fileCount;      // number of files stored
+    U32 fileOffset;     // offset of the file list
+    U8 notUsed[32];    // for future expansion
 };
 
 #pragma pack(pop)

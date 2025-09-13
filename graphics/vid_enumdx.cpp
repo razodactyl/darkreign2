@@ -9,6 +9,7 @@
 
 #include "vid_private.h"
 #include "main.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -59,6 +60,7 @@ namespace Vid
 
         return wincap;
     }
+
     //----------------------------------------------------------------------------
 
     void DriverDD::SetupIdent()
@@ -69,21 +71,28 @@ namespace Vid
 
         if (!dxError)
         {
-            sprintf(driver.str, "%s : %d.%02u.%02u.%04u",
+            sprintf
+            (
+                driver.str, "%s : %d.%02u.%02u.%04u",
                 ident.szDriver,
                 HIWORD(ident.liDriverVersion.HighPart),
                 LOWORD(ident.liDriverVersion.HighPart),
                 HIWORD(ident.liDriverVersion.LowPart),
-                LOWORD(ident.liDriverVersion.LowPart));
+                LOWORD(ident.liDriverVersion.LowPart)
+            );
 
-            sprintf(device.str, "%s : %u.%u.%u.%u",
+            sprintf
+            (
+                device.str, "%s : %u.%u.%u.%u",
                 ident.szDescription,
                 ident.dwVendorId,
                 ident.dwDeviceId,
                 ident.dwSubSysId,
-                ident.dwRevision);
+                ident.dwRevision
+            );
         }
     }
+
     //-----------------------------------------------------------------------------
     // D3DTFP_POINT mip filter for multitex
 
@@ -157,6 +166,7 @@ namespace Vid
             LOG_DIAG(("dd  : ! 2D not allowed during 3D"));
         }
     }
+
     //-----------------------------------------------------------------------------
     static Pix pix16;
     static Pix pix32;
@@ -196,14 +206,14 @@ namespace Vid
 
         if (!(pixFmt->dwFlags & DDPF_ALPHA)
             && !(pixFmt->dwFlags & DDPF_RGB)
-            /*
-                  && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED1)
-                  && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED2)
-                  && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED4)
-                  && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED8)
-                  && !(pixFmt->dwFlags & DDPF_PALETTEINDEXEDTO8)
-            */
-            )
+                /*
+                      && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED1)
+                      && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED2)
+                      && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED4)
+                      && !(pixFmt->dwFlags & DDPF_PALETTEINDEXED8)
+                      && !(pixFmt->dwFlags & DDPF_PALETTEINDEXEDTO8)
+                */
+        )
         {
             return DDENUMRET_OK;
         }
@@ -229,6 +239,7 @@ namespace Vid
 
         return DDENUMRET_OK;
     }
+
     //----------------------------------------------------------------------------
 
     // callback for z-buffer format enumeration
@@ -244,17 +255,24 @@ namespace Vid
 
         if (zFmt->dwStencilBitDepth)
         {
-            LOG_DIAG(("zbuf: * %2d bit with %2d bit stencil buffer",
-                zFmt->dwZBufferBitDepth - zFmt->dwStencilBitDepth, zFmt->dwStencilBitDepth
-                ));
+            LOG_DIAG
+            (
+                ("zbuf: * %2d bit with %2d bit stencil buffer",
+                    zFmt->dwZBufferBitDepth - zFmt->dwStencilBitDepth, zFmt->dwStencilBitDepth
+                )
+            );
         }
         else
         {
-            LOG_DIAG(("zbuf: * %2d bit", zFmt->dwZBufferBitDepth
-                ));
+            LOG_DIAG
+            (
+                ("zbuf: * %2d bit", zFmt->dwZBufferBitDepth
+                )
+            );
         }
         return DDENUMRET_OK;
     }
+
     //----------------------------------------------------------------------------
 
     // create everything; report
@@ -282,8 +300,8 @@ namespace Vid
         {
             CurDD().wincap = CurDD().windowed = FALSE;
             return TRUE; // assume it does 3d in a mode other than the current desktop mode
-      //			LOG_DXERR( ("CheckD3D: d3d->CreateDevice()") );
-      //      return FALSE;
+            //			LOG_DXERR( ("CheckD3D: d3d->CreateDevice()") );
+            //      return FALSE;
         }
 
         dxError = device->EnumTextureFormats(PixelReportCallback, NULL);
@@ -298,6 +316,7 @@ namespace Vid
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     // callback function used during enumeration of DirectDraw drivers
@@ -464,6 +483,7 @@ namespace Vid
 
         return DDENUMRET_OK;
     }
+
     //----------------------------------------------------------------------------
 
     // display a dialog that lets the user choose the Direct Draw Driver
@@ -478,6 +498,7 @@ namespace Vid
 
         return (curDD);
     }
+
     //----------------------------------------------------------------------------
 
     // create the Direct Draw object
@@ -502,7 +523,8 @@ namespace Vid
             LOG_DIAG(("[VID CAPS]"));
             // enum the hardware (recursive to modes and drivers)
             //
-            dxError = DirectDrawEnumerateEx(
+            dxError = DirectDrawEnumerateEx
+            (
                 EnumDDCallback, NULL,
                 DDENUM_ATTACHEDSECONDARYDEVICES
                 //        DDENUM_DETACHEDSECONDARYDEVICES |
@@ -614,6 +636,7 @@ namespace Vid
 
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     U32 vidModeMaxNameLen = 0;
@@ -639,7 +662,7 @@ namespace Vid
                 || (surfDesc->dwWidth >= MINWINWIDTH && surfDesc->dwHeight >= MINWINHEIGHT))
             && ((depth == 2 && (depflags & DDBD_16))
                 || (depth == 4 && (depflags & DDBD_32)))
-            )
+        )
         {
             if (bytes <= CurDD().totalFrameMem)
             {
@@ -666,6 +689,7 @@ namespace Vid
 
         return DDENUMRET_OK;
     }
+
     //----------------------------------------------------------------------------
 
     void VidMode::SetDesc(SurfaceDescDD& d)
@@ -682,6 +706,7 @@ namespace Vid
 
         SetName();
     }
+
     //----------------------------------------------------------------------------
 
     // generate a string describing the video mode
@@ -690,6 +715,7 @@ namespace Vid
     {
         wsprintf(name.str, "%dx%d %d", desc.dwWidth, desc.dwHeight, bpp);
     }
+
     //----------------------------------------------------------------------------
 
     // compare function for sorting vidModes via qsort
@@ -726,6 +752,7 @@ namespace Vid
 
         return 0;
     }
+
     //----------------------------------------------------------------------------
 
     // generate a list of available display modes
@@ -776,9 +803,7 @@ namespace Vid
         }
 
         // report modes; see if the windows mode is 3D supported
-        S32 hit = FALSE, len = CurDD().wincap ?
-            Max<S32>(Utils::Strlen(wmode.name.str), vidModeMaxNameLen) :
-            vidModeMaxNameLen;
+        S32 hit = FALSE, len = CurDD().wincap ? Max<S32>(Utils::Strlen(wmode.name.str), vidModeMaxNameLen) : vidModeMaxNameLen;
 
         for (U32 i = 0; i < allVidCount; i++)
         {
@@ -789,10 +814,10 @@ namespace Vid
             U32 b = size * depth * 2 + size * 2;
 
             if (bytes <= CurDD().totalFrameMem
-                //         && mode.rect.Width()  == wmode.rect.Width()
-                //         && mode.rect.Height() == wmode.rect.Height()
-                //         && mode.bpp           == wmode.bpp
-                )
+                    //         && mode.rect.Width()  == wmode.rect.Width()
+                    //         && mode.rect.Height() == wmode.rect.Height()
+                    //         && mode.bpp           == wmode.bpp
+            )
             {
                 hit = TRUE;
             }
@@ -807,6 +832,7 @@ namespace Vid
 
         return PickVidMode();
     }
+
     //----------------------------------------------------------------------------
 
     // choose the best display modes
@@ -822,7 +848,7 @@ namespace Vid
             if (Vid::doStatus.modeMax
                 || (!Main::vidModeSet && vm.desc.dwWidth == STARTWIDTH && vm.desc.dwHeight == STARTHEIGHT)
                 || (Main::vidModeSet && vm.desc.dwWidth == Main::vidModeX && vm.desc.dwHeight == Main::vidModeY)
-                )
+            )
             {
                 if ((Vid::doStatus.mode32 && vm.bpp == 32) || (!Vid::doStatus.mode32 && vm.bpp == 16))
                 {
@@ -852,6 +878,7 @@ namespace Vid
         */
         return TRUE;
     }
+
     //----------------------------------------------------------------------------
 
     void DriverD3D::SetDesc(const GUID* g, const char* n, const DeviceDescD3D& d)
@@ -889,7 +916,9 @@ namespace Vid
 
         edgeAntiAlias = (desc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_ANTIALIASEDGES) ? TRUE : FALSE;
         antiAlias = (desc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_ANTIALIASSORTINDEPENDENT) &&
-            !(desc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_ANTIALIASSORTDEPENDENT) ? TRUE : FALSE;
+                    !(desc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_ANTIALIASSORTDEPENDENT)
+                        ? TRUE
+                        : FALSE;
 
         texAgp = (desc.dwDevCaps & D3DDEVCAPS_TEXTURENONLOCALVIDMEM) ? TRUE : FALSE;
         texMulti = (desc.wMaxSimultaneousTextures > 1) ? TRUE : FALSE;
@@ -900,9 +929,12 @@ namespace Vid
         fogVertex = (desc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_FOGVERTEX) ? TRUE : FALSE;
         fogPixel = (desc.dpcTriCaps.dwRasterCaps & D3DPRASTERCAPS_FOGTABLE) ? TRUE : FALSE;
         mipmap = (desc.dpcTriCaps.dwTextureFilterCaps &
-            (D3DPTFILTERCAPS_LINEARMIPLINEAR | D3DPTFILTERCAPS_LINEARMIPNEAREST
-                | D3DPTFILTERCAPS_MIPLINEAR | D3DPTFILTERCAPS_MIPNEAREST)) ? TRUE : FALSE;
+                     (D3DPTFILTERCAPS_LINEARMIPLINEAR | D3DPTFILTERCAPS_LINEARMIPNEAREST
+                         | D3DPTFILTERCAPS_MIPLINEAR | D3DPTFILTERCAPS_MIPNEAREST))
+                     ? TRUE
+                     : FALSE;
     }
+
     //----------------------------------------------------------------------------
 
     void DriverD3D::Report()
@@ -995,18 +1027,24 @@ namespace Vid
             }
         */
 
-        LOG_DIAG(("d3d : * max texture size %dx%d",
-            desc.dwMaxTextureWidth,
-            desc.dwMaxTextureHeight
-            ));
+        LOG_DIAG
+        (
+            ("d3d : * max texture size %dx%d",
+                desc.dwMaxTextureWidth,
+                desc.dwMaxTextureHeight
+            )
+        );
 
         if (desc.dvGuardBandLeft)
         {
-            LOG_DIAG(("d3d : * clipGuard:  %.1f,%.1f,%.1f,%.1f",
-                desc.dvGuardBandLeft,
-                desc.dvGuardBandTop,
-                desc.dvGuardBandRight,
-                desc.dvGuardBandBottom));
+            LOG_DIAG
+            (
+                ("d3d : * clipGuard:  %.1f,%.1f,%.1f,%.1f",
+                    desc.dvGuardBandLeft,
+                    desc.dvGuardBandTop,
+                    desc.dvGuardBandRight,
+                    desc.dvGuardBandBottom)
+            );
         }
         else
         {
@@ -1045,7 +1083,7 @@ namespace Vid
             (desc.dpcTriCaps.dwTextureFilterCaps &
                 (D3DPTFILTERCAPS_LINEARMIPLINEAR | D3DPTFILTERCAPS_LINEARMIPNEAREST
                     | D3DPTFILTERCAPS_MIPLINEAR | D3DPTFILTERCAPS_MIPNEAREST))
-            )
+        )
         {
             LOG_DIAG(("d3d : ! no mipmapping"));
         }
@@ -1055,6 +1093,7 @@ namespace Vid
             LOG_DIAG(("d3d : ! no fogging"));
         }
     }
+
     //----------------------------------------------------------------------------
 
     void DriverD3D::SetCaps()
@@ -1086,6 +1125,7 @@ namespace Vid
         // hardware feature tweeking via file based config
         Config::Setup();
     }
+
     //----------------------------------------------------------------------------
 
     static U32 guessDriver = D3DDRIVERNOTSET;
@@ -1114,9 +1154,9 @@ namespace Vid
                     return D3DENUMRET_OK;
                 }
                 if ((CurD3D().hard == (U32)!Vid::doStatus.softD3D
-                    && (guessDriver == D3DDRIVERNOTSET || CurD3D().hardTL == Vid::doStatus.hardTL))
-                    //            || (guessDriver == D3DDRIVERNOTSET  && strstr(name, "Reference Rasterizer") )
-                    )
+                        && (guessDriver == D3DDRIVERNOTSET || CurD3D().hardTL == Vid::doStatus.hardTL))
+                        //            || (guessDriver == D3DDRIVERNOTSET  && strstr(name, "Reference Rasterizer") )
+                )
                 {
                     // pick a driver
                     guessDriver = CurDD().curDriver;
@@ -1170,6 +1210,7 @@ namespace Vid
         }
         return D3DENUMRET_OK;
     }
+
     //----------------------------------------------------------------------------
 
     // return a reference to the appropriate texture format structure
@@ -1178,6 +1219,7 @@ namespace Vid
     {
         return i < pixFormatList.GetCount() ? *pixFormatList[i] : *pixFormatList[normalFormat];
     }
+
     //----------------------------------------------------------------------------
 
     // generate a list of all Direct 3D devices
@@ -1205,6 +1247,6 @@ namespace Vid
 
         return CurDD().numDrivers > 0;
     }
-    //----------------------------------------------------------------------------
 
+    //----------------------------------------------------------------------------
 };

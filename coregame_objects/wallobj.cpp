@@ -36,7 +36,6 @@
 #define MINIMUM_RANGE   2
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class WallObjType - De La Uber Wall
@@ -49,27 +48,27 @@ NList<WallObjType> WallObjType::types(&WallObjType::node);
 //
 // Constructor
 //
-WallObjType::WallObjType(const char *name, FScope *fScope) : UnitObjType(name, fScope)
+WallObjType::WallObjType(const char* name, FScope* fScope) : UnitObjType(name, fScope)
 {
-  // Add to the list of wall types
-  types.Append(this);
+    // Add to the list of wall types
+    types.Append(this);
 
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load config
-  rangeDiagonal = Max<S32>(MINIMUM_RANGE, StdLoad::TypeU32(fScope, "Range", 5));
-  rangeStraight = Max<S32>(MINIMUM_RANGE, StdLoad::TypeU32(fScope, "RangeStraight", S32(F32(rangeDiagonal) * 1.4F)));
+    // Load config
+    rangeDiagonal = Max<S32>(MINIMUM_RANGE, StdLoad::TypeU32(fScope, "Range", 5));
+    rangeStraight = Max<S32>(MINIMUM_RANGE, StdLoad::TypeU32(fScope, "RangeStraight", S32(F32(rangeDiagonal) * 1.4F)));
 
-  F32 offset = StdLoad::TypeF32(fScope, "BeamOffset", 3.0F);
-  beamOffsetPrimary = StdLoad::TypeF32(fScope, "BeamOffsetPrimary", offset + 1.0F);
-  beamOffsetSecondary = StdLoad::TypeF32(fScope, "BeamOffsetSecondary", offset - 1.0F);
+    F32 offset = StdLoad::TypeF32(fScope, "BeamOffset", 3.0F);
+    beamOffsetPrimary = StdLoad::TypeF32(fScope, "BeamOffsetPrimary", offset + 1.0F);
+    beamOffsetSecondary = StdLoad::TypeF32(fScope, "BeamOffsetSecondary", offset - 1.0F);
 
-  deviationMin = StdLoad::TypeF32(fScope, "DeviationMin", 1.0F);
-  deviationMax = StdLoad::TypeF32(fScope, "DeviationMax", 10.0F);
-  surface = MoveTable::SurfaceIndex(StdLoad::TypeString(fScope, "Surface", "Impassable"));
-  properties.Load(fScope, "Properties", FALSE);
-  originHardPoint = StdLoad::TypeString(fScope, "OriginHardPoint", "HP-WALL");
+    deviationMin = StdLoad::TypeF32(fScope, "DeviationMin", 1.0F);
+    deviationMax = StdLoad::TypeF32(fScope, "DeviationMax", 10.0F);
+    surface = MoveTable::SurfaceIndex(StdLoad::TypeString(fScope, "Surface", "Impassable"));
+    properties.Load(fScope, "Properties", FALSE);
+    originHardPoint = StdLoad::TypeString(fScope, "OriginHardPoint", "HP-WALL");
 }
 
 
@@ -78,8 +77,8 @@ WallObjType::WallObjType(const char *name, FScope *fScope) : UnitObjType(name, f
 //
 WallObjType::~WallObjType()
 {
-  // Remove from the type list
-  types.Unlink(this);
+    // Remove from the type list
+    types.Unlink(this);
 }
 
 
@@ -90,11 +89,11 @@ WallObjType::~WallObjType()
 //
 void WallObjType::PostLoad()
 {
-  // Call parent scope first
-  UnitObjType::PostLoad();
+    // Call parent scope first
+    UnitObjType::PostLoad();
 
-  // Find the origin hardpoint
-  GetMeshRoot()->FindIdent(originHardPoint);
+    // Find the origin hardpoint
+    GetMeshRoot()->FindIdent(originHardPoint);
 }
 
 
@@ -105,8 +104,8 @@ void WallObjType::PostLoad()
 //
 GameObj* WallObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new WallObj(this, id));
+    // Allocate new object instance
+    return (new WallObj(this, id));
 }
 
 
@@ -115,31 +114,31 @@ GameObj* WallObjType::NewInstance(U32 id)
 //
 // Get walls within link distance of the given position
 //
-void WallObjType::GetNearbyWalls(Team *team, const Vector &p, WallObjList &list, WallObj *filter)
+void WallObjType::GetNearbyWalls(Team* team, const Vector& p, WallObjList& list, WallObj* filter)
 {
-  ASSERT(WorldCtrl::MetreOnMap(p.x, p.z))
+    ASSERT(WorldCtrl::MetreOnMap(p.x, p.z));
 
-  // What range should we search in
-  F32 range = F32(GetRangeStraight() + 1) * WorldCtrl::CellSize();
+    // What range should we search in
+    F32 range = F32(GetRangeStraight() + 1) * WorldCtrl::CellSize();
 
-  // Generate a unit iterator
-  UnitObjIter::Tactical i(NULL, UnitObjIter::FilterData(team, Relation::ALLY, p, range));
+    // Generate a unit iterator
+    UnitObjIter::Tactical i(nullptr, UnitObjIter::FilterData(team, Relation::ALLY, p, range));
 
-  UnitObj *obj;
+    UnitObj* obj;
 
-  // Check each unit
-  while ((obj = i.Next()) != NULL)
-  {
-    // Is this a wall
-    if (WallObj *wall = Promote::Object<WallObjType, WallObj>(obj))
+    // Check each unit
+    while ((obj = i.Next()) != nullptr)
     {
-      // Should we add it
-      if (wall != filter)
-      {
-        list.Append(wall);
-      }
+        // Is this a wall
+        if (WallObj* wall = Promote::Object<WallObjType, WallObj>(obj))
+        {
+            // Should we add it
+            if (wall != filter)
+            {
+                list.Append(wall);
+            }
+        }
     }
-  }  
 }
 
 
@@ -148,28 +147,28 @@ void WallObjType::GetNearbyWalls(Team *team, const Vector &p, WallObjList &list,
 //
 // Display the links for all walls within range of the given point
 //
-void WallObjType::DisplayAvailableLinks(const Vector &cursor)
+void WallObjType::DisplayAvailableLinks(const Vector& cursor)
 {
-  WallObjList list;
+    WallObjList list;
 
-  // Get the list of nearby walls
-  GetNearbyWalls(Team::GetDisplayTeam(), cursor, list);
+    // Get the list of nearby walls
+    GetNearbyWalls(Team::GetDisplayTeam(), cursor, list);
 
-  // Display links for each wall
-  for (WallObjList::Iterator i(&list); *i; ++i)
-  {
-    // Get the wall
-    WallObj *wall = **i;
-
-    // Can we link with this type
-    if (CanLinkWith(wall->WallType()) && wall->WallType()->CanLinkWith(this))
+    // Display links for each wall
+    for (WallObjList::Iterator i(&list); *i; ++i)
     {
-      wall->DisplayLinks(this, cursor);
-    }
-  }
+        // Get the wall
+        WallObj* wall = **i;
 
-  // Clean up the list
-  list.Clear();
+        // Can we link with this type
+        if (CanLinkWith(wall->WallType()) && wall->WallType()->CanLinkWith(this))
+        {
+            wall->DisplayLinks(this, cursor);
+        }
+    }
+
+    // Clean up the list
+    list.Clear();
 }
 
 
@@ -178,31 +177,31 @@ void WallObjType::DisplayAvailableLinks(const Vector &cursor)
 //
 // Check to see if any walls need to be powered up or down
 //
-void WallObjType::UpdatePowerStatus(Team *team, Bool ignorePower)
+void WallObjType::UpdatePowerStatus(Team* team, Bool ignorePower)
 {
-  ASSERT(team)
+    ASSERT(team);
 
-  // For each existing wall type
-  for (NList<WallObjType>::Iterator t(&types); *t; t++)
-  {
-    // Get all the units of this type on the given team
-    const NList<UnitObj> *units = team->GetUnitObjects((*t)->GetNameCrc());
-
-    // Tell them all to check their status
-    if (units)
+    // For each existing wall type
+    for (NList<WallObjType>::Iterator t(&types); *t; ++t)
     {
-      for (NList<UnitObj>::Iterator i(units); *i; i++)
-      {
-        // Get the wall object
-        WallObj *wall = Promote::Object<WallObjType, WallObj>(*i);
+        // Get all the units of this type on the given team
+        const NList<UnitObj>* units = team->GetUnitObjects((*t)->GetNameCrc());
 
-        ASSERT(wall)
+        // Tell them all to check their status
+        if (units)
+        {
+            for (NList<UnitObj>::Iterator i(units); *i; ++i)
+            {
+                // Get the wall object
+                WallObj* wall = Promote::Object<WallObjType, WallObj>(*i);
 
-        // Call the wall
-        wall->UpdatePowerStatus(ignorePower);
-      }
+                ASSERT(wall);
+
+                // Call the wall
+                wall->UpdatePowerStatus(ignorePower);
+            }
+        }
     }
-  }
 }
 
 
@@ -211,28 +210,27 @@ void WallObjType::UpdatePowerStatus(Team *team, Bool ignorePower)
 //
 // If the given unit is a wall, turn it on or off
 //
-Bool WallObjType::Toggle(UnitObj *unit, Bool on)
+Bool WallObjType::Toggle(UnitObj* unit, Bool on)
 {
-  ASSERT(unit)
+    ASSERT(unit);
 
-  // Is this unit a wall
-  if (WallObj *wall = Promote::Object<WallObjType, WallObj>(unit))
-  {
-    if (on)
+    // Is this unit a wall
+    if (WallObj* wall = Promote::Object<WallObjType, WallObj>(unit))
     {
-      wall->ActivateIdleLinks(TRUE);
-    }
-    else
-    {
-      wall->BreakLinks();
+        if (on)
+        {
+            wall->ActivateIdleLinks(TRUE);
+        }
+        else
+        {
+            wall->BreakLinks();
+        }
+
+        return (TRUE);
     }
 
-    return (TRUE);
-  }
-
-  return (FALSE);
+    return (FALSE);
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -246,54 +244,54 @@ Bool WallObjType::Toggle(UnitObj *unit, Bool on)
 //
 // Returns a message explaining the given test result
 //
-const char * WallObj::ExplainResult(TestResult r)
+const char* WallObj::ExplainResult(TestResult r)
 {
-  switch (r)
-  {
-    case TR_SUCCESS: 
-      return ("The wall operation was successful");
+    switch (r)
+    {
+        case TR_SUCCESS:
+            return ("The wall operation was successful");
 
-    case TR_SAMEWALL: 
-      return ("Trying to link to the same wall");
+        case TR_SAMEWALL:
+            return ("Trying to link to the same wall");
 
-    case TR_TYPEFAIL: 
-      return ("The wall types are not configured to link to each other");
+        case TR_TYPEFAIL:
+            return ("The wall types are not configured to link to each other");
 
-    case TR_NOTALLY: 
-      return ("Connecting walls must be on allied teams");
+        case TR_NOTALLY:
+            return ("Connecting walls must be on allied teams");
 
-    case TR_UNAVAILABLE:
-      return ("One of the walls is not available for linking");
+        case TR_UNAVAILABLE:
+            return ("One of the walls is not available for linking");
 
-    case TR_OFFMAP: 
-      return ("A cell in the link is off the map");
+        case TR_OFFMAP:
+            return ("A cell in the link is off the map");
 
-    case TR_CLAIMED_S:
-      return ("A cell in the link is claimed by an immovable or unknown object");
-    
-    case TR_CLAIMED_M:
-      return ("A cell in the link is claimed by a mobile unit");
+        case TR_CLAIMED_S:
+            return ("A cell in the link is claimed by an immovable or unknown object");
 
-    case TR_FOOTINDEX:
-      return ("A cell in the link has a footprint on it");
+        case TR_CLAIMED_M:
+            return ("A cell in the link is claimed by a mobile unit");
 
-    case TR_DEVIATION:
-      return ("The deviation of the terrain along the link exceeds requirements");
+        case TR_FOOTINDEX:
+            return ("A cell in the link has a footprint on it");
 
-    case TR_NOTALINK:
-      return ("The angle between the walls is not a link");
+        case TR_DEVIATION:
+            return ("The deviation of the terrain along the link exceeds requirements");
 
-    case TR_LINKUSEDSRC:
-      return ("The link is already used on the source");
+        case TR_NOTALINK:
+            return ("The angle between the walls is not a link");
 
-    case TR_LINKUSEDDST:
-      return ("The link is already used on the destination");
+        case TR_LINKUSEDSRC:
+            return ("The link is already used on the source");
 
-    case TR_DISTANCE:
-      return ("The distance between the walls is too great");
-  }
+        case TR_LINKUSEDDST:
+            return ("The link is already used on the destination");
 
-  return ("Unknown test result!");
+        case TR_DISTANCE:
+            return ("The distance between the walls is too great");
+    }
+
+    return ("Unknown test result!");
 }
 
 
@@ -302,42 +300,42 @@ const char * WallObj::ExplainResult(TestResult r)
 //
 // Manages the display of links between walls
 //
-Bool WallObj::FXCallBack(MapObj *mapObj, FX::CallBackData &cbd, void *context)
+Bool WallObj::FXCallBack(MapObj* mapObj, FX::CallBackData& cbd, void* context)
 {
-  // Get the wall object
-  if (WallObj *wall = Promote::Object<WallObjType, WallObj>(mapObj))
-  {
-    ASSERT(context)
-
-    // Get the link information
-    Link *link = static_cast<Link *>(context);
-
-    // Is the link still active
-    if (link->Active())
+    // Get the wall object
+    if (WallObj* wall = Promote::Object<WallObjType, WallObj>(mapObj))
     {
-      Vector src, dst;
+        ASSERT(context);
 
-      // We're going to update the cbd
-      cbd.particle.valid = TRUE;
-     
-      // Get the beam source position
-      wall->GetBeamPosition(src, link->responsible);
+        // Get the link information
+        Link* link = static_cast<Link*>(context);
 
-      // Get the beam destination position
-      (*link)->GetBeamPosition(dst, link->responsible);
+        // Is the link still active
+        if (link->Active())
+        {
+            Vector src, dst;
 
-      // Set the particle matrix
-      cbd.particle.matrix.ClearData();
-      cbd.particle.matrix.Set(src);
+            // We're going to update the cbd
+            cbd.particle.valid = TRUE;
 
-      // Set the particle length
-      cbd.particle.length = dst - src;
+            // Get the beam source position
+            wall->GetBeamPosition(src, link->responsible);
 
-      return (FALSE);
+            // Get the beam destination position
+            (*link)->GetBeamPosition(dst, link->responsible);
+
+            // Set the particle matrix
+            cbd.particle.matrix.ClearData();
+            cbd.particle.matrix.Set(src);
+
+            // Set the particle length
+            cbd.particle.length = dst - src;
+
+            return (FALSE);
+        }
     }
-  }
 
-  return (TRUE);
+    return (TRUE);
 }
 
 
@@ -346,23 +344,23 @@ Bool WallObj::FXCallBack(MapObj *mapObj, FX::CallBackData &cbd, void *context)
 //
 // Returns the deltas for the given link
 //
-const Point<S32> & WallObj::LinkToDelta(S32 link)
+const Point<S32>& WallObj::LinkToDelta(S32 link)
 {
-  ASSERT(link >= 0 && link < MAX_LINKS)
+    ASSERT(link >= 0 && link < MAX_LINKS);
 
-  static const Point<S32> table[MAX_LINKS] =
-  {
-    Point<S32>( 0, +1), 
-    Point<S32>(+1, +1), 
-    Point<S32>(+1,  0), 
-    Point<S32>(+1, -1), 
-    Point<S32>( 0, -1), 
-    Point<S32>(-1, -1), 
-    Point<S32>(-1,  0), 
-    Point<S32>(-1, +1)
-  };
+    static const Point<S32> table[MAX_LINKS] =
+    {
+        Point<S32>(0, +1),
+        Point<S32>(+1, +1),
+        Point<S32>(+1, 0),
+        Point<S32>(+1, -1),
+        Point<S32>(0, -1),
+        Point<S32>(-1, -1),
+        Point<S32>(-1, 0),
+        Point<S32>(-1, +1)
+    };
 
-  return (table[link]);
+    return (table[link]);
 }
 
 
@@ -371,20 +369,20 @@ const Point<S32> & WallObj::LinkToDelta(S32 link)
 //
 // Returns the link index for the given delta
 //
-S32 WallObj::DeltaToLink(const Point<S32> &delta)
+S32 WallObj::DeltaToLink(const Point<S32>& delta)
 {
-  ASSERT(delta.x || delta.z)
-  ASSERT(delta.x >= -1 && delta.x <= 1 && delta.z >= -1 && delta.z <= 1)
+    ASSERT(delta.x || delta.z);
+    ASSERT(delta.x >= -1 && delta.x <= 1 && delta.z >= -1 && delta.z <= 1);
 
-  // Link indexes for each possible [dx+1][dz+1] (-1 is invalid)
-  static S32 table[3][3] =
-  {
-     5,  6,  7,
-     4, -1,  0,
-     3,  2,  1
-  };
+    // Link indexes for each possible [dx+1][dz+1] (-1 is invalid)
+    static S32 table[3][3] =
+    {
+        5, 6, 7,
+        4, -1, 0,
+        3, 2, 1
+    };
 
-  return (table[delta.x + 1][delta.z + 1]);
+    return (table[delta.x + 1][delta.z + 1]);
 }
 
 
@@ -395,7 +393,7 @@ S32 WallObj::DeltaToLink(const Point<S32> &delta)
 //
 S32 WallObj::LinkOpposite(S32 link)
 {
-  return ((link + (MAX_LINKS / 2)) & (MAX_LINKS - 1));
+    return ((link + (MAX_LINKS / 2)) & (MAX_LINKS - 1));
 }
 
 
@@ -406,10 +404,10 @@ S32 WallObj::LinkOpposite(S32 link)
 //
 S32 WallObj::MaxLinkRange(S32 link)
 {
-  return 
-  (
-    (link & 1) ? WallType()->GetRangeDiagonal() : WallType()->GetRangeStraight()
-  );
+    return
+    (
+        (link & 1) ? WallType()->GetRangeDiagonal() : WallType()->GetRangeStraight()
+    );
 }
 
 
@@ -418,11 +416,11 @@ S32 WallObj::MaxLinkRange(S32 link)
 //
 // Returns the given link data
 //
-WallObj::Link & WallObj::GetLink(S32 link)
+WallObj::Link& WallObj::GetLink(S32 link)
 {
-  ASSERT(link >= 0 && link < MAX_LINKS)
+    ASSERT(link >= 0 && link < MAX_LINKS);
 
-  return (links[link]);
+    return (links[link]);
 }
 
 
@@ -433,7 +431,7 @@ WallObj::Link & WallObj::GetLink(S32 link)
 //
 Bool WallObj::LinkAvailable(S32 link)
 {
-  return (!GetLink(link).Active());
+    return (!GetLink(link).Active());
 }
 
 
@@ -442,63 +440,57 @@ Bool WallObj::LinkAvailable(S32 link)
 //
 // Is the given cell available for construction
 //
-WallObj::TestResult WallObj::AvailableCell(const Point<S32> &p)
+WallObj::TestResult WallObj::AvailableCell(const Point<S32>& p)
 {
-  // Is the cell on the map
-  if (WorldCtrl::CellOnMap(p.x, p.z))
-  {
-    // Is the cell available to claim
-    if (Claim::ProbeCell(p.x, p.z))
+    // Is the cell on the map
+    if (WorldCtrl::CellOnMap(p.x, p.z))
     {
-      // Get the map cell at this location
-      TerrainData::Cell &cell = TerrainData::GetCell(p.x, p.z);
-
-      // Can not build a wall over a footprint because of surface type changes
-      return (FootPrint::AvailableInstanceIndex(cell.footIndex) ? TR_SUCCESS : TR_FOOTINDEX);
-    }
-    else
-    {
-      Point<S32> g;
-
-      // Convert cell to grain
-      WorldCtrl::CellToFirstGrain(p.x, p.z, g.x, g.z);
-
-      // Iterate each grain in the cell
-      for (S32 z = g.z; z <= g.z + 1; ++z)
-      {
-        for (S32 x = g.x; x <= g.x + 1; ++x)
+        // Is the cell available to claim
+        if (Claim::ProbeCell(p.x, p.z))
         {
-          // Has something claimed this grain
-          if (!Claim::Probe(x, z, x, z, Claim::LAYER_LOWER))
-          {
-            // Try and find the owner
-            if (UnitObj *unit = Claim::GetOwner(x, z, Claim::LAYER_LOWER))
-            {
-              // Can not ignore immovable units
-              if (!unit->CanEverMove())
-              {
-                // An immovable owner
-                return (TR_CLAIMED_S);
-              }
-            }
-            else
-            {
-              // An unknown owner
-              return (TR_CLAIMED_S);
-            }
-          }
-        }
-      }
+            // Get the map cell at this location
+            TerrainData::Cell& cell = TerrainData::GetCell(p.x, p.z);
 
-      // Cell is claimed by another unit
-      return (TR_CLAIMED_M);
+            // Can not build a wall over a footprint because of surface type changes
+            return (FootPrint::AvailableInstanceIndex(cell.footIndex) ? TR_SUCCESS : TR_FOOTINDEX);
+        }
+        Point<S32> g;
+
+        // Convert cell to grain
+        WorldCtrl::CellToFirstGrain(p.x, p.z, g.x, g.z);
+
+        // Iterate each grain in the cell
+        for (S32 z = g.z; z <= g.z + 1; ++z)
+        {
+            for (S32 x = g.x; x <= g.x + 1; ++x)
+            {
+                // Has something claimed this grain
+                if (!Probe(x, z, x, z, Claim::LAYER_LOWER))
+                {
+                    // Try and find the owner
+                    if (UnitObj* unit = GetOwner(x, z, Claim::LAYER_LOWER))
+                    {
+                        // Can not ignore immovable units
+                        if (!unit->CanEverMove())
+                        {
+                            // An immovable owner
+                            return (TR_CLAIMED_S);
+                        }
+                    }
+                    else
+                    {
+                        // An unknown owner
+                        return (TR_CLAIMED_S);
+                    }
+                }
+            }
+        }
+
+        // Cell is claimed by another unit
+        return (TR_CLAIMED_M);
     }
-  }
-  else
-  {
     // Cell is off the map
     return (TR_OFFMAP);
-  }
 }
 
 
@@ -507,18 +499,18 @@ WallObj::TestResult WallObj::AvailableCell(const Point<S32> &p)
 //
 // Returns the height at the given cell
 //
-F32 WallObj::Height(const Point<S32> &p)
+F32 WallObj::Height(const Point<S32>& p)
 {
-  ASSERT(WorldCtrl::CellOnMap(p.x, p.z))
+    ASSERT(WorldCtrl::CellOnMap(p.x, p.z));
 
-  // Just use find floor for now
-  return
-  (
-    TerrainData::FindFloorWithWater
+    // Just use find floor for now
+    return
     (
-      WorldCtrl::CellToMetresX(p.x), WorldCtrl::CellToMetresZ(p.z)
-    )
-  );
+        TerrainData::FindFloorWithWater
+        (
+            WorldCtrl::CellToMetresX(p.x), WorldCtrl::CellToMetresZ(p.z)
+        )
+    );
 }
 
 
@@ -527,43 +519,43 @@ F32 WallObj::Height(const Point<S32> &p)
 //
 // Check the height deviations for the given link
 //
-Bool WallObj::CheckDeviation(const Point<S32> &src, S32 link, S32 distance)
+Bool WallObj::CheckDeviation(const Point<S32>& src, S32 link, S32 distance)
 {
-  ASSERT(WorldCtrl::CellOnMap(src.x, src.z))
-  ASSERT(link >= 0 && link < MAX_LINKS)
-  ASSERT(distance > 0)
+    ASSERT(WorldCtrl::CellOnMap(src.x, src.z));
+    ASSERT(link >= 0 && link < MAX_LINKS);
+    ASSERT(distance > 0);
 
-  Point<S32> delta(LinkToDelta(link));
-  Point<S32> dst(src + (delta * distance));
+    Point<S32> delta(LinkToDelta(link));
+    Point<S32> dst(src + (delta * distance));
 
-  // Is the destination on the map
-  if (WorldCtrl::CellOnMap(dst.x, dst.z))
-  {
-    LinkIterator iterator(src, link, distance);
-    Point<S32> p;
-
-    // Get the source height
-    F32 srcHeight = Height(src) + WallType()->GetBeamOffset();
-
-    // Get the difference between source and destination heights
-    F32 inc = ((Height(dst) + WallType()->GetBeamOffset()) - srcHeight) / F32(distance);
-
-    // Step over each point
-    for (S32 count = 1; iterator.Next(p); count++)
+    // Is the destination on the map
+    if (WorldCtrl::CellOnMap(dst.x, dst.z))
     {
-      // Is this an invalid deviation
-      if (!WallType()->ValidDeviation((srcHeight + (inc * F32(count))) - Height(p)))
-      {
-        return (FALSE);
-      }
+        LinkIterator iterator(src, link, distance);
+        Point<S32> p;
+
+        // Get the source height
+        F32 srcHeight = Height(src) + WallType()->GetBeamOffset();
+
+        // Get the difference between source and destination heights
+        F32 inc = ((Height(dst) + WallType()->GetBeamOffset()) - srcHeight) / F32(distance);
+
+        // Step over each point
+        for (S32 count = 1; iterator.Next(p); count++)
+        {
+            // Is this an invalid deviation
+            if (!WallType()->ValidDeviation((srcHeight + (inc * F32(count))) - Height(p)))
+            {
+                return (FALSE);
+            }
+        }
+
+        // Acceptable link position
+        return (TRUE);
     }
 
-    // Acceptable link position
-    return (TRUE);
-  }
-
-  // Link not allowed
-  return (FALSE);
+    // Link not allowed
+    return (FALSE);
 }
 
 
@@ -572,33 +564,32 @@ Bool WallObj::CheckDeviation(const Point<S32> &src, S32 link, S32 distance)
 //
 // Test each cell in the given line
 //
-WallObj::TestResult WallObj::TestLinkLine(const Point<S32> &src, S32 link, S32 distance)
+WallObj::TestResult WallObj::TestLinkLine(const Point<S32>& src, S32 link, S32 distance)
 {
-  LinkIterator iterator(src, link, distance);
-  Point<S32> p;
+    LinkIterator iterator(src, link, distance);
+    Point<S32> p;
 
-  // Check each cell in the link
-  while (iterator.Next(p))
-  {
-    // Does this cell block our wall
-    TestResult r = AvailableCell(p);
-
-    if (r != TR_SUCCESS)
+    // Check each cell in the link
+    while (iterator.Next(p))
     {
-      return (r);
+        // Does this cell block our wall
+        TestResult r = AvailableCell(p);
+
+        if (r != TR_SUCCESS)
+        {
+            return (r);
+        }
     }
-  }
 
-  // Check the deviation
-  if (!CheckDeviation(src, link, distance))
-  {
-    return (TR_DEVIATION);
-  }
+    // Check the deviation
+    if (!CheckDeviation(src, link, distance))
+    {
+        return (TR_DEVIATION);
+    }
 
-  // No problems found
-  return (TR_SUCCESS);
+    // No problems found
+    return (TR_SUCCESS);
 }
-
 
 
 //
@@ -608,43 +599,43 @@ WallObj::TestResult WallObj::TestLinkLine(const Point<S32> &src, S32 link, S32 d
 //
 void WallObj::BreakLink(S32 link, Bool initial, Bool deactivate)
 {
-  // Get the link data
-  Link &l = GetLink(link);
+    // Get the link data
+    Link& l = GetLink(link);
 
-  ASSERT(l.Active())
+    ASSERT(l.Active());
 
-  // Is this wall responsible for the link
-  if (l.responsible)
-  {
-    Point<S32> p(GetOrigin());
-    LinkIterator iterator(p, link, l.distance);
-
-    // Release each cell
-    while (iterator.Next(p))
+    // Is this wall responsible for the link
+    if (l.responsible)
     {
-      // Change the surface back to the original
-      TerrainData::RestoreSurfaceType(p.x, p.z);
+        Point<S32> p(GetOrigin());
+        LinkIterator iterator(p, link, l.distance);
+
+        // Release each cell
+        while (iterator.Next(p))
+        {
+            // Change the surface back to the original
+            TerrainData::RestoreSurfaceType(p.x, p.z);
+        }
+
+        // Release all the claim blocks
+        claimInfo.Release(link + 1);
     }
 
-    // Release all the claim blocks
-    claimInfo.Release(link + 1);
-  }
+    // Tell the other wall to break its link
+    if (initial)
+    {
+        l->BreakLink(LinkOpposite(link), FALSE, deactivate);
+    }
 
-  // Tell the other wall to break its link
-  if (initial)
-  {
-    l->BreakLink(LinkOpposite(link), FALSE, deactivate);
-  }
-
-  // If requested deactivation
-  if (deactivate)
-  {
-    l.deactivated = TRUE;
-  }
-  else
-  {
-    l.Reset();
-  }
+    // If requested deactivation
+    if (deactivate)
+    {
+        l.deactivated = TRUE;
+    }
+    else
+    {
+        l.Reset();
+    }
 }
 
 
@@ -655,7 +646,7 @@ void WallObj::BreakLink(S32 link, Bool initial, Bool deactivate)
 //
 Bool WallObj::SufficientPower()
 {
-  return (GetEfficiency() >= 0.5F);
+    return (GetEfficiency() >= 0.5F);
 }
 
 
@@ -664,29 +655,29 @@ Bool WallObj::SufficientPower()
 //
 // Get the position of the given beam
 //
-void WallObj::GetBeamPosition(Vector &pos, Bool primary)
+void WallObj::GetBeamPosition(Vector& pos, Bool primary)
 {
-  // Does this wall have a specific origin point
-  if (WallType()->GetOriginHardPoint().Valid())
-  {
-    // Get the position of the hardpoint
-    pos = Position(WallType()->GetOriginHardPoint());
-  }
-  else
-  {
-    // Use the origin
-    pos = Position();
-  }
+    // Does this wall have a specific origin point
+    if (WallType()->GetOriginHardPoint().Valid())
+    {
+        // Get the position of the hardpoint
+        pos = Position(WallType()->GetOriginHardPoint());
+    }
+    else
+    {
+        // Use the origin
+        pos = Position();
+    }
 
-  // Add in the beam offset
-  pos.y += WallType()->GetBeamOffset(primary);
+    // Add in the beam offset
+    pos.y += WallType()->GetBeamOffset(primary);
 }
 
 
 //
 // Constructor
 //
-WallObj::WallObj(WallObjType *objType, U32 id) : UnitObj(objType, id), claimInfo(NULL)
+WallObj::WallObj(WallObjType* objType, U32 id) : UnitObj(objType, id), claimInfo(nullptr)
 {
 }
 
@@ -706,11 +697,11 @@ WallObj::~WallObj()
 //
 void WallObj::PreDelete()
 {
-  // Ensure all existing links are broken
-  BreakLinks();
+    // Ensure all existing links are broken
+    BreakLinks();
 
-  // Call parent scope last
-  UnitObj::PreDelete();
+    // Call parent scope last
+    UnitObj::PreDelete();
 }
 
 
@@ -719,21 +710,21 @@ void WallObj::PreDelete()
 //
 // Load a state configuration scope
 //
-void WallObj::LoadState(FScope *fScope)
+void WallObj::LoadState(FScope* fScope)
 {
-  // Call parent scope first
-  UnitObj::LoadState(fScope);
+    // Call parent scope first
+    UnitObj::LoadState(fScope);
 
-  // Get the config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get the config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load the links
-  for (S32 i = 0; i < MAX_LINKS; i++)
-  {
-    char name[64];
-    Utils::Sprintf(name, 64, "Link%d", i);
-    StdLoad::TypeReaper(fScope, name, GetLink(i));
-  }
+    // Load the links
+    for (S32 i = 0; i < MAX_LINKS; i++)
+    {
+        char name[64];
+        Utils::Sprintf(name, 64, "Link%d", i);
+        StdLoad::TypeReaper(fScope, name, GetLink(i));
+    }
 }
 
 
@@ -742,28 +733,28 @@ void WallObj::LoadState(FScope *fScope)
 //
 // Save a state configuration scope
 //
-void WallObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
+void WallObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL)
 {
-  // Call parent scope first
-  UnitObj::SaveState(fScope);
+    // Call parent scope first
+    UnitObj::SaveState(fScope);
 
-  // Create specific config scope
-  fScope = fScope->AddFunction(SCOPE_CONFIG);
+    // Create specific config scope
+    fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-  // Save the links
-  for (S32 i = 0; i < MAX_LINKS; i++)
-  {
-    // Get the link
-    Link &l = GetLink(i);
-
-    // Only save active links we're responsible for
-    if (l.Alive() && l.responsible)
+    // Save the links
+    for (S32 i = 0; i < MAX_LINKS; i++)
     {
-      char name[64];
-      Utils::Sprintf(name, 64, "Link%d", i);
-      StdSave::TypeReaper(fScope, name, GetLink(i));
+        // Get the link
+        Link& l = GetLink(i);
+
+        // Only save active links we're responsible for
+        if (l.Alive() && l.responsible)
+        {
+            char name[64];
+            Utils::Sprintf(name, 64, "Link%d", i);
+            StdSave::TypeReaper(fScope, name, GetLink(i));
+        }
     }
-  }
 }
 
 
@@ -774,25 +765,25 @@ void WallObj::SaveState(FScope *fScope, MeshEnt * theMesh) // = NULL)
 //
 void WallObj::PostLoad()
 {
-  // Call parent scope first
-  UnitObj::PostLoad();
+    // Call parent scope first
+    UnitObj::PostLoad();
 
-  // Resolve the links
-  for (S32 i = 0; i < MAX_LINKS; i++)
-  {
-    // Get this link
-    Link &l = GetLink(i);
-
-    // Attempt to resolve
-    Resolver::Object<WallObj, WallObjType>(l);
-
-    // Setup as deactivated (will be activated at power-on)
-    if (l.Alive())
+    // Resolve the links
+    for (S32 i = 0; i < MAX_LINKS; i++)
     {
-      l.deactivated = TRUE;
-      l.responsible = TRUE;
+        // Get this link
+        Link& l = GetLink(i);
+
+        // Attempt to resolve
+        Resolver::Object<WallObj, WallObjType>(l);
+
+        // Setup as deactivated (will be activated at power-on)
+        if (l.Alive())
+        {
+            l.deactivated = TRUE;
+            l.responsible = TRUE;
+        }
     }
-  }
 }
 
 
@@ -803,24 +794,21 @@ void WallObj::PostLoad()
 //
 Point<S32> WallObj::GetOrigin()
 {
-  // Does this wall have a specific origin point
-  if (WallType()->GetOriginHardPoint().Valid())
-  {
-    // Get the position of the hardpoint
-    Vector v(Position(WallType()->GetOriginHardPoint()));
-    Point<F32> pos(v.x, v.z);
+    // Does this wall have a specific origin point
+    if (WallType()->GetOriginHardPoint().Valid())
+    {
+        // Get the position of the hardpoint
+        Vector v(Position(WallType()->GetOriginHardPoint()));
+        Point<F32> pos(v.x, v.z);
 
-    // Clamp it onto the map
-    WorldCtrl::ClampMetreMapPoint(pos);
+        // Clamp it onto the map
+        WorldCtrl::ClampMetreMapPoint(pos);
 
-    // Return the cell position
-    return (Point<S32>(WorldCtrl::MetresToCellX(pos.x), WorldCtrl::MetresToCellZ(pos.z)));
-  }
-  else
-  {
+        // Return the cell position
+        return (Point<S32>(WorldCtrl::MetresToCellX(pos.x), WorldCtrl::MetresToCellZ(pos.z)));
+    }
     // Return centre of object
     return (Point<S32>(GetCellX(), GetCellZ()));
-  }
 }
 
 
@@ -829,29 +817,29 @@ Point<S32> WallObj::GetOrigin()
 //
 // Returns TRUE if there is a link to the given wall
 //
-Bool WallObj::FindLink(WallObj *target, S32 *linkPtr)
+Bool WallObj::FindLink(WallObj* target, S32* linkPtr)
 {
-  for (S32 i = 0; i < MAX_LINKS; i++)
-  {
-    // Get this link
-    Link &l = GetLink(i);
-
-    // Is it linked to the target
-    if (l.Active() && l == target)
+    for (S32 i = 0; i < MAX_LINKS; i++)
     {
-      // Setup the link
-      if (linkPtr)
-      {
-        *linkPtr = i;
-      }
+        // Get this link
+        Link& l = GetLink(i);
 
-      // A link was found
-      return (TRUE);
+        // Is it linked to the target
+        if (l.Active() && l == target)
+        {
+            // Setup the link
+            if (linkPtr)
+            {
+                *linkPtr = i;
+            }
+
+            // A link was found
+            return (TRUE);
+        }
     }
-  }
 
-  // No link found
-  return (FALSE);
+    // No link found
+    return (FALSE);
 }
 
 
@@ -862,25 +850,25 @@ Bool WallObj::FindLink(WallObj *target, S32 *linkPtr)
 //
 Bool WallObj::AvailableForLinking(Bool checkPower)
 {
-  // Is there enough power
-  if (checkPower && !SufficientPower())
-  {
-    return (FALSE);
-  }
+    // Is there enough power
+    if (checkPower && !SufficientPower())
+    {
+        return (FALSE);
+    }
 
-  // Ensure wall is zipped
-  if (!GetFootInstance())
-  {
-    return (FALSE);
-  }
+    // Ensure wall is zipped
+    if (!GetFootInstance())
+    {
+        return (FALSE);
+    }
 
-  // If on a team, ensure it's active
-  if (GetTeam() && !IsActivelyOnTeam())
-  {
-    return (FALSE);
-  }
-  
-  return (TRUE);
+    // If on a team, ensure it's active
+    if (GetTeam() && !IsActivelyOnTeam())
+    {
+        return (FALSE);
+    }
+
+    return (TRUE);
 }
 
 
@@ -889,113 +877,101 @@ Bool WallObj::AvailableForLinking(Bool checkPower)
 //
 // Test if we can link to the given wall
 //
-WallObj::TestResult WallObj::TestLink(WallObj *target, LinkIterator *iteratorPtr, Bool checkPower)
+WallObj::TestResult WallObj::TestLink(WallObj* target, LinkIterator* iteratorPtr, Bool checkPower)
 {
-  ASSERT(target)
+    ASSERT(target);
 
-  // Fail if it's the same wall
-  if (target == this)
-  {
-    return (TR_SAMEWALL);
-  }
-
-  // Fail if the types can not link
-  if (!WallType()->CanLinkWith(target->WallType()))
-  {
-    return (TR_TYPEFAIL);
-  }
-
-  // If either wall has a team
-  if (GetTeam() || target->GetTeam())
-  {
-    // They must be allied
-    if (!Team::TestRelation(GetTeam(), target->GetTeam(), Relation::ALLY))
+    // Fail if it's the same wall
+    if (target == this)
     {
-      return (TR_NOTALLY);
+        return (TR_SAMEWALL);
     }
-  }
 
-  // Fail if either wall is not available for linking
-  if (!AvailableForLinking(checkPower) || !target->AvailableForLinking(checkPower))
-  {
-    return (TR_UNAVAILABLE);
-  }
-
-  // Get our cell location
-  Point<S32> src(GetOrigin());
-
-  // Get the target's cell location
-  Point<S32> dst(target->GetOrigin());
-
-  // Calculate the raw deltas
-  Point<S32> delta(dst - src);
-
-  // And the absolute values
-  Point<S32> deltaAbs(abs(delta.x), abs(delta.z));
-
-  // Is this a valid link direction
-  if ((delta.x || delta.z) && (!delta.x || !delta.z || (deltaAbs.x == deltaAbs.z)))
-  {
-    // What is the link distance
-    S32 distance = deltaAbs.x ? deltaAbs.x : deltaAbs.z;
-
-    ASSERT(distance > 0)
-
-    // Convert to minimal deltas
-    delta.x = Clamp<S32>(-1, delta.x, 1);
-    delta.z = Clamp<S32>(-1, delta.z, 1);
-
-    // Get the link index
-    S32 link = DeltaToLink(delta);
-
-    // Is the link on this object available
-    if (LinkAvailable(link))
+    // Fail if the types can not link
+    if (!WallType()->CanLinkWith(target->WallType()))
     {
-      // Is target in range
-      if (distance <= MaxLinkRange(link))
-      {
-        // Is the target link available
-        if (target->LinkAvailable(LinkOpposite(link)))
-        {
-          // Test the cells
-          TestResult r = TestLinkLine(src, link, distance);
+        return (TR_TYPEFAIL);
+    }
 
-          // Can we link
-          if (r == TR_SUCCESS)
-          {
-            // Setup the iterator
-            if (iteratorPtr)
+    // If either wall has a team
+    if (GetTeam() || target->GetTeam())
+    {
+        // They must be allied
+        if (!Team::TestRelation(GetTeam(), target->GetTeam(), Relation::ALLY))
+        {
+            return (TR_NOTALLY);
+        }
+    }
+
+    // Fail if either wall is not available for linking
+    if (!AvailableForLinking(checkPower) || !target->AvailableForLinking(checkPower))
+    {
+        return (TR_UNAVAILABLE);
+    }
+
+    // Get our cell location
+    Point<S32> src(GetOrigin());
+
+    // Get the target's cell location
+    Point<S32> dst(target->GetOrigin());
+
+    // Calculate the raw deltas
+    Point<S32> delta(dst - src);
+
+    // And the absolute values
+    Point<S32> deltaAbs(abs(delta.x), abs(delta.z));
+
+    // Is this a valid link direction
+    if ((delta.x || delta.z) && (!delta.x || !delta.z || (deltaAbs.x == deltaAbs.z)))
+    {
+        // What is the link distance
+        S32 distance = deltaAbs.x ? deltaAbs.x : deltaAbs.z;
+
+        ASSERT(distance > 0);
+
+        // Convert to minimal deltas
+        delta.x = Clamp<S32>(-1, delta.x, 1);
+        delta.z = Clamp<S32>(-1, delta.z, 1);
+
+        // Get the link index
+        S32 link = DeltaToLink(delta);
+
+        // Is the link on this object available
+        if (LinkAvailable(link))
+        {
+            // Is target in range
+            if (distance <= MaxLinkRange(link))
             {
-              iteratorPtr->Set(src, link, distance);
-            }
-          }
+                // Is the target link available
+                if (target->LinkAvailable(LinkOpposite(link)))
+                {
+                    // Test the cells
+                    TestResult r = TestLinkLine(src, link, distance);
 
-          // Return the result
-          return (r);
+                    // Can we link
+                    if (r == TR_SUCCESS)
+                    {
+                        // Setup the iterator
+                        if (iteratorPtr)
+                        {
+                            iteratorPtr->Set(src, link, distance);
+                        }
+                    }
+
+                    // Return the result
+                    return (r);
+                }
+                // The link is used on the destination
+                return (TR_LINKUSEDDST);
+            }
+            // Distance is too great
+            return (TR_DISTANCE);
         }
-        else
-        {
-          // The link is used on the destination
-          return (TR_LINKUSEDDST);
-        }
-      }
-      else
-      {
-        // Distance is too great
-        return (TR_DISTANCE);
-      }
+        // The link is used on the source
+        return (TR_LINKUSEDSRC);
     }
-    else
-    {
-      // The link is used on the source
-      return (TR_LINKUSEDSRC);
-    }
-  }
-  else
-  {
     // This angle is not a link
     return (TR_NOTALINK);
-  }
 }
 
 
@@ -1004,62 +980,59 @@ WallObj::TestResult WallObj::TestLink(WallObj *target, LinkIterator *iteratorPtr
 //
 // Attempt to form a link with the given wall
 //
-WallObj::TestResult WallObj::FormLink(WallObj *target, Bool checkPower)
+WallObj::TestResult WallObj::FormLink(WallObj* target, Bool checkPower)
 {
-  LinkIterator iterator;
+    LinkIterator iterator;
 
-  // Test if we can link to the given target
-  TestResult r = TestLink(target, &iterator, checkPower);
+    // Test if we can link to the given target
+    TestResult r = TestLink(target, &iterator, checkPower);
 
-  // Were we successful
-  if (r == TR_SUCCESS)
-  {
-    // Get the link index
-    S32 link = iterator.link;
+    // Were we successful
+    if (r == TR_SUCCESS)
+    {
+        // Get the link index
+        S32 link = iterator.link;
 
-    ASSERT(link >= 0 && link < MAX_LINKS)
-    ASSERT(LinkAvailable(link))
-    ASSERT(target->LinkAvailable(LinkOpposite(link)))
+        ASSERT(link >= 0 && link < MAX_LINKS);
+        ASSERT(LinkAvailable(link));
+        ASSERT(target->LinkAvailable(LinkOpposite(link)));
 
-    // Setup the local link
-    GetLink(link).Set(target, iterator.distance, TRUE);
+        // Setup the local link
+        GetLink(link).Set(target, iterator.distance, TRUE);
 
-    // Setup the remote link
-    target->GetLink(LinkOpposite(link)).Set(this, iterator.distance, FALSE);
+        // Setup the remote link
+        target->GetLink(LinkOpposite(link)).Set(this, iterator.distance, FALSE);
 
-    // Setup each cell in the wall
-    Point<S32> p, g;
+        // Setup each cell in the wall
+        Point<S32> p, g;
 
-    while (iterator.Next(p))
-    { 
-      // Convert cell to grain
-      WorldCtrl::CellToFirstGrain(p.x, p.z, g.x, g.z);
+        while (iterator.Next(p))
+        {
+            // Convert cell to grain
+            WorldCtrl::CellToFirstGrain(p.x, p.z, g.x, g.z);
 
-      // Claim the entire cell
-      claimInfo.Claim(g.x, g.z, g.x + 1, g.z + 1, link + 1);
+            // Claim the entire cell
+            claimInfo.Claim(g.x, g.z, g.x + 1, g.z + 1, link + 1);
 
-      // Get the map cell at this location
-      TerrainData::Cell &cell = TerrainData::GetCell(p.x, p.z);
+            // Get the map cell at this location
+            TerrainData::Cell& cell = TerrainData::GetCell(p.x, p.z);
 
-      // Set the surface type
-      cell.surface = WallType()->GetSurface();
+            // Set the surface type
+            cell.surface = WallType()->GetSurface();
+        }
+
+        // "Wall::Link"
+        StartGenericFX(0xD063DAD7, FXCallBack, FALSE, nullptr, &GetLink(link));
+
+        // "Wall::Link"
+        target->StartGenericFX
+        (
+            0xD063DAD7, FXCallBack, FALSE, nullptr, &target->GetLink(LinkOpposite(link))
+        );
+
+        return (TR_SUCCESS);
     }
-
-    // "Wall::Link"
-    StartGenericFX(0xD063DAD7, FXCallBack, FALSE, NULL, &GetLink(link));
-
-    // "Wall::Link"
-    target->StartGenericFX
-    (
-      0xD063DAD7, FXCallBack, FALSE, NULL, &target->GetLink(LinkOpposite(link))
-    );
-    
-    return (TR_SUCCESS);
-  }
-  else
-  {
     return (r);
-  }
 }
 
 
@@ -1068,24 +1041,21 @@ WallObj::TestResult WallObj::FormLink(WallObj *target, Bool checkPower)
 //
 // Attempt to toggle the link to the target
 //
-WallObj::TestResult WallObj::ToggleLink(WallObj *target, Bool checkPower, Bool deactivate)
+WallObj::TestResult WallObj::ToggleLink(WallObj* target, Bool checkPower, Bool deactivate)
 {
-  S32 link;
+    S32 link;
 
-  // Are we linked to the given target
-  if (FindLink(target, &link))
-  {
-    // Break the link
-    BreakLink(link, TRUE, deactivate);
+    // Are we linked to the given target
+    if (FindLink(target, &link))
+    {
+        // Break the link
+        BreakLink(link, TRUE, deactivate);
 
-    // Always succeeds
-    return (TR_SUCCESS);
-  }
-  else
-  {
+        // Always succeeds
+        return (TR_SUCCESS);
+    }
     // Attempt to form a link
     return (FormLink(target, checkPower));
-  }
 }
 
 
@@ -1094,49 +1064,49 @@ WallObj::TestResult WallObj::ToggleLink(WallObj *target, Bool checkPower, Bool d
 //
 // Add each cell in the wall link to the given evacuator
 //
-Bool WallObj::SetupEvacuator(WallObj *target, UnitEvacuate &evacuate)
+Bool WallObj::SetupEvacuator(WallObj* target, UnitEvacuate& evacuate)
 {
-  ASSERT(target)
+    ASSERT(target);
 
-  // Get our cell location
-  Point<S32> src(GetOrigin());
+    // Get our cell location
+    Point<S32> src(GetOrigin());
 
-  // Get the target's cell location
-  Point<S32> dst(target->GetOrigin());
+    // Get the target's cell location
+    Point<S32> dst(target->GetOrigin());
 
-  // Calculate the raw deltas
-  Point<S32> delta(dst - src);
+    // Calculate the raw deltas
+    Point<S32> delta(dst - src);
 
-  // And the absolute values
-  Point<S32> deltaAbs(abs(delta.x), abs(delta.z));
+    // And the absolute values
+    Point<S32> deltaAbs(abs(delta.x), abs(delta.z));
 
-  // Is this a valid link direction
-  if ((delta.x || delta.z) && (!delta.x || !delta.z || (deltaAbs.x == deltaAbs.z)))
-  {
-    // What is the link distance
-    S32 distance = deltaAbs.x ? deltaAbs.x : deltaAbs.z;
-
-    // Convert to minimal deltas
-    delta.x = Clamp<S32>(-1, delta.x, 1);
-    delta.z = Clamp<S32>(-1, delta.z, 1);
-
-    // Get the link index
-    S32 link = DeltaToLink(delta);
-
-    // Setup the link iterator
-    LinkIterator iterator(src, link, distance);
-    Point<S32> p;
-
-    // Step over each point
-    while (iterator.Next(p))
+    // Is this a valid link direction
+    if ((delta.x || delta.z) && (!delta.x || !delta.z || (deltaAbs.x == deltaAbs.z)))
     {
-      evacuate.Register(p, Claim::LAYER_LOWER);
+        // What is the link distance
+        S32 distance = deltaAbs.x ? deltaAbs.x : deltaAbs.z;
+
+        // Convert to minimal deltas
+        delta.x = Clamp<S32>(-1, delta.x, 1);
+        delta.z = Clamp<S32>(-1, delta.z, 1);
+
+        // Get the link index
+        S32 link = DeltaToLink(delta);
+
+        // Setup the link iterator
+        LinkIterator iterator(src, link, distance);
+        Point<S32> p;
+
+        // Step over each point
+        while (iterator.Next(p))
+        {
+            evacuate.Register(p, Claim::LAYER_LOWER);
+        }
+
+        return (TRUE);
     }
 
-    return (TRUE);
-  }
-
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -1147,16 +1117,16 @@ Bool WallObj::SetupEvacuator(WallObj *target, UnitEvacuate &evacuate)
 //
 void WallObj::ActivateIdleLinks(Bool all)
 {
-  for (S32 i = 0; i < MAX_LINKS; i++)
-  {
-    if (GetLink(i).Deactivated() && (all || GetLink(i).responsible))
+    for (S32 i = 0; i < MAX_LINKS; i++)
     {
-      if (FormLink(GetLink(i), FALSE) != TR_SUCCESS)
-      {
-        GetLink(i).Reset();
-      }
+        if (GetLink(i).Deactivated() && (all || GetLink(i).responsible))
+        {
+            if (FormLink(GetLink(i), FALSE) != TR_SUCCESS)
+            {
+                GetLink(i).Reset();
+            }
+        }
     }
-  }
 }
 
 
@@ -1167,17 +1137,17 @@ void WallObj::ActivateIdleLinks(Bool all)
 //
 void WallObj::UpdatePowerStatus(Bool ignorePower)
 {
-  // Is power supply acceptable
-  if (ignorePower || SufficientPower())
-  {
-    // Bring online
-    ActivateIdleLinks(FALSE);
-  }
-  else
-  {
-    // Take offline
-    BreakLinks();
-  }
+    // Is power supply acceptable
+    if (ignorePower || SufficientPower())
+    {
+        // Bring online
+        ActivateIdleLinks(FALSE);
+    }
+    else
+    {
+        // Take offline
+        BreakLinks();
+    }
 }
 
 
@@ -1188,14 +1158,14 @@ void WallObj::UpdatePowerStatus(Bool ignorePower)
 //
 void WallObj::BreakLinks(Bool deactivate)
 {
-  for (S32 i = 0; i < MAX_LINKS; i++)
-  {
-    // Is it linked to the target
-    if (GetLink(i).Active())
+    for (S32 i = 0; i < MAX_LINKS; i++)
     {
-      BreakLink(i, TRUE, deactivate);
+        // Is it linked to the target
+        if (GetLink(i).Active())
+        {
+            BreakLink(i, TRUE, deactivate);
+        }
     }
-  }
 }
 
 
@@ -1206,20 +1176,20 @@ void WallObj::BreakLinks(Bool deactivate)
 //
 void WallObj::SetupAutoLink()
 {
-  // Do we have a wall idle task
-  if (Tasks::WallIdle *idle = TaskCtrl::PromoteIdle<Tasks::WallIdle>(this))
-  {
-    WallObjList list;
+    // Do we have a wall idle task
+    if (Tasks::WallIdle* idle = TaskCtrl::PromoteIdle<Tasks::WallIdle>(this))
+    {
+        WallObjList list;
 
-    // Get the list of nearby walls
-    WallType()->GetNearbyWalls(GetTeam(), Position(), list, this);
+        // Get the list of nearby walls
+        WallType()->GetNearbyWalls(GetTeam(), Position(), list, this);
 
-    // Setup the idle task
-    idle->SetLinkTargets(list);
+        // Setup the idle task
+        idle->SetLinkTargets(list);
 
-    // Clean up the list
-    list.Clear();
-  }
+        // Clean up the list
+        list.Clear();
+    }
 }
 
 
@@ -1230,29 +1200,29 @@ void WallObj::SetupAutoLink()
 //
 Bool WallObj::LinkVisible(S32 link, Point<S32> d)
 {
-  // Is this link available
-  if (LinkAvailable(link))
-  {
-    // Grab the absolute values
-    Point<S32> da(abs(d.x), abs(d.z));
-
-    // Is this point on a link-line
-    if ((d.x || d.z) && (!d.x || !d.z || (da.x == da.z)))
+    // Is this link available
+    if (LinkAvailable(link))
     {
-      // Is it within the range
-      if (Max<S32>(da.x, da.z) <= MaxLinkRange(link))
-      {
-        // Is the point on this link
-        if (Point<S32>(Clamp<S32>(-1, d.x, 1), Clamp<S32>(-1, d.z, 1)) == LinkToDelta(link))
-        {
-          return (TRUE);
-        }
-      }
-    }
-  }
+        // Grab the absolute values
+        Point<S32> da(abs(d.x), abs(d.z));
 
-  // Link not visible
-  return (FALSE); 
+        // Is this point on a link-line
+        if ((d.x || d.z) && (!d.x || !d.z || (da.x == da.z)))
+        {
+            // Is it within the range
+            if (Max<S32>(da.x, da.z) <= MaxLinkRange(link))
+            {
+                // Is the point on this link
+                if (Point<S32>(Clamp<S32>(-1, d.x, 1), Clamp<S32>(-1, d.z, 1)) == LinkToDelta(link))
+                {
+                    return (TRUE);
+                }
+            }
+        }
+    }
+
+    // Link not visible
+    return (FALSE);
 }
 
 
@@ -1261,63 +1231,62 @@ Bool WallObj::LinkVisible(S32 link, Point<S32> d)
 //
 // Display the links on this wall that are visible from the given point
 //
-void WallObj::DisplayLinks(WallObjType *, const Vector &cursor)
+void WallObj::DisplayLinks(WallObjType*, const Vector& cursor)
 {
-  ASSERT(WorldCtrl::MetreOnMap(cursor.x, cursor.z))
+    ASSERT(WorldCtrl::MetreOnMap(cursor.x, cursor.z));
 
-  // Get the cell locations
-  Point<S32> src(GetOrigin());
-  Point<S32> cursorCell(WorldCtrl::MetresToCellX(cursor.x), WorldCtrl::MetresToCellZ(cursor.z));
+    // Get the cell locations
+    Point<S32> src(GetOrigin());
+    Point<S32> cursorCell(WorldCtrl::MetresToCellX(cursor.x), WorldCtrl::MetresToCellZ(cursor.z));
 
-  // Calculate the raw deltas
-  Point<S32> delta(cursorCell - src);
+    // Calculate the raw deltas
+    Point<S32> delta(cursorCell - src);
 
-  // Set the line starting location
-  Vector start;
-  GetBeamPosition(start);
+    // Set the line starting location
+    Vector start;
+    GetBeamPosition(start);
 
-  // Setup display colors
-  Color colorY(0.0F, 1.0F, 0.0F, 0.2F);
-  Color colorN(1.0F, 0.0F, 0.0F, 0.2F);
+    // Setup display colors
+    Color colorY(0.0F, 1.0F, 0.0F, 0.2F);
+    Color colorN(1.0F, 0.0F, 0.0F, 0.2F);
 
-  // Iterate the links
-  for (S32 i = 0; i < MAX_LINKS; i++)
-  {
-    // Is this link visible
-    if (LinkVisible(i, delta))
+    // Iterate the links
+    for (S32 i = 0; i < MAX_LINKS; i++)
     {
-      // Check the link to each cell along this link
-      for (S32 distance = 1; distance <= MaxLinkRange(i); distance++)
-      {
-        // Get the destination cell
-        Point<S32> dst(src + (LinkToDelta(i) * distance));
-
-        // Is it on the map
-        if (WorldCtrl::CellOnMap(dst.x, dst.z))
+        // Is this link visible
+        if (LinkVisible(i, delta))
         {
-          // Can we link to this cell
-          TestResult r = TestLinkLine(src, i, distance);
+            // Check the link to each cell along this link
+            for (S32 distance = 1; distance <= MaxLinkRange(i); distance++)
+            {
+                // Get the destination cell
+                Point<S32> dst(src + (LinkToDelta(i) * distance));
 
-          // Render the cell
-          Area<S32> rect;
-          rect.SetSize(dst.x, dst.z, 1, 1);
-          Terrain::RenderCellRect(rect, (r == TR_SUCCESS || r == TR_CLAIMED_M) ? colorY : colorN, TRUE);
+                // Is it on the map
+                if (WorldCtrl::CellOnMap(dst.x, dst.z))
+                {
+                    // Can we link to this cell
+                    TestResult r = TestLinkLine(src, i, distance);
 
-          // Draw the line if this is the cursor position
-          if ((r == TR_SUCCESS) && (dst == cursorCell))
-          {
-            // Set the line ending location
-            Vector end;
-            end.x = WorldCtrl::CellToMetresX(dst.x);
-            end.z = WorldCtrl::CellToMetresZ(dst.z);
-            end.y = TerrainData::FindFloorWithWater(end.x, end.z) + WallType()->GetBeamOffset();
+                    // Render the cell
+                    Area<S32> rect;
+                    rect.SetSize(dst.x, dst.z, 1, 1);
+                    Terrain::RenderCellRect(rect, (r == TR_SUCCESS || r == TR_CLAIMED_M) ? colorY : colorN, TRUE);
 
-            // Display the line
-            Render::FatLine(start, end, Color(0.0F, 1.0F, 0.0F, 0.8F), 0.5F);
-          }
+                    // Draw the line if this is the cursor position
+                    if ((r == TR_SUCCESS) && (dst == cursorCell))
+                    {
+                        // Set the line ending location
+                        Vector end;
+                        end.x = WorldCtrl::CellToMetresX(dst.x);
+                        end.z = WorldCtrl::CellToMetresZ(dst.z);
+                        end.y = TerrainData::FindFloorWithWater(end.x, end.z) + WallType()->GetBeamOffset();
+
+                        // Display the line
+                        Render::FatLine(start, end, Color(0.0F, 1.0F, 0.0F, 0.8F), 0.5F);
+                    }
+                }
+            }
         }
-      }
     }
-  }
 }
-

@@ -24,11 +24,9 @@
 #include <cereal/types/valarray.hpp>
 #include <cereal/types/vector.hpp>
 
-const size_t constexpr const_hash(char const *input)
+const size_t constexpr const_hash(char const* input)
 {
-	return *input ?
-		static_cast<size_t>(*input) + 33 * const_hash(input + 1) :
-		5381;
+    return *input ? static_cast<size_t>(*input) + 33 * const_hash(input + 1) : 5381;
 }
 
 #define UniqueClassId_Declare(className) static const size_t constexpr UniqueClassId() { return const_hash(#className); }

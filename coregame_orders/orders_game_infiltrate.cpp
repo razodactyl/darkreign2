@@ -26,64 +26,62 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 Infiltrate::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Infiltrate
-    //
-
-
-    //
-    // Generate
-    //
-    void Infiltrate::Generate(Player &player, U32 target)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.target = target;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 Infiltrate::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Infiltrate::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Infiltrate
+        //
 
-      // Convert ID into a pointer
-      if (UnitObj *target = Resolver::Object<UnitObj, UnitObjType>(d->target))
-      {
-        // Check each selected object
-        for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-        { 
-          // Is this a spy?
-          if (Tasks::SpyIdle *task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(**i))
-          {
-            task->Infiltrate(target);
-          }
+
+        //
+        // Generate
+        //
+        void Infiltrate::Generate(Player& player, U32 target)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.target = target;
+
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
 
-      return (sizeof (Data));
+
+        //
+        // Execute
+        //
+        U32 Infiltrate::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Convert ID into a pointer
+            if (UnitObj* target = Resolver::Object<UnitObj, UnitObjType>(d->target))
+            {
+                // Check each selected object
+                for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+                {
+                    // Is this a spy?
+                    if (Tasks::SpyIdle* task = TaskCtrl::PromoteIdle<Tasks::SpyIdle>(**i))
+                    {
+                        task->Infiltrate(target);
+                    }
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

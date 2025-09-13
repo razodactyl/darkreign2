@@ -24,106 +24,108 @@
 
 #include "dlgtemplate.h"
 #include "debug.h"
+
 //-----------------------------------------------------------------------------
 
 namespace Vid
 {
     namespace Var
     {
-        Bool             lockout;
+        Bool lockout;
 
         // referenced by vidrend.cpp
         //
-        VarFloat         farPlane;
-        VarFloat         farOverride;
-        VarFloat         fogDepth;
+        VarFloat farPlane;
+        VarFloat farOverride;
+        VarFloat fogDepth;
 
         // general performance constants
         //               
-        VarFloat         perfProcessor;
-        VarFloat         perfMemory;
-        VarFloat         perfVideo;
+        VarFloat perfProcessor;
+        VarFloat perfMemory;
+        VarFloat perfVideo;
 
         // specific performance constants
         //               
-        VarFloat         perfs[6];
+        VarFloat perfs[6];
 
-        VarFloat         perfHighFarplane;
-        VarFloat         perfMedFarplane;
-        VarFloat         perfLowFarplane;
+        VarFloat perfHighFarplane;
+        VarFloat perfMedFarplane;
+        VarFloat perfLowFarplane;
 
         // automatic nearplane adjustment
         //               
-        VarInteger       nearAdjust;
-        VarFloat         nearMin;
-        VarFloat         nearMax;
+        VarInteger nearAdjust;
+        VarFloat nearMin;
+        VarFloat nearMax;
 
-        VarInteger       varTripleBuf;
-        VarInteger       varTex32;
-        VarInteger       varTexReduce;
-        VarInteger       varTexNoSwap;
-        VarInteger       varTexNoSwapMem;
-        VarInteger       varFilter;
-        VarInteger       varAntiAlias;
-        VarInteger       varMipmap;
-        VarInteger       varMipfilter;
-        VarInteger       varMovie;
-        VarInteger       varMirror;
-        VarInteger       varMultiTex;
-        VarInteger       varGamma;
-        VarInteger       varHardTL;
-        VarInteger       varDxTL;
-        VarInteger       varWeather;
-        VarInteger       varRenderPostSim;
+        VarInteger varTripleBuf;
+        VarInteger varTex32;
+        VarInteger varTexReduce;
+        VarInteger varTexNoSwap;
+        VarInteger varTexNoSwapMem;
+        VarInteger varFilter;
+        VarInteger varAntiAlias;
+        VarInteger varMipmap;
+        VarInteger varMipfilter;
+        VarInteger varMovie;
+        VarInteger varMirror;
+        VarInteger varMultiTex;
+        VarInteger varGamma;
+        VarInteger varHardTL;
+        VarInteger varDxTL;
+        VarInteger varWeather;
+        VarInteger varRenderPostSim;
 
-        VarInteger       alphaNearActive;
+        VarInteger alphaNearActive;
 
-        VarFloat         varShadowFadeDist;
-        VarFloat         varShadowFadeDepth;
-        VarFloat         varShadowLiveDistFactor;
-        VarInteger       varShadowFadeCutoff;
-        VarInteger       varShadowSize;
-        VarInteger       varNightLight;
+        VarFloat varShadowFadeDist;
+        VarFloat varShadowFadeDepth;
+        VarFloat varShadowLiveDistFactor;
+        VarInteger varShadowFadeCutoff;
+        VarInteger varShadowSize;
+        VarInteger varNightLight;
 
-        VarInteger       varFog;
-        VarInteger       varWire;
-        VarInteger       varFlat;
-        VarInteger       varTexture;
-        VarInteger       varSpecular;
-        VarInteger       varDither;
+        VarInteger varFog;
+        VarInteger varWire;
+        VarInteger varFlat;
+        VarInteger varTexture;
+        VarInteger varSpecular;
+        VarInteger varDither;
 
-        ButtGroup        detail;
-        VarInteger       perfTurtle;
+        ButtGroup detail;
+        VarInteger perfTurtle;
 
-        VarInteger       waitRetrace;
-        VarInteger       xmm;
-        VarInteger       transort;
+        VarInteger waitRetrace;
+        VarInteger xmm;
+        VarInteger transort;
 
-        VarInteger       clipGuard;
-        VarInteger       clipGuardSize;
-        VarInteger       clipVis;
-        VarInteger       clipBox;
-        VarInteger       clipFunc;
+        VarInteger clipGuard;
+        VarInteger clipGuardSize;
+        VarInteger clipVis;
+        VarInteger clipBox;
+        VarInteger clipFunc;
 
-        VarInteger       checkVerts;
-        VarInteger       mirrorDebug;
+        VarInteger checkVerts;
+        VarInteger mirrorDebug;
 
-        VarFloat         suntime;
-        VarInteger       suncolor;
-        VarFloat         sunMinAngle;
+        VarFloat suntime;
+        VarInteger suncolor;
+        VarFloat sunMinAngle;
 
-        VarFloat         zBias;
+        VarFloat zBias;
 
-        VarInteger       alphaFarActive;
-        VarFloat         alphaFar;
-        VarFloat         alphaNear;
+        VarInteger alphaFarActive;
+        VarFloat alphaFar;
+        VarFloat alphaNear;
 
-        VarInteger       checkMaxVerts;
-        VarInteger       checkMaxTris;
-        VarInteger       render1;
-        VarInteger       render2;
+        VarInteger checkMaxVerts;
+        VarInteger checkMaxTris;
+        VarInteger render1;
+        VarInteger render2;
         //-----------------------------------------------------------------------------
     };
+
     //
     // CreateHandler
     //
@@ -133,15 +135,16 @@ namespace Vid
 
         switch (crc)
         {
-        case 0x9C586C0C: // "Vid::Options"
-            ctrl = new Options(parent);
-            break;
-        case 0x1D786456: // "Vid::Graphics"
-            ctrl = new Graphics(parent);
-            break;
+            case 0x9C586C0C: // "Vid::Options"
+                ctrl = new Options(parent);
+                break;
+            case 0x1D786456: // "Vid::Graphics"
+                ctrl = new Graphics(parent);
+                break;
         }
         return (ctrl);
     }
+
     //----------------------------------------------------------------------------
 
     // 
@@ -152,11 +155,13 @@ namespace Vid
         IFace::RegisterControlClass("Vid::Options", CreateHandler);
         IFace::RegisterControlClass("Vid::Graphics", CreateHandler);
     }
+
     void DoneIFace()
     {
         IFace::UnregisterControlClass("Vid::Graphics");
         IFace::UnregisterControlClass("Vid::Options");
     }
+
     //----------------------------------------------------------------------------
 
     namespace Command
@@ -212,6 +217,7 @@ namespace Vid
 
             Vid::Var::lockout = FALSE;
         }
+
         //-----------------------------------------------------------------------------
 
         void Reset()
@@ -243,6 +249,7 @@ namespace Vid
             Vid::Var::Dialog::mipmap = TRUE;
             Vid::Var::Dialog::mipfilter = TRUE;
         }
+
         //-----------------------------------------------------------------------------
 
         //
@@ -269,6 +276,7 @@ namespace Vid
 
             OnModeChange();
         }
+
         //-----------------------------------------------------------------------------
 
         void OnModeChange()
@@ -280,6 +288,7 @@ namespace Vid
             }
             VarSys::SetIntegerRange("vid.clip.guard.size", 0, Vid::CurD3D().guardRect.p1.x);
         }
+
         //-----------------------------------------------------------------------------
 
         void SetPerfs()
@@ -289,6 +298,7 @@ namespace Vid
                 Vid::Var::perfs[i] = Vid::Var::Dialog::perfs[i];
             }
         }
+
         //-----------------------------------------------------------------------------
 
         //
@@ -482,6 +492,7 @@ namespace Vid
 
             Vid::Light::SetSunMinAngle(Vid::Var::sunMinAngle);
         }
+
         //-----------------------------------------------------------------------------
 
         //
@@ -511,6 +522,7 @@ namespace Vid
             DoneDialog();
             DoneMesh();
         }
+
         //-----------------------------------------------------------------------------
 
         //
@@ -529,398 +541,347 @@ namespace Vid
 
             switch (pathCrc)
             {
-            case 0x64E935AE: // "vid.checkverts"
-                Vid::renderState.status.checkVerts = Vid::Var::checkVerts;
-                break;
-
-            case 0xDDC16CFC: // "vid.heap.max"
-            {
-                S32 v, t;
-                if (Console::GetArgInteger(1, v) && Console::GetArgInteger(2, t))
-                {
-                    Heap::Init(v, t * 3);
-                }
-                CON_DIAG(("max verts: %d, tris: %d, bytes: %d",
-                    Vid::renderState.maxVerts, Vid::renderState.maxTris, Heap::Size()))
+                case 0x64E935AE: // "vid.checkverts"
+                    Vid::renderState.status.checkVerts = Vid::Var::checkVerts;
                     break;
-            }
 
-            case 0xB5E6289B: // "vid.perf.object"
-                Vid::renderState.perfs[0] = Vid::Var::perfs[0];
-                Mesh::Manager::SetupPerf();
-                break;
-            case 0x4F5DF64A: // "vid.perf.terrain"
-                Vid::renderState.perfs[1] = Vid::Var::perfs[1];
-                Terrain::SetupPerf();
-                break;
-            case 0xEEF0CEBB: // "vid.perf.particle"
-                Vid::renderState.perfs[2] = Vid::Var::perfs[2];
-                break;
-            case 0xA7BF225D: // "vid.perf.lighting"
-                Vid::renderState.perfs[3] = Vid::Var::perfs[3];
-                break;
-
-            case 0x6855914D: // "vid.perf.turtle"
-                showTexSwap = *Vid::Var::perfTurtle;
-                break;
-
-            case 0xE2417C91: // "vid.tex.noswap"
-                Vid::renderState.status.texNoSwap = Vid::Var::varTexNoSwap;
-                break;
-            case 0x81E7EAF7: // "vid.tex.memory"
-                Vid::renderState.texNoSwapMem = Vid::Var::varTexNoSwapMem;
-                break;
-            case 0x21128448: // "vid.tex.reduce"
-                if (S32(Vid::renderState.textureReduction) != Vid::Var::varTexReduce)
+                case 0xDDC16CFC: // "vid.heap.max"
                 {
-                    Vid::renderState.textureReduction = Vid::Var::varTexReduce;
-                    if (!Vid::Var::Dialog::inDialog)
+                    S32 v, t;
+                    if (Console::GetArgInteger(1, v) && Console::GetArgInteger(2, t))
                     {
-                        Vid::SetModeForce(curMode);
+                        Heap::Init(v, t * 3);
                     }
+                    CON_DIAG
+                    (
+                        ("max verts: %d, tris: %d, bytes: %d",
+                            Vid::renderState.maxVerts, Vid::renderState.maxTris, Heap::Size())
+                    )
+                    break;
                 }
-                break;
 
-            case 0x9FCBB8F1: // "vid.tripleBuf"
+                case 0xB5E6289B: // "vid.perf.object"
+                    Vid::renderState.perfs[0] = Vid::Var::perfs[0];
+                    Mesh::Manager::SetupPerf();
+                    break;
+                case 0x4F5DF64A: // "vid.perf.terrain"
+                    Vid::renderState.perfs[1] = Vid::Var::perfs[1];
+                    Terrain::SetupPerf();
+                    break;
+                case 0xEEF0CEBB: // "vid.perf.particle"
+                    Vid::renderState.perfs[2] = Vid::Var::perfs[2];
+                    break;
+                case 0xA7BF225D: // "vid.perf.lighting"
+                    Vid::renderState.perfs[3] = Vid::Var::perfs[3];
+                    break;
 
-                if (S32(doStatus.tripleBuf) != *Vid::Var::varTripleBuf)
-                {
-                    doStatus.tripleBuf = *Vid::Var::varTripleBuf;
+                case 0x6855914D: // "vid.perf.turtle"
+                    showTexSwap = *Vid::Var::perfTurtle;
+                    break;
+
+                case 0xE2417C91: // "vid.tex.noswap"
+                    Vid::renderState.status.texNoSwap = Vid::Var::varTexNoSwap;
+                    break;
+                case 0x81E7EAF7: // "vid.tex.memory"
+                    Vid::renderState.texNoSwapMem = Vid::Var::varTexNoSwapMem;
+                    break;
+                case 0x21128448: // "vid.tex.reduce"
+                    if (S32(Vid::renderState.textureReduction) != Vid::Var::varTexReduce)
+                    {
+                        Vid::renderState.textureReduction = Vid::Var::varTexReduce;
+                        if (!Vid::Var::Dialog::inDialog)
+                        {
+                            Vid::SetModeForce(curMode);
+                        }
+                    }
+                    break;
+
+                case 0x9FCBB8F1: // "vid.tripleBuf"
+
+                    if (S32(doStatus.tripleBuf) != *Vid::Var::varTripleBuf)
+                    {
+                        doStatus.tripleBuf = *Vid::Var::varTripleBuf;
+                        if (Vid::isStatus.initialized && !Vid::Var::Dialog::inDialog)
+                        {
+                            SetModeForce(curMode);
+                        }
+                    }
+                    break;
+                case 0x82C1F3D1: // "vid.tex.32"
+                    Vid::renderState.status.tex32 = *Vid::Var::varTex32 && caps.tex32;
                     if (Vid::isStatus.initialized && !Vid::Var::Dialog::inDialog)
                     {
                         SetModeForce(curMode);
                     }
-                }
-                break;
-            case 0x82C1F3D1: // "vid.tex.32"
-                Vid::renderState.status.tex32 = *Vid::Var::varTex32 && caps.tex32;
-                if (Vid::isStatus.initialized && !Vid::Var::Dialog::inDialog)
-                {
-                    SetModeForce(curMode);
-                }
-                break;
-            case 0x6280E1C0: // "vid.waitretrace"
-                Vid::renderState.status.waitRetrace = *Vid::Var::waitRetrace;
-                break;
-            case 0x5086C485: // "vid.xmm"
-                Vid::renderState.status.xmm = caps.xmm ? *Vid::Var::xmm : FALSE;
-                break;
-            case 0x9B633AED: // "vid.transort"
-                tranbucket.doSort = *Vid::Var::transort;
-                break;
+                    break;
+                case 0x6280E1C0: // "vid.waitretrace"
+                    Vid::renderState.status.waitRetrace = *Vid::Var::waitRetrace;
+                    break;
+                case 0x5086C485: // "vid.xmm"
+                    Vid::renderState.status.xmm = caps.xmm ? *Vid::Var::xmm : FALSE;
+                    break;
+                case 0x9B633AED: // "vid.transort"
+                    tranbucket.doSort = *Vid::Var::transort;
+                    break;
 
-            case 0x716315FD: // "vid.gamma"
-                SetGamma(*Vid::Var::varGamma);
-                break;
-            case 0xADAB515B: // "vid.hardTL"
-      //        Vid::renderState.status.hardTL = *Vid::Var::varHardTL && caps.hardTL;
+                case 0x716315FD: // "vid.gamma"
+                    SetGamma(*Vid::Var::varGamma);
+                    break;
+                case 0xADAB515B: // "vid.hardTL"
+                    //        Vid::renderState.status.hardTL = *Vid::Var::varHardTL && caps.hardTL;
 #if 1
-//        Vid::Var::varDxTL = Vid::renderState.status.hardTL; 
+                    //        Vid::Var::varDxTL = Vid::renderState.status.hardTL; 
 #endif
-                break;
+                    break;
 
-            case 0xF7360565: // "vid.dxTL"
-                Vid::renderState.status.dxTL = *Vid::Var::varDxTL;
-                if (Vid::isStatus.initialized)
+                case 0xF7360565: // "vid.dxTL"
+                    Vid::renderState.status.dxTL = *Vid::Var::varDxTL;
+                    if (Vid::isStatus.initialized)
+                    {
+                        Vid::SetRenderState();
+                        Mesh::Manager::OnModeChange();
+                        Terrain::SetRenderFunc();
+                    }
+                    break;
+
+                case 0xC15146F7: // "vid.weather"
+                    Vid::renderState.status.weather = *Vid::Var::varWeather;
+                    break;
+
+                case 0x963A919D: // "vid.movie.active"
+                    Vid::renderState.status.texMovie3D = *Vid::Var::varMovie;
+                    Bitmap::Manager::MoviePause(!Vid::renderState.status.texMovie3D);
+                    //        Bitmap::Manager::MovieReload();
+                    break;
+                case 0xA6BFAF16: // "vid.tex.multi"
+                    Vid::renderState.status.texMulti = *Vid::Var::varMultiTex ? Vid::caps.texMulti : FALSE;
+                    /*
+                            if (Vid::isStatus.initialized && !Vid::Var::Dialog::inDialog)
+                            {
+                              SetModeForce( curMode);
+                            }
+                    */
+                    break;
+                case 0x3BEE1D83: // "vid.antialias"
+                    SetAntiAliasStateI(*Vid::Var::varAntiAlias);
+                    break;
+                case 0x0EBE2A3D: // "vid.filter"
+                case 0xD6BCB5D1: // "vid.mipmap"
+                case 0x42B4E7A6: // "vid.mipfilter"
+                    SetFilterStateI(*Vid::Var::varFilter, *Vid::Var::varMipmap, *Vid::Var::varMipfilter);
+                    break;
+                case 0x30909234: // "vid.wireframe"
+                case 0x714EEC96: // "vid.flatshade"
+                    SetShadeStateI(*Vid::Var::varWire ? shadeWIRE : *Vid::Var::varFlat ? shadeFLAT : shadeGOURAUD);
+                    break;
+                case 0xFBA34C8C: // "vid.texture"
+                    SetTextureStateI(*Vid::Var::varTexture);
+                    break;
+                case 0x7D632FC1: // "vid.specular"
+                    SetSpecularStateI(*Vid::Var::varSpecular);
+                    break;
+                case 0x223D9B30: // "vid.dither"
+                    SetDitherStateI(*Vid::Var::varDither);
+                    break;
+                case 0xC862CB06: // "vid.fog"
+                    SetFogStateI(*Vid::Var::varFog);
+                    break;
+
+                case 0xECA05BC0: // "vid.render1"
+                    Mesh::Manager::FullResList();
+                    renderState.status.render1 = *Vid::Var::render1;
+                    break;
+                case 0xE1E37D19: // "vid.render2"
+                    renderState.status.render2 = *Vid::Var::render2;
+                    break;
+
+                case 0x917B6C42: // "vid.clip.visual"
+                case 0x9957818F: // "vid.clip.guard.size"
+                    Vid::renderState.clipGuardSize = Vid::Var::clipGuardSize;
+                    Vid::renderState.status.clipVis = Vid::Var::clipVis;
+
+                    if (Vid::isStatus.initialized)
+                    {
+                        Vid::CurCamera().SetupView();
+                    }
+                    break;
+
+                case 0x9ED9408F: // "vid.clip.guard.active"
+                    Vid::renderState.status.clipGuard = caps.clipGuard ? Vid::Var::clipGuard : FALSE;
+                    break;
+                case 0xE74F7FB8: // "vid.clip.func"
+                    Vid::renderState.status.clipFunc = Vid::Var::clipFunc;
+                    break;
+                case 0x64D173F2: // "vid.clip.box"
+                    Vid::renderState.status.clipBox = Vid::Var::clipBox;
+                    break;
+
+                case 0x11F4189B: // "vid.mirror.active"
+                    Vid::renderState.status.mirror = Vid::Var::varMirror;
+                    break;
+
+                case 0x96A70B9F: // "vid.sun.time"
+                case 0x53EDBFF0: // "vid.sun.color"
                 {
-                    Vid::SetRenderState();
-                    Mesh::Manager::OnModeChange();
-                    Terrain::SetRenderFunc();
+                    Color color = Vid::Var::suncolor;
+                    F32 r = (F32)color.r / 255.0f;
+                    F32 g = (F32)color.g / 255.0f;
+                    F32 b = (F32)color.b / 255.0f;
+                    Vid::Light::SetSun(Vid::Var::suntime, r, g, b);
+                    break;
                 }
-                break;
+                case 0xEE05232F: // "vid.sun.minangle"
+                    Vid::Light::SetSunMinAngle(Vid::Var::sunMinAngle);
+                    break;
 
-            case 0xC15146F7: // "vid.weather"
-                Vid::renderState.status.weather = *Vid::Var::varWeather;
-                break;
+                case 0x0255732E: // "vid.alpha.activenear"
+                    Vid::renderState.status.alphaNear = Vid::Var::alphaNearActive;
+                    //          Vid::SetAlphaState( Vid::renderState.status.alphaNear || Vid::renderState.status.alphaFar);
+                    break;
+                case 0xDDE6F036: // "vid.alpha.activefar"
+                    Vid::renderState.status.alphaFar = Vid::Var::alphaFarActive;
+                    //          Vid::SetAlphaState( Vid::renderState.status.alphaNear || Vid::renderState.status.alphaFar);
+                    break;
+                case 0xB3E789E9: // "vid.alpha.near"
+                    Vid::renderState.alphaNear = Vid::Var::alphaNear;
+                    break;
+                case 0xCC1F920A: // "vid.alpha.far"
+                    Vid::renderState.alphaFar = Vid::Var::alphaFar;
+                    break;
 
-            case 0x963A919D: // "vid.movie.active"
-                Vid::renderState.status.texMovie3D = *Vid::Var::varMovie;
-                Bitmap::Manager::MoviePause(!Vid::renderState.status.texMovie3D);
-                //        Bitmap::Manager::MovieReload();
-                break;
-            case 0xA6BFAF16: // "vid.tex.multi"
-                Vid::renderState.status.texMulti = *Vid::Var::varMultiTex ? Vid::caps.texMulti : FALSE;
-                /*
-                        if (Vid::isStatus.initialized && !Vid::Var::Dialog::inDialog)
-                        {
-                          SetModeForce( curMode);
-                        }
-                */
-                break;
-            case 0x3BEE1D83: // "vid.antialias"
-                SetAntiAliasStateI(*Vid::Var::varAntiAlias);
-                break;
-            case 0x0EBE2A3D: // "vid.filter"
-            case 0xD6BCB5D1: // "vid.mipmap"
-            case 0x42B4E7A6: // "vid.mipfilter"
-                SetFilterStateI(*Vid::Var::varFilter, *Vid::Var::varMipmap, *Vid::Var::varMipfilter);
-                break;
-            case 0x30909234: // "vid.wireframe"
-            case 0x714EEC96: // "vid.flatshade"
-                SetShadeStateI(*Vid::Var::varWire ? shadeWIRE : *Vid::Var::varFlat ? shadeFLAT : shadeGOURAUD);
-                break;
-            case 0xFBA34C8C: // "vid.texture"
-                SetTextureStateI(*Vid::Var::varTexture);
-                break;
-            case 0x7D632FC1: // "vid.specular"
-                SetSpecularStateI(*Vid::Var::varSpecular);
-                break;
-            case 0x223D9B30: // "vid.dither"
-                SetDitherStateI(*Vid::Var::varDither);
-                break;
-            case 0xC862CB06: // "vid.fog"
-                SetFogStateI(*Vid::Var::varFog);
-                break;
+                case 0x9AA2AA05: // "vid.faroverride"
+                case 0xD21808A6: // "vid.farplane"
+                    SetFarPlane(Vid::Var::farPlane);
+                    break;
 
-            case 0xECA05BC0: // "vid.render1"
-                Mesh::Manager::FullResList();
-                renderState.status.render1 = *Vid::Var::render1;
-                break;
-            case 0xE1E37D19: // "vid.render2"
-                renderState.status.render2 = *Vid::Var::render2;
-                break;
-
-            case 0x917B6C42: // "vid.clip.visual"
-            case 0x9957818F: // "vid.clip.guard.size"
-                Vid::renderState.clipGuardSize = Vid::Var::clipGuardSize;
-                Vid::renderState.status.clipVis = Vid::Var::clipVis;
-
-                if (Vid::isStatus.initialized)
+                case 0x3B727B77: // "vid.farplaneinc"
                 {
-                    Vid::CurCamera().SetupView();
+                    F32 f1;
+                    if (Console::GetArgFloat(1, f1))
+                    {
+                        Vid::Var::farPlane = Vid::Var::farPlane + f1;
+                        CON_DIAG(("farplane = %.1f", CurCamera().FarPlane()))
+                    }
+                    break;
                 }
-                break;
 
-            case 0x9ED9408F: // "vid.clip.guard.active"
-                Vid::renderState.status.clipGuard = caps.clipGuard ? Vid::Var::clipGuard : FALSE;
-                break;
-            case 0xE74F7FB8: // "vid.clip.func"
-                Vid::renderState.status.clipFunc = Vid::Var::clipFunc;
-                break;
-            case 0x64D173F2: // "vid.clip.box"
-                Vid::renderState.status.clipBox = Vid::Var::clipBox;
-                break;
-
-            case 0x11F4189B: // "vid.mirror.active"
-                Vid::renderState.status.mirror = Vid::Var::varMirror;
-                break;
-
-            case 0x96A70B9F: // "vid.sun.time"
-            case 0x53EDBFF0: // "vid.sun.color"
-            {
-                Color color = Vid::Var::suncolor;
-                F32 r = (F32)color.r / 255.0f;
-                F32 g = (F32)color.g / 255.0f;
-                F32 b = (F32)color.b / 255.0f;
-                Vid::Light::SetSun(Vid::Var::suntime, r, g, b);
-                break;
-            }
-            case 0xEE05232F: // "vid.sun.minangle"
-                Vid::Light::SetSunMinAngle(Vid::Var::sunMinAngle);
-                break;
-
-            case 0x0255732E: // "vid.alpha.activenear"
-                Vid::renderState.status.alphaNear = Vid::Var::alphaNearActive;
-                //          Vid::SetAlphaState( Vid::renderState.status.alphaNear || Vid::renderState.status.alphaFar);
-                break;
-            case 0xDDE6F036: // "vid.alpha.activefar"
-                Vid::renderState.status.alphaFar = Vid::Var::alphaFarActive;
-                //          Vid::SetAlphaState( Vid::renderState.status.alphaNear || Vid::renderState.status.alphaFar);
-                break;
-            case 0xB3E789E9: // "vid.alpha.near"
-                Vid::renderState.alphaNear = Vid::Var::alphaNear;
-                break;
-            case 0xCC1F920A: // "vid.alpha.far"
-                Vid::renderState.alphaFar = Vid::Var::alphaFar;
-                break;
-
-            case 0x9AA2AA05: // "vid.faroverride"
-            case 0xD21808A6: // "vid.farplane"
-                SetFarPlane(Vid::Var::farPlane);
-                break;
-
-            case 0x3B727B77: // "vid.farplaneinc"
-            {
-                F32 f1;
-                if (Console::GetArgFloat(1, f1))
+                case 0x560FC766: // "vid.fogdepth"
+                    SetFogDepth(Vid::Var::fogDepth);
+                    break;
+                case 0x521D42A6: // "vid.fogdepthinc"
                 {
-                    Vid::Var::farPlane = Vid::Var::farPlane + f1;
-                    CON_DIAG(("farplane = %.1f", CurCamera().FarPlane()))
+                    F32 f1;
+                    if (Console::GetArgFloat(1, f1))
+                    {
+                        SetFogDepth(Vid::renderState.fogDepth + f1);
+                        CON_DIAG(("fogdepth = %.1f", Vid::renderState.fogDepth))
+                    }
+                    break;
                 }
-                break;
-            }
 
-            case 0x560FC766: // "vid.fogdepth"
-                SetFogDepth(Vid::Var::fogDepth);
-                break;
-            case 0x521D42A6: // "vid.fogdepthinc"
-            {
-                F32 f1;
-                if (Console::GetArgFloat(1, f1))
+                case 0x7758C8C1: // "vid.fogcolor"
                 {
-                    SetFogDepth(Vid::renderState.fogDepth + f1);
-                    CON_DIAG(("fogdepth = %.1f", Vid::renderState.fogDepth))
-                }
-                break;
-            }
-
-            case 0x7758C8C1: // "vid.fogcolor"
-            {
-                S32 r, g, b;
-                if
+                    S32 r, g, b;
+                    if
                     (
                         Console::GetArgInteger(1, r) &&
                         Console::GetArgInteger(2, g) &&
                         Console::GetArgInteger(3, b)
-                        )
-                {
-                    SetFogColor
-                    (
-                        Clamp<F32>(0.0F, F32(r) / 256.F, 1.0F),
-                        Clamp<F32>(0.0F, F32(g) / 256.F, 1.0F),
-                        Clamp<F32>(0.0F, F32(b) / 256.F, 1.0F)
-                    );
-                }
-                break;
-            }
-
-            // status toggles
-            //
-            case 0x4832DA32: // "vid.toggle.mipmap"
-                Vid::Var::varMipmap = !*Vid::Var::varMipmap;
-                break;
-            case 0x2386BC3A: // "vid.toggle.mipfilter"
-                Vid::Var::varMipfilter = !*Vid::Var::varMipfilter;
-                break;
-            case 0x0220B407: // "vid.toggle.movie"
-                Vid::Var::varMovie = !*Vid::Var::varMovie;
-                break;
-
-            case 0x51A2C9A8: // "vid.toggle.wireframe"
-                Vid::Var::varWire = !*Vid::Var::varWire;
-                break;
-            case 0x6C5F3418: // "vid.toggle.texture"
-                Vid::Var::varTexture = !*Vid::Var::varTexture;
-                break;
-            case 0xBA41D05A: // "vid.toggle.specular"
-                Vid::Var::varSpecular = !*Vid::Var::varSpecular;
-                break;
-            case 0xBCB3F4D3: // "vid.toggle.dither"
-                Vid::Var::varDither = !*Vid::Var::varDither;
-                break;
-            case 0x903045DE: // "vid.toggle.filter"
-                Vid::Var::varFilter = !*Vid::Var::varFilter;
-                break;
-            case 0x60999F21: // "vid.toggle.fog"
-                Vid::Var::varFog = !*Vid::Var::varFog;
-                break;
-            case 0x57502C88: // "vid.toggle.waitretrace"
-                Vid::Var::waitRetrace = !*Vid::Var::waitRetrace;
-                break;
-            case 0xF87D90A2: // "vid.toggle.xmm"
-                Vid::Var::xmm = !*Vid::Var::xmm;
-                break;
-            case 0x5C41C576: // "vid.toggle.transort"
-                Vid::Var::transort = !*Vid::Var::transort;
-                break;
-
-                // info report
-                //
-            case 0x44729F4C: // "vid.report.quick"
-                Vid::Report();
-                break;
-            case 0xFBFBD149: // "vid.report.all"
-                Terrain::Report(TRUE);
-                Vid::Light::ReportList();
-                MeshEffectSystem::ReportList();
-                Mesh::Manager::ReportList();
-                Material::Manager::ReportList();
-                Bitmap::Manager::ReportList();
-                break;
-            case 0x65B8D311: // "vid.report.material"
-                Material::Manager::ReportList();
-                break;
-            case 0x1B507E82: // "vid.report.light"
-                Vid::Light::ReportList();
-                break;
-            case 0xE78F2880: // "vid.report.tex"
-                Console::GetArgString(1, (const char*&)s1);
-                Bitmap::Manager::ReportList(s1, FALSE, bitmapTEXTURE | bitmapSURFACE | bitmapNORMAL);
-                break;
-            case 0xB912F7C4: // "vid.report.mesheffect"
-                MeshEffectSystem::ReportList();
-                break;
-            case 0x45ACAE87: // "vid.report.mesh"
-                Mesh::Manager::ReportList();
-                break;
-            case 0xDB647AFD: // "vid.report.terrain"
-                Terrain::Report(TRUE);
-                break;
-
-            case 0xA92CCDA2: // "vid.driver.next"
-                NextDriver();
-                break;
-
-            case 0x6DA3FD09: // "vid.mode.test"
-            {
-                U32 SendNotify(IControl * from, U32 event, U32 p1 = 0, U32 p2 = 0, U32 p3 = 0);
-            }
-            case 0x93E97B78: // "vid.report.modes"
-            case 0x8BEAE2EA: // "vid.mode.report"
-            {
-                U32 i, j, k;
-                for (i = k = 0; i < numDDs; i++)
-                {
-                    DriverDD& ddd = ddDrivers[i];
-
-                    for (j = 0; j < ddd.numModes; j++, k++)
+                    )
                     {
-                        VidMode& mode = ddd.vidModes[j];
-
-                        CON_DIAG(("[%2.2d] %23.23s : %s", k, mode.name.str, ddd.name.str));
+                        SetFogColor
+                        (
+                            Clamp<F32>(0.0F, F32(r) / 256.F, 1.0F),
+                            Clamp<F32>(0.0F, F32(g) / 256.F, 1.0F),
+                            Clamp<F32>(0.0F, F32(b) / 256.F, 1.0F)
+                        );
                     }
-                    if (ddd.windowed)
-                    {
-                        VidMode& mode = ddd.vidModes[VIDMODEWINDOW];
-
-                        CON_DIAG(("[%2.2d] %23.23s : %s", k, mode.name.str, ddd.name.str));
-                    }
+                    break;
                 }
-                break;
-            }
-            case 0xEB90DABF: // "vid.mode.current"
-                CON_DIAG(("%s : %s : %s", CurMode().name.str, CurD3D().name.str, CurDD().name.str));
-                break;
-            case 0x27E47CF8: // "vid.mode.next"
-                NextMode(1);
-                break;
-            case 0xF5D22132: // "vid.mode.prev"
-                NextMode(-1);
-                break;
-            case 0xFBA65A60: // "vid.mode.set"
-            {
-                S32 mode;
 
-                if (Console::ArgCount() == 4)
+                    // status toggles
+                    //
+                case 0x4832DA32: // "vid.toggle.mipmap"
+                    Vid::Var::varMipmap = !*Vid::Var::varMipmap;
+                    break;
+                case 0x2386BC3A: // "vid.toggle.mipfilter"
+                    Vid::Var::varMipfilter = !*Vid::Var::varMipfilter;
+                    break;
+                case 0x0220B407: // "vid.toggle.movie"
+                    Vid::Var::varMovie = !*Vid::Var::varMovie;
+                    break;
+
+                case 0x51A2C9A8: // "vid.toggle.wireframe"
+                    Vid::Var::varWire = !*Vid::Var::varWire;
+                    break;
+                case 0x6C5F3418: // "vid.toggle.texture"
+                    Vid::Var::varTexture = !*Vid::Var::varTexture;
+                    break;
+                case 0xBA41D05A: // "vid.toggle.specular"
+                    Vid::Var::varSpecular = !*Vid::Var::varSpecular;
+                    break;
+                case 0xBCB3F4D3: // "vid.toggle.dither"
+                    Vid::Var::varDither = !*Vid::Var::varDither;
+                    break;
+                case 0x903045DE: // "vid.toggle.filter"
+                    Vid::Var::varFilter = !*Vid::Var::varFilter;
+                    break;
+                case 0x60999F21: // "vid.toggle.fog"
+                    Vid::Var::varFog = !*Vid::Var::varFog;
+                    break;
+                case 0x57502C88: // "vid.toggle.waitretrace"
+                    Vid::Var::waitRetrace = !*Vid::Var::waitRetrace;
+                    break;
+                case 0xF87D90A2: // "vid.toggle.xmm"
+                    Vid::Var::xmm = !*Vid::Var::xmm;
+                    break;
+                case 0x5C41C576: // "vid.toggle.transort"
+                    Vid::Var::transort = !*Vid::Var::transort;
+                    break;
+
+                    // info report
+                    //
+                case 0x44729F4C: // "vid.report.quick"
+                    Vid::Report();
+                    break;
+                case 0xFBFBD149: // "vid.report.all"
+                    Terrain::Report(TRUE);
+                    Vid::Light::ReportList();
+                    MeshEffectSystem::ReportList();
+                    Mesh::Manager::ReportList();
+                    Material::Manager::ReportList();
+                    Bitmap::Manager::ReportList();
+                    break;
+                case 0x65B8D311: // "vid.report.material"
+                    Material::Manager::ReportList();
+                    break;
+                case 0x1B507E82: // "vid.report.light"
+                    Vid::Light::ReportList();
+                    break;
+                case 0xE78F2880: // "vid.report.tex"
+                    Console::GetArgString(1, (const char*&)s1);
+                    Bitmap::Manager::ReportList(s1, FALSE, bitmapTEXTURE | bitmapSURFACE | bitmapNORMAL);
+                    break;
+                case 0xB912F7C4: // "vid.report.mesheffect"
+                    MeshEffectSystem::ReportList();
+                    break;
+                case 0x45ACAE87: // "vid.report.mesh"
+                    Mesh::Manager::ReportList();
+                    break;
+                case 0xDB647AFD: // "vid.report.terrain"
+                    Terrain::Report(TRUE);
+                    break;
+
+                case 0xA92CCDA2: // "vid.driver.next"
+                    NextDriver();
+                    break;
+
+                case 0x6DA3FD09: // "vid.mode.test"
                 {
-                    S32 x, y, depth;
-
-                    if (Console::GetArgInteger(1, x) && Console::GetArgInteger(2, y) && Console::GetArgInteger(3, depth))
-                    {
-                        for (U32 i = 0; i < CurDD().numModes; i++)
-                        {
-                            VidMode& mode = CurDD().vidModes[i];
-
-                            if ((mode.rect.Width() == x) && (mode.rect.Height() == y) && (mode.bpp == U32(depth)))
-                            {
-                                SetMode(i);
-                                return;
-                            }
-                        }
-                        CON_ERR(("No mode %dx%dx%d", x, y, depth))
-                    }
+                    U32 SendNotify(IControl* from, U32 event, U32 p1 = 0, U32 p2 = 0, U32 p3 = 0);
                 }
-                else if (Console::GetArgInteger(1, mode))
+                case 0x93E97B78: // "vid.report.modes"
+                case 0x8BEAE2EA: // "vid.mode.report"
                 {
                     U32 i, j, k;
                     for (i = k = 0; i < numDDs; i++)
@@ -929,195 +890,253 @@ namespace Vid
 
                         for (j = 0; j < ddd.numModes; j++, k++)
                         {
-                            if ((S32)k == mode)
+                            VidMode& mode = ddd.vidModes[j];
+
+                            CON_DIAG(("[%2.2d] %23.23s : %s", k, mode.name.str, ddd.name.str));
+                        }
+                        if (ddd.windowed)
+                        {
+                            VidMode& mode = ddd.vidModes[VIDMODEWINDOW];
+
+                            CON_DIAG(("[%2.2d] %23.23s : %s", k, mode.name.str, ddd.name.str));
+                        }
+                    }
+                    break;
+                }
+                case 0xEB90DABF: // "vid.mode.current"
+                CON_DIAG(("%s : %s : %s", CurMode().name.str, CurD3D().name.str, CurDD().name.str));
+                    break;
+                case 0x27E47CF8: // "vid.mode.next"
+                    NextMode(1);
+                    break;
+                case 0xF5D22132: // "vid.mode.prev"
+                    NextMode(-1);
+                    break;
+                case 0xFBA65A60: // "vid.mode.set"
+                {
+                    S32 mode;
+
+                    if (Console::ArgCount() == 4)
+                    {
+                        S32 x, y, depth;
+
+                        if (Console::GetArgInteger(1, x) && Console::GetArgInteger(2, y) && Console::GetArgInteger(3, depth))
+                        {
+                            for (U32 i = 0; i < CurDD().numModes; i++)
+                            {
+                                VidMode& mode = CurDD().vidModes[i];
+
+                                if ((mode.rect.Width() == x) && (mode.rect.Height() == y) && (mode.bpp == U32(depth)))
+                                {
+                                    SetMode(i);
+                                    return;
+                                }
+                            }
+                            CON_ERR(("No mode %dx%dx%d", x, y, depth))
+                        }
+                    }
+                    else if (Console::GetArgInteger(1, mode))
+                    {
+                        U32 i, j, k;
+                        for (i = k = 0; i < numDDs; i++)
+                        {
+                            DriverDD& ddd = ddDrivers[i];
+
+                            for (j = 0; j < ddd.numModes; j++, k++)
+                            {
+                                if ((S32)k == mode)
+                                {
+                                    if (i != curDD)
+                                    {
+                                        curDD = i;
+                                        InitDD(TRUE);
+                                    }
+                                    SetMode(j);
+                                    CON_DIAG(("Setting mode %s : %s", CurMode().name.str, CurDD().name.str))
+                                }
+                            }
+                            if (ddd.windowed && (S32)k == mode)
                             {
                                 if (i != curDD)
                                 {
                                     curDD = i;
                                     InitDD(TRUE);
                                 }
-                                SetMode(j);
+                                SetMode(VIDMODEWINDOW);
                                 CON_DIAG(("Setting mode %s : %s", CurMode().name.str, CurDD().name.str))
                             }
                         }
-                        if (ddd.windowed && (S32)k == mode)
-                        {
-                            if (i != curDD)
-                            {
-                                curDD = i;
-                                InitDD(TRUE);
-                            }
-                            SetMode(VIDMODEWINDOW);
-                            CON_DIAG(("Setting mode %s : %s", CurMode().name.str, CurDD().name.str))
-                        }
                     }
-                }
-                break;
-            }
-
-            case 0x729381E3: // "vid.windowed"
-            {
-                S32 w = 480, h = 640;
-                Console::GetArgInteger(1, w);
-                Console::GetArgInteger(2, h);
-
-                SetMode(VIDMODEWINDOW, w, h, TRUE);
-                break;
-            }
-
-            case 0x93277D92: // "vid.fullscreen"
-                ToggleWindowedMode();
-                break;
-
-                // setup
-                //
-            case 0x697B555A: // "vid.bucket"
-            {
-                S32 flushWhenFull = TRUE;
-                if (!Console::GetArgInteger(1, flushWhenFull))
-                {
-                    CON_DIAG(("flushWhenFull = %d", bucket.flushWhenFull));
                     break;
                 }
-                bucket.flushWhenFull = flushWhenFull > 0 ? TRUE : FALSE;
 
-                //      InitBuckets(DEF_BUCKET_COUNT, DEF_BUCKET_SIZE, DEF_BUCKET_RATIO, flushWhenFull,
-                //        DEF_TRAN_BUCKET_COUNT, DEF_TRAN_BUCKET_SIZE, DEF_BUCKET_RATIO);
-                break;
-            }
-
-            case 0xC67A5736: // "vid.ambient"
-            {
-                S32 r, g, b;
-                if (!Console::GetArgInteger(1, r))
+                case 0x729381E3: // "vid.windowed"
                 {
-                    F32 rr, gg, bb;
-                    GetAmbientColor(rr, gg, bb);
-                    CON_DIAG(("ambient = %d %d %d",
-                        (U32)(rr * 255.0f),
-                        (U32)(gg * 255.0f),
-                        (U32)(bb * 255.0f)))
+                    S32 w = 480, h = 640;
+                    Console::GetArgInteger(1, w);
+                    Console::GetArgInteger(2, h);
+
+                    SetMode(VIDMODEWINDOW, w, h, TRUE);
+                    break;
+                }
+
+                case 0x93277D92: // "vid.fullscreen"
+                    ToggleWindowedMode();
+                    break;
+
+                    // setup
+                    //
+                case 0x697B555A: // "vid.bucket"
+                {
+                    S32 flushWhenFull = TRUE;
+                    if (!Console::GetArgInteger(1, flushWhenFull))
+                    {
+                        CON_DIAG(("flushWhenFull = %d", bucket.flushWhenFull));
                         break;
-                }
-                g = b = r;
-                Console::GetArgInteger(2, g);
-                Console::GetArgInteger(3, b);
-
-                r = max(min(r, 255), 0);
-                g = max(min(g, 255), 0);
-                b = max(min(b, 255), 0);
-                SetAmbientColor((F32)r / 255.0f, (F32)g / 255.0f, (F32)b / 255.0f);
-                break;
-            }
-
-            case 0xC685F232: // "vid.tex.report.all"
-                Console::GetArgString(1, (const char*&)s1);
-                Bitmap::Manager::ReportList(s1, FALSE, bitmapTEXTURE);
-                break;
-            case 0x32D8906C: // "vid.tex.report.bink"
-                Console::GetArgString(1, (const char*&)s1);
-                Bitmap::Manager::ReportList(s1, FALSE, bitmapTEXTURE, TRUE);
-                break;
-            case 0xAFD2CF06: // "vid.tex.report.frame"
-                Console::GetArgString(1, (const char*&)s1);
-                Bitmap::Manager::ReportList(s1, TRUE, bitmapTEXTURE);
-                break;
-            case 0xE37C4617: // "vid.tex.report.surf"
-                Console::GetArgString(1, (const char*&)s1);
-                Bitmap::Manager::ReportList(s1, FALSE, bitmapSURFACE);
-                break;
-            case 0xF1F8F49D: // "vid.tex.report.manage"
-                Bitmap::Manager::ReportManagement();
-                break;
-            case 0x01C02E77: // "vid.tex.report.usage"
-                Bitmap::Manager::ReportUsage();
-                break;
-
-            case 0x13234AD9: // "vid.tex.replace"
-            {
-                const char* s0, * s1;
-                if (Console::GetArgString(1, s0) && Console::GetArgString(2, s1))
-                {
-                    Bitmap* dbmap = Bitmap::Manager::Find(s0);
-                    if (dbmap)
-                    {
-                        dbmap->ReLoad(s1);
                     }
-                }
-                break;
-            }
-            case 0x6C356ABC: // "vid.tex.reload"
-            {
-                Bitmap::Manager::ReleaseDD();
-                Bitmap::Manager::OnModeChange();
-            }
-            case 0x0E948202: // "vid.tex.restore"
-            {
-                Bitmap::Manager::GetLost();
-                Bitmap::Manager::Restore();
-            }
-            case 0x6F163FCE: // "vid.movie.start"
-                if (Console::GetArgString(1, (const char*&)s1))
-                {
-                    FileDrive drive;
-                    FileDir dir;
-                    FileName name;
-                    FileExt ext;
-                    Dir::PathExpand(s1, drive, dir, name, ext);
+                    bucket.flushWhenFull = flushWhenFull > 0 ? TRUE : FALSE;
 
-                    Bitmap* bmap = Bitmap::Manager::Find(name.str);
-                    if (bmap)
+                    //      InitBuckets(DEF_BUCKET_COUNT, DEF_BUCKET_SIZE, DEF_BUCKET_RATIO, flushWhenFull,
+                    //        DEF_TRAN_BUCKET_COUNT, DEF_TRAN_BUCKET_SIZE, DEF_BUCKET_RATIO);
+                    break;
+                }
+
+                case 0xC67A5736: // "vid.ambient"
+                {
+                    S32 r, g, b;
+                    if (!Console::GetArgInteger(1, r))
                     {
-                        bmap->BinkSetActive(1);
+                        F32 rr, gg, bb;
+                        GetAmbientColor(rr, gg, bb);
+                        CON_DIAG
+                        (
+                            ("ambient = %d %d %d",
+                                (U32)(rr * 255.0f),
+                                (U32)(gg * 255.0f),
+                                (U32)(bb * 255.0f))
+                        )
+                        break;
                     }
-                }
-                else
-                {
-                    Bitmap::Manager::MoviePause(0);
-                }
-                break;
-            case 0x97BCEF6E: // "vid.movie.stop"
-                if (Console::GetArgString(1, (const char*&)s1))
-                {
-                    FileDrive drive;
-                    FileDir dir;
-                    FileName name;
-                    FileExt ext;
-                    Dir::PathExpand(s1, drive, dir, name, ext);
+                    g = b = r;
+                    Console::GetArgInteger(2, g);
+                    Console::GetArgInteger(3, b);
 
-                    Bitmap* bmap = Bitmap::Manager::Find(name.str);
-                    if (bmap)
+                    r = max(min(r, 255), 0);
+                    g = max(min(g, 255), 0);
+                    b = max(min(b, 255), 0);
+                    SetAmbientColor((F32)r / 255.0f, (F32)g / 255.0f, (F32)b / 255.0f);
+                    break;
+                }
+
+                case 0xC685F232: // "vid.tex.report.all"
+                    Console::GetArgString(1, (const char*&)s1);
+                    Bitmap::Manager::ReportList(s1, FALSE, bitmapTEXTURE);
+                    break;
+                case 0x32D8906C: // "vid.tex.report.bink"
+                    Console::GetArgString(1, (const char*&)s1);
+                    Bitmap::Manager::ReportList(s1, FALSE, bitmapTEXTURE, TRUE);
+                    break;
+                case 0xAFD2CF06: // "vid.tex.report.frame"
+                    Console::GetArgString(1, (const char*&)s1);
+                    Bitmap::Manager::ReportList(s1, TRUE, bitmapTEXTURE);
+                    break;
+                case 0xE37C4617: // "vid.tex.report.surf"
+                    Console::GetArgString(1, (const char*&)s1);
+                    Bitmap::Manager::ReportList(s1, FALSE, bitmapSURFACE);
+                    break;
+                case 0xF1F8F49D: // "vid.tex.report.manage"
+                    Bitmap::Manager::ReportManagement();
+                    break;
+                case 0x01C02E77: // "vid.tex.report.usage"
+                    Bitmap::Manager::ReportUsage();
+                    break;
+
+                case 0x13234AD9: // "vid.tex.replace"
+                {
+                    const char *s0, *s1;
+                    if (Console::GetArgString(1, s0) && Console::GetArgString(2, s1))
                     {
-                        bmap->BinkSetActive(0);
+                        Bitmap* dbmap = Bitmap::Manager::Find(s0);
+                        if (dbmap)
+                        {
+                            dbmap->ReLoad(s1);
+                        }
                     }
+                    break;
                 }
-                else
+                case 0x6C356ABC: // "vid.tex.reload"
                 {
-                    Bitmap::Manager::MoviePause(1);
+                    Bitmap::Manager::ReleaseDD();
+                    Bitmap::Manager::OnModeChange();
                 }
-                break;
+                case 0x0E948202: // "vid.tex.restore"
+                {
+                    Bitmap::Manager::GetLost();
+                    Bitmap::Manager::Restore();
+                }
+                case 0x6F163FCE: // "vid.movie.start"
+                    if (Console::GetArgString(1, (const char*&)s1))
+                    {
+                        FileDrive drive;
+                        FileDir dir;
+                        FileName name;
+                        FileExt ext;
+                        Dir::PathExpand(s1, drive, dir, name, ext);
 
-            case 0x0496EE4C: // "vid.letterbox"
-                if (Vid::CurCamera().ViewRect().Height() != Vid::viewRect.Height())
-                {
-                    Vid::CurCamera().Setup(Vid::viewRect);
-                }
-                else
-                {
-                    Vid::ClearBack();
-                    Vid::RenderFlush();
-                    Vid::ClearBack();
-                    Vid::RenderFlush();
-                    Vid::ClearBack();
-                    Vid::RenderFlush();
-                    Area<S32> viewport(0, 88, Vid::viewRect.Width(), Vid::viewRect.Height() - 88);
-                    Vid::CurCamera().Setup(viewport);
-                }
-                break;
+                        Bitmap* bmap = Bitmap::Manager::Find(name.str);
+                        if (bmap)
+                        {
+                            bmap->BinkSetActive(1);
+                        }
+                    }
+                    else
+                    {
+                        Bitmap::Manager::MoviePause(0);
+                    }
+                    break;
+                case 0x97BCEF6E: // "vid.movie.stop"
+                    if (Console::GetArgString(1, (const char*&)s1))
+                    {
+                        FileDrive drive;
+                        FileDir dir;
+                        FileName name;
+                        FileExt ext;
+                        Dir::PathExpand(s1, drive, dir, name, ext);
+
+                        Bitmap* bmap = Bitmap::Manager::Find(name.str);
+                        if (bmap)
+                        {
+                            bmap->BinkSetActive(0);
+                        }
+                    }
+                    else
+                    {
+                        Bitmap::Manager::MoviePause(1);
+                    }
+                    break;
+
+                case 0x0496EE4C: // "vid.letterbox"
+                    if (Vid::CurCamera().ViewRect().Height() != Vid::viewRect.Height())
+                    {
+                        Vid::CurCamera().Setup(Vid::viewRect);
+                    }
+                    else
+                    {
+                        Vid::ClearBack();
+                        Vid::RenderFlush();
+                        Vid::ClearBack();
+                        Vid::RenderFlush();
+                        Vid::ClearBack();
+                        Vid::RenderFlush();
+                        Area<S32> viewport(0, 88, Vid::viewRect.Width(), Vid::viewRect.Height() - 88);
+                        Vid::CurCamera().Setup(viewport);
+                    }
+                    break;
             }
         }
+
         //-----------------------------------------------------------------------------
     }
-    //-----------------------------------------------------------------------------
 
+    //-----------------------------------------------------------------------------
 };

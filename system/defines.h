@@ -58,40 +58,40 @@
 #endif
 
 #ifndef CH
-typedef unsigned short       CH;
+typedef unsigned short CH;
 #endif
 
 #ifndef U8
-typedef unsigned char        U8;
+typedef unsigned char U8;
 #endif
 
 #ifndef S8
-typedef signed char         S8;
+typedef signed char S8;
 #endif
 
 #ifndef U16
-typedef unsigned short      U16;
+typedef unsigned short U16;
 #endif
 
 #ifndef S16
-typedef signed short        S16;
+typedef signed short S16;
 #endif
 
 #ifndef U32
-typedef unsigned long       U32;
+typedef unsigned long U32;
 #endif
 
 #ifndef S32
-typedef signed long         S32;
+typedef signed long S32;
 #endif
 
 #ifdef _WIN32
 #ifndef U64
-typedef unsigned __int64    U64;
+typedef unsigned __int64 U64;
 #endif
 
 #ifndef S64
-typedef signed __int64      S64;
+typedef signed __int64 S64;
 #endif
 #endif
 
@@ -106,12 +106,12 @@ typedef signed long long    S64;
 #endif
 
 
-typedef unsigned int        UI;
-typedef signed int          SI;
-typedef float               F32;
-typedef double              F64;
-typedef long double         F80;
-typedef int                 Bool;
+typedef unsigned int UI;
+typedef signed int SI;
+typedef float F32;
+typedef double F64;
+typedef long double F80;
+typedef int Bool;
 
 #define FALSE 0
 #define TRUE 1
@@ -179,8 +179,12 @@ T Clamp(T x, T y, T z) { return (Min(Max(x, y), z)); }
 // Swap template
 //
 template <class T>
-void Swap(T& x0, T& x1) { T tmp = x0; x0 = x1; x1 = tmp; }
+void Swap(T& x0, T& x1)
+{
+    T tmp = x0;
+    x0 = x1;
+    x1 = tmp;
+}
 
 
 #endif
-

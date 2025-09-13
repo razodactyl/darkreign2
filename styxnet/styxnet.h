@@ -23,14 +23,12 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace SessionFlags
     //
     namespace SessionFlags
     {
-
         // Does the session require a password ? 
         const U32 Password = 0x00000001;
 
@@ -45,7 +43,6 @@ namespace StyxNet
 
         // Is this a session which is being migrated to
         const U32 MigratingTo = 0x00000010;
-
     }
 
 
@@ -55,7 +52,6 @@ namespace StyxNet
     //
     namespace UserFlags
     {
-
         // User is logged in
         const U32 LoggedIn = 0x00000001;
 
@@ -70,7 +66,6 @@ namespace StyxNet
 
         // User is behind an Address translator (as far as we're concerned)
         const U32 BehindNAT = 0x00000040;
-
     }
 
 
@@ -80,13 +75,11 @@ namespace StyxNet
     //
     namespace ServerFlags
     {
-
         // Is this server standalone
         const U32 StandAlone = 0x00000001;
 
         // Is the server shutting down
         const U32 ShuttingDown = 0x00000002;
-
     }
 
 
@@ -110,7 +103,6 @@ namespace StyxNet
 
         // Is this client who accepted migration
         const U32 AcceptedMigration = 0x00000020;
-
     }
 
 
@@ -152,7 +144,6 @@ namespace StyxNet
 
     // Process
     void Process();
-
 }
 
 #endif

@@ -39,7 +39,6 @@
 #define LOG_PATH(x)
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Namespace PathSearch - Point-based path generation
@@ -63,36 +62,39 @@ namespace PathSearch
     enum { NUM_SUCCESSORS = 4 };
 
     // Delta values for each possible successor
-    static struct { S32 x, z; } successorToDelta[NUM_SUCCESSORS] =
+    static struct
     {
-      {0, 1}, {1, 0}, {0, -1}, {-1, 0}
+        S32 x, z;
+    } successorToDelta[NUM_SUCCESSORS] =
+    {
+        {0, 1}, {1, 0}, {0, -1}, {-1, 0}
     };
 
     // Successor value for each possible [dx+1][dz+1] (-1 is invalid)
     static S32 deltaToSuccessor[3][3] =
     {
-      -1,  3, -1,
-       2, -1,  0,
-      -1,  1, -1
+        -1, 3, -1,
+        2, -1, 0,
+        -1, 1, -1
     };
 
     // Returns a rotated successor using a direction/successor pair
     static S32 rotatedSuccessor[4][NUM_SUCCESSORS] =
     {
-      0, 1, 2, 3,
-      3, 0, 1, 2,
-      2, 3, 0, 1,
-      1, 2, 3, 0
+        0, 1, 2, 3,
+        3, 0, 1, 2,
+        2, 3, 0, 1,
+        1, 2, 3, 0
     };
 
     // Returns successor index that is opposite to 's'
 #define SuccessorOpposite(s) ((s + NUM_SUCCESSORS / 2) & (NUM_SUCCESSORS - 1))
 
-// Rotates the successor 'suc' by 'v' for the sense 's'
+    // Rotates the successor 'suc' by 'v' for the sense 's'
 #define SuccessorAdvance(s, suc, v) \
     ((s) ? ((suc) + (v)) & (NUM_SUCCESSORS - 1) : ((suc) - (v)) & (NUM_SUCCESSORS - 1))
 
-  // Forward declaration for use in ContinueTrace
+    // Forward declaration for use in ContinueTrace
     static Bool StartTrace(Path* path, Bool firstTime);
 
 
@@ -203,10 +205,10 @@ namespace PathSearch
     Bool CanMoveToCell(U8 tractionType, U32 x, U32 z)
     {
         return
-            (
-                WorldCtrl::CellOnMap(x, z) &&
-                CanMoveToCell(tractionType, TerrainData::GetCell(x, z))
-                );
+        (
+            WorldCtrl::CellOnMap(x, z) &&
+            CanMoveToCell(tractionType, TerrainData::GetCell(x, z))
+        );
     }
 
 
@@ -217,7 +219,10 @@ namespace PathSearch
     //
     static S32 GetClosestDistance(U32 x, U32 z)
     {
-        return (abs((long)x - (long)data.request.dx) + abs((long)z - (long)data.request.dz));
+        return (abs(static_cast<long>(x) - static_cast<long>(data.request.dx)) + abs
+            (
+                static_cast<long>(z) - static_cast<long>(data.request.dz)
+            ));
     }
 
 
@@ -243,17 +248,14 @@ namespace PathSearch
     //
     static S32 EstimateHeuristic(U32 x, U32 z)
     {
-        S32 xDelta = abs((long)x - (long)data.request.dx);
-        S32 zDelta = abs((long)z - (long)data.request.dz);
+        S32 xDelta = abs(static_cast<long>(x) - static_cast<long>(data.request.dx));
+        S32 zDelta = abs(static_cast<long>(z) - static_cast<long>(data.request.dz));
 
         if (xDelta < zDelta)
         {
             return ((xDelta * 21 + (zDelta - xDelta) * 15));
         }
-        else
-        {
-            return ((zDelta * 21 + (xDelta - zDelta) * 15));
-        }
+        return ((zDelta * 21 + (xDelta - zDelta) * 15));
     }
 
 
@@ -314,7 +316,7 @@ namespace PathSearch
         if (CanMoveToCell(d, bDataCell))
         {
             // Get base cost value for this cell
-            U16 base = (U16)((ax == bx || az == bz) ? 10 : 14);
+            U16 base = static_cast<U16>((ax == bx || az == bz) ? 10 : 14);
 
             // Set the cost based on the speed of this traction over this cell
             cost = U16(base + (2 * U16(base * (1.0F - d.speed))));
@@ -375,24 +377,24 @@ namespace PathSearch
         // Now do actions based on the state
         switch (state)
         {
-            // More processing required
-        case FS_ACTIVE:
-            return (FALSE);
+                // More processing required
+            case FS_ACTIVE:
+                return (FALSE);
 
-            // Set the last successful path
-        case FS_FOUND:
-        case FS_CLOSEST:
-        case FS_DIRECT:
-            data.lastPath = data.path;
-            data.path = NULL;
-            break;
+                // Set the last successful path
+            case FS_FOUND:
+            case FS_CLOSEST:
+            case FS_DIRECT:
+                data.lastPath = data.path;
+                data.path = nullptr;
+                break;
 
-            // Clear the current path
-        case FS_NOPATH:
-            data.path = NULL;
-            break;
+                // Clear the current path
+            case FS_NOPATH:
+                data.path = nullptr;
+                break;
 
-        default:
+            default:
             ERR_FATAL(("Unhandled path result %d", state));
         }
 
@@ -413,7 +415,7 @@ namespace PathSearch
         // Do we have a point list
         if (blockList)
         {
-            for (PointList::Iterator i(blockList); *i; i++)
+            for (PointList::Iterator i(blockList); *i; ++i)
             {
                 data.blockArray->Set2((*i)->x, (*i)->z);
             }
@@ -518,11 +520,11 @@ namespace PathSearch
 
                             // All four cells must be on the same layer
                             if
-                                (
-                                    CheckLayer(flag, b->x, b->z) &&
-                                    CheckLayer(flag, c->x, c->z) &&
-                                    CheckLayer(flag, d.x, d.z)
-                                    )
+                            (
+                                CheckLayer(flag, b->x, b->z) &&
+                                CheckLayer(flag, c->x, c->z) &&
+                                CheckLayer(flag, d.x, d.z)
+                            )
                             {
                                 // Remove the second point and skip to the third
                                 data.path->points.Dispose(b);
@@ -558,7 +560,7 @@ namespace PathSearch
             i.GoToTail();
 
             // Add each point to the start of our path
-            while ((p = i--) != NULL)
+            while ((p = i--) != nullptr)
             {
                 // Remove from src and add to dst
                 src.Unlink(p);
@@ -571,7 +573,7 @@ namespace PathSearch
             i.GoToHead();
 
             // Add each point to the end of our path
-            while ((p = i++) != NULL)
+            while ((p = i++) != nullptr)
             {
                 // Remove from src and add to dst
                 src.Unlink(p);
@@ -636,8 +638,8 @@ namespace PathSearch
     //
     S32 SideOfTraceLine(const Point& pos)
     {
-        S32 dx = (S32)pos.x - (S32)data.trace.oPos.x;
-        S32 dz = (S32)pos.z - (S32)data.trace.oPos.z;
+        S32 dx = static_cast<S32>(pos.x) - static_cast<S32>(data.trace.oPos.x);
+        S32 dz = static_cast<S32>(pos.z) - static_cast<S32>(data.trace.oPos.z);
 
         S32 dot = dx * data.trace.normX + dz * data.trace.normZ;
 
@@ -653,21 +655,21 @@ namespace PathSearch
     Bool ReachedLine(Point& curPos, Point& pos)
     {
         // Get delta from start
-        U32 dx = abs((long)pos.x - (long)data.trace.oPos.x);
-        U32 dz = abs((long)pos.z - (long)data.trace.oPos.z);
+        U32 dx = abs(static_cast<long>(pos.x) - static_cast<long>(data.trace.oPos.x));
+        U32 dz = abs(static_cast<long>(pos.z) - static_cast<long>(data.trace.oPos.z));
 
         return
-            (
-                // Inside the obstacle->destination bounding box
-                pos.x >= data.trace.minBound.x && pos.x <= data.trace.maxBound.x &&
-                pos.z >= data.trace.minBound.z && pos.z <= data.trace.maxBound.z &&
+        (
+            // Inside the obstacle->destination bounding box
+            pos.x >= data.trace.minBound.x && pos.x <= data.trace.maxBound.x &&
+            pos.z >= data.trace.minBound.z && pos.z <= data.trace.maxBound.z &&
 
-                // Not on first step (stop false trigger, but avoid the diagonal situation)
-                ((dx > 1 || dz > 1) || (dx == 1 && dz == 1)) &&
+            // Not on first step (stop false trigger, but avoid the diagonal situation)
+            ((dx > 1 || dz > 1) || (dx == 1 && dz == 1)) &&
 
-                // Just crossed the obstacle->destination line
-                SideOfTraceLine(curPos) != SideOfTraceLine(pos)
-                );
+            // Just crossed the obstacle->destination line
+            SideOfTraceLine(curPos) != SideOfTraceLine(pos)
+        );
     }
 
 
@@ -797,8 +799,16 @@ namespace PathSearch
         S32 zInc = 1;
 
         // Maintain positive deltas and flip the increment values
-        if (dx < 0) { xInc = -xInc; dx = -dx; }
-        if (dz < 0) { zInc = -zInc; dz = -dz; }
+        if (dx < 0)
+        {
+            xInc = -xInc;
+            dx = -dx;
+        }
+        if (dz < 0)
+        {
+            zInc = -zInc;
+            dz = -dz;
+        }
 
         do
         {
@@ -840,7 +850,8 @@ namespace PathSearch
             {
                 break;
             }
-        } while (dx || dz);
+        }
+        while (dx || dz);
 
         ASSERT(endDir >= 0 && endDir < NUM_SUCCESSORS);
 
@@ -895,7 +906,7 @@ namespace PathSearch
 
                 // Keep our hand to the wall
                 S32 dir = SuccessorAdvance(s, data.trace.sense[s].lastDir, 1);
-                Cell* cell = NULL;
+                Cell* cell = nullptr;
 
                 // Check each successor for an opening
                 U32 c = 0;
@@ -1002,11 +1013,8 @@ namespace PathSearch
                         // And start another trace search
                         return (StartTrace(data.path, FALSE));
                     }
-                    else
-                    {
-                        // Continue tracing
-                        data.trace.sense[s].lastDir = dir;
-                    }
+                    // Continue tracing
+                    data.trace.sense[s].lastDir = dir;
                 }
             }
 
@@ -1020,22 +1028,21 @@ namespace PathSearch
                 LOG_PATH(("ToClosest: Aborted"));
                 return (ConstructTraceToClosest());
             }
-            else
 
-                // Have we reached our search cell limit
-                if (data.searchCellCount > PS_TRACE_SEARCH)
-                {
-                    LOG_PATH(("ToClosest: CellCount"));
-                    return (ConstructTraceToClosest());
-                }
-                else
+            // Have we reached our search cell limit
+            // Have we reached our search cell limit
+            if (data.searchCellCount > PS_TRACE_SEARCH)
+            {
+                LOG_PATH(("ToClosest: CellCount"));
+                return (ConstructTraceToClosest());
+            }
 
-                    // Have we reached our cycle cell limit
-                    if (data.cycleCellCount >= data.cellsPerCycle)
-                    {
-                        // More processing required
-                        return (SetPathResult(FS_ACTIVE));
-                    }
+            // Have we reached our cycle cell limit
+            if (data.cycleCellCount >= data.cellsPerCycle)
+            {
+                // More processing required
+                return (SetPathResult(FS_ACTIVE));
+            }
         }
     }
 
@@ -1054,7 +1061,7 @@ namespace PathSearch
         S32 endDir;
 
         // Clear the last found path pointer
-        data.lastPath = NULL;
+        data.lastPath = nullptr;
 
         // Setup the block array
         if (firstTime)
@@ -1115,8 +1122,8 @@ namespace PathSearch
         }
 
         // Find delta for destination to obstacle position
-        S32 deltaX = (S32)data.request.dx - (S32)data.trace.oPos.x;
-        S32 deltaZ = (S32)data.request.dz - (S32)data.trace.oPos.z;
+        S32 deltaX = static_cast<S32>(data.request.dx) - static_cast<S32>(data.trace.oPos.x);
+        S32 deltaZ = static_cast<S32>(data.request.dz) - static_cast<S32>(data.trace.oPos.z);
 
         // Save the normal to this line
         data.trace.normX = -deltaZ;
@@ -1248,11 +1255,8 @@ namespace PathSearch
                     // Success
                     return (SetPathResult(FS_CLOSEST));
                 }
-                else
-                {
-                    // Failed
-                    return (SetPathResult(FS_NOPATH));
-                }
+                // Failed
+                return (SetPathResult(FS_NOPATH));
             }
 
             // Increment cell processing counters
@@ -1271,11 +1275,8 @@ namespace PathSearch
                     // Success
                     return (SetPathResult(FS_FOUND));
                 }
-                else
-                {
-                    // Failed
-                    return (SetPathResult(FS_NOPATH));
-                }
+                // Failed
+                return (SetPathResult(FS_NOPATH));
             }
 
             // Get new closest distance
@@ -1302,8 +1303,8 @@ namespace PathSearch
             }
             else
             {
-                footInstance = NULL;
-                footCell = NULL;
+                footInstance = nullptr;
+                footCell = nullptr;
             }
 
             // Now loop over each successor
@@ -1331,14 +1332,14 @@ namespace PathSearch
                 Cell* bCell = GetCell(bx, bz);
 
                 // Calculate the new g-value
-                U16 newG = (U16)(aCell->g + cost);
+                U16 newG = static_cast<U16>(aCell->g + cost);
 
                 // Current search has NOT visited bCell yet (not in open or closed)
                 if (bCell->zMark != data.zMarks[bz])
                 {
                     // Setup cell data
                     bCell->g = newG;
-                    bCell->f = (U16)(newG + EstimateHeuristic(bx, bz));
+                    bCell->f = static_cast<U16>(newG + EstimateHeuristic(bx, bz));
                     bCell->parent = SuccessorOpposite(s);
                     bCell->closed = FALSE;
                     bCell->onpath = FALSE;
@@ -1351,7 +1352,7 @@ namespace PathSearch
                     }
                 }
 
-                // Current search HAS visited bCell (either in open or closed)
+                    // Current search HAS visited bCell (either in open or closed)
                 else
                 {
                     // Ignore paths that are very close to each other
@@ -1363,7 +1364,7 @@ namespace PathSearch
                     {
                         // Setup cell data
                         bCell->g = newG;
-                        bCell->f = (U16)(newG + EstimateHeuristic(bx, bz));
+                        bCell->f = static_cast<U16>(newG + EstimateHeuristic(bx, bz));
                         bCell->parent = SuccessorOpposite(s);
 
                         // Is this cell in the closed set
@@ -1406,7 +1407,7 @@ namespace PathSearch
         ASSERT(!data.path);
 
         // Clear the last found path pointer
-        data.lastPath = NULL;
+        data.lastPath = nullptr;
 
         // Setup the block array
         SetupBlockArray(path->blockList);
@@ -1430,7 +1431,11 @@ namespace PathSearch
         data.request = path->request;
 
         // If only a short distance, try a direct path
-        if (Max<U32>(abs((long)data.request.sx - (long)data.request.dx), abs((long)data.request.sz - (long)data.request.dz)) < 20)
+        if (Max<U32>
+        (
+            abs(static_cast<long>(data.request.sx) - static_cast<long>(data.request.dx)),
+            abs(static_cast<long>(data.request.sz) - static_cast<long>(data.request.dz))
+        ) < 20)
         {
             // Data only used in trace searches
             S32 endDir;
@@ -1457,7 +1462,7 @@ namespace PathSearch
         sCell->g = 0;
 
         // Now get the estimate from here to our destination
-        sCell->f = (U16)EstimateHeuristic(data.request.sx, data.request.sz);
+        sCell->f = static_cast<U16>(EstimateHeuristic(data.request.sx, data.request.sz));
 
         // Setup closest point data
         data.closestPoint.Set(data.request.sx, data.request.sz);
@@ -1589,7 +1594,7 @@ namespace PathSearch
         U8 m = 1;
 
         // Setup with incrementing values (minimum rows cleared per search)
-        for (U32 z = 0; z < WorldCtrl::CellMapZ(); z++, m = (U8)(m == U8_MAX ? 1 : m + 1))
+        for (U32 z = 0; z < WorldCtrl::CellMapZ(); z++, m = static_cast<U8>(m == U8_MAX ? 1 : m + 1))
         {
             // Set the mark
             data.zMarks[z] = m;
@@ -1599,7 +1604,7 @@ namespace PathSearch
         data.open = new PQueue(PS_QUEUESIZE);
 
         // Clear the active path pointer
-        data.path = NULL;
+        data.path = nullptr;
 
         // Flag that we were notified
         notifiedMission = TRUE;
@@ -1675,7 +1680,7 @@ namespace PathSearch
             if (data.path->state == FS_IDLE)
             {
                 // No need to continue processing
-                data.path = NULL;
+                data.path = nullptr;
             }
             else
             {
@@ -1697,69 +1702,69 @@ namespace PathSearch
         Path* path;
 
         // Step through them all, allowing for deletions along the way
-        while (((path = i++) != NULL) && (data.cycleCellCount < data.cellsPerCycle))
+        while (((path = i++) != nullptr) && (data.cycleCellCount < data.cellsPerCycle))
         {
             ASSERT(path->state != FS_ACTIVE);
 
             // State dependent operations
             switch (path->state)
             {
-            case FS_IDLE:
-            {
-                // Clear last path
-                if (data.lastPath == path)
+                case FS_IDLE:
                 {
-                    data.lastPath = NULL;
+                    // Clear last path
+                    if (data.lastPath == path)
+                    {
+                        data.lastPath = nullptr;
+                    }
+
+                    // Path is no longer being used
+                    pathList.Dispose(path);
+                    break;
                 }
 
-                // Path is no longer being used
-                pathList.Dispose(path);
-                break;
-            }
-
-            case FS_QUEUED:
-            {
-                // Start a new search for a queued path
-                switch (path->request.type)
+                case FS_QUEUED:
                 {
-                case ST_ASTAR:
-                {
-                    if (!StartAStar(path))
+                    // Start a new search for a queued path
+                    switch (path->request.type)
                     {
-                        // Requires more processing
-                        return;
+                        case ST_ASTAR:
+                        {
+                            if (!StartAStar(path))
+                            {
+                                // Requires more processing
+                                return;
+                            }
+                            break;
+                        }
+
+                        case ST_TRACE:
+                        {
+                            if (!StartTrace(path))
+                            {
+                                // Requires more processing
+                                return;
+                            }
+                            break;
+                        }
+
+                        case ST_CROW:
+                        {
+                            if (!StartCrow(path))
+                            {
+                                // Requires more processing
+                                return;
+                            }
+                            break;
+                        }
                     }
                     break;
                 }
 
-                case ST_TRACE:
-                {
-                    if (!StartTrace(path))
-                    {
-                        // Requires more processing
-                        return;
-                    }
+                    // Ignore, since finders are still pointing at these paths
+                case FS_FOUND:
+                case FS_NOPATH:
+                case FS_DIRECT:
                     break;
-                }
-
-                case ST_CROW:
-                {
-                    if (!StartCrow(path))
-                    {
-                        // Requires more processing
-                        return;
-                    }
-                    break;
-                }
-                }
-                break;
-            }
-
-            // Ignore, since finders are still pointing at these paths
-            case FS_FOUND:
-            case FS_NOPATH:
-            case FS_DIRECT:
-                break;
             }
         }
     }
@@ -1772,7 +1777,7 @@ namespace PathSearch
     //
     Bool FindClosestCell(U8 tractionType, U32 xStart, U32 zStart, U32& xPos, U32& zPos, U32 range)
     {
-        for (S32 r = 0; r <= (S32)range; r++)
+        for (S32 r = 0; r <= static_cast<S32>(range); r++)
         {
             for (S32 z = 0; z <= r; z++)
             {
@@ -1819,7 +1824,11 @@ namespace PathSearch
     //
     // Returns the first connected cell which satisfied the heuristic
     //
-    Bool FindConnectedCell(U32 xStart, U32 zStart, U32& xPos, U32& zPos, UnitObj& unit, void* context, Bool(UnitObj::* heuristic)(U32& val, U32 x, U32 z, void* context))
+    Bool FindConnectedCell
+    (
+        U32 xStart, U32 zStart, U32& xPos, U32& zPos, UnitObj& unit, void* context,
+        Bool (UnitObj::* heuristic)(U32& val, U32 x, U32 z, void* context)
+    )
     {
         ASSERT(WorldCtrl::CellOnMap(xStart, zStart));
         ASSERT(initialized);
@@ -1855,7 +1864,7 @@ namespace PathSearch
         U32 count = 100;
 
         // Process the cells
-        for (PointList::Iterator i(&list); *i && count--; i++)
+        for (PointList::Iterator i(&list); *i && count--; ++i)
         {
             // Get the point
             Point& p = **i;
@@ -1938,7 +1947,7 @@ namespace PathSearch
         data.immediateArray->Set2(x, z);
 
         // Process the cells
-        for (PointList::Iterator i(&list); *i; i++)
+        for (PointList::Iterator i(&list); *i; ++i)
         {
             // Get the point
             Point& p = **i;
@@ -1950,7 +1959,10 @@ namespace PathSearch
             }
 
             // Is this cell within the area
-            if (abs((long)p.x - (long)x) < area && abs((long)p.z - (long)z) < area)
+            if (abs(static_cast<long>(p.x) - static_cast<long>(x)) < area && abs
+                (
+                    static_cast<long>(p.z) - static_cast<long>(z)
+                ) < area)
             {
                 // Add successor cells
                 for (U32 s = 0; s < NUM_SUCCESSORS; s++)

@@ -24,12 +24,12 @@
 //
 namespace SidePlacement
 {
-  // Initialize and shutdown system
-  void Init();
-  void Done();
+    // Initialize and shutdown system
+    void Init();
+    void Done();
 
-  // Place units for the given team
-  void Place(Team *team);
+    // Place units for the given team
+    void Place(Team* team);
 }
 
 #endif

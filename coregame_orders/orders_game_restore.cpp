@@ -22,49 +22,47 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class OrdersGame::Restore
+    // NameSpace Game
     //
-    U32 Restore::orderId;
-
-
-    //
-    // Generate
-    //
-    void Restore::Generate(Player &player, Modifier mod)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class OrdersGame::Restore
+        //
+        U32 Restore::orderId;
 
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.mod = mod;
 
-      Add(data, sizeof (Data), player.IsRoute());
+        //
+        // Generate
+        //
+        void Restore::Generate(Player& player, Modifier mod)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.mod = mod;
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Restore::Execute(const U8*, Player& player)
+        {
+            // Create an iterator
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                // Tell each of the selected units to restore
+                (**i)->RestoreNow();
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Restore::Execute(const U8 *, Player &player)
-    {
-      // Create an iterator
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      {
-        // Tell each of the selected units to restore
-        (**i)->RestoreNow();
-      }
-
-      return (sizeof (Data));
-    }
-  }
 }

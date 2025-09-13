@@ -28,22 +28,22 @@ class MoviePlayer
 {
 protected:
 
-  Bitmap *bitmap;
+    Bitmap* bitmap;
 
 public:
 
-  // Constructor and destructor
-  MoviePlayer();
-  ~MoviePlayer();
+    // Constructor and destructor
+    MoviePlayer();
+    ~MoviePlayer();
 
-  // Start the given movie
-  Bool Start(const char *file, Bool stretch = TRUE);
+    // Start the given movie
+    Bool Start(const char* file, Bool stretch = TRUE);
 
-  // Stop any current movie
-  void Stop();
+    // Stop any current movie
+    void Stop();
 
-  // Is there a movie playing
-  Bool Active();
+    // Is there a movie playing
+    Bool Active();
 };
 
 

@@ -25,7 +25,6 @@
 //
 namespace Tasks
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Internal Data
@@ -72,13 +71,13 @@ namespace Tasks
         {
             switch (sScope->NameCrc())
             {
-            case 0x22C4A13F: // "StateMachine"
-                inst.LoadState(sScope);
-                break;
+                case 0x22C4A13F: // "StateMachine"
+                    inst.LoadState(sScope);
+                    break;
 
-            default:
-                LoadTaskData(sScope);
-                break;
+                default:
+                    LoadTaskData(sScope);
+                    break;
             }
         }
     }
@@ -158,21 +157,21 @@ namespace Tasks
     {
         switch (event.message)
         {
-        case GameObjNotify::Interrupted:
-            inst.Set(0xABAA7B48); // "Init"
-            return (TRUE);
+            case GameObjNotify::Interrupted:
+                inst.Set(0xABAA7B48); // "Init"
+                return (TRUE);
 
-        case MapObjNotify::AnimationDone:
-        {
-            switch (event.param1)
+            case MapObjNotify::AnimationDone:
             {
-            case 0xF40D135F: // "Death"
-                NextState(0xEF9FC2B9); // "Kill"
-                break;
-            }
+                switch (event.param1)
+                {
+                    case 0xF40D135F: // "Death"
+                        NextState(0xEF9FC2B9); // "Kill"
+                        break;
+                }
 
-            return (TRUE);
-        }
+                return (TRUE);
+            }
         }
         return (GameTask<MapObjType, MapObj>::ProcessEvent(event));
     }
@@ -214,5 +213,4 @@ namespace Tasks
     {
         stateMachine.CleanUp();
     }
-
 }

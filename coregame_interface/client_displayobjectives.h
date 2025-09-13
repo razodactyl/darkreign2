@@ -23,40 +23,39 @@
 //
 namespace Client
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class DisplayObjectives
-  //
-  class DisplayObjectives : public ICListBox
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class DisplayObjectives
+    //
+    class DisplayObjectives : public ICListBox
+    {
     PROMOTE_LINK(DisplayObjectives, ICListBox, 0x4A0ED712); // "DisplayObjectives"
 
-  public:
+    public:
 
-    // Color to display text when this is an active objective
-    Color colorActive;
+        // Color to display text when this is an active objective
+        Color colorActive;
 
-    // Color to display text when this objective is completed
-    Color colorCompleted;
+        // Color to display text when this objective is completed
+        Color colorCompleted;
 
-    // Color to display text when this objective is abandoned
-    Color colorAbandoned;
+        // Color to display text when this objective is abandoned
+        Color colorAbandoned;
 
-  public:
+    public:
 
-    DisplayObjectives(IControl *parent);
-    ~DisplayObjectives();
+        DisplayObjectives(IControl* parent);
+        ~DisplayObjectives();
 
-    // Setup
-    void Setup(FScope *fScope);
+        // Setup
+        void Setup(FScope* fScope);
 
-    // Poll
-    void Poll();
+        // Poll
+        void Poll();
 
-    // Event Handling
-    //Bool HandleEvent(Event &e);
-
-  };
+        // Event Handling
+        //Bool HandleEvent(Event &e);
+    };
 }
 
 #endif

@@ -25,47 +25,44 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class UnitAnimate
+    //
+    class UnitAnimate : public GameTask<UnitObjType, UnitObj>
+    {
+        TASK_CLASS(UnitAnimate)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class UnitAnimate
-  //
-  class UnitAnimate : public GameTask<UnitObjType, UnitObj>
-  {
-    TASK_CLASS(UnitAnimate)
+    protected:
 
-  protected:
+        // Animation cycle
+        U32 cycleId;
 
-    // Animation cycle
-    U32 cycleId;
+    public:
 
-  public:
+        // Constructor
+        UnitAnimate(GameObj* subject);
+        UnitAnimate(GameObj* subject, U32 cycle);
 
-    // Constructor
-    UnitAnimate(GameObj *subject);
-    UnitAnimate(GameObj *subject, U32 cycle);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateAnimate(StateMachineNotify);
-
-  };
-
+        // State machine procedures
+        void StateInit();
+        void StateAnimate(StateMachineNotify);
+    };
 }
 
 #endif

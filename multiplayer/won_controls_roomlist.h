@@ -24,87 +24,81 @@
 //
 namespace Won
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class RoomList
+    // NameSpace Controls
     //
-    class RoomList : public ICListBox
+    namespace Controls
     {
-      PROMOTE_LINK(RoomList, ICListBox, 0xE47F67C8) // "Won::RoomList"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class RoomList
+        //
+        class RoomList : public ICListBox
+        {
+        PROMOTE_LINK(RoomList, ICListBox, 0xE47F67C8) // "Won::RoomList"
 
-    public:
-      
-      class Item;
+        public:
 
-    protected:
+            class Item;
 
-      // Offsets
-      U32 offsetName;
-      U32 widthName;
-      U32 offsetUsers;
-      U32 offsetLocked;
+        protected:
 
-      // Locked icon
-      TextureInfo iconLocked;
+            // Offsets
+            U32 offsetName;
+            U32 widthName;
+            U32 offsetUsers;
+            U32 offsetLocked;
 
-    public:
+            // Locked icon
+            TextureInfo iconLocked;
 
-      // Constructor
-      RoomList(IControl *parent);
+        public:
 
-      // Setup
-      void Setup(FScope *fScope);
+            // Constructor
+            RoomList(IControl* parent);
 
-      // Get the selected room
-      WonIface::Room * GetSelectedRoom();
+            // Setup
+            void Setup(FScope* fScope);
 
-    public:
+            // Get the selected room
+            WonIface::Room* GetSelectedRoom();
 
-      friend Item;
+        public:
 
-    };
+            friend Item;
+        };
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class RoomList::Item
-    //
-    class RoomList::Item : public ICStatic
-    {
-      PROMOTE_LINK(Room, ICStatic, 0xC5341171) // "Won::Room"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class RoomList::Item
+        //
+        class RoomList::Item : public ICStatic
+        {
+        PROMOTE_LINK(Room, ICStatic, 0xC5341171) // "Won::Room"
 
-    protected:
+        protected:
 
-      // Offsets are in here
-      RoomList &roomList;
+            // Offsets are in here
+            RoomList& roomList;
 
-      // The room
-      WonIface::Room room;
+            // The room
+            WonIface::Room room;
 
-    public:
+        public:
 
-      // Constructor
-      Item(RoomList &roomList, const WonIface::Room &room, IControl *parent);
+            // Constructor
+            Item(RoomList& roomList, const WonIface::Room& room, IControl* parent);
 
-      // Redraw self
-      void DrawSelf(PaintInfo &pi);
+            // Redraw self
+            void DrawSelf(PaintInfo& pi);
 
-    public:
+        public:
 
-      friend RoomList;
-
-    };
-
-  }
-
+            friend RoomList;
+        };
+    }
 }
 
 #endif

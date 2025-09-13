@@ -26,18 +26,19 @@
 class DustSimulateClass : public ParticleClass
 {
 public:
-	// dust simulator class constructor
-	DustSimulateClass();
+    // dust simulator class constructor
+    DustSimulateClass();
 
-	// build a new dust simulator
-	virtual Particle *Build(
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
-
+    // build a new dust simulator
+    virtual Particle* Build
+    (
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,18 +48,20 @@ public:
 class DustSimulate : public Particle
 {
 public:
-	// dust simulator constructor
-	DustSimulate(
-    DustSimulateClass *proto, 
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
+    // dust simulator constructor
+    DustSimulate
+    (
+        DustSimulateClass* proto,
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 
-	// apply dust simulator
-	virtual Bool Simulate( F32 dt);
+    // apply dust simulator
+    virtual Bool Simulate(F32 dt);
 };
 
 #endif

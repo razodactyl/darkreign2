@@ -81,23 +81,23 @@ static const F32 TIME_RESPONDTODANGER = 5.0;
 //
 UnitObjType::UnitObjType(const char* name, FScope* fScope)
     : MapObjType(name, fScope),
-    seeingRange(InstanceModifierType::INTEGER),
-    maxSpeed(InstanceModifierType::FPOINT),
-    canEverMove(FALSE),
-    canEverFire(FALSE),
-    needsBoardManager(FALSE),
-    antiClandestine(FALSE),
-    weapon(NULL),
-    weaponBleedMap(NULL),
-    selfDestructBleedMap(NULL),
-    disruptor(FALSE),
-    disruptionBleedMap(NULL),
-    fireNode(NULL),
-    barrel(0.0f, 0.0f, 0.0f)
+      weapon(nullptr),
+      fireNode(nullptr),
+      barrel(0.0f, 0.0f, 0.0f),
+      weaponBleedMap(nullptr),
+      selfDestructBleedMap(nullptr),
+      seeingRange(InstanceModifierType::INTEGER),
+      disruptionBleedMap(nullptr),
+      maxSpeed(InstanceModifierType::FPOINT),
+      canEverMove(FALSE),
+      canEverFire(FALSE),
+      needsBoardManager(FALSE),
+      antiClandestine(FALSE),
+      disruptor(FALSE)
 {
     ASSERT(fScope);
 
-    FScope* sScope, * ssScope;
+    FScope *sScope, *ssScope;
 
     // If detachable flag was not configured externally
     if (!detachableConfig)
@@ -121,11 +121,18 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
 
     // Get Seeing range, day time and night time modifiers
     Range<S32> SightRange(0, Sight::MaxRangeCells() - 1);
-    seeingRange.LoadIntegerScaled(fScope->GetFunction("SeeingRange", FALSE), 100.0F, SightRange, WC_CELLSIZEF32INV, 0.0F, 1.1F);
+    seeingRange.LoadIntegerScaled
+    (
+        fScope->GetFunction("SeeingRange", FALSE), 100.0F, SightRange, WC_CELLSIZEF32INV,
+        0.0F, 1.1F
+    );
 
     // Load day and night modifiers
     seeingRangeDay = Utils::FtoLNearest(F32(seeingRange.GetInteger()) * StdLoad::TypeF32(fScope, "DayModifier", 1.0f));
-    seeingRangeNight = Utils::FtoLNearest(F32(seeingRange.GetInteger()) * StdLoad::TypeF32(fScope, "NightModifier", 1.0f));
+    seeingRangeNight = Utils::FtoLNearest
+    (
+        F32(seeingRange.GetInteger()) * StdLoad::TypeF32(fScope, "NightModifier", 1.0f)
+    );
 
     if (!SightRange.Inc(seeingRangeDay) || !SightRange.Inc(seeingRangeNight))
     {
@@ -142,7 +149,7 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
     }
 
     // Seeing height
-    if ((sScope = fScope->GetFunction("SeeingHeight", FALSE)) != NULL)
+    if ((sScope = fScope->GetFunction("SeeingHeight", FALSE)) != nullptr)
     {
         seeingHeight = StdLoad::TypeF32(sScope, Range<F32>::positive);
     }
@@ -157,7 +164,11 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
     disruptionRange2 = disruptionRange * disruptionRange;
 
     // Get the top speed, convert from km/h to m/s
-    maxSpeed.LoadFPoint(fScope->GetFunction("TopSpeed", FALSE), 10.0F, Range<F32>::positive, PhysicsConst::KMH2MPS, 0.0F, 1.5F);
+    maxSpeed.LoadFPoint
+    (
+        fScope->GetFunction("TopSpeed", FALSE), 10.0F, Range<F32>::positive, PhysicsConst::KMH2MPS,
+        0.0F, 1.5F
+    );
     maxSpeedInv = (fabs(maxSpeed.GetFPoint()) > 1e-4F) ? 1.0F / maxSpeed.GetFPoint() : 0.0F;
 
     // Compute linear acceleration so top speed is reached in 1/2 game cell
@@ -174,7 +185,7 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
     turnAccel2inv = (fabs(turnAccel) > 1e-4F) ? 1.0F / (2.0F * turnAccel) : 0.0F;
 
     // Altitude to at lower and upper levels
-    if ((sScope = fScope->GetFunction("Altitude", FALSE)) != NULL)
+    if ((sScope = fScope->GetFunction("Altitude", FALSE)) != nullptr)
     {
         altitude[Claim::LAYER_LOWER] = StdLoad::TypeF32(sScope, 0.0F);
         altitude[Claim::LAYER_UPPER] = StdLoad::TypeF32(sScope, altitude[Claim::LAYER_LOWER]);
@@ -214,7 +225,10 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
     constructionTime = StdLoad::TypeF32(fScope, "ConstructionTime", 4.0f, Range<F32>::positive);
 
     // Initial hitpoints when being constructed
-    constructionHitPoints = S32(GetHitPoints() * StdLoad::TypeF32(fScope, "ConstructionHitPoints", 0.1f, Range<F32>::percentage));
+    constructionHitPoints = S32
+    (
+        GetHitPoints() * StdLoad::TypeF32(fScope, "ConstructionHitPoints", 0.1f, Range<F32>::percentage)
+    );
 
     // Load the companion of this type
     StdLoad::TypeReaperObjType(fScope, "Companion", companionType);
@@ -223,21 +237,21 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
     defaultBehavior = StdLoad::TypeString(fScope, "DefaultBehavior", "");
 
     // Load the upgrade information
-    if ((sScope = fScope->GetFunction("Upgrades", FALSE)) != NULL)
+    if ((sScope = fScope->GetFunction("Upgrades", FALSE)) != nullptr)
     {
-        while ((ssScope = sScope->NextFunction()) != NULL)
+        while ((ssScope = sScope->NextFunction()) != nullptr)
         {
             switch (ssScope->NameCrc())
             {
-            case 0x9F1D54D0: // "Add"
-            {
-                UpgradeInfo* info = new UpgradeInfo;
-                StdLoad::TypeReaperObjType(ssScope, info->type);
-                info->point = StdLoad::TypeStringD(ssScope, "HP-UPGRADE");
-                info->index = 0;
-                upgrades.Append(info);
-                break;
-            }
+                case 0x9F1D54D0: // "Add"
+                {
+                    UpgradeInfo* info = new UpgradeInfo;
+                    StdLoad::TypeReaperObjType(ssScope, info->type);
+                    info->point = StdLoad::TypeStringD(ssScope, "HP-UPGRADE");
+                    info->index = 0;
+                    upgrades.Append(info);
+                    break;
+                }
             }
         }
     }
@@ -269,10 +283,11 @@ UnitObjType::UnitObjType(const char* name, FScope* fScope)
 
     // Can this object be infiltrated by a spy
     canBeInfiltrated = (
-        HasProperty(0xAF90926C) ||  // "Provide::EnemyLOS"
-        HasProperty(0x607C18C4) ||  // "Provide::EnemyResource"
-        HasProperty(0xADD2D789))    // "Provide::EnemyPower"
-        ? TRUE : FALSE;
+                           HasProperty(0xAF90926C) ||  // "Provide::EnemyLOS"
+                           HasProperty(0x607C18C4) ||  // "Provide::EnemyResource"
+                           HasProperty(0xADD2D789))    // "Provide::EnemyPower"
+                           ? TRUE
+                           : FALSE;
 
     if (canBeInfiltrated)
     {
@@ -324,7 +339,7 @@ void UnitObjType::PostLoad()
     // If a weapon name was specified resolve the weapon
     if (!weaponName.Null())
     {
-        if ((weapon = Weapon::Manager::FindType(weaponName)) == NULL)
+        if ((weapon = Weapon::Manager::FindType(weaponName)) == nullptr)
         {
             ERR_CONFIG(("Could not resolve weapon type '%s'", weaponName.str))
         }
@@ -333,7 +348,11 @@ void UnitObjType::PostLoad()
 
     if (selfDestructExplosion.Alive())
     {
-        selfDestructBleedMap = AI::Map::CreateBleedMap(selfDestructExplosion->GetAreaOuter(), movementModel->canEverMove ? TRUE : FALSE);
+        selfDestructBleedMap = AI::Map::CreateBleedMap
+        (
+            selfDestructExplosion->GetAreaOuter(),
+            movementModel->canEverMove ? TRUE : FALSE
+        );
     }
 
     // Clean up the canEverFire flag
@@ -352,7 +371,7 @@ void UnitObjType::PostLoad()
     prereqs.PostLoad();
 
     // Check recursion
-  //  prereqs.CheckRecursion(*this);
+    //  prereqs.CheckRecursion(*this);
 
     // Resolve reapers
     Resolver::Type(constructorType);
@@ -372,7 +391,7 @@ void UnitObjType::PostLoad()
     UpgradeInfo* info;
     U32 index = 0;
 
-    while ((info = u++) != NULL)
+    while ((info = u++) != nullptr)
     {
         Resolver::Type(info->type);
 
@@ -382,10 +401,12 @@ void UnitObjType::PostLoad()
             if (info->type->upgradeFor.Alive())
             {
                 ERR_CONFIG
-                ((
-                    "Duplicate upgrade : [%s] is an upgrade for [%s] and [%s]",
-                    info->type->GetName(), info->type->upgradeFor->GetName(), GetName()
-                    ));
+                (
+                    (
+                        "Duplicate upgrade : [%s] is an upgrade for [%s] and [%s]",
+                        info->type->GetName(), info->type->upgradeFor->GetName(), GetName()
+                    )
+                );
             }
 
             // Set the reverse pointer 'upgradeFor'
@@ -413,10 +434,12 @@ void UnitObjType::PostLoad()
         if (altitude[Claim::LAYER_LOWER] > altitude[Claim::LAYER_UPPER])
         {
             ERR_FATAL
-            ((
-                "Lower Altitude (%f) > Upper Altitude (%f) for [%s]",
-                altitude[Claim::LAYER_LOWER], altitude[Claim::LAYER_UPPER], GetName()
-                ))
+            (
+                (
+                    "Lower Altitude (%f) > Upper Altitude (%f) for [%s]",
+                    altitude[Claim::LAYER_LOWER], altitude[Claim::LAYER_UPPER], GetName()
+                )
+            )
         }
     }
 
@@ -469,7 +492,7 @@ const char* UnitObjType::ResponseName(const char* asset, const char* event, U32 
 Bool UnitObjType::LoadResponseEvent(const char* event)
 {
     // Ignore duplicates
-    if (!UnitObjType::GetResponse(Crc::CalcStr(event)))
+    if (!GetResponse(Crc::CalcStr(event)))
     {
         // Find all variations
         U32 v = 0;
@@ -556,7 +579,6 @@ Bool UnitObjType::InitializeResources()
 }
 
 
-
 //
 // UnitObjType::NewInstance
 //
@@ -602,7 +624,6 @@ U32 UnitObjType::GetSelfDestructThreat(U32 ac)
 }
 
 
-
 //
 // GetConstructorType
 //
@@ -632,12 +653,12 @@ UnitObjType* UnitObjType::GetCompanionType()
 //
 Bool UnitObjType::UpdateSeeingRange(F32 val)
 {
-    ASSERT(val >= 0.0f && val <= 1.0f)
+    ASSERT(val >= 0.0f && val <= 1.0f);
 
-        // Determine the new seeing range
-        // trunc mode is the default set in Utils::FP::Reset
-        //
-        U32 valInt = Utils::FtoLNearest(val * 256.0f);
+    // Determine the new seeing range
+    // trunc mode is the default set in Utils::FP::Reset
+    //
+    U32 valInt = Utils::FtoLNearest(val * 256.0f);
     U32 newSeeingRange = (seeingRangeDay * valInt + seeingRangeNight * (256 - valInt)) >> 8;
 
     // Did our seeing range change ?
@@ -647,10 +668,7 @@ Bool UnitObjType::UpdateSeeingRange(F32 val)
         seeingRange.sint32.value = newSeeingRange;
         return (TRUE);
     }
-    else
-    {
-        return (FALSE);
-    }
+    return (FALSE);
 }
 
 
@@ -662,7 +680,7 @@ Bool UnitObjType::UpdateSeeingRange(F32 val)
 UnitObjType::ResponseEvent* UnitObjType::GetResponse(U32 event)
 {
     // Find the event
-    for (List<ResponseEvent>::Iterator i(&responseEvents); *i; i++)
+    for (List<ResponseEvent>::Iterator i(&responseEvents); *i; ++i)
     {
         if ((*i)->name.crc == event)
         {
@@ -670,7 +688,7 @@ UnitObjType::ResponseEvent* UnitObjType::GetResponse(U32 event)
         }
     }
 
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -684,9 +702,9 @@ const char* UnitObjType::RandomResponse(U32 event)
     ResponseEvent* r = GetResponse(event);
 
     return
-        (
-            r ? ResponseName(GetName(), r->name.str, Random::nonSync.Integer(r->count)) : NULL
-            );
+    (
+        r ? ResponseName(GetName(), r->name.str, Random::nonSync.Integer(r->count)) : nullptr
+    );
 }
 
 
@@ -710,7 +728,7 @@ UnitObj* UnitObjType::SpawnClosest(const Vector& pos, Team* team, Bool construct
     }
 
     // Unable to find an available position
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -734,7 +752,7 @@ UnitObj* UnitObjType::SpawnLinked(const Vector& pos, Team* team, Bool construct,
     }
 
     // Unable to find an available position
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -765,27 +783,27 @@ UnitObj& UnitObjType::Spawn(const Vector& pos, Team* team, Bool construct, F32 o
 UnitObj& UnitObjType::Spawn(const Matrix& mat, Team* team, Bool construct)
 {
     // Create the object on the map
-    UnitObj* obj = (UnitObj*)MapObjCtrl::ObjectNewOnMap(this, mat, 0, TRUE, !construct);
+    UnitObj* obj = static_cast<UnitObj*>(MapObjCtrl::ObjectNewOnMap(this, mat, 0, TRUE, !construct));
 
-    ASSERT(obj)
+    ASSERT(obj);
 
-        // Do we need to give it a construct task
-        if (construct)
-        {
-            // Set the team but do not add to lists
-            obj->SetTeam(team, FALSE);
+    // Do we need to give it a construct task
+    if (construct)
+    {
+        // Set the team but do not add to lists
+        obj->SetTeam(team, FALSE);
 
-            // Do the construction task setup
-            Tasks::UnitConstruct::Setup(obj);
+        // Do the construction task setup
+        Tasks::UnitConstruct::Setup(obj);
 
-            // Assign the construct task
-            obj->PrependTask(new Tasks::UnitConstruct(obj));
-        }
-        else
-        {
-            // Set the team and add to lists
-            obj->SetTeam(team);
-        }
+        // Assign the construct task
+        obj->PrependTask(new Tasks::UnitConstruct(obj));
+    }
+    else
+    {
+        // Set the team and add to lists
+        obj->SetTeam(team);
+    }
 
     return (*obj);
 }
@@ -798,10 +816,10 @@ UnitObj& UnitObjType::Spawn(const Matrix& mat, Team* team, Bool construct)
 //
 UnitObj& UnitObjType::Spawn(TransportObj* transport)
 {
-    ASSERT(transport)
+    ASSERT(transport);
 
-        // Create the unit off the map
-        UnitObj* obj = (UnitObj*)MapObjCtrl::ObjectNew(this);
+    // Create the unit off the map
+    UnitObj* obj = static_cast<UnitObj*>(MapObjCtrl::ObjectNew(this));
 
     // Set the team of the new object to be that of the transports team
     obj->SetTeam(transport->GetTeam());
@@ -828,12 +846,12 @@ UnitObj& UnitObjType::Spawn(TransportObj* transport)
 UnitObj& UnitObjType::Spawn(UnitObj* subject, Bool move)
 {
     // Create the object
-    UnitObj* u = (UnitObj*)MapObjCtrl::ObjectNew(this);
+    UnitObj* u = static_cast<UnitObj*>(MapObjCtrl::ObjectNew(this));
 
-    ASSERT(u)
+    ASSERT(u);
 
-        // Set the team
-        u->SetTeam(subject->GetTeam());
+    // Set the team
+    u->SetTeam(subject->GetTeam());
 
     // Stick it on the building
     if (u->CanEverMove())
@@ -892,10 +910,10 @@ Bool UnitObjType::FindClosestPos(const Vector& src, Vector& dst, U32 range)
 //
 Bool UnitObjType::FindLinkedPos(const Vector& src, Vector& dst, U32 range)
 {
-    ASSERT(WorldCtrl::MetreOnMap(src.x, src.z))
+    ASSERT(WorldCtrl::MetreOnMap(src.x, src.z));
 
-        // Get the starting cell
-        U32 x = WorldCtrl::MetresToCellX(src.x);
+    // Get the starting cell
+    U32 x = WorldCtrl::MetresToCellX(src.x);
     U32 z = WorldCtrl::MetresToCellZ(src.z);
 
     // The grain position
@@ -926,21 +944,21 @@ Bool UnitObjType::FindLinkedPos(const Vector& src, Vector& dst, U32 range)
 //
 UnitObj* UnitObjType::FindAntiClandestine(Team* team, const Vector& location)
 {
-    ASSERT(WorldCtrl::MetreOnMap(location.x, location.z))
+    ASSERT(WorldCtrl::MetreOnMap(location.x, location.z));
 
-        UnitObj* obj;
+    UnitObj* obj;
 
     // Generate a unit iterator
     UnitObjIter::Tactical i
     (
-        NULL, UnitObjIter::FilterData(team, Relation::ENEMY, location, UnitObjCtrl::GetAntiClandestineSeeingRange())
+        nullptr, UnitObjIter::FilterData(team, Relation::ENEMY, location, UnitObjCtrl::GetAntiClandestineSeeingRange())
     );
 
     // Get the cell position
     U32 x = WorldCtrl::MetresToCellX(location.x);
     U32 z = WorldCtrl::MetresToCellZ(location.z);
 
-    while ((obj = i.Next()) != NULL)
+    while ((obj = i.Next()) != nullptr)
     {
         if (obj->UnitType()->GetAntiClandestine() && Sight::CanUnitSee(obj, x, z))
         {
@@ -948,7 +966,7 @@ UnitObj* UnitObjType::FindAntiClandestine(Team* team, const Vector& location)
         }
     }
 
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -959,17 +977,17 @@ UnitObj* UnitObjType::FindAntiClandestine(Team* team, const Vector& location)
 //
 UnitObj* UnitObjType::FindDisruptor(Team*, const Vector& location)
 {
-    ASSERT(WorldCtrl::MetreOnMap(location.x, location.z))
+    ASSERT(WorldCtrl::MetreOnMap(location.x, location.z));
 
-        UnitObj* obj;
+    UnitObj* obj;
 
     // Generate a unit iterator
     UnitObjIter::Tactical i
     (
-        NULL, UnitObjIter::FilterData(location, UnitObjCtrl::GetDisruptorSeeingRange())
+        nullptr, UnitObjIter::FilterData(location, UnitObjCtrl::GetDisruptorSeeingRange())
     );
 
-    while ((obj = i.Next()) != NULL)
+    while ((obj = i.Next()) != nullptr)
     {
         if (obj->UnitType()->GetDisruptor() && i.GetProximity2() < obj->UnitType()->GetDisruptionRange2())
         {
@@ -977,9 +995,8 @@ UnitObj* UnitObjType::FindDisruptor(Team*, const Vector& location)
         }
     }
 
-    return (NULL);
+    return (nullptr);
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -994,26 +1011,26 @@ UnitObj* UnitObjType::FindDisruptor(Team*, const Vector& location)
 //
 UnitObj::UnitObj(UnitObjType* objType, U32 id)
     : MapObj(objType, id),
-    flags(0),
-    seeingRange(&objType->seeingRange),
-    maxSpeed(&objType->maxSpeed),
-    driver(NULL),
-    boardManager(NULL),
-    team(NULL),
-    resourceTransport(0),
-    teamsCanSee(0),
-    teamsHaveSeen(0),
-    weapon(NULL),
-    spyingTeams(0),
-    sightMap(NULL)
+      flags(0),
+      team(nullptr),
+      resourceTransport(0),
+      teamsCanSee(0),
+      teamsHaveSeen(0),
+      spyingTeams(0),
+      maxSpeed(&objType->maxSpeed),
+      seeingRange(&objType->seeingRange),
+      weapon(nullptr),
+      driver(nullptr),
+      boardManager(nullptr),
+      sightMap(nullptr)
 {
-    ASSERT(objType->resourcesInitialized)
+    ASSERT(objType->resourcesInitialized);
 
-        // If the type defines a weapon the add a weapon of that type
-        if (objType->weapon)
-        {
-            weapon = new Weapon::Object(*objType->weapon, *this);
-        }
+    // If the type defines a weapon the add a weapon of that type
+    if (objType->weapon)
+    {
+        weapon = new Weapon::Object(*objType->weapon, *this);
+    }
 
     // Create path follower object
     if (objType->movementModel->hasDriver)
@@ -1033,8 +1050,7 @@ UnitObj::UnitObj(UnitObjType* objType, U32 id)
     }
 
     // Allocate upgrade reaper array
-    upgrades = UnitType()->upgrades.GetCount() ?
-        new UnitObjPtr[UnitType()->upgrades.GetCount()] : NULL;
+    upgrades = UnitType()->upgrades.GetCount() ? new UnitObjPtr[UnitType()->upgrades.GetCount()] : nullptr;
 
     // Setup default behavior
     if (objType->defaultBehavior.crc)
@@ -1096,7 +1112,7 @@ void UnitObj::PreDelete()
     NotifyPlayer(0x11EAEF8E); // "Unit::Died"
 
     // Remove ourselves from our team
-    SetTeam(NULL);
+    SetTeam(nullptr);
 
     // If we're in a squad, remove ourselves
     if (squad.Alive())
@@ -1233,106 +1249,106 @@ void UnitObj::LoadState(FScope* fScope)
     FScope* sScope;
 
     // Default to no team
-    Team* newTeam = NULL;
+    Team* newTeam = nullptr;
 
     // Default to adding to the team list
     Bool onTeamList = TRUE;
 
-    while ((sScope = fScope->NextFunction()) != NULL)
+    while ((sScope = fScope->NextFunction()) != nullptr)
     {
         switch (sScope->NameCrc())
         {
-        case 0xEDF0E1CF: // "Team"
-            newTeam = Team::Name2Team(StdLoad::TypeString(sScope));
-            break;
+            case 0xEDF0E1CF: // "Team"
+                newTeam = Team::Name2Team(StdLoad::TypeString(sScope));
+                break;
 
-        case 0x7843B95E: // "NotActivelyOnTeam"
-            onTeamList = FALSE;
-            break;
+            case 0x7843B95E: // "NotActivelyOnTeam"
+                onTeamList = FALSE;
+                break;
 
-        case 0x0A16EEBB: // "Upgrades"
-        {
-            for (U32 i = 0; i < UnitType()->upgrades.GetCount(); i++)
+            case 0x0A16EEBB: // "Upgrades"
             {
-                // Get an upgrade reaper
-                FScope* uScope = sScope->NextFunction();
-
-                if (uScope && uScope->NameCrc() == 0x2C77A1B7) // "ReaperId"
+                for (U32 i = 0; i < UnitType()->upgrades.GetCount(); i++)
                 {
-                    StdLoad::TypeReaper(uScope, upgrades[i]);
+                    // Get an upgrade reaper
+                    FScope* uScope = sScope->NextFunction();
+
+                    if (uScope && uScope->NameCrc() == 0x2C77A1B7) // "ReaperId"
+                    {
+                        StdLoad::TypeReaper(uScope, upgrades[i]);
+                    }
                 }
+                break;
             }
-            break;
-        }
 
-        case 0xA0BEA058: // "LinkedUnit"
-            StdLoad::TypeReaper(sScope, linkedUnit);
-            break;
+            case 0xA0BEA058: // "LinkedUnit"
+                StdLoad::TypeReaper(sScope, linkedUnit);
+                break;
 
-        case 0x46700A29: // "Flags"
-            flags = U8(StdLoad::TypeU32(sScope));
-            break;
+            case 0x46700A29: // "Flags"
+                flags = U8(StdLoad::TypeU32(sScope));
+                break;
 
-        case 0x2C1AA2EC: // "Altitude"
-            altitude = StdLoad::TypeF32(sScope);
-            break;
+            case 0x2C1AA2EC: // "Altitude"
+                altitude = StdLoad::TypeF32(sScope);
+                break;
 
-        case 0x1DE7E3DA: // "Weapon"
-            if (weapon)
-            {
-                weapon->LoadState(sScope);
-            }
-            break;
+            case 0x1DE7E3DA: // "Weapon"
+                if (weapon)
+                {
+                    weapon->LoadState(sScope);
+                }
+                break;
 
-        case 0x5071F52C: // "Driver"
-            if (driver)
-            {
-                driver->LoadState(sScope);
-            }
-            break;
+            case 0x5071F52C: // "Driver"
+                if (driver)
+                {
+                    driver->LoadState(sScope);
+                }
+                break;
 
-        case 0xF698A86F: // "BoardManager"
-            if (boardManager)
-            {
-                StdLoad::TypeReaper(sScope, *boardManager);
-            }
-            break;
+            case 0xF698A86F: // "BoardManager"
+                if (boardManager)
+                {
+                    StdLoad::TypeReaper(sScope, *boardManager);
+                }
+                break;
 
-        case 0x2F382D90: // "ModifierSettings"
-            settings.LoadState(sScope);
-            break;
+            case 0x2F382D90: // "ModifierSettings"
+                settings.LoadState(sScope);
+                break;
 
-        case 0x3A2ECFB8: // "ResourceTransport"
-            resourceTransport = StdLoad::TypeU32(sScope);
-            break;
+            case 0x3A2ECFB8: // "ResourceTransport"
+                resourceTransport = StdLoad::TypeU32(sScope);
+                break;
 
-        case 0xAF55CD8F: // "Squad"        
-            StdLoad::TypeReaper(sScope, squad);
-            break;
+            case 0xAF55CD8F: // "Squad"        
+                StdLoad::TypeReaper(sScope, squad);
+                break;
 
-        case 0x243C96C1: // "PrimaryRestore"
-            StdLoad::TypeReaper(sScope, primaryRestore);
-            break;
+            case 0x243C96C1: // "PrimaryRestore"
+                StdLoad::TypeReaper(sScope, primaryRestore);
+                break;
 
-        case 0xC5447F67: // "MaxSpeed"
-            maxSpeed.LoadState(sScope);
-            break;
+            case 0xC5447F67: // "MaxSpeed"
+                maxSpeed.LoadState(sScope);
+                break;
 
-        case 0x107B6FA2: // "SeeingRange"
-            seeingRange.LoadState(sScope);
-            break;
+            case 0x107B6FA2: // "SeeingRange"
+                seeingRange.LoadState(sScope);
+                break;
 
-        case 0x4FD1A67D: // "BlindTarget"
-            blindTarget.LoadState(sScope);
-            break;
+            case 0x4FD1A67D: // "BlindTarget"
+                blindTarget.LoadState(sScope);
+                break;
 
-        case 0x7D1A92D4: // "TeamsHaveSeen"
-            teamsHaveSeen = Game::TeamBitfield(StdLoad::TypeU32(sScope));
-            break;
+            case 0x7D1A92D4: // "TeamsHaveSeen"
+                teamsHaveSeen = Game::TeamBitfield(StdLoad::TypeU32(sScope));
+                break;
 
-        case 0x5E9761F8: // "SpyingTeams"
-            spyingTeams = Game::TeamBitfield(StdLoad::TypeU32(sScope));
-            break;
+            case 0x5E9761F8: // "SpyingTeams"
+                spyingTeams = Game::TeamBitfield(StdLoad::TypeU32(sScope));
+                break;
         }
     }
 
@@ -1404,9 +1420,9 @@ Bool UnitObj::SendEvent(const Task::Event& event, Bool idle)
 
     switch (event.message)
     {
-    case 0x1B7D0A42: // "Unit::RestoreNow"
-        RestoreNow();
-        return (TRUE);
+        case 0x1B7D0A42: // "Unit::RestoreNow"
+            RestoreNow();
+            return (TRUE);
     }
 
     // If we don't want the event pass it down
@@ -1430,7 +1446,7 @@ void UnitObj::CaptureCellHooks(Bool capture)
     {
         // Find out which bits changed in this capture
         Game::TeamBitfield newBF = Sight::VisibleMask(cellX, cellZ);
-        Game::TeamBitfield changedBF = (Game::TeamBitfield) (newBF ^ teamsCanSee);
+        Game::TeamBitfield changedBF = static_cast<Game::TeamBitfield>(newBF ^ teamsCanSee);
 
         if (changedBF)
         {
@@ -1472,7 +1488,7 @@ void UnitObj::ProcessCycle()
     if (driver)
     {
         PERF_S(("PathFollowing"))
-            driver->Process();
+        driver->Process();
         PERF_E(("PathFollowing"))
     }
 
@@ -1486,26 +1502,26 @@ void UnitObj::ProcessCycle()
     }
 
     // Check for a sufficient change in the last LOS scan altitude
-    ASSERT(OnMap())
-        ASSERT(sightMap)
+    ASSERT(OnMap());
+    ASSERT(sightMap);
 
-        if (fabs(Sight::EyePosition(this) - sightMap->lastAlt) > 4.0F)
-        {
-            SetFlag(FLAG_UPDATELOS, TRUE);
-        }
+    if (fabs(Sight::EyePosition(this) - sightMap->lastAlt) > 4.0F)
+    {
+        SetFlag(FLAG_UPDATELOS, TRUE);
+    }
 
     // If we have a weapon then process it 
     if (weapon)
     {
         PERF_S(("Weapon"))
-            weapon->Process();
+        weapon->Process();
         PERF_E(("Weapon"))
     }
 
     if (GetFlag(FLAG_UPDATELOS) && OnMap())
     {
         PERF_S(("Line of sight"))
-            Sight::UnSweep(this);
+        Sight::UnSweep(this);
         Sight::Sweep(this);
         SetFlag(FLAG_UPDATELOS, FALSE);
         PERF_E(("Line of sight"))
@@ -1523,7 +1539,11 @@ void UnitObj::ProcessCycle()
 //
 // Tell unit to move to a location/direction
 //
-void UnitObj::Move(Movement::Handle& handle, const Vector* dst, const Vector* dir, Bool passUnit, Movement::RequestData* req)
+void UnitObj::Move
+(
+    Movement::Handle& handle, const Vector* dst, const Vector* dir, Bool passUnit,
+    Movement::RequestData* req
+)
 {
     U32 notify = 0;
 
@@ -1556,10 +1576,10 @@ void UnitObj::Move(Movement::Handle& handle, const Vector* dst, const Vector* di
 //
 void UnitObj::Move(Movement::Handle& handle, TrailObj* trail, Bool, Movement::RequestData*)
 {
-    ASSERT(trail)
+    ASSERT(trail);
 
-        // Reset handle before requesting
-        handle.Invalidate();
+    // Reset handle before requesting
+    handle.Invalidate();
 
     //LOG_DIAG(("Unit [%s/%d] moving to trail [%s/%d]", TypeName(), Id(), trail->GetName(), trail->Id()));
 }
@@ -1637,7 +1657,7 @@ void UnitObj::MoveAwayDirect(Movement::Handle& handle, F32 distance)
     Movement::RequestData rd;
     rd.giveUpGrains = Movement::MAX_GIVEUP_MOVEAWAY_DIST;
 
-    Move(handle, &dest, NULL, FALSE, &rd);
+    Move(handle, &dest, nullptr, FALSE, &rd);
 }
 
 
@@ -1734,8 +1754,8 @@ void UnitObj::AddToMapHook()
     }
 
     // Create a sight map
-    ASSERT(!sightMap)
-        sightMap = new Sight::Map;
+    ASSERT(!sightMap);
+    sightMap = new Sight::Map;
 }
 
 
@@ -1771,10 +1791,10 @@ void UnitObj::CaptureMapHooks(Bool capture)
 
     if (capture)
     {
-        ASSERT(currentCluster)
+        ASSERT(currentCluster);
 
-            // Hook the unit list
-            currentCluster->unitList.Append(this);
+        // Hook the unit list
+        currentCluster->unitList.Append(this);
 
         // Increment this teams occupation of this cluster
         if (team)
@@ -1801,7 +1821,11 @@ void UnitObj::CaptureMapHooks(Bool capture)
             if (team && GetHitPoints() > 0)
             {
                 // The number of hitpoints this object has get removed from the defense
-                currentCluster->ai.RemoveDefense(team->GetId(), MapType()->GetArmourClass(), GetHitPoints() + GetArmour());
+                currentCluster->ai.RemoveDefense
+                (
+                    team->GetId(), MapType()->GetArmourClass(),
+                    GetHitPoints() + GetArmour()
+                );
             }
         }
     }
@@ -1810,25 +1834,27 @@ void UnitObj::CaptureMapHooks(Bool capture)
     if (team)
     {
         // If cluster was NULL then the MapObj level should have calculated it !
-        ASSERT(currentCluster)
+        ASSERT(currentCluster);
 
-            // For all of the weapons on the map, we need to either add or remove threat
-            if (weapon)
+        // For all of the weapons on the map, we need to either add or remove threat
+        if (weapon)
+        {
+            // Add the damage this weapon can do to each armour class
+            for (U32 ac = 0; ac < ArmourClass::NumClasses(); ac++)
             {
-                // Add the damage this weapon can do to each armour class
-                for (U32 ac = 0; ac < ArmourClass::NumClasses(); ac++)
+                U32 threat = UnitType()->GetWeaponThreat(ac);
+                if (threat)
                 {
-                    U32 threat = UnitType()->GetWeaponThreat(ac);
-                    if (threat)
-                    {
-                        ASSERT(UnitType()->weaponBleedMap)
+                    ASSERT(UnitType()->weaponBleedMap);
 
-                            UnitType()->weaponBleedMap->ApplyThreat(
-                                Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
-                                team->GetId(), ac, threat, capture);
-                    }
+                    UnitType()->weaponBleedMap->ApplyThreat
+                    (
+                        Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
+                        team->GetId(), ac, threat, capture
+                    );
                 }
             }
+        }
 
         if (UnitType()->selfDestructExplosion.Alive())
         {
@@ -1838,22 +1864,26 @@ void UnitObj::CaptureMapHooks(Bool capture)
                 U32 threat = UnitType()->GetSelfDestructThreat(ac);
                 if (threat)
                 {
-                    ASSERT(UnitType()->selfDestructBleedMap)
+                    ASSERT(UnitType()->selfDestructBleedMap);
 
-                        UnitType()->selfDestructBleedMap->ApplyThreat(
-                            Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
-                            team->GetId(), ac, threat, capture);
+                    UnitType()->selfDestructBleedMap->ApplyThreat
+                    (
+                        Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
+                        team->GetId(), ac, threat, capture
+                    );
                 }
             }
         }
 
         if (UnitType()->disruptor)
         {
-            ASSERT(UnitType()->disruptionBleedMap)
+            ASSERT(UnitType()->disruptionBleedMap);
 
-                UnitType()->disruptionBleedMap->ApplyDisruption(
-                    Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
-                    team->GetId(), capture);
+            UnitType()->disruptionBleedMap->ApplyDisruption
+            (
+                Point<S32>(currentCluster->xIndex, currentCluster->zIndex),
+                team->GetId(), capture
+            );
         }
     }
 }
@@ -1911,7 +1941,7 @@ void UnitObj::SetTeam(Team* t, Bool modifyTeamList)
     }
 
     // Change team of all attached units
-    for (NList<MapObj>::Iterator i(&attachments); *i; i++)
+    for (NList<MapObj>::Iterator i(&attachments); *i; ++i)
     {
         if (UnitObj* unit = Promote::Object<UnitObjType, UnitObj>(*i))
         {
@@ -1941,33 +1971,33 @@ void UnitObj::SetTeam(Team* t, Bool modifyTeamList)
 //
 Bool UnitObj::FindCover(Bool search, UnitObj* avoid)
 {
-    ASSERT(CanEverMove())
+    ASSERT(CanEverMove());
 
-        // Can this unit move right now
-        if (!Blocked(Tasks::UnitMove::GetConfigBlockingPriority()))
+    // Can this unit move right now
+    if (!Blocked(Tasks::UnitMove::GetConfigBlockingPriority()))
+    {
+        Point<U32> cell;
+
+        // Find the nearest location to go to
+        if (PathSearch::FindConnectedCell(cellX, cellZ, cell.x, cell.z, *this, avoid, &UnitObj::DefenseAndEnemyCantSee))
         {
-            Point<U32> cell;
+            Point<F32> loc;
+            WorldCtrl::CellToMetrePoint(cell, loc);
+            U32 flags = Task::TF_FROM_ORDER;
 
-            // Find the nearest location to go to
-            if (PathSearch::FindConnectedCell(cellX, cellZ, cell.x, cell.z, *this, avoid, &UnitObj::DefenseAndEnemyCantSee))
+            // Do we need to search for new targets as we are moving
+            if (search)
             {
-                Point<F32> loc;
-                WorldCtrl::CellToMetrePoint(cell, loc);
-                U32 flags = Task::TF_FROM_ORDER;
-
-                // Do we need to search for new targets as we are moving
-                if (search)
-                {
-                    flags |= Task::TF_FLAG1;
-                }
-
-                // Prepend the move task
-                PrependTask(new Tasks::UnitMove(this, Vector(loc.x, 0.0f, loc.z)), flags);
-
-                // The task was issued
-                return (TRUE);
+                flags |= Task::TF_FLAG1;
             }
+
+            // Prepend the move task
+            PrependTask(new Tasks::UnitMove(this, Vector(loc.x, 0.0f, loc.z)), flags);
+
+            // The task was issued
+            return (TRUE);
         }
+    }
 
     // No task was issued
     return (FALSE);
@@ -1981,21 +2011,21 @@ Bool UnitObj::FindCover(Bool search, UnitObj* avoid)
 //
 Bool UnitObj::FindDanger(UnitObj* sourceUnit)
 {
-    ASSERT(CanEverMove())
-        ASSERT(sourceUnit)
+    ASSERT(CanEverMove());
+    ASSERT(sourceUnit);
 
-        // Can we move to the source
-        if (sourceUnit->OnMap() && !Blocked(Tasks::UnitMove::GetConfigBlockingPriority()))
-        {
-            // Prepend the move task
-            PrependTask
-            (
-                new Tasks::UnitMove(this, sourceUnit->Position()), Task::TF_FROM_ORDER | Task::TF_FLAG1
-            );
+    // Can we move to the source
+    if (sourceUnit->OnMap() && !Blocked(Tasks::UnitMove::GetConfigBlockingPriority()))
+    {
+        // Prepend the move task
+        PrependTask
+        (
+            new Tasks::UnitMove(this, sourceUnit->Position()), Task::TF_FROM_ORDER | Task::TF_FLAG1
+        );
 
-            // The task was issued
-            return (TRUE);
-        }
+        // The task was issued
+        return (TRUE);
+    }
 
     // No task was issued
     return (FALSE);
@@ -2016,7 +2046,7 @@ Bool UnitObj::ReadyToRespondToDanger()
         if (task == GetIdleTask())
         {
             // Should we respond to danger in this state
-            if (Tactical::QueryProperty(task->GetTaskTable(), this, Tactical::TP_RESPONDTODANGER))
+            if (QueryProperty(task->GetTaskTable(), this, Tactical::TP_RESPONDTODANGER))
             {
                 // Have we been in this task long enough
                 if (GameTime::TimeSinceCycle(task->GetInvoked()) > TIME_RESPONDTODANGER)
@@ -2049,13 +2079,12 @@ Bool UnitObj::DangerResponse(UnitObj* sourceUnit, UnitObj* buddy)
             {
                 return (FindDanger(sourceUnit));
             }
-            else
 
-                // Ignore notifications from non-mobile units
-                if (!buddy || buddy->CanEverMove())
-                {
-                    return (FindCover(TRUE, sourceUnit));
-                }
+            // Ignore notifications from non-mobile units
+            if (!buddy || buddy->CanEverMove())
+            {
+                return (FindCover(TRUE, sourceUnit));
+            }
         }
     }
 
@@ -2078,19 +2107,19 @@ void UnitObj::DangerResponseAlert(UnitObj* sourceUnit)
         // Iterate the nearby area
         UnitObjIter::Tactical i
         (
-            NULL, UnitObjIter::FilterData(GetTeam(), Relation::ALLY, Position(), 32.0F)
+            nullptr, UnitObjIter::FilterData(GetTeam(), Relation::ALLY, Position(), 32.0F)
         );
 
-        while ((unit = i.Next()) != NULL)
+        while ((unit = i.Next()) != nullptr)
         {
-            ASSERT(unit->OnMap())
+            ASSERT(unit->OnMap());
 
-                // Ignore this unit
-                if (unit != this)
-                {
-                    // Let the unit respond
-                    unit->DangerResponse(sourceUnit, this);
-                }
+            // Ignore this unit
+            if (unit != this)
+            {
+                // Let the unit respond
+                unit->DangerResponse(sourceUnit, this);
+            }
         }
     }
 }
@@ -2122,83 +2151,87 @@ void UnitObj::ModifyHitPoints(S32 mod, UnitObj* sourceUnit, Team* sourceTeam, co
             if (team && mod)
             {
                 // During Equip the team is NULL, so although off map, this is ignored
-                ASSERT(OnMap())
+                ASSERT(OnMap());
 
-                    if (mod < 0)
+                if (mod < 0)
+                {
+                    // If hit points were removed then remove defense
+                    currentCluster->ai.RemoveDefense(team->GetId(), MapType()->GetArmourClass(), -mod);
+
+                    // Add pain to this armour class
+                    currentCluster->ai.AddPain(team->GetId(), MapType()->GetArmourClass(), -mod);
+
+                    // Signal team radio that we were damaged
+                    team->GetRadio().Trigger(0xB8C2654B, Radio::Event(this)); // "UnitDamaged"
+
+                    // Process movement actions
+                    if (CanEverMove())
                     {
-                        // If hit points were removed then remove defense
-                        currentCluster->ai.RemoveDefense(team->GetId(), MapType()->GetArmourClass(), -mod);
+                        // Get our current task
+                        Task* task = GetCurrentTask();
 
-                        // Add pain to this armour class
-                        currentCluster->ai.AddPain(team->GetId(), MapType()->GetArmourClass(), -mod);
-
-                        // Signal team radio that we were damaged
-                        team->GetRadio().Trigger(0xB8C2654B, Radio::Event(this)); // "UnitDamaged"
-
-                        // Process movement actions
-                        if (CanEverMove())
+                        // Are we now below our auto repair hitpoint 
+                        // threshhold and are we allowed to auto repair ?
+                        if
+                        (
+                            before >= UnitType()->autoRepairHitpoints &&
+                            hitpoints < UnitType()->autoRepairHitpoints &&
+                            task &&
+                            QueryProperty(task->GetTaskTable(), this, Tactical::TP_REPAIRSELF)
+                        )
                         {
-                            // Get our current task
-                            Task* task = GetCurrentTask();
+                            PostRestoreNowEvent();
+                        }
+                        else
 
-                            // Are we now below our auto repair hitpoint 
-                            // threshhold and are we allowed to auto repair ?
-                            if
-                                (
-                                    before >= UnitType()->autoRepairHitpoints &&
-                                    hitpoints < UnitType()->autoRepairHitpoints &&
-                                    task &&
-                                    Tactical::QueryProperty(task->GetTaskTable(), this, Tactical::TP_REPAIRSELF)
-                                    )
+                            // Were we hit by another team (stop friendly fire scattering our units)
+                            if (sourceTeam && sourceTeam != team && task)
                             {
-                                PostRestoreNowEvent();
-                            }
-                            else
-
-                                // Were we hit by another team (stop friendly fire scattering our units)
-                                if (sourceTeam && sourceTeam != team && task)
+                                // Should we run away when hit (skirmishers etc)
+                                if (QueryProperty(task->GetTaskTable(), this, Tactical::TP_RUNWHENHURT))
                                 {
-                                    // Should we run away when hit (skirmishers etc)
-                                    if (Tactical::QueryProperty(task->GetTaskTable(), this, Tactical::TP_RUNWHENHURT))
-                                    {
-                                        FindCover(FALSE, sourceUnit);
-                                    }
-
-                                    // Give AI units the chance to respond to the danger
-                                    if (IsAI())
-                                    {
-                                        // Broadcast an alert BEFORE responding ourself
-                                        DangerResponseAlert(sourceUnit);
-
-                                        // Now respond to the danger ourself
-                                        DangerResponse(sourceUnit);
-                                    }
+                                    FindCover(FALSE, sourceUnit);
                                 }
-                        }
 
-                        // Did another team inflict this damage ?
-                        if (sourceTeam)
-                        {
-                            // Was this damage inflicted by an enemy ?
-                            if (team->TestRelation(sourceTeam->GetId(), Relation::ENEMY))
-                            {
-                                // Signal team radio that we're under attack from an enemy
-                                team->GetRadio().Trigger(0x95C3A90A, Radio::Event(this)); // "EnemyAttack"
-                            }
+                                // Give AI units the chance to respond to the danger
+                                if (IsAI())
+                                {
+                                    // Broadcast an alert BEFORE responding ourself
+                                    DangerResponseAlert(sourceUnit);
 
-                            // Was this damage inflicted bu an ally ?
-                            if (team->TestRelation(sourceTeam->GetId(), Relation::ALLY))
-                            {
-                                // Signal team radio that we were damaged
-                                team->GetRadio().Trigger(0xA2844D12, Radio::Event(this)); // "AllyAttack"
+                                    // Now respond to the danger ourself
+                                    DangerResponse(sourceUnit);
+                                }
                             }
-                        }
                     }
-                    else
+
+                    // Did another team inflict this damage ?
+                    if (sourceTeam)
                     {
-                        // If hit points were added then add defense
-                        currentCluster->ai.AddDefense(team->GetId(), MapType()->GetArmourClass(), (GetHitPoints() + GetArmour()) - before);
+                        // Was this damage inflicted by an enemy ?
+                        if (team->TestRelation(sourceTeam->GetId(), Relation::ENEMY))
+                        {
+                            // Signal team radio that we're under attack from an enemy
+                            team->GetRadio().Trigger(0x95C3A90A, Radio::Event(this)); // "EnemyAttack"
+                        }
+
+                        // Was this damage inflicted bu an ally ?
+                        if (team->TestRelation(sourceTeam->GetId(), Relation::ALLY))
+                        {
+                            // Signal team radio that we were damaged
+                            team->GetRadio().Trigger(0xA2844D12, Radio::Event(this)); // "AllyAttack"
+                        }
                     }
+                }
+                else
+                {
+                    // If hit points were added then add defense
+                    currentCluster->ai.AddDefense
+                    (
+                        team->GetId(), MapType()->GetArmourClass(),
+                        (GetHitPoints() + GetArmour()) - before
+                    );
+                }
             }
         }
         else
@@ -2291,8 +2324,8 @@ U32 UnitObj::GetResourceTransport()
 U32 UnitObj::AddResourceTransport(U32 amount)
 {
     // How much space is left
-    ASSERT(resourceTransport <= UnitType()->GetResourceTransport())
-        U32 left = UnitType()->GetResourceTransport() - resourceTransport;
+    ASSERT(resourceTransport <= UnitType()->GetResourceTransport());
+    U32 left = UnitType()->GetResourceTransport() - resourceTransport;
 
     if (amount > left)
     {
@@ -2354,16 +2387,16 @@ void UnitObj::SetCanSee(U32 id)
             // Can the team see that this unit is an enemy
             if (t->TestUnitRelation(this, Relation::ENEMY))
             {
-                UnitObj* candidate, * ally = NULL, * winner = NULL;
+                UnitObj *candidate, *ally = nullptr, *winner = nullptr;
 
                 // Find the unit that spotted us
                 UnitObjIter::Tactical i
                 (
-                    NULL, UnitObjIter::FilterData(t, Relation::ALLY, Position(), 130.0F)
+                    nullptr, UnitObjIter::FilterData(t, Relation::ALLY, Position(), 130.0F)
                 );
 
                 // Step through each possible target
-                while ((candidate = i.Next()) != NULL)
+                while ((candidate = i.Next()) != nullptr)
                 {
                     // Is this unit on the required team
                     if (candidate->GetTeam() == t)
@@ -2484,13 +2517,13 @@ SquadObj* UnitObj::GetSquad()
 void UnitObj::ClearSquad()
 {
     // Make sure we're in a squad
-    ASSERT(squad.Alive())
+    ASSERT(squad.Alive());
 
-        // Remove ourselves from the squad
-        squad->RemoveUnitObj(this);
+    // Remove ourselves from the squad
+    squad->RemoveUnitObj(this);
 
     // Set the squad to NULL
-    squad = NULL;
+    squad = nullptr;
 }
 
 
@@ -2502,12 +2535,11 @@ void UnitObj::ClearSquad()
 void UnitObj::SetSquad(SquadObj* squadIn)
 {
     // Make sure we're not already in a squad
-    ASSERT(!squad.Alive())
+    ASSERT(!squad.Alive());
 
-        // Set the squad
-        squad = squadIn;
+    // Set the squad
+    squad = squadIn;
 }
-
 
 
 //
@@ -2536,20 +2568,19 @@ Bool UnitObj::CanEverDamage(const Target& target)
     {
         switch (target.GetType())
         {
-        case Target::OBJECT:
-            return (target.GetObj().Alive() ? CanEverDamage(target.GetObj()) : NULL);
+            case Target::OBJECT:
+                return (target.GetObj().Alive() ? CanEverDamage(target.GetObj()) : NULL);
 
-        case Target::LOCATION:
-            return (TRUE);
+            case Target::LOCATION:
+                return (TRUE);
 
-        case Target::INVALID:
-            return (FALSE);
+            case Target::INVALID:
+                return (FALSE);
         }
     }
 
     return (FALSE);
 }
-
 
 
 //
@@ -2559,12 +2590,12 @@ Bool UnitObj::CanEverDamage(const Target& target)
 //
 Bool UnitObj::CanEverDamage(MapObj* target)
 {
-    ASSERT(target)
+    ASSERT(target);
 
-        return
-        (
-            (target != this) && CanEverFire() && UnitType()->GetThreat(target->MapType()->GetArmourClass())
-            );
+    return
+    (
+        (target != this) && CanEverFire() && UnitType()->GetThreat(target->MapType()->GetArmourClass())
+    );
 }
 
 
@@ -2597,28 +2628,28 @@ Bool UnitObj::CanDamageNow(MapObj* target)
 //
 Bool UnitObj::ForceAttacking(MapObj* target)
 {
-    ASSERT(target)
+    ASSERT(target);
 
-        // Do we have a weapon
-        if (GetWeapon())
+    // Do we have a weapon
+    if (GetWeapon())
+    {
+        // Is there an attack task
+        if (Tasks::UnitAttack* attackTask = TaskCtrl::Promote<Tasks::UnitAttack>(this))
         {
-            // Is there an attack task
-            if (Tasks::UnitAttack* attackTask = TaskCtrl::Promote<Tasks::UnitAttack>(this))
+            // Did it come from an order
+            if (attackTask->GetFlags() & Task::TF_FROM_ORDER)
             {
-                // Did it come from an order
-                if (attackTask->GetFlags() & Task::TF_FROM_ORDER)
-                {
-                    // Get the current target
-                    const Target& t = GetWeapon()->GetTarget();
+                // Get the current target
+                const Target& t = GetWeapon()->GetTarget();
 
-                    // Are we attacking the target
-                    if ((t.GetType() == Target::OBJECT) && (t.GetObj().GetPointer() == target))
-                    {
-                        return (TRUE);
-                    }
+                // Are we attacking the target
+                if ((t.GetType() == Target::OBJECT) && (t.GetObj().GetPointer() == target))
+                {
+                    return (TRUE);
                 }
             }
         }
+    }
 
     return (FALSE);
 }
@@ -2646,55 +2677,55 @@ Bool UnitObj::ForceAttacking(const Target& target)
 //
 Bool UnitObj::SuggestTarget(const Target& target, Bool potShot, Bool notify)
 {
-    ASSERT(target.Alive())
+    ASSERT(target.Alive());
 
-        // Do we have a weapon ?
-        if (weapon)
+    // Do we have a weapon ?
+    if (weapon)
+    {
+        Task* task = GetCurrentTask();
+        Tasks::UnitAttack* attackTask = TaskCtrl::Promote<Tasks::UnitAttack>(task);
+        Tasks::UnitGuard* guardTask = TaskCtrl::Promote<Tasks::UnitGuard>(task);
+
+        MapObj* guardObj = guardTask ? guardTask->GetGuardTarget().GetObject() : nullptr;
+
+        // If we can damage it, offer this target to the weapon 
+        if (CanEverDamage(target) && GetWeapon()->OfferTarget(target, guardObj))
         {
-            Task* task = GetCurrentTask();
-            Tasks::UnitAttack* attackTask = TaskCtrl::Promote<Tasks::UnitAttack>(task);
-            Tasks::UnitGuard* guardTask = TaskCtrl::Promote<Tasks::UnitGuard>(task);
-
-            MapObj* guardObj = guardTask ? guardTask->GetGuardTarget().GetObject() : NULL;
-
-            // If we can damage it, offer this target to the weapon 
-            if (CanEverDamage(target) && GetWeapon()->OfferTarget(target, guardObj))
+            // Is this a pot shot ?
+            if (potShot)
             {
-                // Is this a pot shot ?
-                if (potShot)
+                weapon->SetTarget(target);
+            }
+            else
+
+                // Do we already have an attack task ?
+                if (attackTask)
                 {
-                    weapon->SetTarget(target);
+                    // Change the target of the current attack task
+                    attackTask->SetTarget(target);
                 }
                 else
 
-                    // Do we already have an attack task ?
-                    if (attackTask)
+                    // Do we already have a guard task ?
+                    if (guardTask)
                     {
                         // Change the target of the current attack task
-                        attackTask->SetTarget(target);
+                        guardTask->SetAttackTarget(target);
                     }
                     else
+                    {
+                        // Create a new task and issue it
+                        PrependTask(new Tasks::UnitAttack(this, target));
+                    }
 
-                        // Do we already have a guard task ?
-                        if (guardTask)
-                        {
-                            // Change the target of the current attack task
-                            guardTask->SetAttackTarget(target);
-                        }
-                        else
-                        {
-                            // Create a new task and issue it
-                            PrependTask(new Tasks::UnitAttack(this, target));
-                        }
-
-                // If the target is an object notify the squad that we're engaging an enemy
-                if (notify && target.GetType() == Target::OBJECT)
-                {
-                    PostSquadEvent(Task::Event(0x2E537947, target.GetObj().Id())); // "Tactical::TargetFound"
-                }
-                return (TRUE);
+            // If the target is an object notify the squad that we're engaging an enemy
+            if (notify && target.GetType() == Target::OBJECT)
+            {
+                PostSquadEvent(Task::Event(0x2E537947, target.GetObj().Id())); // "Tactical::TargetFound"
             }
+            return (TRUE);
         }
+    }
     return (FALSE);
 }
 
@@ -2775,7 +2806,7 @@ RestoreObj* UnitObj::GetRestoreFacility()
         return (Tasks::RestoreStatic::Find(this));
     }
 
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -2849,7 +2880,7 @@ void UnitObj::StartBlindTarget(F32 time)
 
     // Start associated FX
     // ("BlindCallBack" removed to make mesh effect work)
-    StartGenericFX(0xF09C81AF, NULL, TRUE, NULL, NULL, time); // "UnitObj::Blind"
+    StartGenericFX(0xF09C81AF, nullptr, TRUE, nullptr, nullptr, time); // "UnitObj::Blind"
 }
 
 
@@ -2876,20 +2907,20 @@ Bool UnitObj::GetCurrentDestination(Vector& v)
 Bool UnitObj::CanRecycleNow()
 {
     return
-        (
-            // Must be allowed to recycle  
-            HasProperty(0xBFF53F36) // "Ability::Recycle"
+    (
+        // Must be allowed to recycle  
+        HasProperty(0xBFF53F36) // "Ability::Recycle"
 
-            &&
+        &&
 
-            // Must not be recycling already
-            !TaskCtrl::Promote<Tasks::UnitRecycle>(this)
+        // Must not be recycling already
+        !TaskCtrl::Promote<Tasks::UnitRecycle>(this)
 
-            &&
+        &&
 
-            // Must not be blocked
-            !Blocked(Tasks::UnitRecycle::GetConfigBlockingPriority())
-            );
+        // Must not be blocked
+        !Blocked(Tasks::UnitRecycle::GetConfigBlockingPriority())
+    );
 }
 
 
@@ -2930,7 +2961,7 @@ Bool UnitObj::RecycleNow()
 UnitObj* UnitObj::UpgradeNow(Bool immediate)
 {
     // Check each upgrade 
-    for (List<UnitObjType::UpgradeInfo>::Iterator i(&UnitType()->upgrades); *i; i++)
+    for (List<UnitObjType::UpgradeInfo>::Iterator i(&UnitType()->upgrades); *i; ++i)
     {
         // Get the info
         UnitObjType::UpgradeInfo* info = *i;
@@ -2946,7 +2977,7 @@ UnitObj* UnitObj::UpgradeNow(Bool immediate)
 
                 if (hp)
                 {
-                    UnitObj* obj = NULL;
+                    UnitObj* obj = nullptr;
 
                     // Is this an immediate upgrade (in the studio)
                     if (immediate)
@@ -2972,16 +3003,13 @@ UnitObj* UnitObj::UpgradeNow(Bool immediate)
                     // Success
                     return (obj);
                 }
-                else
-                {
-                    LOG_WARN(("Upgrade hardpoint [%s] not found on [%s]", info->point.str, TypeName()));
-                }
+                LOG_WARN(("Upgrade hardpoint [%s] not found on [%s]", info->point.str, TypeName()));
             }
         }
     }
 
     // Failed
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -2992,7 +3020,7 @@ UnitObj* UnitObj::UpgradeNow(Bool immediate)
 //
 UnitObjType* UnitObj::GetNextUpgrade()
 {
-    for (List<UnitObjType::UpgradeInfo>::Iterator i(&UnitType()->upgrades); *i; i++)
+    for (List<UnitObjType::UpgradeInfo>::Iterator i(&UnitType()->upgrades); *i; ++i)
     {
         // Is this an empty one
         if (!GetUpgrade((*i)->index).Alive())
@@ -3008,7 +3036,7 @@ UnitObjType* UnitObj::GetNextUpgrade()
         }
     }
 
-    return (NULL);
+    return (nullptr);
 }
 
 
@@ -3042,10 +3070,10 @@ Bool UnitObj::CanUpgradeNow()
 //
 UnitObjPtr& UnitObj::GetUpgrade(U32 i)
 {
-    ASSERT(upgrades)
-        ASSERT(i < UnitType()->upgrades.GetCount())
+    ASSERT(upgrades);
+    ASSERT(i < UnitType()->upgrades.GetCount());
 
-        return (upgrades[i]);
+    return (upgrades[i]);
 }
 
 
@@ -3122,16 +3150,16 @@ void UnitObj::GetRecycleTimes(F32& total, F32& current)
 //
 Bool UnitObj::CanConstructEver(UnitObjType* t)
 {
-    ASSERT(t)
+    ASSERT(t);
 
-        return
-        (
-            // Constructed by this unit
-            (t->GetConstructorType() == UnitType()) &&
+    return
+    (
+        // Constructed by this unit
+        (t->GetConstructorType() == UnitType()) &&
 
-            // Allowed by the team
-            (!GetTeam() || GetTeam()->AllowedType(t))
-            );
+        // Allowed by the team
+        (!GetTeam() || GetTeam()->AllowedType(t))
+    );
 }
 
 
@@ -3142,26 +3170,26 @@ Bool UnitObj::CanConstructEver(UnitObjType* t)
 //
 Bool UnitObj::CanConstructNow(UnitObjType* t)
 {
-    ASSERT(t)
-        ASSERT(CanConstructEver(t))
+    ASSERT(t);
+    ASSERT(CanConstructEver(t));
 
-        // If we're incapacitated then bail
-        if (!IsActivelyOnTeam())
-        {
-            return (FALSE);
-        }
+    // If we're incapacitated then bail
+    if (!IsActivelyOnTeam())
+    {
+        return (FALSE);
+    }
 
     // Have the prereqs
     if (GetTeam() && t->GetPrereqs().Have(GetTeam()))
     {
         // For each upgrade
-        for (List<UnitObjType::UpgradeInfo>::Iterator u(&UnitType()->upgrades); *u; u++)
+        for (List<UnitObjType::UpgradeInfo>::Iterator u(&UnitType()->upgrades); *u; ++u)
         {
             // Get the info
             UnitObjType::UpgradeInfo* info = *u;
 
             // For each prereq
-            for (UnitObjTypeList::Iterator p(&t->GetPrereqs().Get()); *p; p++)
+            for (UnitObjTypeList::Iterator p(&t->GetPrereqs().Get()); *p; ++p)
             {
                 // Check if it's a prereq for the target type
                 if (
@@ -3195,7 +3223,7 @@ Bool UnitObj::MissingUpgrade(UnitObjType* type)
     }
 
     // For each upgrade
-    for (List<UnitObjType::UpgradeInfo>::Iterator u(&UnitType()->upgrades); *u; u++)
+    for (List<UnitObjType::UpgradeInfo>::Iterator u(&UnitType()->upgrades); *u; ++u)
     {
         // Get the info
         UnitObjType::UpgradeInfo* info = *u;
@@ -3221,9 +3249,9 @@ Bool UnitObj::MissingUpgrade(UnitObjType* type)
 Bool UnitObj::UnderConstruction()
 {
     return
-        (
-            TaskCtrl::Promote<Tasks::UnitConstruct>(this) || TaskCtrl::Promote<Tasks::UnitUpgrade>(this)
-            );
+    (
+        TaskCtrl::Promote<Tasks::UnitConstruct>(this) || TaskCtrl::Promote<Tasks::UnitUpgrade>(this)
+    );
 }
 
 
@@ -3359,11 +3387,11 @@ void UnitObj::SetTacticalModifierSetting(U8 modifier, U8 setting)
 
     Task* task = GetCurrentTask();
     if
-        (
-            hitpoints < UnitType()->autoRepairHitpoints &&
-            task &&
-            Tactical::QueryProperty(task->GetTaskTable(), this, Tactical::TP_REPAIRSELF)
-            )
+    (
+        hitpoints < UnitType()->autoRepairHitpoints &&
+        task &&
+        QueryProperty(task->GetTaskTable(), this, Tactical::TP_REPAIRSELF)
+    )
     {
         PostRestoreNowEvent();
     }
@@ -3377,8 +3405,8 @@ void UnitObj::SetTacticalModifierSetting(U8 modifier, U8 setting)
 //
 Bool UnitObj::HasSpyInside(U32 teamId)
 {
-    ASSERT(teamId < Game::MAX_TEAMS)
-        return (Game::TeamTest(spyingTeams, teamId));
+    ASSERT(teamId < Game::MAX_TEAMS);
+    return (Game::TeamTest(spyingTeams, teamId));
 }
 
 
@@ -3389,18 +3417,18 @@ Bool UnitObj::HasSpyInside(U32 teamId)
 //
 void UnitObj::SetSpyInside(U32 teamId, Bool state)
 {
-    ASSERT(teamId < Game::MAX_TEAMS)
+    ASSERT(teamId < Game::MAX_TEAMS);
 
-        if (state)
-        {
-            ASSERT(!Game::TeamTest(spyingTeams, teamId))
-                Game::TeamSet(spyingTeams, teamId);
-        }
-        else
-        {
-            ASSERT(Game::TeamTest(spyingTeams, teamId))
-                Game::TeamClear(spyingTeams, teamId);
-        }
+    if (state)
+    {
+        ASSERT(!Game::TeamTest(spyingTeams, teamId));
+        Game::TeamSet(spyingTeams, teamId);
+    }
+    else
+    {
+        ASSERT(Game::TeamTest(spyingTeams, teamId));
+        Game::TeamClear(spyingTeams, teamId);
+    }
 }
 
 
@@ -3466,30 +3494,27 @@ void UnitObj::ModifySight(Bool restrict, Bool instant)
 //
 Bool UnitObj::GetCanSee(MapObj* object)
 {
-    ASSERT(OnMap())
-        ASSERT(object)
-        ASSERT(object->OnMap())
+    ASSERT(OnMap());
+    ASSERT(object);
+    ASSERT(object->OnMap());
 
-        // Is the object footprinted
-        if (FootPrint::Instance* instance = object->GetFootInstance())
-        {
-            // Get our cell position
-            Point<S32> p(cellX, cellZ);
+    // Is the object footprinted
+    if (FootPrint::Instance* instance = object->GetFootInstance())
+    {
+        // Get our cell position
+        Point<S32> p(cellX, cellZ);
 
-            // Find the nearest position on the fringe of the object
-            instance->ClampToFringe(p);
+        // Find the nearest position on the fringe of the object
+        instance->ClampToFringe(p);
 
-            // Clamp onto the map
-            WorldCtrl::ClampCellPoint(p);
+        // Clamp onto the map
+        WorldCtrl::ClampCellPoint(p);
 
-            // Can we see this position
-            return (Sight::CanUnitSee(this, p.x, p.z));
-        }
-        else
-        {
-            // Can we see this position
-            return (Sight::CanUnitSee(this, object->GetCellX(), object->GetCellZ()));
-        }
+        // Can we see this position
+        return (Sight::CanUnitSee(this, p.x, p.z));
+    }
+    // Can we see this position
+    return (Sight::CanUnitSee(this, object->GetCellX(), object->GetCellZ()));
 }
 
 
@@ -3557,7 +3582,7 @@ Bool UnitObj::DefenseAndEnemyCantSee(U32& val, U32 x, U32 z, void* context)
         // Get the cluster this cell is on
         MapCluster* cluster = WorldCtrl::CellsToCluster(x, z);
 
-        for (List<Team>::Iterator t(&team->RelatedTeams(Relation::ENEMY)); *t; t++)
+        for (List<Team>::Iterator t(&team->RelatedTeams(Relation::ENEMY)); *t; ++t)
         {
             // Accumulate the number of teams
             num++;
@@ -3585,18 +3610,23 @@ Bool UnitObj::DefenseAndEnemyCantSee(U32& val, U32 x, U32 z, void* context)
         if (source)
         {
             // The further we are from the source the better
-            val += abs((long)x - (long)source->cellX) + abs((long)z - (long)source->cellZ);
+            val += abs(static_cast<long>(x) - static_cast<long>(source->cellX)) + abs
+            (
+                static_cast<long>(z) - static_cast<long>(source->cellZ)
+            );
         }
         else
         {
             // The further we are from the here the better
-            val += abs((long)x - (long)cellX) + abs((long)z - (long)cellZ);
+            val += abs(static_cast<long>(x) - static_cast<long>(cellX)) + abs
+            (
+                static_cast<long>(z) - static_cast<long>(cellZ)
+            );
         }
     }
 
     return (TRUE);
 }
-
 
 
 //
@@ -3620,10 +3650,10 @@ Bool UnitObj::AwayFromPosition(U32& val, U32 x, U32 z, void* context)
     angle = data->angle - angle;
     VectorDir::FixU(angle);
 
-    ASSERT(angle >= -PI && angle <= PI)
+    ASSERT(angle >= -PI && angle <= PI);
 
-        // Will be 1 if perfect match, 0 if opposite
-        angle = 1.0f - (F32(fabs(angle)) * PIINV);
+    // Will be 1 if perfect match, 0 if opposite
+    angle = 1.0f - (F32(fabs(angle)) * PIINV);
 
     // Get the distance from the origin to this cell
     F32 distance = Min<F32>(60.0F, Vector(evaluate - data->origin).MagnitudeXZ());
@@ -3650,7 +3680,7 @@ void UnitObj::Scatter(const UnitObjList& list)
 
         // Sum up the positions
         UnitObjList::Iterator i(&list);
-        for (; *i; i++)
+        for (; *i; ++i)
         {
             data.origin += (**i)->Position();
         }
@@ -3671,7 +3701,7 @@ void UnitObj::Scatter(const UnitObjList& list)
         i.GoToHead();
 
         // Tell each unit to move
-        for (!i; *i; i++)
+        for (!i; *i; ++i)
         {
             UnitObj* unit = **i;
 
@@ -3684,7 +3714,11 @@ void UnitObj::Scatter(const UnitObjList& list)
                 data.angle = F32(atan2(v.z, v.x));
 
                 // Find the best cell to move to
-                if (PathSearch::FindConnectedCell(unit->GetCellX(), unit->GetCellZ(), cell.x, cell.z, *unit, &data, &UnitObj::AwayFromPosition))
+                if (PathSearch::FindConnectedCell
+                    (
+                        unit->GetCellX(), unit->GetCellZ(), cell.x, cell.z, *unit, &data,
+                        &UnitObj::AwayFromPosition
+                    ))
                 {
                     if (unit->FlushTasks(Tasks::UnitMove::GetConfigBlockingPriority()))
                     {
@@ -3711,11 +3745,11 @@ void UnitObj::Scatter(const UnitObjList& list)
 //
 Bool UnitObj::EngineCallBack(MapObj* mapObj, FX::CallBackData& cbd, void*)
 {
-    ASSERT((Promote::Object<UnitObjType, UnitObj>(mapObj)))
+    ASSERT((Promote::Object<UnitObjType, UnitObj>(mapObj)));
 
-        // Set the pitch and volume of the sound based on the RPMs on the engine
-        //cbd.sound.pitch = mapObj->GetSpeed() * ((UnitObj *) mapObj)->UnitType()->maxSpeedInv + 1.0f;
-        cbd.sound.volume = 1.0F;
+    // Set the pitch and volume of the sound based on the RPMs on the engine
+    //cbd.sound.pitch = mapObj->GetSpeed() * ((UnitObj *) mapObj)->UnitType()->maxSpeedInv + 1.0f;
+    cbd.sound.volume = 1.0F;
 
     if (mapObj->GetSpeed() == 0.0f)
     {
@@ -3738,9 +3772,9 @@ Bool UnitObj::EngineCallBack(MapObj* mapObj, FX::CallBackData& cbd, void*)
 //
 Bool UnitObj::BlindCallBack(MapObj* mapObj, FX::CallBackData&, void*)
 {
-    ASSERT((Promote::Object<UnitObjType, UnitObj>(mapObj)))
+    ASSERT((Promote::Object<UnitObjType, UnitObj>(mapObj)));
 
-        return (((UnitObj*)mapObj)->blindTarget.Test());
+    return (static_cast<UnitObj*>(mapObj)->blindTarget.Test());
 }
 
 

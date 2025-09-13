@@ -33,76 +33,75 @@
 #define SCOPE_CONFIG   "GameObj"
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class GameObjType - Base class for all game object types
 //
- 
+
 
 //
 // Constructor
 //
-GameObjType::GameObjType(const char *name, FScope *fScope)
+GameObjType::GameObjType(const char* name, FScope* fScope)
 {
-  // Inform the tracker
-  TrackSys::RegisterConstruction(dTrack);
+    // Inform the tracker
+    TrackSys::RegisterConstruction(dTrack);
 
-  // Set the type name
-  typeId = name;
+    // Set the type name
+    typeId = name;
 
-  // And the translated name
-  displayName = Utils::Strdup(TRANSLATE((GetDescKey())));
+    // And the translated name
+    displayName = Utils::Strdup(TRANSLATE((GetDescKey())));
 
-  // Set defaults
-  save = TRUE;
-  thinkInterval = 0;
-  propertyCount = 0;
+    // Set defaults
+    save = TRUE;
+    thinkInterval = 0;
+    propertyCount = 0;
 
-  // May not have a scope configuration if created in the code
-  if (fScope)
-  {
-    // Get specific config scope
-    fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE);
-
+    // May not have a scope configuration if created in the code
     if (fScope)
     {
-      // Determine if this type is to be saved
-      save = StdLoad::TypeU32(fScope, "Save", TRUE);
+        // Get specific config scope
+        fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE);
 
-      // Get default thinking interval
-      thinkInterval = U32(StdLoad::TypeF32(fScope, "ThinkInterval", 0.0F) * GameTime::SimTimeInv());
-
-      // Get idle task
-      if (fScope->GetFunction("IdleTask", FALSE))
-      {
-        idleTask = StdLoad::TypeString(fScope, "IdleTask", "");
-      }
-
-      // Get properties
-      FScope *sScope = fScope->GetFunction("Properties", FALSE);
-
-      if (sScope)
-      {
-        List<GameIdent> idents;
-        StdLoad::TypeStrCrcList(sScope, idents);
-
-        for (List<GameIdent>::Iterator i(&idents); *i; i++)
+        if (fScope)
         {
-          // Have we exceeded the max
-          if (propertyCount == MAX_PROPERTIES)
-          {
-            ERR_FATAL(("Max properties exceeded on '%s' for '%s' (%d)", (*i)->str, name, MAX_PROPERTIES));
-          }
+            // Determine if this type is to be saved
+            save = StdLoad::TypeU32(fScope, "Save", TRUE);
 
-          // Add the new property to this objects array
-          properties[propertyCount++] = GameObjCtrl::GetProperty((*i)->str);
+            // Get default thinking interval
+            thinkInterval = U32(StdLoad::TypeF32(fScope, "ThinkInterval", 0.0F) * GameTime::SimTimeInv());
+
+            // Get idle task
+            if (fScope->GetFunction("IdleTask", FALSE))
+            {
+                idleTask = StdLoad::TypeString(fScope, "IdleTask", "");
+            }
+
+            // Get properties
+            FScope* sScope = fScope->GetFunction("Properties", FALSE);
+
+            if (sScope)
+            {
+                List<GameIdent> idents;
+                StdLoad::TypeStrCrcList(sScope, idents);
+
+                for (List<GameIdent>::Iterator i(&idents); *i; ++i)
+                {
+                    // Have we exceeded the max
+                    if (propertyCount == MAX_PROPERTIES)
+                    {
+                        ERR_FATAL(("Max properties exceeded on '%s' for '%s' (%d)", (*i)->str, name, MAX_PROPERTIES));
+                    }
+
+                    // Add the new property to this objects array
+                    properties[propertyCount++] = GameObjCtrl::GetProperty((*i)->str);
+                }
+
+                idents.DisposeAll();
+            }
         }
-
-        idents.DisposeAll();
-      }
     }
-  }
 }
 
 
@@ -111,11 +110,11 @@ GameObjType::GameObjType(const char *name, FScope *fScope)
 //
 GameObjType::~GameObjType()
 {
-  // Inform the tracker
-  TrackSys::RegisterDestruction(dTrack);
+    // Inform the tracker
+    TrackSys::RegisterDestruction(dTrack);
 
-  // Delete display name
-  delete displayName;
+    // Delete display name
+    delete displayName;
 }
 
 
@@ -134,9 +133,9 @@ void GameObjType::PostLoad()
 //
 // Returns the multilanguage string description for this type
 //
-const CH * GameObjType::GetDesc()
+const CH* GameObjType::GetDesc()
 {
-  return (displayName);
+    return (displayName);
 }
 
 
@@ -145,9 +144,9 @@ const CH * GameObjType::GetDesc()
 //
 // Returns the multilanguage key for the description
 //
-const char * GameObjType::GetDescKey()
+const char* GameObjType::GetDescKey()
 {
-  return (MultiLanguage::BuildKey(2, "game.types", typeId.str));
+    return (MultiLanguage::BuildKey(2, "game.types", typeId.str));
 }
 
 
@@ -156,20 +155,20 @@ const char * GameObjType::GetDescKey()
 //
 // Add the given property to this type
 //
-void GameObjType::AddProperty(const char *name)
+void GameObjType::AddProperty(const char* name)
 {
-  // Is this property already in this type
-  if (!HasProperty(name))
-  {
-    // Have we exceeded the max
-    if (propertyCount == MAX_PROPERTIES)
+    // Is this property already in this type
+    if (!HasProperty(name))
     {
-      ERR_FATAL(("Max properties exceeded on '%s' for '%s' (%d)", name, GetName(), MAX_PROPERTIES));
-    }
+        // Have we exceeded the max
+        if (propertyCount == MAX_PROPERTIES)
+        {
+            ERR_FATAL(("Max properties exceeded on '%s' for '%s' (%d)", name, GetName(), MAX_PROPERTIES));
+        }
 
-    // Add the new property to this objects array
-    properties[propertyCount++] = GameObjCtrl::GetProperty(name);
-  }
+        // Add the new property to this objects array
+        properties[propertyCount++] = GameObjCtrl::GetProperty(name);
+    }
 }
 
 
@@ -180,15 +179,15 @@ void GameObjType::AddProperty(const char *name)
 //
 Bool GameObjType::HasProperty(U32 crc)
 {
-  for (U32 i = 0; i < propertyCount; i++)
-  {
-    if (properties[i] == crc)
+    for (U32 i = 0; i < propertyCount; i++)
     {
-      return (TRUE);
+        if (properties[i] == crc)
+        {
+            return (TRUE);
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -197,11 +196,10 @@ Bool GameObjType::HasProperty(U32 crc)
 //
 // Does this type have the given property
 //
-Bool GameObjType::HasProperty(const char *name)
+Bool GameObjType::HasProperty(const char* name)
 {
-  return (HasProperty(Crc::CalcStr(name)));
+    return (HasProperty(Crc::CalcStr(name)));
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -212,26 +210,26 @@ Bool GameObjType::HasProperty(const char *name)
 //
 // Constructor
 //
-GameObj::GameObj(GameObjType *objType, U32 id)
-: tasks(&Task::node),
-  events(&Event::node)
+GameObj::GameObj(GameObjType* objType, U32 id)
+    : tasks(&Task::node),
+      events(&Event::node)
 {
-  ASSERT(objType);
+    ASSERT(objType);
 
-  // Set the type pointer
-  type = objType;
+    // Set the type pointer
+    type = objType;
 
-  // Register object construction
-  GameObjCtrl::RegisterConstruction(this, id);
+    // Register object construction
+    GameObjCtrl::RegisterConstruction(this, id);
 
-  // Setup thinking values
-  SetThinkInterval(type->thinkInterval);
+    // Setup thinking values
+    SetThinkInterval(type->thinkInterval);
 
-  // Set default values for data members
-  nextThinkTime = 0;
+    // Set default values for data members
+    nextThinkTime = 0;
 
-  // Clear idle task
-  idleTask = NULL;
+    // Clear idle task
+    idleTask = nullptr;
 }
 
 
@@ -243,8 +241,8 @@ GameObj::GameObj(GameObjType *objType, U32 id)
 //
 GameObj::~GameObj()
 {
-  // Delete any unprocessed events
-  events.DisposeAll();
+    // Delete any unprocessed events
+    events.DisposeAll();
 }
 
 
@@ -255,7 +253,7 @@ GameObj::~GameObj()
 //
 void GameObj::MarkForDeletion()
 {
-  GameObjCtrl::MarkForDeletion(this);
+    GameObjCtrl::MarkForDeletion(this);
 }
 
 
@@ -276,26 +274,26 @@ void GameObj::MarkedForDeletion()
 //
 void GameObj::PreDelete()
 {
-  // Delete tasks
-  tasks.DisposeAll();
+    // Delete tasks
+    tasks.DisposeAll();
 
-  // Delete idle task
-  if (idleTask)
-  {
-    delete idleTask;
-  }
+    // Delete idle task
+    if (idleTask)
+    {
+        delete idleTask;
+    }
 
-  // Are we on the thinking list
-  if (OnThinkList())
-  {
-    GameObjCtrl::RemoveFromThinkList(this);
-  }
+    // Are we on the thinking list
+    if (OnThinkList())
+    {
+        GameObjCtrl::RemoveFromThinkList(this);
+    }
 
-  // Register object destruction
-  GameObjCtrl::RegisterDestruction(this);
+    // Register object destruction
+    GameObjCtrl::RegisterDestruction(this);
 
-  // As a FINAL step, delete this object
-  delete this;
+    // As a FINAL step, delete this object
+    delete this;
 }
 
 
@@ -306,26 +304,26 @@ void GameObj::PreDelete()
 //
 void GameObj::SetThinkInterval(U32 newInterval)
 {
-  // Set local value
-  thinkInterval = newInterval;
+    // Set local value
+    thinkInterval = newInterval;
 
-  // Objects with zero interval should not be on list
-  if (thinkInterval)
-  {
-    // Should we add ourselves
-    if (!OnThinkList())
+    // Objects with zero interval should not be on list
+    if (thinkInterval)
     {
-      GameObjCtrl::AddToThinkList(this);
+        // Should we add ourselves
+        if (!OnThinkList())
+        {
+            GameObjCtrl::AddToThinkList(this);
+        }
     }
-  }
-  else
-  {
-    // Should we remove ourselves
-    if (OnThinkList())
+    else
     {
-      GameObjCtrl::RemoveFromThinkList(this);
+        // Should we remove ourselves
+        if (OnThinkList())
+        {
+            GameObjCtrl::RemoveFromThinkList(this);
+        }
     }
-  }
 }
 
 
@@ -336,8 +334,8 @@ void GameObj::SetThinkInterval(U32 newInterval)
 //
 void GameObj::ThinkFast(U32 time)
 {
-  nextThinkTime = GameTime::SimCycle() + time; 
-  SYNC_BRUTAL("GameObj::ThinkFast @" << nextThinkTime  << " " << TypeName() << ' ' << Id())
+    nextThinkTime = GameTime::SimCycle() + time;
+    SYNC_BRUTAL("GameObj::ThinkFast @" << nextThinkTime << " " << TypeName() << ' ' << Id())
 }
 
 
@@ -348,17 +346,17 @@ void GameObj::ThinkFast(U32 time)
 //
 void GameObj::ProcessEvents()
 {
-  // Copy the event list
-  NList<Event> process(&Event::node);
-  events.Transfer(process);
+    // Copy the event list
+    NList<Event> process(&Event::node);
+    events.Transfer(process);
 
-  // Proccess the events
-  for (NList<Event>::Iterator e(&process); *e; e++)
-  {
-    SYNC_BRUTAL("GameObj::ProcessEvent " << (*e)->event.message)
-    SendEvent((*e)->event, (*e)->idle);
-  }
-  process.DisposeAll();
+    // Proccess the events
+    for (NList<Event>::Iterator e(&process); *e; ++e)
+    {
+        SYNC_BRUTAL("GameObj::ProcessEvent " << (*e)->event.message)
+        SendEvent((*e)->event, (*e)->idle);
+    }
+    process.DisposeAll();
 }
 
 
@@ -369,41 +367,39 @@ void GameObj::ProcessEvents()
 //
 void GameObj::ProcessThought()
 {
-  SYNC_BRUTAL("GameObj::ProcessThought: " << TypeName() << ' ' << Id())
+    SYNC_BRUTAL("GameObj::ProcessThought: " << TypeName() << ' ' << Id())
 
-  // Process current task (the one at the head of the list)
-  if (Task *task = tasks.GetHead())
-  {
-    // Perform processing
-    if (task->HasQuit() || task->Process())
+    // Process current task (the one at the head of the list)
+    if (Task* task = tasks.GetHead())
     {
-      SYNC_BRUTAL("GameObj::ProcessThought::HasQuit")
+        // Perform processing
+        if (task->HasQuit() || task->Process())
+        {
+            SYNC_BRUTAL("GameObj::ProcessThought::HasQuit")
 
-      // Dispose of this task
-      tasks.Dispose(task);
+            // Dispose of this task
+            tasks.Dispose(task);
 
-      // Set the invoked time on the next task
-      SetInvoked();
+            // Set the invoked time on the next task
+            SetInvoked();
 
-      // Respond quickly after task completed
-      ThinkFast();
+            // Respond quickly after task completed
+            ThinkFast();
+        }
+
+        // Send the idle task an event so it can do non-idle processing
+        if (idleTask)
+        {
+            idleTask->ProcessEvent(Task::Event(0x137985A7)); // "GameObj::NonIdleProcess"
+        }
     }
-
-    // Send the idle task an event so it can do non-idle processing
-    if (idleTask)
+    else if (idleTask)
     {
-      idleTask->ProcessEvent(Task::Event(0x137985A7)); // "GameObj::NonIdleProcess"
+        if (idleTask->Process())
+        {
+            ERR_FATAL(("Idle task terminated!"))
+        }
     }
-  }
-  else
-
-  if (idleTask)
-  {
-    if (idleTask->Process())
-    {
-      ERR_FATAL(("Idle task terminated!"))
-    }
-  }
 }
 
 
@@ -412,34 +408,34 @@ void GameObj::ProcessThought()
 //
 // Save a state configuration scope
 //
-void GameObj::SaveState(FScope *fScope, MeshEnt *)
+void GameObj::SaveState(FScope* fScope, MeshEnt*)
 {
-  // Save game data
-  if (SaveGame::SaveActive())
-  {
-    // Create our specific config scope
-    fScope = fScope->AddFunction(SCOPE_CONFIG);
-
-    // If think interval different from default, save it
-    if (thinkInterval != type->thinkInterval)
+    // Save game data
+    if (SaveGame::SaveActive())
     {
-      StdSave::TypeU32(fScope, "ThinkIntervalU32", thinkInterval);
-    }
+        // Create our specific config scope
+        fScope = fScope->AddFunction(SCOPE_CONFIG);
 
-    TaskCtrl::SaveTasks(fScope, "Tasks", tasks);
-  
-    // Save idle task
-    if (idleTask)
-    {
-      TaskCtrl::SaveTask(fScope, "IdleTask", *idleTask);
-    }
+        // If think interval different from default, save it
+        if (thinkInterval != type->thinkInterval)
+        {
+            StdSave::TypeU32(fScope, "ThinkIntervalU32", thinkInterval);
+        }
 
-    // Save all events
-    for (NList<Event>::Iterator e(&events); *e; e++)
-    {
-      (*e)->SaveState(fScope->AddFunction("Event"));
+        TaskCtrl::SaveTasks(fScope, "Tasks", tasks);
+
+        // Save idle task
+        if (idleTask)
+        {
+            TaskCtrl::SaveTask(fScope, "IdleTask", *idleTask);
+        }
+
+        // Save all events
+        for (NList<Event>::Iterator e(&events); *e; ++e)
+        {
+            (*e)->SaveState(fScope->AddFunction("Event"));
+        }
     }
-  }
 }
 
 
@@ -448,49 +444,49 @@ void GameObj::SaveState(FScope *fScope, MeshEnt *)
 //
 // Load a state configuration scope
 //
-void GameObj::LoadState(FScope *fScope)
+void GameObj::LoadState(FScope* fScope)
 {
-  // Get optional config scope
-  if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != NULL)
-  {
-    FScope *sScope;
-
-    while ((sScope = fScope->NextFunction()) != NULL)
+    // Get optional config scope
+    if ((fScope = fScope->GetFunction(SCOPE_CONFIG, FALSE)) != nullptr)
     {
-      switch (sScope->NameCrc())
-      {
-        case 0xCE1C60C7: // "ThinkIntervalU32"
-          SetThinkInterval(StdLoad::TypeU32(sScope));
-          break;
+        FScope* sScope;
 
-        case 0xDF9D7602: // "Tasks"
+        while ((sScope = fScope->NextFunction()) != nullptr)
         {
-          // Ignore old style tasks in mission
-          if (SaveGame::LoadActive())
-          {
-            TaskCtrl::LoadTasks(this, sScope, tasks);
-          }
-          break;
-        }
+            switch (sScope->NameCrc())
+            {
+                case 0xCE1C60C7: // "ThinkIntervalU32"
+                    SetThinkInterval(StdLoad::TypeU32(sScope));
+                    break;
 
-        case 0x844B1E49: // "IdleTask"
-        {
-          // Ignore old style tasks in mission
-          if (SaveGame::LoadActive())
-          {
-            idleTask = TaskCtrl::LoadTask(this, sScope);
-          }
-          break;
-        }
+                case 0xDF9D7602: // "Tasks"
+                {
+                    // Ignore old style tasks in mission
+                    if (SaveGame::LoadActive())
+                    {
+                        TaskCtrl::LoadTasks(this, sScope, tasks);
+                    }
+                    break;
+                }
 
-        case 0x6EF75F59: // "Event"
-        {
-          events.Append(new Event(sScope));
-          break;
+                case 0x844B1E49: // "IdleTask"
+                {
+                    // Ignore old style tasks in mission
+                    if (SaveGame::LoadActive())
+                    {
+                        idleTask = TaskCtrl::LoadTask(this, sScope);
+                    }
+                    break;
+                }
+
+                case 0x6EF75F59: // "Event"
+                {
+                    events.Append(new Event(sScope));
+                    break;
+                }
+            }
         }
-      }
     }
-  }
 }
 
 
@@ -501,12 +497,12 @@ void GameObj::LoadState(FScope *fScope)
 //
 void GameObj::Equip()
 {
-  // Allocate an idle task if we have one
-  if (!type->idleTask.Null())
-  {
-    idleTask = TaskCtrl::NewTask(this, type->idleTask.str);
-    SetInvoked(idleTask);
-  }
+    // Allocate an idle task if we have one
+    if (!type->idleTask.Null())
+    {
+        idleTask = TaskCtrl::NewTask(this, type->idleTask.str);
+        SetInvoked(idleTask);
+    }
 }
 
 
@@ -517,25 +513,25 @@ void GameObj::Equip()
 //
 void GameObj::PostLoad()
 {
-  // PostLoad the tasks
-  TaskCtrl::PostLoad(tasks);
+    // PostLoad the tasks
+    TaskCtrl::PostLoad(tasks);
 
-  // If we don't have an idle task, assign one
-  if (!idleTask && !type->idleTask.Null())
-  {
-    idleTask = TaskCtrl::NewTask(this, type->idleTask.str);
-    SetInvoked(idleTask);
-  }
+    // If we don't have an idle task, assign one
+    if (!idleTask && !type->idleTask.Null())
+    {
+        idleTask = TaskCtrl::NewTask(this, type->idleTask.str);
+        SetInvoked(idleTask);
+    }
 
-  if (idleTask)
-  {
-    TaskCtrl::PostLoad(*idleTask);
-  }
+    if (idleTask)
+    {
+        TaskCtrl::PostLoad(*idleTask);
+    }
 
-  for (NList<Event>::Iterator e(&events); *e; e++)
-  {
-    (*e)->PostLoad();
-  }
+    for (NList<Event>::Iterator e(&events); *e; ++e)
+    {
+        (*e)->PostLoad();
+    }
 }
 
 
@@ -544,9 +540,9 @@ void GameObj::PostLoad()
 //
 // Get the currently active task, or NULL if idle
 //
-Task * GameObj::GetActiveTask()
+Task* GameObj::GetActiveTask()
 {
-  return (tasks.GetHead());
+    return (tasks.GetHead());
 }
 
 
@@ -555,9 +551,9 @@ Task * GameObj::GetActiveTask()
 //
 // Get the currently active task, or the idle task, or NULL
 //
-Task * GameObj::GetCurrentTask()
+Task* GameObj::GetCurrentTask()
 {
-  return (tasks.GetHead() ? tasks.GetHead() : idleTask);
+    return (tasks.GetHead() ? tasks.GetHead() : idleTask);
 }
 
 
@@ -568,32 +564,32 @@ Task * GameObj::GetCurrentTask()
 //
 U32 GameObj::GetInvoked()
 {
-  if (Task *task = GetCurrentTask())
-  {
-    return (task->GetInvoked());
-  }
+    if (Task* task = GetCurrentTask())
+    {
+        return (task->GetInvoked());
+    }
 
-  return (0);
+    return (0);
 }
 
 
 //
 // SendEvent
 //
-Bool GameObj::SendEvent(const Task::Event &event, Bool idle)
+Bool GameObj::SendEvent(const Task::Event& event, Bool idle)
 {
-  Task *task = idle ? GetIdleTask() : GetCurrentTask();
-  return (task ? task->ProcessEvent(event) : FALSE);
+    Task* task = idle ? GetIdleTask() : GetCurrentTask();
+    return (task ? task->ProcessEvent(event) : FALSE);
 }
 
 
 //
 // PostEvent
 //
-void GameObj::PostEvent(const Task::Event &event, Bool idle)
+void GameObj::PostEvent(const Task::Event& event, Bool idle)
 {
-  // Append the event to the event list
-  events.Append(new Event(event, idle));
+    // Append the event to the event list
+    events.Append(new Event(event, idle));
 }
 
 
@@ -602,22 +598,21 @@ void GameObj::PostEvent(const Task::Event &event, Bool idle)
 //
 // Retrieve data from the task, return TRUE if filled
 //
-Bool GameObj::Retrieve(U32 id, Task::RetrievedData &data)
+Bool GameObj::Retrieve(U32 id, Task::RetrievedData& data)
 {
-  // Ask the active task
-  if (GetActiveTask() && GetActiveTask()->Retrieve(id, data))
-  {
-    return (TRUE);
-  }
-  else
+    // Ask the active task
+    if (GetActiveTask() && GetActiveTask()->Retrieve(id, data))
+    {
+        return (TRUE);
+    }
 
-  // Active task did not respond, so ask idle
-  if (GetIdleTask() && GetIdleTask()->Retrieve(id, data))
-  {
-    return (TRUE);
-  }
+    // Active task did not respond, so ask idle
+    if (GetIdleTask() && GetIdleTask()->Retrieve(id, data))
+    {
+        return (TRUE);
+    }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -626,19 +621,19 @@ Bool GameObj::Retrieve(U32 id, Task::RetrievedData &data)
 //
 // True if a task of 'priority' is currently blocked
 //
-Bool GameObj::Blocked(U32 priority, Task *task)
+Bool GameObj::Blocked(U32 priority, Task* task)
 {
-  // If no supplied task, get the current task
-  if (!task)
-  {
-    task = GetCurrentTask();
-  }
+    // If no supplied task, get the current task
+    if (!task)
+    {
+        task = GetCurrentTask();
+    }
 
-  // Do we have a task that blocks 'priority'
-  return
-  (
-    task && task->GetBlockingPriority() && task->GetBlockingPriority() >= priority
-  );
+    // Do we have a task that blocks 'priority'
+    return
+    (
+        task && task->GetBlockingPriority() && task->GetBlockingPriority() >= priority
+    );
 }
 
 
@@ -647,17 +642,17 @@ Bool GameObj::Blocked(U32 priority, Task *task)
 //
 // Set the invoked time on the given task
 //
-void GameObj::SetInvoked(Task *task)
+void GameObj::SetInvoked(Task* task)
 {
-  if (!task)
-  {
-    task = GetCurrentTask();
-  }
+    if (!task)
+    {
+        task = GetCurrentTask();
+    }
 
-  if (task)
-  {
-    task->SetInvoked(GameTime::SimCycle());
-  }
+    if (task)
+    {
+        task->SetInvoked(GameTime::SimCycle());
+    }
 }
 
 
@@ -668,18 +663,18 @@ void GameObj::SetInvoked(Task *task)
 //
 Bool GameObj::InterruptCurrentTask(U32 priority, U32 newTaskFlags)
 {
-  // Do not interrupt if blocked
-  if (!Blocked(priority))
-  {
-    // Send the notification
-    SendEvent(Task::Event(GameObjNotify::Interrupted, newTaskFlags));
+    // Do not interrupt if blocked
+    if (!Blocked(priority))
+    {
+        // Send the notification
+        SendEvent(Task::Event(GameObjNotify::Interrupted, newTaskFlags));
 
-    // Success
-    return (TRUE);
-  }
+        // Success
+        return (TRUE);
+    }
 
-  // Failure
-  return (FALSE);
+    // Failure
+    return (FALSE);
 }
 
 
@@ -690,21 +685,21 @@ Bool GameObj::InterruptCurrentTask(U32 priority, U32 newTaskFlags)
 //
 Bool GameObj::FlushTasks(U32 priority)
 {
-  // Only flush if not being blocked
-  if (InterruptCurrentTask(priority, 0))
-  {
-    // Delete all the tasks
-    tasks.DisposeAll();
+    // Only flush if not being blocked
+    if (InterruptCurrentTask(priority, 0))
+    {
+        // Delete all the tasks
+        tasks.DisposeAll();
 
-    // Set invoked time on idle task
-    SetInvoked();
+        // Set invoked time on idle task
+        SetInvoked();
 
-    // Success
-    return (TRUE);
-  }
+        // Success
+        return (TRUE);
+    }
 
-  // Unable to interrupt
-  return (FALSE);
+    // Unable to interrupt
+    return (FALSE);
 }
 
 
@@ -713,46 +708,48 @@ Bool GameObj::FlushTasks(U32 priority)
 //
 // Prepend a task to the task queue (FALSE if not allowed)
 //
-Bool GameObj::PrependTask(Task *task, U32 taskFlags)
+Bool GameObj::PrependTask(Task* task, U32 taskFlags)
 {
-  ASSERT(task)
+    ASSERT(task);
 
-  SYNC_BRUTAL("GameObj::PrependTask: " << TypeName() << ' ' << Id())
+    SYNC_BRUTAL("GameObj::PrependTask: " << TypeName() << ' ' << Id())
 
-  // Try and interupt the current task
-  if (InterruptCurrentTask(task->GetBlockingPriority(), taskFlags))
-  {  
-    // Propagate flags down to task
-    task->SetFlags(taskFlags);
-
-    // Warn if this object will not be processed
-    if (!thinkInterval)
+    // Try and interupt the current task
+    if (InterruptCurrentTask(task->GetBlockingPriority(), taskFlags))
     {
-      LOG_WARN
-      ((
-        "Object %s (%u) was given a task %s, but no has no think interval", 
-        TypeName(), Id(), task->GetName()
-      ));
+        // Propagate flags down to task
+        task->SetFlags(taskFlags);
+
+        // Warn if this object will not be processed
+        if (!thinkInterval)
+        {
+            LOG_WARN
+            (
+                (
+                    "Object %s (%u) was given a task %s, but no has no think interval",
+                    TypeName(), Id(), task->GetName()
+                )
+            );
+        }
+
+        // Prepend the given task
+        tasks.Prepend(task);
+
+        // Set its invoked time
+        SetInvoked();
+
+        // Think fast on task changes
+        ThinkFast();
+
+        // Success
+        return (TRUE);
     }
 
-    // Prepend the given task
-    tasks.Prepend(task);
+    // Task is now our problem, so delete it
+    delete task;
 
-    // Set its invoked time
-    SetInvoked();
-
-    // Think fast on task changes
-    ThinkFast();
-
-    // Success
-    return (TRUE);
-  }
-
-  // Task is now our problem, so delete it
-  delete task;
-
-  // Failed
-  return (FALSE);
+    // Failed
+    return (FALSE);
 }
 
 
@@ -761,35 +758,37 @@ Bool GameObj::PrependTask(Task *task, U32 taskFlags)
 //
 // Append a task to the task queue (FALSE if not allowed)
 //
-Bool GameObj::AppendTask(Task *task, U32 taskFlags)
+Bool GameObj::AppendTask(Task* task, U32 taskFlags)
 {
-  ASSERT(task)
+    ASSERT(task);
 
-  SYNC_BRUTAL("GameObj::AppendTask: " << TypeName() << ' ' << Id())
+    SYNC_BRUTAL("GameObj::AppendTask: " << TypeName() << ' ' << Id())
 
-  // Warn if this object will not be processed
-  if (!thinkInterval)
-  {
-    LOG_WARN
-    ((
-      "Object %s (%u) was given a task %s, but no has no think interval", 
-      TypeName(), Id(), task->GetName()
-    ));
-  }
+    // Warn if this object will not be processed
+    if (!thinkInterval)
+    {
+        LOG_WARN
+        (
+            (
+                "Object %s (%u) was given a task %s, but no has no think interval",
+                TypeName(), Id(), task->GetName()
+            )
+        );
+    }
 
-  // Propagate flags down to task
-  task->SetFlags(taskFlags);
+    // Propagate flags down to task
+    task->SetFlags(taskFlags);
 
-  // Append the new task
-  tasks.Append(task);
+    // Append the new task
+    tasks.Append(task);
 
-  // Only think fast if we are now the active task
-  if (tasks.GetCount() == 1)
-  {
-    ThinkFast();
-  }
+    // Only think fast if we are now the active task
+    if (tasks.GetCount() == 1)
+    {
+        ThinkFast();
+    }
 
-  return (TRUE);
+    return (TRUE);
 }
 
 
@@ -798,10 +797,10 @@ Bool GameObj::AppendTask(Task *task, U32 taskFlags)
 //
 // Dump information about the object
 //
-ostream & GameObj::Info(ostream &o)
+ostream& GameObj::Info(ostream& o)
 {
-	o
-		<< "ID: " << Id() << endl
-		<< "Type: " << GameType()->GetName() << endl;
-	return o;
+    o
+        << "ID: " << Id() << endl
+        << "Type: " << GameType()->GetName() << endl;
+    return o;
 }

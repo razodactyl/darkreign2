@@ -27,47 +27,45 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class SquadAttack
+    //
+    class SquadAttack : public GameTask<SquadObjType, SquadObj>
+    {
+        TASK_CLASS(SquadAttack)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class SquadAttack
-  //
-  class SquadAttack : public GameTask<SquadObjType, SquadObj>
-  {
-    TASK_CLASS(SquadAttack)
+    private:
 
-  private:
+        // The target to attack
+        Target target;
 
-    // The target to attack
-    Target target;
+    public:
 
-  public:
+        // Constructor
+        SquadAttack(GameObj* subject);
+        SquadAttack(GameObj* subject, const Target& target);
+        ~SquadAttack();
 
-    // Constructor
-    SquadAttack(GameObj *subject);
-    SquadAttack(GameObj *subject, const Target &target);
-    ~SquadAttack();
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateAttack();
-
-  };
+        // State machine procedures
+        void StateInit();
+        void StateAttack();
+    };
 }
 
 #endif

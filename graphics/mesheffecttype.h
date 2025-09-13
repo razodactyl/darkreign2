@@ -33,30 +33,30 @@ class MeshEffectType
 {
 public:
 
-  GameIdent typeId;
+    GameIdent typeId;
 
-  Effects::Data  data;
+    Effects::Data data;
 
-  F32 lifeTime;
+    F32 lifeTime;
 
 public:
 
-  void Setup(FScope *fScope);
+    void Setup(FScope* fScope);
 
-  MeshEffectType();
+    MeshEffectType();
 
-	virtual ~MeshEffectType();
+    virtual ~MeshEffectType();
 
-  // Configure the class
-  virtual Bool Configure( FScope *fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-  // Postload
-  virtual void PostLoad();
+    // Postload
+    virtual void PostLoad();
 
-	// build a new mesh effect
-  virtual MeshEffect *Build( MeshEnt &_ent, F32 _lifeTime = 0.0f, U32 flags = Effects::flagDESTROY | Effects::flagLOOP);
+    // build a new mesh effect
+    virtual MeshEffect* Build(MeshEnt& _ent, F32 _lifeTime = 0.0f, U32 flags = Effects::flagDESTROY | Effects::flagLOOP);
 
-  virtual U32 GetMem() const;
+    virtual U32 GetMem() const;
 };
 
 #endif

@@ -24,54 +24,54 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Region - Region brush
+    // Namespace Brush - Contains all available brushes
     //
-    class Region : public AreaBase
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Region - Region brush
+        //
+        class Region : public AreaBase
+        {
+        protected:
 
-      // Vars
-      IFaceVar *varRegion;
-      IFaceVar *varRegionEdit;
+            // Vars
+            IFaceVar* varRegion;
+            IFaceVar* varRegionEdit;
 
-    protected:
+        protected:
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-      // Clear active region
-      void Clear();
+            // Clear active region
+            void Clear();
 
-      // Create new region
-      void Create(const char *name);
+            // Create new region
+            void Create(const char* name);
 
-      // Delete current region
-      void Delete();
+            // Delete current region
+            void Delete();
 
-      // Show a region
-      void Show(Bool jump);
+            // Show a region
+            void Show(Bool jump);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Region(const char *name);
-      ~Region();
+            // Constructor and destructor
+            Region(const char* name);
+            ~Region();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

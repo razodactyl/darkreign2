@@ -20,7 +20,7 @@
 // MeshResourceType::MeshResourceType
 //
 MeshResourceType::MeshResourceType()
-  : MeshGlowType()
+    : MeshGlowType()
 {
 }
 
@@ -30,7 +30,7 @@ MeshResourceType::MeshResourceType()
 //
 MeshResourceType::~MeshResourceType()
 {
-  scaleKeys.Release();
+    scaleKeys.Release();
 }
 
 
@@ -39,23 +39,23 @@ MeshResourceType::~MeshResourceType()
 //
 // Construct a new effect
 //
-MeshEffect *MeshResourceType::Build( MeshEnt &_ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+MeshEffect* MeshResourceType::Build(MeshEnt& _ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
 {
-	return new MeshResource(this, &_ent, _lifeTime, _flags);
+    return new MeshResource(this, &_ent, _lifeTime, _flags);
 }
 
 //
 // Handle an scope
 //
 //
-Bool MeshResourceType::Configure(FScope *fScope)
+Bool MeshResourceType::Configure(FScope* fScope)
 {
-  if (!MeshGlowType::Configure( fScope))
-  {
-    return data.Configure( fScope, scaleKeys);
-  }
+    if (!MeshGlowType::Configure(fScope))
+    {
+        return data.Configure(fScope, scaleKeys);
+    }
 
-  return TRUE;
+    return TRUE;
 }
 
 //
@@ -65,12 +65,12 @@ Bool MeshResourceType::Configure(FScope *fScope)
 //
 void MeshResourceType::PostLoad()
 {
-  MeshGlowType::PostLoad();
-  data.PostLoad( scaleKeys);
+    MeshGlowType::PostLoad();
+    data.PostLoad(scaleKeys);
 }
 
 
 U32 MeshResourceType::GetMem() const
 {
-  return MeshGlowType::GetMem() + scaleKeys.GetMem();
+    return MeshGlowType::GetMem() + scaleKeys.GetMem();
 }

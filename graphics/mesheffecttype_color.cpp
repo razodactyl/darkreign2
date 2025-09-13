@@ -21,7 +21,6 @@
 //
 MeshColorType::MeshColorType() : MeshEffectType()
 {
-
 }
 
 
@@ -30,7 +29,7 @@ MeshColorType::MeshColorType() : MeshEffectType()
 //
 MeshColorType::~MeshColorType()
 {
-  colorKeys.Release();
+    colorKeys.Release();
 }
 
 
@@ -39,23 +38,23 @@ MeshColorType::~MeshColorType()
 //
 // Construct a new effect
 //
-MeshEffect *MeshColorType::Build( MeshEnt &_ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
+MeshEffect* MeshColorType::Build(MeshEnt& _ent, F32 _lifeTime, U32 _flags) // = Effects::flagDESTROY | Effects::flagLOOP
 {
-	return new MeshColor(this, &_ent, _lifeTime, _flags);
+    return new MeshColor(this, &_ent, _lifeTime, _flags);
 }
 
 //
 // Handle a scope
 //
 //
-Bool MeshColorType::Configure(FScope *fScope)
+Bool MeshColorType::Configure(FScope* fScope)
 {
-  if (!data.Configure( fScope, colorKeys))
-  {
-    return MeshEffectType::Configure( fScope);
-  }
+    if (!data.Configure(fScope, colorKeys))
+    {
+        return MeshEffectType::Configure(fScope);
+    }
 
-  return TRUE;
+    return TRUE;
 }
 
 
@@ -66,13 +65,13 @@ Bool MeshColorType::Configure(FScope *fScope)
 //
 void MeshColorType::PostLoad()
 {
-  MeshEffectType::PostLoad();
+    MeshEffectType::PostLoad();
 
-  data.PostLoad( colorKeys);
+    data.PostLoad(colorKeys);
 }
 
 
 U32 MeshColorType::GetMem() const
 {
-  return MeshEffectType::GetMem() + colorKeys.GetMem();
+    return MeshEffectType::GetMem() + colorKeys.GetMem();
 }

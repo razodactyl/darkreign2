@@ -25,47 +25,42 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class SyncList
+    // NameSpace Controls
     //
-    class SyncList : public ICListBox
+    namespace Controls
     {
-    private:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class SyncList
+        //
+        class SyncList : public ICListBox
+        {
+        private:
 
-      class PlayerItem;
-      friend PlayerItem;
+            class PlayerItem;
+            friend PlayerItem;
 
-      // Icons
-      TextureInfo iconReady[2];
+            // Icons
+            TextureInfo iconReady[2];
 
-      // Offsets
-      S32 offsetName;
-      S32 offsetReady;
+            // Offsets
+            S32 offsetName;
+            S32 offsetReady;
 
-    public:
+        public:
 
-      // Constructor
-      SyncList(IControl *parent);
+            // Constructor
+            SyncList(IControl* parent);
 
-      // Redraw self
-      void DrawSelf(PaintInfo &pi);
+            // Redraw self
+            void DrawSelf(PaintInfo& pi);
 
-      // Setup
-      void Setup(FScope *fScope);
-
-    };
-
-  }
-
+            // Setup
+            void Setup(FScope* fScope);
+        };
+    }
 }
 
 

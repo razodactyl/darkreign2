@@ -26,18 +26,19 @@
 class SmokeSimulateClass : public ParticleClass
 {
 public:
-	// smoke simulator class constructor
-	SmokeSimulateClass();
+    // smoke simulator class constructor
+    SmokeSimulateClass();
 
-	// build a new smoke simulator
-	virtual Particle *Build(
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
-
+    // build a new smoke simulator
+    virtual Particle* Build
+    (
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,18 +48,20 @@ public:
 class SmokeSimulate : public Particle
 {
 public:
-	// smoke simulator constructor
-	SmokeSimulate(
-    SmokeSimulateClass *proto, 
-    const Matrix &matrix,
-		const Vector &veloc, 
-    const Vector &omega, 
-    const Vector &length,
-    F32 timer,
-    void *data = NULL);
+    // smoke simulator constructor
+    SmokeSimulate
+    (
+        SmokeSimulateClass* proto,
+        const Matrix& matrix,
+        const Vector& veloc,
+        const Vector& omega,
+        const Vector& length,
+        F32 timer,
+        void* data = NULL
+    );
 
-	// apply smoke simulator
-	virtual Bool Simulate( F32 dt);
+    // apply smoke simulator
+    virtual Bool Simulate(F32 dt);
 };
 
 #endif

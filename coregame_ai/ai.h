@@ -28,7 +28,7 @@
     LOG_DIAG(x)           \
   }
 #else
-  #define LOG_AI(x)
+#define LOG_AI(x)
 #endif
 
 
@@ -38,37 +38,36 @@
 //
 namespace AI
 {
-  // Init: Initialize AI
-  void Init();
+    // Init: Initialize AI
+    void Init();
 
-  // Done: Shutdown AI
-  void Done();
+    // Done: Shutdown AI
+    void Done();
 
-  // ConfigLoad: Load AI Configuration files
-  void ConfigLoad();
+    // ConfigLoad: Load AI Configuration files
+    void ConfigLoad();
 
-  // Post Load the AI
-  void ConfigPostLoad();
+    // Post Load the AI
+    void ConfigPostLoad();
 
-  // Save and load AI state data
-  void Save(FScope *scope);
-  void Load(FScope *scope);
+    // Save and load AI state data
+    void Save(FScope* scope);
+    void Load(FScope* scope);
 
-  // Init Simulation
-  void InitSimulation();
+    // Init Simulation
+    void InitSimulation();
 
-  // Done Simulation
-  void DoneSimulation();
+    // Done Simulation
+    void DoneSimulation();
 
-  // Process AI
-  void Process();
+    // Process AI
+    void Process();
 
-  // Is logging enabled
-  Bool IsLogging();
+    // Is logging enabled
+    Bool IsLogging();
 
-  // Process a type definition file, FALSE if unable to load file
-  Bool ProcessConfigFile(const char *name);
-
+    // Process a type definition file, FALSE if unable to load file
+    Bool ProcessConfigFile(const char* name);
 }
 
 #endif

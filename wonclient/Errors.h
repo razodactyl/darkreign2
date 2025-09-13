@@ -3,7 +3,7 @@
 
 namespace WONAPI
 {
-    typedef long Error;
+    typedef unsigned int Error;
 
     const Error Error_Success = 0; // universal success constant
 

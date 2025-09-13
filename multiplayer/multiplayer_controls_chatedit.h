@@ -25,47 +25,42 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class ChatEdit
+    // NameSpace Controls
     //
-    class ChatEdit : public ConsoleEdit
+    namespace Controls
     {
-    protected:
-      
-      // Chat message type (all, ally, team)
-      IFaceVar *typeVar;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class ChatEdit
+        //
+        class ChatEdit : public ConsoleEdit
+        {
+        protected:
 
-      // Prefix of cmd's to send
-      StrBuf<64> cmdPrefix;
-      U32 prefixLen;
+            // Chat message type (all, ally, team)
+            IFaceVar* typeVar;
 
-    public:
+            // Prefix of cmd's to send
+            StrBuf<64> cmdPrefix;
+            U32 prefixLen;
 
-      // Constructor
-      ChatEdit(IControl *parent);
+        public:
 
-      // Destructor
-      ~ChatEdit();
+            // Constructor
+            ChatEdit(IControl* parent);
 
-      // Setup
-      void Setup(FScope *fScope);
+            // Destructor
+            ~ChatEdit();
 
-      // HandleEvent
-      U32 HandleEvent(Event &e);
+            // Setup
+            void Setup(FScope* fScope);
 
-    };
-
-  }
-
+            // HandleEvent
+            U32 HandleEvent(Event& e);
+        };
+    }
 }
 
 

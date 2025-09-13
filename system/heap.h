@@ -25,64 +25,63 @@ class Heap
 {
 private:
 
-  struct Record
-  {
-    U32 size;
-  };
+    struct Record
+    {
+        U32 size;
+    };
 
 protected:
 
-  char * top, * current;
-  U32 size, used;
+    char *top, *current;
+    U32 size, used;
 
 public:
 
-  //
-  // Heap
-  //
-  // Constructor
-  //
-  Heap()
-  {
-    ClearData();
-  }
-  Heap( U32 _size)
-  {
-    ClearData();
-    Alloc( _size);
-  }  
+    //
+    // Heap
+    //
+    // Constructor
+    //
+    Heap()
+    {
+        ClearData();
+    }
 
-  //
-  // Heap
-  //
-  // Destructor
-  //
-  ~Heap()
-  {
-    Release();
-  }
+    Heap(U32 _size)
+    {
+        ClearData();
+        Alloc(_size);
+    }
 
-  void ClearData();
-  void Alloc( U32 _size);
-  void Release();
+    //
+    // Heap
+    //
+    // Destructor
+    //
+    ~Heap()
+    {
+        Release();
+    }
 
-  void * Request( U32 _size);
+    void ClearData();
+    void Alloc(U32 _size);
+    void Release();
 
-  struct Vector;
-  struct VertexTL;
-  struct VertexL;
-  struct Vertex;
+    void* Request(U32 _size);
 
-  Vector *    ReqVector(   U32 _count);
-  U16 *       ReqIndex(    U32 _count);
-  VertexTL *  ReqVertexTL( U32 _count);
-  VertexL  *  ReqVertexL(  U32 _count);
-  Vertex   *  ReqVertex(   U32 _count);
+    struct Vector;
+    struct VertexTL;
+    struct VertexL;
+    struct Vertex;
 
-  void Restore();
+    Vector* ReqVector(U32 _count);
+    U16* ReqIndex(U32 _count);
+    VertexTL* ReqVertexTL(U32 _count);
+    VertexL* ReqVertexL(U32 _count);
+    Vertex* ReqVertex(U32 _count);
 
-  
+    void Restore();
 };
 
 
-#endif 
+#endif

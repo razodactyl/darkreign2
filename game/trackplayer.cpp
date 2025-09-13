@@ -26,14 +26,14 @@
 //
 // Constructor
 //
-TrackPlayer::TrackPlayer() : 
-  paths(&Path::node), 
-  tracks(&Track::node),
-  requested(FALSE),
-  active(NULL)
+TrackPlayer::TrackPlayer() :
+    paths(&Path::node),
+    tracks(&Track::node),
+    requested(FALSE),
+    active(NULL)
 {
-  // Setup the unique stream name
-  Utils::Sprintf(stream.str, stream.GetSize(), "TP::%08X", U32(this));
+    // Setup the unique stream name
+    Utils::Sprintf(stream.str, stream.GetSize(), "TP::%08X", U32(this));
 }
 
 
@@ -42,7 +42,7 @@ TrackPlayer::TrackPlayer() :
 //
 TrackPlayer::~TrackPlayer()
 {
-  Clear();
+    Clear();
 }
 
 
@@ -51,86 +51,85 @@ TrackPlayer::~TrackPlayer()
 //
 // Add tracks to the playlist (returns number of tracks added)
 //
-U32 TrackPlayer::Add(const char *path)
+U32 TrackPlayer::Add(const char* path)
 {
-  Dir::Find find;
+    Dir::Find find;
 
-  // Ignore if this path is already in the play list
-  if (FindPath(Crc::CalcStr(path)))
-  {
-    return (0);
-  }
-
-  // Count the number of tracks added
-  U32 count = 0;
-
-  // Add all sub-dirs first
-  if (Dir::FindFirst(find, path, "*", File::Attrib::SUBDIR))
-  {
-    do
+    // Ignore if this path is already in the play list
+    if (FindPath(Crc::CalcStr(path)))
     {
-      if (Utils::Strcmp(find.finddata.name, ".") && Utils::Strcmp(find.finddata.name, ".."))
-      {
-        // Create the full path name
-        FilePath full;
-        Dir::PathMake(full, path, find.finddata.name);
+        return (0);
+    }
 
-        // Add the path to the playlist
-        count += Add(full.str);
-      }
-    } 
-    while (Dir::FindNext(find));
-  }  
+    // Count the number of tracks added
+    U32 count = 0;
 
-  // Finish find operation
-  Dir::FindClose(find); 
-
-  // Only create a record for this path if a track is found
-  Path *pathRecord = NULL;
-
-  // Add the tracks from this folder
-  if (Dir::FindFirst(find, path, "*.mp3"))
-  {
-    do
+    // Add all sub-dirs first
+    if (Dir::FindFirst(find, path, "*", File::Attrib::SUBDIR))
     {
-      // Exclude directories
-      if (!(find.finddata.attrib & File::Attrib::SUBDIR))
-      {
-        if (!pathRecord)
+        do
         {
-          // Create a record for this path
-          pathRecord = new Path(path);
+            if (Utils::Strcmp(find.finddata.name, ".") && Utils::Strcmp(find.finddata.name, ".."))
+            {
+                // Create the full path name
+                FilePath full;
+                Dir::PathMake(full, path, find.finddata.name);
 
-          // Add to the path list
-          paths.Append(pathRecord);
+                // Add the path to the playlist
+                count += Add(full.str);
+            }
         }
+        while (Dir::FindNext(find));
+    }
 
-        // Create a new track record
-        Track *track = new Track(*pathRecord, find.finddata.name);
+    // Finish find operation
+    Dir::FindClose(find);
 
-        // Add to the list
-        tracks.Append(track);
+    // Only create a record for this path if a track is found
+    Path* pathRecord = NULL;
 
-        // Activate if none
-        if (!active)
+    // Add the tracks from this folder
+    if (Dir::FindFirst(find, path, "*.mp3"))
+    {
+        do
         {
-          active = track;
+            // Exclude directories
+            if (!(find.finddata.attrib & File::Attrib::SUBDIR))
+            {
+                if (!pathRecord)
+                {
+                    // Create a record for this path
+                    pathRecord = new Path(path);
+
+                    // Add to the path list
+                    paths.Append(pathRecord);
+                }
+
+                // Create a new track record
+                Track* track = new Track(*pathRecord, find.finddata.name);
+
+                // Add to the list
+                tracks.Append(track);
+
+                // Activate if none
+                if (!active)
+                {
+                    active = track;
+                }
+
+                // Increment the count
+                count++;
+            }
         }
+        while (Dir::FindNext(find));
+    }
 
-        // Increment the count
-        count++;
-      }
-    } 
-    while (Dir::FindNext(find));
-  }  
+    // Finish find operation
+    Dir::FindClose(find);
 
-  // Finish find operation
-  Dir::FindClose(find);
-
-  // Return the count
-  return (count);
+    // Return the count
+    return (count);
 }
-
 
 
 //
@@ -140,15 +139,15 @@ U32 TrackPlayer::Add(const char *path)
 //
 void TrackPlayer::Clear()
 {
-  // Stop playing
-  Stop();
+    // Stop playing
+    Stop();
 
-  // Clear the active track
-  active = NULL;
+    // Clear the active track
+    active = NULL;
 
-  // Dispose of records
-  tracks.DisposeAll();
-  paths.DisposeAll();
+    // Dispose of records
+    tracks.DisposeAll();
+    paths.DisposeAll();
 }
 
 
@@ -159,32 +158,32 @@ void TrackPlayer::Clear()
 //
 Bool TrackPlayer::Play()
 {
-  // If no active track, select the first in the list
-  if (!active)
-  {
-    active = tracks.GetHead();
-  }
-
-  // Do we have a track
-  if (active)
-  {
-    // Build full path to file
-    FilePath full;
-    Dir::PathMake(full, active->GetPath(), active->GetName());
-
-    // Start the track playing
-    if (Sound::Digital::Stream::Start(stream.str, full.str))
+    // If no active track, select the first in the list
+    if (!active)
     {
-      // Record that a track has been requested
-      requested = TRUE;
-
-      // Success
-      return (TRUE);
+        active = tracks.GetHead();
     }
-  }
 
-  // Failed
-  return (FALSE);
+    // Do we have a track
+    if (active)
+    {
+        // Build full path to file
+        FilePath full;
+        Dir::PathMake(full, active->GetPath(), active->GetName());
+
+        // Start the track playing
+        if (Sound::Digital::Stream::Start(stream.str, full.str))
+        {
+            // Record that a track has been requested
+            requested = TRUE;
+
+            // Success
+            return (TRUE);
+        }
+    }
+
+    // Failed
+    return (FALSE);
 }
 
 
@@ -195,7 +194,7 @@ Bool TrackPlayer::Play()
 //
 void TrackPlayer::StopStream()
 {
-  Sound::Digital::Stream::Stop(stream.str);
+    Sound::Digital::Stream::Stop(stream.str);
 }
 
 
@@ -204,17 +203,17 @@ void TrackPlayer::StopStream()
 //
 // Find the given path
 //
-TrackPlayer::Path * TrackPlayer::FindPath(U32 crc)
+TrackPlayer::Path* TrackPlayer::FindPath(U32 crc)
 {
-  for (NList<Path>::Iterator i(&paths); *i; ++i)
-  {
-    if ((*i)->GetPath().crc == crc)
+    for (NList<Path>::Iterator i(&paths); *i; ++i)
     {
-      return (*i);
+        if ((*i)->GetPath().crc == crc)
+        {
+            return (*i);
+        }
     }
-  }
 
-  return (NULL);
+    return (NULL);
 }
 
 
@@ -225,11 +224,11 @@ TrackPlayer::Path * TrackPlayer::FindPath(U32 crc)
 //
 void TrackPlayer::Stop()
 {
-  // Stop the stream
-  StopStream();
+    // Stop the stream
+    StopStream();
 
-  // Clear requested status
-  requested = FALSE;
+    // Clear requested status
+    requested = FALSE;
 }
 
 
@@ -240,39 +239,39 @@ void TrackPlayer::Stop()
 //
 Bool TrackPlayer::NextTrack()
 {
-  // Stop the stream
-  StopStream();
+    // Stop the stream
+    StopStream();
 
-  // Get the next track
-  if (active)
-  {
-    active = active->GetNext();
-  }
-
-  // Get the first track
-  if (!active)
-  {
-    active = tracks.GetHead();
-  }
-
-  // Should we play it
-  if (requested)
-  {
-    // Did we find a track
+    // Get the next track
     if (active)
     {
-      // Play it
-      Play();
+        active = active->GetNext();
     }
-    else
-    {
-      // No tracks to play
-      requested = FALSE;
-    }
-  }
 
-  // Returns true if found a track
-  return (active ? TRUE : FALSE); 
+    // Get the first track
+    if (!active)
+    {
+        active = tracks.GetHead();
+    }
+
+    // Should we play it
+    if (requested)
+    {
+        // Did we find a track
+        if (active)
+        {
+            // Play it
+            Play();
+        }
+        else
+        {
+            // No tracks to play
+            requested = FALSE;
+        }
+    }
+
+    // Returns true if found a track
+    return (active ? TRUE : FALSE);
 }
 
 
@@ -283,40 +282,40 @@ Bool TrackPlayer::NextTrack()
 //
 Bool TrackPlayer::PrevTrack()
 {
-  // Stop the stream
-  StopStream();
+    // Stop the stream
+    StopStream();
 
-  // Get the previous track
-  if (active)
-  {
-    active = active->GetPrev();
-  }
-
-  // Get the last track
-  if (!active)
-  {
-    active = tracks.GetTail();
-  }
-
-  // Should we play it
-  if (requested)
-  {
-    // Did we find a track
+    // Get the previous track
     if (active)
     {
-      // Play it
-      Play();
-
-      // Success
-      return (TRUE);
+        active = active->GetPrev();
     }
 
-    // No tracks to play
-    requested = FALSE;
-  }
+    // Get the last track
+    if (!active)
+    {
+        active = tracks.GetTail();
+    }
 
-  // Returns true if found a track
-  return (active ? TRUE : FALSE); 
+    // Should we play it
+    if (requested)
+    {
+        // Did we find a track
+        if (active)
+        {
+            // Play it
+            Play();
+
+            // Success
+            return (TRUE);
+        }
+
+        // No tracks to play
+        requested = FALSE;
+    }
+
+    // Returns true if found a track
+    return (active ? TRUE : FALSE);
 }
 
 
@@ -327,43 +326,43 @@ Bool TrackPlayer::PrevTrack()
 //
 Bool TrackPlayer::RandomTrack()
 {
-  // Stop the stream
-  StopStream();
+    // Stop the stream
+    StopStream();
 
-  // Clear the active track
-  active = NULL;
+    // Clear the active track
+    active = NULL;
 
-  // Do we have any tracks
-  if (tracks.GetCount())
-  {
-    // Setup an iterator
-    NList<Track>::Iterator i(&tracks);
-
-    // Pick a random track
-    i.GoTo(Random::nonSync.Integer(tracks.GetCount()));
-
-    // Set as active
-    active = *i;
-  }
-
-  // Should we start a track
-  if (requested)
-  {
-    // Did we find a track
-    if (active)
+    // Do we have any tracks
+    if (tracks.GetCount())
     {
-      // Start the track
-      Play();
+        // Setup an iterator
+        NList<Track>::Iterator i(&tracks);
 
-      // Success
-      return (TRUE);
+        // Pick a random track
+        i.GoTo(Random::nonSync.Integer(tracks.GetCount()));
+
+        // Set as active
+        active = *i;
     }
 
-    // No tracks
-    requested = FALSE;
-  }
+    // Should we start a track
+    if (requested)
+    {
+        // Did we find a track
+        if (active)
+        {
+            // Start the track
+            Play();
 
-  return (active ? TRUE : FALSE);
+            // Success
+            return (TRUE);
+        }
+
+        // No tracks
+        requested = FALSE;
+    }
+
+    return (active ? TRUE : FALSE);
 }
 
 
@@ -374,7 +373,7 @@ Bool TrackPlayer::RandomTrack()
 //
 Bool TrackPlayer::Playing()
 {
-  return (active && Sound::Digital::Stream::IsPlaying(stream.str));
+    return (active && Sound::Digital::Stream::IsPlaying(stream.str));
 }
 
 
@@ -385,12 +384,11 @@ Bool TrackPlayer::Playing()
 //
 Bool TrackPlayer::Poll()
 {
-  // Do we need to play the next stream
-  if (requested && !Playing())
-  {
-    return (NextTrack());
-  }
+    // Do we need to play the next stream
+    if (requested && !Playing())
+    {
+        return (NextTrack());
+    }
 
-  return (FALSE);
+    return (FALSE);
 }
-

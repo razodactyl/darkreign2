@@ -26,65 +26,63 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class TrapIdle
+    //
+    class TrapIdle : public GameTask<TrapObjType, TrapObj>
+    {
+        TASK_CLASS(TrapIdle)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class TrapIdle
-  //
-  class TrapIdle : public GameTask<TrapObjType, TrapObj>
-  {
-    TASK_CLASS(TrapIdle)
+        // Has this trap ever been cloaked
+        Bool everCloaked;
 
-    // Has this trap ever been cloaked
-    Bool everCloaked;
+        // The cloaking progress
+        F32 progressTotal;
 
-    // The cloaking progress
-    F32 progressTotal;
+        // The progress rate per cycle
+        F32 progressRate;
 
-    // The progress rate per cycle
-    F32 progressRate;
+        // Check if we should turn cloaking on/off
+        Bool CheckCloak(Bool on);
 
-    // Check if we should turn cloaking on/off
-    Bool CheckCloak(Bool on);
+        // Remove cloak if active
+        void RemoveCloak();
 
-    // Remove cloak if active
-    void RemoveCloak();
+    public:
 
-  public:
+        // Constructor
+        TrapIdle(GameObj* subject);
 
-    // Constructor
-    TrapIdle(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+        // Is the trap currently cloaked
+        Bool IsCloaked();
 
-    // Is the trap currently cloaked
-    Bool IsCloaked();
+        // Get the current effect progress
+        F32 GetProgress();
 
-    // Get the current effect progress
-    F32 GetProgress();
+    private:
 
-  private:
+        // State machine procedures
+        void StateInit();
+        void StateVisible();
+        void StateCloaked(StateMachineNotify notify);
 
-    // State machine procedures
-    void StateInit();
-    void StateVisible();
-    void StateCloaked(StateMachineNotify notify);
-
-    // FX Callback
-    static Bool FXCallBack(MapObj *mapObj, FX::CallBackData &cbd, void *context);
-  };
-
+        // FX Callback
+        static Bool FXCallBack(MapObj* mapObj, FX::CallBackData& cbd, void* context);
+    };
 }
 
 #endif

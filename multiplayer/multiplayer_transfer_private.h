@@ -25,55 +25,52 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Transfer
-  //
-  namespace Transfer
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Struct Offer
+    // NameSpace Transfer
     //
-    struct Offer
+    namespace Transfer
     {
-      // Tree node
-      NBinTree<Offer>::Node node;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Struct Offer
+        //
+        struct Offer
+        {
+            // Tree node
+            NBinTree<Offer>::Node node;
 
-      // IControl which displayers this offer
-      IControlPtr ctrl;
+            // IControl which displayers this offer
+            IControlPtr ctrl;
 
-      // Is this to or from (TRUE = from)
-      Bool from;
+            // Is this to or from (TRUE = from)
+            Bool from;
 
-      // Type key
-      CRC type;
+            // Type key
+            CRC type;
 
-      // Name of the file on offer
-      FilePath path;
+            // Name of the file on offer
+            FilePath path;
 
-      // Size of the file on offer
-      U32 size;
+            // Size of the file on offer
+            U32 size;
 
-      // Id of the user who the offer is with
-      CRC who;
+            // Id of the user who the offer is with
+            CRC who;
 
-      // Offer id
-      U32 id;
+            // Offer id
+            U32 id;
 
-      // StyxNet transfer for this offer
-      StyxNet::Transfer transfer;
+            // StyxNet transfer for this offer
+            StyxNet::Transfer transfer;
 
-      // Construct from a command offer
-      Offer(Bool from, CRC type, CRC who, const Commands::Data::TransferOffer &transferOffer);
+            // Construct from a command offer
+            Offer(Bool from, CRC type, CRC who, const Commands::Data::TransferOffer& transferOffer);
 
-      // Destructor
-      ~Offer();
-
-    };
-  }
+            // Destructor
+            ~Offer();
+        };
+    }
 }
 
 #endif

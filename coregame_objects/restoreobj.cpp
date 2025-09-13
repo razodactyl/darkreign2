@@ -119,7 +119,6 @@ void RestoreObjType::StartRestoreFX(UnitObj* obj)
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Class RestoreObj - Instance class for above type
@@ -185,20 +184,20 @@ RestoreObj::~RestoreObj()
 Bool RestoreObj::CanRestore(UnitObj* obj)
 {
     return
-        (
-            // Unable to restore self
-            (obj != this)
+    (
+        // Unable to restore self
+        (obj != this)
 
-            &&
+        &&
 
-            // Must be in the property list
-            RestoreType()->CheckRestore(obj->GameType())
+        // Must be in the property list
+        RestoreType()->CheckRestore(obj->GameType())
 
-            &&
+        &&
 
-            // Must be an ally
-            Team::TestRelation(GetTeam(), obj->GetTeam(), Relation::ALLY)
-            );
+        // Must be an ally
+        Team::TestRelation(GetTeam(), obj->GetTeam(), Relation::ALLY)
+    );
 }
 
 
@@ -209,31 +208,31 @@ Bool RestoreObj::CanRestore(UnitObj* obj)
 //
 Bool RestoreObj::RestoreRequired(UnitObj* obj)
 {
-    ASSERT(obj)
+    ASSERT(obj);
 
-        // Does the object require any restoration by us
-        if (AnyRestoreRequired(obj) && CanRestore(obj))
+    // Does the object require any restoration by us
+    if (AnyRestoreRequired(obj) && CanRestore(obj))
+    {
+        // Does it need hitpoints
+        if (obj->GetHitPoints() < obj->MapType()->GetHitPoints())
         {
-            // Does it need hitpoints
-            if (obj->GetHitPoints() < obj->MapType()->GetHitPoints())
+            // Can we supply hitpoints
+            if (RestoreType()->GetAddHitPoints())
             {
-                // Can we supply hitpoints
-                if (RestoreType()->GetAddHitPoints())
-                {
-                    return (TRUE);
-                }
-            }
-
-            // Does it need ammunition
-            if (obj->GetAmmunition() < obj->GetMaximumAmmunition())
-            {
-                // Can we supply ammo
-                if (RestoreType()->GetReloadRate() > 0.0F)
-                {
-                    return (TRUE);
-                }
+                return (TRUE);
             }
         }
+
+        // Does it need ammunition
+        if (obj->GetAmmunition() < obj->GetMaximumAmmunition())
+        {
+            // Can we supply ammo
+            if (RestoreType()->GetReloadRate() > 0.0F)
+            {
+                return (TRUE);
+            }
+        }
+    }
 
     return (FALSE);
 }
@@ -246,24 +245,24 @@ Bool RestoreObj::RestoreRequired(UnitObj* obj)
 //
 void RestoreObj::Restore(UnitObj* obj)
 {
-    ASSERT(obj)
+    ASSERT(obj);
 
-        // Add hitpoints
-        if (RestoreType()->GetAddHitPoints())
+    // Add hitpoints
+    if (RestoreType()->GetAddHitPoints())
+    {
+        S32 add = Clamp<S32>
+        (
+            0,
+            Utils::FtoLNearest(F32(RestoreType()->GetAddHitPoints()) * GetEfficiency()),
+            obj->MapType()->GetHitPoints() - obj->GetHitPoints()
+        );
+
+        // Modify the current hitpoint value
+        if (add)
         {
-            S32 add = Clamp<S32>
-                (
-                    0,
-                    Utils::FtoLNearest(F32(RestoreType()->GetAddHitPoints()) * GetEfficiency()),
-                    obj->MapType()->GetHitPoints() - obj->GetHitPoints()
-                    );
-
-            // Modify the current hitpoint value
-            if (add)
-            {
-                obj->ModifyHitPoints(add);
-            }
+            obj->ModifyHitPoints(add);
         }
+    }
 
     // Give ammo to the target
     if (RestoreType()->GetReloadRate() > 0.0F)

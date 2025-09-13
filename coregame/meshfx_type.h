@@ -35,12 +35,10 @@ class MeshEffectType;
 //
 namespace MeshFX
 {
-
-
 #if 0
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Struct CallBackData
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Struct CallBackData
   //
   struct CallBackData
   {
@@ -51,40 +49,42 @@ namespace MeshFX
   };
 #endif
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Type
-  //
-  class Type
-  {
-  private:
-
-    GameIdent effectName;
-    MeshEffectType * effectType;
-
-    U32 destroy   : 1;    // does the effect time itself
-    U32 loop      : 1;    // does the effect loop or hold at lifeTime
-
-  public:
-
-    // Constructor and Destructor
-    Type(FScope *fScope)
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Type
+    //
+    class Type
     {
-      Setup( fScope);
-    }
-    Type() {}
-    ~Type();
+    private:
 
-    void Setup(FScope *fScope);
+        GameIdent effectName;
+        MeshEffectType* effectType;
 
-    // Post Load
-    void PostLoad(MapObjType *mapObjType);
+        U32 destroy : 1;    // does the effect time itself
+        U32 loop : 1;    // does the effect loop or hold at lifeTime
 
-    // Friends
-    friend class Object;
+    public:
 
-  };
+        // Constructor and Destructor
+        Type(FScope* fScope)
+        {
+            Setup(fScope);
+        }
 
+        Type()
+        {
+        }
+
+        ~Type();
+
+        void Setup(FScope* fScope);
+
+        // Post Load
+        void PostLoad(MapObjType* mapObjType);
+
+        // Friends
+        friend class Object;
+    };
 }
 
 

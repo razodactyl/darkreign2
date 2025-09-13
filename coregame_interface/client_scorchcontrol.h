@@ -25,33 +25,31 @@
 //
 namespace Client
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Scorch
-  //
-  class Scorch : public ICWindow
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Scorch
+    //
+    class Scorch : public ICWindow
+    {
     PROMOTE_LINK(Scorch, ICWindow, 0x2CF71032); // "Scorch"
 
-  protected:
+    protected:
 
-    IFaceVar *horizontal;
-    IFaceVar *vertical;
-    IFaceVar *speed;
+        IFaceVar* horizontal;
+        IFaceVar* vertical;
+        IFaceVar* speed;
 
-  public:
+    public:
 
-    // Constructor and destructor
-    Scorch(IControl *parent);
-    ~Scorch();
+        // Constructor and destructor
+        Scorch(IControl* parent);
+        ~Scorch();
 
-    // Control methods
-    Bool Activate();
-    Bool Deactivate();
-    U32 HandleEvent(Event &e);
-  };
-
+        // Control methods
+        Bool Activate();
+        Bool Deactivate();
+        U32 HandleEvent(Event& e);
+    };
 }
 
 #endif

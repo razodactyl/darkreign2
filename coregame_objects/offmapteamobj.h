@@ -16,7 +16,7 @@
 // Includes
 //
 #include "offmapobj.h"
-  
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -36,22 +36,22 @@ typedef Reaper<OffMapTeamObj> OffMapTeamObjPtr;
 //
 class OffMapTeamObjType : public OffMapObjType
 {
-  PROMOTE_LINK(OffMapTeamObjType, OffMapObjType, 0xE9BC7F91); // "OffMapTeamObjType"
+PROMOTE_LINK(OffMapTeamObjType, OffMapObjType, 0xE9BC7F91); // "OffMapTeamObjType"
 
 public:
 
-  // Instance modifier list
-  ApplyModifierList modifiers;
+    // Instance modifier list
+    ApplyModifierList modifiers;
 
-  // Constructor and destructor
-  OffMapTeamObjType(const char *typeName, FScope *fScope);
-  ~OffMapTeamObjType();
+    // Constructor and destructor
+    OffMapTeamObjType(const char* typeName, FScope* fScope);
+    ~OffMapTeamObjType();
 
-  // Called after all types are loaded
-  void PostLoad();
+    // Called after all types are loaded
+    void PostLoad();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 };
 
 
@@ -63,20 +63,20 @@ public:
 class OffMapTeamObj : public OffMapObj
 {
 public:
-  
-  // Constructor and destructor
-  OffMapTeamObj(OffMapTeamObjType *objType, U32 id);
-  ~OffMapTeamObj();
 
-  // Execute an operation (TRUE if accepted)
-  Bool Execute(U32 operation, const Vector &pos);
+    // Constructor and destructor
+    OffMapTeamObj(OffMapTeamObjType* objType, U32 id);
+    ~OffMapTeamObj();
 
-  // Get pointer to type
-  OffMapTeamObjType * OffMapTeamType()
-  {
-    // This is a safe cast
-    return ((OffMapTeamObjType *)type);
-  }
+    // Execute an operation (TRUE if accepted)
+    Bool Execute(U32 operation, const Vector& pos);
+
+    // Get pointer to type
+    OffMapTeamObjType* OffMapTeamType()
+    {
+        // This is a safe cast
+        return ((OffMapTeamObjType*)type);
+    }
 };
 
 #endif

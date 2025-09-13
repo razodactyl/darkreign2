@@ -24,341 +24,336 @@
 //
 namespace ArithmeticOperator
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Float
-  //
-  class Float
-  {
-  private:
-
-    // Assign Operator
-    static F32 Assign(F32, F32 value2)
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Float
+    //
+    class Float
     {
-      return (value2);
-    }
+    private:
 
-    // Add Operator
-    static F32 Add(F32 value1, F32 value2) 
-    { 
-      return (value1 + value2);
-    }
+        // Assign Operator
+        static F32 Assign(F32, F32 value2)
+        {
+            return (value2);
+        }
 
-    // Subtract Operator
-    static F32 Subtract(F32 value1, F32 value2) 
-    { 
-      return (value1 - value2);
-    }
-  
-    // Multiply Operator
-    static F32 Multiply(F32 value1, F32 value2) 
-    { 
-      return (value1 * value2);
-    }
+        // Add Operator
+        static F32 Add(F32 value1, F32 value2)
+        {
+            return (value1 + value2);
+        }
 
-    // Divide Operator
-    static F32 Divide(F32 value1, F32 value2) 
-    { 
-      return (value1 / value2);
-    }
+        // Subtract Operator
+        static F32 Subtract(F32 value1, F32 value2)
+        {
+            return (value1 - value2);
+        }
 
-    // Modulus Operator
-    static F32 Modulus(F32 value1, F32 value2)
-    {
-      return (F32(fmod(value1, value2)));
-    }
+        // Multiply Operator
+        static F32 Multiply(F32 value1, F32 value2)
+        {
+            return (value1 * value2);
+        }
 
-    // Function pointer to operator to use
-    F32 (*oper)(F32, F32);
+        // Divide Operator
+        static F32 Divide(F32 value1, F32 value2)
+        {
+            return (value1 / value2);
+        }
 
-  public:
+        // Modulus Operator
+        static F32 Modulus(F32 value1, F32 value2)
+        {
+            return (F32(fmod(value1, value2)));
+        }
 
-    // Constructor
-    Float()
-    : oper(NULL)
-    {
+        // Function pointer to operator to use
+        F32 (*oper)(F32, F32);
+
+    public:
+
+        // Constructor
+        Float()
+            : oper(nullptr)
+        {
+        };
+
+        // Constructor
+        Float(const char* operName)
+        {
+            Load(operName);
+        }
+
+        // Constructor
+        Float(FScope* fScope)
+        {
+            Load(fScope->GetFunction("Operator"));
+        }
+
+        // Load
+        void Load(FScope* fScope)
+        {
+            Load(StdLoad::TypeString(fScope));
+        }
+
+        // Load
+        void Load(const GameIdent& operName)
+        {
+            switch (operName.crc)
+            {
+                case 0x5408AB08: // "="
+                    oper = Assign;
+                    break;
+
+                case 0x029F3DCA: // "+"
+                    oper = Add;
+                    break;
+
+                case 0x18197078: // "-"
+                    oper = Subtract;
+                    break;
+
+                case 0x065E207D: // "*"
+                    oper = Multiply;
+                    break;
+
+                case 0x119B4B16: // "/"
+                    oper = Divide;
+                    break;
+
+                case 0x3E119DC0: // "%"
+                    oper = Modulus;
+                    break;
+
+                default:
+                ERR_CONFIG(("Unknown floating point arithmetic operation '%s'", operName.str))
+                break;
+            }
+        }
+
+        // Function operator
+        F32 operator()(F32 value1, F32 value2)
+        {
+            ASSERT(oper);
+            return (oper(value1, value2));
+        }
     };
 
-    // Constructor
-    Float(const char *operName)
+
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Integer
+    //
+    class Integer
     {
-      Load(operName);
-    }
+    private:
 
-    // Constructor
-    Float(FScope *fScope)
-    {
-      Load(fScope->GetFunction("Operator"));
-    }
+        // Assign Operator
+        static U32 Assign(U32, U32 value2)
+        {
+            return (value2);
+        }
 
-    // Load
-    void Load(FScope *fScope)
-    {
-      Load(StdLoad::TypeString(fScope));
-    }
+        // Add Operator
+        static U32 Add(U32 value1, U32 value2)
+        {
+            return (value1 + value2);
+        }
 
-    // Load
-    void Load(const GameIdent &operName)
-    {
-      switch (operName.crc)
-      {
-        case 0x5408AB08: // "="
-          oper = Assign;
-          break;
+        // Subtract Operator
+        static U32 Subtract(U32 value1, U32 value2)
+        {
+            return (value1 - value2);
+        }
 
-        case 0x029F3DCA: // "+"
-          oper = Add;
-          break;
+        // Multiply Operator
+        static U32 Multiply(U32 value1, U32 value2)
+        {
+            return (value1 * value2);
+        }
 
-        case 0x18197078: // "-"
-          oper = Subtract;
-          break;
+        // Divide Operator
+        static U32 Divide(U32 value1, U32 value2)
+        {
+            return (value1 / value2);
+        }
 
-        case 0x065E207D: // "*"
-          oper = Multiply;
-          break;
+        // Modulus Operator
+        static U32 Modulus(U32 value1, U32 value2)
+        {
+            return (value1 % value2);
+        }
 
-        case 0x119B4B16: // "/"
-          oper = Divide;
-          break;
+        // And Operator
+        static U32 And(U32 value1, U32 value2)
+        {
+            return (value1 & value2);
+        }
 
-        case 0x3E119DC0: // "%"
-          oper = Modulus;
-          break;
+        // Or Operator
+        static U32 Or(U32 value1, U32 value2)
+        {
+            return (value1 | value2);
+        }
 
-        default:
-          ERR_CONFIG(("Unknown floating point arithmetic operation '%s'", operName.str))
-          break;
-      }
-    }
-
-    // Function operator
-    F32 operator()(F32 value1, F32 value2)
-    {
-      ASSERT(oper)
-      return (oper(value1, value2));
-    }
-
-  };
+        // Xor Operator
+        static U32 Xor(U32 value1, U32 value2)
+        {
+            return (value1 ^ value2);
+        }
 
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Integer
-  //
-  class Integer
-  {
-  private:
+        // Function pointer to operator to use
+        U32 (*oper)(U32, U32);
 
-    // Assign Operator
-    static U32 Assign(U32, U32 value2)
-    {
-      return (value2);
-    }
+    public:
 
-    // Add Operator
-    static U32 Add(U32 value1, U32 value2) 
-    { 
-      return (value1 + value2);
-    }
+        // Constructor
+        Integer()
+            : oper(nullptr)
+        {
+        };
 
-    // Subtract Operator
-    static U32 Subtract(U32 value1, U32 value2) 
-    { 
-      return (value1 - value2);
-    }
-  
-    // Multiply Operator
-    static U32 Multiply(U32 value1, U32 value2) 
-    { 
-      return (value1 * value2);
-    }
+        // Constructor
+        Integer(const char* operName)
+        {
+            Load(operName);
+        }
 
-    // Divide Operator
-    static U32 Divide(U32 value1, U32 value2) 
-    { 
-      return (value1 / value2);
-    }
+        // Constructor
+        Integer(FScope* fScope)
+        {
+            Load(fScope->GetFunction("Operator"));
+        }
 
-    // Modulus Operator
-    static U32 Modulus(U32 value1, U32 value2) 
-    { 
-      return (value1 % value2);
-    }
+        // Load
+        void Load(FScope* fScope)
+        {
+            Load(StdLoad::TypeString(fScope));
+        }
 
-    // And Operator
-    static U32 And(U32 value1, U32 value2) 
-    { 
-      return (value1 & value2);
-    }
+        // Load
+        void Load(const GameIdent& operName)
+        {
+            switch (operName.crc)
+            {
+                case 0x5408AB08: // "="
+                    oper = Assign;
+                    break;
 
-    // Or Operator
-    static U32 Or(U32 value1, U32 value2) 
-    { 
-      return (value1 | value2);
-    }
+                case 0x029F3DCA: // "+"
+                    oper = Add;
+                    break;
 
-    // Xor Operator
-    static U32 Xor(U32 value1, U32 value2) 
-    { 
-      return (value1 ^ value2);
-    }
+                case 0x18197078: // "-"
+                    oper = Subtract;
+                    break;
 
+                case 0x065E207D: // "*"
+                    oper = Multiply;
+                    break;
 
-    // Function pointer to operator to use
-    U32 (*oper)(U32, U32);
+                case 0x119B4B16: // "/"
+                    oper = Divide;
+                    break;
 
-  public:
+                case 0x3E119DC0: // "%"
+                    oper = Modulus;
+                    break;
 
-    // Constructor
-    Integer()
-    : oper(NULL)
-    {
+                case 0x3352BB19: // "&"
+                    oper = And;
+                    break;
+
+                case 0x644FC6C8: // "|"
+                    oper = Or;
+                    break;
+
+                case 0xF5EE4B46: // "^"
+                    oper = Xor;
+                    break;
+
+                default:
+                ERR_CONFIG(("Unknown integer arithmetic operation '%s'", operName.str))
+                break;
+            }
+        }
+
+        // Function operator
+        U32 operator()(U32 value1, U32 value2)
+        {
+            ASSERT(oper);
+            return (oper(value1, value2));
+        }
     };
 
-    // Constructor
-    Integer(const char *operName)
+
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class String
+    //
+    class String
     {
-      Load(operName);
-    }
+    private:
 
-    // Constructor
-    Integer(FScope *fScope)
-    {
-      Load(fScope->GetFunction("Operator"));
-    }
+        // Assign Operator
+        static ::String Assign(::String, ::String value2)
+        {
+            return (value2);
+        }
 
-    // Load
-    void Load(FScope *fScope)
-    {
-      Load(StdLoad::TypeString(fScope));
-    }
+        // Function pointer to operator to use
+        ::String (*oper)(::String, ::String);
 
-    // Load
-    void Load(const GameIdent &operName)
-    {
-      switch (operName.crc)
-      {
-        case 0x5408AB08: // "="
-          oper = Assign;
-          break;
+    public:
 
-        case 0x029F3DCA: // "+"
-          oper = Add;
-          break;
+        // Constructor
+        String()
+            : oper(nullptr)
+        {
+        };
 
-        case 0x18197078: // "-"
-          oper = Subtract;
-          break;
+        // Constructor
+        String(const char* operName)
+        {
+            Load(operName);
+        }
 
-        case 0x065E207D: // "*"
-          oper = Multiply;
-          break;
+        // Constructor
+        String(FScope* fScope)
+        {
+            Load(fScope->GetFunction("Operator"));
+        }
 
-        case 0x119B4B16: // "/"
-          oper = Divide;
-          break;
+        // Load
+        void Load(FScope* fScope)
+        {
+            Load(StdLoad::TypeString(fScope));
+        }
 
-        case 0x3E119DC0: // "%"
-          oper = Modulus;
-          break;
+        // Load
+        void Load(const GameIdent& operName)
+        {
+            switch (operName.crc)
+            {
+                case 0x5408AB08: // "="
+                    oper = Assign;
+                    break;
 
-        case 0x3352BB19: // "&"
-          oper = And;
-          break;
+                default:
+                ERR_CONFIG(("Unknown string arithmetic operation '%s'", operName.str))
+                break;
+            }
+        }
 
-        case 0x644FC6C8: // "|"
-          oper = Or;
-          break;
-
-        case 0xF5EE4B46: // "^"
-          oper = Xor;
-          break;
-
-        default:
-          ERR_CONFIG(("Unknown integer arithmetic operation '%s'", operName.str))
-          break;
-      }
-    }
-
-    // Function operator
-    U32 operator()(U32 value1, U32 value2)
-    {
-      ASSERT(oper)
-      return (oper(value1, value2));
-    }
-
-  };
-
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class String
-  //
-  class String
-  {
-  private:
-
-    // Assign Operator
-    static ::String Assign(::String, ::String value2)
-    {
-      return (value2);
-    }
-
-    // Function pointer to operator to use
-    ::String (*oper)(::String, ::String);
-
-  public:
-
-    // Constructor
-    String()
-    : oper(NULL)
-    {
+        // Function operator
+        ::String operator()(::String value1, ::String value2)
+        {
+            ASSERT(oper);
+            return (oper(value1, value2));
+        }
     };
-
-    // Constructor
-    String(const char *operName)
-    {
-      Load(operName);
-    }
-
-    // Constructor
-    String(FScope *fScope)
-    {
-      Load(fScope->GetFunction("Operator"));
-    }
-
-    // Load
-    void Load(FScope *fScope)
-    {
-      Load(StdLoad::TypeString(fScope));
-    }
-
-    // Load
-    void Load(const GameIdent &operName)
-    {
-      switch (operName.crc)
-      {
-        case 0x5408AB08: // "="
-          oper = Assign;
-          break;
-
-        default:
-          ERR_CONFIG(("Unknown string arithmetic operation '%s'", operName.str))
-          break;
-      }
-    }
-
-    // Function operator
-    ::String operator()(::String value1, ::String value2)
-    {
-      ASSERT(oper)
-      return (oper(value1, value2));
-    }
-
-  };
-
 }
 
 #endif

@@ -27,24 +27,21 @@
 //
 namespace MultiPlayer
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Network
+    //
+    namespace Network
+    {
+        // The current client
+        extern StyxNet::Client* client;
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Network
-  //
-  namespace Network
-  {
+        // The current server
+        extern StyxNet::Server* server;
 
-    // The current client
-    extern StyxNet::Client *client;
-
-    // The current server
-    extern StyxNet::Server *server;
-
-    // What's our address ?
-    Bool GetLocalAddress(Win32::Socket::Address &address, CRC who);
-  }
-  
+        // What's our address ?
+        Bool GetLocalAddress(Win32::Socket::Address& address, CRC who);
+    }
 }
 
 

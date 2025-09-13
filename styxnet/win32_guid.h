@@ -24,20 +24,18 @@
 //
 namespace Win32
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace GUID
+    //
+    namespace GUID
+    {
+        // Convert a GUID to text
+        const char* GUID2Text(const ::GUID& guid);
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace GUID
-  //
-  namespace GUID
-  {
-    // Convert a GUID to text
-    const char * GUID2Text(const ::GUID &guid);
-
-    // Convert text to a GUID
-    const ::GUID & Text2GUID(const char *text);
-  }
-
+        // Convert text to a GUID
+        const ::GUID& Text2GUID(const char* text);
+    }
 }
 
 #endif

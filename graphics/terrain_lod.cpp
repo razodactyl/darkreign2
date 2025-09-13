@@ -170,12 +170,12 @@ namespace Terrain
   }
   //----------------------------------------------------------------------------
 
-  // draw a single cluster
+// draw a single cluster
   //
   void RenderClusterLOD( Cluster &clus, S32 x, S32 z, U32 cellOffset, U32 clipFlags) // = clipALL
   {
     // FIXME: check clipflags and backcull
-    //
+//
     // build list of vertex positions, normals, and colors
     S32 x0, xend = x + meterPerClus;
     S32 z0, zend = z + meterPerClus;
@@ -270,7 +270,7 @@ namespace Terrain
   //----------------------------------------------------------------------------
 
 
-  // draw a single cluster
+// draw a single cluster
   //
   void RenderClusterLODQuick( Cluster &clus, S32 x, S32 z, U32 cellOffset, U32 clipFlags) // = clipALL
   {

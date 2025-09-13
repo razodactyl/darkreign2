@@ -36,98 +36,98 @@ class Team;
 //
 class ExplosionObjType : public MapObjType
 {
-  PROMOTE_LINK(ExplosionObjType, MapObjType, 0x601EBAAA); // "ExplosionObjType"
+PROMOTE_LINK(ExplosionObjType, MapObjType, 0x601EBAAA); // "ExplosionObjType"
 
 public:
 
-  // Damage information for this weapon
-  Damage::Type damage;
+    // Damage information for this weapon
+    Damage::Type damage;
 
-  // Time for unit to blindly target any unit
-  F32 blindTargetTime;
+    // Time for unit to blindly target any unit
+    F32 blindTargetTime;
 
-  // Area effect
+    // Area effect
 
-  // Area where 100 % damage is done
-  F32 areaInner;                        
+    // Area where 100 % damage is done
+    F32 areaInner;
 
-  // Area where 100 % damage is done squared
-  F32 areaInner2;               
-  
-  // Area where 0 % damage is done
-  F32 areaOuter;                        
+    // Area where 100 % damage is done squared
+    F32 areaInner2;
 
-  // Area where partial damage is done squared inverted
-  F32 areaDiff2Inv;                     
+    // Area where 0 % damage is done
+    F32 areaOuter;
 
-  // How long does the explosion persist for
-  F32 persist;
+    // Area where partial damage is done squared inverted
+    F32 areaDiff2Inv;
 
-  // Action scope to execute when detonated
-  FScope *action;
+    // How long does the explosion persist for
+    F32 persist;
+
+    // Action scope to execute when detonated
+    FScope* action;
 
 public:
 
-  // Constructor and Destructor
-  ExplosionObjType(const char *typeName, FScope *fScope);
-  ~ExplosionObjType();
+    // Constructor and Destructor
+    ExplosionObjType(const char* typeName, FScope* fScope);
+    ~ExplosionObjType();
 
-  // PostLoad
-  void PostLoad();
+    // PostLoad
+    void PostLoad();
 
-  // Initialized type specific resources
-  Bool InitializeResources();
+    // Initialized type specific resources
+    Bool InitializeResources();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 
-  // Detonate
-  void Detonate(const Vector &location, UnitObj *sourceUnit, Team *sourceTeam);
+    // Detonate
+    void Detonate(const Vector& location, UnitObj* sourceUnit, Team* sourceTeam);
 
-  // Get the threat of this explosion to the given armour class
-  U32 GetThreat(U32 armourClass);
+    // Get the threat of this explosion to the given armour class
+    U32 GetThreat(U32 armourClass);
 
 private:
 
-  // Apply
-  void Apply(const Vector &location, UnitObj *unit, Team *team);
+    // Apply
+    void Apply(const Vector& location, UnitObj* unit, Team* team);
 
 public:
 
-  // Are instances of this type on the primitive list by default
-  Bool DefaultPrimitiveProcessing()
-  {
-    return (TRUE);
-  }
+    // Are instances of this type on the primitive list by default
+    Bool DefaultPrimitiveProcessing()
+    {
+        return (TRUE);
+    }
 
-  // Range squared of minimum area efect
-  F32 GetAreaInner2()
-  {
-    return (areaInner2);
-  }
+    // Range squared of minimum area efect
+    F32 GetAreaInner2()
+    {
+        return (areaInner2);
+    }
 
-  // Range which objects are going to be damaged in
-  F32 GetAreaOuter()
-  {
-    return (areaOuter);
-  }
+    // Range which objects are going to be damaged in
+    F32 GetAreaOuter()
+    {
+        return (areaOuter);
+    }
 
-  // Range of difference between min squared and max squared inverted
-  F32 GetAreaDiff2Inv()
-  {
-    return (areaDiff2Inv);
-  }
+    // Range of difference between min squared and max squared inverted
+    F32 GetAreaDiff2Inv()
+    {
+        return (areaDiff2Inv);
+    }
 
-  // Get the damage
-  const Damage::Type & GetDamage()
-  {
-    return (damage);
-  }
+    // Get the damage
+    const Damage::Type& GetDamage()
+    {
+        return (damage);
+    }
 
-  //
-  // Friends of ExplosionObjType
-  //
-  friend class ExplosionObj;
+    //
+    // Friends of ExplosionObjType
+    //
+    friend class ExplosionObj;
 };
 
 
@@ -139,61 +139,60 @@ class ExplosionObj : public MapObj
 {
 protected:
 
-  // Damage
-  Damage::Object damage;
-  
-  // Unit which started this explosion
-  UnitObjPtr sourceUnit;
+    // Damage
+    Damage::Object damage;
 
-  // Team which started this explosion (only used if unit is invalid)
-  Team *sourceTeam;
+    // Unit which started this explosion
+    UnitObjPtr sourceUnit;
 
-public:
-
-  // Constructor and destructor
-  ExplosionObj(ExplosionObjType *objType, U32 id);
-  ~ExplosionObj();
-
-  // Called to before deleting the object
-  void PreDelete();
-
-  // Load and save state configuration
-  void LoadState(FScope *fScope);
-  virtual void SaveState(FScope *fScope, MeshEnt * theMesh = NULL);
-
-  // Called after all objects are loaded
-  void PostLoad();
-
-  // AddToMapHook
-  void AddToMapHook();
-
-  // Per-cycle processing
-  void ProcessCycle();
-
-  // Render debug
-  void RenderDebug();
+    // Team which started this explosion (only used if unit is invalid)
+    Team* sourceTeam;
 
 public:
 
-  // Get pointer to type
-  ExplosionObjType* ExplosionType()
-  {
-    // This is a safe cast
-    return ((ExplosionObjType *)type);
-  }
+    // Constructor and destructor
+    ExplosionObj(ExplosionObjType* objType, U32 id);
+    ~ExplosionObj();
+
+    // Called to before deleting the object
+    void PreDelete();
+
+    // Load and save state configuration
+    void LoadState(FScope* fScope);
+    virtual void SaveState(FScope* fScope, MeshEnt* theMesh = NULL);
+
+    // Called after all objects are loaded
+    void PostLoad();
+
+    // AddToMapHook
+    void AddToMapHook();
+
+    // Per-cycle processing
+    void ProcessCycle();
+
+    // Render debug
+    void RenderDebug();
 
 public:
 
-  // FX Callbacks
-  static Bool ExplosionCallBack(MapObj *mapObj, FX::CallBackData &cbd, void *context);
+    // Get pointer to type
+    ExplosionObjType* ExplosionType()
+    {
+        // This is a safe cast
+        return ((ExplosionObjType*)type);
+    }
 
 public:
 
-  //
-  // Friends of ExplosionObj
-  //
-  friend class ExplosionObjType;
+    // FX Callbacks
+    static Bool ExplosionCallBack(MapObj* mapObj, FX::CallBackData& cbd, void* context);
 
+public:
+
+    //
+    // Friends of ExplosionObj
+    //
+    friend class ExplosionObjType;
 };
 
 #endif

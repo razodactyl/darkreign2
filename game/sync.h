@@ -51,7 +51,7 @@ using std::ios;
 #ifdef SYNC_BRUTAL_ACTIVE
   #define SYNC_BRUTAL(x) SYNC(x)
 #else
-  #define SYNC_BRUTAL(x)
+#define SYNC_BRUTAL(x)
 #endif
 
 
@@ -61,65 +61,65 @@ using std::ios;
 //
 namespace Sync
 {
+    // Stream which syncs are contructed on
+    extern ostrstream stream;
 
-  // Stream which syncs are contructed on
-  extern ostrstream stream; 
+    // Init: Initialize Sync String system
+    void Init();
 
-  // Init: Initialize Sync String system
-  void Init();
+    // Done: Shutdown Sync String system
+    void Done();
 
-  // Done: Shutdown Sync String system
-  void Done();
+    // Reset: Reset Sync String system
+    void Reset();
 
-  // Reset: Reset Sync String system
-  void Reset();
+    // Set: Set the file and line
+    void Set(const char* file, U32 line);
 
-  // Set: Set the file and line
-  void Set(const char *file, U32 line);
+    // End: End of a sync string line
+    void SyncEnd();
 
-  // End: End of a sync string line
-  void SyncEnd();
+    // End: End of a non sync string line
+    void NonSyncEnd();
 
-  // End: End of a non sync string line
-  void NonSyncEnd();
+    // Save: Save the current CRC
+    void Save();
 
-  // Save: Save the current CRC
-  void Save();
+    // GetSavedCrc: Return the saved CRC
+    U32 GetSavedCrc();
 
-  // GetSavedCrc: Return the saved CRC
-  U32 GetSavedCrc();
+    // GetSavedCycle: Return the saved CYCLE
+    U32 GetSavedCycle();
 
-  // GetSavedCycle: Return the saved CYCLE
-  U32 GetSavedCycle();
+    // IndexFirst: Return the index of the first Crc
+    U32 IndexFirst();
 
-  // IndexFirst: Return the index of the first Crc
-  U32 IndexFirst();
+    // IndexNext: Return the index of the next Crc
+    U32 IndexNext();
 
-  // IndexNext: Return the index of the next Crc
-  U32 IndexNext();
+    // Caller: Report the calling function
+    void Caller();
 
-  // Caller: Report the calling function
-  void Caller();
+    // DumpCallStack
+    void DumpCallStack(const char* _file, U32 _line);
 
-  // DumpCallStack
-  void DumpCallStack(const char *_file, U32 _line);
+    // Test: Compare the given CRC with an older CRC
+    Bool Test(U32 cycle, U32 crc, const GameIdent& name);
 
-  // Test: Compare the given CRC with an older CRC
-  Bool Test(U32 cycle, U32 crc, const GameIdent &name);
+    // SyncObjects: Sync current object states
+    void SyncObjects(Bool units);
 
-  // SyncObjects: Sync current object states
-  void SyncObjects(Bool units);
+    // Dump: Dumps all of the previous syncs to the LOG file
+    void Dump();
 
-  // Dump: Dumps all of the previous syncs to the LOG file
-  void Dump();
-
-  // DumpType
-  template <class TYPE> const char * DumpType(const TYPE &type)
-  {
-    static char buf[sizeof(TYPE) * 2 + 1];
-    Utils::CharEncode(buf, (U8*)(&type), sizeof(TYPE), sizeof(TYPE) * 2 + 1);
-    return (buf);
-  }
+    // DumpType
+    template <class TYPE>
+    const char* DumpType(const TYPE& type)
+    {
+        static char buf[sizeof(TYPE) * 2 + 1];
+        Utils::CharEncode(buf, (U8*)(&type), sizeof(TYPE), sizeof(TYPE) * 2 + 1);
+        return (buf);
+    }
 };
 
 #endif

@@ -27,16 +27,16 @@ class GroundSpriteRenderClass : public SpriteRenderClass
 {
 public:
 
-  U32 water : 1;      // use GroundSpriteWithWater
+    U32 water : 1;      // use GroundSpriteWithWater
 
-	// sprite renderer class constructor
-	GroundSpriteRenderClass();
+    // sprite renderer class constructor
+    GroundSpriteRenderClass();
 
-  // Configure the class
-  virtual Bool Configure( FScope * fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-	// build a new sprite renderer
-	virtual ParticleRender * Build( Particle * particle, void * data = NULL);
+    // build a new sprite renderer
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,8 +46,8 @@ public:
 class AirGroundSpriteRenderClass : public GroundSpriteRenderClass
 {
 public:
-	// build a new sprite renderer 
-	virtual ParticleRender * Build( Particle * particle, void * data = NULL);
+    // build a new sprite renderer 
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,11 +57,11 @@ public:
 class GroundSpriteRender : public SpriteRender
 {
 public:
-	// sprite renderer constructor
-	GroundSpriteRender( GroundSpriteRenderClass * proto, Particle * particle, void * data = NULL);
+    // sprite renderer constructor
+    GroundSpriteRender(GroundSpriteRenderClass* proto, Particle* particle, void* data = NULL);
 
-	// apply sprite renderer
-	virtual void Render();
+    // apply sprite renderer
+    virtual void Render();
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -71,11 +71,11 @@ public:
 class AirGroundSpriteRender : public GroundSpriteRender
 {
 public:
-	// sprite renderer constructor
-	AirGroundSpriteRender( AirGroundSpriteRenderClass * proto, Particle * particle, void * data = NULL);
+    // sprite renderer constructor
+    AirGroundSpriteRender(AirGroundSpriteRenderClass* proto, Particle* particle, void* data = NULL);
 
-	// apply sprite renderer
-	virtual void Render();
+    // apply sprite renderer
+    virtual void Render();
 };
 
 #endif

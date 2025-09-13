@@ -36,45 +36,45 @@ typedef Reaper<ParasiteObj> ParasiteObjPtr;
 //
 class ParasiteObjType : public UnitObjType
 {
-  PROMOTE_LINK(ParasiteObjType, UnitObjType, 0x46588AF7); // "ParasiteObjType"
+PROMOTE_LINK(ParasiteObjType, UnitObjType, 0x46588AF7); // "ParasiteObjType"
 
 protected:
 
-  // Generic timer values
-  F32 time1, time2;
+    // Generic timer values
+    F32 time1, time2;
 
-  // Should radio events be triggered
-  Bool useRadio;
+    // Should radio events be triggered
+    Bool useRadio;
 
 public:
 
-  // Constructor and destructor
-  ParasiteObjType(const char *typeName, FScope *fScope);
-  ~ParasiteObjType();
+    // Constructor and destructor
+    ParasiteObjType(const char* typeName, FScope* fScope);
+    ~ParasiteObjType();
 
-  // Called after all types are loaded
-  void PostLoad();
+    // Called after all types are loaded
+    void PostLoad();
 
-  // Create a new instance using this type
-  GameObj* NewInstance(U32 id);
+    // Create a new instance using this type
+    GameObj* NewInstance(U32 id);
 
-  // Infect the given object with this parasite (FALSE if already infected)
-  Bool Infect(UnitObj *target, Team *team);
+    // Infect the given object with this parasite (FALSE if already infected)
+    Bool Infect(UnitObj* target, Team* team);
 
-  F32 GetTime1()
-  {
-    return (time1);
-  }
+    F32 GetTime1()
+    {
+        return (time1);
+    }
 
-  F32 GetTime2()
-  {
-    return (time2);
-  }
+    F32 GetTime2()
+    {
+        return (time2);
+    }
 
-  Bool GetUseRadio()
-  {
-    return (useRadio);
-  }
+    Bool GetUseRadio()
+    {
+        return (useRadio);
+    }
 };
 
 
@@ -85,40 +85,40 @@ public:
 
 class ParasiteObj : public UnitObj
 {
-  // The target unit
-  UnitObjPtr target;
+    // The target unit
+    UnitObjPtr target;
 
 public:
-  
-  // Constructor and destructor
-  ParasiteObj(ParasiteObjType *objType, U32 id);
-  ~ParasiteObj();
 
-  // Called to before deleting the object
-  void PreDelete();
+    // Constructor and destructor
+    ParasiteObj(ParasiteObjType* objType, U32 id);
+    ~ParasiteObj();
 
-  // Load and save state configuration
-  void LoadState(FScope *fScope);
-  virtual void SaveState(FScope *fScope, MeshEnt * theMesh = NULL);
+    // Called to before deleting the object
+    void PreDelete();
 
-  // Called after all objects are loaded
-  void PostLoad();
+    // Load and save state configuration
+    void LoadState(FScope* fScope);
+    virtual void SaveState(FScope* fScope, MeshEnt* theMesh = NULL);
 
-  // Sets the target
-  void SetTarget(UnitObj *t);
+    // Called after all objects are loaded
+    void PostLoad();
 
-  // Returns the target, or NULL if not alive
-  UnitObj * GetTarget()
-  {
-    return (target.GetPointer());
-  }
+    // Sets the target
+    void SetTarget(UnitObj* t);
 
-  // Get pointer to type
-  ParasiteObjType * ParasiteType()
-  {
-    // This is a safe cast
-    return ((ParasiteObjType *)type);
-  }
+    // Returns the target, or NULL if not alive
+    UnitObj* GetTarget()
+    {
+        return (target.GetPointer());
+    }
+
+    // Get pointer to type
+    ParasiteObjType* ParasiteType()
+    {
+        // This is a safe cast
+        return ((ParasiteObjType*)type);
+    }
 };
 
 #endif

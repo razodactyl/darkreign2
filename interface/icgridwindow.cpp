@@ -25,16 +25,16 @@
 //
 // Constructor
 //
-ICGridWindow::ICGridWindow(const char *name, U32 sx, U32 sy, U32 cx, U32 cy) 
-: ICWindow(IFace::RootWindow())
+ICGridWindow::ICGridWindow(const char* name, U32 sx, U32 sy, U32 cx, U32 cy)
+    : ICWindow(IFace::RootWindow())
 {
-  // Create the grid
-  grid = new ICGrid("Grid", sx, sy, cx, cy, this);
+    // Create the grid
+    grid = new ICGrid("Grid", sx, sy, cx, cy, this);
 
-  // Setup the window
-  SetName(name);
-  SetSize(grid->GetSize().x, grid->GetSize().y + IFace::GetMetric(IFace::THIN_TITLE_HEIGHT));
-  SetStyle("ThinTitleBar", NULL);
+    // Setup the window
+    SetName(name);
+    SetSize(grid->GetSize().x, grid->GetSize().y + IFace::GetMetric(IFace::THIN_TITLE_HEIGHT));
+    SetStyle("ThinTitleBar", NULL);
 }
 
 
@@ -43,15 +43,15 @@ ICGridWindow::ICGridWindow(const char *name, U32 sx, U32 sy, U32 cx, U32 cy)
 //
 Bool ICGridWindow::Deactivate()
 {
-  if (ICWindow::Deactivate())
-  {
-    // Mark for deletion
-    MarkForDeletion();
+    if (ICWindow::Deactivate())
+    {
+        // Mark for deletion
+        MarkForDeletion();
 
-    return (TRUE);
-  }
-  else
-  {
-    return (FALSE);
-  }
+        return (TRUE);
+    }
+    else
+    {
+        return (FALSE);
+    }
 }

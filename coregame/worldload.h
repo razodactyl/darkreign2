@@ -25,12 +25,11 @@
 
 namespace WorldLoad
 {
+    // Save all objects, false if unable to create file
+    Bool SaveObjectFile(const char* name);
 
-  // Save all objects, false if unable to create file
-  Bool SaveObjectFile(const char *name);
-
-  // Load a object definition file into current state, false if not found
-  Bool LoadObjectFile(const char *name);
+    // Load a object definition file into current state, false if not found
+    Bool LoadObjectFile(const char* name);
 };
 
 #endif

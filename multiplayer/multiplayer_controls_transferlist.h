@@ -26,64 +26,59 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // NameSpace TransferListMsg
+    // NameSpace Controls
     //
-    namespace TransferListMsg
+    namespace Controls
     {
-      const U32 Halt = 0x98984398; // "MultiPlayer::TransferList::Message::Halt"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // NameSpace TransferListMsg
+        //
+        namespace TransferListMsg
+        {
+            const U32 Halt = 0x98984398; // "MultiPlayer::TransferList::Message::Halt"
+        }
+
+
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class TransferList
+        //
+        class TransferList : public ICListBox
+        {
+        PROMOTE_LINK(TransferList, ICListBox, 0x12C92F36) // "TransferList"
+
+        private:
+
+            class Item;
+            friend Item;
+
+            // Offsets
+            Point<S32> offsetFile;
+            Point<S32> offsetPlayer;
+            Point<S32> offsetTransferred;
+            Point<S32> offsetRate;
+            Point<S32> offsetETA;
+            Point<S32> offsetProgress;
+            S32 heightProgress;
+
+        public:
+
+            // Constructor
+            TransferList(IControl* parent);
+
+            // Setup
+            void Setup(FScope* fScope);
+
+            // HandleEvent
+            U32 HandleEvent(Event& e);
+
+            // Add Transfer
+            IControl* AddTransfer(Transfer::Offer* offer);
+        };
     }
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class TransferList
-    //
-    class TransferList : public ICListBox
-    {
-      PROMOTE_LINK(TransferList, ICListBox, 0x12C92F36) // "TransferList"
-
-    private:
-
-      class Item;
-      friend Item;
-
-      // Offsets
-      Point<S32> offsetFile;
-      Point<S32> offsetPlayer;
-      Point<S32> offsetTransferred;
-      Point<S32> offsetRate;
-      Point<S32> offsetETA;
-      Point<S32> offsetProgress;
-      S32 heightProgress;
-
-    public:
-
-      // Constructor
-      TransferList(IControl *parent);
-
-      // Setup
-      void Setup(FScope *fScope);
-
-      // HandleEvent
-      U32 HandleEvent(Event &e);
-
-      // Add Transfer
-      IControl * AddTransfer(Transfer::Offer *offer);
-
-    };
-
-  }
-
 }
 
 

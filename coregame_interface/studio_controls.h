@@ -18,18 +18,16 @@
 //
 namespace Studio
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Controls
-  //
-  namespace Controls
-  {
-    // Initialization and shutdown
-    void Init();
-    void Done();
-  }
-
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace Controls
+    //
+    namespace Controls
+    {
+        // Initialization and shutdown
+        void Init();
+        void Done();
+    }
 }
 
 #endif

@@ -25,41 +25,38 @@
 //
 namespace Tasks
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class MapIdle
+    //
+    class MapIdle : public GameTask<MapObjType, MapObj>
+    {
+        TASK_CLASS(MapIdle)
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class MapIdle
-  //
-  class MapIdle : public GameTask<MapObjType, MapObj>
-  {
-    TASK_CLASS(MapIdle)
+    public:
 
-  public:
+        // Constructor
+        MapIdle(GameObj* subject);
 
-    // Constructor
-    MapIdle(GameObj *subject);
+        // Task processing (returns TRUE if task completed)
+        Bool Process();
 
-    // Task processing (returns TRUE if task completed)
-    Bool Process();
+        // Load and save state configuration
+        void Load(FScope* fScope);
+        void Save(FScope* fScope);
 
-    // Load and save state configuration
-    void Load(FScope *fScope);
-    void Save(FScope *fScope);
+        // Called after all objects are loaded
+        void PostLoad();
 
-    // Called after all objects are loaded
-    void PostLoad();
+        // Process an event
+        Bool ProcessEvent(const Event& event);
 
-    // Process an event
-    Bool ProcessEvent(const Event &event);
+    private:
 
-  private:
-
-    // State machine procedures
-    void StateInit();
-    void StateIdle();
-
-  };
-
+        // State machine procedures
+        void StateInit();
+        void StateIdle();
+    };
 }
 
 #endif

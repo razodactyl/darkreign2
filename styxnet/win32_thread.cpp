@@ -20,7 +20,6 @@
 //
 namespace Win32
 {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
     // Class Thread
@@ -33,8 +32,8 @@ namespace Win32
     // Default constructor
     //
     Thread::Thread()
-        : threadHandle(NULL),
-        threadID(0)
+        : threadID(0),
+          threadHandle(nullptr)
     {
     }
 
@@ -42,7 +41,7 @@ namespace Win32
     //
     // Thread
     //
-    Thread::Thread(U32(STDCALL* func)(void*), void* arg)
+    Thread::Thread(U32 (STDCALL* func)(void*), void* arg)
     {
         Start(func, arg);
     }
@@ -60,9 +59,9 @@ namespace Win32
     //
     // Start
     // 
-    void Thread::Start(U32(STDCALL* func)(void*), void* arg)
+    void Thread::Start(U32 (STDCALL* func)(void*), void* arg)
     {
-        threadHandle = CreateThread(NULL, 0, func, arg, 0, &threadID);
+        threadHandle = CreateThread(nullptr, 0, func, arg, 0, &threadID);
     }
 
 
@@ -75,7 +74,7 @@ namespace Win32
         {
             // Wait for the thread to end
             WaitForSingleObject(threadHandle, INFINITE);
-            threadHandle = NULL;
+            threadHandle = nullptr;
         }
     }
 
@@ -85,9 +84,8 @@ namespace Win32
     //
     void Thread::Clear()
     {
-        threadHandle = NULL;
+        threadHandle = nullptr;
     }
-
 
 
     //
@@ -107,7 +105,7 @@ namespace Win32
     // Retrieve the priority of the thread
     Thread::Priority Thread::GetPriority()
     {
-        return ((Thread::Priority) GetThreadPriority(threadHandle));
+        return static_cast<Priority>(GetThreadPriority(threadHandle));
     }
 
 

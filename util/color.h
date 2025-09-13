@@ -30,6 +30,7 @@ struct Color
         {
             U32 color;
         };
+
         struct
         {
             U8 b;
@@ -45,29 +46,36 @@ struct Color
     // must have an empty default constructor!
     // very performance sensitive!!!
     //
-    inline Color() {}
+    Color()
+    {
+    }
 
-    inline Color(U32 cIn)
+    Color(U32 cIn)
     {
         color = cIn;
     }
-    inline Color(U32 rIn, U32 gIn, U32 bIn, U32 aIn = 255)
+
+    Color(U32 rIn, U32 gIn, U32 bIn, U32 aIn = 255)
     {
         SetInline(rIn, gIn, bIn, aIn);
     }
-    inline Color(S32 rIn, S32 gIn, S32 bIn, S32 aIn = 255)
+
+    Color(S32 rIn, S32 gIn, S32 bIn, S32 aIn = 255)
     {
         SetInline(rIn, gIn, bIn, aIn);
     }
-    inline Color(F32 rIn, F32 gIn, F32 bIn, U32 aIn = 255)
+
+    Color(F32 rIn, F32 gIn, F32 bIn, U32 aIn = 255)
     {
         SetInline(rIn, gIn, bIn, aIn);
     }
-    inline Color(F32 rIn, F32 gIn, F32 bIn, F32 aIn)
+
+    Color(F32 rIn, F32 gIn, F32 bIn, F32 aIn)
     {
         SetInline(rIn, gIn, bIn, aIn);
     }
-    inline Color(const Color& c, F32 aIn)
+
+    Color(const Color& c, F32 aIn)
     {
         SetInline(c.r, c.g, c.b, Utils::FtoL(aIn * 255.0f));
     }
@@ -75,22 +83,22 @@ struct Color
     //
     // Access the R,G and B components
     //
-    inline U8 R() const
+    U8 R() const
     {
         return (r);
     }
 
-    inline U8 G() const
+    U8 G() const
     {
         return (g);
     }
 
-    inline U8 B() const
+    U8 B() const
     {
         return (b);
     }
 
-    inline U8 A() const
+    U8 A() const
     {
         return (a);
     }
@@ -98,7 +106,7 @@ struct Color
     //
     // Access packed U32 value
     // 
-    inline operator U32() const
+    operator U32() const
     {
         return (color);
     }
@@ -106,23 +114,24 @@ struct Color
     //
     // Set the R,G and B components
     //
-    inline void SetInline(S32 rIn, S32 gIn, S32 bIn, S32 aIn = 255)
+    void SetInline(S32 rIn, S32 gIn, S32 bIn, S32 aIn = 255)
     {
-        SetInline((U32)rIn, (U32)gIn, (U32)bIn, (U32)aIn);
+        SetInline(static_cast<U32>(rIn), static_cast<U32>(gIn), static_cast<U32>(bIn), static_cast<U32>(aIn));
     }
 
-    inline void SetInline(U32 rIn, U32 gIn, U32 bIn, U32 aIn = 255)
+    void SetInline(U32 rIn, U32 gIn, U32 bIn, U32 aIn = 255)
     {
         color = ((aIn << 24) | (rIn << 16) | (gIn << 8) | (bIn));
     }
 
-    inline void SetInline(F32 rIn, F32 gIn, F32 bIn, U32 aIn)
+    void SetInline(F32 rIn, F32 gIn, F32 bIn, U32 aIn)
     {
         Float2Int fr(rIn * 255.0f + Float2Int::magic);
         Float2Int fg(gIn * 255.0f + Float2Int::magic);
         Float2Int fb(bIn * 255.0f + Float2Int::magic);
 
-        SetInline(
+        SetInline
+        (
             Min<U32>(255, fr.i),
             Min<U32>(255, fg.i),
             Min<U32>(255, fb.i),
@@ -130,20 +139,21 @@ struct Color
         );
     }
 
-    inline void SetInline(F32 rIn, F32 gIn, F32 bIn, F32 aIn)
+    void SetInline(F32 rIn, F32 gIn, F32 bIn, F32 aIn)
     {
         Float2Int fa(aIn * 255.0f + Float2Int::magic);
-        SetInline(rIn, gIn, bIn, (U32)fa.i);
+        SetInline(rIn, gIn, bIn, static_cast<U32>(fa.i));
     }
 
-    inline void SetNoExpandInline(F32 rIn, F32 gIn, F32 bIn, F32 aIn)
+    void SetNoExpandInline(F32 rIn, F32 gIn, F32 bIn, F32 aIn)
     {
         Float2Int fr(rIn + Float2Int::magic);
         Float2Int fg(gIn + Float2Int::magic);
         Float2Int fb(bIn + Float2Int::magic);
         Float2Int fa(aIn + Float2Int::magic);
 
-        SetInline(
+        SetInline
+        (
             Min<U32>(255, fr.i),
             Min<U32>(255, fg.i),
             Min<U32>(255, fb.i),
@@ -151,13 +161,14 @@ struct Color
         );
     }
 
-    inline void SetNoExpandInline(F32 rIn, F32 gIn, F32 bIn, U32 aIn) // = 255
+    void SetNoExpandInline(F32 rIn, F32 gIn, F32 bIn, U32 aIn) // = 255
     {
         Float2Int fr(rIn + Float2Int::magic);
         Float2Int fg(gIn + Float2Int::magic);
         Float2Int fb(bIn + Float2Int::magic);
 
-        SetInline(
+        SetInline
+        (
             Min<U32>(255, fr.i),
             Min<U32>(255, fg.i),
             Min<U32>(255, fb.i),
@@ -170,11 +181,11 @@ struct Color
     //
     // Does not modify alpha
     //
-    inline void LightenInline(U32 adj)
+    void LightenInline(U32 adj)
     {
-        r = (U8)(255 - ((255 - r) * adj >> 8));
-        g = (U8)(255 - ((255 - g) * adj >> 8));
-        b = (U8)(255 - ((255 - b) * adj >> 8));
+        r = static_cast<U8>(255 - ((255 - r) * adj >> 8));
+        g = static_cast<U8>(255 - ((255 - g) * adj >> 8));
+        b = static_cast<U8>(255 - ((255 - b) * adj >> 8));
     }
 
 
@@ -183,11 +194,11 @@ struct Color
     //
     // Does not modify alpha
     //
-    inline void DarkenInline(U32 adj)
+    void DarkenInline(U32 adj)
     {
-        r = (U8)((r * adj) >> 8);
-        g = (U8)((g * adj) >> 8);
-        b = (U8)((b * adj) >> 8);
+        r = static_cast<U8>((r * adj) >> 8);
+        g = static_cast<U8>((g * adj) >> 8);
+        b = static_cast<U8>((b * adj) >> 8);
     }
 
     //
@@ -195,14 +206,15 @@ struct Color
     //
     // modulates existing color with F32 r, g, b, a
     //
-    inline void ModulateInline(F32 rIn, F32 gIn, F32 bIn, F32 aIn = 1.0f)
+    void ModulateInline(F32 rIn, F32 gIn, F32 bIn, F32 aIn = 1.0f)
     {
         Float2Int fr(r * rIn + Float2Int::magic);
         Float2Int fg(g * gIn + Float2Int::magic);
         Float2Int fb(b * bIn + Float2Int::magic);
         Float2Int fa(a * aIn + Float2Int::magic);
 
-        SetInline(
+        SetInline
+        (
             Min<U32>(255, fr.i),
             Min<U32>(255, fg.i),
             Min<U32>(255, fb.i),
@@ -215,14 +227,15 @@ struct Color
     //
     // modulates passed color with F32 r, g, b, a and sets 'this'
     //
-    inline void ModulateInline(Color color, F32 rIn, F32 gIn, F32 bIn, F32 aIn = 1.0f)
+    void ModulateInline(Color color, F32 rIn, F32 gIn, F32 bIn, F32 aIn = 1.0f)
     {
         Float2Int fr(color.r * rIn + Float2Int::magic);
         Float2Int fg(color.g * gIn + Float2Int::magic);
         Float2Int fb(color.b * bIn + Float2Int::magic);
         Float2Int fa(color.a * aIn + Float2Int::magic);
 
-        SetInline(
+        SetInline
+        (
             Min<U32>(255, fr.i),
             Min<U32>(255, fg.i),
             Min<U32>(255, fb.i),
@@ -233,7 +246,7 @@ struct Color
     //
     // Interpolate
     //
-    inline void InterpolateInline(Color c1, Color c2, F32 t)
+    void InterpolateInline(Color c1, Color c2, F32 t)
     {
         // get components as F32's
         Float2Int fr(F32(c1.r));
@@ -247,7 +260,8 @@ struct Color
         fb.f = (fb.f + t * (F32(c2.b) - fb.f)) + Float2Int::magic;
         fa.f = (fa.f + t * (F32(c2.a) - fa.f)) + Float2Int::magic;
 
-        SetInline(
+        SetInline
+        (
             Min<U32>(255, fr.i),
             Min<U32>(255, fg.i),
             Min<U32>(255, fb.i),
@@ -294,15 +308,13 @@ struct Color
     static Color Std[16];
 
     // Write a color to a stream
-    inline friend ostream& operator<<(ostream& o, const Color& c)
+    friend ostream& operator<<(ostream& o, const Color& c)
     {
         return (o << '#' << std::hex <<
-            std::setw(2) << std::setfill('0') << int(c.r) <<
-            std::setw(2) << std::setfill('0') << int(c.g) <<
-            std::setw(2) << std::setfill('0') << int(c.b));
+            std::setw(2) << std::setfill('0') << static_cast<int>(c.r) <<
+            std::setw(2) << std::setfill('0') << static_cast<int>(c.g) <<
+            std::setw(2) << std::setfill('0') << static_cast<int>(c.b));
     }
-
-
 };
 
 #pragma pack(pop)
@@ -312,11 +324,15 @@ struct Color
 //
 // template Color
 //
-template <class TYPE> struct ColorT
+template <class TYPE>
+struct ColorT
 {
     TYPE r, g, b, a;
 
-    ColorT<TYPE>() {}
+    ColorT<TYPE>()
+    {
+    }
+
     ColorT<TYPE>(TYPE _r, TYPE _g, TYPE _b, TYPE _a)
     {
         Set(_r, _g, _b, _a);
@@ -333,11 +349,15 @@ template <class TYPE> struct ColorT
 
 struct ColorF32 : public ColorT<F32>
 {
-    ColorF32() {}
+    ColorF32()
+    {
+    }
+
     ColorF32(F32 _r, F32 _g, F32 _b, F32 _a = 1)
     {
         Set(_r, _g, _b, _a);
     }
+
     ColorF32(Color color)
     {
         Set(color);
@@ -347,10 +367,12 @@ struct ColorF32 : public ColorT<F32>
     {
         Set(color);
     }
+
     void Set(F32 _r, F32 _g, F32 _b, F32 _a = 1)
     {
         ColorT<F32>::Set(_r, _g, _b, _a);
     }
+
     void Set(Color color)
     {
         r = F32(color.r) * U8toNormF32;

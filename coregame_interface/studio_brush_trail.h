@@ -25,67 +25,67 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Trail - Trail editing brush
+    // Namespace Brush - Contains all available brushes
     //
-    class Trail : public Base
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Trail - Trail editing brush
+        //
+        class Trail : public Base
+        {
+        protected:
 
-      // Vars
-      IFaceVar *varSelected;
-      IFaceVar *varEdit;
-      IFaceVar *varMode;
+            // Vars
+            IFaceVar* varSelected;
+            IFaceVar* varEdit;
+            IFaceVar* varMode;
 
-      // The trails list box
-      ICListBoxPtr listBox;
+            // The trails list box
+            ICListBoxPtr listBox;
 
-      // Does the trail data need to be updated
-      Bool updateRequired;
+            // Does the trail data need to be updated
+            Bool updateRequired;
 
-      // The currently selected trail
-      TrailObjPtr selectedTrail;
+            // The currently selected trail
+            TrailObjPtr selectedTrail;
 
-      // The currently selected mode
-      TrailObj::Mode mode;
+            // The currently selected mode
+            TrailObj::Mode mode;
 
-      // The name of the last team used to generate list
-      GameIdent teamName;
+            // The name of the last team used to generate list
+            GameIdent teamName;
 
-      // The points currently being edited
-      TrailObj::WayPointList list;
+            // The points currently being edited
+            TrailObj::WayPointList list;
 
-    protected:
+        protected:
 
-      // Build the trail instance list
-      void GenerateList();
+            // Build the trail instance list
+            void GenerateList();
 
-      // Clear current points
-      void ClearPoints();
+            // Clear current points
+            void ClearPoints();
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Trail(const char *name);
-      ~Trail();
+            // Constructor and destructor
+            Trail(const char* name);
+            ~Trail();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

@@ -27,39 +27,38 @@
 #define MRMGP_NORMALSMODE		0x00000080
 #define MRMGP_CREASEANGLE		0x00000100
 
-extern "C"
-{
+extern "C" {
 
-typedef enum _MRMG_METRIC { 
-	HYBRID0,  
-	HYBRID1,
-	HYBRID2,
-	HYBRID3
+typedef enum _MRMG_METRIC
+{
+    HYBRID0,
+    HYBRID1,
+    HYBRID2,
+    HYBRID3
 } MRMG_METRIC;
 
 
-typedef void (* MRMG_PROGRESSCALLBACK) (int pairsRemaining);
+typedef void (* MRMG_PROGRESSCALLBACK)(int pairsRemaining);
 
-typedef enum {PerVertex, PerFacePerVertex,} NormalsMode;
-  
+typedef enum { PerVertex, PerFacePerVertex, } NormalsMode;
+
 typedef struct MRMGENPARAMS_TAG
 {
-	unsigned long	size;				// size of MRMGenParams;
-	unsigned long	flags;				// indicates which fields are valid.
-	float			mergeThresh;		// Vertices within this distance of each other are allowed to merge even if not connected by edges.
-	unsigned long	mergeWithin;		// This allows vertices within the same object to merge, default behavior is to only merge across objects.
-	MRMG_PROGRESSCALLBACK progressCallback;// this will be called after progressFrequency 
-	unsigned long	progressFrequency;	// number of edge removals per call back, first callback occurs at 0.
-	unsigned long	numBaseVertices;	// number entries in the baseVertices array.
-	unsigned long	*baseVertices;		// array of vertex indicies.  Indicates vertices that should be removed last.
-	MRMG_METRIC		metric;				// this metric always starts with first vertex removed
-	MRMG_METRIC		metric2;
-	unsigned long	metric2Start;		// which vertex deletion should trigger switch to metric2.
+    unsigned long size;				// size of MRMGenParams;
+    unsigned long flags;				// indicates which fields are valid.
+    float mergeThresh;		// Vertices within this distance of each other are allowed to merge even if not connected by edges.
+    unsigned long mergeWithin;		// This allows vertices within the same object to merge, default behavior is to only merge across objects.
+    MRMG_PROGRESSCALLBACK progressCallback;// this will be called after progressFrequency 
+    unsigned long progressFrequency;	// number of edge removals per call back, first callback occurs at 0.
+    unsigned long numBaseVertices;	// number entries in the baseVertices array.
+    unsigned long* baseVertices;		// array of vertex indicies.  Indicates vertices that should be removed last.
+    MRMG_METRIC metric;				// this metric always starts with first vertex removed
+    MRMG_METRIC metric2;
+    unsigned long metric2Start;		// which vertex deletion should trigger switch to metric2.
 
-	NormalsMode		normalsMode;		// Indicates how normals should be maintained and updated.
-	float			normalsCreaseAngle; // If PerFacePerVertex normals are used, normalCreaseAngle indicates
-	                                    // a angle (deg) threshold for sharing a vertex normal b/t two faces. 
-
+    NormalsMode normalsMode;		// Indicates how normals should be maintained and updated.
+    float normalsCreaseAngle; // If PerFacePerVertex normals are used, normalCreaseAngle indicates
+    // a angle (deg) threshold for sharing a vertex normal b/t two faces. 
 } MRMGenParams;;
 
 }

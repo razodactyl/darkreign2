@@ -29,7 +29,6 @@
 //
 namespace StyxNet
 {
-
     ////////////////////////////////////////////////////////////////////////////////
     //
     // Class Server
@@ -51,9 +50,9 @@ namespace StyxNet
     {
         AddServer();
 
-        LDIAG("Starting Server ...")
-            LDIAG("Listening on port " << config.port)
-            thread.Start(ThreadProc, this);
+        LDIAG("Starting Server ...");
+        LDIAG("Listening on port " << config.port);
+        thread.Start(ThreadProc, this);
         thread.SetPriority(Win32::Thread::ABOVE_NORMAL);
     }
 
@@ -97,10 +96,10 @@ namespace StyxNet
     //
     void Server::Shutdown()
     {
-        LDIAG("Stopping Server ...")
+        LDIAG("Stopping Server ...");
 
-            // Tell thread to quit
-            eventQuit.Signal();
+        // Tell thread to quit
+        eventQuit.Signal();
     }
 
 
@@ -111,10 +110,10 @@ namespace StyxNet
     {
         mutexSessions.Wait();
 
-        LDIAG("Migration Session " << name.str << " created")
+        LDIAG("Migration Session " << name.str << " created");
 
-            // Create the session
-            Session* session = new Session(*this, NULL, name, 0, maxUsers);
+        // Create the session
+        Session* session = new Session(*this, nullptr, name, 0, maxUsers);
 
         // The session is locked and is migrating
         session->flags |= SessionFlags::Locked | SessionFlags::MigratingTo;
@@ -143,7 +142,7 @@ namespace StyxNet
 
         Server* server = static_cast<Server*>(context);
 
-        // Setup a socket to listen for incomming connections
+        // Setup a socket to listen for incoming connections
         Win32::Socket listenerSocket;
         listenerSocket.Bind(Win32::Socket::Address(ADDR_ANY, server->config.port));
 
@@ -214,11 +213,11 @@ namespace StyxNet
                         if (address.IsLocal())
                         {
                             user->flags |= UserFlags::Local;
-                            LDIAG("New Connection from " << address << " who is local")
+                            LDIAG("New Connection from " << address << " who is local");
                         }
                         else
                         {
-                            LDIAG("New Connectiong from " << address << " who is remote")
+                            LDIAG("New Connection from " << address << " who is remote");
                         }
 
                         server->mutexUsers.Wait();
@@ -290,15 +289,15 @@ namespace StyxNet
 
                     if (networkEvents.GetEvents() & FD_WRITE)
                     {
-                        LDIAG("Able to write to user")
+                        LDIAG("Able to write to user");
                     }
 
                     if (networkEvents.GetEvents() & FD_CLOSE)
                     {
-                        LDIAG("User has closed their connection")
+                        LDIAG("User has closed their connection");
 
-                            // Close the socket on this side immediately
-                            user->socket.Close();
+                        // Close the socket on this side immediately
+                        user->socket.Close();
 
                         // Remove this user from the event list
                         events.RemoveEvent(user->event);
@@ -306,7 +305,7 @@ namespace StyxNet
                         /*
                         if (user->flags & UserFlags::LoggedIn)
                         {
-                          LDIAG("User was logged in, keeping their info incase of reconnect")
+                          LDIAG("User was logged in, keeping their info incase of reconnect");
 
                           // User was logged in, then the disconnection
                           // was temporary, place the user into the pile
@@ -335,14 +334,14 @@ namespace StyxNet
                         else
                         */
                         {
-                            LDIAG("User had logged out, disposing of them")
+                            LDIAG("User had logged out, disposing of them");
 
-                                // User has logged out, dispose of them
-                                server->mutexUsers.Wait();
+                            // User has logged out, dispose of them
+                            server->mutexUsers.Wait();
 
                             // Delete the user
                             server->users.Dispose(user);
-                            user = NULL;
+                            user = nullptr;
 
                             server->mutexUsers.Signal();
                         }
@@ -360,7 +359,7 @@ namespace StyxNet
                 {
                     if (migration->Process())
                     {
-                        migration->session.migration = NULL;
+                        migration->session.migration = nullptr;
                         server->migrations.Dispose(migration);
                     }
                 }
@@ -386,21 +385,19 @@ namespace StyxNet
 
                 server->mutexSessions.Signal();
 
-                /*
-                // Check the disconnected users to see if they've timed out
-                U32 time = Clock::Time::Ms();
-                server->mutexUsers.Wait();
-                NList<User>::Iterator u(&server->disconnected);
-
-                while (User *user = u++)
-                {
-                  if ((time - user->disconnectTime) > maximumDisconnectTime)
-                  {
-                    server->disconnected.Dispose(user);
-                  }
-                }
-                server->mutexUsers.Signal();
-                */
+                // // Check the disconnected users to see if they've timed out
+                // U32 time = Clock::Time::Ms();
+                // server->mutexUsers.Wait();
+                // NList<User>::Iterator u(&server->disconnected);
+                //
+                // while (User* user = u++)
+                // {
+                //     if ((time - user->disconnectTime) > maximumDisconnectTime)
+                //     {
+                //         server->disconnected.Dispose(user);
+                //     }
+                // }
+                // server->mutexUsers.Signal();
             }
         }
 
@@ -418,10 +415,10 @@ namespace StyxNet
         server->sessions.DisposeAll();
         server->mutexSessions.Signal();
 
-        LDIAG("Stopping Server Thread")
+        LDIAG("Stopping Server Thread");
 
-            // Delete the server
-            server->thread.Clear();
+        // Delete the server
+        server->thread.Clear();
         delete server;
 
         return (0x6666);
@@ -431,7 +428,7 @@ namespace StyxNet
     //
     // Server::ProcessPacket
     //
-    // Handle an incomming packet
+    // Handle an incoming packet
     //
     Bool Server::ProcessPacket(User& user, const Packet& packet)
     {
@@ -449,7 +446,7 @@ namespace StyxNet
                     LDIAG("Received UserLogin: " << data->name.str);
 
                     // Does this user have the correct version ?
-                    if (data->version == U16(Version::GetBuildNumber()))
+                    if (data->version == U32(Version::GetBuildNumber()))
                     {
                         user.remoteAddress = data->address;
                         user.name = data->name.str;
@@ -481,7 +478,7 @@ namespace StyxNet
                     }
                     else
                     {
-                        LDIAG("Version mismatch! us:" << U16(Version::GetBuildNumber()) << " them: " << data->version);
+                        LDIAG("Version mismatch! us:" << U32(Version::GetBuildNumber()) << " them: " << data->version);
                         return (FALSE);
                     }
                 }
@@ -600,7 +597,7 @@ namespace StyxNet
                                 user.flags = (*u)->flags;
 
                                 // Dispose of the old user
-                                (*u)->session = NULL;
+                                (*u)->session = nullptr;
                                 disconnected.Dispose(*u);
 
                                 // Tell the user that they are reconnected
@@ -624,7 +621,11 @@ namespace StyxNet
 
                                     U32 index = user.session->GetOldIndex(missing);
 
-                                    LDIAG("Session index is " << user.session->oldPktsIndex << " our index is " << index);
+                                    LDIAG
+                                    (
+                                        "Session index is " << user.session->oldPktsIndex << " our index is " <<
+                                        index
+                                    );
                                     while (missing--)
                                     {
                                         LDIAG("Sending index " << index);
@@ -710,7 +711,11 @@ namespace StyxNet
                         Packet::Create(ServerResponse::SessionCreated).Send(user.socket);
 
                         // Create the new session and place the client which created the session into it
-                        sessions.Add(data->name.crc, new Session(*this, &user, data->name, data->password, data->maxUsers));
+                        sessions.Add
+                        (
+                            data->name.crc,
+                            new Session(*this, &user, data->name, data->password, data->maxUsers)
+                        );
                     }
 
                     mutexSessions.Signal();
@@ -784,7 +789,11 @@ namespace StyxNet
                         Packet::Create(ServerResponse::SessionConnected).Send(user.socket);
 
                         // Create the new session and place the client which created the session into it
-                        sessions.Add(data->name.crc, new Session(*this, &user, data->name, data->password, data->maxUsers));
+                        sessions.Add
+                        (
+                            data->name.crc,
+                            new Session(*this, &user, data->name, data->password, data->maxUsers)
+                        );
                     }
 
                     mutexSessions.Signal();
@@ -852,10 +861,12 @@ namespace StyxNet
                 mutexSessions.Wait();
 
                 // Compose a packet which gives the current list of sessions
-                Packet& response = Packet::Create(
+                Packet& response = Packet::Create
+                (
                     ServerResponse::SessionList,
                     sizeof(ServerResponse::Data::SessionList) +
-                    sizeof(ServerResponse::Data::Session) * sessions.GetCount());
+                    sizeof(ServerResponse::Data::Session) * sessions.GetCount()
+                );
 
                 ServerResponse::Data::SessionList* sessionList =
                     reinterpret_cast<ServerResponse::Data::SessionList*>(response.GetData());
@@ -1123,7 +1134,7 @@ namespace StyxNet
 
 
                 //
-                // Client wants to send an asynchornous message to all other clients in the session
+                // Client wants to send an asynchronous message to all other clients in the session
                 //
             case ClientMessage::SessionData:
 
@@ -1197,9 +1208,11 @@ namespace StyxNet
                         privateData->numRecipients * sizeof(CRC);
                     U32 length = packet.GetLength() - headerSize;
 
-                    Packet& message = Packet::Create(
+                    Packet& message = Packet::Create
+                    (
                         ServerMessage::SessionPrivateData,
-                        sizeof(ServerMessage::Data::SessionPrivateData) + length);
+                        sizeof(ServerMessage::Data::SessionPrivateData) + length
+                    );
 
                     CAST(ServerMessage::Data::SessionPrivateData*, sessionPrivateData, message.GetData());
 
@@ -1277,8 +1290,16 @@ namespace StyxNet
                     LDIAG("Migration Accepted by '" << user.GetName().str << "'");
 
                     // Reflect this to all of the users listed as recipients
-                    CAST(const ClientResponse::Data::SessionRequestMigrateAccept*, sessionRequestMigrateAccept, packet.GetData());
-                    user.session->migration->RequestAccepted(sessionRequestMigrateAccept->address, sessionRequestMigrateAccept->key);
+                    CAST
+                    (
+                        const ClientResponse::Data::SessionRequestMigrateAccept*, sessionRequestMigrateAccept,
+                        packet.GetData()
+                    );
+                    user.session->migration->RequestAccepted
+                    (
+                        sessionRequestMigrateAccept->address,
+                        sessionRequestMigrateAccept->key
+                    );
                 }
                 break;
 

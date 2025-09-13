@@ -21,45 +21,41 @@
 //
 namespace MultiPlayer
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Transfer
-  //
-  namespace Transfer
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // NameSpace Type
+    // NameSpace Transfer
     //
-    namespace Type
+    namespace Transfer
     {
-      static CRC Mission = 0xA1C27797; // "Type::Mission"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // NameSpace Type
+        //
+        namespace Type
+        {
+            static CRC Mission = 0xA1C27797; // "Type::Mission"
+        }
+
+
+        // Initialization and shutdown
+        void Init();
+        void Done();
+
+        // Reset
+        void Reset();
+
+        // Process
+        void Process();
+
+        // Interpret a command
+        void Handler(CRC from, CRC key, U32 size, const U8* data);
+
+        // Player has left
+        void PlayerLeft(U32 id);
+
+        // Make an offer
+        void MakeOffer(CRC to, CRC type, const char* path);
     }
-
-
-    // Initialization and shutdown
-    void Init();
-    void Done();
-
-    // Reset
-    void Reset();
-
-    // Process
-    void Process();
-
-    // Interpret a command
-    void Handler(CRC from, CRC key, U32 size, const U8 *data);
-
-    // Player has left
-    void PlayerLeft(U32 id);
-
-    // Make an offer
-    void MakeOffer(CRC to, CRC type, const char *path);
-
-  }
-
 }
 
 #endif

@@ -29,105 +29,106 @@ class IFaceVar : public VarNotify
 {
 protected:
 
-  // Supported var types
-  union
-  {
-    struct
+    // Supported var types
+    union
     {
-      VarInteger  *varInteger;
+        struct
+        {
+            VarInteger* varInteger;
+        };
+
+        struct
+        {
+            VarFloat* varFloat;
+        };
+
+        struct
+        {
+            VarString* varString;
+        };
     };
-    struct
-    {
-      VarFloat    *varFloat;
-    };
-    struct
-    {
-      VarString   *varString;
-    };
-  };
 
-  // Var type of this item
-  VarSys::VarItemType varType;
+    // Var type of this item
+    VarSys::VarItemType varType;
 
-  // Pointer to the actual var
-  VarPtr             *varPtr;
+    // Pointer to the actual var
+    VarPtr* varPtr;
 
-  // Control that is associated with this var
-  IControl           *ctrl;
+    // Control that is associated with this var
+    IControl* ctrl;
 
-  // The name of this var, if it needs to be resolved
-  char               *varName;
+    // The name of this var, if it needs to be resolved
+    char* varName;
 
-  // Is it active?
-  Bool               active;
+    // Is it active?
+    Bool active;
 
 protected:
 
-  // Setup the var
-  void Init(VarSys::VarItem *item);
+    // Setup the var
+    void Init(VarSys::VarItem* item);
 
-  // Release the var
-  void Done();
+    // Release the var
+    void Done();
 
-  // Implementation of VarNotify::Notify
-  void Notify(VarNotify::Mode);
-
-public:
-
-  // Initialise from a var name
-  IFaceVar(IControl *ctrl, const char *var);
-
-  // Initialise from a var item
-  IFaceVar(IControl *ctrl, VarSys::VarItem *item);
-
-  ~IFaceVar();
-
-  // Activate the var
-  void Activate();
-
-  // Deactivate the var
-  void Deactivate();
-
-  // Set the value of the variable
-  void SetValue(const char *s);
-
-  // Retrieve a text representation of the value, with optional format string
-  void GetValue(CH *buf, U32 size, const char *format = NULL, Bool translate = TRUE);
-  const CH * GetValue(const char *format, Bool translate = TRUE);
-
-  // Get/Set string value
-  const char *GetStringValue();
-  void SetStringValue(const char *val);
-
-  // Get/Set the integer value
-  S32  GetIntegerValue();
-  void SetIntegerValue(S32 val);
-
-  // Get/Set the floating point value
-  F32  GetFloatValue();
-  void SetFloatValue(F32 val);
+    // Implementation of VarNotify::Notify
+    void Notify(VarNotify::Mode);
 
 public:
 
-  // Return the type of the var
-  VarSys::VarItemType Type() 
-  { 
-    ASSERT(varPtr);
-    return varType; 
-  }
+    // Initialise from a var name
+    IFaceVar(IControl* ctrl, const char* var);
 
-  // Is Active
-  Bool IsActive()
-  {
-    return (active);
-  }
+    // Initialise from a var item
+    IFaceVar(IControl* ctrl, VarSys::VarItem* item);
 
-  // Return the var item
-  VarSys::VarItem &GetItem();
+    ~IFaceVar();
 
-  // Test if the var is valid
-  Bool IsValid();
+    // Activate the var
+    void Activate();
 
+    // Deactivate the var
+    void Deactivate();
+
+    // Set the value of the variable
+    void SetValue(const char* s);
+
+    // Retrieve a text representation of the value, with optional format string
+    void GetValue(CH* buf, U32 size, const char* format = NULL, Bool translate = TRUE);
+    const CH* GetValue(const char* format, Bool translate = TRUE);
+
+    // Get/Set string value
+    const char* GetStringValue();
+    void SetStringValue(const char* val);
+
+    // Get/Set the integer value
+    S32 GetIntegerValue();
+    void SetIntegerValue(S32 val);
+
+    // Get/Set the floating point value
+    F32 GetFloatValue();
+    void SetFloatValue(F32 val);
+
+public:
+
+    // Return the type of the var
+    VarSys::VarItemType Type()
+    {
+        ASSERT(varPtr);
+        return varType;
+    }
+
+    // Is Active
+    Bool IsActive()
+    {
+        return (active);
+    }
+
+    // Return the var item
+    VarSys::VarItem& GetItem();
+
+    // Test if the var is valid
+    Bool IsValid();
 };
 
 #endif

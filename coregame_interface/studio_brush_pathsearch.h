@@ -24,52 +24,52 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class PathSearch - Brush for path search testing
+    // Namespace Brush - Contains all available brushes
     //
-    class PathSearch : public Base
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class PathSearch - Brush for path search testing
+        //
+        class PathSearch : public Base
+        {
+        protected:
 
-      // The path finder
-      ::PathSearch::Finder finder;
+            // The path finder
+            ::PathSearch::Finder finder;
 
-      // The start and end points
-      Point<S32> start, end;
+            // The start and end points
+            Point<S32> start, end;
 
-      // Object type to path search for
-      UnitObjTypePtr objType;
+            // Object type to path search for
+            UnitObjTypePtr objType;
 
-      // Does the path need to be re-requested
-      U32 rescan : 1;
+            // Does the path need to be re-requested
+            U32 rescan : 1;
 
-      // Vars
-      IFaceVar *varType;
-      IFaceVar *varOptimize;
+            // Vars
+            IFaceVar* varType;
+            IFaceVar* varOptimize;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      PathSearch(const char *name);
-      ~PathSearch();
+            // Constructor and destructor
+            PathSearch(const char* name);
+            ~PathSearch();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

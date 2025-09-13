@@ -26,69 +26,67 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Squad
-  //
-  namespace Squad
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Trail
+    // NameSpace Squad
     //
-
-    U32 Trail::orderId;
-
-
-    //
-    // Generate
-    //
-    void Trail::Generate(Player &player, U32 squad, U32 trail, U32 index, Bool attack, Modifier mod)
+    namespace Squad
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Trail
+        //
 
-      // Setup data structure
-      data.Setup(orderId, player);
-
-      // Pack the squad
-      data.squad = squad;
-
-      // Pack the trail
-      data.trail = trail;
-
-      // Pack the index
-      data.index = index;
-
-      // Pack the attack flag
-      data.attack = attack;
-
-      // Pack the modifier
-      data.mod = mod;
-
-      // Add the order
-      Add(data, sizeof(Data), player.IsRoute());
-    }
+        U32 Trail::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Trail::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Resolve the squad
-      if (SquadObj * squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
-      {
-        if (TrailObj *trail = Resolver::Object<TrailObj, TrailObjType>(d->trail))
+        //
+        // Generate
+        //
+        void Trail::Generate(Player& player, U32 squad, U32 trail, U32 index, Bool attack, Modifier mod)
         {
-          IssueTask(d->mod, squadObj, new Tasks::SquadMove(squadObj, trail, d->index), player, d->attack ? Task::TF_FLAG1 : 0);
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            // Pack the squad
+            data.squad = squad;
+
+            // Pack the trail
+            data.trail = trail;
+
+            // Pack the index
+            data.index = index;
+
+            // Pack the attack flag
+            data.attack = attack;
+
+            // Pack the modifier
+            data.mod = mod;
+
+            // Add the order
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
-  
-      return (sizeof (Data));
+
+
+        //
+        // Execute
+        //
+        U32 Trail::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Resolve the squad
+            if (SquadObj* squadObj = Resolver::Object<SquadObj, SquadObjType>(d->squad))
+            {
+                if (TrailObj* trail = Resolver::Object<TrailObj, TrailObjType>(d->trail))
+                {
+                    IssueTask(d->mod, squadObj, new Tasks::SquadMove(squadObj, trail, d->index), player, d->attack ? Task::TF_FLAG1 : 0);
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

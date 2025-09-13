@@ -25,23 +25,20 @@
 //
 namespace Version
 {
+    void Init();
+    void Done();
 
-  void Init();
-  void Done();
-
-  U32 GetBuildCRC();
-  const char * GetBuildString();
-  const char * GetBuildDate();    
-  const char * GetBuildTime();    
-  const char * GetBuildUser();    
-  const char * GetBuildMachine(); 
-  const char * GetBuildOS(); 
-  const char * GetBuildDefs();
-  const char * GetBuildVersion();
-  U32 GetBuildNumber();
-
+    U32 GetBuildCRC();
+    const char* GetBuildString();
+    const char* GetBuildDate();
+    const char* GetBuildTime();
+    const char* GetBuildUser();
+    const char* GetBuildMachine();
+    const char* GetBuildOS();
+    const char* GetBuildDefs();
+    const char* GetBuildVersion();
+    U32 GetBuildNumber();
 }
 
 
 #endif
-

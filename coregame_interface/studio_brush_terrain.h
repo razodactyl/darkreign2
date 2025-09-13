@@ -25,87 +25,87 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Terrain - Brush for standard terrain editing
+    // Namespace Brush - Contains all available brushes
     //
-    class Terrain : public ApplyCell
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Terrain - Brush for standard terrain editing
+        //
+        class Terrain : public ApplyCell
+        {
+        protected:
 
-      // Sample size for heightfield
-      enum { SAMPLE_X = 30 };
-      enum { SAMPLE_Z = 30 };
+            // Sample size for heightfield
+            enum { SAMPLE_X = 30 };
 
-      // Terrain brush types
-      enum BrushType { BELL, FLAT, PLASMA, SMOOTH } brushType;
+            enum { SAMPLE_Z = 30 };
 
-      // Heightfield brush information
-      struct BrushInfo
-      {
-        // The heightfield used for this brush
-        HeightField *heightField;
+            // Terrain brush types
+            enum BrushType { BELL, FLAT, PLASMA, SMOOTH } brushType;
 
-        // The portion of the height field to use in operations
-        Area<S32> segment;
+            // Heightfield brush information
+            struct BrushInfo
+            {
+                // The heightfield used for this brush
+                HeightField* heightField;
 
-        // Custom brush bitmap
-        Bitmap map;
+                // The portion of the height field to use in operations
+                Area<S32> segment;
 
-        // The brush type
-        HeightField::BrushType type;
+                // Custom brush bitmap
+                Bitmap map;
 
-        // Editing flags
-        U32 flags;
+                // The brush type
+                HeightField::BrushType type;
 
-        // Terrain type index to paint
-        U8 terrainType;
+                // Editing flags
+                U32 flags;
 
-      } bInfo;
+                // Terrain type index to paint
+                U8 terrainType;
+            } bInfo;
 
-      // Interface vars
-      IFaceVar *varBrushType;
-      IFaceVar *varDrawTexture;
-      IFaceVar *varDrawHeight;
-      IFaceVar *varRaise;
-      IFaceVar *varRandom;
-      IFaceVar *varTerrainType;
-      IFaceVar *varScale;
-      IFaceVar *varHeight;
+            // Interface vars
+            IFaceVar* varBrushType;
+            IFaceVar* varDrawTexture;
+            IFaceVar* varDrawHeight;
+            IFaceVar* varRaise;
+            IFaceVar* varRandom;
+            IFaceVar* varTerrainType;
+            IFaceVar* varScale;
+            IFaceVar* varHeight;
 
-      // Custom cell adjustment
-      U32 direction;
-      U32 variation;
-      Bool adjustCells;
+            // Custom cell adjustment
+            U32 direction;
+            U32 variation;
+            Bool adjustCells;
 
-      // Sets the current brush type
-      void SetBrushType(const char *brushName);
+            // Sets the current brush type
+            void SetBrushType(const char* brushName);
 
-      // Update the brush flags based on current var values
-      void UpdateBrushFlags();
+            // Update the brush flags based on current var values
+            void UpdateBrushFlags();
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Terrain(const char *name);
-      ~Terrain();
+            // Constructor and destructor
+            Terrain(const char* name);
+            ~Terrain();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

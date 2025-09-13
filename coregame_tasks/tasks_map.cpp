@@ -20,7 +20,8 @@
 //
 // Destructor
 //
-template <> GameTask<MapObjType, MapObj>::~GameTask()
+template <>
+GameTask<MapObjType, MapObj>::~GameTask()
 {
 }
 
@@ -30,6 +31,7 @@ template <> GameTask<MapObjType, MapObj>::~GameTask()
 //
 // Type specific processing
 //
-template <> void GameTask<MapObjType, MapObj>::GameProcess()
+template <>
+void GameTask<MapObjType, MapObj>::GameProcess()
 {
 }

@@ -25,77 +25,74 @@
 //
 namespace Common
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class MessageWindow
-  //
-  class MessageWindow : public IControl
-  {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class MessageWindow
+    //
+    class MessageWindow : public IControl
+    {
     PROMOTE_LINK(MessageWindow, IControl, 0x1974C5DE) // "MessageWindow"
 
-  protected:
+    protected:
 
-    // Message structure
-    struct Message;
+        // Message structure
+        struct Message;
 
-    // Messages 
-    NList<Message> messages;
+        // Messages 
+        NList<Message> messages;
 
-    // Incoming messages
-    NList<Message> incoming;
+        // Incoming messages
+        NList<Message> incoming;
 
-    // Characters incoming
-    U32 incomingCharacters;
+        // Characters incoming
+        U32 incomingCharacters;
 
-    // The message being typed
-    Message *typing;
+        // The message being typed
+        Message* typing;
 
-    // The current length of the message being types
-    U32 typingLength;
+        // The current length of the message being types
+        U32 typingLength;
 
-    // Typing speed in characters per frame
-    U32 typingSpeedMin;
-    U32 typingSpeedMax;
+        // Typing speed in characters per frame
+        U32 typingSpeedMin;
+        U32 typingSpeedMax;
 
-    // Message filters
-    BinTree<U32> filters;
+        // Message filters
+        BinTree<U32> filters;
 
-    // Maximum number of messages
-    U32 messagesMax;
+        // Maximum number of messages
+        U32 messagesMax;
 
-    // Fade speed
-    U32 fadeSpeed;
+        // Fade speed
+        U32 fadeSpeed;
 
-    // Life time of messages
-    U32 lifeTime;
+        // Life time of messages
+        U32 lifeTime;
 
-  public:
+    public:
 
-    // Constructor and Destructor
-    MessageWindow(IControl *parent);
-    ~MessageWindow();
+        // Constructor and Destructor
+        MessageWindow(IControl* parent);
+        ~MessageWindow();
 
-    // Setup this control from one scope function
-    void Setup(FScope *fScope);
+        // Setup this control from one scope function
+        void Setup(FScope* fScope);
 
-    // Control draws itself
-    void DrawSelf(PaintInfo &pi);
+        // Control draws itself
+        void DrawSelf(PaintInfo& pi);
 
-    // Activation
-    Bool Activate();
+        // Activation
+        Bool Activate();
 
-    // Deactivate
-    Bool Deactivate();
+        // Deactivate
+        Bool Deactivate();
 
-    // CleanUp
-    void CleanUp();
+        // CleanUp
+        void CleanUp();
 
-    // Console Hook
-    static Bool ConsoleHook(const CH *text, U32 &type, void *context);
-
-  };
-
+        // Console Hook
+        static Bool ConsoleHook(const CH* text, U32& type, void* context);
+    };
 }
 
 #endif

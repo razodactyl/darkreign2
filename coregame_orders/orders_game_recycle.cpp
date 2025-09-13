@@ -23,47 +23,45 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Recycle
+    // NameSpace Game
     //
-    U32 Recycle::orderId;
-
-
-    //
-    // Generate
-    //
-    void Recycle::Generate(Player &player)
+    namespace Game
     {
-      Data data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Recycle
+        //
+        U32 Recycle::orderId;
 
-      // Setup data structure
-      data.Setup(orderId, player);
 
-      Add(data, sizeof (Data), player.IsRoute());
+        //
+        // Generate
+        //
+        void Recycle::Generate(Player& player)
+        {
+            Data data;
+
+            // Setup data structure
+            data.Setup(orderId, player);
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Recycle::Execute(const U8*, Player& player)
+        {
+            // Check each selected object
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                (**i)->RecycleNow();
+            }
+
+            return (sizeof(Data));
+        }
     }
-
-
-    //
-    // Execute
-    //
-    U32 Recycle::Execute(const U8 *, Player &player)
-    {
-      // Check each selected object
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      { 
-        (**i)->RecycleNow();
-      }
-
-      return (sizeof (Data));
-    }
-  }
 }

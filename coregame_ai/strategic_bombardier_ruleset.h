@@ -24,51 +24,48 @@
 //
 namespace Strategic
 {
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Bombardier::RuleSet
+    //
+    // RuleSet for bombardiers
+    //
+    class Bombardier::RuleSet
+    {
+    private:
 
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Bombardier::RuleSet
-  //
-  // RuleSet for bombardiers
-  //
-  class Bombardier::RuleSet
-  {
-  private:
+        class Rule;
 
-    class Rule;
+        // Manager node
+        NBinTree<RuleSet>::Node nodeManager;
 
-    // Manager node
-    NBinTree<RuleSet>::Node nodeManager;
+        // Rules
+        NList<Rule> rules;
 
-    // Rules
-    NList<Rule> rules;
+        // Damage table
+        const Damage::Type* damage;
 
-    // Damage table
-    const Damage::Type *damage;
+    public:
 
-  public:
+        // Constructor
+        RuleSet(FScope* fScope);
 
-    // Constructor
-    RuleSet(FScope *fScope);
+        // Destructor
+        ~RuleSet();
 
-    // Destructor
-    ~RuleSet();
+        // For the given unit type/team, evaluate the cluster using the ruleset
+        Bool Evaluate
+        (
+            F32& score,
+            MapCluster& cluster,
+            Team& team,
+            const Point<F32>* pos = NULL
+        );
 
-    // For the given unit type/team, evaluate the cluster using the ruleset
-    Bool Evaluate
-    (
-      F32 &score,
-      MapCluster &cluster, 
-      Team &team, 
-      const Point<F32> *pos = NULL
-    );
-    
-  public:
+    public:
 
-    friend Manager;
-
-  };
-
+        friend Manager;
+    };
 }
 
 #endif

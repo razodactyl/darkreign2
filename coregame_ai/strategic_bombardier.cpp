@@ -22,64 +22,61 @@
 //
 namespace Strategic
 {
-
-  /////////////////////////////////////////////////////////////////////////////
-  //
-  // Class Bombardier
-  //
-
-
-  //
-  // Constructor
-  //
-  Bombardier::Bombardier(Manager &manager, UnitObj *unit)
-  : manager(manager),
-    unit(unit)
-  {
-  }
+    /////////////////////////////////////////////////////////////////////////////
+    //
+    // Class Bombardier
+    //
 
 
-  //
-  // Destructor
-  //
-  Bombardier::~Bombardier()
-  {
-  }
-
-
-  //
-  // SaveState
-  //
-  // Save state information
-  //
-  void Bombardier::SaveState(FScope *scope)
-  {
-    StdSave::TypeReaper(scope, "Unit", unit);
-  }
-
-
-  //
-  // LoadState
-  //
-  // Load state information
-  //
-  void Bombardier::LoadState(FScope *scope)
-  {
-    FScope *sScope;
-
-    while ((sScope = scope->NextFunction()) != NULL)
+    //
+    // Constructor
+    //
+    Bombardier::Bombardier(Manager& manager, UnitObj* unit)
+        : manager(manager),
+          unit(unit)
     {
-      switch (sScope->NameCrc())
-      {
-        case 0xD9A182E4: // "Unit"
-        {
-          StdLoad::TypeReaper(sScope, unit);
-          Resolver::Object<UnitObj, UnitObjType>(unit);
-          break;
-        }
-      }
     }
-  }
 
+
+    //
+    // Destructor
+    //
+    Bombardier::~Bombardier()
+    {
+    }
+
+
+    //
+    // SaveState
+    //
+    // Save state information
+    //
+    void Bombardier::SaveState(FScope* scope)
+    {
+        StdSave::TypeReaper(scope, "Unit", unit);
+    }
+
+
+    //
+    // LoadState
+    //
+    // Load state information
+    //
+    void Bombardier::LoadState(FScope* scope)
+    {
+        FScope* sScope;
+
+        while ((sScope = scope->NextFunction()) != NULL)
+        {
+            switch (sScope->NameCrc())
+            {
+                case 0xD9A182E4: // "Unit"
+                {
+                    StdLoad::TypeReaper(sScope, unit);
+                    Resolver::Object<UnitObj, UnitObjType>(unit);
+                    break;
+                }
+            }
+        }
+    }
 }
-

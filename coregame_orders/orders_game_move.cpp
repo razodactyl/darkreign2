@@ -24,69 +24,65 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Internal Data
+    // NameSpace Game
     //
-    U32 Move::orderId;
-
-
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    // Class Move
-    //
-
-
-    //
-    // Generate
-    //
-    void Move::Generate(Player &player, const Vector &terrainPos, Bool attack, Modifier mod)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.x = terrainPos.x;
-      data.z = terrainPos.z;
-      data.mod = mod;
-      data.attack = attack;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Internal Data
+        //
+        U32 Move::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Move::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Move
+        //
 
-      // Create an iterator
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; ++i)
-      {
-        UnitObj *unit = **i;
 
-        if (unit->CanEverMove())
+        //
+        // Generate
+        //
+        void Move::Generate(Player& player, const Vector& terrainPos, Bool attack, Modifier mod)
         {
-          Vector v(d->x, 0.0f, d->z);
+            Data data;
 
-          WorldCtrl::ClampMetreMap(v.x, v.z);
-          IssueTask(d->mod, unit, new Tasks::UnitMove(unit, v), player, d->attack ? Task::TF_FLAG1 : 0);
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.x = terrainPos.x;
+            data.z = terrainPos.z;
+            data.mod = mod;
+            data.attack = attack;
+
+            Add(data, sizeof(Data), player.IsRoute());
         }
-      }
 
-      return (sizeof (Data));
+
+        //
+        // Execute
+        //
+        U32 Move::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Create an iterator
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; ++i)
+            {
+                UnitObj* unit = **i;
+
+                if (unit->CanEverMove())
+                {
+                    Vector v(d->x, 0.0f, d->z);
+
+                    WorldCtrl::ClampMetreMap(v.x, v.z);
+                    IssueTask(d->mod, unit, new Tasks::UnitMove(unit, v), player, d->attack ? Task::TF_FLAG1 : 0);
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }
-
-

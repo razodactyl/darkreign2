@@ -37,14 +37,14 @@
 //
 // Constructor
 //
-OffMapBombObjType::OffMapBombObjType(const char *name, FScope *fScope) : OffMapObjType(name, fScope)
+OffMapBombObjType::OffMapBombObjType(const char* name, FScope* fScope) : OffMapObjType(name, fScope)
 {
-  // Get specific config scope
-  fScope = fScope->GetFunction(SCOPE_CONFIG);
+    // Get specific config scope
+    fScope = fScope->GetFunction(SCOPE_CONFIG);
 
-  // Load config
-  StdLoad::TypeReaperObjType(fScope, "Explosion", explosion);
-  height = StdLoad::TypeF32(fScope, "Height", 0.0F);
+    // Load config
+    StdLoad::TypeReaperObjType(fScope, "Explosion", explosion);
+    height = StdLoad::TypeF32(fScope, "Height", 0.0F);
 }
 
 
@@ -63,10 +63,10 @@ OffMapBombObjType::~OffMapBombObjType()
 //
 void OffMapBombObjType::PostLoad()
 {
-  // Call parent scope first
-  OffMapObjType::PostLoad();
+    // Call parent scope first
+    OffMapObjType::PostLoad();
 
-  Resolver::Type(explosion);
+    Resolver::Type(explosion);
 }
 
 
@@ -77,10 +77,9 @@ void OffMapBombObjType::PostLoad()
 //
 GameObj* OffMapBombObjType::NewInstance(U32 id)
 {
-  // Allocate new object instance
-  return (new OffMapBombObj(this, id));
+    // Allocate new object instance
+    return (new OffMapBombObj(this, id));
 }
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,7 +90,7 @@ GameObj* OffMapBombObjType::NewInstance(U32 id)
 //
 // Constructor
 //
-OffMapBombObj::OffMapBombObj(OffMapBombObjType *objType, U32 id) : OffMapObj(objType, id)
+OffMapBombObj::OffMapBombObj(OffMapBombObjType* objType, U32 id) : OffMapObj(objType, id)
 {
 }
 
@@ -109,24 +108,24 @@ OffMapBombObj::~OffMapBombObj()
 //
 // Execute an operation (TRUE if accepted)
 //
-Bool OffMapBombObj::Execute(U32 operation, const Vector &pos)
+Bool OffMapBombObj::Execute(U32 operation, const Vector& pos)
 {
-  switch (operation)
-  {
-    case 0x63417A92: // "Trigger::Positional"
+    switch (operation)
     {
-      if (GetTeam() && OffMapBombType()->explosion.Alive())
-      {
-        // Detonate explosion
-        Vector p(pos.x, pos.y + OffMapBombType()->height, pos.z);
-        OffMapBombType()->explosion->Detonate(p, NULL, GetTeam());
-    
-        GetTeam()->GetRadio().Trigger(0xF7F0CF04, Radio::Event(this, p)); // "OffMapBomb::Executed"
-      }
+        case 0x63417A92: // "Trigger::Positional"
+        {
+            if (GetTeam() && OffMapBombType()->explosion.Alive())
+            {
+                // Detonate explosion
+                Vector p(pos.x, pos.y + OffMapBombType()->height, pos.z);
+                OffMapBombType()->explosion->Detonate(p, NULL, GetTeam());
 
-      return (Done());
+                GetTeam()->GetRadio().Trigger(0xF7F0CF04, Radio::Event(this, p)); // "OffMapBomb::Executed"
+            }
+
+            return (Done());
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }

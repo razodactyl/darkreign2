@@ -29,126 +29,122 @@
 //
 namespace Game
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace MissionSelectionMsg
-  //
-  namespace MissionSelectionMsg
-  {
-    const U32 Select        = 0x457CFE5E; // "Game::MissionSelection::Message::Select"
-    const U32 Save          = 0x12F8D789; // "Game::MissionSelection::Message::Save"
-    const U32 Delete        = 0xDDAB35AF; // "Game::MissionSelection::Message::Delete"
-  }
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace MissionSelectionNotify
-  //
-  namespace MissionSelectionNotify
-  {
-    const U32 PreviewValid   = 0x284A4977; // "Game::MissionSelection::Notify::PreviewValid"
-    const U32 PreviewInvalid = 0xC375DA98; // "Game::MissionSelection::Notify::PreviewInvalid"
-
-  };
-
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class MissionSelection
-  //
-  class MissionSelection : public ICWindow
-  {
-    PROMOTE_LINK(MissionSelection, ICWindow, 0xFE3E2C8F) // "MissionSelection"
-
-  protected:
-
-    // Control styles
-    enum
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace MissionSelectionMsg
+    //
+    namespace MissionSelectionMsg
     {
-      STYLE_MISSIONSELECT = 0x00000001,   // Automatically select the active mission
-      STYLE_CAMPAIGN      = 0x00000002,   // Impose campaign restrictions
-      STYLE_NOCAMPAIGN    = 0x00000004,   // Do not show campaign groups
-      STYLE_SHOWHIDDEN    = 0x00000008,   // Show hidden groups
-      STYLE_INSTANTACTION = 0x00000010,   // Only show instant action groups
+        const U32 Select = 0x457CFE5E; // "Game::MissionSelection::Message::Select"
+        const U32 Save = 0x12F8D789; // "Game::MissionSelection::Message::Save"
+        const U32 Delete = 0xDDAB35AF; // "Game::MissionSelection::Message::Delete"
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // NameSpace MissionSelectionNotify
+    //
+    namespace MissionSelectionNotify
+    {
+        const U32 PreviewValid = 0x284A4977; // "Game::MissionSelection::Notify::PreviewValid"
+        const U32 PreviewInvalid = 0xC375DA98; // "Game::MissionSelection::Notify::PreviewInvalid"
     };
 
-    // Style flags
-    U32 missionSelectionStyle;
 
-    // The crc of the default group to select
-    U32 defaultGroup;
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class MissionSelection
+    //
+    class MissionSelection : public ICWindow
+    {
+    PROMOTE_LINK(MissionSelection, ICWindow, 0xFE3E2C8F) // "MissionSelection"
 
-    // List of all mission groups
-    ICListBoxPtr groupList;
+    protected:
 
-    // List of missions in the current group
-    ICListBoxPtr missionList;
+        // Control styles
+        enum
+        {
+            STYLE_MISSIONSELECT = 0x00000001,   // Automatically select the active mission
+            STYLE_CAMPAIGN = 0x00000002,   // Impose campaign restrictions
+            STYLE_NOCAMPAIGN = 0x00000004,   // Do not show campaign groups
+            STYLE_SHOWHIDDEN = 0x00000008,   // Show hidden groups
+            STYLE_INSTANTACTION = 0x00000010,   // Only show instant action groups
+        };
 
-    // Currently selected mission group
-    IFaceVar *group;
+        // Style flags
+        U32 missionSelectionStyle;
 
-    // Currently selected mission
-    IFaceVar *mission;
+        // The crc of the default group to select
+        U32 defaultGroup;
 
-    // Name to save a mission as
-    IFaceVar *missionSave;
+        // List of all mission groups
+        ICListBoxPtr groupList;
 
-    // Current preivew
-    Preview *preview;
+        // List of missions in the current group
+        ICListBoxPtr missionList;
 
-    // Preview
-    ICStaticPtr previewDisplay;
+        // Currently selected mission group
+        IFaceVar* group;
 
-    // Mission Info
-    IFaceVar *missionSize;
-    IFaceVar *missionTeams;
+        // Currently selected mission
+        IFaceVar* mission;
 
-  protected:
+        // Name to save a mission as
+        IFaceVar* missionSave;
 
-    // Notification that a local var has changed value
-    void Notify(IFaceVar *var);
+        // Current preivew
+        Preview* preview;
 
-    // Build the list of groups
-    void BuildGroupList();
+        // Preview
+        ICStaticPtr previewDisplay;
 
-    // Build the list of missions
-    void BuildMissionList();
+        // Mission Info
+        IFaceVar* missionSize;
+        IFaceVar* missionTeams;
 
-    // ValidatePreview
-    void ValidatePreview();
+    protected:
 
-    // InvalidatePreview
-    void InvalidatePreview();
+        // Notification that a local var has changed value
+        void Notify(IFaceVar* var);
 
-  public:
+        // Build the list of groups
+        void BuildGroupList();
 
-    // Constructor
-    MissionSelection(IControl *parent);
-    ~MissionSelection();
+        // Build the list of missions
+        void BuildMissionList();
 
-    // Style configuration
-    Bool SetStyleItem(const char *s, Bool toggle);
+        // ValidatePreview
+        void ValidatePreview();
 
-    // Setup this control
-    void Setup(FScope *fScope);
+        // InvalidatePreview
+        void InvalidatePreview();
 
-    // Event handling
-    U32 HandleEvent(Event &e);
+    public:
 
-    // Activate and deactivate this control
-    Bool Activate();
-    Bool Deactivate();
+        // Constructor
+        MissionSelection(IControl* parent);
+        ~MissionSelection();
 
-    // Get selected mission
-    const Missions::Mission * GetSelectedMission();
+        // Style configuration
+        Bool SetStyleItem(const char* s, Bool toggle);
 
-    // Set selected mission
-    void SetSelectedMission(const Missions::Mission *m);
+        // Setup this control
+        void Setup(FScope* fScope);
 
-  };
+        // Event handling
+        U32 HandleEvent(Event& e);
 
+        // Activate and deactivate this control
+        Bool Activate();
+        Bool Deactivate();
+
+        // Get selected mission
+        const Missions::Mission* GetSelectedMission();
+
+        // Set selected mission
+        void SetSelectedMission(const Missions::Mission* m);
+    };
 }
 
 #endif

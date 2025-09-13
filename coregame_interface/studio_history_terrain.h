@@ -24,73 +24,73 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace History - Undo/Redo functionality
-  //
-  namespace History
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Terrain - History functions dealing with terrain
+    // Namespace History - Undo/Redo functionality
     //
-    class Terrain : public Base
+    namespace History
     {
-      PROMOTE_LINK(Terrain, Base, 0xB31C6654); // "Terrain"
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Terrain - History functions dealing with terrain
+        //
+        class Terrain : public Base
+        {
+        PROMOTE_LINK(Terrain, Base, 0xB31C6654); // "Terrain"
 
-    protected:
+        protected:
 
-      // Custom list node
-      struct Data : Point<S32>
-      {       
-        U8 terrain;
-        F32 height;
-        U8 flags;
-        U8 normal;             
-        U8 uv;
-        U8 texture;
-        U16 overlay;
-        U8 uv1;
-        U8 texture1;
+            // Custom list node
+            struct Data : Point<S32>
+            {
+                U8 terrain;
+                F32 height;
+                U8 flags;
+                U8 normal;
+                U8 uv;
+                U8 texture;
+                U16 overlay;
+                U8 uv1;
+                U8 texture1;
 
-        Color color;
+                Color color;
 
-        // List node
-        NList<Data>::Node node;
+                // List node
+                NList<Data>::Node node;
 
-        // Constructor
-        Data(S32 x, S32 z);
-      };
+                // Constructor
+                Data(S32 x, S32 z);
+            };
 
-      // List for operations
-      NList<Data> dataList;
+            // List for operations
+            NList<Data> dataList;
 
-      // Dirty cell markers
-      BitArray2d *dirty;
+            // Dirty cell markers
+            BitArray2d* dirty;
 
-      // Virtual methods
-      void Undo();
-      U32 Size();
+            // Virtual methods
+            void Undo();
+            U32 Size();
 
-    public:
+        public:
 
-      // Constructors and destructor
-      Terrain();
-      ~Terrain();
+            // Constructors and destructor
+            Terrain();
+            ~Terrain();
 
-      // The name of this history item
-      const char * Name();
+            // The name of this history item
+            const char* Name();
 
-      // Add a single cell (only if not already dirty)
-      void Add(S32 x, S32 z);
+            // Add a single cell (only if not already dirty)
+            void Add(S32 x, S32 z);
 
-      // Add all the cells in the given area (automatically adds a fringe)
-      void Add(Point<S32> a, Point<S32> b);
+            // Add all the cells in the given area (automatically adds a fringe)
+            void Add(Point<S32> a, Point<S32> b);
 
-      // Get an item, possibly continuous
-      static Terrain * GetItem();
-    };
-  }
+            // Get an item, possibly continuous
+            static Terrain* GetItem();
+        };
+    }
 }
 
 #endif

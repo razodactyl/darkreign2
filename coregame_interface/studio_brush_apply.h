@@ -24,53 +24,53 @@
 //
 namespace Studio
 {
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Namespace Brush - Contains all available brushes
-  //
-  namespace Brush
-  {
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class Apply - Base for all apply-type brushes
+    // Namespace Brush - Contains all available brushes
     //
-    class Apply : public Base
+    namespace Brush
     {
-    protected:
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class Apply - Base for all apply-type brushes
+        //
+        class Apply : public Base
+        {
+        protected:
 
-      // Are we currently applying brush action
-      CaptureMode captureApply;
+            // Are we currently applying brush action
+            CaptureMode captureApply;
 
-      // Are we currently resizing the brush
-      CaptureMode captureResize;
+            // Are we currently resizing the brush
+            CaptureMode captureResize;
 
-      // Interface vars
-      IFaceVar *varApplyRate;
+            // Interface vars
+            IFaceVar* varApplyRate;
 
-      // Called when a brush event is generated
-      void Notification(U32 crc, ::Event *e);
+            // Called when a brush event is generated
+            void Notification(U32 crc, ::Event* e);
 
-      // Resize this brush using the given deltas
-      virtual void ModifySize(S32 dx, S32 dy);
+            // Resize this brush using the given deltas
+            virtual void ModifySize(S32 dx, S32 dy);
 
-    private:
+        private:
 
-      // Next time brush should be applied (ms)
-      U32 nextApplyTime;
+            // Next time brush should be applied (ms)
+            U32 nextApplyTime;
 
-    public:
+        public:
 
-      // Constructor and destructor
-      Apply(const char *name);
-      ~Apply();
+            // Constructor and destructor
+            Apply(const char* name);
+            ~Apply();
 
-      // Does brush have given property (required)
-      Bool HasProperty(U32 property);
+            // Does brush have given property (required)
+            Bool HasProperty(U32 property);
 
-      // Interface var notification (required)
-      void NotifyVar(IFaceVar *var);
-    };
-  }
+            // Interface var notification (required)
+            void NotifyVar(IFaceVar* var);
+        };
+    }
 }
 
 #endif

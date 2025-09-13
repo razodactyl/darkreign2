@@ -16,9 +16,9 @@
 // Definitions
 //
 #ifndef DEVELOPMENT
-  #define FIXME(date, user)
+#define FIXME(date, user)
 #else
-  #define FIXME(date, user) FixMe::Check(__FILE__, __LINE__, date, user)
+#define FIXME(date, user) FixMe::Check(__FILE__, __LINE__, date, user)
 #endif
 
 
@@ -28,12 +28,12 @@
 //
 namespace FixMe
 {
-  // Initialize
-  void Init();
-  void Done();
+    // Initialize
+    void Init();
+    void Done();
 
-  // Check a fixme to see if its expired yet
-  void Check(const char *file, U32 line, U32 date, const char *user);
+    // Check a fixme to see if its expired yet
+    void Check(const char* file, U32 line, U32 date, const char* user);
 }
 
 

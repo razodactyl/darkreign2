@@ -22,57 +22,55 @@
 //
 namespace Orders
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // NameSpace Game
-  //
-  namespace Game
-  {
-
     ///////////////////////////////////////////////////////////////////////////////
     //
-    // Class OrdersGame::Fire
+    // NameSpace Game
     //
-    U32 Fire::orderId;
-
-
-    //
-    // Generate
-    //
-    void Fire::Generate(Player &player, F32 horizontal, F32 vertical, F32 speed)
+    namespace Game
     {
-      Data data;
-
-      // Setup data structure
-      data.Setup(orderId, player);
-      data.horizontal = horizontal;
-      data.vertical = vertical;
-      data.speed = speed;
-
-      Add(data, sizeof (Data), player.IsRoute());
-    }
+        ///////////////////////////////////////////////////////////////////////////////
+        //
+        // Class OrdersGame::Fire
+        //
+        U32 Fire::orderId;
 
 
-    //
-    // Execute
-    //
-    U32 Fire::Execute(const U8 *data, Player &player)
-    {
-      const Data *d = (Data *) data;
-
-      // Create an iterator
-      for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
-      {
-        UnitObj *unit = **i;
-        
-        if (unit->CanEverFire())
+        //
+        // Generate
+        //
+        void Fire::Generate(Player& player, F32 horizontal, F32 vertical, F32 speed)
         {
-          IssueTask(FLUSH, unit, new Tasks::UnitFire(unit, Target(NULL), d->horizontal, d->vertical, d->speed), player);
-        }
-      }
+            Data data;
 
-      return (sizeof (Data));
+            // Setup data structure
+            data.Setup(orderId, player);
+            data.horizontal = horizontal;
+            data.vertical = vertical;
+            data.speed = speed;
+
+            Add(data, sizeof(Data), player.IsRoute());
+        }
+
+
+        //
+        // Execute
+        //
+        U32 Fire::Execute(const U8* data, Player& player)
+        {
+            const Data* d = (Data*)data;
+
+            // Create an iterator
+            for (UnitObjList::Iterator i(&player.GetSelectedList()); *i; i++)
+            {
+                UnitObj* unit = **i;
+
+                if (unit->CanEverFire())
+                {
+                    IssueTask(FLUSH, unit, new Tasks::UnitFire(unit, Target(NULL), d->horizontal, d->vertical, d->speed), player);
+                }
+            }
+
+            return (sizeof(Data));
+        }
     }
-  }
 }

@@ -24,14 +24,12 @@
 //
 namespace AI
 {
-
     /////////////////////////////////////////////////////////////////////////////
     //
     // NameSpace Debug
     //
     namespace Debug
     {
-
         /////////////////////////////////////////////////////////////////////////////
         //
         // Internal Data
@@ -52,9 +50,9 @@ namespace AI
         //
         void Init()
         {
-            ASSERT(!initialized)
+            ASSERT(!initialized);
 
-                VarSys::CreateInteger("ai.debug.show.planevaluation", 0, VarSys::DEFAULT, &showPlanEvaluation);
+            VarSys::CreateInteger("ai.debug.show.planevaluation", 0, VarSys::DEFAULT, &showPlanEvaluation);
 
             initialized = TRUE;
         }
@@ -116,21 +114,19 @@ namespace AI
         {
             ASSERT(initialized);
 
-            IControl* ctrl = NULL;
+            IControl* ctrl = nullptr;
 
             switch (crc)
             {
-            case 0xA79C688D: // "AI::Debug::TeamList"
-                ctrl = new TeamList(parent);
-                break;
+                case 0xA79C688D: // "AI::Debug::TeamList"
+                    ctrl = new TeamList(parent);
+                    break;
 
-            case 0x9A7BBCB9: // "AI::Debug::Info"
-                ctrl = new Info(parent);
-                break;
+                case 0x9A7BBCB9: // "AI::Debug::Info"
+                    ctrl = new Info(parent);
+                    break;
             }
             return (ctrl);
         }
-
     }
-
 }

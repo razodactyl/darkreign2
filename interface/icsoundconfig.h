@@ -25,37 +25,37 @@
 //
 class ICSoundConfig : public ICWindow
 {
-  PROMOTE_LINK(ICSoundConfig, ICWindow, 0x4AD4A636); // "ICSoundConfig"
+PROMOTE_LINK(ICSoundConfig, ICWindow, 0x4AD4A636); // "ICSoundConfig"
 
-  // Provider index
-  IFaceVar *providerIndex;
-  IFaceVar *message2D;
-  IFaceVar *message3D;
-  IFaceVar *lastError;
-  IFaceVar *digitalVolume;
-  IFaceVar *reservedVolume;
-  IFaceVar *redbookVolume;
-  IFaceVar *redbookEnabled;
+    // Provider index
+    IFaceVar* providerIndex;
+    IFaceVar* message2D;
+    IFaceVar* message3D;
+    IFaceVar* lastError;
+    IFaceVar* digitalVolume;
+    IFaceVar* reservedVolume;
+    IFaceVar* redbookVolume;
+    IFaceVar* redbookEnabled;
 
-  ICListBoxPtr listBox;
+    ICListBoxPtr listBox;
 
-  // Update state information
-  void UpdateState();
+    // Update state information
+    void UpdateState();
 
-  // Notification that a local var has changed value
-  void Notify(IFaceVar *var);
+    // Notification that a local var has changed value
+    void Notify(IFaceVar* var);
 
 public:
 
-  // Constructor and destructor
-  ICSoundConfig(IControl *parent);
-  ~ICSoundConfig();
+    // Constructor and destructor
+    ICSoundConfig(IControl* parent);
+    ~ICSoundConfig();
 
-  // Control methods
-  U32 HandleEvent(Event &e);
+    // Control methods
+    U32 HandleEvent(Event& e);
 
-  // Control is being activated
-  Bool Activate();
+    // Control is being activated
+    Bool Activate();
 };
 
 #endif

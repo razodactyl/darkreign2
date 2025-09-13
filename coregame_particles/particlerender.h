@@ -38,31 +38,32 @@ class ParticleRenderClass
 {
 public:
 
-  // Type id
-  GameIdent typeId;
+    // Type id
+    GameIdent typeId;
 
-  Effects::Data data;
+    Effects::Data data;
 
-  F32 rate;
+    F32 rate;
 
 public:
-	// particle renderer class constructor
-	ParticleRenderClass();
+    // particle renderer class constructor
+    ParticleRenderClass();
 
-  void Setup( FScope * fScope);
+    void Setup(FScope* fScope);
 
-	// particle rendering metaclass destructor
-  virtual ~ParticleRenderClass() {}
+    // particle rendering metaclass destructor
+    virtual ~ParticleRenderClass()
+    {
+    }
 
-  // Configure the class
-  virtual Bool Configure( FScope * fScope);
+    // Configure the class
+    virtual Bool Configure(FScope* fScope);
 
-  // Postload
-  virtual void PostLoad();
+    // Postload
+    virtual void PostLoad();
 
-	// build a new particle renderer
-	virtual ParticleRender * Build( Particle * particle, void * data = NULL);
-
+    // build a new particle renderer
+    virtual ParticleRender* Build(Particle* particle, void* data = NULL);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,47 +73,46 @@ public:
 class ParticleRender
 {
 public:
-	// position in the renderer list
-  NList<ParticleRender>::Node node;
+    // position in the renderer list
+    NList<ParticleRender>::Node node;
 
-	// particle renderer class pointer
-	ParticleRenderClass * proto;
+    // particle renderer class pointer
+    ParticleRenderClass* proto;
 
-  // simulated particle
-  Particle * particle;
+    // simulated particle
+    Particle* particle;
 
-  FrameAnim timer;
+    FrameAnim timer;
 
-  F32 uvCurrent;
+    F32 uvCurrent;
 
-  Bitmap * texture;
-  F32 texTime;
+    Bitmap* texture;
+    F32 texTime;
 
 public:
 
-	// particle renderer constructor
-	ParticleRender( ParticleRenderClass * proto, Particle * particle, void * data = NULL);
+    // particle renderer constructor
+    ParticleRender(ParticleRenderClass* proto, Particle* particle, void* data = NULL);
 
-	// particle renderer destructor
-	virtual ~ParticleRender();
+    // particle renderer destructor
+    virtual ~ParticleRender();
 
-  // setup the this renderer using the current particle data
-  virtual void Setup();
+    // setup the this renderer using the current particle data
+    virtual void Setup();
 
-	// detach the particle renderer
-	virtual void Detach( Particle * p);
+    // detach the particle renderer
+    virtual void Detach(Particle* p);
 
-	// simulate particle renderer
-	virtual void Simulate( F32 dt);
+    // simulate particle renderer
+    virtual void Simulate(F32 dt);
 
-	// apply particle renderer
-	virtual void Render();
+    // apply particle renderer
+    virtual void Render();
 
-  // returns standard clipFLAGS
-  virtual U32 Visible( Vector * p0 = NULL, Vector * p1 = NULL, F32 radius = 0);
+    // returns standard clipFLAGS
+    virtual U32 Visible(Vector* p0 = NULL, Vector* p1 = NULL, F32 radius = 0);
 
-  Bitmap * TexAnim( F32 dt);
-
+    Bitmap* TexAnim(F32 dt);
 };
 
 #endif

@@ -25,17 +25,17 @@
 //
 class ICTipWindow : public IControl
 {
-  PROMOTE_LINK(ICTipWindow, IControl, 0xC8F1F59B) // "ICTipWindow"
+PROMOTE_LINK(ICTipWindow, IControl, 0xC8F1F59B) // "ICTipWindow"
 
 protected:
 
-  // Draw control
-  void DrawSelf(PaintInfo &pi);
+    // Draw control
+    void DrawSelf(PaintInfo& pi);
 
 public:
 
-  // Constructor
-  ICTipWindow(IControl *parent);
+    // Constructor
+    ICTipWindow(IControl* parent);
 };
 
 #endif

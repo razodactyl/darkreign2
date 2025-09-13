@@ -20,56 +20,54 @@
 //
 namespace Client
 {
-
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class OrderLag
-  //
-
-
-  //
-  // Constructor
-  //
-  OrderLag::OrderLag(IControl *parent)
-  : ICWindow(parent)
-  {
-  }
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class OrderLag
+    //
 
 
-  //
-  // Destructor
-  //
-  OrderLag::~OrderLag()
-  {
-  }
+    //
+    // Constructor
+    //
+    OrderLag::OrderLag(IControl* parent)
+        : ICWindow(parent)
+    {
+    }
 
 
-  //
-  // Redraw self
-  //
-  void OrderLag::DrawSelf(PaintInfo &pi)
-  {
-    VarFloat lagLast("$.last", this);
-    VarInteger lagSamples("$.samples", this);
-    VarFloat lagAverage("$.average", this);
-    VarFloat lagStddev("$.stdDev", this);
-    VarFloat lagSmooth("$.smooth", this);
-    VarFloat lagSmoothDev("$.smoothDev", this);
-    VarFloat lagMin("$.min", this);
-    VarFloat lagMax("$.max", this);
+    //
+    // Destructor
+    //
+    OrderLag::~OrderLag()
+    {
+    }
 
-    const Stats::Stat &stats = Orders::GetLagStats();
 
-    lagLast = stats.GetLast();
-    lagSamples = stats.GetSamples();
-    lagAverage = stats.GetAverage();
-    lagStddev = stats.GetStdDev();
-    lagSmooth = stats.GetSmooth();
-    lagSmoothDev = stats.GetSmoothDev();
-    lagMin = stats.GetMin();
-    lagMax = stats.GetMax();
+    //
+    // Redraw self
+    //
+    void OrderLag::DrawSelf(PaintInfo& pi)
+    {
+        VarFloat lagLast("$.last", this);
+        VarInteger lagSamples("$.samples", this);
+        VarFloat lagAverage("$.average", this);
+        VarFloat lagStddev("$.stdDev", this);
+        VarFloat lagSmooth("$.smooth", this);
+        VarFloat lagSmoothDev("$.smoothDev", this);
+        VarFloat lagMin("$.min", this);
+        VarFloat lagMax("$.max", this);
 
-    ICWindow::DrawSelf(pi);
-  }
+        const Stats::Stat& stats = Orders::GetLagStats();
 
+        lagLast = stats.GetLast();
+        lagSamples = stats.GetSamples();
+        lagAverage = stats.GetAverage();
+        lagStddev = stats.GetStdDev();
+        lagSmooth = stats.GetSmooth();
+        lagSmoothDev = stats.GetSmoothDev();
+        lagMin = stats.GetMin();
+        lagMax = stats.GetMax();
+
+        ICWindow::DrawSelf(pi);
+    }
 }

@@ -36,20 +36,20 @@ LOGDEF(Profile, "Profile")
 
 struct ProfileProgress
 {
-  U32 current;
-  U32 total;
+    U32 current;
+    U32 total;
 };
 
 
-U32             *Profile::samples;
-U32             *Profile::samplePtr;
-U32             Profile::samplesMax;
-U32             Profile::samplesNum;
-U32             Profile::interval;
-System::Thread  *Profile::profileThread;
-HANDLE          Profile::watchThread;
-System::Event   Profile::shutdown;
-System::Event   Profile::dead;
+U32* Profile::samples;
+U32* Profile::samplePtr;
+U32 Profile::samplesMax;
+U32 Profile::samplesNum;
+U32 Profile::interval;
+System::Thread* Profile::profileThread;
+HANDLE Profile::watchThread;
+System::Event Profile::shutdown;
+System::Event Profile::dead;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ System::Event   Profile::dead;
 //
 void Profile::Init(U32 max, U32 i)
 {
-  #ifdef PROFILE_ENABLED
+#ifdef PROFILE_ENABLED
 
   LOG_DIAG(("Initializing profiler : samplesMax = %d : interval = %d", max, i))
 
@@ -78,11 +78,11 @@ void Profile::Init(U32 max, U32 i)
   watchThread = NULL;
   Reset();
 
-  #else
+#else
 
-  max, i;
+    max, i;
 
-  #endif
+#endif
 }
 
 
@@ -93,11 +93,11 @@ void Profile::Init(U32 max, U32 i)
 //
 void Profile::Done()
 {
-  #ifdef PROFILE_ENABLED
+#ifdef PROFILE_ENABLED
 
   delete [] samples;
 
-  #endif
+#endif
 }
 
 
@@ -106,12 +106,12 @@ void Profile::Done()
 //
 void Profile::Reset()
 {
-  #ifdef PROFILE_ENABLED
+#ifdef PROFILE_ENABLED
 
   LOG_DIAG(("Reseting profiler"))
   memset(samples, 0x00, 4 * samplesMax);
 
-  #endif
+#endif
 }
 
 
@@ -120,7 +120,7 @@ void Profile::Reset()
 //
 void Profile::Start()
 {
-  #ifdef PROFILE_ENABLED
+#ifdef PROFILE_ENABLED
 
   LOG_DIAG(("Starting Profiler"))
 
@@ -133,7 +133,7 @@ void Profile::Start()
   // Bump up the thread priority of the watching thread
   profileThread->SetPriority(System::Thread::TIME_CRITICAL);
 
-  #endif
+#endif
 }
 
 
@@ -142,7 +142,7 @@ void Profile::Start()
 //
 void Profile::Stop()
 {
-  #ifdef PROFILE_ENABLED
+#ifdef PROFILE_ENABLED
 
   LOG_DIAG(("Stopping Profiler"))
 
@@ -150,7 +150,7 @@ void Profile::Stop()
   dead.Wait();
   delete profileThread;
 
-  #endif
+#endif
 }
 
 
@@ -164,7 +164,7 @@ void Profile::Stop()
 // 
 void Profile::Report()
 {
-  #ifdef PROFILE_ENABLED
+#ifdef PROFILE_ENABLED
 
   LOG_DIAG(("Reporting Profiler"))
 
@@ -195,147 +195,147 @@ void Profile::Report()
   LOG_DIAG(("%d samples", samplesNum))
 
   //
-  // There are five layers
-  //
-  // Modules
-  // Libraries
-  // Objects
-  // Functions
-  // Offset
-  //
-
-  /*
-  for (U32 i = 0; i < samplesNum; i++)
-  {
-    char  *module;
-    char  *library;
-    char  *object;
-    char  *function;
-    U32   displacement;
-//    Debug::CallStack::Expand(samples[i], &function, &object, &library, &module, &displacement);
-
-    String str;
-    U32    strCrc;
-
+    // There are five layers
     //
-    // Does the root exist ?
+    // Modules
+    // Libraries
+    // Objects
+    // Functions
+    // Offset
     //
-    if (root)
+
+    /*
+    for (U32 i = 0; i < samplesNum; i++)
     {
-      root->IncSamples();
+      char  *module;
+      char  *library;
+      char  *object;
+      char  *function;
+      U32   displacement;
+  //    Debug::CallStack::Expand(samples[i], &function, &object, &library, &module, &displacement);
+  
+      String str;
+      U32    strCrc;
+  
+      //
+      // Does the root exist ?
+      //
+      if (root)
+      {
+        root->IncSamples();
+      }
+      else
+      {
+        char buff[260];
+        System::Thread::GetProcessName(buff, 260);
+        str.Dup(strrchr(buff, '\\') + 1);
+        root = new ProfileNode(ProfileNode::Root, str);
+      }
+  
+      //
+      // Does the module specified exist ?
+      //
+      str.Dup(module);
+      strCrc = str.Crc();
+      ProfileNode *moduleNode = root->children.Find(strCrc);
+  
+      //
+      // If the node doesn't exist then create a new one
+      //
+      if (moduleNode)
+      {
+        moduleNode->IncSamples();
+      }
+      else
+      {
+        moduleNode = new ProfileNode(ProfileNode::Module, str);
+        root->children.Add(strCrc, moduleNode);
+      }
+  
+      //
+      // Now look for the library in the modules children
+      //
+      str.Dup(library);
+      strCrc = str.Crc();
+      ProfileNode *libraryNode = moduleNode->children.Find(strCrc);
+  
+      //
+      // If the node doesn't exist then create a new one
+      //
+      if (libraryNode)
+      {
+        libraryNode->IncSamples();
+      }
+      else
+      {
+        libraryNode = new ProfileNode(ProfileNode::Function, str);
+        moduleNode->children.Add(strCrc, libraryNode);
+      }
+  
+      //
+      // Now look for the object in the libraries children
+      //
+      str.Dup(object);
+      strCrc = str.Crc();
+      ProfileNode *objectNode = libraryNode->children.Find(strCrc);
+  
+      //
+      // If the node doesn't exist then create a new one
+      //
+      if (objectNode)
+      {
+        objectNode->IncSamples();
+      }
+      else
+      {
+        objectNode = new ProfileNode(ProfileNode::Function, str);
+        libraryNode->children.Add(strCrc, objectNode);
+      }
+  
+      //
+      // Now look for the function in the object children
+      //
+      str.Dup(function);
+      strCrc = str.Crc();
+      ProfileNode *functionNode = objectNode->children.Find(strCrc);
+  
+      //
+      // If the node doesn't exist then create a new one
+      //
+      if (functionNode)
+      {
+        functionNode->IncSamples();
+      }
+      else
+      {
+        functionNode = new ProfileNode(ProfileNode::Function, str);
+        objectNode->children.Add(strCrc, functionNode);
+      }
+  
+      //
+      // Now Look for the offset in the functions children
+      //
+      str = String::Make("%04Xh", displacement);
+      ProfileNode *offsetNode = functionNode->children.Find(displacement);
+  
+      //
+      // If the node does't exist then create a new one
+      //
+      if (offsetNode)
+      {
+        offsetNode->IncSamples();
+      }
+      else
+      {
+        offsetNode = new ProfileNode(ProfileNode::Offset, str);
+        functionNode->children.Add(displacement, offsetNode);
+      }
+  
+      progress.current = i;
+      InvalidateRect(hwnd, NULL, FALSE);
+      UpdateWindow(hwnd);
     }
-    else
-    {
-      char buff[260];
-      System::Thread::GetProcessName(buff, 260);
-      str.Dup(strrchr(buff, '\\') + 1);
-      root = new ProfileNode(ProfileNode::Root, str);
-    }
-
-    //
-    // Does the module specified exist ?
-    //
-    str.Dup(module);
-    strCrc = str.Crc();
-    ProfileNode *moduleNode = root->children.Find(strCrc);
-
-    //
-    // If the node doesn't exist then create a new one
-    //
-    if (moduleNode)
-    {
-      moduleNode->IncSamples();
-    }
-    else
-    {
-      moduleNode = new ProfileNode(ProfileNode::Module, str);
-      root->children.Add(strCrc, moduleNode);
-    }
-
-    //
-    // Now look for the library in the modules children
-    //
-    str.Dup(library);
-    strCrc = str.Crc();
-    ProfileNode *libraryNode = moduleNode->children.Find(strCrc);
-
-    //
-    // If the node doesn't exist then create a new one
-    //
-    if (libraryNode)
-    {
-      libraryNode->IncSamples();
-    }
-    else
-    {
-      libraryNode = new ProfileNode(ProfileNode::Function, str);
-      moduleNode->children.Add(strCrc, libraryNode);
-    }
-
-    //
-    // Now look for the object in the libraries children
-    //
-    str.Dup(object);
-    strCrc = str.Crc();
-    ProfileNode *objectNode = libraryNode->children.Find(strCrc);
-
-    //
-    // If the node doesn't exist then create a new one
-    //
-    if (objectNode)
-    {
-      objectNode->IncSamples();
-    }
-    else
-    {
-      objectNode = new ProfileNode(ProfileNode::Function, str);
-      libraryNode->children.Add(strCrc, objectNode);
-    }
-
-    //
-    // Now look for the function in the object children
-    //
-    str.Dup(function);
-    strCrc = str.Crc();
-    ProfileNode *functionNode = objectNode->children.Find(strCrc);
-
-    //
-    // If the node doesn't exist then create a new one
-    //
-    if (functionNode)
-    {
-      functionNode->IncSamples();
-    }
-    else
-    {
-      functionNode = new ProfileNode(ProfileNode::Function, str);
-      objectNode->children.Add(strCrc, functionNode);
-    }
-
-    //
-    // Now Look for the offset in the functions children
-    //
-    str = String::Make("%04Xh", displacement);
-    ProfileNode *offsetNode = functionNode->children.Find(displacement);
-
-    //
-    // If the node does't exist then create a new one
-    //
-    if (offsetNode)
-    {
-      offsetNode->IncSamples();
-    }
-    else
-    {
-      offsetNode = new ProfileNode(ProfileNode::Offset, str);
-      functionNode->children.Add(displacement, offsetNode);
-    }
-
-    progress.current = i;
-    InvalidateRect(hwnd, NULL, FALSE);
-    UpdateWindow(hwnd);
-  }
-  */
+    */
 
   // If there are no samples then
   if (!root)
@@ -348,7 +348,7 @@ void Profile::Report()
   }
 
   //
-  // Go through the data and update the percentages
+    // Go through the data and update the percentages
   //
   BinTree<ProfileNode>::Iterator modIter(&root->children);
   root->cutParent = (F32) root->GetSamples() / (F32) root->GetSamples();
@@ -384,8 +384,8 @@ void Profile::Report()
   DestroyWindow(hwnd);
 
   //
-  // The data has been formated, now display it
-  //
+    // The data has been formated, now display it
+    //
 
   // Set Pointer
   DlgTemplate dlg("Profiler", 50, 14, 500, 300, DS_SETFONT | DS_CENTER | WS_CAPTION | WS_VISIBLE | WS_SYSMENU);
@@ -416,16 +416,16 @@ void Profile::Report()
   // Delete the tree
   delete root;
 
-  #endif
+#endif
 }
 
 
 //
 // AddToTree 
 //
-void Profile::AddItemToTree(HWND tree, HTREEITEM item, ProfileNode *node) 
+void Profile::AddItemToTree(HWND tree, HTREEITEM item, ProfileNode* node)
 {
-  #ifdef PROFILE_ENABLED
+#ifdef PROFILE_ENABLED
 
   HTREEITEM      newItem;
   TVINSERTSTRUCT tvi;
@@ -446,11 +446,11 @@ void Profile::AddItemToTree(HWND tree, HTREEITEM item, ProfileNode *node)
     AddItemToTree(tree, newItem, *iter);
   }
 
-  #else
+#else
 
-  tree, item, node;
+    tree, item, node;
 
-  #endif
+#endif
 }
 
 
@@ -459,70 +459,70 @@ void Profile::AddItemToTree(HWND tree, HTREEITEM item, ProfileNode *node)
 //
 Bool CALLBACK Profile::ProgressDlgProc(HWND hdlg, UINT msg, WPARAM, LPARAM lparam)
 {
-  static ProfileProgress *progress;
+    static ProfileProgress* progress;
 
-  switch (msg)
-  {
-    case WM_INITDIALOG:
+    switch (msg)
     {
-      progress = (ProfileProgress *) lparam;
-      return (TRUE);
-      break;
+        case WM_INITDIALOG:
+        {
+            progress = (ProfileProgress*)lparam;
+            return (TRUE);
+            break;
+        }
+
+            // Close dialog box
+        case WM_CLOSE:
+        {
+            EndDialog(hdlg, 0);
+            break;
+        }
+
+            // Paint Progress Bar
+        case WM_PAINT:
+        {
+            //      HDC hdc = (HDC) wparam;
+            PAINTSTRUCT ps;
+
+            // StartPainting;
+            BeginPaint(hdlg, &ps);
+
+            // Create Pen
+            HPEN pen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));
+
+            // Create Total Brush
+            LOGBRUSH logbrush;
+            logbrush.lbStyle = BS_SOLID;
+            logbrush.lbColor = RGB(0, 0, 128);
+            HBRUSH brush = CreateBrushIndirect(&logbrush);
+
+            // Draw Parent Bar
+            HPEN oldPen = static_cast<HPEN>(SelectObject(ps.hdc, pen));
+            HBRUSH oldBrush = static_cast<HBRUSH>(SelectObject(ps.hdc, brush));
+
+            // Display the progress thus far
+            RECT r;
+            r.left = 5;
+            r.right = (progress->total) ? (5 + progress->current * 170 / progress->total) : 0;
+            r.top = 5;
+            r.bottom = 15;
+            MapDialogRect(hdlg, &r);
+            Rectangle(ps.hdc, r.left, r.top, r.right, r.bottom);
+
+            // Restore DC state
+            SelectObject(ps.hdc, oldPen);
+            SelectObject(ps.hdc, oldBrush);
+
+            // Delete Objects
+            DeleteObject(pen);
+            DeleteObject(brush);
+
+            // Finished Painting
+            EndPaint(hdlg, &ps);
+
+            break;
+        }
     }
-
-    // Close dialog box
-    case WM_CLOSE:
-    {
-      EndDialog(hdlg, 0);
-      break;
-    }
-
-    // Paint Progress Bar
-    case WM_PAINT:
-    {
-//      HDC hdc = (HDC) wparam;
-      PAINTSTRUCT ps;
-
-      // StartPainting;
-      BeginPaint(hdlg, &ps);
-
-      // Create Pen
-      HPEN pen = CreatePen(PS_NULL, 0, RGB(0, 0, 0));
-
-      // Create Total Brush
-      LOGBRUSH logbrush;
-      logbrush.lbStyle = BS_SOLID;
-      logbrush.lbColor = RGB(0, 0, 128);
-      HBRUSH brush = CreateBrushIndirect(&logbrush);
-
-      // Draw Parent Bar
-      HPEN oldPen = (HPEN) SelectObject(ps.hdc, pen); 
-      HBRUSH oldBrush = (HBRUSH) SelectObject(ps.hdc, brush);
-
-      // Display the progress thus far
-      RECT  r;
-      r.left = 5;
-      r.right = (progress->total) ? (5 + progress->current * 170 / progress->total) : 0;
-      r.top = 5;
-      r.bottom = 15;
-      MapDialogRect(hdlg, &r);
-      Rectangle(ps.hdc, r.left, r.top, r.right, r.bottom);
-
-      // Restore DC state
-      SelectObject(ps.hdc, oldPen);
-      SelectObject(ps.hdc, oldBrush);
-
-      // Delete Objects
-      DeleteObject(pen);
-      DeleteObject(brush);
-
-      // Finished Painting
-      EndPaint(hdlg, &ps);
-
-      break;
-    }
-  }
-  return (FALSE);
+    return (FALSE);
 }
 
 
@@ -531,231 +531,228 @@ Bool CALLBACK Profile::ProgressDlgProc(HWND hdlg, UINT msg, WPARAM, LPARAM lpara
 //
 Bool CALLBACK Profile::DlgProc(HWND hdlg, UINT msg, WPARAM, LPARAM lparam)
 {
-  switch (msg)
-  {
-    case WM_NOTIFY:
+    switch (msg)
     {
-      switch (((LPNMHDR) lparam)->code) 
-      { 
-        case TVN_SELCHANGED:
+        case WM_NOTIFY:
         {
-          NMTREEVIEW *tv = (NMTREEVIEW *) lparam;
-          ProfileNode *node = (ProfileNode *) tv->itemNew.lParam;
-          HWND list = GetDlgItem(hdlg, PROFILE_LIST);
+            switch (((LPNMHDR)lparam)->code)
+            {
+                case TVN_SELCHANGED:
+                {
+                    NMTREEVIEW* tv = (NMTREEVIEW*)lparam;
+                    ProfileNode* node = (ProfileNode*)tv->itemNew.lParam;
+                    HWND list = GetDlgItem(hdlg, PROFILE_LIST);
 
-          // Delete all the items in the listbox
-          while (SendMessage(list, LB_DELETESTRING, 0, 0) != LB_ERR)
-            ;
+                    // Delete all the items in the listbox
+                    while (SendMessage(list, LB_DELETESTRING, 0, 0) != LB_ERR);
 
-          // Add information
-          SendMessage(list, LB_ADDSTRING, 0, (LPARAM) node); 
+                    // Add information
+                    SendMessage(list, LB_ADDSTRING, 0, (LPARAM)node);
 
-          // Add all of the children of this node
-          BinTree<ProfileNode>::Iterator iter(&node->children);
-          for (!iter; *iter; iter++)
-          {
-            SendMessage(list, LB_ADDSTRING, 0, (LPARAM) *iter); 
-          }
-          break;
+                    // Add all of the children of this node
+                    BinTree<ProfileNode>::Iterator iter(&node->children);
+                    for (!iter; *iter; ++iter)
+                    {
+                        SendMessage(list, LB_ADDSTRING, 0, (LPARAM)*iter);
+                    }
+                    break;
+                }
+
+                default:
+                    break;
+            }
+
+            break;
         }
 
-        default:
-          break;
-      }
-
-      break;
-    }
-
-    case WM_INITDIALOG:
-    {
-      // The root of the tree is passed in as lparam
-      ProfileNode *root = (ProfileNode *) lparam;
-
-      // Add all of the nodes to the tree view control
-      AddItemToTree(GetDlgItem(hdlg, PROFILE_TREE), TVI_ROOT, root);
-
-      return (TRUE);
-      break;
-    }
-
-    // Close dialog box
-    case WM_CLOSE:
-    {
-      EndDialog(hdlg, 0);
-      break;
-    }
-
-    // Get the measurement of the listbox items
-    case WM_MEASUREITEM:
-    {
-      MEASUREITEMSTRUCT *mi;
-      mi = (MEASUREITEMSTRUCT *) lparam; 
-      mi->itemHeight = 16; 
-      return TRUE; 
-    }
-
-    // Compare items by looking at their sample values
-    case WM_COMPAREITEM:
-    {
-      COMPAREITEMSTRUCT *ci;
-      ci = (COMPAREITEMSTRUCT *) lparam;
-
-      ProfileNode *item1 = (ProfileNode *) ci->itemData1;
-      ProfileNode *item2 = (ProfileNode *) ci->itemData2;
-
-      return (item1->GetSamples() >= item2->GetSamples() ? -1 : 1);
-      break;
-    }
-
-    // Draw an item in the listbox
-    case WM_DRAWITEM:
-    {
-      DRAWITEMSTRUCT *di;
-      di = (DRAWITEMSTRUCT *) lparam;
-
-      // If there are no list box items, skip this message
-      if (di->itemID == -1) 
-      { 
-        break; 
-      }
-
-      // Draw the item
-      switch (di->itemAction) 
-      { 
-        case ODA_SELECT: 
-        case ODA_DRAWENTIRE: 
+        case WM_INITDIALOG:
         {
-          ProfileNode *node;
+            // The root of the tree is passed in as lparam
+            ProfileNode* root = (ProfileNode*)lparam;
 
-          node = (ProfileNode *) di->itemData;
+            // Add all of the nodes to the tree view control
+            AddItemToTree(GetDlgItem(hdlg, PROFILE_TREE), TVI_ROOT, root);
 
-          // If the item is a profile node, draw it
-          if (node)
-          {
-            TEXTMETRIC tm;
-            int        y;
-            String str;
-  
-            GetTextMetrics(di->hDC, &tm); 
-            y = (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2;
-
-            // Write Total Number of Samples
-            SetTextColor(di->hDC, RGB(0, 0, 0));
-            str = String::Make("%d", node->GetSamples());
-            TextOut(di->hDC, 60, y, str, str.GetLength());
-
-            // Write the Percentage of Total
-            SetTextColor(di->hDC, RGB(128, 0, 0));
-            str = String::Make("%01.4f", node->cutTotal);
-            TextOut(di->hDC, 100, y, str, str.GetLength());
-
-            // Write the Percentage of Parent
-            SetTextColor(di->hDC, RGB(0, 0, 128));
-            str = String::Make("%01.4f", node->cutParent);
-            TextOut(di->hDC, 140, y, str, str.GetLength());
-
-            // Write the Name
-            SetTextColor(di->hDC, RGB(0, 0, 0));
-            TextOut(di->hDC, 180, y, node->GetName(), node->GetName().GetLength());
-
-            // Create Total Brush
-            LOGBRUSH logbrush;
-            logbrush.lbStyle = BS_SOLID;
-            logbrush.lbColor = RGB(128, 0, 0);
-            HPEN totalPen = CreatePen(PS_SOLID, 0, RGB(128, 0, 0));
-            HBRUSH totalBrush = CreateBrushIndirect(&logbrush);
-
-            // Create Parent Brush
-            logbrush.lbColor = RGB(0, 0, 128);
-            logbrush.lbStyle = BS_SOLID;
-            HPEN parentPen = CreatePen(PS_SOLID, 0, RGB(0, 0, 128));
-            HBRUSH parentBrush = CreateBrushIndirect(&logbrush);
-
-            // Draw Parent Bar
-            // HPEN oldPen = (HPEN) 
-            SelectObject(di->hDC, parentPen); 
-            // HBRUSH oldBrush = (HBRUSH) 
-            SelectObject(di->hDC, parentBrush);
-            Rectangle(di->hDC, 55 - (U32) (node->cutParent * 50), y + 1, 55, y + 6);
-            Rectangle(di->hDC, 5, y + 5, 55, y + 6);
-
-            // Draw Total Bar
-            SelectObject(di->hDC, totalPen); 
-            SelectObject(di->hDC, totalBrush);
-            Rectangle(di->hDC, 55 - (U32) (node->cutTotal * 50), y + 6, 55, y + 11);
-            Rectangle(di->hDC, 5, y + 10, 55, y + 11);
-
-            // Delete Objects
-            DeleteObject(totalPen);
-            DeleteObject(totalBrush);
-            DeleteObject(parentPen);
-            DeleteObject(parentBrush);
-
-          }
-          else
-          // Its just plain text draw it
-          {
-            TEXTMETRIC tm;
-            char buff[250];
-
-            SetTextColor(di->hDC, RGB(0, 0, 0));
-            SendMessage(di->hwndItem, LB_GETTEXT, di->itemID, (LPARAM) buff);
-            GetTextMetrics(di->hDC, &tm); 
-            TextOut(di->hDC, 0, (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2, buff, strlen(buff));
-          }
- 
-/*          if (di->itemState & ODS_SELECTED) 
-          { 
-            rcBitmap.left = lpdis->rcItem.left; 
-            rcBitmap.top = lpdis->rcItem.top; 
-            rcBitmap.right = lpdis->rcItem.left + XBITMAP; 
-            rcBitmap.bottom = lpdis->rcItem.top + YBITMAP; 
-            DrawFocusRect(lpdis->hDC, &rcBitmap); 
-          } 
-        */
-          break; 
+            return (TRUE);
+            break;
         }
- 
-        case ODA_FOCUS: 
-          break; 
-      } 
-      return (TRUE); 
-      break;
 
+            // Close dialog box
+        case WM_CLOSE:
+        {
+            EndDialog(hdlg, 0);
+            break;
+        }
+
+            // Get the measurement of the listbox items
+        case WM_MEASUREITEM:
+        {
+            MEASUREITEMSTRUCT* mi;
+            mi = (MEASUREITEMSTRUCT*)lparam;
+            mi->itemHeight = 16;
+            return TRUE;
+        }
+
+            // Compare items by looking at their sample values
+        case WM_COMPAREITEM:
+        {
+            COMPAREITEMSTRUCT* ci;
+            ci = (COMPAREITEMSTRUCT*)lparam;
+
+            ProfileNode* item1 = (ProfileNode*)ci->itemData1;
+            ProfileNode* item2 = (ProfileNode*)ci->itemData2;
+
+            return (item1->GetSamples() >= item2->GetSamples() ? -1 : 1);
+            break;
+        }
+
+            // Draw an item in the listbox
+        case WM_DRAWITEM:
+        {
+            DRAWITEMSTRUCT* di;
+            di = (DRAWITEMSTRUCT*)lparam;
+
+            // If there are no list box items, skip this message
+            if (di->itemID == -1)
+            {
+                break;
+            }
+
+            // Draw the item
+            switch (di->itemAction)
+            {
+                case ODA_SELECT:
+                case ODA_DRAWENTIRE:
+                {
+                    ProfileNode* node;
+
+                    node = (ProfileNode*)di->itemData;
+
+                    // If the item is a profile node, draw it
+                    if (node)
+                    {
+                        TEXTMETRIC tm;
+                        int y;
+                        String str;
+
+                        GetTextMetrics(di->hDC, &tm);
+                        y = (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2;
+
+                        // Write Total Number of Samples
+                        SetTextColor(di->hDC, RGB(0, 0, 0));
+                        str = String::Make("%d", node->GetSamples());
+                        TextOut(di->hDC, 60, y, str, str.GetLength());
+
+                        // Write the Percentage of Total
+                        SetTextColor(di->hDC, RGB(128, 0, 0));
+                        str = String::Make("%01.4f", node->cutTotal);
+                        TextOut(di->hDC, 100, y, str, str.GetLength());
+
+                        // Write the Percentage of Parent
+                        SetTextColor(di->hDC, RGB(0, 0, 128));
+                        str = String::Make("%01.4f", node->cutParent);
+                        TextOut(di->hDC, 140, y, str, str.GetLength());
+
+                        // Write the Name
+                        SetTextColor(di->hDC, RGB(0, 0, 0));
+                        TextOut(di->hDC, 180, y, node->GetName(), node->GetName().GetLength());
+
+                        // Create Total Brush
+                        LOGBRUSH logbrush;
+                        logbrush.lbStyle = BS_SOLID;
+                        logbrush.lbColor = RGB(128, 0, 0);
+                        HPEN totalPen = CreatePen(PS_SOLID, 0, RGB(128, 0, 0));
+                        HBRUSH totalBrush = CreateBrushIndirect(&logbrush);
+
+                        // Create Parent Brush
+                        logbrush.lbColor = RGB(0, 0, 128);
+                        logbrush.lbStyle = BS_SOLID;
+                        HPEN parentPen = CreatePen(PS_SOLID, 0, RGB(0, 0, 128));
+                        HBRUSH parentBrush = CreateBrushIndirect(&logbrush);
+
+                        // Draw Parent Bar
+                        // HPEN oldPen = (HPEN) 
+                        SelectObject(di->hDC, parentPen);
+                        // HBRUSH oldBrush = (HBRUSH) 
+                        SelectObject(di->hDC, parentBrush);
+                        Rectangle(di->hDC, 55 - static_cast<U32>(node->cutParent * 50), y + 1, 55, y + 6);
+                        Rectangle(di->hDC, 5, y + 5, 55, y + 6);
+
+                        // Draw Total Bar
+                        SelectObject(di->hDC, totalPen);
+                        SelectObject(di->hDC, totalBrush);
+                        Rectangle(di->hDC, 55 - static_cast<U32>(node->cutTotal * 50), y + 6, 55, y + 11);
+                        Rectangle(di->hDC, 5, y + 10, 55, y + 11);
+
+                        // Delete Objects
+                        DeleteObject(totalPen);
+                        DeleteObject(totalBrush);
+                        DeleteObject(parentPen);
+                        DeleteObject(parentBrush);
+                    }
+                    else
+                        // Its just plain text draw it
+                    {
+                        TEXTMETRIC tm;
+                        char buff[250];
+
+                        SetTextColor(di->hDC, RGB(0, 0, 0));
+                        SendMessage(di->hwndItem, LB_GETTEXT, di->itemID, (LPARAM)buff);
+                        GetTextMetrics(di->hDC, &tm);
+                        TextOut(di->hDC, 0, (di->rcItem.bottom + di->rcItem.top - tm.tmHeight) / 2, buff, strlen(buff));
+                    }
+
+                    /*          if (di->itemState & ODS_SELECTED) 
+                              { 
+                                rcBitmap.left = lpdis->rcItem.left; 
+                                rcBitmap.top = lpdis->rcItem.top; 
+                                rcBitmap.right = lpdis->rcItem.left + XBITMAP; 
+                                rcBitmap.bottom = lpdis->rcItem.top + YBITMAP; 
+                                DrawFocusRect(lpdis->hDC, &rcBitmap); 
+                              } 
+                            */
+                    break;
+                }
+
+                case ODA_FOCUS:
+                    break;
+            }
+            return (TRUE);
+            break;
+        }
     }
-  }
 
-  return (FALSE);
+    return (FALSE);
 }
 
 
 //
 // Process
 //
-U32 STDCALL Profile::Process(void *)
+U32 STDCALL Profile::Process(void*)
 {
-  CONTEXT context;
-  memset(&context, 0x00, sizeof (CONTEXT));
-  context.ContextFlags = CONTEXT_CONTROL;
+    CONTEXT context;
+    memset(&context, 0x00, sizeof(CONTEXT));
+    context.ContextFlags = CONTEXT_CONTROL;
 
-  while (!Profile::shutdown.Wait(Profile::interval))
-  {
-    // Grab the context of the thread which we are profiling
-    SuspendThread(Profile::watchThread);
-    GetThreadContext(Profile::watchThread, &context);
-    ResumeThread(Profile::watchThread);
-
-    // Save the stats
-    *(Profile::samplePtr++) = context.Eip;
-    Profile::samplesNum++;
-
-    if (Profile::samplesNum == Profile::samplesMax)
+    while (!shutdown.Wait(interval))
     {
-      return (TRUE);
+        // Grab the context of the thread which we are profiling
+        SuspendThread(watchThread);
+        GetThreadContext(watchThread, &context);
+        ResumeThread(watchThread);
+
+        // Save the stats
+        *(samplePtr++) = context.Eip;
+        samplesNum++;
+
+        if (samplesNum == samplesMax)
+        {
+            return (TRUE);
+        }
     }
-  }
-  Profile::dead.Signal();
-  return (TRUE);
+    dead.Signal();
+    return (TRUE);
 }
 
 

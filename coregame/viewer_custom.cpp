@@ -21,29 +21,28 @@
 //
 namespace Viewer
 {
+    ///////////////////////////////////////////////////////////////////////////////
+    //
+    // Class CustomCam - Custom simulate camera
+    //
 
-  ///////////////////////////////////////////////////////////////////////////////
-  //
-  // Class CustomCam - Custom simulate camera
-  //
-
-  //
-  // Constructor
-  //
-  CustomCam::CustomCam(const char *name, SimulateProc *simProc, void *context)
-  : Base(name),
-    simProc(simProc),
-    context(context)
-  {
-  }
+    //
+    // Constructor
+    //
+    CustomCam::CustomCam(const char* name, SimulateProc* simProc, void* context)
+        : Base(name),
+          simProc(simProc),
+          context(context)
+    {
+    }
 
 
-  //
-  // Simulation
-  //
-  Bool CustomCam::Simulate(FamilyNode *node, F32 time)
-  {
-    ASSERT(simProc)
-    return (simProc(node, time, context));
-  }
+    //
+    // Simulation
+    //
+    Bool CustomCam::Simulate(FamilyNode* node, F32 time)
+    {
+        ASSERT(simProc);
+        return (simProc(node, time, context));
+    }
 }
