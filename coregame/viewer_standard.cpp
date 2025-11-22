@@ -461,8 +461,14 @@ namespace Viewer
                 // Wheel scroll
                 if (dz)
                 {
-                    // Swoop
-                    Swoop(time * F32(dz) * swoopRate * wheelRate);
+                    // dz is already scaled (client_events.cpp divides by MOUSE_WHEEL_DELTA)
+                    F32 wheelSteps = F32(dz);
+
+                    // Use detected direction with higher sensitivity
+                    Swoop(time * wheelSteps * swoopRate * wheelRate * Input::MOUSE_WHEEL_SENSITIVITY);
+
+                    // Reset wheel delta to prevent accumulation
+                    dz = 0;
                 }
 
                 // Right scroll mode

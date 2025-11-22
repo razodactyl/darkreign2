@@ -1519,7 +1519,7 @@ U32 ICListBox::HandleEvent(Event& e)
 
             case Input::MOUSEAXIS:
             {
-                S16 amount = S16(e.input.ch / -120);
+                S16 amount = S16(e.input.ch / -Input::MOUSE_WHEEL_DELTA);
 
                 // Generate scroll event
                 SendNotify(this, ICListBoxMsg::ScrollLine, FALSE, amount);

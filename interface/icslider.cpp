@@ -618,7 +618,7 @@ U32 ICSlider::HandleEvent(Event& e)
                 S16 amount = S16(e.input.ch);
 
                 // Increment or decrement
-                SetSliderValue(curVal - F32(amount / 120) * incStep);
+                SetSliderValue(curVal - F32(amount / Input::MOUSE_WHEEL_DELTA) * incStep);
 
                 // Handled
                 return TRUE;

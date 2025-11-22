@@ -2645,7 +2645,7 @@ namespace Client
                     case Input::MOUSEAXIS:
                     {
                         // Tell the camera
-                        Viewer::GetCurrent()->Notify(Viewer::VN_MOUSEAXIS, S32(e.input.ch) / 120);
+                        Viewer::GetCurrent()->Notify(Viewer::VN_MOUSEAXIS, S32(e.input.ch) / Input::MOUSE_WHEEL_DELTA);
                         return (TRUE);
                     }
                 }

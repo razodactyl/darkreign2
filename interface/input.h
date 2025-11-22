@@ -83,19 +83,22 @@ namespace Input
     //Input event types
     enum EventType
     {
-        KEYDOWN,                            // Key was pressed
-        KEYUP,                              // Key was released
-        KEYREPEAT,                          // Key was held down
-        KEYCHAR,                            // An ASCII character was generated
+        KEYDOWN,                                // Key was pressed
+        KEYUP,                                  // Key was released
+        KEYREPEAT,                              // Key was held down
+        KEYCHAR,                                // An ASCII character was generated
 
-        MOUSEBUTTONDOWN,                    // Mouse button was pressed
-        MOUSEBUTTONUP,                      // Mouse button was released
-        MOUSEBUTTONDBLCLK,                  // Mouse button was double clicked
-        MOUSEBUTTONDBLCLKUP,                // Mouse button was double released
-        MOUSEMOVE,                          // Mouse moved on x or y axis
-        MOUSEAXIS,                          // Mouse moved on another axis (e.g. wheel)
+        MOUSEBUTTONDOWN,                        // Mouse button was pressed
+        MOUSEBUTTONUP,                          // Mouse button was released
+        MOUSEBUTTONDBLCLK,                      // Mouse button was double clicked
+        MOUSEBUTTONDBLCLKUP,                    // Mouse button was double released
+        MOUSEMOVE,                              // Mouse moved on x or y axis
+        MOUSEAXIS,                              // Mouse moved on another axis (e.g. wheel)
     };
 
+    // Mouse wheel delta constants
+    const S32 MOUSE_WHEEL_DELTA = 40;           // Adjusted for modern high-DPI mice (was 120)
+    const F32 MOUSE_WHEEL_SENSITIVITY = 0.8f;   // Camera zoom multiplier per wheel step
 
     // Initialise input system
     void Init(HINSTANCE inst, HWND window);

@@ -450,7 +450,7 @@ namespace Studio
                     break;
 
                 case 0x9CAAA9E6: // "Input::MouseAxis"
-                    Viewer::GetCurrent()->Notify(Viewer::VN_MOUSEAXIS, S32(e->input.ch) / 120);
+                    Viewer::GetCurrent()->Notify(Viewer::VN_MOUSEAXIS, S32(e->input.ch) / Input::MOUSE_WHEEL_DELTA);
                     break;
 
 

@@ -607,7 +607,11 @@ namespace Input
                 case DIMOFS_Z:
                 {
                     // Create a movement on z-axis event
-                    PostEvent(MOUSEAXIS, 0, od.dwData, customState, mousePos);
+                    // DirectInput reports axis deltas as LONG values stored in dwData
+                    // Ensure the sign is preserved when passing through the event system
+                    const S32 wheelDelta = static_cast<S32>(static_cast<LONG>(od.dwData));
+                    LOG_DIAG(("Mouse wheel delta (signed): %d (0x%08X)", wheelDelta, wheelDelta));
+                    PostEvent(MOUSEAXIS, 0, wheelDelta, customState, mousePos);
                     break;
                 }
 
@@ -848,7 +852,7 @@ namespace Input
         {
             e->type = eventId;
             e->subType = subType;
-            e->param1 = (static_cast<U16>(ch) << 16) + static_cast<U16>(code);
+            e->param1 = (static_cast<S16>(ch) << 16) + static_cast<U16>(code);
             e->param2 = keyState;
             e->param3 = mousePos.x;
             e->param4 = mousePos.y;
