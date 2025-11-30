@@ -48,7 +48,7 @@ namespace MultiPlayer
         //
         // RenderBitmap
         //
-        void RenderBitmap(Bitmap* bitmap, const Point<S32>& pos, Color color)
+        void RenderBitmap(Bitmap* bitmap, const Point<S32>& pos, const Point<S32>& size, Color color)
         {
             U16 vertOffset;
             VertexTL* point = IFace::GetVerts(4, bitmap, 0, 0, vertOffset);
@@ -65,7 +65,7 @@ namespace MultiPlayer
             point[0].v = bitmap->UVShiftHeight();
 
             // top right corner
-            point[1].vv.x = F32(pos.x + bitmap->Width());
+            point[1].vv.x = F32(pos.x + size.x);
             point[1].vv.y = F32(pos.y);
             point[1].vv.z = 0.0F;
             point[1].rhw = 1.0F;
@@ -75,8 +75,8 @@ namespace MultiPlayer
             point[1].v = bitmap->UVShiftHeight();
 
             // bottom right corner
-            point[2].vv.x = F32(pos.x + bitmap->Width());
-            point[2].vv.y = F32(pos.y + bitmap->Height());
+            point[2].vv.x = F32(pos.x + size.x);
+            point[2].vv.y = F32(pos.y + size.y);
             point[2].vv.z = 0.0F;
             point[2].rhw = 1.0F;
             point[2].diffuse = color;
@@ -86,7 +86,7 @@ namespace MultiPlayer
 
             // bottom left corner
             point[3].vv.x = F32(pos.x);
-            point[3].vv.y = F32(pos.y + bitmap->Height());
+            point[3].vv.y = F32(pos.y + size.y);
             point[3].vv.z = 0.0F;
             point[3].rhw = 1.0F;
             point[3].diffuse = color;
@@ -282,8 +282,16 @@ namespace MultiPlayer
         {
             Update(FALSE);
 
-            RenderBitmap(lit[0], pi.client.p0, Color(1.0f, 1.0f, 1.0f, 1.0f));
-            RenderBitmap(lit[1], pi.client.p0 + Point<S32>(256, 0), Color(1.0f, 1.0f, 1.0f, 1.0f));
+            // Get scale factor for coordinate calculations
+            F32 scale = IFace::GetScale();
+
+            // Calculate scaled bitmap size (each half is 256x256 native, total 512x256)
+            S32 halfWidth = S32(256.0f * scale);
+            S32 height = S32(256.0f * scale);
+            Point<S32> bitmapSize(halfWidth, height);
+
+            RenderBitmap(lit[0], pi.client.p0, bitmapSize, Color(1.0f, 1.0f, 1.0f, 1.0f));
+            RenderBitmap(lit[1], pi.client.p0 + Point<S32>(halfWidth, 0), bitmapSize, Color(1.0f, 1.0f, 1.0f, 1.0f));
 
             // Draw everyone
             F32 offset = 0.0f;
@@ -304,11 +312,11 @@ namespace MultiPlayer
                     Data::Get(&team, playerInfo->teamId)
                 )
                 {
-                    // Draw the position of the local player
+                    // Draw the position of the local player (scale coordinates)
                     Point<S32> local
                     (
-                        S32(255.5f + (player->longitude * 256.0f / 180.0f)),
-                        S32(127.5f - (player->latitude * 128.0f / 90.0f))
+                        S32((255.5f + (player->longitude * 256.0f / 180.0f)) * scale),
+                        S32((127.5f - (player->latitude * 128.0f / 90.0f)) * scale)
                     );
                     PlotLocation(ClientToScreen(local), offset, GetTeamColor(team->color));
                 }
@@ -322,11 +330,11 @@ namespace MultiPlayer
             {
                 mouse = ScreenToClient(mouse);
 
-                // Convert the position of the mouse into longitude and latitude
+                // Convert the position of the mouse into longitude and latitude (unscale mouse coords)
                 Point<F32> pos
                 (
-                    (F32(mouse.x) - 255.5f) * 180.0f / 256.0f,
-                    (127.5f - F32(mouse.y)) * 90.0f / 128.0f
+                    (F32(mouse.x) / scale - 255.5f) * 180.0f / 256.0f,
+                    (127.5f - F32(mouse.y) / scale) * 90.0f / 128.0f
                 );
 
                 // Sort the locations of the players by their proximity to that location
@@ -446,16 +454,16 @@ namespace MultiPlayer
                             // Point2 is the latitude and longitude of this player
                             Point<F32> p2((*f)->player->longitude, (*f)->player->latitude);
 
-                            // Convert into client co-ordinates
+                            // Convert into client co-ordinates (scale coordinates)
                             Point<S32> c1
                             (
-                                S32(255.5f + (p1.x * 256.0f / 180.0f)),
-                                S32(127.5f - (p1.y * 128.0f / 90.0f))
+                                S32((255.5f + (p1.x * 256.0f / 180.0f)) * scale),
+                                S32((127.5f - (p1.y * 128.0f / 90.0f)) * scale)
                             );
                             Point<S32> c2
                             (
-                                S32(255.5f + (p2.x * 256.0f / 180.0f)),
-                                S32(127.5f - (p2.y * 128.0f / 90.0f))
+                                S32((255.5f + (p2.x * 256.0f / 180.0f)) * scale),
+                                S32((127.5f - (p2.y * 128.0f / 90.0f)) * scale)
                             );
 
                             Point<S32> s = ClientToScreen(c1);
@@ -468,8 +476,10 @@ namespace MultiPlayer
                             // Draw the line
                             IFace::RenderLine(s, ClientToScreen(c2), color1, color2, pi.alphaScale);
 
-                            // Draw the backing in the team color
-                            ClipRect c(s - Point<S32>(50, 8), s + Point<S32>(50, 8));
+                            // Draw the backing in the team color (scale dimensions)
+                            S32 boxWidth = S32(50.0f * scale);
+                            S32 boxHeight = S32(8.0f * scale);
+                            ClipRect c(s - Point<S32>(boxWidth, boxHeight), s + Point<S32>(boxWidth, boxHeight));
 
                             IFace::RenderRectangle(c, color1);
 
@@ -636,11 +646,12 @@ namespace MultiPlayer
 
                         mouse = ScreenToClient(mouse);
 
-                        // Convert the position of the mouse into longitude and latitude
+                        // Convert the position of the mouse into longitude and latitude (unscale mouse coords)
+                        F32 scale = IFace::GetScale();
                         Point<F32> pos
                         (
-                            (F32(mouse.x) - 255.5f) * 180.0f / 256.0f,
-                            (127.5f - F32(mouse.y)) * 90.0f / 128.0f
+                            (F32(mouse.x) / scale - 255.5f) * 180.0f / 256.0f,
+                            (127.5f - F32(mouse.y) / scale) * 90.0f / 128.0f
                         );
 
                         longitude->SetFloatValue(pos.x);

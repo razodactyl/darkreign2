@@ -1051,10 +1051,12 @@ ClipRect ICListBox::GetAdjustmentRect()
 
     if (skin == nullptr)
     {
-        // Adjust geometry to compensate for slider
+        // Adjust geometry to compensate for slider (scale from design-space)
         if (listBoxStyle & STYLE_VSLIDER)
         {
-            r.Set(0, 0, -(GetMetric(IFace::SLIDER_WIDTH) + 0), 0);
+            F32 scale = IFace::GetScale();
+            S32 sliderWidth = S32(F32(GetMetric(IFace::SLIDER_WIDTH)) * scale);
+            r.Set(0, 0, -sliderWidth, 0);
         }
     }
 
@@ -1096,7 +1098,11 @@ void ICListBox::PostConfigure()
             sliderCtrl = new ICListSlider(this);
             sliderCtrl->SetName(SliderCtrlName);
             sliderCtrl->SetGeometry("WinParentHeight", "WinRight", "WinTop", NULL);
-            sliderCtrl->SetSize(GetMetric(IFace::SLIDER_WIDTH), 0);
+            // Set design-space size in geom.size (not unscaledConfigSize)
+            // Width is from metric (design-space), height is 0 (will be set by WinParentHeight flag)
+            // Use geom.size directly so AdjustGeometry doesn't try to scale it
+            F32 scale = IFace::GetScale();
+            sliderCtrl->geom.size.Set(S32(F32(GetMetric(IFace::SLIDER_WIDTH)) * scale), 0);
             sliderCtrl->SetOrientation("Vertical");
         }
 

@@ -31,9 +31,10 @@ ICGridWindow::ICGridWindow(const char* name, U32 sx, U32 sy, U32 cx, U32 cy)
     // Create the grid
     grid = new ICGrid("Grid", sx, sy, cx, cy, this);
 
-    // Setup the window
+    // Setup the window - use design-space values
     SetName(name);
-    SetSize(grid->GetSize().x, grid->GetSize().y + IFace::GetMetric(IFace::THIN_TITLE_HEIGHT));
+    // Grid size is in design-space (gridSize * cellSize), title height is also design-space
+    SetGeomSize(sx * cx, sy * cy + IFace::GetMetric(IFace::THIN_TITLE_HEIGHT));
     SetStyle("ThinTitleBar", NULL);
 }
 

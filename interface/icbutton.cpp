@@ -188,6 +188,18 @@ void ICButton::AdjustGeometry()
     // Call base class
     IControl::AdjustGeometry();
 
+    // Update button-specific client rects
+    UpdateClientRects();
+}
+
+
+//
+// ICButton::UpdateClientRects
+//
+// Update the client rectangles for button states
+//
+void ICButton::UpdateClientRects()
+{
     // Calculate client rectangles when in up and down states
     if (controlStyle & STYLE_DROPSHADOW)
     {
@@ -202,6 +214,17 @@ void ICButton::AdjustGeometry()
         clientRects[BS_UP] = paintInfo.client;
         clientRects[BS_DOWN] = paintInfo.client;
     }
+}
+
+
+//
+// ICButton::OnScreenSizeChanged
+//
+// Called when SetScreenSize updates the control size
+//
+void ICButton::OnScreenSizeChanged()
+{
+    UpdateClientRects();
 }
 
 

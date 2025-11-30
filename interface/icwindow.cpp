@@ -119,10 +119,10 @@ void ICWindow::PostConfigure()
             // Create title bar
             titleBar = new ICWindowTitle(this);
 
-            // Hard coded defaults
+            // Hard coded defaults - use design-space values (will be scaled by AdjustGeometry)
             titleBar->SetName(TitleBarCtlName);
-            titleBar->SetSize(0, titleHeight);
-            titleBar->SetPos(0, -titleHeight);
+            titleBar->SetGeomSize(0, titleHeight);
+            titleBar->SetGeomPos(0, -titleHeight);
             titleBar->SetGeometry("WinParentWidth", NULL);
             titleBar->SetStyle("TitleGradient", "DropShadow", NULL);
             titleBar->SetFont(font);
@@ -134,10 +134,10 @@ void ICWindow::PostConfigure()
             {
                 closeBtn = new ICSystemButton(ICSystemButton::CLOSE, this);
 
-                // Hard coded defaults
+                // Hard coded defaults - use design-space values
                 closeBtn->SetName(CloseBtnCtlName);
-                closeBtn->SetSize(titleHeight - 2, titleHeight - 2);
-                closeBtn->SetPos(-2, -titleHeight + 1);
+                closeBtn->SetGeomSize(titleHeight - 2, titleHeight - 2);
+                closeBtn->SetGeomPos(-2, -titleHeight + 1);
                 closeBtn->SetGeometry("Right", NULL);
             }
         }
@@ -152,6 +152,7 @@ void ICWindow::PostConfigure()
 // ICWindow::GetAdjustmentRect
 //
 // Calculate an adjustment rect based on the style
+// Returns screen-space pixel values (scaled)
 //
 ClipRect ICWindow::GetAdjustmentRect()
 {
@@ -159,13 +160,14 @@ ClipRect ICWindow::GetAdjustmentRect()
 
     if (skin == NULL)
     {
+        F32 scale = IFace::GetScale();
         if (windowStyle & STYLE_TITLEBAR)
         {
-            r.Set(0, IFace::GetMetric(IFace::TITLE_HEIGHT), 0, 0);
+            r.Set(0, S32(F32(IFace::GetMetric(IFace::TITLE_HEIGHT)) * scale), 0, 0);
         }
         else if (windowStyle & STYLE_THINTITLEBAR)
         {
-            r.Set(0, IFace::GetMetric(IFace::THIN_TITLE_HEIGHT), 0, 0);
+            r.Set(0, S32(F32(IFace::GetMetric(IFace::THIN_TITLE_HEIGHT)) * scale), 0, 0);
         }
     }
 

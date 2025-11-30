@@ -195,11 +195,35 @@ namespace Client
 
         if (facility.Alive())
         {
+            // Scale all internal layout metrics from design-space units into
+            // screen-space pixels using the global UI scale.
+            F32 scale = IFace::GetScale();
+
+            auto ScaleArea = [scale](const Area<S32>& a) -> Area<S32>
+            {
+                return Area<S32>
+                (
+                    S32(F32(a.p0.x) * scale),
+                    S32(F32(a.p0.y) * scale),
+                    S32(F32(a.p1.x) * scale),
+                    S32(F32(a.p1.y) * scale)
+                );
+            };
+
+            Point<S32> scaledCount
+            (
+                S32(F32(pointCount.x) * scale),
+                S32(F32(pointCount.y) * scale)
+            );
+
+            Area<S32> scaledHealth  = ScaleArea(areaHealth);
+            Area<S32> scaledProg    = ScaleArea(areaProgress);
+
             // Display the health
             F32 pct;
             Color color;
             facility->GetHealthInfo(color, pct);
-            IFace::RenderRectangle(areaHealth + pi.client.p0, color, nullptr, IFace::data.alphaScale);
+            IFace::RenderRectangle(scaledHealth + pi.client.p0, color, nullptr, IFace::data.alphaScale);
 
             // Display progress bar
             if (progress > 0.0F)
@@ -207,7 +231,7 @@ namespace Client
                 // Get the configured bar color
                 color = HUD::GetColorEntry(progressType);
 
-                ClipRect clip = areaProgress + pi.client.p0;
+                ClipRect clip = scaledProg + pi.client.p0;
                 IFace::RenderRectangle(clip, color, nullptr, alphas.x * IFace::data.alphaScale);
                 clip.p1.x = clip.p0.x + S32(progress * F32(clip.p1.x - clip.p0.x));
                 IFace::RenderRectangle(clip, color, nullptr, alphas.y * IFace::data.alphaScale);
@@ -218,8 +242,12 @@ namespace Client
             {
                 IFace::RenderS32
                 (
-                    count, pi.font, pi.colors->fg[ColorIndex()],
-                    pointCount.x, pointCount.y, &pi.client,
+                    count,
+                    pi.font,
+                    pi.colors->fg[ColorIndex()],
+                    scaledCount.x,
+                    scaledCount.y,
+                    &pi.client,
                     IFace::data.alphaScale
                 );
             }

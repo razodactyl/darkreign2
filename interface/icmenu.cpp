@@ -313,11 +313,22 @@ IControl* ICMenu::AddItem(const char* name, const CH* text, const char* event, B
 // 
 Bool ICMenu::Activate()
 {
+    // Structure to store child layout info
+    struct ChildLayout {
+        IControl* ctrl;
+        S32 x, y, w, h;
+    };
+    ChildLayout* layouts = nullptr;
+    U32 layoutCount = 0;
+    
     // Only adjust if not already active
     if (CanActivate())
     {
         NList<IControl>::Iterator i(&children);
-        S32 offset = menuEdge, xMax = 0, yMax = 0;
+        // Scale menu edge for higher resolutions
+        F32 scale = IFace::GetScale();
+        S32 scaledEdge = S32(F32(menuEdge) * scale);
+        S32 offset = scaledEdge, xMax = 0, yMax = 0;
 
         // Step though all children
         for (i.GoToTail(); *i; i--)
@@ -350,36 +361,159 @@ Bool ICMenu::Activate()
             return (FALSE);
         }
 
-        // Adjust position of each child
+        // Store the calculated sizes for each child before activation
+        // We need to do this because IControl::Activate() calls AdjustGeometry() 
+        // on children which resets their sizes back to config values
+        layouts = new ChildLayout[children.GetCount()];
+        
+        // Calculate and store final positions/sizes
         for (i.GoToTail(); *i; i--)
         {
-            // Set the final size and position
+            ChildLayout& layout = layouts[layoutCount++];
+            layout.ctrl = *i;
+            
             if (menuStyle & STYLE_HORIZONTAL)
             {
-                (*i)->SetSize((*i)->GetSize().x, yMax);
-                (*i)->SetPos(offset, menuEdge);
-                offset += (*i)->GetSize().x;
+                layout.w = (*i)->GetSize().x;
+                layout.h = yMax;
+                layout.x = offset;
+                layout.y = scaledEdge;
+                offset += layout.w;
             }
             else
             {
-                (*i)->SetSize(xMax, (*i)->GetSize().y);
-                (*i)->SetPos(menuEdge, offset);
-                offset += (*i)->GetSize().y;
+                layout.w = xMax;
+                layout.h = (*i)->GetSize().y;
+                layout.x = scaledEdge;
+                layout.y = offset;
+                offset += layout.h;
             }
         }
 
-        // Update the size of the menu
+        // Update the size of the menu (screen-space)
         if (menuStyle & STYLE_HORIZONTAL)
         {
-            SetSize(offset + menuEdge, yMax + (menuEdge * 2));
+            size.x = offset + scaledEdge;
+            size.y = yMax + (scaledEdge * 2);
         }
         else
         {
-            SetSize(xMax + (menuEdge * 2), offset + menuEdge);
+            size.x = xMax + (scaledEdge * 2);
+            size.y = offset + scaledEdge;
         }
     }
 
-    return (IControl::Activate());
+    // Store calculated size before calling base Activate
+    Point<S32> calculatedSize = size;
+    Bool hasCalculatedSize = (calculatedSize.x > 0 && calculatedSize.y > 0);
+    
+    // Call base Activate - this will call AdjustGeometry on self and children
+    if (!IControl::Activate())
+    {
+        if (layouts) delete[] layouts;
+        return FALSE;
+    }
+    
+    // If we calculated a menu size, we need to fix up the size and position
+    // AdjustGeometry may have set size to 0 (from geom.size) and calculated wrong position
+    if (hasCalculatedSize)
+    {
+        // Restore our calculated size
+        size = calculatedSize;
+        
+        // Recalculate position based on geometry flags or alignment
+        if (parent)
+        {
+            F32 posScale = IFace::GetScale();
+            S32 offsetX = S32(F32(geom.unscaledConfigPos.x) * posScale);
+            S32 offsetY = S32(F32(geom.unscaledConfigPos.y) * posScale);
+            S32 parentWidth = parent->GetPaintInfo().client.Width();
+            S32 parentHeight = parent->GetPaintInfo().client.Height();
+            
+            // If aligned to another control, recalculate alignment with correct size
+            if (alignTo.Alive())
+            {
+                // Get align target's position and size
+                Point<S32> alignPos(alignTo->GetPos());
+                Point<S32> alignSize(alignTo->GetSize());
+                
+                // Horizontal positioning
+                if (geom.flags & GEOM_RIGHT)
+                {
+                    pos.x = alignPos.x + alignSize.x + offsetX;
+                    if (geom.flags & GEOM_HINTERNAL)
+                    {
+                        pos.x -= size.x;
+                    }
+                }
+                else
+                {
+                    pos.x = alignPos.x + offsetX - ((geom.flags & GEOM_HINTERNAL) ? 0 : size.x);
+                }
+                
+                // Vertical positioning
+                if (geom.flags & GEOM_BOTTOM)
+                {
+                    pos.y = alignPos.y + alignSize.y + offsetY;
+                    if (geom.flags & GEOM_VINTERNAL)
+                    {
+                        pos.y -= size.y;
+                    }
+                }
+                else
+                {
+                    pos.y = alignPos.y + offsetY - ((geom.flags & GEOM_VINTERNAL) ? 0 : size.y);
+                }
+                
+                // Apply KEEPVISIBLE after alignment recalculation
+                if (geom.flags & GEOM_KEEPVISIBLE)
+                {
+                    pos.x = Clamp<S32>(0, pos.x, parentWidth - size.x);
+                    pos.y = Clamp<S32>(0, pos.y, parentHeight - size.y);
+                }
+            }
+            else
+            {
+                // Horizontal positioning
+                if (geom.flags & GEOM_HCENTRE)
+                {
+                    pos.x = (parentWidth - size.x) / 2 + offsetX;
+                }
+                else if (geom.flags & GEOM_RIGHT)
+                {
+                    pos.x = parentWidth - size.x + offsetX;
+                }
+                
+                // Vertical positioning
+                if (geom.flags & GEOM_VCENTRE)
+                {
+                    pos.y = (parentHeight - size.y) / 2 + offsetY;
+                }
+                else if (geom.flags & GEOM_BOTTOM)
+                {
+                    pos.y = parentHeight - size.y + offsetY;
+                }
+            }
+        }
+        
+        // Update paintInfo to match corrected size
+        paintInfo.window.Set(0, 0, size.x, size.y);
+        paintInfo.client = paintInfo.window + GetAdjustmentRect();
+    }
+    
+    // Restore child layouts after IControl::Activate() reset them
+    // Use SetScreenPos/SetScreenSize to avoid corrupting the config values
+    if (layouts)
+    {
+        for (U32 i = 0; i < layoutCount; i++)
+        {
+            layouts[i].ctrl->SetScreenSize(layouts[i].w, layouts[i].h);
+            layouts[i].ctrl->SetScreenPos(layouts[i].x, layouts[i].y);
+        }
+        delete[] layouts;
+    }
+    
+    return TRUE;
 }
 
 
@@ -415,6 +549,18 @@ U32 ICMenu::HandleEvent(Event& e)
     {
         switch (e.subType)
         {
+            case IFace::DISPLAYMODECHANGED:
+            {
+                // Re-layout the menu for the new resolution
+                // Deactivate and reactivate to recalculate child sizes and positions
+                if (controlState & STATE_ACTIVE)
+                {
+                    Deactivate();
+                    Activate();
+                }
+                return (TRUE);
+            }
+            
             case IFace::NOTIFY:
             {
                 // If no callback, or callback didn't handle this event

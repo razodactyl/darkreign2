@@ -193,6 +193,7 @@ ModelManifest.xml
 .vs/dr2/v15/Browse.VC.opendb
 *.db-shm
 .vs/dr2/v15/Solution.VC.db-wal
+/.vs
 /appdr2/Development/appdr2.tlog
 /appdr2/appdr2.tlog
 /appdr2/RCa02784

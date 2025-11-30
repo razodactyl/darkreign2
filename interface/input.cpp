@@ -928,8 +928,8 @@ namespace Input
                 SetMousePos(x / 2, y / 2);
 
                 // Recalculate mouse acceleration
-                accel.x = (x << 16) / 1024;
-                accel.y = (y << 16) / 768;
+                accel.x = (x << 16) / Vid::backBmp.Width();
+                accel.y = (y << 16) / Vid::backBmp.Height();
             }
         }
     }

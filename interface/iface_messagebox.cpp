@@ -224,7 +224,8 @@ namespace IFace
 
                     // Common settings
                     s->SetTextString(lineBuf[i], TRUE);
-                    s->SetPos(0, y);
+                    // Use SetGeomPos for design-space position values
+                    s->SetGeomPos(0, y);
 
                     if (s->GetPaintInfo().font)
                     {
@@ -265,12 +266,14 @@ namespace IFace
                 {
                     // Use defaults if no template found
                     buttons[b]->SetTextFont("System");
-                    buttons[b]->SetSize(buttonX, buttonY);
+                    // Use SetGeomSize for design-space values - AdjustGeometry will scale
+                    buttons[b]->SetGeomSize(buttonX, buttonY);
                 }
 
                 // Common settings
                 buttons[b]->SetTextString(events[b]->caption, FALSE);
-                buttons[b]->SetPos(x + (b * (buttonX + BTN_SPACE)), -BTN_SPACE);
+                // Use SetGeomPos for design-space position values
+                buttons[b]->SetGeomPos(x + (b * (buttonX + BTN_SPACE)), -BTN_SPACE);
                 buttons[b]->SetGeometry("Bottom", "Left", NULL);
 
                 // Add a notification so window will recieve a notification matching this buttons ident.
@@ -281,8 +284,8 @@ namespace IFace
         // Button size
         windowHeight += buttonY + BTN_SPACE;
 
-        // Adjust window size
-        wnd->SetSize(windowWidth, windowHeight);
+        // Adjust window size (design-space values - AdjustGeometry will scale)
+        wnd->SetGeomSize(windowWidth, windowHeight);
 
         // Activate it
         wnd->Activate();

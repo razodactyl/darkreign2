@@ -247,8 +247,10 @@ public:
     struct Geometry
     {
         U32 flags;
-        Point<S32> size;
-        Point<S32> pos;
+        Point<S32> size;              // Legacy field, kept in sync with unscaledConfigSize
+        Point<S32> pos;               // Legacy field, kept in sync with unscaledConfigPos
+        Point<S32> unscaledConfigSize; // Design-space size from config (640x480 base)
+        Point<S32> unscaledConfigPos;  // Design-space position from config (640x480 base)
     };
 
     // Multi line text
@@ -289,11 +291,19 @@ protected:
     // Parent of this control
     IControl* parent;
 
-    // Optional irregular region
+    // Optional irregular region (design-space coordinates)
     Array<Point<S32>>* region;
+    
+    // Scaled region for hit testing (screen-space coordinates)
+    Array<Point<S32>>* scaledRegion;
 
-    // Display information
+    // Display information (screen-space)
     PaintInfo paintInfo;
+
+    // Design-space paint rectangles (640x480 base)
+    ClipRect designWindow;
+    ClipRect designClient;
+    Point<S32> designPos;
 
     // Control to align geometry with
     IControlPtr alignTo;
@@ -414,8 +424,11 @@ protected:
 
 protected:
 
-    // Setup alignment to another control
+    // Setup alignment to another control (screen-space legacy)
     void SetupAlignment();
+
+    // Setup alignment to another control using design-space coordinates
+    void SetupAlignmentDesign(Point<S32>& designPos, Point<S32>& designSize, F32 invScale);
 
     // Finds and sets the tab stop
     Bool SetTabStop(IControl* from, Bool forward = TRUE);
@@ -460,6 +473,9 @@ protected:
     // Automatically resize geometry
     virtual void AutoSize();
 
+    // Evaluate autosize result in design-space without mutating state
+    Point<S32> CalcAutoSizeDesign();
+
     // Color mask for index into colorgroup array
     U32 ColorIndex() const
     {
@@ -501,6 +517,9 @@ public:
     {
         return (paintInfo);
     }
+
+    const ClipRect& GetDesignWindow() const { return designWindow; }
+    const ClipRect& GetDesignClient() const { return designClient; }
 
     //
     // Child/parent functions
@@ -580,11 +599,27 @@ public:
     // Set the size of this control
     void SetSize(S32 width, S32 height);
 
-    // Set the geometry size of this control
+    // Set the geometry size of this control (design-space units)
     void SetGeomSize(S32 width, S32 height);
 
-    // Set the position of this control
+    // Set the geometry position of this control (design-space units)
+    void SetGeomPos(S32 x, S32 y);
+
+    // Get the geometry settings
+    const Geometry& GetGeometry() const { return geom; }
+
+    // Set the position of this control (screen-space pixels)
     void SetPos(S32 x, S32 y);
+    
+    // Set screen-space position without updating config (for menu layout)
+    void SetScreenPos(S32 x, S32 y);
+    
+    // Set screen-space size without updating config (for menu layout)
+    void SetScreenSize(S32 w, S32 h);
+    
+    // Called after SetScreenSize to update any derived-class specific state
+    // Override in derived classes that cache geometry-dependent values
+    virtual void OnScreenSizeChanged() {}
 
     // Set the color group
     void SetColorGroup(ColorGroup* c);

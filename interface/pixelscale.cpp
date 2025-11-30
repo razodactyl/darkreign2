@@ -1,0 +1,917 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Copyright 1997-1999 Pandemic Studios, Dark Reign II
+//
+// Pixel Art Scaling System
+//
+// Implements pixel art scaling algorithms:
+// - Scale2x/EPX/AdvMAME2x (Eric Johnston, LucasArts 1992)
+// - Scale3x/AdvMAME3x
+// - Eagle
+//
+// Reference: https://en.wikipedia.org/wiki/Pixel-art_scaling_algorithms
+//
+
+#include "pixelscale.h"
+#include "iface.h"
+#include <cmath>
+
+#ifdef PIXELSCALE_SCALE2X_UI
+#include "bitmap.h"
+#include <set>
+
+// Track which bitmaps have already been scaled to avoid double-scaling
+static std::set<Bitmap*> scaledBitmaps;
+#endif
+
+namespace PixelScale
+{
+    //
+    // Module state
+    //
+    static Algorithm currentAlgorithm = DEFAULT;
+    static S32 maxScaleFactor = 4;
+    static S32 cachedIntegerScale = 1;
+    static F32 cachedRemainder = 0.0f;
+    static Bool initialized = FALSE;
+
+    //
+    // Helper: Get pixel with bounds checking (clamp to edge)
+    //
+    static inline U32 GetPixel(const U32* src, S32 width, S32 height, S32 x, S32 y)
+    {
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x >= width) x = width - 1;
+        if (y >= height) y = height - 1;
+        return src[y * width + x];
+    }
+
+    //
+    // Helper: Set pixel in destination
+    //
+    static inline void SetPixel(U32* dst, S32 dstWidth, S32 x, S32 y, U32 color)
+    {
+        dst[y * dstWidth + x] = color;
+    }
+
+    //
+    // Helper: Extract color components
+    //
+    static inline void GetRGBA(U32 color, S32& r, S32& g, S32& b, S32& a)
+    {
+        a = (color >> 24) & 0xFF;
+        r = (color >> 16) & 0xFF;
+        g = (color >> 8) & 0xFF;
+        b = color & 0xFF;
+    }
+
+    //
+    // Helper: Make color from components
+    //
+    static inline U32 MakeRGBA(S32 r, S32 g, S32 b, S32 a)
+    {
+        return (U32(a & 0xFF) << 24) | (U32(r & 0xFF) << 16) | (U32(g & 0xFF) << 8) | U32(b & 0xFF);
+    }
+
+    //
+    // Helper: Convert RGB to YUV for perceptual color comparison
+    // Y = luminance, U/V = chrominance
+    //
+    static inline void RGBtoYUV(S32 r, S32 g, S32 b, S32& y, S32& u, S32& v)
+    {
+        y = (r + g + b) / 3;  // Simplified luminance
+        u = 128 + (r - b) / 2;
+        v = 128 + (g * 2 - r - b) / 4;
+    }
+
+    //
+    // Helper: Check if two colors are "different" using YUV comparison
+    // This is the key to hq2x - it determines edge detection
+    //
+    static inline Bool ColorsDifferent(U32 c1, U32 c2, S32 threshold = 48)
+    {
+        if (c1 == c2) return FALSE;
+
+        S32 r1, g1, b1, a1, r2, g2, b2, a2;
+        GetRGBA(c1, r1, g1, b1, a1);
+        GetRGBA(c2, r2, g2, b2, a2);
+
+        // Alpha difference check
+        if (abs(a1 - a2) > threshold) return TRUE;
+
+        // YUV comparison for perceptual similarity
+        S32 y1, u1, v1, y2, u2, v2;
+        RGBtoYUV(r1, g1, b1, y1, u1, v1);
+        RGBtoYUV(r2, g2, b2, y2, u2, v2);
+
+        return (abs(y1 - y2) > threshold) || 
+               (abs(u1 - u2) > (threshold / 4)) || 
+               (abs(v1 - v2) > (threshold / 4));
+    }
+
+    //
+    // Helper: Interpolate two colors (50/50 blend)
+    //
+    static inline U32 Interp2(U32 c1, U32 c2)
+    {
+        S32 r1, g1, b1, a1, r2, g2, b2, a2;
+        GetRGBA(c1, r1, g1, b1, a1);
+        GetRGBA(c2, r2, g2, b2, a2);
+        return MakeRGBA((r1 + r2) / 2, (g1 + g2) / 2, (b1 + b2) / 2, (a1 + a2) / 2);
+    }
+
+    //
+    // Helper: Interpolate three colors (2:1:1 ratio)
+    //
+    static inline U32 Interp3(U32 c1, U32 c2, U32 c3)
+    {
+        S32 r1, g1, b1, a1, r2, g2, b2, a2, r3, g3, b3, a3;
+        GetRGBA(c1, r1, g1, b1, a1);
+        GetRGBA(c2, r2, g2, b2, a2);
+        GetRGBA(c3, r3, g3, b3, a3);
+        return MakeRGBA((r1 * 2 + r2 + r3) / 4, (g1 * 2 + g2 + g3) / 4, 
+                        (b1 * 2 + b2 + b3) / 4, (a1 * 2 + a2 + a3) / 4);
+    }
+
+    //
+    // Helper: Interpolate four colors (equal weight)
+    //
+    static inline U32 Interp4(U32 c1, U32 c2, U32 c3, U32 c4)
+    {
+        S32 r1, g1, b1, a1, r2, g2, b2, a2, r3, g3, b3, a3, r4, g4, b4, a4;
+        GetRGBA(c1, r1, g1, b1, a1);
+        GetRGBA(c2, r2, g2, b2, a2);
+        GetRGBA(c3, r3, g3, b3, a3);
+        GetRGBA(c4, r4, g4, b4, a4);
+        return MakeRGBA((r1 + r2 + r3 + r4) / 4, (g1 + g2 + g3 + g4) / 4, 
+                        (b1 + b2 + b3 + b4) / 4, (a1 + a2 + a3 + a4) / 4);
+    }
+
+    //
+    // Initialize / update cached values
+    //
+    void Init()
+    {
+        F32 rawScale = IFace::GetScale();
+        
+        // Calculate integer scale (floor, clamped to [1, maxScale])
+        cachedIntegerScale = S32(floorf(rawScale));
+        if (cachedIntegerScale < 1) cachedIntegerScale = 1;
+        if (cachedIntegerScale > maxScaleFactor) cachedIntegerScale = maxScaleFactor;
+        
+        // Calculate remainder for sub-pixel positioning
+        cachedRemainder = rawScale - F32(cachedIntegerScale);
+        
+        initialized = TRUE;
+    }
+
+    //
+    // Ensure initialized
+    //
+    static void EnsureInit()
+    {
+        if (!initialized)
+        {
+            Init();
+        }
+    }
+
+    //
+    // Get integer scale factor
+    //
+    S32 GetIntegerScale(S32 maxScale)
+    {
+        EnsureInit();
+        
+        S32 scale = cachedIntegerScale;
+        if (scale > maxScale) scale = maxScale;
+        return scale;
+    }
+
+    //
+    // Get the fractional remainder
+    //
+    F32 GetScaleRemainder()
+    {
+        EnsureInit();
+        return cachedRemainder;
+    }
+
+    //
+    // Check if integer scaling is appropriate
+    //
+    Bool ShouldUseIntegerScale(F32 tolerance)
+    {
+        EnsureInit();
+        return cachedRemainder < tolerance;
+    }
+
+    //
+    // Scale a dimension
+    //
+    S32 ScaleDimension(S32 value)
+    {
+        EnsureInit();
+        return value * cachedIntegerScale;
+    }
+
+    //
+    // Scale a position
+    //
+    S32 ScalePosition(S32 value, Bool centerRemainder)
+    {
+        EnsureInit();
+        
+        S32 scaled = value * cachedIntegerScale;
+        
+        if (centerRemainder && cachedRemainder > 0.0f)
+        {
+            // Add half the remainder to center the content
+            // This helps when the actual scale is between integers
+            scaled += S32(F32(value) * cachedRemainder * 0.5f);
+        }
+        
+        return scaled;
+    }
+
+    //
+    // Scale a float value
+    //
+    F32 ScaleF(F32 value)
+    {
+        EnsureInit();
+        return value * F32(cachedIntegerScale);
+    }
+
+    //
+    // Unscale back to design space
+    //
+    S32 Unscale(S32 screenValue)
+    {
+        EnsureInit();
+        if (cachedIntegerScale == 0) return screenValue;
+        return screenValue / cachedIntegerScale;
+    }
+
+    F32 UnscaleF(F32 screenValue)
+    {
+        EnsureInit();
+        if (cachedIntegerScale == 0) return screenValue;
+        return screenValue / F32(cachedIntegerScale);
+    }
+
+    //
+    // Get scaled UV coordinates with half-texel offset to avoid sampling artifacts
+    //
+    void GetScaledUV(F32 srcU, F32 srcV, F32 srcW, F32 srcH,
+                     F32& outU, F32& outV, F32& outW, F32& outH,
+                     S32 texWidth, S32 texHeight)
+    {
+        // Half-texel offset to sample from texel centers
+        // This prevents bleeding from adjacent texels when using point filtering
+        F32 halfTexelU = 0.5f / F32(texWidth);
+        F32 halfTexelV = 0.5f / F32(texHeight);
+        
+        outU = srcU + halfTexelU;
+        outV = srcV + halfTexelV;
+        outW = srcW - halfTexelU * 2.0f;
+        outH = srcH - halfTexelV * 2.0f;
+    }
+
+    //
+    // Calculate pixel-perfect destination rectangle
+    //
+    void GetPixelPerfectRect(S32 srcX, S32 srcY, S32 srcW, S32 srcH,
+                             S32& dstX, S32& dstY, S32& dstW, S32& dstH)
+    {
+        EnsureInit();
+        
+        // Scale dimensions by integer factor
+        dstW = srcW * cachedIntegerScale;
+        dstH = srcH * cachedIntegerScale;
+        
+        // Scale position by integer factor
+        dstX = srcX * cachedIntegerScale;
+        dstY = srcY * cachedIntegerScale;
+    }
+
+    //
+    // Set algorithm
+    //
+    void SetAlgorithm(Algorithm algo)
+    {
+        currentAlgorithm = algo;
+    }
+
+    Algorithm GetAlgorithm()
+    {
+        return currentAlgorithm;
+    }
+
+    //
+    // Configuration
+    //
+    void SetMaxScale(S32 max)
+    {
+        maxScaleFactor = max;
+        if (maxScaleFactor < 1) maxScaleFactor = 1;
+        
+        // Recalculate cached values
+        if (initialized)
+        {
+            Init();
+        }
+    }
+
+    S32 GetMaxScale()
+    {
+        return maxScaleFactor;
+    }
+
+    //
+    // Scale2x / EPX / AdvMAME2x algorithm
+    //
+    // For each pixel P with neighbors:
+    //     A
+    //   C P B
+    //     D
+    //
+    // Output 2x2 block:
+    //   1 2
+    //   3 4
+    //
+    // Rules:
+    //   1=P; 2=P; 3=P; 4=P;
+    //   IF C==A AND C!=D AND A!=B => 1=A
+    //   IF A==B AND A!=C AND B!=D => 2=B
+    //   IF D==C AND D!=B AND C!=A => 3=C
+    //   IF B==D AND B!=A AND D!=C => 4=D
+    //
+    void Scale2x(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst)
+    {
+        S32 dstWidth = srcWidth * 2;
+
+        for (S32 y = 0; y < srcHeight; y++)
+        {
+            for (S32 x = 0; x < srcWidth; x++)
+            {
+                // Get center pixel and neighbors
+                U32 P = GetPixel(src, srcWidth, srcHeight, x, y);
+                U32 A = GetPixel(src, srcWidth, srcHeight, x, y - 1);  // Above
+                U32 B = GetPixel(src, srcWidth, srcHeight, x + 1, y);  // Right
+                U32 C = GetPixel(src, srcWidth, srcHeight, x - 1, y);  // Left
+                U32 D = GetPixel(src, srcWidth, srcHeight, x, y + 1);  // Below
+
+                // Default: all output pixels = center pixel
+                U32 p1 = P, p2 = P, p3 = P, p4 = P;
+
+                // Apply Scale2x rules
+                if (C == A && C != D && A != B) p1 = A;
+                if (A == B && A != C && B != D) p2 = B;
+                if (D == C && D != B && C != A) p3 = C;
+                if (B == D && B != A && D != C) p4 = D;
+
+                // Write 2x2 output block
+                S32 dstX = x * 2;
+                S32 dstY = y * 2;
+                SetPixel(dst, dstWidth, dstX, dstY, p1);
+                SetPixel(dst, dstWidth, dstX + 1, dstY, p2);
+                SetPixel(dst, dstWidth, dstX, dstY + 1, p3);
+                SetPixel(dst, dstWidth, dstX + 1, dstY + 1, p4);
+            }
+        }
+    }
+
+    //
+    // Scale3x / AdvMAME3x algorithm
+    //
+    // For each pixel E with neighbors:
+    //   A B C
+    //   D E F
+    //   G H I
+    //
+    // Output 3x3 block:
+    //   1 2 3
+    //   4 5 6
+    //   7 8 9
+    //
+    void Scale3x(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst)
+    {
+        S32 dstWidth = srcWidth * 3;
+
+        for (S32 y = 0; y < srcHeight; y++)
+        {
+            for (S32 x = 0; x < srcWidth; x++)
+            {
+                // Get center pixel and all 8 neighbors
+                U32 A = GetPixel(src, srcWidth, srcHeight, x - 1, y - 1);
+                U32 B = GetPixel(src, srcWidth, srcHeight, x, y - 1);
+                U32 C = GetPixel(src, srcWidth, srcHeight, x + 1, y - 1);
+                U32 D = GetPixel(src, srcWidth, srcHeight, x - 1, y);
+                U32 E = GetPixel(src, srcWidth, srcHeight, x, y);
+                U32 F = GetPixel(src, srcWidth, srcHeight, x + 1, y);
+                U32 G = GetPixel(src, srcWidth, srcHeight, x - 1, y + 1);
+                U32 H = GetPixel(src, srcWidth, srcHeight, x, y + 1);
+                U32 I = GetPixel(src, srcWidth, srcHeight, x + 1, y + 1);
+
+                // Default: all output pixels = center pixel
+                U32 p1 = E, p2 = E, p3 = E;
+                U32 p4 = E, p5 = E, p6 = E;
+                U32 p7 = E, p8 = E, p9 = E;
+
+                // Apply Scale3x rules
+                if (D == B && D != H && B != F) p1 = D;
+                if ((D == B && D != H && B != F && E != C) || (B == F && B != D && F != H && E != A)) p2 = B;
+                if (B == F && B != D && F != H) p3 = F;
+                if ((H == D && H != F && D != B && E != A) || (D == B && D != H && B != F && E != G)) p4 = D;
+                // p5 = E (center always stays)
+                if ((B == F && B != D && F != H && E != I) || (F == H && F != B && H != D && E != C)) p6 = F;
+                if (H == D && H != F && D != B) p7 = D;
+                if ((F == H && F != B && H != D && E != G) || (H == D && H != F && D != B && E != I)) p8 = H;
+                if (F == H && F != B && H != D) p9 = F;
+
+                // Write 3x3 output block
+                S32 dstX = x * 3;
+                S32 dstY = y * 3;
+                SetPixel(dst, dstWidth, dstX, dstY, p1);
+                SetPixel(dst, dstWidth, dstX + 1, dstY, p2);
+                SetPixel(dst, dstWidth, dstX + 2, dstY, p3);
+                SetPixel(dst, dstWidth, dstX, dstY + 1, p4);
+                SetPixel(dst, dstWidth, dstX + 1, dstY + 1, p5);
+                SetPixel(dst, dstWidth, dstX + 2, dstY + 1, p6);
+                SetPixel(dst, dstWidth, dstX, dstY + 2, p7);
+                SetPixel(dst, dstWidth, dstX + 1, dstY + 2, p8);
+                SetPixel(dst, dstWidth, dstX + 2, dstY + 2, p9);
+            }
+        }
+    }
+
+    //
+    // Eagle algorithm (simple 2x with corner smoothing)
+    //
+    // For each pixel C with neighbors:
+    //   S T U
+    //   V C W
+    //   X Y Z
+    //
+    // Output 2x2 block:
+    //   1 2
+    //   3 4
+    //
+    // Rules:
+    //   First set all to C, then:
+    //   IF V==S==T => 1=S
+    //   IF T==U==W => 2=U
+    //   IF V==X==Y => 3=X
+    //   IF W==Z==Y => 4=Z
+    //
+    void Eagle2x(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst)
+    {
+        S32 dstWidth = srcWidth * 2;
+
+        for (S32 y = 0; y < srcHeight; y++)
+        {
+            for (S32 x = 0; x < srcWidth; x++)
+            {
+                // Get center pixel and all 8 neighbors
+                U32 S = GetPixel(src, srcWidth, srcHeight, x - 1, y - 1);
+                U32 T = GetPixel(src, srcWidth, srcHeight, x, y - 1);
+                U32 U = GetPixel(src, srcWidth, srcHeight, x + 1, y - 1);
+                U32 V = GetPixel(src, srcWidth, srcHeight, x - 1, y);
+                U32 C = GetPixel(src, srcWidth, srcHeight, x, y);
+                U32 W = GetPixel(src, srcWidth, srcHeight, x + 1, y);
+                U32 X = GetPixel(src, srcWidth, srcHeight, x - 1, y + 1);
+                U32 Y = GetPixel(src, srcWidth, srcHeight, x, y + 1);
+                U32 Z = GetPixel(src, srcWidth, srcHeight, x + 1, y + 1);
+
+                // Default: all output pixels = center pixel
+                U32 p1 = C, p2 = C, p3 = C, p4 = C;
+
+                // Apply Eagle rules
+                if (V == S && S == T) p1 = S;
+                if (T == U && U == W) p2 = U;
+                if (V == X && X == Y) p3 = X;
+                if (W == Z && Z == Y) p4 = Z;
+
+                // Write 2x2 output block
+                S32 dstX = x * 2;
+                S32 dstY = y * 2;
+                SetPixel(dst, dstWidth, dstX, dstY, p1);
+                SetPixel(dst, dstWidth, dstX + 1, dstY, p2);
+                SetPixel(dst, dstWidth, dstX, dstY + 1, p3);
+                SetPixel(dst, dstWidth, dstX + 1, dstY + 1, p4);
+            }
+        }
+    }
+
+    //
+    // hq2x algorithm (simplified implementation based on Maxim Stepin's algorithm)
+    //
+    // Uses YUV color comparison to detect edges and interpolates colors
+    // for smooth anti-aliased output. This produces higher quality than
+    // Scale2x but introduces new colors (anti-aliasing).
+    //
+    // For each pixel E with neighbors:
+    //   A B C
+    //   D E F
+    //   G H I
+    //
+    // Output 2x2 block with interpolated colors based on edge detection
+    //
+    void Hq2x(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst)
+    {
+        S32 dstWidth = srcWidth * 2;
+
+        for (S32 y = 0; y < srcHeight; y++)
+        {
+            for (S32 x = 0; x < srcWidth; x++)
+            {
+                // Get center pixel and all 8 neighbors
+                U32 A = GetPixel(src, srcWidth, srcHeight, x - 1, y - 1);
+                U32 B = GetPixel(src, srcWidth, srcHeight, x, y - 1);
+                U32 C = GetPixel(src, srcWidth, srcHeight, x + 1, y - 1);
+                U32 D = GetPixel(src, srcWidth, srcHeight, x - 1, y);
+                U32 E = GetPixel(src, srcWidth, srcHeight, x, y);
+                U32 F = GetPixel(src, srcWidth, srcHeight, x + 1, y);
+                U32 G = GetPixel(src, srcWidth, srcHeight, x - 1, y + 1);
+                U32 H = GetPixel(src, srcWidth, srcHeight, x, y + 1);
+                U32 I = GetPixel(src, srcWidth, srcHeight, x + 1, y + 1);
+
+                // Build pattern based on color differences
+                // Each bit represents whether that neighbor differs from center
+                U32 pattern = 0;
+                if (ColorsDifferent(E, A)) pattern |= 0x01;
+                if (ColorsDifferent(E, B)) pattern |= 0x02;
+                if (ColorsDifferent(E, C)) pattern |= 0x04;
+                if (ColorsDifferent(E, D)) pattern |= 0x08;
+                if (ColorsDifferent(E, F)) pattern |= 0x10;
+                if (ColorsDifferent(E, G)) pattern |= 0x20;
+                if (ColorsDifferent(E, H)) pattern |= 0x40;
+                if (ColorsDifferent(E, I)) pattern |= 0x80;
+
+                // Default output is center pixel
+                U32 p1 = E, p2 = E, p3 = E, p4 = E;
+
+                // Apply hq2x-style interpolation rules
+                // Top-left pixel (p1)
+                if (!ColorsDifferent(D, B) && ColorsDifferent(E, A))
+                {
+                    p1 = Interp2(D, B);
+                }
+                else if (!ColorsDifferent(D, B))
+                {
+                    p1 = Interp3(E, D, B);
+                }
+
+                // Top-right pixel (p2)
+                if (!ColorsDifferent(B, F) && ColorsDifferent(E, C))
+                {
+                    p2 = Interp2(B, F);
+                }
+                else if (!ColorsDifferent(B, F))
+                {
+                    p2 = Interp3(E, B, F);
+                }
+
+                // Bottom-left pixel (p3)
+                if (!ColorsDifferent(D, H) && ColorsDifferent(E, G))
+                {
+                    p3 = Interp2(D, H);
+                }
+                else if (!ColorsDifferent(D, H))
+                {
+                    p3 = Interp3(E, D, H);
+                }
+
+                // Bottom-right pixel (p4)
+                if (!ColorsDifferent(H, F) && ColorsDifferent(E, I))
+                {
+                    p4 = Interp2(H, F);
+                }
+                else if (!ColorsDifferent(H, F))
+                {
+                    p4 = Interp3(E, H, F);
+                }
+
+                // Write 2x2 output block
+                S32 dstX = x * 2;
+                S32 dstY = y * 2;
+                SetPixel(dst, dstWidth, dstX, dstY, p1);
+                SetPixel(dst, dstWidth, dstX + 1, dstY, p2);
+                SetPixel(dst, dstWidth, dstX, dstY + 1, p3);
+                SetPixel(dst, dstWidth, dstX + 1, dstY + 1, p4);
+            }
+        }
+    }
+
+    //
+    // hq3x algorithm (simplified implementation)
+    //
+    // Similar to hq2x but outputs 3x3 block per input pixel
+    //
+    void Hq3x(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst)
+    {
+        S32 dstWidth = srcWidth * 3;
+
+        for (S32 y = 0; y < srcHeight; y++)
+        {
+            for (S32 x = 0; x < srcWidth; x++)
+            {
+                // Get center pixel and all 8 neighbors
+                U32 A = GetPixel(src, srcWidth, srcHeight, x - 1, y - 1);
+                U32 B = GetPixel(src, srcWidth, srcHeight, x, y - 1);
+                U32 C = GetPixel(src, srcWidth, srcHeight, x + 1, y - 1);
+                U32 D = GetPixel(src, srcWidth, srcHeight, x - 1, y);
+                U32 E = GetPixel(src, srcWidth, srcHeight, x, y);
+                U32 F = GetPixel(src, srcWidth, srcHeight, x + 1, y);
+                U32 G = GetPixel(src, srcWidth, srcHeight, x - 1, y + 1);
+                U32 H = GetPixel(src, srcWidth, srcHeight, x, y + 1);
+                U32 I = GetPixel(src, srcWidth, srcHeight, x + 1, y + 1);
+
+                // Default: all output pixels = center pixel
+                U32 p1 = E, p2 = E, p3 = E;
+                U32 p4 = E, p5 = E, p6 = E;
+                U32 p7 = E, p8 = E, p9 = E;
+
+                // Corner interpolation with hq-style blending
+                // Top-left corner
+                if (!ColorsDifferent(D, B) && ColorsDifferent(E, A))
+                    p1 = Interp2(D, B);
+                else if (!ColorsDifferent(D, B))
+                    p1 = Interp3(E, D, B);
+
+                // Top edge
+                if (!ColorsDifferent(B, B))  // Always true, blend with neighbors
+                    p2 = (!ColorsDifferent(D, B) || !ColorsDifferent(B, F)) ? Interp2(E, B) : E;
+
+                // Top-right corner
+                if (!ColorsDifferent(B, F) && ColorsDifferent(E, C))
+                    p3 = Interp2(B, F);
+                else if (!ColorsDifferent(B, F))
+                    p3 = Interp3(E, B, F);
+
+                // Left edge
+                p4 = (!ColorsDifferent(D, B) || !ColorsDifferent(D, H)) ? Interp2(E, D) : E;
+
+                // Center stays as E
+                p5 = E;
+
+                // Right edge
+                p6 = (!ColorsDifferent(B, F) || !ColorsDifferent(H, F)) ? Interp2(E, F) : E;
+
+                // Bottom-left corner
+                if (!ColorsDifferent(D, H) && ColorsDifferent(E, G))
+                    p7 = Interp2(D, H);
+                else if (!ColorsDifferent(D, H))
+                    p7 = Interp3(E, D, H);
+
+                // Bottom edge
+                p8 = (!ColorsDifferent(D, H) || !ColorsDifferent(H, F)) ? Interp2(E, H) : E;
+
+                // Bottom-right corner
+                if (!ColorsDifferent(H, F) && ColorsDifferent(E, I))
+                    p9 = Interp2(H, F);
+                else if (!ColorsDifferent(H, F))
+                    p9 = Interp3(E, H, F);
+
+                // Write 3x3 output block
+                S32 dstX = x * 3;
+                S32 dstY = y * 3;
+                SetPixel(dst, dstWidth, dstX, dstY, p1);
+                SetPixel(dst, dstWidth, dstX + 1, dstY, p2);
+                SetPixel(dst, dstWidth, dstX + 2, dstY, p3);
+                SetPixel(dst, dstWidth, dstX, dstY + 1, p4);
+                SetPixel(dst, dstWidth, dstX + 1, dstY + 1, p5);
+                SetPixel(dst, dstWidth, dstX + 2, dstY + 1, p6);
+                SetPixel(dst, dstWidth, dstX, dstY + 2, p7);
+                SetPixel(dst, dstWidth, dstX + 1, dstY + 2, p8);
+                SetPixel(dst, dstWidth, dstX + 2, dstY + 2, p9);
+            }
+        }
+    }
+
+    //
+    // Generic scale function using current algorithm
+    //
+    S32 ScaleImage(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst)
+    {
+        switch (currentAlgorithm)
+        {
+            case SCALE2X:
+                Scale2x(src, srcWidth, srcHeight, dst);
+                return 2;
+
+            case SCALE3X:
+                Scale3x(src, srcWidth, srcHeight, dst);
+                return 3;
+
+            case EAGLE:
+                Eagle2x(src, srcWidth, srcHeight, dst);
+                return 2;
+
+            case HQ2X:
+                Hq2x(src, srcWidth, srcHeight, dst);
+                return 2;
+
+            case HQ3X:
+                Hq3x(src, srcWidth, srcHeight, dst);
+                return 3;
+
+            case NEAREST:
+            default:
+                // For nearest neighbor, just duplicate pixels 2x
+                {
+                    S32 dstWidth = srcWidth * 2;
+                    for (S32 y = 0; y < srcHeight; y++)
+                    {
+                        for (S32 x = 0; x < srcWidth; x++)
+                        {
+                            U32 P = src[y * srcWidth + x];
+                            S32 dstX = x * 2;
+                            S32 dstY = y * 2;
+                            SetPixel(dst, dstWidth, dstX, dstY, P);
+                            SetPixel(dst, dstWidth, dstX + 1, dstY, P);
+                            SetPixel(dst, dstWidth, dstX, dstY + 1, P);
+                            SetPixel(dst, dstWidth, dstX + 1, dstY + 1, P);
+                        }
+                    }
+                }
+                return 2;
+        }
+    }
+
+    //
+    // Get scaled dimensions based on current algorithm
+    //
+    S32 GetScaledWidth(S32 srcWidth)
+    {
+        if (currentAlgorithm == SCALE3X || currentAlgorithm == HQ3X)
+            return srcWidth * 3;
+        return srcWidth * 2;
+    }
+
+    S32 GetScaledHeight(S32 srcHeight)
+    {
+        if (currentAlgorithm == SCALE3X || currentAlgorithm == HQ3X)
+            return srcHeight * 3;
+        return srcHeight * 2;
+    }
+
+#ifdef PIXELSCALE_SCALE2X_UI
+    //
+    // Helper: Extract RGBA from a pixel using the bitmap's pixel format
+    //
+    static inline void ExtractRGBA(U32 pixel, const Pix* pf, S32& r, S32& g, S32& b, S32& a)
+    {
+        if (pf->rMask)
+            r = ((pixel & pf->rMask) >> pf->rShift) << pf->rScaleInv;
+        else
+            r = 255;
+            
+        if (pf->gMask)
+            g = ((pixel & pf->gMask) >> pf->gShift) << pf->gScaleInv;
+        else
+            g = 255;
+            
+        if (pf->bMask)
+            b = ((pixel & pf->bMask) >> pf->bShift) << pf->bScaleInv;
+        else
+            b = 255;
+            
+        if (pf->aMask)
+            a = ((pixel & pf->aMask) >> pf->aShift) << pf->aScaleInv;
+        else
+            a = 255;  // Fully opaque if no alpha channel
+    }
+
+    //
+    // Helper: Convert canonical ARGB to bitmap's native format
+    //
+    static inline U32 PackRGBA(S32 r, S32 g, S32 b, S32 a, const Pix* pf)
+    {
+        return pf->MakeRGBA(U32(r), U32(g), U32(b), U32(a));
+    }
+
+    //
+    // Helper: Convert native pixel to canonical ARGB8888 for scaling algorithms
+    //
+    static inline U32 ToCanonicalARGB(U32 pixel, const Pix* pf)
+    {
+        S32 r, g, b, a;
+        ExtractRGBA(pixel, pf, r, g, b, a);
+        // Canonical format: ARGB8888 (alpha in high byte)
+        return (U32(a) << 24) | (U32(r) << 16) | (U32(g) << 8) | U32(b);
+    }
+
+    //
+    // Helper: Convert canonical ARGB8888 back to native format
+    //
+    static inline U32 FromCanonicalARGB(U32 argb, const Pix* pf)
+    {
+        S32 a = (argb >> 24) & 0xFF;
+        S32 r = (argb >> 16) & 0xFF;
+        S32 g = (argb >> 8) & 0xFF;
+        S32 b = argb & 0xFF;
+        return PackRGBA(r, g, b, a, pf);
+    }
+
+    //
+    // Scale a bitmap using Scale2x algorithm
+    // Properly handles the bitmap's native pixel format
+    // Returns the scale factor applied (2 for Scale2x, 1 if not scaled)
+    //
+    S32 ScaleBitmapUI(Bitmap* bmp)
+    {
+        if (!bmp)
+            return 1;
+
+        // Check if this bitmap has already been scaled
+        if (scaledBitmaps.find(bmp) != scaledBitmaps.end())
+            return 2;  // Already scaled 2x
+
+        // Only scale if UI scale is 2x or higher
+        S32 uiScale = GetIntegerScale();
+        if (uiScale < 2)
+            return 1;
+
+        S32 srcWidth = bmp->Width();
+        S32 srcHeight = bmp->Height();
+        
+        // Skip tiny or huge textures
+        if (srcWidth < 4 || srcHeight < 4 || srcWidth > 512 || srcHeight > 512)
+            return 1;
+
+        // Get the bitmap's pixel format
+        const Pix* pixFormat = bmp->PixelFormat();
+        if (!pixFormat)
+            return 1;
+
+        // Allocate source buffer in canonical ARGB format
+        U32* srcPixels = new U32[srcWidth * srcHeight];
+        
+        // Copy and convert pixels from bitmap to canonical format
+        bmp->Lock();
+        for (S32 y = 0; y < srcHeight; y++)
+        {
+            for (S32 x = 0; x < srcWidth; x++)
+            {
+                U32 nativePixel = bmp->GetPixel(x, y);
+                srcPixels[y * srcWidth + x] = ToCanonicalARGB(nativePixel, pixFormat);
+            }
+        }
+        bmp->UnLock();
+
+        // Allocate destination buffer (2x size for Scale2x)
+        S32 dstWidth = srcWidth * 2;
+        S32 dstHeight = srcHeight * 2;
+        U32* dstPixels = new U32[dstWidth * dstHeight];
+
+        // Apply Scale2x scaling (preserves hard edges, no anti-aliasing)
+        Scale2x(srcPixels, srcWidth, srcHeight, dstPixels);
+
+        // Recreate bitmap at new size
+        bmp->Release();
+        bmp->Create(dstWidth, dstHeight, TRUE);
+        
+        // Get the new pixel format (may have changed after Create)
+        const Pix* newPixFormat = bmp->PixelFormat();
+        if (!newPixFormat)
+        {
+            delete[] srcPixels;
+            delete[] dstPixels;
+            return FALSE;
+        }
+
+        // Copy scaled pixels back, converting from canonical to native format
+        bmp->Lock();
+        for (S32 y = 0; y < dstHeight; y++)
+        {
+            for (S32 x = 0; x < dstWidth; x++)
+            {
+                U32 canonicalPixel = dstPixels[y * dstWidth + x];
+                U32 nativePixel = FromCanonicalARGB(canonicalPixel, newPixFormat);
+                bmp->PutPixel(x, y, nativePixel, &bmp->GetClipRect());
+            }
+        }
+        bmp->UnLock();
+
+        // Clean up
+        delete[] srcPixels;
+        delete[] dstPixels;
+
+        // Track this bitmap as scaled
+        scaledBitmaps.insert(bmp);
+
+        return 2;  // Scaled 2x
+    }
+
+    //
+    // Clear the scaled bitmap tracking (call on mode change)
+    //
+    void ClearScaledBitmaps()
+    {
+        scaledBitmaps.clear();
+    }
+#endif
+}

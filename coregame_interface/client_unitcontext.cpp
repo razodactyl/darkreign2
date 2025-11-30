@@ -330,11 +330,24 @@ namespace Client
                     }
                 }
 
-                // Set the vertical size of this control
+                // Set the vertical size of this control.
+                // 'pos' is the accumulated pixel height of all active buttons.
+                // Convert this back to design-space units for the geometry
+                // system so AdjustGeometry can apply IFace::GetScale().
+                F32 scale = IFace::GetScale();
+                S32 designHeight = (scale > 0.0F)
+                    ? S32(F32(pos) / scale)
+                    : pos;
+
+                // Update geometry height (design units); width is preserved.
+                SetGeomSize(geom.unscaledConfigSize.x, designHeight);
+
+                // Keep runtime size in sync for this frame (will be
+                // recomputed on Activate via AdjustGeometry).
                 size.y = pos;
 
-                // Should the control be visible
-                SetVisible(!size.y);
+                // Control should be visible only if it has non-zero height.
+                SetVisible(size.y != 0);
 
                 // Reactivate the control
                 Activate();

@@ -241,13 +241,16 @@ namespace Client
 
         if (squad.Alive())
         {
-            // Write the number
+            // Scale factor for design-space to screen-space conversion
+            F32 scale = IFace::GetScale();
+
+            // Write the number (scale position from design-space)
             CH buff[128];
             GetTextString(buff, 128);
             pi.font->Draw
             (
-                pi.client.p0.x + number.x,
-                pi.client.p0.y + number.y,
+                pi.client.p0.x + S32(F32(number.x) * scale),
+                pi.client.p0.y + S32(F32(number.y) * scale),
                 buff,
                 Utils::Strlen(buff),
                 pi.colors->fg[ColorIndex()],
@@ -328,12 +331,21 @@ namespace Client
             }
 
             // Draw the health and count in a unified fashion
-            Area<S32> h(health.p0.x, health.p0.y, health.p1.x, health.p0.y + 2);
+            // Scale health area from design-space to screen-space
+            Area<S32> scaledHealth(
+                S32(F32(health.p0.x) * scale),
+                S32(F32(health.p0.y) * scale),
+                S32(F32(health.p1.x) * scale),
+                S32(F32(health.p1.y) * scale)
+            );
+            S32 barHeight = S32(2.0f * scale);
+            S32 barSpacing = S32(3.0f * scale);
+            Area<S32> h(scaledHealth.p0.x, scaledHealth.p0.y, scaledHealth.p1.x, scaledHealth.p0.y + barHeight);
 
             for (U32 slot = 0; slot < numSlots; slot++)
             {
                 // Are we close to the bottom
-                if (h.p1.y >= (health.p1.y - 2))
+                if (h.p1.y >= (scaledHealth.p1.y - barHeight))
                 {
                     U32 avg = 0;
                     U32 num = numSlots - slot;
@@ -344,13 +356,14 @@ namespace Client
                     }
                     avg /= num;
 
+                    S32 triOffset = S32(4.0f * scale);
                     Point<S32> triangle[3];
-                    triangle[0].x = pi.client.p0.x + health.p0.x;
-                    triangle[0].y = pi.client.p0.y + health.p1.y - 4;
-                    triangle[1].x = pi.client.p0.x + health.p1.x;
-                    triangle[1].y = pi.client.p0.y + health.p1.y - 4;
-                    triangle[2].x = pi.client.p0.x + ((health.p0.x + health.p1.x) >> 1);
-                    triangle[2].y = pi.client.p0.y + health.p1.y;
+                    triangle[0].x = pi.client.p0.x + scaledHealth.p0.x;
+                    triangle[0].y = pi.client.p0.y + scaledHealth.p1.y - triOffset;
+                    triangle[1].x = pi.client.p0.x + scaledHealth.p1.x;
+                    triangle[1].y = pi.client.p0.y + scaledHealth.p1.y - triOffset;
+                    triangle[2].x = pi.client.p0.x + ((scaledHealth.p0.x + scaledHealth.p1.x) >> 1);
+                    triangle[2].y = pi.client.p0.y + scaledHealth.p1.y;
 
                     if (avg > 255)
                     {
@@ -379,7 +392,7 @@ namespace Client
                     );
                 }
 
-                h += Point<S32>(0, 3);
+                h += Point<S32>(0, barSpacing);
             }
         }
         else

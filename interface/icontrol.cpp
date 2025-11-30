@@ -27,6 +27,24 @@
 #include "comparison.h"
 #include "switch.h"
 
+namespace
+{
+    inline S32 RoundF(F32 value)
+    {
+        return (value >= 0.0f) ? S32(value + 0.5f) : S32(value - 0.5f);
+    }
+
+    inline ClipRect ScaleClipRect(const ClipRect& rect, F32 factor)
+    {
+        ClipRect result;
+        result.p0.x = RoundF(F32(rect.p0.x) * factor);
+        result.p0.y = RoundF(F32(rect.p0.y) * factor);
+        result.p1.x = RoundF(F32(rect.p1.x) * factor);
+        result.p1.y = RoundF(F32(rect.p1.y) * factor);
+        return result;
+    }
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -161,6 +179,7 @@ IControl::IControl(IControl* parentCtrl)
       controlStyle(0),
       parent(nullptr),
       region(nullptr),
+      scaledRegion(nullptr),
       paintInfo(IFace::data.cgDefault),
       children(&IControl::childNode),
       texture(nullptr),
@@ -222,6 +241,10 @@ IControl::~IControl()
     if (region)
     {
         delete region;
+    }
+    if (scaledRegion)
+    {
+        delete scaledRegion;
     }
 
     // Destroy lists
@@ -921,8 +944,12 @@ void IControl::Setup(FScope* fScope)
             int width = fScope->NextArgInteger();
             int height = fScope->NextArgInteger();
 
-            SetSize(width, height);
+            // Store design-space size from config
             SetGeomSize(width, height);
+            
+            // Set initial screen-space size (will be recalculated in AdjustGeometry)
+            F32 scale = IFace::GetScale();
+            SetSize(S32(F32(width) * scale), S32(F32(height) * scale));
 
             break;
         }
@@ -945,7 +972,13 @@ void IControl::Setup(FScope* fScope)
             int x = fScope->NextArgInteger();
             int y = fScope->NextArgInteger();
 
-            SetPos(x, y);
+            // Store design-space position from config
+            SetGeomPos(x, y);
+            
+            // Set initial screen-space position (will be recalculated in AdjustGeometry)
+            F32 scale = IFace::GetScale();
+            pos.x = S32(F32(x) * scale);
+            pos.y = S32(F32(y) * scale);
 
             break;
         }
@@ -1287,11 +1320,17 @@ void IControl::PostConfigure()
 //
 // Automatically resize geometry
 //
-void IControl::AutoSize()
+Point<S32> IControl::CalcAutoSizeDesign()
 {
     const U32 TextWidthPad = 3;
+    Point<S32> newSize(0, 0);
 
-    U32 newX = 0, newY = 0;
+    F32 scale = IFace::GetScale();
+    if (scale <= 0.0f)
+    {
+        scale = 1.0f;
+    }
+    F32 invScale = 1.0f / scale;
 
     if (paintInfo.font)
     {
@@ -1312,12 +1351,12 @@ void IControl::AutoSize()
                         longest
                     );
                 }
-                newX += longest;
+                newSize.x = RoundF(F32(longest) * invScale);
             }
             if (geom.flags & GEOM_AUTOSIZEY)
             {
-                // Multiply by line height
-                newY += (multiLine->count * paintInfo.font->Height());
+                F32 height = F32(multiLine->count * paintInfo.font->Height());
+                newSize.y = RoundF(height * invScale);
             }
         }
         else
@@ -1329,22 +1368,51 @@ void IControl::AutoSize()
 
             if (geom.flags & GEOM_AUTOSIZEX)
             {
-                newX += paintInfo.font->Width(buf, Utils::Strlen(buf)) + TextWidthPad;
+                U32 width = paintInfo.font->Width(buf, Utils::Strlen(buf)) + TextWidthPad;
+                newSize.x = RoundF(F32(width) * invScale);
             }
             if (geom.flags & GEOM_AUTOSIZEY)
             {
-                newY += paintInfo.font->Height();
+                U32 fontHeight = paintInfo.font->Height();
+                newSize.y = RoundF(F32(fontHeight) * invScale);
             }
         }
     }
 
-    // Adjust for border
-    ClipRect r = GetAdjustmentRect();
-    newX += (r.p0.x - r.p1.x);
-    newY += (r.p0.y - r.p1.y);
+    ClipRect screenAdjust = GetAdjustmentRect();
+    ClipRect designAdjust = ScaleClipRect(screenAdjust, invScale);
+    newSize.x += (designAdjust.p0.x - designAdjust.p1.x);
+    newSize.y += (designAdjust.p0.y - designAdjust.p1.y);
 
-    size.x = newX;
-    size.y = newY;
+    return newSize;
+}
+
+
+void IControl::AutoSize()
+{
+    Point<S32> newSize = CalcAutoSizeDesign();
+
+    // Convert design-space result back into screen-space since legacy callers expect that
+    F32 scale = IFace::GetScale();
+    if (scale <= 0.0f)
+    {
+        scale = 1.0f;
+    }
+
+    if (geom.flags & GEOM_AUTOSIZEX)
+    {
+        size.x = Max<S32>(0, RoundF(F32(newSize.x) * scale));
+        // Update design-space geometry to match
+        geom.size.x = newSize.x;
+        geom.unscaledConfigSize.x = newSize.x;
+    }
+    if (geom.flags & GEOM_AUTOSIZEY)
+    {
+        size.y = Max<S32>(0, RoundF(F32(newSize.y) * scale));
+        // Update design-space geometry to match
+        geom.size.y = newSize.y;
+        geom.unscaledConfigSize.y = newSize.y;
+    }
 }
 
 
@@ -1469,27 +1537,19 @@ Bool IControl::ValidateMultiLine()
 //
 // Setup alignment to another control
 //
-void IControl::SetupAlignment()
+void IControl::SetupAlignmentDesign(Point<S32>& designPos, Point<S32>& designSize, F32 invScale)
 {
     ASSERT(alignTo.Alive());
 
-    // If not active
+    // If not active, activate it so we have valid dimensions to align to
+    // This is important for menus which calculate their size during Activate()
     if (!alignTo->IsActive())
     {
-        // Adjust its geometry
-        alignTo->AdjustGeometry();
+        alignTo->Activate();
     }
-    /* 
-    // Commenting this out will probably break shit
-    else
-    {
-      // Else refresh it
-      alignTo->Deactivate();
-      alignTo->Activate();
-    }
-    */
 
     Point<S32> alignPos(alignTo->pos);
+    Point<S32> alignSize(alignTo->size);
     IControl* ctrl = alignTo->parent ? alignTo->parent : alignTo;
 
     if (!ctrl->IsChild(this))
@@ -1497,42 +1557,50 @@ void IControl::SetupAlignment()
         alignPos = alignTo->ClientToScreen(Point<S32>(0, 0));
     }
 
+    alignPos.x = RoundF(F32(alignPos.x) * invScale);
+    alignPos.y = RoundF(F32(alignPos.y) * invScale);
+    alignSize.x = RoundF(F32(alignSize.x) * invScale);
+    alignSize.y = RoundF(F32(alignSize.y) * invScale);
+
     if (geom.flags & GEOM_ALIGNTOWIDTH)
     {
-        size.x = alignTo->size.x;
+        designSize.x = alignSize.x;
     }
 
     if (geom.flags & GEOM_ALIGNTOHEIGHT)
     {
-        size.y = alignTo->size.y;
+        designSize.y = alignSize.y;
     }
+
+    S32 offsetX = designPos.x;
+    S32 offsetY = designPos.y;
 
     if (geom.flags & GEOM_RIGHT)
     {
-        pos.x = alignPos.x + alignTo->size.x + geom.pos.x;
+        designPos.x = alignPos.x + alignSize.x + offsetX;
 
         if (geom.flags & GEOM_HINTERNAL)
         {
-            pos.x -= size.x;
+            designPos.x -= designSize.x;
         }
     }
     else
     {
-        pos.x = alignPos.x + geom.pos.x - ((geom.flags & GEOM_HINTERNAL) ? 0 : size.x);
+        designPos.x = alignPos.x + offsetX - ((geom.flags & GEOM_HINTERNAL) ? 0 : designSize.x);
     }
 
     if (geom.flags & GEOM_BOTTOM)
     {
-        pos.y = alignPos.y + alignTo->size.y + geom.pos.y;
+        designPos.y = alignPos.y + alignSize.y + offsetY;
 
         if (geom.flags & GEOM_VINTERNAL)
         {
-            pos.y -= size.y;
+            designPos.y -= designSize.y;
         }
     }
     else
     {
-        pos.y = alignPos.y + geom.pos.y - ((geom.flags & GEOM_VINTERNAL) ? 0 : size.y);
+        designPos.y = alignPos.y + offsetY - ((geom.flags & GEOM_VINTERNAL) ? 0 : designSize.y);
     }
 }
 
@@ -1541,158 +1609,261 @@ void IControl::SetupAlignment()
 // IControl::AdjustGeometry
 //
 // Adjust geometry of control
+// Scales design-space config values to screen-space pixels
 //
 void IControl::AdjustGeometry()
 {
-    Point<S32> oldSize = size;
-
-    if (parent == nullptr)
+    Point<S32>& oldSize = size;
+    if (parent == nullptr) return;
+    
+    F32 scale = IFace::GetScale();
+    if (scale <= 0.0f)
     {
-        return;
+        scale = 1.0f;
+    }
+    F32 invScale = 1.0f / scale;
+
+    // All geometry values (geom.size, geom.pos) are in design-space (640x480 base)
+    // and need to be scaled to screen-space. The unscaledConfig values are the
+    // authoritative design-space values; geom.size/pos are kept in sync with them.
+    // 
+    // We prefer unscaledConfig values when available, but fall back to geom values
+    // for controls that were configured before the scaling system was added.
+    // In either case, the values are design-space and must be scaled.
+    
+    S32 baseWidth = (geom.unscaledConfigSize.x != 0) ?
+        geom.unscaledConfigSize.x : geom.size.x;
+    S32 baseHeight = (geom.unscaledConfigSize.y != 0) ?
+        geom.unscaledConfigSize.y : geom.size.y;
+
+    S32 offsetX = (geom.unscaledConfigPos.x != 0) ?
+        geom.unscaledConfigPos.x : geom.pos.x;
+    S32 offsetY = (geom.unscaledConfigPos.y != 0) ?
+        geom.unscaledConfigPos.y : geom.pos.y;
+
+    Point<S32> designSize(baseWidth, baseHeight);
+    Point<S32> designPos(offsetX, offsetY);
+
+    if (geom.flags & (GEOM_AUTOSIZEX | GEOM_AUTOSIZEY))
+    {
+        Point<S32> autoSize = CalcAutoSizeDesign();
+        if (geom.flags & GEOM_AUTOSIZEX)
+        {
+            designSize.x = autoSize.x + baseWidth;
+        }
+        if (geom.flags & GEOM_AUTOSIZEY)
+        {
+            designSize.y = autoSize.y + baseHeight;
+        }
     }
 
-    // Should we autosize this control
-    if (geom.flags & GEOM_AUTOSIZE)
+    // Fallback: If control has zero size and no autosize flags, calculate auto-size as fallback
+    // This handles cases like Video Buttons which have "NoAutoSize" style but no explicit size
+    if ((designSize.x == 0 || designSize.y == 0) && !(geom.flags & (GEOM_AUTOSIZEX | GEOM_AUTOSIZEY)) && ChildCount() > 0)
     {
-        AutoSize();
-
-        // Add on user values
-        size.x += geom.size.x;
-        size.y += geom.size.y;
+        Point<S32> fallbackSize = CalcAutoSizeDesign();
+        if (designSize.x == 0)
+        {
+            designSize.x = fallbackSize.x + baseWidth;
+        }
+        if (designSize.y == 0)
+        {
+            designSize.y = fallbackSize.y + baseHeight;
+        }
     }
+
+    ClipRect parentDesignClient(parent->designClient);
+    ClipRect parentDesignWindow(parent->designWindow);
+
+    auto EnsureDesignRect = [&](ClipRect& rect, const Point<S32>& fallback)
+    {
+        if (rect.Width() == 0 && fallback.x != 0)
+        {
+            rect.p0.x = 0;
+            rect.p1.x = fallback.x;
+        }
+        if (rect.Height() == 0 && fallback.y != 0)
+        {
+            rect.p0.y = 0;
+            rect.p1.y = fallback.y;
+        }
+    };
+
+    Point<S32> parentFallback(RoundF(F32(parent->size.x) * invScale), RoundF(F32(parent->size.y) * invScale));
+    EnsureDesignRect(parentDesignClient, parentFallback);
+    EnsureDesignRect(parentDesignWindow, parentFallback);
 
     // Parent width
     if (geom.flags & GEOM_PARENTWIDTH)
     {
-        size.x = parent->GetPaintInfo().client.Width() + geom.size.x;
+        designSize.x = parentDesignClient.Width() + baseWidth;
     }
 
     if (geom.flags & GEOM_WINPARENTWIDTH)
     {
-        size.x = parent->GetPaintInfo().window.Width() + geom.size.x;
+        designSize.x = parentDesignWindow.Width() + baseWidth;
     }
 
     // Parent height
     if (geom.flags & GEOM_PARENTHEIGHT)
     {
-        size.y = parent->GetPaintInfo().client.Height() + geom.size.y;
+        designSize.y = parentDesignClient.Height() + baseHeight;
     }
 
     if (geom.flags & GEOM_WINPARENTHEIGHT)
     {
-        size.y = parent->GetPaintInfo().window.Height() + geom.size.y;
+        designSize.y = parentDesignWindow.Height() + baseHeight;
     }
 
     if (geom.flags & GEOM_SQUARE)
     {
-        size.x = Min(size.x, size.y);
-        size.y = size.x;
+        designSize.x = Min(designSize.x, designSize.y);
+        designSize.y = designSize.x;
     }
+
+    designPos.x = offsetX;
+    designPos.y = offsetY;
 
     // Are we aligning to another control
     if (alignTo.Alive())
     {
-        SetupAlignment();
+        SetupAlignmentDesign(designPos, designSize, invScale);
     }
     else
     {
-        // Horizontal position
+        // Horizontal position - relative to client area
         if (geom.flags & GEOM_RIGHT)
         {
-            pos.x = parent->GetPaintInfo().client.Width() - size.x + geom.pos.x;
+            designPos.x = parentDesignClient.Width() - designSize.x + offsetX;
         }
 
         if (geom.flags & GEOM_WINLEFT)
         {
-            pos.x = parent->GetPaintInfo().window.p0.x - parent->GetPaintInfo().client.p0.x;
+            designPos.x = parentDesignWindow.p0.x - parentDesignClient.p0.x;
         }
 
         if (geom.flags & GEOM_WINRIGHT)
         {
-            pos.x = parent->GetPaintInfo().window.p1.x - parent->GetPaintInfo().client.p0.x - size.x + geom.pos.x;
+            designPos.x = parentDesignWindow.p1.x - parentDesignClient.p0.x - designSize.x + offsetX;
         }
 
-        // Vertical position
+        // Vertical position - relative to client area
         if (geom.flags & GEOM_BOTTOM)
         {
-            pos.y = parent->GetPaintInfo().client.Height() - size.y + geom.pos.y;
+            designPos.y = parentDesignClient.Height() - designSize.y + offsetY;
         }
 
         if (geom.flags & GEOM_WINTOP)
         {
-            pos.y = parent->GetPaintInfo().window.p0.y - parent->GetPaintInfo().client.p0.y;
+            designPos.y = parentDesignWindow.p0.y - parentDesignClient.p0.y;
         }
 
         if (geom.flags & GEOM_WINBOTTOM)
         {
-            pos.y = parent->GetPaintInfo().window.p1.y - parent->GetPaintInfo().client.p0.y - size.y + geom.pos.y;
+            designPos.y = parentDesignWindow.p1.y - parentDesignClient.p0.y - designSize.y + offsetY;
         }
     }
 
     if (geom.flags & GEOM_VCENTRE)
     {
-        pos.y = (parent->GetPaintInfo().client.Height() - size.y) / 2 + geom.pos.y;
+        designPos.y = (parentDesignClient.Height() - designSize.y) / 2 + offsetY;
     }
 
     if (geom.flags & GEOM_WINVCENTRE)
     {
-        pos.y = ((parent->GetPaintInfo().window.Height() - size.y) / 2) - parent->GetPaintInfo().client.p0.y + geom
-                                                                                                               .pos.y;
+        designPos.y = ((parentDesignWindow.Height() - designSize.y) / 2) - parentDesignClient.p0.y + offsetY;
     }
 
     if (geom.flags & GEOM_HCENTRE)
     {
-        pos.x = (parent->GetPaintInfo().client.Width() - size.x) / 2 + geom.pos.x;
+        designPos.x = (parentDesignClient.Width() - designSize.x) / 2 + offsetX;
     }
 
     if (geom.flags & GEOM_WINHCENTRE)
     {
-        pos.x = ((parent->GetPaintInfo().window.Width() - size.x) / 2) - parent->GetPaintInfo().client.p0.x + geom
-                                                                                                              .pos.x;
+        designPos.x = ((parentDesignWindow.Width() - designSize.x) / 2) - parentDesignClient.p0.x + offsetX;
     }
 
     // If required, ensure control is entirely visible
     if (geom.flags & GEOM_KEEPVISIBLE)
     {
-        pos.x = Clamp<S32>(0, pos.x, parent->size.x - size.x);
-        pos.y = Clamp<S32>(0, pos.y, parent->size.y - size.y);
+        designPos.x = Clamp<S32>(0, designPos.x, parentDesignWindow.Width() - designSize.x);
+        designPos.y = Clamp<S32>(0, designPos.y, parentDesignWindow.Height() - designSize.y);
     }
+
+    designWindow.Set(0, 0, designSize.x, designSize.y);
+
+    ClipRect screenAdjust = GetAdjustmentRect();
+    ClipRect designAdjust = ScaleClipRect(screenAdjust, invScale);
+    designClient = designWindow + designAdjust;
+    designPos = designPos;
+
+    pos.x = RoundF(F32(designPos.x) * scale);
+    pos.y = RoundF(F32(designPos.y) * scale);
+    size.x = Max<S32>(0, RoundF(F32(designSize.x) * scale));
+    size.y = Max<S32>(0, RoundF(F32(designSize.y) * scale));
+
 
     // Adjust PaintInfo parameters
     paintInfo.window.Set(0, 0, size.x, size.y);
 
     // Adjust for border
-    paintInfo.client = paintInfo.window + GetAdjustmentRect();
+    paintInfo.client = paintInfo.window + screenAdjust;
+
+    // Rebuild scaled region for hit testing if we have an irregular region
+    if (region)
+    {
+        if (scaledRegion)
+        {
+            delete scaledRegion;
+        }
+        scaledRegion = new Array<Point<S32>>;
+        scaledRegion->Alloc(region->count);
+        
+        for (U32 i = 0; i < region->count; i++)
+        {
+            (*scaledRegion)[i].x = S32(F32((*region)[i].x) * scale);
+            (*scaledRegion)[i].y = S32(F32((*region)[i].y) * scale);
+        }
+    }
 }
 
 
 //
 // Calculate an adjustment rect based on the style
+// Returns screen-space pixel values (scaled from design-space)
 //
 ClipRect IControl::GetAdjustmentRect()
 {
     ClipRect r;
 
+    // Get scale factor for border metrics
+    F32 scale = IFace::GetScale();
+
     if (skin)
     {
-        r = skin->border;
+        // Scale the skin border from design-space to screen-space
+        r.p0.x = S32(F32(skin->border.p0.x) * scale);
+        r.p0.y = S32(F32(skin->border.p0.y) * scale);
+        r.p1.x = S32(F32(skin->border.p1.x) * scale);
+        r.p1.y = S32(F32(skin->border.p1.y) * scale);
     }
     else
     {
-        // Adjust for border
+        // Adjust for border (scale metrics from design-space)
         if (controlStyle & STYLE_THINBORDER)
         {
-            S32 border = GetMetric(IFace::BORDER_THIN);
+            S32 border = S32(F32(GetMetric(IFace::BORDER_THIN)) * scale);
             r.Set(border, border, -border, -border);
         }
         else if (controlStyle & STYLE_THICKBORDER)
         {
-            S32 border = GetMetric(IFace::BORDER_THICK);
+            S32 border = S32(F32(GetMetric(IFace::BORDER_THICK)) * scale);
             r.Set(border, border, -border, -border);
         }
         else if (controlStyle & STYLE_DROPSHADOW)
         {
-            S32 shadow = GetMetric(IFace::DROPSHADOW_UP);
+            S32 shadow = S32(F32(GetMetric(IFace::DROPSHADOW_UP)) * scale);
             r.Set(0, 0, -shadow, -shadow);
         }
 
@@ -2034,11 +2205,11 @@ void IControl::ActivateTip(const CH* text)
             // Setup the tip window
             c->SetTextString(text, FALSE);
 
-            // Move it to the mouse cursor position
-            c->pos += Input::MousePos();
-
-            // Let geometry take care of the rest
+            // Let geometry take care of sizing/initial position
             c->Activate();
+            
+            // Move it to the mouse cursor position (after Activate so AdjustGeometry doesn't overwrite)
+            c->pos += Input::MousePos();
         }
     }
 }
@@ -2170,7 +2341,12 @@ U32 IControl::HandleEvent(Event& e)
             {
                 if (controlState & STATE_ACTIVE)
                 {
-                    // Notify all children
+                    // Recalculate geometry for new scale factor
+                    // Note: Derived classes (like ICMenu) may override HandleEvent
+                    // to handle this differently (e.g., re-layout children)
+                    AdjustGeometry();
+                    
+                    // Notify all children first so they update
                     for (NList<IControl>::Iterator i(&children); *i; ++i)
                     {
                         SendEvent(*i, nullptr, IFace::DISPLAYMODECHANGED, e.iface.p1, e.iface.p2);
@@ -2223,8 +2399,14 @@ IControl* IControl::Find(S32 x, S32 y, Bool all)
     {
         Bool in;
 
-        if (region)
+        if (scaledRegion)
         {
+            // Use scaled region for hit testing in screen-space
+            in = Point<S32>(x - pos.x, y - pos.y).IsInPolyConvex(scaledRegion->data, scaledRegion->count);
+        }
+        else if (region)
+        {
+            // Fallback to unscaled region (shouldn't happen if AdjustGeometry was called)
             in = Point<S32>(x - pos.x, y - pos.y).IsInPolyConvex(region->data, region->count);
         }
         else
@@ -2594,8 +2776,14 @@ Bool IControl::InWindow(const Point<S32>& p) const
 {
     Point<S32> wnd = ScreenToWindow(p);
 
-    if (region)
+    if (scaledRegion)
     {
+        // Use scaled region for hit testing in screen-space
+        return (wnd.IsInPolyConvex(scaledRegion->data, scaledRegion->count));
+    }
+    else if (region)
+    {
+        // Fallback to unscaled region
         return (wnd.IsInPolyConvex(region->data, region->count));
     }
     return ((wnd.x >= 0) && (wnd.y >= 0) && (wnd.x <= size.x) && (wnd.y <= size.y));
@@ -3180,26 +3368,99 @@ void IControl::SetSize(S32 width, S32 height)
 
 //
 // IControl::SetGeomSize
+// Sets the design-space size (from config files, 640x480 base)
 //
 void IControl::SetGeomSize(S32 width, S32 height)
 {
-    // Set the geometry size
+    // Store design-space values
+    geom.unscaledConfigSize.x = width;
+    geom.unscaledConfigSize.y = height;
+    
+    // Keep legacy fields in sync
     geom.size.x = width;
     geom.size.y = height;
 }
 
 
 //
+// IControl::SetGeomPos
+// Sets the design-space position (from config files, 640x480 base)
+//
+void IControl::SetGeomPos(S32 x, S32 y)
+{
+    // Store design-space values
+    geom.unscaledConfigPos.x = x;
+    geom.unscaledConfigPos.y = y;
+    
+    // Keep legacy fields in sync
+    geom.pos.x = x;
+    geom.pos.y = y;
+}
+
+
+//
 // IControl::SetPos
+// Sets the screen-space position (pixels) and reverse-scales to config
 //
 void IControl::SetPos(S32 x, S32 y)
 {
-    // Set position
+    // Set screen-space position
     pos.x = x;
     pos.y = y;
 
-    geom.pos.x = x;
-    geom.pos.y = y;
+    // Reverse-scale to design-space for config storage
+    F32 scale = IFace::GetScale();
+    if (scale > 0.0f)
+    {
+        geom.unscaledConfigPos.x = S32(F32(x) / scale);
+        geom.unscaledConfigPos.y = S32(F32(y) / scale);
+    }
+    else
+    {
+        geom.unscaledConfigPos.x = x;
+        geom.unscaledConfigPos.y = y;
+    }
+    
+    // Keep legacy fields in sync
+    geom.pos.x = geom.unscaledConfigPos.x;
+    geom.pos.y = geom.unscaledConfigPos.y;
+}
+
+
+//
+// IControl::SetScreenPos
+// Sets only the screen-space position without updating config
+// Used by menus to position children without corrupting their config
+//
+void IControl::SetScreenPos(S32 x, S32 y)
+{
+    pos.x = x;
+    pos.y = y;
+}
+
+
+//
+// IControl::SetScreenSize
+// Sets only the screen-space size without updating config
+// Used by menus to size children without corrupting their config
+//
+void IControl::SetScreenSize(S32 w, S32 h)
+{
+    size.x = w;
+    size.y = h;
+    
+    // Update paintInfo to match
+    paintInfo.window.Set(0, 0, w, h);
+    paintInfo.client = paintInfo.window + GetAdjustmentRect();
+    
+    // Update texture coordinates if there's a texture
+    if (texture)
+    {
+        texture->UpdateUV(paintInfo.client);
+    }
+    
+    // Allow derived classes to update their cached state
+    OnScreenSizeChanged();
 }
 
 

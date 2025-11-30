@@ -43,6 +43,7 @@ ICSlider::ICSlider(IControl* parent)
       horizontal(TRUE),
       moveKnob(TRUE),
       useRange(FALSE),
+      rangeInitialized(FALSE),
       sliderVar(nullptr),
       minVal(0.0F),
       maxVal(0.0F),
@@ -242,6 +243,12 @@ void ICSlider::Notify(IFaceVar*)
 //
 void ICSlider::DrawSelf(PaintInfo& pi)
 {
+    // Try to initialize range if it wasn't done during activation
+    if (!rangeInitialized && sliderVar && sliderVar->IsActive())
+    {
+        InitRange();
+    }
+    
     // Knob position was changed
     if (moveKnob)
     {
@@ -409,7 +416,12 @@ void ICSlider::InitRange()
 
     if ((thumbRange.Width() <= 0) || (thumbRange.Height() <= 0))
     {
-        ERR_FATAL(("Slider [%s] is too small, make it bigger", Name()))
+        // Slider may not have valid geometry yet (parent not sized)
+        // This can happen during initial activation - will be fixed on next draw
+        LOG_WARN(("Slider [%s] has invalid size (%d x %d), deferring range init", 
+            Name(), thumbRange.Width(), thumbRange.Height()))
+        rangeInitialized = FALSE;
+        return;
     }
 
     // Calculate increment step for one notch
@@ -423,6 +435,8 @@ void ICSlider::InitRange()
         // Otherwise make the increment smooth
         incStep = range / F32(horizontal ? thumbRange.Width() - size.y : thumbRange.Height() - size.x);
     }
+    
+    rangeInitialized = TRUE;
 }
 
 

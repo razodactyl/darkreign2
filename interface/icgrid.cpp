@@ -44,7 +44,8 @@ ICGrid::ICGrid(const char* name, U32 sx, U32 sy, U32 cx, U32 cy, IControl* paren
 {
     // Setup control 
     SetName(name);
-    SetSize(gridSize.x * cellSize.x, gridSize.y * cellSize.y);
+    // Use SetGeomSize with design-space values - AdjustGeometry will scale
+    SetGeomSize(gridSize.x * cellSize.x, gridSize.y * cellSize.y);
 }
 
 
@@ -61,24 +62,29 @@ void ICGrid::DrawSelf(PaintInfo& pi)
     // Do we have a cell iteration callback
     if (cellFunc)
     {
+        // Scale cell size for rendering
+        F32 scale = IFace::GetScale();
+        U32 scaledCellX = U32(F32(cellSize.x) * scale);
+        U32 scaledCellY = U32(F32(cellSize.y) * scale);
+
         // Window top left pixel position
         U32 xp1 = pi.client.p0.x;
         U32 yp1 = pi.client.p0.y;
 
         // Initial pixel positions for each axis (changes for flipping)
-        U32 xip = xFlip ? xp1 + gridSize.x * cellSize.x - cellSize.x : xp1;
-        U32 yip = yFlip ? yp1 + gridSize.y * cellSize.y - cellSize.y : yp1;
+        U32 xip = xFlip ? xp1 + gridSize.x * scaledCellX - scaledCellX : xp1;
+        U32 yip = yFlip ? yp1 + gridSize.y * scaledCellY - scaledCellY : yp1;
 
         // Draw the grid
-        for (U32 x = 0, px = xip; x < gridSize.x; x++, px = xFlip ? (px - cellSize.x) : (px + cellSize.x))
+        for (U32 x = 0, px = xip; x < gridSize.x; x++, px = xFlip ? (px - scaledCellX) : (px + scaledCellX))
         {
-            for (U32 y = 0, py = yip; y < gridSize.y; y++, py = yFlip ? (py - cellSize.y) : (py + cellSize.y))
+            for (U32 y = 0, py = yip; y < gridSize.y; y++, py = yFlip ? (py - scaledCellY) : (py + scaledCellY))
             {
                 // Get the color from the callback
                 Color color = cellFunc(context, x, y);
 
                 // And paint this cell
-                IFace::RenderRectangle(ClipRect(px, py, px + cellSize.x, py + cellSize.y), color);
+                IFace::RenderRectangle(ClipRect(px, py, px + scaledCellX, py + scaledCellY), color);
             }
         }
 
@@ -102,9 +108,9 @@ void ICGrid::DrawSelf(PaintInfo& pi)
             U32 y = selected.y;
             if (xFlip) { x = gridSize.x - x - 1; }
             if (yFlip) { y = gridSize.y - y - 1; }
-            U32 xPos = pi.client.p0.x + (x * cellSize.x) + (cellSize.x / 4);
-            U32 yPos = pi.client.p0.y + (y * cellSize.y) + (cellSize.y / 4);
-            IFace::RenderRectangle(ClipRect(xPos, yPos, xPos + cellSize.x / 2, yPos + cellSize.y / 2), Color(1.0F, 1.0F, 1.0F, 0.5F));
+            U32 xPos = pi.client.p0.x + (x * scaledCellX) + (scaledCellX / 4);
+            U32 yPos = pi.client.p0.y + (y * scaledCellY) + (scaledCellY / 4);
+            IFace::RenderRectangle(ClipRect(xPos, yPos, xPos + scaledCellX / 2, yPos + scaledCellY / 2), Color(1.0F, 1.0F, 1.0F, 0.5F));
         }
     }
 }
@@ -120,14 +126,19 @@ void ICGrid::DrawCell(U32 x, U32 y, Color c)
     // Ensure we're in the right mode and have valid values
     if (postPaintInfo && (x < gridSize.x) && (y < gridSize.y))
     {
+        // Scale cell size for rendering
+        F32 scale = IFace::GetScale();
+        U32 scaledCellX = U32(F32(cellSize.x) * scale);
+        U32 scaledCellY = U32(F32(cellSize.y) * scale);
+
         // Adjust for flipped axis
         if (xFlip) { x = gridSize.x - x - 1; }
         if (yFlip) { y = gridSize.y - y - 1; }
 
-        U32 xPos = postPaintInfo->client.p0.x + (x * cellSize.x);
-        U32 yPos = postPaintInfo->client.p0.y + (y * cellSize.y);
+        U32 xPos = postPaintInfo->client.p0.x + (x * scaledCellX);
+        U32 yPos = postPaintInfo->client.p0.y + (y * scaledCellY);
 
-        IFace::RenderRectangle(ClipRect(xPos, yPos, xPos + cellSize.x, yPos + cellSize.y), c);
+        IFace::RenderRectangle(ClipRect(xPos, yPos, xPos + scaledCellX, yPos + scaledCellY), c);
     }
 }
 
@@ -187,9 +198,14 @@ U32 ICGrid::HandleEvent(Event& e)
                     // Get mouse position relative to client window
                     Point<S32> p = ScreenToClient(Point<S32>(e.input.mouseX, e.input.mouseY));
 
-                    // Calculate the (flipped) cell positions
-                    U32 x = xFlip ? gridSize.x - (p.x / cellSize.x) - 1 : p.x / cellSize.x;
-                    U32 y = yFlip ? gridSize.y - (p.y / cellSize.y) - 1 : p.y / cellSize.y;
+                    // Scale cell size for hit detection
+                    F32 scale = IFace::GetScale();
+                    U32 scaledCellX = U32(F32(cellSize.x) * scale);
+                    U32 scaledCellY = U32(F32(cellSize.y) * scale);
+
+                    // Calculate the (flipped) cell positions using scaled cell sizes
+                    U32 x = xFlip ? gridSize.x - (p.x / scaledCellX) - 1 : p.x / scaledCellX;
+                    U32 y = yFlip ? gridSize.y - (p.y / scaledCellY) - 1 : p.y / scaledCellY;
 
                     // Set currently selected
                     if (x < gridSize.x && y < gridSize.y)

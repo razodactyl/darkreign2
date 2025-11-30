@@ -110,6 +110,11 @@ namespace MultiPlayer
                                     GetStartLocations(teams);
 
                                     // Which starting location did they select (if any) ?
+                                    // Scale hit detection to control size
+                                    S32 ctrlWidth = GetSize().x;
+                                    S32 ctrlHeight = GetSize().y;
+                                    S32 markerSize = S32(4 * IFace::GetScale());
+
                                     for (U32 t = 0; t < Game::MAX_TEAMS; t++)
                                     {
                                         Game::Preview::TeamInfo* team = PrivData::preview->FindTeamId(t);
@@ -118,10 +123,10 @@ namespace MultiPlayer
                                         {
                                             Point<S32> point
                                             (
-                                                S32(team->GetStartPoint().x * 128.0f),
-                                                S32(team->GetStartPoint().y * 128.0f)
+                                                S32(team->GetStartPoint().x * ctrlWidth),
+                                                S32(team->GetStartPoint().y * ctrlHeight)
                                             );
-                                            if (Area<S32>(point - Point<S32>(4, 4), point + Point<S32>(4, 4)).In(mouse))
+                                            if (Area<S32>(point - Point<S32>(markerSize, markerSize), point + Point<S32>(markerSize, markerSize)).In(mouse))
                                             {
                                                 // They clicked on this team, is this team available ?
                                                 if (!teams.Find(team->GetName().crc) || (team->GetName().crc == U32
@@ -235,7 +240,8 @@ namespace MultiPlayer
             if (PrivData::preview->GetTerrainTexture())
             {
                 controlStyle &= ~STYLE_TRANSPARENT;
-                TextureInfo texture(PrivData::preview->GetTerrainTexture(), TextureInfo::TM_CENTRED);
+                // Use TM_STRETCHED so the preview scales with the UI
+                TextureInfo texture(PrivData::preview->GetTerrainTexture(), TextureInfo::TM_STRETCHED);
                 SetImage(&texture);
             }
 
@@ -272,18 +278,22 @@ namespace MultiPlayer
 
                             if (team)
                             {
+                                // Scale start point to control size (not hardcoded 128)
                                 Point<S32> point
                                 (
-                                    S32(team->GetStartPoint().x * 128.0f),
-                                    S32(team->GetStartPoint().y * 128.0f)
+                                    S32(team->GetStartPoint().x * pi.client.Width()),
+                                    S32(team->GetStartPoint().y * pi.client.Height())
                                 );
+
+                                // Scale marker size with UI
+                                S32 markerSize = S32(4 * IFace::GetScale());
 
                                 ClipRect c
                                 (
-                                    pi.client.p0.x + point.x - 4,
-                                    pi.client.p0.y + point.y - 4,
-                                    pi.client.p0.x + point.x + 4,
-                                    pi.client.p0.y + point.y + 4
+                                    pi.client.p0.x + point.x - markerSize,
+                                    pi.client.p0.y + point.y - markerSize,
+                                    pi.client.p0.x + point.x + markerSize,
+                                    pi.client.p0.y + point.y + markerSize
                                 );
 
                                 IFace::RenderGradient(c, fade, 150);
@@ -315,18 +325,22 @@ namespace MultiPlayer
                                     color = fade;
                                 }
 
+                                // Scale start point to control size (not hardcoded 128)
                                 Point<S32> point
                                 (
-                                    S32(team->GetStartPoint().x * 128.0f),
-                                    S32(team->GetStartPoint().y * 128.0f)
+                                    S32(team->GetStartPoint().x * pi.client.Width()),
+                                    S32(team->GetStartPoint().y * pi.client.Height())
                                 );
+
+                                // Scale marker size with UI
+                                S32 markerSize = S32(4 * IFace::GetScale());
 
                                 ClipRect c
                                 (
-                                    pi.client.p0.x + point.x - 4,
-                                    pi.client.p0.y + point.y - 4,
-                                    pi.client.p0.x + point.x + 4,
-                                    pi.client.p0.y + point.y + 4
+                                    pi.client.p0.x + point.x - markerSize,
+                                    pi.client.p0.y + point.y - markerSize,
+                                    pi.client.p0.x + point.x + markerSize,
+                                    pi.client.p0.y + point.y + markerSize
                                 );
 
                                 IFace::RenderGradient(c, color, 150);

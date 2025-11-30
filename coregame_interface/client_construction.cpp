@@ -324,13 +324,46 @@ namespace Client
         // Draw the info
         if (pi.font)
         {
+            // Scale internal layout metrics from design-space units to
+            // screen-space pixels for cost, queue and progress bar.
+            F32 scale = IFace::GetScale();
+
+            auto ScaleArea = [scale](const Area<S32>& a) -> Area<S32>
+            {
+                return Area<S32>
+                (
+                    S32(F32(a.p0.x) * scale),
+                    S32(F32(a.p0.y) * scale),
+                    S32(F32(a.p1.x) * scale),
+                    S32(F32(a.p1.y) * scale)
+                );
+            };
+
+            Point<S32> scaledCost
+            (
+                S32(F32(pointCost.x) * scale),
+                S32(F32(pointCost.y) * scale)
+            );
+
+            Point<S32> scaledQueue
+            (
+                S32(F32(pointQueue.x) * scale),
+                S32(F32(pointQueue.y) * scale)
+            );
+
+            Area<S32> scaledProg = ScaleArea(areaProgress);
+
             // Display resource cost
             if (construct->GetResourceCost())
             {
                 IFace::RenderS32
                 (
-                    construct->GetResourceCost(), pi.font,
-                    pi.colors->fg[ColorIndex()], pointCost.x, pointCost.y, &pi.client,
+                    construct->GetResourceCost(),
+                    pi.font,
+                    pi.colors->fg[ColorIndex()],
+                    scaledCost.x,
+                    scaledCost.y,
+                    &pi.client,
                     IFace::data.alphaScale
                 );
             }
@@ -341,7 +374,7 @@ namespace Client
                 // Display of progress
                 if (flags & FLAG_PROGRESS)
                 {
-                    ClipRect c = areaProgress + pi.client.p0;
+                    ClipRect c = scaledProg + pi.client.p0;
                     IFace::RenderRectangle(c, Color(0.0F, 0.5F, 0.0F, 0.4F * IFace::data.alphaScale));
                     c.p1.x = c.p0.x + S32(progress * F32(c.p1.x - c.p0.x));
                     IFace::RenderRectangle(c, Color(0.0F, 1.0F, 0.0F, 0.6F * IFace::data.alphaScale));
@@ -356,8 +389,12 @@ namespace Client
                         {
                             IFace::RenderS32
                             (
-                                queue, pi.font, pi.colors->fg[ColorIndex()],
-                                pointQueue.x, pointQueue.y, &pi.client,
+                                queue,
+                                pi.font,
+                                pi.colors->fg[ColorIndex()],
+                                scaledQueue.x,
+                                scaledQueue.y,
+                                &pi.client,
                                 IFace::data.alphaScale
                             );
                         }
@@ -367,7 +404,7 @@ namespace Client
                         {
                             IFace::RenderRectangle
                             (
-                                areaProgress + pi.client.p0,
+                                scaledProg + pi.client.p0,
                                 Color(1.0F, 0.0F, 0.0F, 0.7F * IFace::data.alphaScale)
                             );
                         }

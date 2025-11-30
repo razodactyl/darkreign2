@@ -73,7 +73,10 @@ protected:
         moveKnob : 1,
 
         // Use variable range
-        useRange : 1;
+        useRange : 1,
+        
+        // Range has been initialized
+        rangeInitialized : 1;
 
     // Current value
     IFaceVar* sliderVar;

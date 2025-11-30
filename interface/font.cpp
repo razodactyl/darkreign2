@@ -14,6 +14,7 @@
 #include "bitmap.h"
 #include "vid_public.h"
 #include "iface_util.h"
+#include "pixelscale.h"
 
 
 //#define LOG_FONT(x) LOG_DIAG(x)
@@ -24,6 +25,9 @@
 
 // Gutter around characters
 static const S32 Gutter = 1;
+
+// Font texture scaling factor (set during Font::Read based on PixelScale)
+static S32 fontTextureScale = 1;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -98,11 +102,25 @@ Font::CharData* Font::FindChar(int ch)
 
 
 //
-// Return width of a string
+// Get the font scale factor
+// Returns the scale factor used for font texture pre-scaling
+// Since textures are pre-scaled, this returns the texture scale factor
+// so that Font::Draw() renders at the correct size
+//
+S32 Font::GetFontScale()
+{
+    // Return the texture scale factor that was used when loading fonts
+    // This ensures Font::Draw() renders glyphs at the correct size
+    return fontTextureScale;
+}
+
+
+//
+// Return SCALED width of a string
 //
 S32 Font::Width(const CH* s, S32 len)
 {
-    // start with zero width
+    // start with zero width (in native pixels)
     S32 width = 0;
 
     // for each character...
@@ -115,21 +133,39 @@ S32 Font::Width(const CH* s, S32 len)
         }
     }
 
-    // return the width
-    return (width);
+    // return the SCALED width
+    return (width * GetFontScale());
 }
 
 
 //
-// Return width of a character
+// Return SCALED width of a character
 //
 S32 Font::Width(S32 c)
 {
     if (CharData* cd = FindChar(c))
     {
-        return (cd->width);
+        return (cd->width * GetFontScale());
     }
     return (0);
+}
+
+
+//
+// Return SCALED height of font
+//
+S32 Font::Height()
+{
+    return (fontHeight * GetFontScale());
+}
+
+
+//
+// Return SCALED average character width
+//
+S32 Font::AvgWidth()
+{
+    return (avgWidth * GetFontScale());
 }
 
 
@@ -293,8 +329,17 @@ Bool Font::Read(const char* fileName)
 
         // ...
 
-        // Create a bunch of 128x128 textures
-        const S32 size = 128;
+        // Get font texture scale factor (1, 2, or 3 based on resolution)
+        // This pre-scales font textures for crisp rendering at high resolutions
+        fontTextureScale = PixelScale::GetIntegerScale(3);
+        if (fontTextureScale < 1) fontTextureScale = 1;
+        
+        LOG_FONT((" - Font texture scale: %d", fontTextureScale));
+
+        // Create textures at scaled size (128 * scale)
+        const S32 baseSize = 128;
+        const S32 size = baseSize * fontTextureScale;
+        const S32 scaledGutter = Gutter * fontTextureScale;
 
         // Texture handle of current character
         Bitmap* texture = nullptr;
@@ -317,23 +362,23 @@ Bool Font::Read(const char* fileName)
                 numTex++;
                 texture = FontSys::AllocTexture(texHandle);
 
-                LOG_FONT((" - Allocating texture %d (%dx%d)", numTex, size, size))
+                LOG_FONT((" - Allocating texture %d (%dx%d) scale=%d", numTex, size, size, fontTextureScale))
 
                 if (!texture)
                 {
                     ERR_FATAL(("Out of font handles!"))
                 }
 
-                // Clear the contents
+                // Clear the contents (at scaled size)
                 texture->Create(size, size, TRUE);
                 texture->Clear(0);
 
                 // Lock the texture
                 texture->Lock();
 
-                // Reset counters
-                curX = Gutter;
-                curY = Gutter;
+                // Reset counters (using scaled gutter)
+                curX = scaledGutter;
+                curY = scaledGutter;
                 rowY = 0;
             }
 
@@ -348,14 +393,18 @@ Bool Font::Read(const char* fileName)
             // If the image has nonzero width...
             if (charImage->charWidth > 0)
             {
+                // Calculate scaled character dimensions
+                S32 scaledCharWidth = charImage->charWidth * fontTextureScale;
+                S32 scaledCharHeight = charImage->charHeight * fontTextureScale;
+                
                 // If the character won't fit horizontally...
-                S32 cw = charImage->charWidth + Gutter;
-                S32 ch = charImage->charHeight + Gutter;
+                S32 cw = scaledCharWidth + scaledGutter;
+                S32 ch = scaledCharHeight + scaledGutter;
 
-                if (curX + cw > size - Gutter)
+                if (curX + cw > size - scaledGutter)
                 {
                     // Do line wrap
-                    curX = Gutter;
+                    curX = scaledGutter;
                     curY += rowY;
                     rowY = 0;
                 }
@@ -366,7 +415,7 @@ Bool Font::Read(const char* fileName)
                     rowY = ch;
                 }
 
-                if (curY + rowY > size - Gutter)
+                if (curY + rowY > size - scaledGutter)
                 {
                     // Move to next texture
                     texture->UnLock();
@@ -378,20 +427,33 @@ Bool Font::Read(const char* fileName)
                 // Get character pixels
                 U8* pixel = charImage->charData;
 
-                // For each row of the character...
-                for (y = curY; y < curY + charImage->charHeight; y++)
+                // For each row of the character (at native resolution)...
+                for (S32 srcY = 0; srcY < charImage->charHeight; srcY++)
                 {
                     // For each column of the row...
-                    for (x = curX; x < curX + charImage->charWidth; x++)
+                    for (S32 srcX = 0; srcX < charImage->charWidth; srcX++)
                     {
+                        // Get source pixel alpha
+                        U8 alpha = *pixel++;
+                        
                         // Convert color to texture format
-                        U32 color = texture->MakeRGBA(0xFF, 0xFF, 0xFF, *pixel++);
+                        U32 color = texture->MakeRGBA(0xFF, 0xFF, 0xFF, alpha);
 
-                        ASSERT(x < texture->Width());
-                        ASSERT(y < texture->Height());
+                        // Write scaled pixels (fontTextureScale x fontTextureScale block)
+                        for (S32 sy = 0; sy < fontTextureScale; sy++)
+                        {
+                            for (S32 sx = 0; sx < fontTextureScale; sx++)
+                            {
+                                S32 dstX = curX + srcX * fontTextureScale + sx;
+                                S32 dstY = curY + srcY * fontTextureScale + sy;
+                                
+                                ASSERT(dstX < texture->Width());
+                                ASSERT(dstY < texture->Height());
 
-                        // Write pixel into the texture
-                        texture->PutPixel(x, y, color, &texture->GetClipRect());
+                                // Write pixel into the texture
+                                texture->PutPixel(dstX, dstY, color, &texture->GetClipRect());
+                            }
+                        }
                     }
                 }
 
@@ -399,17 +461,18 @@ Bool Font::Read(const char* fileName)
                 charData.texHandle = texHandle;
 
                 // Fill in font character data
-                float scale = 1.0f / size;
+                // UV coordinates are normalized (0-1) so they work with scaled texture
+                float uvScale = 1.0f / size;
                 charData.width = charHeader.fullWidth;
                 charData.rect.p0.x = charHeader.rectX0;
                 charData.rect.p0.y = charHeader.rectY0;
                 charData.rect.p1.x = charHeader.rectX1;
                 charData.rect.p1.y = charHeader.rectY1;
 
-                charData.u0 = F32(curX) * scale + texture->UVShiftWidth();
-                charData.v0 = F32(curY) * scale + texture->UVShiftHeight();
-                charData.u1 = F32(curX + charImage->charWidth) * scale + texture->UVShiftWidth();
-                charData.v1 = F32(curY + charImage->charHeight) * scale + texture->UVShiftHeight();
+                charData.u0 = F32(curX) * uvScale + texture->UVShiftWidth();
+                charData.v0 = F32(curY) * uvScale + texture->UVShiftHeight();
+                charData.u1 = F32(curX + scaledCharWidth) * uvScale + texture->UVShiftWidth();
+                charData.v1 = F32(curY + scaledCharHeight) * uvScale + texture->UVShiftHeight();
 
                 // Go to the next position
                 curX += cw;
@@ -478,18 +541,24 @@ Bool Font::Read(const char* fileName)
 //
 // Font::Draw
 //
-// Render the string
+// Render the string at scaled size
+// x, y are in SCREEN-SPACE (already scaled by caller)
+// Glyph positions and sizes are scaled by GetFontScale()
 //
 void Font::Draw(S32 x, S32 y, const CH* s, U32 len, Color color, const ClipRect* clip, F32 alphaScale, S32 shadow)
 {
     F32 fshadow = 0.0F;
     Color shadowClr;
     VertexTL point[4];
+    
+    // Get integer scale factor for pixel-perfect font rendering
+    S32 fontScale = GetFontScale();
 
     if (shadow)
     {
         shadowClr.Set(0, 0, 0, GetMetric(IFace::SHADOW_ALPHA));
-        fshadow = F32(shadow);
+        // Scale shadow offset
+        fshadow = F32(shadow * fontScale);
     }
 
     // Scale the alpha down
@@ -515,11 +584,12 @@ void Font::Draw(S32 x, S32 y, const CH* s, U32 len, Color color, const ClipRect*
             {
                 Bitmap* texture = FontSys::FindTexture(cd->texHandle);
 
-                // calculate extents of the character
-                S32 x0 = x + cd->rect.p0.x;
-                S32 y0 = y + cd->rect.p0.y;
-                S32 x1 = x + cd->rect.p1.x;
-                S32 y1 = y + cd->rect.p1.y;
+                // calculate SCALED extents of the character
+                // The glyph rect offsets and sizes need to be scaled
+                S32 x0 = x + cd->rect.p0.x * fontScale;
+                S32 y0 = y + cd->rect.p0.y * fontScale;
+                S32 x1 = x + cd->rect.p1.x * fontScale;
+                S32 y1 = y + cd->rect.p1.y * fontScale;
 
                 // Clip
                 if (x1 > clip->p1.x)
@@ -600,8 +670,8 @@ void Font::Draw(S32 x, S32 y, const CH* s, U32 len, Color color, const ClipRect*
                 }
             }
 
-            // update position
-            x += cd->width;
+            // update position (SCALED character advance)
+            x += cd->width * fontScale;
         }
     }
 }

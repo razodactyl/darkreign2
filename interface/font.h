@@ -18,6 +18,7 @@
 //
 #include "bitmapdec.h"
 #include "bitmapclip.h"
+#include "pixelscale.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -169,21 +170,22 @@ public:
     Bool Read(const char* fileName);
     Bool Read();
 
-    // Width 
+    // Get the font scale factor (uses PixelScale integer scaling)
+    static S32 GetFontScale();
+
+    // Width (returns SCALED width for UI layout)
     S32 Width(const CH* s, S32 len);
     S32 Width(S32 c);
 
-    // Average width
-    S32 AvgWidth()
-    {
-        return (avgWidth);
-    }
+    // Average width (returns SCALED width)
+    S32 AvgWidth();
 
-    // Font height
-    S32 Height()
-    {
-        return (fontHeight);
-    }
+    // Font height (returns SCALED height)
+    S32 Height();
+    
+    // Native (unscaled) dimensions for internal use
+    S32 NativeHeight() const { return fontHeight; }
+    S32 NativeAvgWidth() const { return avgWidth; }
 
     // Draw the font
     void Draw(S32 x, S32 y, const CH* s, U32 len, Color color, const ClipRect* clip = NULL, F32 alphaScale = 1.0F, S32 shadow = 0);

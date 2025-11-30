@@ -221,7 +221,8 @@ void ICDropList::PostConfigure()
     container = new Container(IFace::RootWindow(), this);
     container->SetName(name);
     container->SetAlignTo(this);
-    container->SetSize(0, height);
+    // Set height in design-space - AdjustGeometry will scale it
+    container->SetGeomSize(0, height);
 
     if (containerCfg)
     {
@@ -280,7 +281,9 @@ void ICDropList::PostConfigure()
         current = new ICButton(this);
         current->SetName(CurrentCtrlName);
         current->SetGeometry("ParentWidth", "ParentHeight", NULL);
-        current->SetSize(-IFace::GetMetric(IFace::SLIDER_WIDTH), 0);
+        // Scale from design-space to screen-space
+        F32 scale = IFace::GetScale();
+        current->SetSize(-S32(F32(IFace::GetMetric(IFace::SLIDER_WIDTH)) * scale), 0);
         current->SetStyle("!VGradient", NULL);
         current->SetColorGroup(IFace::data.cgClient);
         current->SetTextFont("System");
@@ -306,7 +309,8 @@ void ICDropList::PostConfigure()
         IControl* ctrl = new ICSystemButton(ICSystemButton::DROPLIST, this);
         ctrl->SetName(DropBtnCtrlName);
         ctrl->SetGeometry("ParentHeight", "Right", NULL);
-        ctrl->SetSize(IFace::GetMetric(IFace::SLIDER_WIDTH), 0);
+        // Scale from design-space to screen-space
+        ctrl->SetSize(S32(F32(IFace::GetMetric(IFace::SLIDER_WIDTH)) * IFace::GetScale()), 0);
     }
 }
 

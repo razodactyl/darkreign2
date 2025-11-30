@@ -271,10 +271,12 @@ void ICSystemButton::DrawCloseIcon(const ClipRect& r, Color c)
 void ICSystemButton::DrawLeftIcon(const ClipRect& r, Color c)
 {
     Point<S32> pt[3];
+    F32 scale = IFace::GetScale();
+    S32 offset2 = S32(2.0f * scale);
 
-    pt[0].Set(r.p0.x + 2, r.p0.y + (r.Height() >> 1));
-    pt[1].Set(r.p1.x - 2, r.p0.y + 2);
-    pt[2].Set(r.p1.x - 2, r.p1.y - 2);
+    pt[0].Set(r.p0.x + offset2, r.p0.y + (r.Height() >> 1));
+    pt[1].Set(r.p1.x - offset2, r.p0.y + offset2);
+    pt[2].Set(r.p1.x - offset2, r.p1.y - offset2);
 
     IFace::RenderTriangle(pt, c);
 }
@@ -286,10 +288,12 @@ void ICSystemButton::DrawLeftIcon(const ClipRect& r, Color c)
 void ICSystemButton::DrawRightIcon(const ClipRect& r, Color c)
 {
     Point<S32> pt[3];
+    F32 scale = IFace::GetScale();
+    S32 offset2 = S32(2.0f * scale);
 
-    pt[0].Set(r.p1.x - 2, r.p0.y + (r.Height() >> 1));
-    pt[1].Set(r.p0.x + 2, r.p0.y + 2);
-    pt[2].Set(r.p0.x + 2, r.p1.y - 2);
+    pt[0].Set(r.p1.x - offset2, r.p0.y + (r.Height() >> 1));
+    pt[1].Set(r.p0.x + offset2, r.p0.y + offset2);
+    pt[2].Set(r.p0.x + offset2, r.p1.y - offset2);
 
     IFace::RenderTriangle(pt, c);
 }
@@ -301,10 +305,13 @@ void ICSystemButton::DrawRightIcon(const ClipRect& r, Color c)
 void ICSystemButton::DrawUpIcon(const ClipRect& r, Color c)
 {
     Point<S32> pt[3];
+    F32 scale = IFace::GetScale();
+    S32 offset1 = S32(1.0f * scale);
+    S32 offset2 = S32(2.0f * scale);
 
-    pt[0].Set(r.p0.x + (r.Width() >> 1), r.p0.y + 1);
-    pt[1].Set(r.p0.x + 1, r.p1.y - 2);
-    pt[2].Set(r.p1.x - 2, r.p1.y - 2);
+    pt[0].Set(r.p0.x + (r.Width() >> 1), r.p0.y + offset1);
+    pt[1].Set(r.p0.x + offset1, r.p1.y - offset2);
+    pt[2].Set(r.p1.x - offset2, r.p1.y - offset2);
 
     IFace::RenderTriangle(pt, c);
 }
@@ -316,10 +323,12 @@ void ICSystemButton::DrawUpIcon(const ClipRect& r, Color c)
 void ICSystemButton::DrawDownIcon(const ClipRect& r, Color c)
 {
     Point<S32> pt[3];
+    F32 scale = IFace::GetScale();
+    S32 offset2 = S32(2.0f * scale);
 
-    pt[0].Set(r.p0.x + (r.Width() >> 1), r.p1.y - 2);
-    pt[1].Set(r.p0.x + 2, r.p0.y + 2);
-    pt[2].Set(r.p1.x - 2, r.p0.y + 2);
+    pt[0].Set(r.p0.x + (r.Width() >> 1), r.p1.y - offset2);
+    pt[1].Set(r.p0.x + offset2, r.p0.y + offset2);
+    pt[2].Set(r.p1.x - offset2, r.p0.y + offset2);
 
     IFace::RenderTriangle(pt, c);
 }

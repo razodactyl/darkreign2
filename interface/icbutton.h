@@ -116,6 +116,12 @@ public:
 
     // Adjust geometry of control
     void AdjustGeometry();
+    
+    // Update client rectangles after size change
+    void UpdateClientRects();
+    
+    // Called when screen size changes (override from IControl)
+    void OnScreenSizeChanged() override;
 
     // Event handling
     U32 HandleEvent(Event& e);

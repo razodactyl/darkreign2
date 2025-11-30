@@ -92,6 +92,9 @@ namespace Main
         VarSys::CreateCmd("sys.runcode");
         VarSys::CreateCmd("sys.runonce", VarSys::RAWVAR);
         VarSys::CreateCmd("sys.buildfileindexes");
+#ifdef DEVELOPMENT
+        VarSys::CreateCmd("sys.gencrc");
+#endif
 
         // Profile commands
         VarSys::CreateCmd("profile.init");
@@ -390,6 +393,23 @@ namespace Main
             case 0xEBB16C2F: // "sys.buildfileindexes"
                 FileSys::BuildIndexes();
                 break;
+
+#ifdef DEVELOPMENT
+            case 0x07378A10: // "sys.gencrc"
+            {
+                const char* str;
+                if (Console::GetArgString(1, str))
+                {
+                    U32 crc = Crc::CalcStr(str);
+                    CON_DIAG(("CRC for '%s' = 0x%08X", str, crc));
+                }
+                else
+                {
+                    CON_ERR(("Usage: sys.gencrc \"string\""));
+                }
+                break;
+            }
+#endif
 
                 //
                 // Profile commands

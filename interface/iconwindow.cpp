@@ -179,8 +179,17 @@ void IconWindow::GetSlotPosition(S32 index, S32& x, S32& y)
         y = index / gridSize.x;
     }
 
-    x = gridStart.x + (x * iconSize.x) + (iconSpacing.x * x);
-    y = gridStart.y + (y * iconSize.y) + (iconSpacing.y * y);
+    // Scale from design-space to screen-space
+    F32 scale = IFace::GetScale();
+    S32 scaledIconW = S32(F32(iconSize.x) * scale);
+    S32 scaledIconH = S32(F32(iconSize.y) * scale);
+    S32 scaledSpacingX = S32(F32(iconSpacing.x) * scale);
+    S32 scaledSpacingY = S32(F32(iconSpacing.y) * scale);
+    S32 scaledStartX = S32(F32(gridStart.x) * scale);
+    S32 scaledStartY = S32(F32(gridStart.y) * scale);
+
+    x = scaledStartX + (x * scaledIconW) + (scaledSpacingX * x);
+    y = scaledStartY + (y * scaledIconH) + (scaledSpacingY * y);
 }
 
 
@@ -318,12 +327,17 @@ void IconWindow::DrawSelf(PaintInfo& pi)
 {
     if (textureBlank)
     {
+        // Scale icon size for rendering
+        F32 scale = IFace::GetScale();
+        S32 scaledIconW = S32(F32(iconSize.x) * scale);
+        S32 scaledIconH = S32(F32(iconSize.y) * scale);
+
         // Iterate the blank slots
         for (S32 index = S32(icons.GetCount()) - start; index < gridSize.x * gridSize.y; index++)
         {
             S32 x, y;
 
-            // Get the pixel position of this slot
+            // Get the pixel position of this slot (already scaled)
             GetSlotPosition(index, x, y);
 
             // Add in the control offset
@@ -333,7 +347,7 @@ void IconWindow::DrawSelf(PaintInfo& pi)
             // Render the texture
             IFace::RenderRectangle
             (
-                ClipRect(x, y, x + iconSize.x, y + iconSize.y),
+                ClipRect(x, y, x + scaledIconW, y + scaledIconH),
                 IFace::data.cgTexture->bg[ColorIndex()],
                 textureBlank,
                 pi.alphaScale
@@ -379,8 +393,9 @@ void IconWindow::MoveStart(S32 index)
 //
 void IconWindow::AddIcon(IControl* icon)
 {
-    // Set the icon size
-    icon->SetSize(iconSize.x, iconSize.y);
+    // Set the icon size using design-space values
+    // SetGeomSize stores the unscaled config values so AdjustGeometry will scale them
+    icon->SetGeomSize(iconSize.x, iconSize.y);
 
     // Apply custom configuration
     if (iconConfig)

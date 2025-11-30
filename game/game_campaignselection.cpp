@@ -233,7 +233,8 @@ namespace Game
         // Setup preview
         if (previewDisplay.Alive() && preview->GetTerrainTexture())
         {
-            TextureInfo texture(preview->GetTerrainTexture(), TextureInfo::TM_CENTRED);
+            // Use TM_STRETCHED so the preview scales with the UI
+            TextureInfo texture(preview->GetTerrainTexture(), TextureInfo::TM_STRETCHED);
             previewDisplay->SetImage(&texture);
         }
 

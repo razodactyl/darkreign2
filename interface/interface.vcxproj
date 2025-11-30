@@ -153,6 +153,7 @@
     <ClCompile Include="messagebox_event.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="fontsys.cpp" />
+    <ClCompile Include="pixelscale.cpp" />
     <ClCompile Include="iface.cpp" />
     <ClCompile Include="iface_controls.cpp" />
     <ClCompile Include="iface_sound.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="messagebox_event.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="fontsys.h" />
+    <ClInclude Include="pixelscale.h" />
     <ClInclude Include="iface.h" />
     <ClInclude Include="iface_controls.h" />
     <ClInclude Include="iface_priv.h" />

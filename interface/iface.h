@@ -353,6 +353,9 @@ namespace IFace
     // Current screen depth
     S32 ScreenDepth();
 
+    // Get UI scale factor based on current resolution relative to 640x480
+    F32 GetScale();
+
     // Current pixel format
     const Pix* ScreenPixelFormat();
 

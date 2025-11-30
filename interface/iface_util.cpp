@@ -16,6 +16,7 @@
 #include "font.h"
 #include "stdload.h"
 #include "statistics.h"
+#include "pixelscale.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -1109,14 +1110,31 @@ namespace IFace
             ERR_FATAL(("Error loading texture [%s]", image))
         }
 
+#ifdef PIXELSCALE_SCALE2X_UI
+        // Apply Scale2x scaling to UI textures (preserves hard edges)
+        // Returns the scale factor applied (2 if scaled, 1 if not)
+        S32 texScale = PixelScale::ScaleBitmapUI(info.texture);
+#else
+        S32 texScale = 1;
+#endif
+
         // Load optional uv coords
         if (sScope->GetArgCount() > 1)
         {
-            // Store pixel coordinates
+            // Store pixel coordinates (from config, in original texture space)
             info.pixels.p0.x = sScope->NextArgInteger();
             info.pixels.p0.y = sScope->NextArgInteger();
             info.pixels.p1.x = sScope->NextArgInteger() + info.pixels.p0.x;
             info.pixels.p1.y = sScope->NextArgInteger() + info.pixels.p0.y;
+
+            // Scale pixel coordinates to match scaled texture
+            if (texScale > 1)
+            {
+                info.pixels.p0.x *= texScale;
+                info.pixels.p0.y *= texScale;
+                info.pixels.p1.x *= texScale;
+                info.pixels.p1.y *= texScale;
+            }
 
             // Generate texture coordinates
             info.uv.p0.x = (F32(info.pixels.p0.x) + info.texture->UVShiftWidth()) * info.texture->InvWidth();
@@ -1126,7 +1144,7 @@ namespace IFace
         }
         else
         {
-            // Use entire image
+            // Use entire image (texture dimensions are already scaled if texScale > 1)
             info.pixels.Set(0, 0, info.texture->Width(), info.texture->Height());
             info.uv.Set(0.0F, 0.0F, 1.0F, 1.0F);
         }
@@ -1741,7 +1759,9 @@ void TextureInfo::UpdateUV(const ClipRect& rect)
 
             case TM_CENTRED:
             {
-                // Adjust clipping rectangle
+                // Center the texture at its native pixel size within the control's client rect.
+                // The control itself should be scaled appropriately; the texture is displayed
+                // at 1:1 pixel ratio for crisp rendering.
                 texRect.p0.x = (rect.Width() - pixels.Width()) >> 1;
                 texRect.p1.x = texRect.p0.x + pixels.Width();
                 texRect.p0.y = (rect.Height() - pixels.Height()) >> 1;
@@ -1749,7 +1769,6 @@ void TextureInfo::UpdateUV(const ClipRect& rect)
                 texRect += rect.p0;
 
                 // Texture coords are same as STRETCHED
-
                 break;
             }
         }

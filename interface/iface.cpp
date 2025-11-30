@@ -36,10 +36,15 @@
 #include "statistics.h"
 #include "icontrol.h"
 #include "icroot.h"
+#include "pixelscale.h"
 #include <locale.h>
+#include <functional>
 
 
 //#define LOGGING
+
+// Global file handle for debug output during layout dump
+FILE* g_layoutDumpFile = nullptr;
 
 #ifdef LOGGING
   #define LOG_IFACE(x) LOG_DIAG(x)
@@ -312,6 +317,9 @@ namespace IFace
 
         // Setup metrics
         InitMetrics();
+
+        // Initialize pixel scaling system
+        PixelScale::Init();
 
         // Register Standard Interface control creation handlers
         Controls::Init();
@@ -632,10 +640,16 @@ namespace IFace
     {
         if (sysInit)
         {
-            FontSys::OnModeChange();
-
             U32 xres = Vid::backBmp.Width();
             U32 yres = Vid::backBmp.Height();
+            
+            // Update system metrics first so GetScale() returns correct value
+            UpdateScreenMetrics();
+            
+            // Reinitialize pixel scaling for new resolution
+            PixelScale::Init();
+            
+            FontSys::OnModeChange();
 
             // Reload unmanaged bitmaps
             for (List<Bitmap>::Iterator i(&unmanagedBitmaps); *i; ++i)
@@ -643,9 +657,6 @@ namespace IFace
                 (*i)->ReleaseDD();
                 (*i)->Read((*i)->GetName());
             }
-
-            // Update system metrics
-            UpdateScreenMetrics();
 
             // Notify the root window of mode change
             SendEvent(root, nullptr, DISPLAYMODECHANGED, xres, yres);
@@ -2370,14 +2381,28 @@ namespace IFace
         {
             if (!GetFlag(DISABLE_CONSOLE))
             {
-                if ((e.input.code == DIK_F10) && (e.input.state == (Input::CTRLDOWN | Input::ALTDOWN)))
+                // Ctrl+Alt+F10 or tilde (~) toggles console
+                if (((e.input.code == DIK_F10) && (e.input.state == (Input::CTRLDOWN | Input::ALTDOWN))) ||
+                    (e.input.code == DIK_GRAVE))
                 {
                     // Activate or deactivate the console
                     ToggleActive("Sys::Console");
                     return (TRUE);
                 }
             }
-
+        }
+        
+        // Suppress KEYCHAR for grave/tilde key (console toggle)
+        if (e.subType == Input::KEYCHAR)
+        {
+            if (e.input.ch == '`' || e.input.ch == '~')
+            {
+                return (TRUE);
+            }
+        }
+        
+        if (e.subType == Input::KEYDOWN)
+        {
             if (e.input.code == DIK_SYSRQ)
             {
                 // Take a screenshot
@@ -2584,6 +2609,24 @@ namespace IFace
     {
         ASSERT(data.backBuf);
         return (data.backBuf->Depth());
+    }
+
+
+    //
+    // Get UI scale factor based on current resolution relative to 640x480
+    //
+    F32 GetScale()
+    {
+        ASSERT(data.backBuf);
+        S32 width = data.backBuf->Width();
+        S32 height = data.backBuf->Height();
+
+        // Calculate scale relative to original 640x480 design
+        F32 scaleX = F32(width) / 640.0f;
+        F32 scaleY = F32(height) / 480.0f;
+
+        // Use the smaller axis to ensure UI fits in both dimensions
+        return (scaleX < scaleY) ? scaleX : scaleY;
     }
 
 
@@ -3072,6 +3115,7 @@ namespace IFace
         VarSys::CreateCmd("iface.sendnotifyevent");
         VarSys::CreateCmd("iface.ifconsolemsg");
         VarSys::CreateCmd("iface.deactivatemodals");
+        VarSys::CreateCmd("iface.dumplayout");
 
         // System variables
         const char* language = MultiLanguage::GetLanguage();
@@ -3429,6 +3473,155 @@ namespace IFace
                 break;
             }
 
+            case 0xBCADAC1D: // "iface.dumplayout"
+            {
+                const char* ctrlName = nullptr;
+                Console::GetArgString(1, ctrlName);
+
+                // Open log file
+                g_layoutDumpFile = fopen("ui_layout.log", "w");
+                if (g_layoutDumpFile)
+                {
+                    fprintf(g_layoutDumpFile, "=== UI Layout Dump ===\n");
+                    fprintf(g_layoutDumpFile, "Screen: %dx%d, Scale: %.2f\n\n", ScreenWidth(), ScreenHeight(), GetScale());
+
+                    IControl* rootCtrl = ctrlName ? FindByName(ctrlName) : root;
+                    F32 scale = GetScale();
+
+                    if (rootCtrl)
+                    {
+                        U32 totalControls = 0;
+                        U32 sizeAnomalies = 0;
+
+                        // Recursive lambda to dump control hierarchy as a clean tree
+                        std::function<void(IControl*, int)> dumpCtrl = [&](IControl* ctrl, int indent) {
+                            if (!ctrl) return;
+
+                            // Only show visible controls
+                            if (!(ctrl->GetControlState() & IControl::STATE_VISIBLE)) return;
+
+                            totalControls++;
+
+                            // Build tree indent with box-drawing chars
+                            char indentStr[128] = { 0 };
+                            for (int i = 0; i < indent && i < 60; i += 2)
+                            {
+                                strcat(indentStr, "| ");
+                            }
+
+                            const IControl::Geometry& g = ctrl->GetGeometry();
+                            const Point<S32>& pos = ctrl->GetPos();
+                            const Point<S32>& sz = ctrl->GetSize();
+
+                            // Get text content if any
+                            CH textBuf[64] = { 0 };
+                            ctrl->GetTextString(textBuf, 63);
+                            char textAnsi[64] = { 0 };
+                            if (textBuf[0])
+                            {
+                                Utils::Unicode2Ansi(textAnsi, 63, textBuf);
+                                // Truncate long text
+                                if (strlen(textAnsi) > 20)
+                                {
+                                    textAnsi[17] = '.';
+                                    textAnsi[18] = '.';
+                                    textAnsi[19] = '.';
+                                    textAnsi[20] = '\0';
+                                }
+                            }
+
+                            // Calculate expected vs actual
+                            S32 expectedSizeX = S32(F32(g.unscaledConfigSize.x) * scale);
+                            S32 expectedSizeY = S32(F32(g.unscaledConfigSize.y) * scale);
+                            Bool hasAutoSize = (g.flags & (IControl::GEOM_AUTOSIZEX | IControl::GEOM_AUTOSIZEY)) != 0;
+                            Bool hasParentSize = (g.flags & (IControl::GEOM_PARENTWIDTH | IControl::GEOM_PARENTHEIGHT)) != 0;
+                            
+                            // Check for size mismatch (only for explicit sizes)
+                            Bool sizeMismatch = FALSE;
+                            if (!hasAutoSize && !hasParentSize && (g.unscaledConfigSize.x != 0 || g.unscaledConfigSize.y != 0))
+                            {
+                                if (sz.x != expectedSizeX || sz.y != expectedSizeY)
+                                {
+                                    sizeMismatch = TRUE;
+                                    sizeAnomalies++;
+                                }
+                            }
+
+                            // Print control line: name, position, size, and optional text
+                            fprintf(g_layoutDumpFile, "%s[%s] pos=(%d,%d) size=(%d,%d)",
+                                indentStr, ctrl->Name(), pos.x, pos.y, sz.x, sz.y);
+
+                            if (textAnsi[0])
+                            {
+                                fprintf(g_layoutDumpFile, " \"%s\"", textAnsi);
+                            }
+
+                            // Show flags if non-trivial
+                            if (hasAutoSize) fprintf(g_layoutDumpFile, " [AUTO]");
+                            if (hasParentSize) fprintf(g_layoutDumpFile, " [FILL]");
+                            if (g.flags & IControl::GEOM_RIGHT) fprintf(g_layoutDumpFile, " [R]");
+                            if (g.flags & IControl::GEOM_BOTTOM) fprintf(g_layoutDumpFile, " [B]");
+                            if (g.flags & IControl::GEOM_HCENTRE) fprintf(g_layoutDumpFile, " [HC]");
+                            if (g.flags & IControl::GEOM_VCENTRE) fprintf(g_layoutDumpFile, " [VC]");
+
+                            // Show mismatch warning
+                            if (sizeMismatch)
+                            {
+                                fprintf(g_layoutDumpFile, " *** MISMATCH: expected=(%d,%d)", expectedSizeX, expectedSizeY);
+                            }
+
+                            // For [R] or [B] positioned controls, show design info
+                            if (g.flags & (IControl::GEOM_RIGHT | IControl::GEOM_BOTTOM))
+                            {
+                                const ClipRect& dc = ctrl->GetDesignClient();
+                                const ClipRect& dw = ctrl->GetDesignWindow();
+                                IControl* p = ctrl->Parent();
+                                fprintf(g_layoutDumpFile, "\n%s  config_pos=(%d,%d) designWin=(%d,%d,%d,%d)",
+                                    indentStr,
+                                    g.unscaledConfigPos.x, g.unscaledConfigPos.y,
+                                    dw.p0.x, dw.p0.y, dw.p1.x, dw.p1.y);
+                                if (p)
+                                {
+                                    const ClipRect& pdc = p->GetDesignClient();
+                                    const ClipRect& pdw = p->GetDesignWindow();
+                                    fprintf(g_layoutDumpFile, "\n%s  parent_client=(%d,%d,%d,%d) parent_win=(%d,%d,%d,%d)",
+                                        indentStr,
+                                        pdc.p0.x, pdc.p0.y, pdc.p1.x, pdc.p1.y,
+                                        pdw.p0.x, pdw.p0.y, pdw.p1.x, pdw.p1.y);
+                                }
+                            }
+
+                            fprintf(g_layoutDumpFile, "\n");
+
+                            // Dump children
+                            for (NList<IControl>::Iterator i(&ctrl->GetChildren()); *i; ++i)
+                            {
+                                dumpCtrl(*i, indent + 2);
+                            }
+                        };
+
+                        dumpCtrl(rootCtrl, 0);
+
+                        fprintf(g_layoutDumpFile, "\n=== Summary ===\n");
+                        fprintf(g_layoutDumpFile, "Visible controls: %u\n", totalControls);
+                        fprintf(g_layoutDumpFile, "Size mismatches: %u\n", sizeAnomalies);
+
+                        CON_MSG(("dumplayout: %u visible controls, %u mismatches (see ui_layout.log)", totalControls, sizeAnomalies));
+                    }
+                    else
+                    {
+                        fprintf(g_layoutDumpFile, "Control '%s' not found\n", ctrlName ? ctrlName : "(null)");
+                        CON_ERR((("Control '%s' not found", ctrlName ? ctrlName : "(null)")))
+                    }
+                    fclose(g_layoutDumpFile);
+                    g_layoutDumpFile = nullptr;
+                }
+                else
+                {
+                    CON_ERR((("Failed to open ui_layout.log for writing")))
+                }
+                break;
+            }
 
 #ifdef DEVELOPMENT
                 // 
