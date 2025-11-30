@@ -318,7 +318,7 @@ if (geom.flags & GEOM_KEEPVISIBLE)
 **Note**: Font pre-scaling is handled separately in `font.cpp` and works correctly
 **Files Modified**: `pixelscale.h` (disabled the define)
 
-### Issue: Window Skin/Border Warping (UNRESOLVED)
+### Issue: Window Skin/Border Warping (INVESTIGATION ONGOING)
 **Symptom**: Options dialog and other windows have warped titlebars and borders:
 - Close [x] button background renders as vertical rectangle instead of square
 - Top-left corner texture appears offset
@@ -332,32 +332,50 @@ if (geom.flags & GEOM_KEEPVISIBLE)
    - TR: pos=(0,0) texSize=(6,20) 
    - border=(5,20,-5,-5) - 5px left, 20px top, 5px right, 5px bottom
 3. The original `TextureSkin::Render()` code was restored from git (commit 4e9f1d0)
-4. `IControl::GetAdjustmentRect()` was restored to original (no scaling)
-5. `ICWindow::GetAdjustmentRect()` was restored to original (no scaling)
 
-**Suspected Cause**:
-The `AdjustGeometry()` function was heavily modified for scaling support. Key changes:
-- Uses `geom.size` and `geom.pos` as "design-space" values (640x480 base)
-- Scales these to screen-space using `IFace::GetScale()`
-- Calculates `designClient` and `designWindow` rects
-- Controls created programmatically (like titlebar, close button) may not have `geom.size`/`geom.pos` set correctly
-
-**Attempts Made**:
-1. Restored original `TextureSkin::Render()` - no effect
-2. Restored original `GetAdjustmentRect()` - no effect
-3. Added `SetGeomSize()`/`SetGeomPos()` calls for titlebar and close button - no effect
-4. Simplified `AdjustGeometry()` to always use `geom.size`/`geom.pos` - no effect
-
-**Debug Output Added**:
-- `icsystembutton.cpp`: Logs close button size, geom.size, window, client dimensions
-
-**Next Steps to Investigate**:
-- Check if `AdjustGeometry()` is overwriting size set by `SetSize()`
-- Compare actual size values at draw time vs expected values
-- May need to add a flag to controls indicating they use "screen-space" sizing vs "design-space"
-- Consider reverting `AdjustGeometry()` changes if issue is too complex
+**Current State**:
+- `IControl::GetAdjustmentRect()` - scales border/shadow metrics by `IFace::GetScale()`
+- `ICWindow::GetAdjustmentRect()` - scales title height by `IFace::GetScale()`
+- `ICWindow::PostConfigure()` - uses `SetGeomSize()`/`SetGeomPos()` for titlebar and close button
+- Skin warping issue may be pre-existing (not caused by scaling changes)
 
 **Files Affected**: `icontrol.cpp`, `icwindow.cpp`, `iface_util.cpp`, `icsystembutton.cpp`
+
+### Issue: Apply Button Layout in Options Video Tab (FIXED - RE-APPLIED)
+**Symptom**: Apply button and other controls with `GEOM_RIGHT`/`GEOM_BOTTOM` inside windows were positioned incorrectly after code was accidentally reverted during debugging.
+
+**Root Cause**: The fix for `ICWindow::PostConfigure()` updating `geom.unscaledConfigSize` was lost during attempts to fix the skin warping issue.
+
+**Fix Re-Applied**: In `ICWindow::PostConfigure()`, when adjusting window size for titlebar/border with `STYLE_ADJUSTWINDOW`, also update `geom.unscaledConfigSize`:
+```cpp
+if (windowStyle & STYLE_ADJUSTWINDOW)
+{
+    ClipRect r = GetAdjustmentRect();
+    S32 adjustX = r.p0.x - r.p1.x;
+    S32 adjustY = r.p0.y - r.p1.y;
+
+    size.x += adjustX;
+    size.y += adjustY;
+    geom.size.x += adjustX;
+    geom.size.y += adjustY;
+
+    // Also update unscaledConfigSize so AdjustGeometry uses the correct values
+    // GetAdjustmentRect returns scaled values, so we need to unscale them
+    F32 scale = IFace::GetScale();
+    F32 invScale = (scale > 0.0f) ? (1.0f / scale) : 1.0f;
+    geom.unscaledConfigSize.x += S32(F32(adjustX) * invScale);
+    geom.unscaledConfigSize.y += S32(F32(adjustY) * invScale);
+}
+```
+
+**Why This Matters**: Without updating `unscaledConfigSize`, `AdjustGeometry()` calculates `designClient` from the unadjusted config size, resulting in wrong parent dimensions. Child controls with `GEOM_RIGHT` or `GEOM_BOTTOM` use these parent dimensions for positioning, so they end up in the wrong place.
+
+**Related Fixes Also Re-Applied**:
+1. `IControl::GetAdjustmentRect()` - scales border/shadow metrics
+2. `ICWindow::GetAdjustmentRect()` - scales title height
+3. `ICWindow::PostConfigure()` - uses `SetGeomSize()`/`SetGeomPos()` for titlebar and close button (design-space values)
+
+**Files Modified**: `icwindow.cpp`, `icontrol.cpp`
 
 ## Geometry Flags Reference
 

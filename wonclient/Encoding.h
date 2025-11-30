@@ -119,5 +119,105 @@ namespace MINTCLIENT
             U8* GetBytes();
             CH* GetString();
         };
+
+        //
+        // TLV Writer - builds TLV-encoded data for sending to server
+        //
+        class TLVWriter
+        {
+        private:
+            U8* buffer;
+            unsigned int capacity;
+            unsigned int position;
+
+            void EnsureCapacity(unsigned int needed)
+            {
+                if (position + needed > capacity)
+                {
+                    unsigned int newCapacity = capacity * 2;
+                    if (newCapacity < position + needed)
+                    {
+                        newCapacity = position + needed + 256;
+                    }
+                    U8* newBuffer = new U8[newCapacity];
+                    Utils::Memcpy(newBuffer, buffer, position);
+                    delete[] buffer;
+                    buffer = newBuffer;
+                    capacity = newCapacity;
+                }
+            }
+
+        public:
+            TLVWriter(unsigned int initialCapacity = 256)
+            {
+                capacity = initialCapacity;
+                buffer = new U8[capacity];
+                position = 0;
+            }
+
+            ~TLVWriter()
+            {
+                delete[] buffer;
+            }
+
+            // Write a U8 value
+            void WriteU8(U8 value)
+            {
+                EnsureCapacity(6);
+                buffer[position++] = TLV::TLV_UINT8;  // Type
+                buffer[position++] = 0;               // Length (big-endian U32)
+                buffer[position++] = 0;
+                buffer[position++] = 0;
+                buffer[position++] = 1;               // Length = 1
+                buffer[position++] = value;           // Data
+            }
+
+            // Write a U32 value
+            void WriteU32(U32 value)
+            {
+                EnsureCapacity(9);
+                buffer[position++] = TLV::TLV_UINT32; // Type
+                buffer[position++] = 0;               // Length (big-endian U32)
+                buffer[position++] = 0;
+                buffer[position++] = 0;
+                buffer[position++] = 4;               // Length = 4
+                buffer[position++] = (value >> 24) & 0xFF;  // Data (big-endian)
+                buffer[position++] = (value >> 16) & 0xFF;
+                buffer[position++] = (value >> 8) & 0xFF;
+                buffer[position++] = value & 0xFF;
+            }
+
+            // Write a wide string (CH*)
+            void WriteString(const CH* str)
+            {
+                unsigned int len = Utils::Strlen(str);
+                unsigned int byteLen = len * 2;  // Wide chars are 2 bytes each
+                EnsureCapacity(5 + byteLen);
+                
+                buffer[position++] = TLV::TLV_STRING; // Type
+                buffer[position++] = (len >> 24) & 0xFF;  // Length (character count, big-endian)
+                buffer[position++] = (len >> 16) & 0xFF;
+                buffer[position++] = (len >> 8) & 0xFF;
+                buffer[position++] = len & 0xFF;
+                
+                // Copy wide string data
+                Utils::Memcpy(&buffer[position], str, byteLen);
+                position += byteLen;
+            }
+
+            // Get the built data
+            U8* GetData() const { return buffer; }
+            unsigned int GetSize() const { return position; }
+
+            // Transfer ownership of buffer (caller must delete[])
+            U8* ReleaseData()
+            {
+                U8* result = buffer;
+                buffer = nullptr;
+                capacity = 0;
+                position = 0;
+                return result;
+            }
+        };
     }
 }

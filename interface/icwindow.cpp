@@ -67,10 +67,20 @@ void ICWindow::PostConfigure()
     {
         ClipRect r = GetAdjustmentRect();
 
-        size.x += (r.p0.x - r.p1.x);
-        size.y += (r.p0.y - r.p1.y);
-        geom.size.x += (r.p0.x - r.p1.x);
-        geom.size.y += (r.p0.y - r.p1.y);
+        S32 adjustX = r.p0.x - r.p1.x;
+        S32 adjustY = r.p0.y - r.p1.y;
+
+        size.x += adjustX;
+        size.y += adjustY;
+        geom.size.x += adjustX;
+        geom.size.y += adjustY;
+
+        // Also update unscaledConfigSize so AdjustGeometry uses the correct values
+        // GetAdjustmentRect returns scaled values, so we need to unscale them
+        F32 scale = IFace::GetScale();
+        F32 invScale = (scale > 0.0f) ? (1.0f / scale) : 1.0f;
+        geom.unscaledConfigSize.x += S32(F32(adjustX) * invScale);
+        geom.unscaledConfigSize.y += S32(F32(adjustY) * invScale);
     }
 
     // Post configure IControl
