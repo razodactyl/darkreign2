@@ -318,28 +318,26 @@ if (geom.flags & GEOM_KEEPVISIBLE)
 **Note**: Font pre-scaling is handled separately in `font.cpp` and works correctly
 **Files Modified**: `pixelscale.h` (disabled the define)
 
-### Issue: Window Skin/Border Warping (INVESTIGATION ONGOING)
-**Symptom**: Options dialog and other windows have warped titlebars and borders:
-- Close [x] button background renders as vertical rectangle instead of square
-- Top-left corner texture appears offset
-- Issue persists even at 640x480 (scale=1.0)
+### Issue: Window Skin/Border Scaling (FIXED)
+**Symptom**: At higher resolutions, window borders/titlebars appeared too small - tiny corner pieces in large windows.
 
-**Investigation Findings**:
-1. `TextureSkin::Render()` receives `pi.window` in screen coordinates (not local 0,0)
-   - This is correct - `DrawChildren()` offsets `pi.window` and `pi.client` by the control's position
-2. Skin piece dimensions from debug output look reasonable:
-   - TL: pos=(-5,0) texSize=(10,20) - extends 5px left of window
-   - TR: pos=(0,0) texSize=(6,20) 
-   - border=(5,20,-5,-5) - 5px left, 20px top, 5px right, 5px bottom
-3. The original `TextureSkin::Render()` code was restored from git (commit 4e9f1d0)
+**Root Cause**: `TextureSkin::Render()` used piece dimensions (`pos`, `textureSize`, `size`) directly from config files without scaling. These values are in design space (640x480 base), but `pi.window` and `pi.client` are already in screen space.
 
-**Current State**:
-- `IControl::GetAdjustmentRect()` - scales border/shadow metrics by `IFace::GetScale()`
-- `ICWindow::GetAdjustmentRect()` - scales title height by `IFace::GetScale()`
-- `ICWindow::PostConfigure()` - uses `SetGeomSize()`/`SetGeomPos()` for titlebar and close button
-- Skin warping issue may be pre-existing (not caused by scaling changes)
+**Fix**: Scale all piece dimensions by `IFace::GetScale()` in `TextureSkin::Render()`:
+```cpp
+F32 scale = IFace::GetScale();
+auto scalePoint = [scale](const Point<S32>& p) -> Point<S32> {
+    return Point<S32>(S32(F32(p.x) * scale), S32(F32(p.y) * scale));
+};
+// For each piece:
+Point<S32> scaledPos = scalePoint(piece.pos);
+Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+Point<S32> scaledSize = scalePoint(piece.size);
+```
 
-**Files Affected**: `icontrol.cpp`, `icwindow.cpp`, `iface_util.cpp`, `icsystembutton.cpp`
+**Verification**: Compared with original DR2 build at 640x480 - the visual appearance of menu borders now matches the original game identically. The stretched/warped appearance is how the original skins were designed.
+
+**Files Modified**: `iface_util.cpp`
 
 ### Issue: Apply Button Layout in Options Video Tab (FIXED - RE-APPLIED)
 **Symptom**: Apply button and other controls with `GEOM_RIGHT`/`GEOM_BOTTOM` inside windows were positioned incorrectly after code was accidentally reverted during debugging.

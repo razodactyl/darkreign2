@@ -1604,93 +1604,125 @@ void TextureSkin::Render(const PaintInfo& pi, U32 colorIndex) const
     if (states[colorIndex].colors)
     {
         ClipRect r[9];
+        F32 scale = IFace::GetScale();
+
+        // Helper to scale a Point<S32> from design space to screen space
+        auto scalePoint = [scale](const Point<S32>& p) -> Point<S32> {
+            return Point<S32>(S32(F32(p.x) * scale), S32(F32(p.y) * scale));
+        };
 
         // Top left
         {
             const Piece& piece = states[colorIndex].pieces[TL];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
-            r[TL].p0 = pi.window.p0 + piece.pos;
-            r[TL].p1 = r[TL].p0 + piece.textureSize + piece.size;
+            r[TL].p0 = pi.window.p0 + scaledPos;
+            r[TL].p1 = r[TL].p0 + scaledTexSize + scaledSize;
         }
 
         // Top right
         {
             const Piece& piece = states[colorIndex].pieces[TR];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
-            r[TR].p0.x = pi.window.p1.x - piece.textureSize.x;
+            r[TR].p0.x = pi.window.p1.x - scaledTexSize.x;
             r[TR].p0.y = pi.window.p0.y;
-            r[TR].p0 += piece.pos;
-            r[TR].p1 = r[TR].p0 + piece.textureSize + piece.size;
+            r[TR].p0 += scaledPos;
+            r[TR].p1 = r[TR].p0 + scaledTexSize + scaledSize;
         }
 
         // Bottom left
         {
             const Piece& piece = states[colorIndex].pieces[BL];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
             r[BL].p0.x = pi.window.p0.x;
-            r[BL].p0.y = pi.window.p1.y - piece.textureSize.y;
-            r[BL].p0 += piece.pos;
-            r[BL].p1 = r[BL].p0 + piece.textureSize + piece.size;
+            r[BL].p0.y = pi.window.p1.y - scaledTexSize.y;
+            r[BL].p0 += scaledPos;
+            r[BL].p1 = r[BL].p0 + scaledTexSize + scaledSize;
         }
 
         // Bottom right
         {
             const Piece& piece = states[colorIndex].pieces[BR];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
-            r[BR].p0 = pi.window.p1 - piece.textureSize + piece.pos;
-            r[BR].p1 = r[BR].p0 + piece.textureSize + piece.size;
+            r[BR].p0 = pi.window.p1 - scaledTexSize + scaledPos;
+            r[BR].p1 = r[BR].p0 + scaledTexSize + scaledSize;
         }
 
         // Left
         {
             const Piece& piece = states[colorIndex].pieces[L];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
             r[L].p0.x = pi.window.p0.x;
             r[L].p0.y = r[TL].p1.y;
-            r[L].p0 += piece.pos;
-            r[L].p1.x = r[L].p0.x + piece.textureSize.x + piece.size.x;
-            r[L].p1.y = r[BL].p0.y + piece.pos.y;
+            r[L].p0 += scaledPos;
+            r[L].p1.x = r[L].p0.x + scaledTexSize.x + scaledSize.x;
+            r[L].p1.y = r[BL].p0.y + scaledPos.y;
         }
 
         // Top
         {
             const Piece& piece = states[colorIndex].pieces[T];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
             r[T].p0.x = r[TL].p1.x;
             r[T].p0.y = pi.window.p0.y;
-            r[T].p0 += piece.pos;
-            r[T].p1.x = r[TR].p0.x + piece.pos.x;
-            r[T].p1.y = r[T].p0.y + piece.textureSize.y + piece.size.y;
+            r[T].p0 += scaledPos;
+            r[T].p1.x = r[TR].p0.x + scaledPos.x;
+            r[T].p1.y = r[T].p0.y + scaledTexSize.y + scaledSize.y;
         }
 
         // Right
         {
             const Piece& piece = states[colorIndex].pieces[R];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
-            r[R].p0.x = pi.window.p1.x - piece.textureSize.x;
+            r[R].p0.x = pi.window.p1.x - scaledTexSize.x;
             r[R].p0.y = r[TR].p1.y;
-            r[R].p0 += piece.pos;
-            r[R].p1.x = r[R].p0.x + piece.textureSize.x + piece.size.x;
-            r[R].p1.y = r[BR].p0.y + piece.pos.y;
+            r[R].p0 += scaledPos;
+            r[R].p1.x = r[R].p0.x + scaledTexSize.x + scaledSize.x;
+            r[R].p1.y = r[BR].p0.y + scaledPos.y;
         }
 
         // Bottom
         {
             const Piece& piece = states[colorIndex].pieces[B];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledTexSize = scalePoint(piece.textureSize);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
             r[B].p0.x = r[BL].p1.x;
-            r[B].p0.y = pi.window.p1.y - piece.textureSize.y + piece.size.y;
-            r[B].p0 += piece.pos;
-            r[B].p1.x = r[BR].p0.x + piece.pos.x;
-            r[B].p1.y = r[B].p0.y + piece.textureSize.y + piece.size.y;
+            r[B].p0.y = pi.window.p1.y - scaledTexSize.y + scaledSize.y;
+            r[B].p0 += scaledPos;
+            r[B].p1.x = r[BR].p0.x + scaledPos.x;
+            r[B].p1.y = r[B].p0.y + scaledTexSize.y + scaledSize.y;
         }
 
         // Interior
         {
             const Piece& piece = states[colorIndex].pieces[I];
+            Point<S32> scaledPos = scalePoint(piece.pos);
+            Point<S32> scaledSize = scalePoint(piece.size);
 
-            r[I].p0 = pi.client.p0 + piece.pos;
-            r[I].p1 = pi.client.p1 + piece.pos + piece.size;
+            r[I].p0 = pi.client.p0 + scaledPos;
+            r[I].p1 = pi.client.p1 + scaledPos + scaledSize;
         }
 
         // Render each piece

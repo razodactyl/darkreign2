@@ -417,7 +417,11 @@ namespace Input
                 UINT ch = 0;
                 UINT vk = 0;
 
-                if (GetKeyboardState(winKeyState))
+                // Check for special keys first (numpad, etc.) since ToAscii can return
+                // incorrect values for these keys on some keyboard layouts
+                ch = specialChars[od.dwOfs & 0xFF];
+
+                if (ch == 0 && GetKeyboardState(winKeyState))
                 {
                     WORD buf[2];
 
@@ -426,10 +430,6 @@ namespace Input
                     if (ToAscii(vk, od.dwOfs, winKeyState, buf, 0) > 0)
                     {
                         ch = buf[0] & 0xFF;
-                    }
-                    else
-                    {
-                        ch = specialChars[od.dwOfs & 0xFF];
                     }
                 }
 
