@@ -123,9 +123,31 @@ namespace MINTCLIENT
     {
         LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::DropCommand -> dropping [" << HEX(command->command_id, 8) << "] from this client...");
 
-        this->commands.Unlink(command);
-
-        LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::DropCommand -> [" << HEX(command->command_id, 8) << "] -> dropped!");
+        commandsCrit.Enter();
+        
+        // Check if command is still in the list before unlinking
+        // (another thread may have already dropped it)
+        Bool found = FALSE;
+        for (U32 i = 0; i < this->commands.GetCount(); i++)
+        {
+            if (this->commands[i] == command)
+            {
+                found = TRUE;
+                break;
+            }
+        }
+        
+        if (found)
+        {
+            this->commands.Unlink(command);
+            LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::DropCommand -> [" << HEX(command->command_id, 8) << "] -> dropped!");
+        }
+        else
+        {
+            LDIAG("[" << HEX(GetCurrentThreadId(), 8) << "] MINTCLIENT::Client::DropCommand -> [" << HEX(command->command_id, 8) << "] -> already dropped by another thread!");
+        }
+        
+        commandsCrit.Exit();
     }
 
     MINTCLIENT::Client::MINTCommand* MINTCLIENT::Client::GetCommandById(CRC command_id)

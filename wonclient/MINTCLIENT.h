@@ -338,6 +338,7 @@ namespace MINTCLIENT
             bool did_complete;              // Set when `done` is signaled.
             bool did_abort;                 // Set when 'abort' is signaled.
             bool did_timeout;               // Set when 'timeout' is signaled.
+            bool did_drop;                  // Set when the command has been dropped from the client, prevents double-drop.
 
             U32 times_called = 0;           // Count of times this item has been processed.
 
@@ -523,6 +524,15 @@ namespace MINTCLIENT
             void DropFromClient()
             {
                 ASSERT(client);
+                
+                // Prevent double-drop from multiple threads
+                if (did_drop)
+                {
+                    LDIAG("MINTCLIENT::MINTCommand::DropFromClient -> [" << HEX(command_id, 8) << "] -> already dropped, ignoring!");
+                    return;
+                }
+                did_drop = true;
+                
                 client->DropCommand(this);
             }
 
@@ -579,6 +589,7 @@ namespace MINTCLIENT
                 this->did_complete = false;
                 this->did_abort = false;
                 this->did_timeout = false;
+                this->did_drop = false;
 
                 this->times_called = 0;
             }
