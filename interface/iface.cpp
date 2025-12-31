@@ -41,7 +41,8 @@
 #include <functional>
 
 
-//#define LOGGING
+// #define LOGGING
+// #define HIRES_UI
 
 // Global file handle for debug output during layout dump
 FILE* g_layoutDumpFile = nullptr;
@@ -64,7 +65,6 @@ namespace IFace
     // Scope name
     static const char* SCOPE_NAME = "ConfigureInterface";
     static const char* CTRL_SCOPE = "CreateControl";
-
 
     // Public data
     Bool sysInit = FALSE;
@@ -261,20 +261,17 @@ namespace IFace
     // Debug build event tracing
     //
 #ifdef LOGGING
-
-  static U32 DebugProcessEvent(IControl *ctrl, Event &e, const char *str)
-  {
-    LOG_IFACE
-    ((
-      "%s Event: %.4X %.4X %.8X %.8X %.8X %.8X to [%s]", 
-      str, e.type, e.subType, e.param1, e.param2, e.param3, e.param4, ctrl->Name()
-    ))
-
-    return (ctrl->HandleEvent(e));
-  }
-
+    static U32 DebugProcessEvent(IControl *ctrl, Event &e, const char *str)
+    {
+        LOG_IFACE
+        ((
+          "%s Event: %.4X %.4X %.8X %.8X %.8X %.8X to [%s]", 
+          str, e.type, e.subType, e.param1, e.param2, e.param3, e.param4, ctrl->Name()
+        ))
+            
+        return (ctrl->HandleEvent(e));
+    }
 #endif
-
 
     //
     // Clear all static reapers
@@ -2613,11 +2610,15 @@ namespace IFace
 
 
     //
-    // Get UI scale factor based on current resolution relative to 640x480
+    // Get UI scale factor based on current resolution relative to legacy resolution
     //
     F32 GetScale()
     {
+#ifndef HIRES_UI
+		return 1.0f;
+#endif
         ASSERT(data.backBuf);
+
         S32 width = data.backBuf->Width();
         S32 height = data.backBuf->Height();
 

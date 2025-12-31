@@ -127,7 +127,8 @@ namespace Strategic
                 {
                     return (d * distanceInv);
                 }
-                return (1.0f - ((d - distance) * WorldCtrl::MetreMapDiagInv()));
+                // Clamp to [0,1] - large distances can produce negative values
+                return (Max(0.0f, 1.0f - ((d - distance) * WorldCtrl::MetreMapDiagInv())));
             }
         };
 

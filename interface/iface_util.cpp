@@ -62,7 +62,7 @@ namespace IFace
     }
 
 
-#define UPDATE_TEX(tex, rect)     \
+#define UPDATE_TEX(tex, rect)       \
     if (tex)                        \
     {                               \
       localTex = *tex;              \
@@ -361,10 +361,10 @@ namespace IFace
     ) // = NULL)
     {
 #ifdef DEVELOPMENT
-      if (tex)
-      {
-        VALIDATE(tex->texture);
-      }
+        if (tex)
+        {
+            VALIDATE(tex->texture);
+        }
 #endif
 
         // Don't render transparent rectangles

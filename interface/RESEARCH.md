@@ -101,6 +101,15 @@ Centralized pixel art scaling in `pixelscale.h` / `pixelscale.cpp`:
 ### client_squadcontrol.cpp
 - `DrawSelf()`: Scales `number` position, `health` area, bar dimensions from design-space
 
+### common_stats.cpp
+- `Stats::Activate()`: Converts `GetSize()` to design-space before layout calculations
+- `Stats::Button`: Uses `SetGeomPos()`/`SetGeomSize()` with design-space area values
+- `QueryResults::DrawSelf()`: Scales column offset, width, and padding to screen-space
+- `QueryHeading::DrawSelf()`: Scales text padding to screen-space
+
+### iface_messagebox.cpp
+- `MsgBox()`: Converts font dimensions (`Font::Width()`, `Font::Height()`) from screen-space to design-space before use with `SetGeomSize()`
+
 ### multiplayer_controls_earth.cpp
 - `RenderBitmap()`: Now takes explicit size parameter for scaled rendering
 - `DrawSelf()`: Scales bitmap sizes, player location coordinates, info box dimensions
@@ -438,6 +447,8 @@ These controls have custom rendering that required scaling fixes:
 - [x] `Client::SquadControl` - Health bars, squad numbers
 - [x] `MultiPlayer::Controls::Earth` - World map, player locations
 - [x] `MultiPlayer::Controls::Mission` - Start location markers (previously fixed)
+- [x] `Common::Stats` - End-game statistics grid and detail dialogs
+- [x] `IFace::MsgBox` - Confirm dialog boxes
 - [ ] Other controls with custom `DrawSelf()` may need similar treatment
 
 ## Bitmap Pixel Format Research
@@ -608,7 +619,102 @@ Added `scaledRegion` member to `IControl` for accurate hit testing on scaled irr
 - [x] Fix icmenu.cpp menuEdge scaling
 - [x] Fix icwindow.cpp titleHeight scaling
 - [x] Fix icsystembutton.cpp icon offset scaling
+- [x] Fix iface_messagebox.cpp font dimension double-scaling
+- [x] Fix common_stats.cpp layout mixing coordinate spaces
+- [x] Fix common_stats.cpp QueryResults/QueryHeading DrawSelf scaling
 - [ ] Verify all hardcoded pixel values are scaled in remaining custom controls
 - [ ] Test all UI screens at multiple resolutions
 - [ ] Consider in-game HUD elements (health bars, resource displays, minimap)
 - [ ] Consider shipping pre-scaled UI assets for high-DPI support
+
+## Recent Fixes (2024-12-31)
+
+### Issue: Message Box Dialog Too Large (FIXED)
+**File**: `iface_messagebox.cpp`
+**Symptom**: Confirm dialog boxes appeared oversized at higher resolutions
+**Root Cause**: Font dimensions (`Font::Width()`, `Font::Height()`) return **scaled** screen-space values, but were passed directly to `SetGeomSize()` which expects **design-space** values. This caused double-scaling.
+**Fix**: Convert font dimensions back to design-space before use:
+```cpp
+F32 scale = IFace::GetScale();
+F32 invScale = (scale > 0.0f) ? (1.0f / scale) : 1.0f;
+S32 titleWidth = S32(F32(font->Width(title, Utils::Strlen(title))) * invScale);
+S32 fontHeightDesign = S32(F32(font->Height()) * invScale);
+```
+
+### Issue: Stats Grid Layout Broken (FIXED)
+**File**: `common_stats.cpp`
+**Symptom**: End-game statistics buttons were mispositioned/overlapping
+**Root Cause**: `Stats::Activate()` mixed coordinate spaces:
+- `GetSize().x` returns screen-space pixels
+- `columnGap`, `rowGap`, `rowHeight` are design-space config values
+- Calculation `F32(GetSize().x - columnGap * INFO_MAX)` subtracts design from screen
+
+Additionally, `Stats::Button` constructor called both:
+- `SetPos()`/`SetSize()` (screen-space) 
+- `SetGeomSize()` (design-space) with the same values
+
+**Fix**: 
+1. Convert `GetSize()` to design-space before layout calculations
+2. Use only `SetGeomPos()`/`SetGeomSize()` with design-space values in Button constructor
+
+### Issue: Stats Detail Dialog Text Squished (FIXED)
+**File**: `common_stats.cpp`
+**Symptom**: When clicking stats buttons to see details, text appeared squished at higher scales
+**Root Cause**: `QueryResults::DrawSelf()` and `QueryHeading::DrawSelf()` used hardcoded design-space values (`offset = 150`, `width = 48`, padding `5`) directly with screen-space client coordinates.
+**Fix**: Scale layout values to screen-space before rendering:
+```cpp
+F32 scale = IFace::GetScale();
+S32 scaledOffset = S32(150.0f * scale);
+S32 scaledWidth = S32(48.0f * scale);
+S32 scaledPadding = S32(5.0f * scale);
+```
+
+## Key Patterns Discovered
+
+### Double-Scaling Anti-Pattern
+**Problem**: Passing scaled values to functions that expect design-space values.
+**Common Symptom**: UI elements appear too large at high resolutions.
+**Examples**:
+- `Font::Width()`/`Height()` → `SetGeomSize()` (WRONG - font returns scaled, SetGeomSize expects design)
+- `GetSize()` mixed with config values in calculations (WRONG - GetSize is screen-space)
+
+**Solution**: Always convert to the expected coordinate space:
+```cpp
+// Screen-space to design-space
+S32 designValue = S32(F32(screenValue) * invScale);
+
+// Design-space to screen-space  
+S32 screenValue = S32(F32(designValue) * scale);
+```
+
+### SetPos/SetSize vs SetGeomPos/SetGeomSize
+| Method | Input Space | Behavior |
+|--------|-------------|----------|
+| `SetGeomPos(x,y)` | Design-space | Stores directly in `unscaledConfigPos` |
+| `SetGeomSize(w,h)` | Design-space | Stores directly in `unscaledConfigSize` |
+| `SetPos(x,y)` | Screen-space | Stores in `pos`, reverse-scales to `unscaledConfigPos` |
+| `SetSize(w,h)` | Screen-space | Stores in `size` only (no config update) |
+
+**Rule**: When creating controls programmatically with calculated positions/sizes:
+- If calculations are in design-space → use `SetGeomPos()`/`SetGeomSize()`
+- If calculations are in screen-space → use `SetPos()`/`SetSize()` but NOT `SetGeomSize()`
+
+### DrawSelf Coordinate Spaces
+In `DrawSelf(PaintInfo& pi)`:
+- `pi.client` / `pi.window` → **Screen-space** (already scaled)
+- `pi.font->Width()`/`Height()` → **Screen-space** (scaled by Font methods)
+- Config values (hardcoded offsets) → **Design-space** (must scale before use)
+
+**Pattern for custom DrawSelf**:
+```cpp
+void DrawSelf(PaintInfo& pi) override
+{
+    F32 scale = IFace::GetScale();
+    
+    // Scale any hardcoded design-space values
+    S32 scaledMargin = S32(10.0f * scale);
+    S32 scaledWidth = S32(100.0f * scale);
+    
+    // pi.client and font metrics are already screen-space
+    pi.font->Draw(pi.client.p0.x + scaledMargin, ...);
+}

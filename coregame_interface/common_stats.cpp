@@ -75,6 +75,7 @@ namespace Common
         U32 teamId;
 
         // Constructor
+        // area is in design-space coordinates - AdjustGeometry will scale to screen
         Button
         (
             TeamType teamType, InformationType informationType, U32 teamId, const CH* text, const Area<S32>& area,
@@ -85,8 +86,8 @@ namespace Common
               informationType(informationType),
               teamId(teamId)
         {
-            SetPos(area.p0.x, area.p0.y);
-            SetSize(area.Width(), area.Height());
+            // Use design-space values - AdjustGeometry will scale them
+            SetGeomPos(area.p0.x, area.p0.y);
             SetGeomSize(area.Width(), area.Height());
             SetTextFont("Button");
             SetTextString(text, TRUE);
@@ -140,11 +141,15 @@ namespace Common
         {
             DrawCtrlBackground(pi);
 
+            // Scale padding from design-space to screen-space
+            F32 scale = IFace::GetScale();
+            S32 scaledPadding = S32(5.0f * scale);
+
             // Add Title
             U32 vCentre = (pi.client.Height() - pi.font->Height()) / 2;
             pi.font->Draw
             (
-                pi.client.p0.x + 5,
+                pi.client.p0.x + scaledPadding,
                 pi.client.p0.y + vCentre,
                 GetTextString(),
                 Utils::Strlen(GetTextString()),
@@ -203,6 +208,13 @@ namespace Common
         {
             DrawCtrlBackground(pi);
 
+            // Scale layout values from design-space to screen-space
+            // pi.client is in screen-space, and pi.font->Width/Height return scaled values
+            F32 scale = IFace::GetScale();
+            S32 scaledOffset = S32(150.0f * scale);  // Starting offset for columns
+            S32 scaledWidth = S32(48.0f * scale);    // Width of each column
+            S32 scaledPadding = S32(5.0f * scale);   // Text padding
+
             U32 vCentre = (pi.client.Height() - pi.font->Height()) / 2;
 
             // Add Category Name
@@ -220,7 +232,7 @@ namespace Common
             }
             pi.font->Draw
             (
-                pi.client.p0.x + 5,
+                pi.client.p0.x + scaledPadding,
                 pi.client.p0.y + vCentre,
                 t,
                 Utils::Strlen(t),
@@ -228,11 +240,8 @@ namespace Common
                 &pi.client
             );
 
-            // Offset
-            U32 offset = 150;
-            U32 width = 48;
-
             // Draw each of the columns
+            S32 offset = scaledOffset;
             for (U32 c = 0; c < numColumns; ++c)
             {
                 // Draw background color
@@ -242,7 +251,7 @@ namespace Common
                     (
                         pi.client.p0.x + offset + 1,
                         pi.client.p0.y + 1,
-                        pi.client.p0.x + offset + width,
+                        pi.client.p0.x + offset + scaledWidth,
                         pi.client.p1.y
                     ),
                     columns[c].color,
@@ -254,7 +263,8 @@ namespace Common
                 CH buff[32];
                 Utils::Sprintf(buff, 32, (const CH*)L"%d", columns[c].value);
                 U32 length = Utils::Strlen(buff);
-                U32 hCentre = (width - pi.font->Width(buff, length)) / 2;
+                // font->Width returns scaled value, scaledWidth is also scaled - correct!
+                S32 hCentre = (scaledWidth - pi.font->Width(buff, length)) / 2;
                 pi.font->Draw
                 (
                     pi.client.p0.x + offset + hCentre,
@@ -265,7 +275,7 @@ namespace Common
                     &pi.client
                 );
 
-                offset += width;
+                offset += scaledWidth;
             }
         }
     };
@@ -542,12 +552,18 @@ namespace Common
                 queryList = IFace::Promote<ICListBox>(ctrl);
             }
 
+            // Convert screen-space size to design-space for layout calculations
+            // columnGap, rowGap, rowHeight are design-space values from config
+            F32 scale = IFace::GetScale();
+            F32 invScale = (scale > 0.0f) ? (1.0f / scale) : 1.0f;
+            S32 designWidth = S32(F32(GetSize().x) * invScale);
+
             U32 x = columnGap;
-            F32 total = F32(GetSize().x - columnGap * INFO_MAX);
+            F32 total = F32(designWidth - columnGap * INFO_MAX);
 
             int i;
 
-            // Compute the column position information
+            // Compute the column position information (in design-space)
             for (i = INFO_ALL; i < INFO_MAX; i++)
             {
                 columnPositions[i].offset = x;

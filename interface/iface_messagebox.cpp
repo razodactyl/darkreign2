@@ -121,7 +121,12 @@ namespace IFace
         ASSERT(string);
         ASSERT(btn1);
 
-        // Read button metrics from system
+        // Get scale factor for converting font dimensions (screen-space) to design-space
+        // Font::Width/Height return scaled values, but we need design-space for SetGeomSize
+        F32 scale = IFace::GetScale();
+        F32 invScale = (scale > 0.0f) ? (1.0f / scale) : 1.0f;
+
+        // Read button metrics from system (these are design-space values)
         S32 buttonX = IFace::GetMetric(IFace::BUTTON_WIDTH);
         S32 buttonY = IFace::GetMetric(IFace::BUTTON_HEIGHT);
         U32 buttonCount = (btn1 ? 1 : 0) + (btn2 ? 1 : 0) + (btn3 ? 1 : 0);
@@ -198,7 +203,8 @@ namespace IFace
         {
             if (Font* font = FontSys::GetFont(0xC46D89E4)) // "WindowTitle"
             {
-                titleWidth = font->Width(title, Utils::Strlen(title));
+                // Font::Width returns scaled value, convert to design-space
+                titleWidth = S32(F32(font->Width(title, Utils::Strlen(title))) * invScale);
             }
 
             // Bit of padding for close buttons, etc
@@ -231,12 +237,16 @@ namespace IFace
                     {
                         Font* font = s->GetPaintInfo().font;
 
-                        // Advance y position
-                        windowHeight += font->Height();
-                        y += font->Height();
+                        // Font dimensions are scaled, convert to design-space
+                        S32 fontHeightDesign = S32(F32(font->Height()) * invScale);
+                        S32 lineWidthDesign = S32(F32(font->Width(lineBuf[i], Utils::Strlen(lineBuf[i]))) * invScale);
 
-                        // Adjust longest line
-                        textWidth = Max(textWidth, font->Width(lineBuf[i], Utils::Strlen(lineBuf[i])));
+                        // Advance y position (in design-space)
+                        windowHeight += fontHeightDesign;
+                        y += fontHeightDesign;
+
+                        // Adjust longest line (in design-space)
+                        textWidth = Max(textWidth, lineWidthDesign);
                     }
                 }
             }
