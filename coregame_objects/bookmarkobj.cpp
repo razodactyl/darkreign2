@@ -186,8 +186,11 @@ BookmarkObj::~BookmarkObj()
         }
     }
 
-    // Remove from the book mark tree
-    allBookmarks.Unlink(this);
+    // Remove from the book mark tree (only if we were added)
+    if (node.InUse())
+    {
+        allBookmarks.Unlink(this);
+    }
 }
 
 

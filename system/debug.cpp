@@ -543,6 +543,13 @@ namespace Debug
             // keep retracing until the bottom of stack is reached or the buffer size is exceeded
             while (num)
             {
+                // Validate basePointer before dereferencing to prevent AV during exception handling
+                if (basePointer == 0 || (basePointer & 3) != 0)
+                {
+                    // NULL or misaligned pointer - stop walking
+                    break;
+                }
+
                 // find address of caller
                 __try
                 {
@@ -582,6 +589,13 @@ namespace Debug
                     }
                     __except (Filter(GetExceptionInformation()))
                     {
+                        break;
+                    }
+
+                    // Validate frameLimit to prevent infinite loops or invalid walks
+                    if (frameLimit == 0 || frameLimit == basePointer || frameLimit < basePointer)
+                    {
+                        // End of stack, self-loop, or stack growing wrong direction
                         break;
                     }
 

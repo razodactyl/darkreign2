@@ -195,7 +195,11 @@ namespace Strategic
     //
     void Script::Manager::NotifyScriptEnded(Script* script)
     {
-        scriptsSquad.Unlink(script);
+        // Only unlink from scriptsSquad if it was added (script had a squad)
+        if (script->nodeManagerSquad.InUse())
+        {
+            scriptsSquad.Unlink(script);
+        }
         scripts.Dispose(script);
     }
 

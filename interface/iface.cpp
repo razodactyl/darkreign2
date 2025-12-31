@@ -3375,7 +3375,7 @@ namespace IFace
             case 0x0D5B5622: // "iface.setlocale"
             {
                 // Remove this when ML system is written
-                //FIXME(915843011, "aiarossi"); // Fri Jan 08 16:50:11 1999
+                // FIXME(915843011, "aiarossi"); // Fri Jan 08 16:50:11 1999
 
                 const char* locale;
 

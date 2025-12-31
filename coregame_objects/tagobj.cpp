@@ -181,8 +181,11 @@ TagObj::TagObj(TagObjType* objType, U32 id)
 //
 TagObj::~TagObj()
 {
-    // Remove from the tag list
-    allTags.Unlink(this);
+    // Remove from the tag list (only if we were added)
+    if (node.InUse())
+    {
+        allTags.Unlink(this);
+    }
 
     // Make sure we clear the reaper list
     list.Clear();
