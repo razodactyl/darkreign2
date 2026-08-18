@@ -88,8 +88,22 @@ namespace Tactical
         UnitObjFinder::HeuristicData heuristicData;
         UnitObj* obj = nullptr;
 
-        // Has blind targetting time elapsed and our los is more than one cell
-        if (subject->blindTarget.Test() && subject->GetSeeingRange() > 1)
+        // Are we blindly targetting (the 'Bezerker' mojo) ?
+        if (!subject->blindTarget.Test())
+        {
+            // Find a random target, regardless of who it belongs to
+            heuristicData.SetupRandom(subject);
+
+            obj = Find
+            (
+                UnitObjFinder::Random, heuristicData, UnitObjIter::CanBeSeenBy,
+                UnitObjIter::FilterDataUnit(subject)
+            );
+        }
+        else
+
+        // Is our los more than one cell
+        if (subject->GetSeeingRange() > 1)
         {
             if (task)
             {
@@ -160,17 +174,6 @@ namespace Tactical
                         );
                     }
             }
-        }
-        else
-        {
-            // Find a random target
-            heuristicData.SetupRandom(subject);
-
-            obj = Find
-            (
-                UnitObjFinder::Random, heuristicData, UnitObjIter::CanBeSeenBy,
-                UnitObjIter::FilterDataUnit(subject)
-            );
         }
 
         // Did we find a target
