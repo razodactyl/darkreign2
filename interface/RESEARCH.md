@@ -718,3 +718,14 @@ void DrawSelf(PaintInfo& pi) override
     // pi.client and font metrics are already screen-space
     pi.font->Draw(pi.client.p0.x + scaledMargin, ...);
 }
+```
+
+## Notes from Prior Attempt (`ui-4k` branch, superseded)
+
+Before this branch (`ui-4k-v2`), there was an earlier, independent attempt at 4K scaling on branch `ui-4k`, started ~2018 and never rebased onto current `master` (34 commits behind by the time it was abandoned). It's being deleted now that this branch is the canonical implementation; recording what's worth remembering from it here first.
+
+- **Independent convergence on the same core design**: `ui-4k` arrived at essentially the same design-space/screen-space split used here (`unscaledConfigPos`/`unscaledConfigSize` vs. runtime `pos`/`size`), which is a decent signal that this is the right shape for the problem given the existing `IControl::Geometry` structure. It never got further than that core idea, though — no font scaling, no texture/pixel-art scaling, and the implementation was left mid-rewrite (multiple abandoned attempts at the same alignment/positioning logic left in as dead commented-out code rather than cleaned up).
+- **`icslider.cpp` crash was papered over, not fixed**: `ui-4k` commented out the `ERR_FATAL(("Slider [%s] is too small..."))` check to stop it from crashing on invalid geometry, without addressing why the geometry was invalid at that point. This branch's fix (`rangeInitialized` flag + deferring `InitRange()` to `DrawSelf()` if geometry isn't ready yet, replacing `ERR_FATAL` with `LOG_WARN`) is the same symptom fixed at the actual cause — worth keeping in mind if slider issues resurface, since the earlier branch shows the naive "just silence the assert" route was already tried and wasn't sufficient.
+- **`input.cpp` does not need touching for scaling**: `ui-4k` has a ~2100-line diff against `input.cpp`, which looked alarming until inspection showed it was pure indentation/reformat noise (likely from a toolchain/IDE change) with zero actual scaling logic — confirms mouse/input handling can stay in raw screen pixels and doesn't need scale-awareness threaded through it, matching this branch's own tiny `input.cpp` diff (just the keyboard-layout fix and resolution-independent mouse acceleration divisors).
+- **Toolchain bump is moot**: `ui-4k`'s "Toolchain Updates" commit (`PlatformToolset` v140→v143) is superseded — current `master` is already on v145 (VS2026), which this branch inherits.
+- No networking/multiplayer/font work existed on `ui-4k` at all; that scope (MINTCLIENT race-condition fix, Earth/Mission map scaling, message-box double-scaling fix, etc.) is unique to this branch.
