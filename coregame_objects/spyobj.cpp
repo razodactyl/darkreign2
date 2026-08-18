@@ -325,3 +325,14 @@ Team* SpyObj::GetMorphTeam()
 {
     return (morphTeam);
 }
+
+
+//
+// GetMorphType
+//
+// Get the type this spy is morphed into, or NULL if not morphed
+//
+UnitObjType* SpyObj::GetMorphType()
+{
+    return (morphType.GetPointer());
+}

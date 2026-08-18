@@ -98,6 +98,9 @@ namespace Tasks
         // Restore old mesh
         void RestoreMesh();
 
+        // Rebuild the morph mesh after loading a saved game
+        void RestoreMorphMesh();
+
         // Set spying bit in target object
         void SetSpyingBit(Bool state);
 

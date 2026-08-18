@@ -204,7 +204,7 @@ namespace Tasks
 
         if (isMorphed)
         {
-            StateMorph();
+            RestoreMorphMesh();
         }
     }
 
@@ -273,6 +273,56 @@ namespace Tasks
             oldMesh = newMesh = nullptr;
         }
 #endif
+    }
+
+
+    //
+    // RestoreMorphMesh
+    //
+    // Rebuild the morph mesh after loading a saved game
+    //
+    void SpyIdle::RestoreMorphMesh()
+    {
+        ASSERT(isMorphed);
+
+        // The disguise is the type we morphed into, which is NOT necessarily
+        // 'target' - that is just the subject of the current order, and is
+        // reassigned by Infiltrate() and Morph() while we remain morphed
+        UnitObjType* morphType = subject->GetMorphType();
+
+        if (!morphType)
+        {
+            // The type we were disguised as is gone, so we can not be morphed.
+            // Drop the morph quietly - this is a load, not a detection
+            isMorphed = FALSE;
+            subject->SetFlag(UnitObj::FLAG_CLANDESTINE, FALSE);
+            subject->SetMorphTarget(nullptr);
+            return;
+        }
+
+#ifdef CHANGEMESH
+
+        ASSERT(!oldMesh);
+        ASSERT(!newMesh);
+
+        // Store original mesh
+        MeshEnt* curMesh = &subject->Mesh();
+        oldMesh = curMesh;
+
+        // Create the disguise
+        newMesh = new MeshEnt(morphType->GetMeshRoot());
+        subject->SetMesh(newMesh);
+
+        // Update position of new mesh to match old
+        subject->SetSimCurrent(curMesh->WorldMatrix());
+
+#endif
+
+        // Set the team color of this mesh
+        if (Team* morphTeam = subject->GetMorphTeam())
+        {
+            subject->Mesh().SetTeamColor(morphTeam->GetColor());
+        }
     }
 
 

@@ -150,6 +150,9 @@ public:
     // Get the morph team of this spy, or NULL if not morphed
     Team* GetMorphTeam();
 
+    // Get the type this spy is morphed into, or NULL if not morphed
+    UnitObjType* GetMorphType();
+
     // Get pointer to type
     SpyObjType* SpyType()
     {
