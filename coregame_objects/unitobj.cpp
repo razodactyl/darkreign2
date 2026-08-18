@@ -1151,7 +1151,12 @@ void UnitObj::SaveState(FScope* fScope, MeshEnt* theMesh) // = NULL
 
         for (U32 i = 0; i < UnitType()->upgrades.GetCount(); i++)
         {
-            StdSave::TypeReaper(sScope, "ReaperId", upgrades[i]);
+            // Nothing is written for an empty slot, so record which slot this
+            // reaper belongs to rather than relying on position
+            if (FScope* uScope = StdSave::TypeReaper(sScope, "ReaperId", upgrades[i]))
+            {
+                StdSave::TypeU32(uScope, "Slot", i);
+            }
         }
     }
 
@@ -1268,14 +1273,25 @@ void UnitObj::LoadState(FScope* fScope)
 
             case 0x0A16EEBB: // "Upgrades"
             {
-                for (U32 i = 0; i < UnitType()->upgrades.GetCount(); i++)
-                {
-                    // Get an upgrade reaper
-                    FScope* uScope = sScope->NextFunction();
+                U32 count = UnitType()->upgrades.GetCount();
+                U32 next = 0;
 
-                    if (uScope && uScope->NameCrc() == 0x2C77A1B7) // "ReaperId"
+                // Get each upgrade reaper
+                while (FScope* uScope = sScope->NextFunction())
+                {
+                    if (uScope->NameCrc() == 0x2C77A1B7) // "ReaperId"
                     {
-                        StdLoad::TypeReaper(uScope, upgrades[i]);
+                        // Which slot is this reaper for.  Files written before
+                        // the slot was recorded are positional, and are wrong
+                        // whenever an earlier slot was empty
+                        U32 slot = StdLoad::TypeU32(uScope, "Slot", next);
+
+                        // Always consume the reaper, even if the slot has
+                        // gone away, so the scope is fully read
+                        UnitObjPtr discard;
+                        StdLoad::TypeReaper(uScope, slot < count ? upgrades[slot] : discard);
+
+                        next = slot + 1;
                     }
                 }
                 break;
