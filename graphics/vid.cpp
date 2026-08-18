@@ -355,6 +355,8 @@ namespace Vid
 
         if (mode == VIDMODEWINDOW)
         {
+            isStatus.borderless = doStatus.borderless;
+
             // save the mode for next time
             if (lastMode != VIDMODEWINDOW)
             {
@@ -364,14 +366,17 @@ namespace Vid
             ReleaseDD();
 
             Area<S32> cr = viewRect;
-            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
-            if (cr.Width() > CurMode().rect.Width())
+            if (!isStatus.borderless)
             {
-                width -= cr.Width() - CurMode().rect.Width();
-            }
-            if (cr.Height() > CurMode().rect.Height())
-            {
-                height -= cr.Height() - CurMode().rect.Height();
+                AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
+                if (cr.Width() > CurMode().rect.Width())
+                {
+                    width -= cr.Width() - CurMode().rect.Width();
+                }
+                if (cr.Height() > CurMode().rect.Height())
+                {
+                    height -= cr.Height() - CurMode().rect.Height();
+                }
             }
             viewRect.SetSize(0, 0, width, height);
 
@@ -388,16 +393,19 @@ namespace Vid
                 }
                 isStatus.inWindow = TRUE;
 
-                SetMenu(hWnd, hMenu);
-                SetWindowLong(hWnd, GWL_STYLE, theStyle);
+                SetMenu(hWnd, isStatus.borderless ? nullptr : hMenu);
+                SetWindowLong(hWnd, GWL_STYLE, isStatus.borderless ? (WS_POPUP | WS_VISIBLE) : theStyle);
                 DrawMenuBar(hWnd);
 
-                // setup window
-                Area<S32> cr = viewRect = Settings::viewRect;
-                AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
-                SetWindowPos(hWnd, HWND_TOP, lastRect.p0.x, lastRect.p0.y, cr.Width(), cr.Height(), NULL);
+                if (!isStatus.borderless)
+                {
+                    // setup window
+                    Area<S32> cr = viewRect = Settings::viewRect;
+                    AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
+                    SetWindowPos(hWnd, HWND_TOP, lastRect.p0.x, lastRect.p0.y, cr.Width(), cr.Height(), NULL);
+                }
             }
-            if (firstRun && !Settings::firstEver)
+            if (!isStatus.borderless && firstRun && !Settings::firstEver)
             {
                 // setup windowed size from settings file
                 //
@@ -405,7 +413,7 @@ namespace Vid
             }
             Settings::viewRect = viewRect;
 
-            // nice for windows 
+            // nice for windows
             isStatus.fullScreen = FALSE;
             if (lastMode != mode && !SetCoopLevel())
             {
@@ -425,15 +433,27 @@ namespace Vid
             // InitDD wipes curMode
             curMode = mode;
 
-            cr = viewRect;
-            AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
+            if (isStatus.borderless)
+            {
+                SetMenu(hWnd, nullptr);
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+                viewRect.SetSize(0, 0, width, height);
+                S32 l = (CurMode().rect.Width() - width) >> 1;
+                S32 t = (CurMode().rect.Height() - height) >> 1;
+                SetWindowPos(hWnd, HWND_TOP, l, t, width, height, SWP_FRAMECHANGED);
+            }
+            else
+            {
+                cr = viewRect;
+                AdjustWindowRect((RECT*)&cr, theStyle, hMenu != nullptr ? TRUE : FALSE);
 
-            width = cr.Width();
-            height = cr.Height();
+                width = cr.Width();
+                height = cr.Height();
 
-            S32 l = (CurMode().rect.Width() - width) >> 1;
-            S32 t = (CurMode().rect.Height() - height) >> 1;
-            SetWindowPos(hWnd, HWND_TOP, l, t, width, height, NULL);
+                S32 l = (CurMode().rect.Width() - width) >> 1;
+                S32 t = (CurMode().rect.Height() - height) >> 1;
+                SetWindowPos(hWnd, HWND_TOP, l, t, width, height, NULL);
+            }
 
             SetRects();
 
@@ -458,6 +478,8 @@ namespace Vid
         }
         else
         {
+            isStatus.borderless = FALSE;
+
             if (lastMode == VIDMODEWINDOW)
             {
                 isStatus.fullScreen = TRUE;

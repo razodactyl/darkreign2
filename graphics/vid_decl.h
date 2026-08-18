@@ -358,6 +358,7 @@ namespace Vid
         U32 modeMax : 1;    // pick max resolution?
         U32 modeOverRide : 1;    // use command line instead of settings file driver and mode
         U32 fullScreen : 1;
+        U32 borderless : 1;
         U32 pageFlip : 1;
         U32 tripleBuf : 1;
 

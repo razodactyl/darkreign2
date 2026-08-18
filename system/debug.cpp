@@ -1364,7 +1364,6 @@ namespace Debug
 
             RaiseException(DEBUG_EXCEPTION_ERROR, EXCEPTION_NONCONTINUABLE_EXCEPTION, 6, arguments);
 
-
             //
             //
             //

@@ -545,6 +545,11 @@ namespace Main
         {
             i++;
 
+            while (cmdLine[i] && strchr(ARG_INDICATORS, cmdLine[i]))
+            {
+                i++;
+            }
+
             // Extract next token
             start = i;
             while (cmdLine[i] && !strchr(ARG_SPACE, cmdLine[i]) && (!strchr(ARG_SEPERATORS, cmdLine[i])))
@@ -637,6 +642,14 @@ namespace Main
                 if (NextArg(cmdLine, i, arg, val))
                 {
                     LOG_DIAG(("CmdLine [%s%s%s]", arg.str, *val.str ? ":" : "", *val.str ? val.str : ""))
+
+                    if (!Utils::Stricmp(arg.str, "borderless"))
+                    {
+                        Vid::doStatus.fullScreen = FALSE;
+                        Vid::doStatus.borderless = TRUE;
+                        Vid::doStatus.modeOverRide = TRUE;
+                        continue;
+                    }
 
                     switch (arg.crc)
                     {

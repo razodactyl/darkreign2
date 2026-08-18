@@ -49,7 +49,7 @@
     <OutDir>C:\Games\Dark Reign 2\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>F:\Games\Dark Reign 2</OutDir>
+    <OutDir>C:\Games\Dark Reign 2</OutDir>
     <LinkIncremental>true</LinkIncremental>
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
   </PropertyGroup>

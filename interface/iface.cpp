@@ -42,7 +42,7 @@
 
 
 // #define LOGGING
-// #define HIRES_UI
+#define HIRES_UI
 
 // Global file handle for debug output during layout dump
 FILE* g_layoutDumpFile = nullptr;
