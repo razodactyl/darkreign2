@@ -7,9 +7,61 @@
 - Fixed issue where saving stats would cause the game to crash.
 
 ## OpenGL Update:
-- Implementation of OpenGL rendering instead of DirectX 7 (Currently in progress)
-- 4k resolution is possible by setting a breakpoint at the `create device` error and following the code manually...
-- More information in the `upgrade-graphics-system` branch of this project.
+- The renderer now sits behind a backend interface, with DirectX 7 and OpenGL 3.3
+  core as two implementations. DirectX remains the default; pass `-ogl` for OpenGL.
+- On the OpenGL path there is no DirectDraw or Direct3D device at all - the context
+  is created on the game's own window via WGL, so the window, the message pump and
+  DirectInput are untouched.
+- See `docs/research/graphics-backend-port.md` for the design, the phase history
+  and what is still outstanding. This supersedes the older
+  `upgrade-graphics-system` branch, which is kept only as a reference.
+
+## Command Line Switches
+
+Switches may be prefixed with `-` or `/`, and a value is given after `:` or `=`.
+So `-ogl`, `--borderless`, `/w` and `-vidmode:1024x768` are all valid.
+
+### Video
+
+| Switch | Effect |
+| --- | --- |
+| `-ogl` | Render with the OpenGL 3.3 backend instead of DirectX 7. Falls back to DirectX if the context cannot be created. |
+| `-w` | Run windowed. |
+| `-borderless[:WxH]` | Borderless window. With no size it covers the desktop; `-borderless:max` uses the maximum resolution. |
+| `-vidmode:WxH` | Start at a specific resolution, e.g. `-vidmode:1024x768`. `-vidmode:max` picks the maximum. |
+| `-h` | Prefer a 32-bit display mode. |
+| `-s` | Use a software Direct3D driver. No effect under `-ogl`. |
+| `-t` | Do not use a triple-buffered flip chain. |
+| `-safevid` | Accepted for compatibility; currently does nothing. |
+
+### General
+
+| Switch | Effect |
+| --- | --- |
+| `-cwd:<path>` | Set the working directory before anything else loads. |
+| `-cmd:<command>` | Queue a console command to run at the next runcode change. May be given more than once. |
+| `-flushlog` | Flush the log after every entry, so nothing is lost on a hard crash. |
+| `-watchdog` | Enable the watchdog timer. |
+| `-nofpucheck` | Do not enable FPU exceptions. |
+
+### Multiplayer
+
+Registered by the multiplayer module rather than the core parser, but used the
+same way.
+
+| Switch | Effect |
+| --- | --- |
+| `-host` | Host a game. |
+| `-join` | Join a game. |
+| `-ip:<address>` | Address to join. |
+| `-port:<number>` | Port to host or join on. |
+| `-user:<name>` | User name to log in with. |
+| `-session:<name>` | Session name to host or join. |
+| `-password:<password>` | Session password. |
+| `-maxplayers:<number>` | Maximum players when hosting. |
+
+Anything unrecognised is reported in the log as `Unknown command line option`
+rather than being ignored silently.
 
 ## Todo (In Progress Development)
 - NAT Loopback (Hairpinning) for users on a local network to mix with online players.
