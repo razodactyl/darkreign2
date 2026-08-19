@@ -409,6 +409,7 @@ namespace Vid
             "\n"
             "uniform sampler2D texture0;\n"
             "uniform bool doTexture;\n"
+            "uniform int texOp;\n"
             "uniform bool doFog;\n"
             "uniform vec3 fogColour;\n"
             "\n"
@@ -416,7 +417,42 @@ namespace Vid
             "\n"
             "void main()\n"
             "{\n"
-            "    vec4 c = doTexture ? texture(texture0, vUV) * vDiffuse : vDiffuse;\n"
+            "    vec4 c;\n"
+            "\n"
+            "    if (!doTexture)\n"
+            "    {\n"
+            "        c = vDiffuse;\n"
+            "    }\n"
+            "    else\n"
+            "    {\n"
+            "        vec4 t = texture(texture0, vUV);\n"
+            "\n"
+            "        // Stage 0 of the RS_TEX_* ops, matching what the DirectX backend asks\n"
+            "        // the fixed-function combiner for. See blendToOp in vid_backend_d3d.cpp:\n"
+            "        // note that DECAL takes colour from the texture but still modulates\n"
+            "        // alpha, DECALALPHA is the other way round, and ADD is a plain\n"
+            "        // modulate at stage 0 - the add only applies on the second stage.\n"
+            "        if (texOp == 1)          // RS_TEX_DECAL\n"
+            "        {\n"
+            "            c = vec4(t.rgb, t.a * vDiffuse.a);\n"
+            "        }\n"
+            "        else if (texOp == 2)     // RS_TEX_DECALALPHA\n"
+            "        {\n"
+            "            c = vec4(vDiffuse.rgb, t.a);\n"
+            "        }\n"
+            "        else if (texOp == 4)     // RS_TEX_MODULATE2X\n"
+            "        {\n"
+            "            c = vec4(t.rgb * vDiffuse.rgb * 2.0, t.a * vDiffuse.a);\n"
+            "        }\n"
+            "        else if (texOp == 5)     // RS_TEX_MODULATE4X\n"
+            "        {\n"
+            "            c = vec4(t.rgb * vDiffuse.rgb * 4.0, t.a * vDiffuse.a);\n"
+            "        }\n"
+            "        else                     // MODULATE, MODULATEALPHA, ADD\n"
+            "        {\n"
+            "            c = t * vDiffuse;\n"
+            "        }\n"
+            "    }\n"
             "\n"
             "    // DR2 draws pre-transformed vertices, and for those D3D takes the\n"
             "    // fog factor from the specular alpha channel rather than from\n"
@@ -433,6 +469,7 @@ namespace Vid
         static GLint uniScreenSize = -1;
         static GLint uniDoTexture = -1;
         static GLint uniDoFog = -1;
+        static GLint uniTexOp = -1;
         static GLint uniFogColour = -1;
 
         static GLuint vao;
@@ -508,6 +545,7 @@ namespace Vid
             uniScreenSize = glGetUniformLocation(program, "screenSize");
             uniDoTexture = glGetUniformLocation(program, "doTexture");
             uniDoFog = glGetUniformLocation(program, "doFog");
+            uniTexOp = glGetUniformLocation(program, "texOp");
             uniFogColour = glGetUniformLocation(program, "fogColour");
 
             glUseProgram(program);
@@ -828,8 +866,18 @@ namespace Vid
         Bool SetPerspective(Bool) { return TRUE; }
         Bool SetColorKey(Bool) { return FALSE; }
 
-        // phase 5: the shader decides how the stages combine
-        void SetTexBlend(U32, U32) {}
+        // How the texture combines with the vertex colour. Only stage 0 is
+        // honoured: the second stage needs multi-texturing, which this backend
+        // does not bind yet.
+        static U32 texOp = 3;    // RS_TEX_MODULATE, the default blend
+
+        void SetTexBlend(U32 op, U32 stage)
+        {
+            if (stage == 0)
+            {
+                texOp = op;
+            }
+        }
         void SetTextureFactor(Color) {}
         Bool DisableTexStage(U32) { return TRUE; }
 
@@ -917,6 +965,7 @@ namespace Vid
             glUniform2f(uniScreenSize, F32(client.right), F32(client.bottom));
             glUniform1i(uniDoTexture, boundTexture[0] ? GL_TRUE : GL_FALSE);
             glUniform1i(uniDoFog, fogOn ? GL_TRUE : GL_FALSE);
+            glUniform1i(uniTexOp, GLint(texOp));
             glUniform3f(uniFogColour, fogR, fogG, fogB);
 
             glBindVertexArray(vao);
