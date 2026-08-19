@@ -8,6 +8,8 @@
 //
 
 #include "vid_private.h"
+#include "vid_backend.h"
+#include "vid_dx.h"
 #include "vid_cmd.h"
 #include "terrain_priv.h"
 #include "light_priv.h"
@@ -93,7 +95,7 @@ namespace Vid
     List<Pix> zbuffFormatList;
     S32 curZbuffFormat;
 
-    ViewPortDescD3D viewDesc;
+    ViewPort viewDesc;
     Material* defMaterial = nullptr;
     Material* blackMaterial = nullptr;
     Bitmap* turtleTex = nullptr;
@@ -199,6 +201,36 @@ namespace Vid
     {
         d3d = nullptr;
         extraFog = 0;
+
+        // pick the rendering backend before anything can draw through it
+        isStatus.ogl = doStatus.ogl;
+        SelectBackend(isStatus.ogl ? backendOGL : backendDX7);
+
+        if (isStatus.ogl)
+        {
+            if (OGL::CreateContext(hW))
+            {
+                // The OpenGL backend has a context and owns the frame, but
+                // everything that draws is still a stub, and Init carries on
+                // into the DirectDraw/Direct3D setup below regardless. -ogl is
+                // not a playable mode yet; it is here so the context can be
+                // brought up and proven against the real window and input.
+                LOG_WARN(("Vid: -ogl brings up an OpenGL context but does not draw yet"));
+                LOG_WARN(("Vid: expect no rendering; use the default DirectX 7 path to play"));
+
+                // textures need a pixel format before any bitmap is created,
+                // and there is no enumeration step on this path
+                InitFormatsOGL();
+            }
+            else
+            {
+                // no context, no OpenGL - fall back rather than run with a
+                // backend whose every call would be a no-op
+                LOG_ERR(("Vid: OpenGL setup failed, falling back to DirectX 7"));
+                isStatus.ogl = doStatus.ogl = FALSE;
+                SelectBackend(backendDX7);
+            }
+        }
 
         // initialize dependent systems
         // heap should be first
@@ -757,6 +789,42 @@ namespace Vid
 
     //----------------------------------------------------------------------------
 
+    // OpenGL has no texture format enumeration to run: register the one format
+    // the GL backend uses and point every texture class at it.
+    //
+    // A8R8G8B8 is chosen because it is what the rest of the bitmap code already
+    // expects on a 32-bit surface, and because in memory it is exactly
+    // GL_BGRA + GL_UNSIGNED_INT_8_8_8_8_REV, so uploads need no conversion.
+    //
+    void InitFormatsOGL()
+    {
+        pixFormatList.DisposeAll();
+
+        Pix* pix = new Pix();
+
+        DDPIXELFORMAT fmt;
+        Utils::Memset(&fmt, 0, sizeof(fmt));
+        fmt.dwSize = sizeof(fmt);
+        fmt.dwFlags = DDPF_RGB | DDPF_ALPHAPIXELS;
+        fmt.dwRGBBitCount = 32;
+        fmt.dwRBitMask = 0x00ff0000;
+        fmt.dwGBitMask = 0x0000ff00;
+        fmt.dwBBitMask = 0x000000ff;
+        fmt.dwRGBAlphaBitMask = 0xff000000;
+
+        pix->SetPixFmt(fmt);
+        pixFormatList.Append(pix);
+
+        normalFormat = transparentFormat = translucentFormat = 0;
+        backFormat.SetPixFmt(fmt);
+
+        caps.tex32 = TRUE;
+
+        LOG_DIAG(("OGL: texture format %s", PixNormal().name.str));
+    }
+
+    //----------------------------------------------------------------------------
+
     // callback for z-buffer format enumeration
     //
     static HRESULT WINAPI EnumZBufferCallback(LPDDPIXELFORMAT zFmt, LPVOID context)
@@ -805,7 +873,7 @@ namespace Vid
     void InitResources(Bool minimal) // = FALSE
     {
         defMaterial = Material::Manager::FindCreate();
-        SetMaterialDX(defMaterial);
+        SetMaterialI(defMaterial);
         SetBucketMaterialProc(defMaterial);
 
         ColorF32 zero(0, 0, 0);
@@ -1180,9 +1248,9 @@ namespace Vid
             }
 
             // clear DX
-            SetCullStateD3D(FALSE);
-            SetWorldTransform_D3D(Matrix::I);
-            SetViewTransform_D3D(Matrix::I);
+            SetCullState(FALSE);
+            SetWorldTransformI(Matrix::I);
+            SetViewTransformI(Matrix::I);
 
             // logging
             //
@@ -1549,9 +1617,9 @@ namespace Vid
                 // Clear internal directx texture pointer
                 if (caps.texMulti)
                 {
-                    SetTextureDX(nullptr, 1, RS_BLEND_DEF);
+                    SetTextureI(nullptr, 1, RS_BLEND_DEF);
                 }
-                SetTextureDX(nullptr, 0, RS_BLEND_DEF);
+                SetTextureI(nullptr, 0, RS_BLEND_DEF);
             }
 
 #ifdef HARSHRESTORE
@@ -1579,9 +1647,9 @@ namespace Vid
             // Clear internal directx texture pointer
             if (caps.texMulti)
             {
-                SetTextureDX(nullptr, 1, RS_BLEND_DEF);
+                SetTextureI(nullptr, 1, RS_BLEND_DEF);
             }
-            SetTextureDX(nullptr, 0, RS_BLEND_DEF);
+            SetTextureI(nullptr, 0, RS_BLEND_DEF);
             Bitmap::Manager::ResetData();
         }
 #if 1
@@ -1632,9 +1700,9 @@ namespace Vid
             // Clear internal directx texture pointer
             if (caps.texMulti)
             {
-                SetTextureDX(nullptr, 1, RS_BLEND_DEF);
+                SetTextureI(nullptr, 1, RS_BLEND_DEF);
             }
-            SetTextureDX(nullptr, 0, RS_BLEND_DEF);
+            SetTextureI(nullptr, 0, RS_BLEND_DEF);
         }
         RELEASEDX(device);
 
@@ -1708,9 +1776,9 @@ namespace Vid
             // Clear internal directx texture pointer
             if (caps.texMulti)
             {
-                SetTextureDX(nullptr, 1, RS_BLEND_DEF);
+                SetTextureI(nullptr, 1, RS_BLEND_DEF);
             }
-            SetTextureDX(nullptr, 0, RS_BLEND_DEF);
+            SetTextureI(nullptr, 0, RS_BLEND_DEF);
         }
         ClearBack();
         RenderFlush();
@@ -1731,6 +1799,11 @@ namespace Vid
     //
     void Done()
     {
+        if (isStatus.ogl)
+        {
+            OGL::DestroyContext();
+        }
+
         Heap::Done();
 
         Settings::Save();

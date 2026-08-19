@@ -21,7 +21,7 @@
 // beware, buckets are hardwired to use only TLVERTS!
 //
 //#define DOMATERIAL        // don't use only a single global material
-//#define DOSPECULAR        // do specularity
+#define DOSPECULAR          // do specularity
 #define DODXLEANANDGRUMPY   // do only TLVERTS
 #define DOLOGDXERROR        // log dx errors
 
@@ -212,7 +212,8 @@ protected:
             binkDone : 1,
             binkExclusive : 1,
             binkStart : 1,
-            binkStretch : 1;
+            binkStretch : 1,
+            texDirty : 1;    // backend texture is behind the pixels in bmpData
 
         void ClearData()
         {
@@ -226,6 +227,11 @@ protected:
 
     SurfaceDescDD desc;         // direct draw
     SurfaceDD surface;
+
+    // Opaque handle to whatever the active backend needs in order to sample
+    // this bitmap. Zero when the backend needs nothing - the DirectX backend
+    // samples out of `surface` above, so it never sets this.
+    U32 backendTex;
 
     U32 reduction;
     U32 mipMapCount;
@@ -382,6 +388,9 @@ public:
     void* Lock();
     void UnLock();
 
+    // refresh the backend's texture from bmpData if it has gone stale
+    void UploadBackendTexture();
+
     Bool Create(S32 width, S32 height, Bool translucent, S32 mips = 0, U32 depth = 0);
     Bool Create(S32 width, S32 height, S32 depth, S32 pitch, void* data);
 
@@ -424,6 +433,11 @@ public:
     inline TextureHandle GetTexture() const
     {
         return surface;
+    }
+
+    inline U32 BackendTexture() const
+    {
+        return backendTex;
     }
 
     inline const Status& GetStatus() const

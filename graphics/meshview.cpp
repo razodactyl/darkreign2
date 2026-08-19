@@ -3018,7 +3018,7 @@ namespace MeshView
                     if (!text)
                     {
                         Vid::SetTextureStateI(text);
-                        Vid::SetTextureDX(NULL);
+                        Vid::SetTextureI(NULL);
                     }
 
                     // render mirrored meshes
@@ -3100,7 +3100,7 @@ namespace MeshView
             if (!text)
             {
                 Vid::SetTextureStateI(text);
-                Vid::SetTextureDX(NULL);
+                Vid::SetTextureI(NULL);
             }
 
             // render meshes
@@ -3143,7 +3143,7 @@ namespace MeshView
             if (!text)
             {
                 Vid::SetTextureStateI(text);
-                Vid::SetTextureDX(NULL);
+                Vid::SetTextureI(NULL);
             }
 
             IFace::Render();

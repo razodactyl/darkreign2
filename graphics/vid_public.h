@@ -17,19 +17,9 @@
 #include "tranbucket.h"
 //-----------------------------------------------------------------------------
 
-extern HRESULT dxError;
+// HRESULT to readable text. Not DirectX-specific in use - interface/input.cpp
+// reports DirectInput errors with it. Defined in viderror.cpp.
 extern char* GetErrorString(HRESULT error);
-
-#if	(defined DEVELOPMENT) || (defined DOLOGDXERROR)
-#define LOG_DXERR( fmt)                             \
-	if (dxError)                                      \
-  {                                                 \
-		LOG_ERR( fmt );                                 \
-    LOG_ERR( ("...%s", GetErrorString( dxError)) ); \
-  }
-#else
-#define LOG_DXERR( fmt) 
-#endif
 //-----------------------------------------------------------------------------
 
 namespace Vid
@@ -59,12 +49,15 @@ namespace Vid
 
     extern Area<F32> clipRect;
 
-    // direct X
-    extern SurfaceDD front;
-    extern DirectDD ddx;
-    extern Direct3D d3d;
-    extern DeviceD3D device;
-    extern ViewPortDescD3D viewDesc;
+    // the region of the render target being drawn to
+    struct ViewPort
+    {
+        S32 x, y;
+        S32 width, height;
+        F32 minZ, maxZ;
+    };
+
+    extern ViewPort viewDesc;
 
     extern Material* defMaterial;
     extern Material* blackMaterial;
@@ -194,7 +187,7 @@ namespace Vid
 
     void SetWorldTransform(const Matrix& mat);
 
-    void SetMaterialDX(const Material* mat);
+    void SetMaterialI(const Material* mat);
 
     inline void SetMaterial(const Material* mat)
     {
@@ -202,7 +195,7 @@ namespace Vid
 #ifndef DODXLEANANDGRUMPY
         if (renderState.status.dxTL)
         {
-            SetMaterialDX(mat);
+            SetMaterialI(mat);
         }
 #endif
     }
@@ -220,8 +213,8 @@ namespace Vid
     void SetAmbientColor(F32 r, F32 g, F32 b);
     void GetAmbientColor(F32& r, F32& g, F32& b);
 
-    void SetCullStateD3D(Bool doCull);
-    void SetFogColorD3D(U32 fogcolor);
+    void SetCullState(Bool doCull);
+    void SetFogColorI(U32 fogcolor);
 
     inline Pix& ZBufferFormat()
     {
@@ -434,25 +427,14 @@ namespace Vid
 
     enum ClearFlags
     {
-        clearZBUFFER = D3DCLEAR_ZBUFFER,
-        clearBACK = D3DCLEAR_TARGET,
-        clearSTENCIL = D3DCLEAR_STENCIL,
+        clearBACK = 0x00000001,
+        clearZBUFFER = 0x00000002,
+        clearSTENCIL = 0x00000004,
     };
 
-    inline void RenderClear(U32 clearFlags, Color color, Area<S32>* rect = NULL)
-    {
-        color;
-
-        Area<S32> temp;
-        if (!rect)
-        {
-            temp.SetSize(viewDesc.dwX, viewDesc.dwY, viewDesc.dwX + viewDesc.dwWidth, viewDesc.dwY + viewDesc.dwHeight);
-            rect = &temp;
-        }
-
-        dxError = Vid::device->Clear(1UL, (LPD3DRECT)rect, clearFlags, color, 1, 0);
-        LOG_DXERR(("Vid::ClearD3D: viewport->Clear2"));
-    }
+    // defined in vidrend.cpp - out of line so this header does not have to know
+    // about the backend table
+    void RenderClear(U32 clearFlags, Color color, Area<S32>* rect = NULL);
 
     inline void RenderClear(U32 clearFlags)
     {
@@ -472,9 +454,9 @@ namespace Vid
     void SetModelViewVector(const Vector& worldPos);
     void Setup(const Camera& camera);
 
-    void SetWorldTransform_D3D(const Matrix& mat);
-    void SetViewTransform_D3D(const Matrix& mat);
-    void SetProjTransform_D3D(const Matrix& mat);
+    void SetWorldTransformI(const Matrix& mat);
+    void SetViewTransformI(const Matrix& mat);
+    void SetProjTransformI(const Matrix& mat);
 
 #ifdef __DO_XMM_BUILD
     void SetModelProjTransformXmm(const Matrix& mat);
@@ -482,7 +464,7 @@ namespace Vid
     void FreeXmm();
 #endif
 
-    Bool SetTextureDX(const Bitmap* tex, U32 stage = 0, U32 blend = RS_BLEND_DEF);
+    Bool SetTextureI(const Bitmap* tex, U32 stage = 0, U32 blend = RS_BLEND_DEF);
 
     void InitBuckets();
     void InitBuckets(U32 count, U32 size, F32 ratio, Bool flush, U32 tcount, U32 tsize, F32 tratio);

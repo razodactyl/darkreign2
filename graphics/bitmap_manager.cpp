@@ -8,6 +8,7 @@
 //
 
 #include "vid_public.h"
+#include "vid_dx.h"
 #include "mesh.h"
 #include "main.h"
 #include "filesys.h"
@@ -337,9 +338,9 @@ void Bitmap::Manager::DisposeAll()
     // Clear internal directx texture pointer
     if (Vid::caps.texMulti)
     {
-        Vid::SetTextureDX(nullptr, 1, RS_BLEND_DEF);
+        Vid::SetTextureI(nullptr, 1, RS_BLEND_DEF);
     }
-    Vid::SetTextureDX(nullptr, 0, RS_BLEND_DEF);
+    Vid::SetTextureI(nullptr, 0, RS_BLEND_DEF);
     ClearTextures();
 
     if (Vid::backBmp.bink)

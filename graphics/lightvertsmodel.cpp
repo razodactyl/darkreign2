@@ -26,7 +26,10 @@ namespace Vid
             while (Obj* light = li++)
             {
 #ifdef DOSPECULAR
-        light->doSpecular = Vid::renderState.status.specular && (light->d3d.dwFlags & D3DLIGHT_NO_SPECULAR) != D3DLIGHT_NO_SPECULAR ? TRUE : FALSE;
+                // D3DLIGHT7 dropped the per-light D3DLIGHT_NO_SPECULAR flag that
+                // this used to test (it was a D3DLIGHT2 member), so the global
+                // specular setting is all there is to consult.
+                light->doSpecular = Vid::renderState.status.specular;
 #endif
 
                 switch (light->GetType())

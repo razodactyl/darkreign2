@@ -9,6 +9,7 @@
 
 #include "vid_private.h"
 #include "vid_cmd.h"
+#include "vid_backend.h"
 
 //-----------------------------------------------------------------------------
 
@@ -287,10 +288,7 @@ namespace Vid
         Bool retValue = 0;
         if (Vid::isStatus.initialized)
         {
-            device->GetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, (DWORD*)&retValue);
-
-            dxError = device->SetRenderState(D3DRENDERSTATE_TEXTUREPERSPECTIVE, on);
-            LOG_DXERR(("device->SetRenderState"));
+            retValue = backend->SetPerspective(on);
         }
         return retValue;
     }
@@ -302,10 +300,7 @@ namespace Vid
         Bool retValue = 0;
         if (Vid::isStatus.initialized)
         {
-            device->GetRenderState(D3DRENDERSTATE_COLORKEYENABLE, (DWORD*)&retValue);
-
-            dxError = device->SetRenderState(D3DRENDERSTATE_COLORKEYENABLE, on);
-            LOG_DXERR(("device->SetRenderState( COLORKEYENABLE)"));
+            retValue = backend->SetColorKey(on);
         }
         return retValue;
     }
@@ -319,8 +314,7 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_ANTIALIAS, on);
-            LOG_DXERR(("device->SetRenderState"));
+            backend->SetAntiAlias(on);
         }
         return retValue;
     }
@@ -334,8 +328,7 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_EDGEANTIALIAS, on);
-            LOG_DXERR(("device->SetRenderState"));
+            backend->SetEdgeAntiAlias(on);
         }
         return retValue;
     }
@@ -412,15 +405,7 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            ASSERT(device);
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGENABLE, fogOn);
-            LOG_DXERR(("SetFogState"));
-
-#ifndef DODXLEANANDGRUMPY
-            //    dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLEMODE,  D3DFOG_NONE); 
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGVERTEXMODE, fogOn ? D3DFOG_LINEAR : D3DFOG_NONE);
-            LOG_DXERR(("SetFogState"));
-#endif
+            backend->SetFog(fogOn);
         }
 
         return retValue;
@@ -448,11 +433,7 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            ASSERT(device);
-            dxError = device->SetRenderState(D3DRENDERSTATE_FILLMODE, flags == shadeWIRE ? D3DFILL_WIREFRAME : D3DFILL_SOLID);
-            LOG_DXERR(("FILLSTATE"));
-            dxError = device->SetRenderState(D3DRENDERSTATE_SHADEMODE, flags == shadeFLAT ? D3DSHADE_FLAT : D3DSHADE_GOURAUD);
-            LOG_DXERR(("SHADESTATE"));
+            backend->SetShade(flags);
         }
 
         return retValue;
@@ -478,59 +459,14 @@ namespace Vid
 
     U32 SetFilterStateI(U32 flags, S32 stage) // = 0
     {
+        stage;    // the backend sets every stage
+
         U32 retFlags = renderState.status.filter;
         renderState.status.filter = flags;
 
         if (Vid::isStatus.initialized)
         {
-            D3DTEXTUREMAGFILTER magFilter;
-            D3DTEXTUREMINFILTER minFilter;
-
-            if (renderState.status.filter & filterFILTER)
-            {
-                magFilter = D3DTFG_LINEAR;
-                minFilter = D3DTFN_LINEAR;
-            }
-            else
-            {
-                magFilter = D3DTFG_POINT;
-                minFilter = D3DTFN_POINT;
-            }
-
-            stage = 1;    // set both stages (DR2 only uses 2)
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_MAGFILTER, magFilter);
-            dxError = device->SetTextureStageState(stage, D3DTSS_MINFILTER, minFilter);
-            LOG_DXERR(("SetFilterState"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
-            //        dxError = device->SetTextureStageState( stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
-
-            LOG_DXERR(("SetFilterState"));
-
-            for (; stage >= 0; stage--)
-            {
-                if (Vid::isStatus.initialized)
-                {
-                    dxError = device->SetTextureStageState(stage, D3DTSS_MAGFILTER, magFilter);
-                    dxError = device->SetTextureStageState(stage, D3DTSS_MINFILTER, minFilter);
-                    LOG_DXERR(("SetFilterState"));
-
-                    if (!(renderState.status.filter & filterMIPMAP))
-                    {
-                        dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_NONE);
-                    }
-                    else if (!(renderState.status.filter & filterMIPFILTER))
-                    {
-                        dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_POINT);
-                    }
-                    else
-                    {
-                        dxError = device->SetTextureStageState(stage, D3DTSS_MIPFILTER, D3DTFP_LINEAR);
-                    }
-                    LOG_DXERR(("SetFilterState"));
-                }
-            }
+            backend->SetTexFilter(flags);
         }
 
         return retFlags;
@@ -556,14 +492,17 @@ namespace Vid
 
         renderState.status.specular = doSpecular;
 
-        if (Vid::isStatus.initialized)
-        {
-#ifdef DOSPECULAR
-            ASSERT(device);
-            dxError = device->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, doSpecular);
-            LOG_DXERR(("device->SetRenderState"));
-#endif
-        }
+        // renderState.status.specular is what gates the specular lighting maths
+        // (Light::Obj::doSpecular, and the material specular term in
+        // lightvertscamera.cpp / lightvertsmodel.cpp) - setting it above is the
+        // whole of this toggle's job.
+        //
+        // The device's specular render state is deliberately NOT touched here.
+        // DR2 draws pre-transformed vertices, and for those D3D takes the fog
+        // factor from the specular alpha channel, so specular has to stay
+        // enabled on the device or fog disappears with it. SetRenderState turns
+        // it on once and leaves it on - see the "dx fog" line there.
+
         return retValue;
     }
 
@@ -589,9 +528,7 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-            ASSERT(device);
-            dxError = device->SetRenderState(D3DRENDERSTATE_DITHERENABLE, (DWORD)doDither);
-            LOG_DXERR(("device->SetRenderState: dither"));
+            backend->SetDither(doDither);
         }
         return retValue;
     }
@@ -619,7 +556,7 @@ namespace Vid
         if (!renderState.status.texture)
         {
             // clear current dx texture
-            SetTextureDX(NULL);
+            SetTextureI(NULL);
         }
 
         //    ASSERT( device);

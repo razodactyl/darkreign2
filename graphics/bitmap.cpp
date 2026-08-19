@@ -8,6 +8,8 @@
 //
 
 #include "vid_public.h"
+#include "vid_backend.h"
+#include "vid_dx.h"
 #include "mesh.h"
 #include "main.h"
 #include "filesys.h"
@@ -61,6 +63,7 @@ void Bitmap::ClearData()
     pixForm = nullptr;
 
     surface = nullptr;
+    backendTex = 0;
 
     bmpWidth = bmpHeight = bmpDepth = bmpPitch = bmpBytePP = 0;
     invWidth = invHeight = 0.0F;
@@ -251,6 +254,34 @@ void Bitmap::UnLock()
         LOG_DXERR(("Bitmap::UnLock: surface->Unlock"));
         bmpData = nullptr;
     }
+    else if (backendTex)
+    {
+        // no surface means the pixels are ours and have just been written, so
+        // the backend's copy is now stale
+        status.texDirty = TRUE;
+        UploadBackendTexture();
+    }
+}
+
+//----------------------------------------------------------------------------
+
+//
+// push bmpData at the backend's texture object, if it needs it
+//
+void Bitmap::UploadBackendTexture()
+{
+    if (!backendTex || !status.texDirty || !bmpData)
+    {
+        return;
+    }
+
+    Vid::backend->TextureUpload
+    (
+        backendTex, bmpData, bmpWidth, bmpHeight, bmpPitch,
+        Vid::caps.mipmap && mipMapCount ? TRUE : FALSE
+    );
+
+    status.texDirty = FALSE;
 }
 
 //----------------------------------------------------------------------------
@@ -448,36 +479,71 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
         }
         //    LOG_DIAG( ("Bitmap::Create: %s: %dx%d %s", name, desc.dwWidth, desc.dwHeight, pixForm->name) );
 
-        dxError = Vid::ddx->CreateSurface(&desc, &surface, nullptr);
-        if (dxError)
+        if (Vid::isStatus.ogl && (type & bitmapTYPEMASK) == bitmapTEXTURE)
         {
-            LOG_DXERR(("Bitmap::Create: ddx->CreateSurface"));
-            return FALSE;
+            // OpenGL samples from a texture object uploaded out of system
+            // memory, not from a DirectDraw surface, so own the pixels here and
+            // let the backend make the texture. Everything downstream - Lock,
+            // CopyBits, the Read*/Write* paths - works on bmpData either way;
+            // Lock/UnLock already no-op when there is no surface.
+            bmpDepth = pixForm->pixFmt.dwRGBBitCount;
+            bmpWidth = width;
+            bmpHeight = height;
+            bmpBytePP = bmpDepth >> 3;
+            bmpPitch = DWORDALIGN(width * bmpBytePP);
+            invWidth = bmpWidth ? 1.0F / F32(bmpWidth) : 0.0F;
+            invHeight = bmpHeight ? 1.0F / F32(bmpHeight) : 0.0F;
+
+            bmpData = static_cast<void*>(new char[bmpPitch * bmpHeight]);
+            if (bmpData == nullptr)
+            {
+                LOG_ERR(("Error allocating %dx%dx%d texture %s", bmpWidth, bmpHeight, bmpDepth, name.str));
+                return FALSE;
+            }
+            Utils::Memset(bmpData, 0, bmpPitch * bmpHeight);
+            status.ownsData = TRUE;
+
+            backendTex = Vid::backend->TextureCreate();
+            if (!backendTex)
+            {
+                LOG_ERR(("Bitmap::Create: no backend texture for %s", name.str));
+                return FALSE;
+            }
+            status.texDirty = TRUE;
         }
-        status.ownsSurface = TRUE;
+        else
+        {
+            dxError = Vid::ddx->CreateSurface(&desc, &surface, nullptr);
+            if (dxError)
+            {
+                LOG_DXERR(("Bitmap::Create: ddx->CreateSurface"));
+                return FALSE;
+            }
+            status.ownsSurface = TRUE;
 
 #ifdef DODX6
-        // get pointer to the texture interface
-        dxError = surface->QueryInterface(IID_IDirect3DTexture2, (void**)&texture);
-        LOG_DXERR(("Bitmap::Create: surface->QueryInterface(IID_IDirect3DTexture2, &texture)"));
+            // get pointer to the texture interface
+            dxError = surface->QueryInterface(IID_IDirect3DTexture2, (void**)&texture);
+            LOG_DXERR(("Bitmap::Create: surface->QueryInterface(IID_IDirect3DTexture2, &texture)"));
 #endif
 
-        dxError = surface->GetSurfaceDesc(&desc);
-        LOG_DXERR(("Bitmap::Create: surface->GetSurfaceDesc"));
+            dxError = surface->GetSurfaceDesc(&desc);
+            LOG_DXERR(("Bitmap::Create: surface->GetSurfaceDesc"));
 
-        if (status.managed && !(type & bitmapWRITABLE))
-        {
-            desc.ddsCaps.dwCaps2 |= DDSCAPS2_OPAQUE;
+            if (status.managed && !(type & bitmapWRITABLE))
+            {
+                desc.ddsCaps.dwCaps2 |= DDSCAPS2_OPAQUE;
+            }
+
+            // Initialise dimension, but preserve the original width
+            bmpPitch = desc.lPitch;
+            bmpDepth = desc.ddpfPixelFormat.dwRGBBitCount;
+            bmpWidth = width;
+            bmpHeight = desc.dwHeight;
+            bmpBytePP = bmpDepth >> 3;
+            invWidth = bmpWidth ? 1.0F / F32(bmpWidth) : 0.0F;
+            invHeight = bmpHeight ? 1.0F / F32(bmpHeight) : 0.0F;
         }
-
-        // Initialise dimension, but preserve the original width
-        bmpPitch = desc.lPitch;
-        bmpDepth = desc.ddpfPixelFormat.dwRGBBitCount;
-        bmpWidth = width;
-        bmpHeight = desc.dwHeight;
-        bmpBytePP = bmpDepth >> 3;
-        invWidth = bmpWidth ? 1.0F / F32(bmpWidth) : 0.0F;
-        invHeight = bmpHeight ? 1.0F / F32(bmpHeight) : 0.0F;
     }
 
     // half textel uv shift, but not on old voodoo
@@ -517,8 +583,10 @@ Bool Bitmap::LoadVideo()
     }
     ASSERT(!status.video);
 
+    UploadBackendTexture();
+
     //  Vid::device->PreLoad( surface);
-    Vid::SetTextureDX(this);
+    Vid::SetTextureI(this);
 
     /*
       if (!status.managed)
@@ -706,6 +774,12 @@ Bool Bitmap::ReLoad(const char* filename) // = NULL
 void Bitmap::ReleaseDD()
 {
     //  LOG_DIAG(("releasing %s", name.str));
+
+    if (backendTex)
+    {
+        Vid::backend->TextureDestroy(backendTex);
+        backendTex = 0;
+    }
 
     if (surface && status.ownsSurface)
     {

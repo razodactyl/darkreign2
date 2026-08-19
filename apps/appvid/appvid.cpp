@@ -339,7 +339,7 @@ void AppVid::Draw()
 		}
 		else
 		{
-			Vid::SetWorldTransform_D3D( worldObj);
+			Vid::SetWorldTransformI( worldObj);
 			Vid::SetMaterial(material[mat_idx]);
 			Vid::SetTexture(material[mat_idx]->GetTexture());
 

@@ -50,6 +50,10 @@ namespace Vid
         void Stop();
     };
 
+    // register the single texture format the OpenGL backend uses; stands in for
+    // the D3D texture format enumeration, which has no GL equivalent
+    void InitFormatsOGL();
+
     //-----------------------------------------------------------------------------
 
     namespace Settings

@@ -755,6 +755,13 @@ namespace Main
                 {
                     LOG_DIAG(("CmdLine [%s%s%s]", arg.str, *val.str ? ":" : "", *val.str ? val.str : ""))
 
+                    if (!Utils::Stricmp(arg.str, "ogl"))
+                    {
+                        // render through the OpenGL backend instead of DirectX 7
+                        Vid::doStatus.ogl = TRUE;
+                        continue;
+                    }
+
                     if (!Utils::Stricmp(arg.str, "borderless"))
                     {
                         Vid::doStatus.fullScreen = FALSE;

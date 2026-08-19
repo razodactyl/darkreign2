@@ -8,6 +8,7 @@
 //
 
 #include "vid_public.h"
+#include "vid_backend.h"
 #include "light_priv.h"
 
 //-----------------------------------------------------------------------------
@@ -123,13 +124,12 @@ namespace Vid
         Math::transformMatrix = Math::worldMatrix * Math::viewMatrix;
 
         SetModelViewVector(Math::worldMatrix.posit);
-        //	  SetWorldTransform_D3D(mat);
+        //	  SetWorldTransformI(mat);
     }
 
-    void SetWorldTransform_D3D(const Matrix& mat)
+    void SetWorldTransformI(const Matrix& mat)
     {
-        dxError = device->SetTransform(D3DTRANSFORMSTATE_WORLD, (D3DMATRIX*)&mat);
-        LOG_DXERR(("device->SetTransform: world"));
+        backend->SetWorldTransform(mat);
     }
 
     //----------------------------------------------------------------------------
@@ -142,17 +142,16 @@ namespace Vid
 #ifndef DODXLEANANDGRUMPY
         if (renderState.status.dxTL)
         {
-            SetViewTransform_D3D(Math::viewMatrix);
+            SetViewTransformI(Math::viewMatrix);
         }
 #endif
     }
 
     //----------------------------------------------------------------------------
 
-    void SetViewTransform_D3D(const Matrix& mat)
+    void SetViewTransformI(const Matrix& mat)
     {
-        dxError = device->SetTransform(D3DTRANSFORMSTATE_VIEW, (D3DMATRIX*)&mat);
-        LOG_DXERR(("device->SetTransform: view."));
+        backend->SetViewTransform(mat);
     }
 
     //----------------------------------------------------------------------------
@@ -160,7 +159,7 @@ namespace Vid
     void SetProjTransform(const Matrix& mat)
     {
 #ifndef DODXLEANANDGRUMPY
-        Vid::SetProjTransform_D3D(mat);
+        Vid::SetProjTransformI(mat);
 #endif
 
         Math::projMatrix = mat;
@@ -174,10 +173,9 @@ namespace Vid
         SetFogRange();
     }
 
-    void SetProjTransform_D3D(const Matrix& mat)
+    void SetProjTransformI(const Matrix& mat)
     {
-        dxError = device->SetTransform(D3DTRANSFORMSTATE_PROJECTION, (D3DMATRIX*)&mat);
-        LOG_DXERR(("device->SetTransform: project."));
+        backend->SetProjTransform(mat);
     }
 
     //----------------------------------------------------------------------------

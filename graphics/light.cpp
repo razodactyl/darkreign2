@@ -8,6 +8,7 @@
 //
 
 #include "vid_public.h"
+#include "vid_backend.h"
 #include "light_priv.h"
 #include "mesh.h"
 #include "perfstats.h"
@@ -716,11 +717,8 @@ namespace Vid
                         break;
                     }
 
-                    dxError = device->SetLight(activeIndex, light->D3D());
-                    LOG_DXERR(("Light::SetActiveList: device->SetLight"));
-
-                    dxError = device->LightEnable(activeIndex, TRUE);
-                    LOG_DXERR(("Light::SetActiveList: device->EnableLight(TRUE)"));
+                    backend->SetLight(activeIndex, *light);
+                    backend->EnableLight(activeIndex, TRUE);
 
                     activeIndex++;
                 }
@@ -729,8 +727,7 @@ namespace Vid
                 lastActiveCount = activeIndex;
                 while (activeIndex < last)
                 {
-                    dxError = device->LightEnable(activeIndex++, FALSE);
-                    LOG_DXERR(("Light::SetActiveList: device->EnableLight( FALSE)"));
+                    backend->EnableLight(activeIndex++, FALSE);
                 }
 
             }

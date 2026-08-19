@@ -134,11 +134,11 @@ void TranBucketMan::Flush(Bool doDraw)  // = TRUE
         // flush the bucket with the maximum z value
         if ((max->flags & RS_DST_MASK) == RS_DST_ONE)
         {
-            Vid::SetFogColorD3D(0);
+            Vid::SetFogColorI(0);
 
             FlushBucket(*max);
 
-            Vid::SetFogColorD3D(Vid::renderState.fogColor);
+            Vid::SetFogColorI(Vid::renderState.fogColor);
         }
         else
         {
@@ -188,11 +188,11 @@ void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw)  // = TRUE
             // flush the bucket with the maximum z value
             if ((bucket->flags & RS_DST_MASK) == RS_DST_ONE)
             {
-                Vid::SetFogColorD3D(0);
+                Vid::SetFogColorI(0);
 
                 FlushBucket(*bucket);
 
-                Vid::SetFogColorD3D(Vid::renderState.fogColor);
+                Vid::SetFogColorI(Vid::renderState.fogColor);
             }
             else
             {
@@ -251,11 +251,11 @@ void TranBucketMan::FlushTex(const Bitmap* texture, Bool doDraw)  // = TRUE
         // flush the bucket with the maximum z value
         if ((max->flags & RS_DST_MASK) == RS_DST_ONE)
         {
-            Vid::SetFogColorD3D(0);
+            Vid::SetFogColorI(0);
 
             FlushBucket(*max);
 
-            Vid::SetFogColorD3D(Vid::renderState.fogColor);
+            Vid::SetFogColorI(Vid::renderState.fogColor);
         }
         else
         {

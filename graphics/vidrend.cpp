@@ -8,6 +8,7 @@
 //
 
 #include "vid_private.h"
+#include "vid_backend.h"
 #include "main.h"
 #include "console.h"
 #include "mesh.h"
@@ -93,14 +94,8 @@ namespace Vid
         Bool retValue = renderState.status.zbuffer;
 
         renderState.status.zbuffer = doZBuffer;
-        U32 flag = doZBuffer ? D3DZB_TRUE : D3DZB_FALSE;
-        if (renderState.status.wbuffer)
-        {
-            flag |= D3DZB_USEW;
-        }
-        dxError = device->SetRenderState(D3DRENDERSTATE_ZENABLE, flag);
-        dxError = device->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, doZBuffer);
-        LOG_DXERR(("SetZBufferState"));
+
+        backend->SetZBuffer(doZBuffer, renderState.status.wbuffer);
 
         return retValue;
     }
@@ -109,21 +104,18 @@ namespace Vid
 
     Bool SetZWriteState(Bool doZWrite)
     {
-        U32 retValue;
-        device->GetRenderState(D3DRENDERSTATE_ZWRITEENABLE, &retValue);
+        Bool retValue = backend->GetZWrite();
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_ZWRITEENABLE, doZWrite);
-        LOG_DXERR(("SetZWriteState"));
+        backend->SetZWrite(doZWrite);
 
-        return (Bool)retValue;
+        return retValue;
     }
 
     //----------------------------------------------------------------------------
 
-    void SetCullStateD3D(Bool doCull)
+    void SetCullState(Bool doCull)
     {
-        dxError = device->SetRenderState(D3DRENDERSTATE_CULLMODE, doCull ? D3DCULL_CCW : D3DCULL_NONE);
-        LOG_DXERR(("SetCullState"));
+        backend->SetCull(doCull);
     }
 
     //----------------------------------------------------------------------------
@@ -134,8 +126,7 @@ namespace Vid
 
         renderState.status.alpha = doAlpha;
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_ALPHABLENDENABLE, doAlpha);
-        LOG_DXERR(("device->SetRenderState"));
+        backend->SetAlphaBlend(doAlpha);
 
         return retValue;
     }
@@ -151,8 +142,7 @@ namespace Vid
         renderState.renderFlags |= flags;
         flags >>= RS_SRC_SHIFT;
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_SRCBLEND, flags);
-        LOG_DXERR(("SetSrcBlendState"));
+        backend->SetSrcBlend(flags);
 
         return lastflags;
     }
@@ -168,8 +158,7 @@ namespace Vid
         renderState.renderFlags |= flags;
         flags >>= RS_DST_SHIFT;
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_DESTBLEND, flags);
-        LOG_DXERR(("SetDstBlendState"));
+        backend->SetDstBlend(flags);
 
         return lastflags;
     }
@@ -185,319 +174,11 @@ namespace Vid
         U32 flag = flags & RS_ADD_MASK;
         renderState.renderFlags |= flag;
 
-        dxError = device->SetTextureStageState(stage, D3DTSS_ADDRESS, (flag >> RS_ADD_SHIFT) + 1);
-
-        LOG_DXERR(("SetTexWrapState"));
+        backend->SetTexWrap(flag >> RS_ADD_SHIFT, stage);
 
         return lastFlags;
     }
 
-    //----------------------------------------------------------------------------
-
-    void TexDecal(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_BLENDTEXTUREALPHA);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            //      dxError = device->SetTextureStageState( stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE); 
-            //      dxError = device->SetTextureStageState( stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexDecalSimple(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexDecalAlpha(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_BLENDTEXTUREALPHA);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexModulate(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexModulateAlpha(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexModulateAlpha2x(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE2X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE2X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexModulateAlpha4x(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE4X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE4X);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexAddAlpha(U32 stage)
-    {
-        if (stage)
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_ADD);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_CURRENT);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-        else
-        {
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: color"));
-
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-            dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-            LOG_DXERR(("SetTextureStageState: alpha"));
-        }
-    }
-
-    //----------------------------------------------------------------------------
-
-    void TexAddSignedAlpha(U32 stage)
-    {
-        dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG1, D3DTA_TEXTURE);
-        dxError = device->SetTextureStageState(stage, D3DTSS_COLOROP, D3DTOP_ADDSIGNED);
-        dxError = device->SetTextureStageState(stage, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
-
-        LOG_DXERR(("SetTextureStageState: color"));
-
-        dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
-        dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-        dxError = device->SetTextureStageState(stage, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
-
-        LOG_DXERR(("SetTextureStageState: alpha"));
-    }
-
-    //----------------------------------------------------------------------------
-
-    typedef void (*TexBlendProcP)(U32 stage);    // texture blend setup function
-    static TexBlendProcP blendToOp[] =
-    {
-        0,
-        TexDecal,            //  RS_TEX_DECAL          
-        TexDecalAlpha,       //  RS_TEX_DECALALPHA
-        TexModulateAlpha,    //  RS_TEX_MODULATE
-        TexModulateAlpha2x,  //  RS_TEX_MODULATE2X
-        TexModulateAlpha4x,  //  RS_TEX_MODULATE4X
-        TexModulateAlpha,    //  RS_TEX_MODULATEALPHA
-        TexAddAlpha          //  RS_TEX_ADD
-    };
-
-    static Bool blendValidation[8][2];
-    static char* blendName[8] =
-    {
-        "",
-        "decal",
-        "decalAlpha",
-        "modulate",
-        "modulate2x",
-        "modulate4x",
-        "modulateAlpha",
-        "add"
-    };
     //----------------------------------------------------------------------------
 
     U32 SetTexBlendState(U32 flags, U32 stage) // = 0
@@ -516,170 +197,44 @@ namespace Vid
         }
 #endif
 
-        blendToOp[flags](stage);
+        backend->SetTexBlend(flags, stage);
 
         return lastflags;
     }
 
     //-----------------------------------------------------------------------------
 
+    void RenderClear(U32 clearFlags, Color color, Area<S32>* rect) // = NULL
+    {
+        Area<S32> temp;
+        if (!rect)
+        {
+            temp.SetSize(viewDesc.x, viewDesc.y, viewDesc.x + viewDesc.width, viewDesc.y + viewDesc.height);
+            rect = &temp;
+        }
+
+        backend->Clear(clearFlags, color, *rect);
+    }
+
+    //-----------------------------------------------------------------------------
+
     void ValidateBlends()
     {
-        Bitmap* tex = Bitmap::Manager::FindCreate(Bitmap::reduceNONE, "library\\engine\\engine_pandemic.pic");
-
-        // reset
-        Utils::Memset(blendValidation, 0, sizeof(blendValidation));
-        blendToOp[1] = TexDecal;            //  RS_TEX_DECAL          
-        blendToOp[2] = TexDecalAlpha;       //  RS_TEX_DECALALPHA
-        blendToOp[3] = TexModulateAlpha;    //  RS_TEX_MODULATE
-        blendToOp[4] = TexModulateAlpha2x;  //  RS_TEX_MODULATE2X
-        blendToOp[5] = TexModulateAlpha4x;  //  RS_TEX_MODULATE4X
-        blendToOp[6] = TexModulateAlpha;    //  RS_TEX_MODULATEALPHA
-        blendToOp[7] = TexAddAlpha;         //  RS_TEX_ADD
-
-        Bool hit = FALSE;
-
-        // TEX_MODULATE
-        //
-        Vid::SetTextureDX(tex, 0, 3 << RS_TEX_SHIFT);
-        DWORD passes;
-        blendValidation[3][0] = device->ValidateDevice(&passes) == D3D_OK;
-
-        if (!blendValidation[3][0])
-        {
-            // can't do D3DTSS_ALPHAOP D3DTOP_MODULATE
-            //
-            blendToOp[3] = TexModulate;
-            Vid::SetTextureDX(tex, 0, 3 << RS_TEX_SHIFT);
-            blendValidation[3][0] = device->ValidateDevice(&passes) == D3D_OK;
-
-            caps.noAlphaMod = TRUE;
-
-            if (!hit)
-            {
-                LOG_DIAG((""));
-                hit = TRUE;
-            }
-            LOG_DIAG(("tex : ! stage 0 TexModulateAlpha invalid replacing with TexModulate"));
-        }
-
-        for (U32 i = 1; i < 8; i++)
-        {
-            Vid::SetTextureDX(tex, 0, i << RS_TEX_SHIFT);
-
-            blendValidation[i][0] = device->ValidateDevice(&passes) == D3D_OK;
-            if (!blendValidation[i][0])
-            {
-                // find a good backup
-                //
-                S32 j = i - 1;
-                if (i == 7 || i == 1) // RS_TEX_ADD || RS_TEX_DECAL
-                {
-                    j = 5;    // modulate4x
-                }
-                while (j > 0 && !blendValidation[j][0]) j--;
-                if (j == 0)
-                {
-                    j = 3;
-                }
-                blendToOp[i] = blendToOp[j];
-
-                if (!hit)
-                {
-                    LOG_DIAG((""));
-                    hit = TRUE;
-                }
-                LOG_DIAG(("tex : ! stage 0 blend %s invalid replacing with %s", blendName[i], blendName[j]));
-            }
-        }
-
-        if (caps.texMulti)
-        {
-            // check for useful texMultiure modes
-            //
-            Bool hhit = FALSE;
-            for (U32 i = 1; i < 8; i++)
-            {
-                Vid::SetTextureDX(tex, 0, RS_BLEND_MODULATE);
-                Vid::SetTextureDX(tex, 1, i << RS_TEX_SHIFT);
-
-                DWORD passes;
-                blendValidation[i][1] = device->ValidateDevice(&passes) == D3D_OK;
-                if (!blendValidation[i][1])
-                {
-                    if (!hit)
-                    {
-                        LOG_DIAG((""));
-                        hit = TRUE;
-                    }
-                    LOG_DIAG(("tex : ! stage 1 blend %s invalid", blendName[i]));
-                }
-                else if (!hhit)
-                {
-                    hhit = TRUE;
-                }
-            }
-
-            if (!hhit)
-            {
-                Vid::SetTextureDX(tex, 0, RS_BLEND_MODULATE);
-                Vid::SetTextureDX(tex, 1, RS_BLEND_ADD);
-                TexDecalSimple(0);
-                TexAddAlpha(1);
-                DWORD passes;
-                if (device->ValidateDevice(&passes) != D3D_OK)
-                {
-                    if (!hit)
-                    {
-                        LOG_DIAG((""));
-                        hit = TRUE;
-                    }
-                    LOG_DIAG(("tex : ! stage 1 blend decalsimple x add invalid"));
-                }
-            }
-
-            if (!blendValidation[RS_BLEND_DECAL >> RS_TEX_SHIFT][1]
-                || !blendValidation[RS_BLEND_ADD >> RS_TEX_SHIFT][1])
-            {
-                // useless video trash
-                //
-                if (!hit)
-                {
-                    LOG_DIAG((""));
-                    hit = TRUE;
-                }
-                Var::varMultiTex = caps.texMulti = CurDD().texMulti = CurD3D().texMulti = FALSE;
-                LOG_DIAG(("tex : ! multitex doesn't handle required blends: canceling"));
-            }
-
-            SetTextureDX(NULL, 1, RS_BLEND_DEF);
-        }
-        SetTextureDX(NULL, 0, RS_BLEND_DEF);
-        if (hit)
-        {
-            LOG_DIAG((""));
-        }
+        backend->ValidateBlends();
     }
 
     //-----------------------------------------------------------------------------
 
     Bool ValidateBlend(U32 blend, U32 stage) // = 0)
     {
-        blend = (blend & RS_TEX_MASK) >> RS_TEX_SHIFT;
-        ASSERT(blend > 0);
-        return blendValidation[blend][stage];
+        return backend->ValidateBlend(blend, stage);
     }
 
     //-----------------------------------------------------------------------------
 
     void SetTextureFactor(Color color)
     {
-        dxError = device->SetRenderState
-        (
-            D3DRENDERSTATE_TEXTUREFACTOR,
-            D3DRGBA(color.r, color.g, color.b, color.a)
-        );
-        LOG_DXERR(("SetTextureFactor"));
+        backend->SetTextureFactor(color);
     }
 
     //-----------------------------------------------------------------------------
@@ -695,53 +250,53 @@ namespace Vid
 
         Vid::clipRect.Set((F32)cam.ViewRect().p0.x, (F32)cam.ViewRect().p0.y, (F32)cam.ViewRect().p1.x, (F32)cam.ViewRect().p1.y);
 
-        viewDesc.dwX = cam.ViewRect().p0.x;
-        viewDesc.dwY = cam.ViewRect().p0.y;
-        viewDesc.dwWidth = cam.ViewRect().Width();
-        viewDesc.dwHeight = cam.ViewRect().Height();
+        viewDesc.x = cam.ViewRect().p0.x;
+        viewDesc.y = cam.ViewRect().p0.y;
+        viewDesc.width = cam.ViewRect().Width();
+        viewDesc.height = cam.ViewRect().Height();
 
         // clip to view rect
         //
         if (cam.ViewRect().p0.x < 0)
         {
-            viewDesc.dwWidth += cam.ViewRect().p0.x;
-            viewDesc.dwX = 0;
+            viewDesc.width += cam.ViewRect().p0.x;
+            viewDesc.x = 0;
             Vid::clipRect.p0.x = 0;
         }
         else if (cam.ViewRect().p0.x >= viewRect.Width())
         {
-            viewDesc.dwWidth = 0;
-            viewDesc.dwX = viewRect.Width() - 1;
-            Vid::clipRect.p0.x = (F32)viewDesc.dwX;
+            viewDesc.width = 0;
+            viewDesc.x = viewRect.Width() - 1;
+            Vid::clipRect.p0.x = (F32)viewDesc.x;
         }
         if (cam.ViewRect().p0.y < 0)
         {
-            viewDesc.dwHeight += cam.ViewRect().p0.y;
-            viewDesc.dwY = 0;
+            viewDesc.height += cam.ViewRect().p0.y;
+            viewDesc.y = 0;
             Vid::clipRect.p0.y = 0;
         }
         else if (cam.ViewRect().p0.y >= viewRect.Height())
         {
-            viewDesc.dwHeight = 0;
-            viewDesc.dwY = viewRect.Height() - 1;
-            Vid::clipRect.p0.y = (F32)viewDesc.dwY;
+            viewDesc.height = 0;
+            viewDesc.y = viewRect.Height() - 1;
+            Vid::clipRect.p0.y = (F32)viewDesc.y;
         }
-        if (S32(viewDesc.dwX + viewDesc.dwWidth) > viewRect.p1.x)
+        if (S32(viewDesc.x + viewDesc.width) > viewRect.p1.x)
         {
-            S32 dx = viewRect.p1.x - (viewDesc.dwX + viewDesc.dwWidth);
-            viewDesc.dwWidth += dx;
+            S32 dx = viewRect.p1.x - (viewDesc.x + viewDesc.width);
+            viewDesc.width += dx;
             Vid::clipRect.p1.x += (F32)dx;
         }
-        if (S32(viewDesc.dwY + viewDesc.dwHeight) > viewRect.p1.y)
+        if (S32(viewDesc.y + viewDesc.height) > viewRect.p1.y)
         {
-            S32 dy = viewRect.p1.y - (viewDesc.dwY + viewDesc.dwHeight);
-            viewDesc.dwHeight += dy;
+            S32 dy = viewRect.p1.y - (viewDesc.y + viewDesc.height);
+            viewDesc.height += dy;
             Vid::clipRect.p1.y += (F32)dy;
         }
-        viewDesc.dvMinZ = 0.0f;
-        viewDesc.dvMaxZ = 1.0f;
+        viewDesc.minZ = 0.0f;
+        viewDesc.maxZ = 1.0f;
 
-        device->SetViewport(&viewDesc);
+        backend->SetViewport(viewDesc);
 
         Setup(*curCamera);
 
@@ -761,19 +316,17 @@ namespace Vid
 
     void ClipScreen()
     {
-        if (device)
+        ViewPort desc = Vid::viewDesc;
+
+        desc.width = Vid::viewRect.Width();
+        desc.x = 0;
+        desc.height = Vid::viewRect.Height();
+        desc.y = 0;
+        desc.minZ = 0.0f;
+        desc.maxZ = 1.0f;
+
+        if (backend->SetViewport(desc))
         {
-            ViewPortDescD3D desc = Vid::viewDesc;
-
-            desc.dwWidth = Vid::viewRect.Width();
-            desc.dwX = 0;
-            desc.dwHeight = Vid::viewRect.Height();
-            desc.dwY = 0;
-            desc.dvMinZ = 0.0f;
-            desc.dvMaxZ = 1.0f;
-
-            Vid::device->SetViewport(&desc);
-
             Vid::clipRect.Set((F32)viewRect.p0.x, (F32)viewRect.p0.y, (F32)viewRect.p1.x, (F32)viewRect.p1.y);
         }
     }
@@ -782,11 +335,9 @@ namespace Vid
 
     void ClipRestore()
     {
-        if (device)
+        if (backend->SetViewport(Vid::viewDesc))
         {
-            Vid::device->SetViewport(&Vid::viewDesc);
-
-            Vid::clipRect.SetSize((F32)Vid::viewDesc.dwX, (F32)Vid::viewDesc.dwY, (F32)Vid::viewDesc.dwWidth, (F32)Vid::viewDesc.dwHeight);
+            Vid::clipRect.SetSize((F32)Vid::viewDesc.x, (F32)Vid::viewDesc.y, (F32)Vid::viewDesc.width, (F32)Vid::viewDesc.height);
         }
     }
 
@@ -861,17 +412,16 @@ namespace Vid
             renderState.fogColorF32.b,
             (U32)255
         );
-        SetFogColorD3D(renderState.fogColor);
+        SetFogColorI(renderState.fogColor);
     }
 
     //----------------------------------------------------------------------------
 
-    void SetFogColorD3D(U32 fogColor)
+    void SetFogColorI(U32 fogColor)
     {
         if (Vid::isStatus.initialized)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGCOLOR, fogColor);
-            LOG_DXERR(("SetFogColorD3D"));
+            backend->SetFogColor(fogColor);
         }
     }
 
@@ -898,27 +448,10 @@ namespace Vid
         renderState.fogMaxZZ = max;
         renderState.fogFactorZ = 1.0f / (renderState.fogMaxZZ - renderState.fogMinZZ);
 
-#ifndef DODXLEANANDGRUMPY
-
         if (Vid::isStatus.initialized)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGSTART, *((U32*)&renderState.fogMin));
-            LOG_DXERR(("SetFogRange"));
-            dxError = device->SetRenderState(D3DRENDERSTATE_FOGEND, *((U32*)&renderState.fogMax));
-            LOG_DXERR(("SetFogRange"));
-
-            /*
-              //  if (caps.fogPixel)
-                  dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLESTART, *((U32 *) &renderState.fogMin));
-                  LOG_DXERR( ("SetFogRange") );
-                  dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLEEND,   *((U32 *) &renderState.fogMax));
-                  LOG_DXERR( ("SetFogRange") );
-                    dxError = device->SetRenderState( D3DRENDERSTATE_FOGTABLEDENSITY, *((U32 *) &renderState.fogDensity));
-
-              //  else if (caps.fogVertex)
-            */
+            backend->SetFogRange(renderState.fogMin, renderState.fogMax);
         }
-#endif
     }
 
     //----------------------------------------------------------------------------
@@ -930,10 +463,7 @@ namespace Vid
 
         if (Vid::isStatus.initialized)
         {
-#ifndef DODXLEANANDGRUMPY
-            dxError = device->SetRenderState(D3DRENDERSTATE_AMBIENT, (D3DCOLOR)renderState.ambientColor);
-            LOG_DXERR(("SetAmbientColor"));
-#endif
+            backend->SetAmbientColor(renderState.ambientColor);
         }
     }
 
@@ -957,25 +487,7 @@ namespace Vid
 
         // basic features
         //
-        dxError = device->SetRenderState(D3DRENDERSTATE_ZFUNC, renderState.status.wbuffer ? D3DCMP_GREATEREQUAL : D3DCMP_LESSEQUAL);
-        LOG_DXERR(("device->SetRenderState"));
-
-        dxError = device->SetRenderState(D3DRENDERSTATE_ALPHATESTENABLE, FALSE);
-        //	dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAFUNC, D3DCMP_GREATER);
-        //  dxError = device->SetRenderState(D3DRENDERSTATE_ALPHAREF, (DWORD)0);
-        LOG_DXERR(("device->SetRenderState: transparent"));
-
-        dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, 1);
-        LOG_DXERR(("device->SetRenderState( CLIPPING)"));
-
-        dxError = device->SetRenderState(D3DRENDERSTATE_EXTENTS, 0);
-        LOG_DXERR(("device->SetRenderState( EXTENTS)"));
-
-        dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, 0);
-        LOG_DXERR(("device->SetRenderState( LIGHTING)"));
-
-        //    dxError = device->SetRenderState( D3DRENDERSTATE_COLORVERTEX, renderState.status.dxTL );
-        //    LOG_DXERR( ("device->SetRenderState( COLORVERTEX)") );
+        backend->ResetState(renderState.status.wbuffer);
 
         // vid system features
         //
@@ -991,8 +503,10 @@ namespace Vid
         SetDitherState(renderState.status.dither);
         SetAlphaState(renderState.status.alpha);
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_SPECULARENABLE, TRUE);  // dx fog
-        LOG_DXERR(("device->SetRenderState"));
+        // Must stay on: with pre-transformed vertices D3D reads the fog factor
+        // from the specular alpha channel, so this is what makes fog work at
+        // all. SetSpecularStateI deliberately never turns it back off.
+        backend->SetSpecular(TRUE);
 
         SetAntiAliasStateI(renderState.status.antiAlias);
         SetEdgeAntiAliasStateI(renderState.status.antiAliasEdge);
@@ -1038,14 +552,11 @@ namespace Vid
         bucket.Flush(FALSE);
         tranbucket.Flush(FALSE);
 
-        dxError = device->BeginScene();
-        if (dxError)
-        {
-            LOG_DXERR(("BeginScene: device->BeginScene"));
-        }
+        Bool ok = backend->BeginScene();
+
         texMemPerFrame = 0;
 
-        return dxError == DD_OK;
+        return ok;
     }
 
     //----------------------------------------------------------------------------
@@ -1116,15 +627,12 @@ namespace Vid
         }
 
 
-        dxError = device->EndScene();
-        LOG_DXERR(("EndScene: device->EndScene"));
-
-        return dxError == DD_OK;
+        return backend->EndScene();
     }
 
     //----------------------------------------------------------------------------
 
-    void SetMaterialDX(const Material* mat)
+    void SetMaterialI(const Material* mat)
     {
         if (Material::Manager::GetMaterial() != mat)
         {
@@ -1134,10 +642,7 @@ namespace Vid
             }
             Material::Manager::SetMaterial(mat);
 
-            const MaterialDescD3D& matD3D = mat->GetDesc();
-
-            dxError = device->SetMaterial((MaterialDescD3D*)&matD3D);
-            LOG_DXERR(("device->SetMaterial"));
+            backend->SetMaterial(mat);
         }
     }
 
@@ -1145,16 +650,15 @@ namespace Vid
 
     Bool SetTexture(Bitmap* tex, U32 stage, U32 blend) // = 0, = RS_BLEND_DEF
     {
+        Bool ok = TRUE;
+
         if (Vid::renderState.status.texture)
         {
             if (Bitmap::Manager::GetTexture(stage) != tex)
             {
                 Bitmap::Manager::SetTexture(tex, stage);
 
-                TextureHandle texH = tex ? tex->GetTexture() : NULL;
-
-                dxError = device->SetTexture(stage, texH);
-                LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
+                ok = backend->BindTexture(tex, stage);
             }
 
             SetTexBlendState(blend, stage);
@@ -1164,40 +668,30 @@ namespace Vid
                 SetTexWrapState(blend, stage);
             }
         }
-        ASSERT(device);
 
         if (stage > 0)
         {
             // turn off texturing above this stage
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-
-            LOG_DXERR(("SetTextureStageState()"));
+            ok = backend->DisableTexStage(stage + 1);
 
             renderState.status.texStaged = TRUE;
         }
         else if (renderState.status.texStaged)
         {
             // turn off texturing above this stage
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-            dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-
-            LOG_DXERR(("SetTextureStageState()"));
+            ok = backend->DisableTexStage(stage + 1);
 
             renderState.status.texStaged = FALSE;
         }
 
-        return dxError == DD_OK;
+        return ok;
     }
 
     //----------------------------------------------------------------------------
 
-    Bool SetTextureDX(const Bitmap* tex, U32 stage, U32 blend) // = 0, = RS_BLEND_DEF
+    Bool SetTextureI(const Bitmap* tex, U32 stage, U32 blend) // = 0, = RS_BLEND_DEF
     {
-        TextureHandle texH = tex ? tex->GetTexture() : NULL;
-
-        dxError = device->SetTexture(stage, texH);
-        LOG_DXERR(("SetRenderState( mat): device->RenderState( TEXTUREHANDLE)"));
+        backend->BindTexture(tex, stage);
 
         if (tex)
         {
@@ -1206,12 +700,7 @@ namespace Vid
         }
 
         // turn off texturing above this stage
-        dxError = device->SetTextureStageState(stage + 1, D3DTSS_COLOROP, D3DTOP_DISABLE);
-        dxError = device->SetTextureStageState(stage + 1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-
-        LOG_DXERR(("SetTextureStageState()"));
-
-        return dxError == DD_OK;
+        return backend->DisableTexStage(stage + 1);
     }
 
     //----------------------------------------------------------------------------
@@ -1295,36 +784,25 @@ namespace Vid
 #ifndef DODXLEANANDGRUMPY
         if (renderState.status.dxTL)
         {
-            SetCullStateD3D((flags & RS_2SIDED) ? FALSE : TRUE);
+            SetCullState((flags & RS_2SIDED) ? FALSE : TRUE);
 
-            dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, DWORD(vert_type == FVF_VERTEX ? TRUE : FALSE));
-            LOG_DXERR(("device->SetRenderState( LIGHTING)"));
+            backend->SetLighting(vert_type == FVF_VERTEX ? TRUE : FALSE);
         }
 #endif
 
         SetSrcBlendState(flags);
         SetDstBlendState(flags);
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, (DWORD)(flags & DP_DONOTCLIP ? 0 : 1));
-        LOG_DXERR(("device->SetRenderState( CLIPPING)"));
+        backend->SetClipping((flags & DP_DONOTCLIP) ? FALSE : TRUE);
 
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-        // do the d3d call
-        dxError = device->DrawPrimitive
-        (
-            (D3DPRIMITIVETYPE)prim_type,
-            vert_type,
-            verts,
-            vert_count,
-            flags
-        );
-        LOG_DXERR(("device->DrawPrimitive: trilist"));
+        Bool ok = backend->DrawPrimitive(prim_type, vert_type, verts, vert_count, flags);
 
         indexCount += vert_count;
 
-        return (dxError == D3D_OK);
+        return ok;
     }
 
     //----------------------------------------------------------------------------
@@ -1361,36 +839,25 @@ namespace Vid
 #ifndef DODXLEANANDGRUMPY
         if (renderState.status.dxTL)
         {
-            SetCullStateD3D((flags & RS_2SIDED) ? FALSE : TRUE);
+            SetCullState((flags & RS_2SIDED) ? FALSE : TRUE);
 
-            dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, DWORD(vert_type == FVF_VERTEX ? TRUE : FALSE));
-            LOG_DXERR(("device->SetRenderState( LIGHTING)"));
+            backend->SetLighting(vert_type == FVF_VERTEX ? TRUE : FALSE);
         }
 #endif
 
         SetSrcBlendState(flags);
         SetDstBlendState(flags);
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, (DWORD)(flags & DP_DONOTCLIP ? 0 : 1));
-        LOG_DXERR(("device->SetRenderState( CLIPPING)"));
+        backend->SetClipping((flags & DP_DONOTCLIP) ? FALSE : TRUE);
 
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
 
-        // do the d3d call
-        dxError = device->DrawPrimitive
-        (
-            (D3DPRIMITIVETYPE)prim_type,
-            vert_type,
-            verts,
-            vert_count,
-            flags
-        );
-        LOG_DXERR(("device->DrawPrimitive: trilist"));
+        Bool ok = backend->DrawPrimitive(prim_type, vert_type, verts, vert_count, flags);
 
         indexCount += vert_count - 2;
 
-        return (dxError == D3D_OK);
+        return ok;
     }
 
     //----------------------------------------------------------------------------
@@ -1429,25 +896,22 @@ namespace Vid
 #ifndef DODXLEANANDGRUMPY
         if (renderState.status.dxTL && vert_type != FVF_TLVERTEX)
         {
-            SetCullStateD3D((flags & RS_2SIDED) ? FALSE : TRUE);
+            SetCullState((flags & RS_2SIDED) ? FALSE : TRUE);
 
-            dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, DWORD(vert_type == FVF_VERTEX ? TRUE : FALSE));
-            LOG_DXERR(("device->SetRenderState( LIGHTING)"));
+            backend->SetLighting(vert_type == FVF_VERTEX ? TRUE : FALSE);
         }
         else
         {
-            SetCullStateD3D(FALSE);
+            SetCullState(FALSE);
 
-            dxError = device->SetRenderState(D3DRENDERSTATE_LIGHTING, TRUE);
-            LOG_DXERR(("device->SetRenderState( LIGHTING)"));
+            backend->SetLighting(TRUE);
         }
 #endif
 
         SetSrcBlendState(flags);
         SetDstBlendState(flags);
 
-        dxError = device->SetRenderState(D3DRENDERSTATE_CLIPPING, (DWORD)(flags & DP_DONOTCLIP ? 0 : 1));
-        LOG_DXERR(("device->SetRenderState( CLIPPING)"));
+        backend->SetClipping((flags & DP_DONOTCLIP) ? FALSE : TRUE);
 
         flags &= DP_MASK;
         //    flags &= ~(DP_DONOTUPDATEEXTENTS | DP_DONOTCLIP | DP_DONOTLIGHT);
@@ -1481,29 +945,11 @@ namespace Vid
         {
         }
 
-        // do the d3d call
-        dxError = device->DrawIndexedPrimitive
-        (
-            (D3DPRIMITIVETYPE)prim_type,
-            vert_type,
-            verts,
-            vert_count,
-            (LPWORD)indices,
-            index_count,
-            flags
-        );
-#ifdef DEVELOPMENT
-        if (dxError)
-        {
-            LOG_DXERR(("device->DrawIndexedPrimitive: trilist"));
-        }
-#else
-        LOG_DXERR(("device->DrawIndexedPrimitive: trilist"));
-#endif
+        Bool ok = backend->DrawIndexedPrimitive(prim_type, vert_type, verts, vert_count, indices, index_count, flags);
 
         indexCount += index_count;
 
-        return (dxError == D3D_OK);
+        return ok;
     }
 
     //----------------------------------------------------------------------------

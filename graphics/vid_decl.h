@@ -361,6 +361,7 @@ namespace Vid
         U32 borderless : 1;
         U32 pageFlip : 1;
         U32 tripleBuf : 1;
+        U32 ogl : 1;    // render through the OpenGL backend instead of DirectX 7
 
         Status()
         {
@@ -369,7 +370,11 @@ namespace Vid
 
         void ClearData()
         {
-            Utils::Memset(this, 0, sizeof(this));
+            // NOTE: this was sizeof(this) - the size of a pointer, not of the
+            // struct. It happened to clear every bit while the bitfield fitted
+            // in 4 bytes, and would have started silently leaving members
+            // uninitialised the moment it grew past 32 bits.
+            Utils::Memset(this, 0, sizeof(*this));
         }
     };
 
