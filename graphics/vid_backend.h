@@ -186,6 +186,11 @@ namespace Vid
         Bool CreateContext(HWND hWnd);
         void DestroyContext();
         Bool Present();
+
+        // for the options dialog: GL_RENDERER, and video memory in bytes from a
+        // vendor extension if the driver offers one (0 when it will not say)
+        const char* RendererName();
+        void VideoMemory(U32& total, U32& avail);
     };
 
     //-----------------------------------------------------------------------------

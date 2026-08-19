@@ -1329,10 +1329,36 @@ namespace Vid
         DriverDD& dd = ddDrivers[0];
         Utils::Memset(&dd, 0, sizeof(dd));
 
+        const char* renderer = OGL::RendererName();
+
         Utils::Strcpy(dd.name.str, "OpenGL");
-        Utils::Strcpy(dd.device.str, "OpenGL");
-        Utils::Strcpy(dd.driver.str, "OpenGL");
+        Utils::Strcpy(dd.device.str, renderer);
+        Utils::Strcpy(dd.driver.str, renderer);
         dd.guidp = nullptr;
+
+        // The video options dialog lists ddDrivers[i].ident.szDescription and
+        // reads its memory figure out of desc.dwVidMemTotal, so both have to be
+        // filled or the list shows blank rows and 0 mb.
+        Utils::Strmcpy(dd.ident.szDescription, renderer, sizeof(dd.ident.szDescription));
+        Utils::Strmcpy(dd.ident.szDriver, "opengl32.dll", sizeof(dd.ident.szDriver));
+
+        U32 memTotal = 0, memAvail = 0;
+        OGL::VideoMemory(memTotal, memAvail);
+
+        if (!memTotal)
+        {
+            // Core GL has no way to ask, and this driver offers no vendor
+            // extension either. Report a figure large enough that the engine's
+            // texture-swap heuristics never trip - GL manages residency itself,
+            // so there is nothing for them to manage.
+            memTotal = memAvail = 256 * 1024 * 1024;
+            LOG_DIAG(("OGL: driver does not report video memory; assuming %d mb", memTotal >> 20));
+        }
+
+        dd.desc.dwVidMemTotal = memTotal;
+        dd.desc.dwVidMemFree = memAvail;
+        dd.totalTexMem = memTotal;
+        dd.totalFrameMem = memTotal;
 
         // GL always renders into the window we were given, so windowed mode is
         // the only mode, and it is always available
@@ -2346,6 +2372,22 @@ namespace Vid
 
     U32 FreeVidMem(U32 report) // = FALSE
     {
+        if (isStatus.ogl)
+        {
+            U32 total = 0, avail = 0;
+            OGL::VideoMemory(total, avail);
+
+            if (!avail)
+            {
+                avail = CurDD().desc.dwVidMemFree;
+            }
+            if (report)
+            {
+                LOG_DIAG(("mem : %6.2f mb free", F32(avail) / (1024.0f * 1024.0f)));
+            }
+            return avail;
+        }
+
         if (!ddx)
         {
             return 0;

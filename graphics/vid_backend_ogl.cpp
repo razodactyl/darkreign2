@@ -268,6 +268,73 @@ namespace Vid
 
         //---------------------------------------------------------------------
 
+        // Core GL exposes neither a driver name nor a memory figure, so the name
+        // comes from GL_RENDERER and the memory from whichever vendor extension
+        // is present. Both extensions report kilobytes.
+        static const GLenum GPU_MEM_TOTAL_NVX = 0x9048;
+        static const GLenum GPU_MEM_AVAIL_NVX = 0x9049;
+        static const GLenum TEXTURE_FREE_MEMORY_ATI = 0x87FC;
+
+        static Bool HasExtension(const char* name)
+        {
+            GLint count = 0;
+            glGetIntegerv(GL_NUM_EXTENSIONS, &count);
+
+            for (GLint i = 0; i < count; i++)
+            {
+                const char* e = (const char*)glGetStringi(GL_EXTENSIONS, i);
+                if (e && !Utils::Strcmp(e, name))
+                {
+                    return TRUE;
+                }
+            }
+            return FALSE;
+        }
+
+        const char* RendererName()
+        {
+            const char* name = hGLRC ? (const char*)glGetString(GL_RENDERER) : nullptr;
+
+            return name ? name : "OpenGL";
+        }
+
+        // total and available video memory in bytes; 0 when the driver will not say
+        void VideoMemory(U32& total, U32& avail)
+        {
+            total = 0;
+            avail = 0;
+
+            if (!hGLRC)
+            {
+                return;
+            }
+
+            if (HasExtension("GL_NVX_gpu_memory_info"))
+            {
+                GLint kb = 0;
+                glGetIntegerv(GPU_MEM_TOTAL_NVX, &kb);
+                total = U32(kb) * 1024;
+
+                kb = 0;
+                glGetIntegerv(GPU_MEM_AVAIL_NVX, &kb);
+                avail = U32(kb) * 1024;
+            }
+            else if (HasExtension("GL_ATI_meminfo"))
+            {
+                GLint info[4] = { 0, 0, 0, 0 };
+                glGetIntegerv(TEXTURE_FREE_MEMORY_ATI, info);
+                avail = U32(info[0]) * 1024;
+                total = avail;
+            }
+
+            // swallow anything the queries may have raised
+            while (glGetError() != GL_NO_ERROR)
+            {
+            }
+        }
+
+        //---------------------------------------------------------------------
+
         Bool Present()
         {
             if (!hDC)
@@ -1177,6 +1244,16 @@ namespace Vid
         Bool Present()
         {
             return BackendOGL::Present();
+        }
+
+        const char* RendererName()
+        {
+            return BackendOGL::RendererName();
+        }
+
+        void VideoMemory(U32& total, U32& avail)
+        {
+            BackendOGL::VideoMemory(total, avail);
         }
     };
 

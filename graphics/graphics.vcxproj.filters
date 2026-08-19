@@ -301,6 +301,10 @@
     <ClCompile Include="meshmrm.cpp">
       <Filter>mesh</Filter>
     </ClCompile>
+    <ClCompile Include="../3rdparty/glad/src/gl.c" />
+    <ClCompile Include="../3rdparty/glad/src/wgl.c" />
+    <ClCompile Include="vid_backend_d3d.cpp" />
+    <ClCompile Include="vid_backend_ogl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bucket.h">
@@ -492,5 +496,7 @@
     <ClInclude Include="vidclip_priv.h">
       <Filter>vid</Filter>
     </ClInclude>
+    <ClInclude Include="vid_backend.h" />
+    <ClInclude Include="vid_dx.h" />
   </ItemGroup>
 </Project>

@@ -148,6 +148,7 @@
       <Filter>system controls</Filter>
     </ClCompile>
     <ClCompile Include="..\system\pchbuilder.cpp" />
+    <ClCompile Include="pixelscale.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="icbutton.h">
@@ -286,5 +287,6 @@
       <Filter>system controls</Filter>
     </ClInclude>
     <ClInclude Include="stdinc_interface.h" />
+    <ClInclude Include="pixelscale.h" />
   </ItemGroup>
 </Project>

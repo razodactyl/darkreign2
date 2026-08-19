@@ -1,0 +1,17 @@
+C:\Users\jonathan\Projects\darkreign2\won\callbacks.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\callbacks.obj
+C:\Users\jonathan\Projects\darkreign2\won\compress.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\compress.obj
+C:\Users\jonathan\Projects\darkreign2\won\enetpp.cxx;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\enetpp.obj
+C:\Users\jonathan\Projects\darkreign2\won\host.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\host.obj
+C:\Users\jonathan\Projects\darkreign2\won\list.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\list.obj
+C:\Users\jonathan\Projects\darkreign2\won\networking\Messages.cxx;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\Messages.obj
+C:\Users\jonathan\Projects\darkreign2\won\networking\messages\ChatMessage.cxx;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\ChatMessage.obj
+C:\Users\jonathan\Projects\darkreign2\won\networking\messages\EventConnect.cxx;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\EventConnect.obj
+C:\Users\jonathan\Projects\darkreign2\won\networking\messages\EventDisconnect.cxx;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\EventDisconnect.obj
+C:\Users\jonathan\Projects\darkreign2\won\networking\Networking.cxx;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\Networking.obj
+C:\Users\jonathan\Projects\darkreign2\won\networking\SendableEventMessage.cxx;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\SendableEventMessage.obj
+C:\Users\jonathan\Projects\darkreign2\won\packet.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\packet.obj
+C:\Users\jonathan\Projects\darkreign2\won\peer.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\peer.obj
+C:\Users\jonathan\Projects\darkreign2\won\protocol.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\protocol.obj
+C:\Users\jonathan\Projects\darkreign2\won\unix.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\unix.obj
+C:\Users\jonathan\Projects\darkreign2\won\win32.c;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\win32.obj
+C:\Users\jonathan\Projects\darkreign2\won\woniface.cpp;C:\Users\jonathan\Projects\darkreign2\wonlib\Debug - OpenGL\woniface.obj
