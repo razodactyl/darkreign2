@@ -1,9 +1,9 @@
 # Graphics Backend Port: Research Notes
 
-Status: **research recorded; the engine runs on OpenGL, but does not draw yet**.
-Implementation is tracked on `vid-merge-ogl-backend`. Phases 0-3b are done; see
-[Progress](#progress) at the end. `-ogl` brings the whole engine up with no
-DirectDraw at all - the next phase is putting pixels on the screen.
+Status: **the game renders through OpenGL**. Implementation is tracked on
+`vid-merge-ogl-backend`; see [Progress](#progress) at the end. `-ogl` plays -
+menus, missions and the online lobby - with no DirectDraw anywhere. What is left
+is fidelity and performance, not bring-up.
 
 This note records what was learned from the abandoned
 `origin/upgrade-graphics-system` branch (2020), why it stalled, and which of its
@@ -392,10 +392,55 @@ Both paths were verified by running the game: `-ogl` reaches `Sim` clean, and th
 DirectX 7 path still creates real surfaces and a device, plays a mission, and
 renders correctly on screen.
 
+### Phase 4 - rendering (done), and why phase 5 vanished
+
+The plan split this into a 2D/interface pass and a separate 3D pass. That split
+does not survive contact with the code.
+
+DR2 builds with `DODXLEANANDGRUMPY` - "do only TLVERTS". The engine software-
+transforms **everything**, terrain and meshes included, into pre-transformed
+`FVF_TLVERTEX` before it reaches the device. Instrumenting the draw path
+confirmed it: ~95 draw calls a frame, **0 rejected**, no other vertex format used
+at all. So implementing that one format renders the whole game. Phases 4 and 5
+collapsed into one.
+
+The backend compiles a single program at context creation, with a VAO over the
+`VertexTL` layout - guarded by `static_assert`s on the offsets, because the
+vertices come straight off bucket memory. `Color` is `b,g,r,a` in memory, so
+`GL_BGRA` as the attribute size does the reordering rather than a shader swizzle.
+
+**Perspective correction.** The vertices are already projected and carry `rhw`
+(1/w). Emitting them with `w = 1` puts them in the right place but makes GL
+interpolate every varying in screen space - affine mapping, which makes textures
+visibly zig-zag across perspective surfaces. This is the artefact the 2020 branch
+shipped with and never fixed. Restoring `w` and pre-multiplying x/y/z by it
+yields the same screen position after the perspective divide while giving GL the
+`w` it needs. 2D geometry sets `rhw = 1` and comes through unchanged.
+
+**Fog.** No range needed: the software transform has already baked the
+per-vertex fog factor into the specular alpha channel - which is exactly why the
+device's specular state has to stay on, as noted when specular was enabled. The
+shader only needs the on/off flag and the colour.
+
+**Two bugs that only playing it would have found:**
+
+1. The texture-swap "turtle" drew every frame in the top right, because
+   `FreeVidMem` has no DirectDraw to ask and `totalTexMemory` is therefore 0.
+2. `Bitmap::Create` can run twice on the same bitmap. On the D3D path the pixels
+   live in the surface so nothing is lost; here they are ours, and the old buffer
+   leaked - two 256x256x4 textures, 512KB, visible in the shutdown leak report.
+
 ### Next
 
-Phase 4, the 2D/interface pass: `FVF_TLVERTEX` through a real shader. That is the
-first milestone with actual pixels, and it covers the menus, fonts and master's
-pixelscale 4K path. The shaders in the 2020 branch's README are the starting
-point, but its `iface_util.cpp` and `font.cpp` changes are not - master has moved
-too far.
+Not bring-up any more - fidelity and performance:
+
+- **`SetTexBlend` is still a no-op**, so every texture stage combines as
+  MODULATE. The `RS_TEX_*` ops (decal, add, modulate2x/4x) and the second texture
+  stage are the main remaining visual gap.
+- **Per-draw `glBufferData` orphaning** on every one of ~95 draws a frame. A
+  persistent ring buffer is the obvious win.
+- **Uniforms are pushed per draw** rather than when they change.
+- `caps.texNoHalf` is set TRUE, so the half-texel shift is skipped. Worth a
+  careful look at 2D text and icon alignment.
+- Fullscreen and mode switching: `InitOGLDrivers` reports one mode, the desktop.
+- The options dialog and `vid_settings` still describe DirectDraw drivers.
