@@ -1,9 +1,9 @@
 # Graphics Backend Port: Research Notes
 
-Status: **research recorded; seam, context and textures landed**. Implementation
-is tracked on `vid-merge-ogl-backend`. Phases 0-3 are done; see
-[Progress](#progress) at the end. `-ogl` brings up an OpenGL context and can hold
-textures, but does not draw yet.
+Status: **research recorded; the engine runs on OpenGL, but does not draw yet**.
+Implementation is tracked on `vid-merge-ogl-backend`. Phases 0-3b are done; see
+[Progress](#progress) at the end. `-ogl` brings the whole engine up with no
+DirectDraw at all - the next phase is putting pixels on the screen.
 
 This note records what was learned from the abandoned
 `origin/upgrade-graphics-system` branch (2020), why it stalled, and which of its
@@ -340,14 +340,62 @@ That covers writable and animating textures, including Bink video, without
 special-casing any of them. A `texDirty` status bit keeps it to one upload per
 change.
 
+### Phase 3b - running without DirectDraw (done)
+
+`-ogl` now brings the whole engine up on its own: **Intro -> Shell -> Mission ->
+Load -> SimInit -> Sim**, with no DirectDraw or Direct3D device anywhere. Nothing
+is drawn yet, but every other system runs.
+
+**DirectDraw had to go, not just be ignored.** The 2020 branch's `SetModeGL`
+still called `InitDD`, `SetCoopLevel` *and* `InitD3D` - it kept the entire
+DirectDraw/Direct3D device alive and ran GL beside it. That worked for them only
+because GLFW gave them a second window: DirectDraw owned the original HWND and GL
+owned the GLFW one. The two-window hack that broke their input is also what let
+them dodge this conflict.
+
+With a single window the two fight over it, measured on a Parallels/M1 VM with
+dgVoodoo:
+
+| | |
+| --- | --- |
+| `DirectDrawEnumerateEx` with a GL context on the same window | ~11,000 ms, and frequently never returning |
+| `InitOGLDrivers` + `InitOGLDevice` | 239 ms |
+
+So the bypass is forced by the one-window decision, not a preference.
+`InitOGLDrivers` stands in for `InitDD` with one synthetic driver and one mode
+(the desktop); `InitOGLDevice` stands in for `InitD3D` + `InitSurfaces`;
+`RenderFlush` presents with `SwapBuffers`; and `ClearBack` goes through the
+backend, since `backBmp` is only a description of the screen on this path.
+
+**Two traps, both found by running it rather than reasoning about it:**
+
+1. `ASSERT(pixForm)`. The GL texture format was registered early in `Vid::Init`,
+   but `InitDD` calls `ReleaseDX`, which calls `ReleaseD3D`, which does
+   `pixFormatList.DisposeAll()`. Anything registered before that point is
+   silently thrown away. Registration has to sit inside `InitOGLDevice`, exactly
+   where `InitD3D` registers its own.
+
+2. An access violation reading `0x000000C8`. `InitD3D` is not just device
+   creation - roughly half of it is backend-neutral setup, including
+   `mainCamera = curCamera = new Camera("main")`. Skipping it left `curCamera`
+   null, and `Vid::CurCamera()` dereferences it on every render path.
+   `InitOGLDevice` now does that half too: the camera, the `OnModeChange`
+   callbacks across Bitmap/Material/Light/Mesh/Command/Options/Graphics,
+   `InitResources`, `SetGamma`, and the initial transforms.
+
+**Diagnosing crashes.** appdr2 Debug emits a linker map file now. Note the
+built-in stack walker follows EBP chains and produces mostly garbage frames in
+this build - resolving the *faulting* address against the map is useful, the rest
+of the stack is not. Breadcrumb logging was what actually localised both bugs.
+
+Both paths were verified by running the game: `-ogl` reaches `Sim` clean, and the
+DirectX 7 path still creates real surfaces and a device, plays a mission, and
+renders correctly on screen.
+
 ### Next
 
-**Phase 3b - run without DirectDraw.** `Vid::Init` still runs the full
-DirectDraw/Direct3D setup even under `-ogl`, so nothing is exercisable end to end
-yet. That bypass is the next piece of work, and it is the awkward one: `InitDD`
-and `SetMode` also establish `viewRect`, `backBmp`, the video mode list and the
-`caps` the rest of the engine reads, so the GL path has to supply equivalents
-rather than simply skip them.
-
-Then phase 4 (the 2D/interface pass) - the first milestone with something
-actually on screen.
+Phase 4, the 2D/interface pass: `FVF_TLVERTEX` through a real shader. That is the
+first milestone with actual pixels, and it covers the menus, fonts and master's
+pixelscale 4K path. The shaders in the 2020 branch's README are the starting
+point, but its `iface_util.cpp` and `font.cpp` changes are not - master has moved
+too far.
