@@ -1329,7 +1329,7 @@ namespace Vid
         dd.hardBlt = TRUE;
         dd.hardBltS = TRUE;
         dd.tex32 = TRUE;
-        dd.texMulti = FALSE;    // see InitOGLDevice: no second stage yet
+        dd.texMulti = TRUE;
         dd.hardTL = TRUE;
         dd.noAlphaMod = FALSE;
 
@@ -1357,7 +1357,7 @@ namespace Vid
         Utils::Strcpy(dd.drivers[0].name.str, "OpenGL");
         dd.drivers[0].hard = TRUE;
         dd.drivers[0].hardTL = TRUE;
-        dd.drivers[0].texMulti = FALSE;
+        dd.drivers[0].texMulti = TRUE;
         dd.drivers[0].mipmap = TRUE;
         dd.drivers[0].texNon2 = TRUE;
 
@@ -1402,13 +1402,11 @@ namespace Vid
         caps.mipmap = TRUE;
         caps.tex32 = TRUE;
 
-        // Single-pass multitexturing is off until the backend binds and samples
-        // a second stage. With it off the engine draws the second texture as its
-        // own pass, one texture at a time, which the shader renders correctly -
-        // claiming the capability without implementing it would silently drop
-        // every stage-1 texture instead.
-        Var::varMultiTex = caps.texMulti = FALSE;
-        renderState.status.texMulti = FALSE;
+        // The backend binds and samples two stages, so single-pass
+        // multitexturing is available. texStage stays FALSE: unlike some D3D
+        // hardware, GL does not need the stage fixed at texture creation time.
+        Var::varMultiTex = caps.texMulti = TRUE;
+        renderState.status.texMulti = TRUE;
         caps.texStage = FALSE;      // stages are not fixed at creation time
         caps.texNon2 = TRUE;        // non-power-of-2 textures are core in 3.3
         caps.noAlphaMod = FALSE;

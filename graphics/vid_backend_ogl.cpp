@@ -410,6 +410,9 @@ namespace Vid
             "uniform sampler2D texture0;\n"
             "uniform bool doTexture;\n"
             "uniform int texOp;\n"
+            "uniform sampler2D texture1;\n"
+            "uniform bool doTexture1;\n"
+            "uniform int texOp1;\n"
             "uniform bool doFog;\n"
             "uniform vec3 fogColour;\n"
             "\n"
@@ -457,6 +460,36 @@ namespace Vid
             "    // DR2 draws pre-transformed vertices, and for those D3D takes the\n"
             "    // fog factor from the specular alpha channel rather than from\n"
             "    // depth - 1 is unfogged, 0 is fully fogged.\n"
+            "    // Second texture stage, combining with the stage-0 result exactly as the\n"
+            "    // fixed-function combiner does (see the stage branches of the Tex* helpers\n"
+            "    // in vid_backend_d3d.cpp). DECAL blends by the stage-1 alpha and keeps the\n"
+            "    // running alpha; ADD adds colour and keeps the running alpha.\n"
+            "    if (doTexture1)\n"
+            "    {\n"
+            "        vec4 t1 = texture(texture1, vUV);\n"
+            "\n"
+            "        if (texOp1 == 1 || texOp1 == 2)        // DECAL / DECALALPHA\n"
+            "        {\n"
+            "            c = vec4(mix(c.rgb, t1.rgb, t1.a), c.a);\n"
+            "        }\n"
+            "        else if (texOp1 == 4)                  // MODULATE2X\n"
+            "        {\n"
+            "            c = vec4(t1.rgb * c.rgb * 2.0, t1.a * c.a);\n"
+            "        }\n"
+            "        else if (texOp1 == 5)                  // MODULATE4X\n"
+            "        {\n"
+            "            c = vec4(t1.rgb * c.rgb * 4.0, t1.a * c.a);\n"
+            "        }\n"
+            "        else if (texOp1 == 7)                  // ADD\n"
+            "        {\n"
+            "            c = vec4(t1.rgb + c.rgb, c.a);\n"
+            "        }\n"
+            "        else                                   // MODULATE, MODULATEALPHA\n"
+            "        {\n"
+            "            c = t1 * c;\n"
+            "        }\n"
+            "    }\n"
+            "\n"
             "    if (doFog)\n"
             "    {\n"
             "        c.rgb = mix(fogColour, c.rgb, vSpecular.a);\n"
@@ -470,6 +503,8 @@ namespace Vid
         static GLint uniDoTexture = -1;
         static GLint uniDoFog = -1;
         static GLint uniTexOp = -1;
+        static GLint uniDoTexture1 = -1;
+        static GLint uniTexOp1 = -1;
         static GLint uniFogColour = -1;
 
         static GLuint vao;
@@ -546,10 +581,13 @@ namespace Vid
             uniDoTexture = glGetUniformLocation(program, "doTexture");
             uniDoFog = glGetUniformLocation(program, "doFog");
             uniTexOp = glGetUniformLocation(program, "texOp");
+            uniDoTexture1 = glGetUniformLocation(program, "doTexture1");
+            uniTexOp1 = glGetUniformLocation(program, "texOp1");
             uniFogColour = glGetUniformLocation(program, "fogColour");
 
             glUseProgram(program);
             glUniform1i(glGetUniformLocation(program, "texture0"), 0);
+            glUniform1i(glGetUniformLocation(program, "texture1"), 1);
 
             // VertexTL comes straight off the bucket memory, so the attribute
             // layout has to match it exactly - these keep that honest.
@@ -858,16 +896,14 @@ namespace Vid
         Bool SetPerspective(Bool) { return TRUE; }
         Bool SetColorKey(Bool) { return FALSE; }
 
-        // How the texture combines with the vertex colour. Only stage 0 is
-        // honoured: the second stage needs multi-texturing, which this backend
-        // does not bind yet.
-        static U32 texOp = 3;    // RS_TEX_MODULATE, the default blend
+        // How each texture stage combines. RS_TEX_MODULATE is the default.
+        static U32 texOp[MAX_TEXTURE_STAGES] = { 3, 3, 3 };
 
         void SetTexBlend(U32 op, U32 stage)
         {
-            if (stage == 0)
+            if (stage < MAX_TEXTURE_STAGES)
             {
-                texOp = op;
+                texOp[stage] = op;
             }
         }
         void SetTextureFactor(Color) {}
@@ -962,27 +998,34 @@ namespace Vid
             // without going through the backend - so a shadow drifts, and a draw
             // that should be untextured silently samples whatever was bound
             // last, flattening vertex-colour gradients.
-            const Bitmap* tex0 = Bitmap::Manager::GetTexture(0);
-            U32 texName = (renderState.status.texture && tex0) ? tex0->BackendTexture() : 0;
+            U32 texName[2] = { 0, 0 };
 
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texName);
-            boundTexture[0] = texName;
-
-            if (texName)
+            for (U32 stage = 0; stage < 2; stage++)
             {
-                // now that the right texture is bound, give it the wrap and
-                // filter the engine last asked for
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wantWrap);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wantWrap);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, wantMagFilter);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, wantMinFilter);
+                const Bitmap* tex = Bitmap::Manager::GetTexture(stage);
+                texName[stage] = (renderState.status.texture && tex) ? tex->BackendTexture() : 0;
+
+                glActiveTexture(GL_TEXTURE0 + stage);
+                glBindTexture(GL_TEXTURE_2D, texName[stage]);
+                boundTexture[stage] = texName[stage];
+
+                if (texName[stage])
+                {
+                    // now that the right texture is bound, give it the wrap and
+                    // filter the engine last asked for
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wantWrap);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wantWrap);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, wantMagFilter);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, wantMinFilter);
+                }
             }
 
-            glUniform1i(uniDoTexture, texName ? GL_TRUE : GL_FALSE);
+            glUniform1i(uniDoTexture, texName[0] ? GL_TRUE : GL_FALSE);
+            glUniform1i(uniDoTexture1, texName[1] ? GL_TRUE : GL_FALSE);
+            glUniform1i(uniTexOp1, GLint(texOp[1]));
             glUniform1i(uniDoFog, fogOn ? GL_TRUE : GL_FALSE);
             glUniform3f(uniFogColour, fogR, fogG, fogB);
-            glUniform1i(uniTexOp, GLint(texOp));
+            glUniform1i(uniTexOp, GLint(texOp[0]));
 
             glBindVertexArray(vao);
 
