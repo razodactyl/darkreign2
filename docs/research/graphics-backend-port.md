@@ -459,24 +459,44 @@ Diagnosed by instrumenting the draw path rather than reasoning about it: the
 vertex colours were varying correctly, the op was MODULATE, and the shader maths
 matched D3D - which ruled out the blend ops and pointed at binding.
 
-**Multitexturing is advertised as unavailable.** Only stage 0 is sampled, so
-`caps.texMulti` is FALSE and the engine draws the second texture as its own pass,
-which this backend renders correctly. Claiming a capability we do not implement
-is worse than not claiming it.
+### The second texture stage (done)
+
+Both stages are bound and sampled, so `caps.texMulti` is TRUE again and the
+engine can use single-pass multitexturing.
+
+The stage-1 combines are **not** the same as the stage-0 ones - `DECAL` blends by
+the stage-1 alpha and keeps the running alpha, `ADD` adds colour and keeps the
+running alpha. They mirror the stage branches of the `Tex*` helpers in
+`vid_backend_d3d.cpp`.
+
+Both stages sample the same UV, which is correct here: the engine only ever
+requests `FVF_TLVERTEX` (checked across `graphics/` and `coregame*`), so there is
+no second texture coordinate set to honour. **If `FVF_T2LVERTEX` ever starts
+being emitted, the vertex layout and the shader both need a second UV
+attribute.**
+
+### Modes and fullscreen (done)
+
+`InitOGLDrivers` enumerates real modes with `EnumDisplaySettings` - 32-bit only,
+deduplicated across refresh rates, filtered to the engine's minimum. Before this
+the options dialog had exactly one resolution to offer.
+
+Fullscreen is a borderless window covering the display, not an exclusive
+display-mode change. The context renders at whatever size the window is, so
+there is nothing to switch, and the user's desktop resolution cannot be left
+altered by a bad exit.
 
 ### Next
 
-Not bring-up any more - fidelity and completeness:
-
-- **The second texture stage.** Currently correct but multi-pass. Implementing it
-  properly is the one item with both a visual and a performance payoff.
-- **Fullscreen and mode switching**: `InitOGLDrivers` reports one mode, the
-  desktop.
-- **The options dialog and `vid_settings`** still describe DirectDraw drivers.
 - `caps.texNoHalf` is TRUE, so the half-texel shift is skipped. This is what the
   2020 branch handled by editing `font.cpp` per call site; doing it through the
   cap covers every caller instead. Worth a careful look at text and icon
   alignment all the same.
+- A full visual sweep against DirectX, in-mission rather than just menus. Every
+  fidelity bug so far has been found by looking at the screen, not by reasoning
+  about the code - see the texture-state entry above.
+- `vid_settings` persistence across backends: settings saved under one backend
+  describe the other's drivers and modes.
 
 **Performance is not on this list on purpose.** Measured at 60-100 fps in a Debug
 build inside a VM on a Metal-backed GL translation layer. The per-draw
