@@ -560,32 +560,45 @@ namespace Vid
             ReleaseDD();
             isStatus.fullScreen = TRUE;
 
-            if ((!firstRun && /*!restore &&*/ !InitDD()) || !SetCoopLevel())
+            if (!isStatus.ogl)
             {
-                return FALSE;
-            }
-            // InitDD wipes curMode
-            curMode = mode;
-
-            ASSERT(ddx);
-            dxError = ddx->SetDisplayMode
-            (
-                CurMode().rect.Width(), CurMode().rect.Height(),
-                CurMode().bpp, 0, 0
-            );
-            if (dxError)
-            {
-                LOG_DXERR
-                (
-                    ("SetMode(): ddx->SetDisplayMode %dx%d %d", CurMode().rect.Width(), CurMode().rect.Height(), CurMode
-                        ().bpp)
-                );
-
-                if (!firstRun)
+                if ((!firstRun && /*!restore &&*/ !InitDD()) || !SetCoopLevel())
                 {
-                    ERR_FATAL(("SetMode; ddx->SetDisplayMode"));
+                    return FALSE;
                 }
-                return FALSE;
+                // InitDD wipes curMode
+                curMode = mode;
+
+                ASSERT(ddx);
+                dxError = ddx->SetDisplayMode
+                (
+                    CurMode().rect.Width(), CurMode().rect.Height(),
+                    CurMode().bpp, 0, 0
+                );
+                if (dxError)
+                {
+                    LOG_DXERR
+                    (
+                        ("SetMode(): ddx->SetDisplayMode %dx%d %d", CurMode().rect.Width(), CurMode().rect.Height(), CurMode
+                            ().bpp)
+                    );
+
+                    if (!firstRun)
+                    {
+                        ERR_FATAL(("SetMode; ddx->SetDisplayMode"));
+                    }
+                    return FALSE;
+                }
+            }
+            else
+            {
+                // Fullscreen on the OpenGL path is a borderless window covering
+                // the display, not an exclusive display-mode change. The context
+                // renders at whatever size the window is, so there is nothing to
+                // switch - and it avoids leaving the user's desktop resolution
+                // changed if the game exits badly.
+                SetMenu(hWnd, nullptr);
+                SetWindowLong(hWnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
             }
             isStatus.inWindow = FALSE;
 
@@ -1344,9 +1357,63 @@ namespace Vid
         mode.textReduce = 0;
         Utils::Sprintf(mode.name.str, mode.name.GetSize(), "Win%dx%d %d", screenW, screenH, mode.bpp);
 
-        dd.numModes = 0;                 // no fullscreen modes to choose from
-        dd.curMode = VIDMODEWINDOW;
+        // Real resolutions, from Windows rather than DirectDraw. Without these
+        // the options dialog would offer a single entry.
+        dd.numModes = 0;
         dd.fullMode = VIDMODEWINDOW;
+
+        DEVMODE dm;
+        Utils::Memset(&dm, 0, sizeof(dm));
+        dm.dmSize = sizeof(dm);
+
+        for (U32 i = 0; EnumDisplaySettings(nullptr, i, &dm) && dd.numModes < MAXVIDMODES; i++)
+        {
+            // 32-bit only: the backend uses one texture and back buffer format
+            if (dm.dmBitsPerPel != 32
+                || dm.dmPelsWidth < REALLYMINWINWIDTH
+                || dm.dmPelsHeight < REALLYMINWINHEIGHT)
+            {
+                continue;
+            }
+
+            // EnumDisplaySettings repeats each size once per refresh rate
+            Bool seen = FALSE;
+            for (U32 j = 0; j < dd.numModes; j++)
+            {
+                if (dd.vidModes[j].rect.Width() == S32(dm.dmPelsWidth)
+                    && dd.vidModes[j].rect.Height() == S32(dm.dmPelsHeight))
+                {
+                    seen = TRUE;
+                    break;
+                }
+            }
+            if (seen)
+            {
+                continue;
+            }
+
+            VidMode& m = dd.vidModes[dd.numModes];
+            m.ClearData();
+            m.desc.dwWidth = dm.dmPelsWidth;
+            m.desc.dwHeight = dm.dmPelsHeight;
+            m.desc.ddpfPixelFormat.dwRGBBitCount = 32;
+            m.rect.SetSize(0, 0, S32(dm.dmPelsWidth), S32(dm.dmPelsHeight));
+            m.bpp = 32;
+            m.tripleBuf = FALSE;
+            m.textReduce = 0;
+            m.SetName();
+
+            if (S32(dm.dmPelsWidth) == screenW && S32(dm.dmPelsHeight) == screenH)
+            {
+                dd.fullMode = dd.numModes;
+            }
+
+            dd.numModes++;
+        }
+
+        LOG_DIAG(("[VID OGL DRIVER] %d display modes", dd.numModes));
+
+        dd.curMode = VIDMODEWINDOW;
         dd.gameMode = VIDMODEWINDOW;
         dd.shellMode = VIDMODEWINDOW;
 
