@@ -47,11 +47,13 @@
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>./Release/;../Release/;$(LibraryPath)</LibraryPath>
     <OutDir>C:\Games\Dark Reign 2\</OutDir>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>C:\Games\Dark Reign 2</OutDir>
     <LinkIncremental>true</LinkIncremental>
     <CopyLocalDeploymentContent>true</CopyLocalDeploymentContent>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
