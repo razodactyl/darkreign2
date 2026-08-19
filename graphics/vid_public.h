@@ -221,10 +221,10 @@ namespace Vid
         return *zbuffFormatList[curZbuffFormat];
     }
 
-    inline void ClearBack(Color color = 0, Area<S32>* rect = NULL)
-    {
-        backBmp.Clear(color, rect);
-    }
+    // defined in vidrend.cpp - backBmp is a DirectDraw surface on the D3D path
+    // but only a description of the screen on the OpenGL one, so this cannot
+    // always go through the bitmap
+    void ClearBack(Color color = 0, Area<S32>* rect = NULL);
 
     void ClipScreen();
     void ClipRestore();

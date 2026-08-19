@@ -215,12 +215,7 @@ namespace Vid
                 // into the DirectDraw/Direct3D setup below regardless. -ogl is
                 // not a playable mode yet; it is here so the context can be
                 // brought up and proven against the real window and input.
-                LOG_WARN(("Vid: -ogl brings up an OpenGL context but does not draw yet"));
-                LOG_WARN(("Vid: expect no rendering; use the default DirectX 7 path to play"));
-
-                // textures need a pixel format before any bitmap is created,
-                // and there is no enumeration step on this path
-                InitFormatsOGL();
+                LOG_WARN(("Vid: -ogl does not draw geometry yet; expect an empty screen"));
             }
             else
             {
@@ -291,7 +286,7 @@ namespace Vid
         theStyle = GetWindowLong(hWnd, GWL_STYLE);
 
         isStatus.fullScreen = doStatus.fullScreen;    // for initial InitDD
-        if (!InitDD() || !SetMode(curMode))
+        if (!(isStatus.ogl ? InitOGLDrivers() : InitDD()) || !SetMode(curMode))
         {
             if (isStatus.gotDD)
             {
@@ -411,7 +406,10 @@ namespace Vid
                 fullDD = curDD;
                 CurDD().fullMode = lastMode;
             }
-            ReleaseDD();
+            if (!isStatus.ogl)
+            {
+                ReleaseDD();
+            }
 
             Area<S32> cr = viewRect;
             if (!isStatus.borderless)
@@ -432,12 +430,15 @@ namespace Vid
             {
                 // coming back from fullscreen
 
-                ASSERT(ddx);
-                dxError = ddx->RestoreDisplayMode();
-                if (dxError)
+                if (!isStatus.ogl)
                 {
-                    LOG_DXERR(("SetMode: ddx->RestoreDisplayMode"));
-                    ERR_FATAL(("SetMode: ddx->RestoreDisplayMode"));
+                    ASSERT(ddx);
+                    dxError = ddx->RestoreDisplayMode();
+                    if (dxError)
+                    {
+                        LOG_DXERR(("SetMode: ddx->RestoreDisplayMode"));
+                        ERR_FATAL(("SetMode: ddx->RestoreDisplayMode"));
+                    }
                 }
                 isStatus.inWindow = TRUE;
 
@@ -463,23 +464,27 @@ namespace Vid
 
             // nice for windows
             isStatus.fullScreen = FALSE;
-            if (lastMode != mode && !SetCoopLevel())
-            {
-                return FALSE;
-            }
 
-            Bool initdd = !firstRun;
-            if (!CurDD().wincap)
+            if (!isStatus.ogl)
             {
-                curDD = winDD;    // windowed driver
-                initdd = TRUE;
+                if (lastMode != mode && !SetCoopLevel())
+                {
+                    return FALSE;
+                }
+
+                Bool initdd = !firstRun;
+                if (!CurDD().wincap)
+                {
+                    curDD = winDD;    // windowed driver
+                    initdd = TRUE;
+                }
+                if ((initdd && !InitDD()) || !SetCoopLevel())
+                {
+                    return FALSE;
+                }
+                // InitDD wipes curMode
+                curMode = mode;
             }
-            if ((initdd && !InitDD()) || !SetCoopLevel())
-            {
-                return FALSE;
-            }
-            // InitDD wipes curMode
-            curMode = mode;
 
             if (isStatus.borderless)
             {
@@ -505,8 +510,8 @@ namespace Vid
 
             SetRects();
 
-            // finish dx init
-            if (!InitD3D())
+            // finish device init
+            if (!(isStatus.ogl ? InitOGLDevice() : InitD3D()))
             {
                 return FALSE;
             }
@@ -601,8 +606,8 @@ namespace Vid
 
             SetRects();
 
-            // finish dx init
-            if (!InitD3D())
+            // finish device init
+            if (!(isStatus.ogl ? InitOGLDevice() : InitD3D()))
             {
                 return FALSE;
             }
@@ -1297,6 +1302,182 @@ namespace Vid
 
     //----------------------------------------------------------------------------
 
+    // Stands in for InitDD when running on the OpenGL backend.
+    //
+    // DirectDraw must not be brought up at all on this path. Letting it
+    // enumerate while a GL context already owns the window's pixel format makes
+    // DirectDrawEnumerateEx take around eleven seconds, and often never return -
+    // the two are fighting over the same window. So instead of a driver list
+    // discovered from DirectDraw, there is one synthetic driver describing what
+    // OpenGL can do, and one mode: the desktop.
+    //
+    Bool InitOGLDrivers()
+    {
+        numDDs = 1;
+        curDD = winDD = fullDD = 0;
+
+        DriverDD& dd = ddDrivers[0];
+        Utils::Memset(&dd, 0, sizeof(dd));
+
+        Utils::Strcpy(dd.name.str, "OpenGL");
+        Utils::Strcpy(dd.device.str, "OpenGL");
+        Utils::Strcpy(dd.driver.str, "OpenGL");
+        dd.guidp = nullptr;
+
+        // GL always renders into the window we were given, so windowed mode is
+        // the only mode, and it is always available
+        dd.wincap = TRUE;
+        dd.windowed = TRUE;
+        dd.hard = TRUE;
+        dd.hardBlt = TRUE;
+        dd.hardBltS = TRUE;
+        dd.tex32 = TRUE;
+        dd.texMulti = TRUE;
+        dd.hardTL = TRUE;
+        dd.noAlphaMod = FALSE;
+
+        S32 screenW = GetSystemMetrics(SM_CXSCREEN);
+        S32 screenH = GetSystemMetrics(SM_CYSCREEN);
+
+        VidMode& mode = dd.vidModes[VIDMODEWINDOW];
+        mode.ClearData();
+        mode.rect.SetSize(0, 0, screenW, screenH);
+        mode.bpp = 32;
+        mode.tripleBuf = FALSE;
+        mode.textReduce = 0;
+        Utils::Sprintf(mode.name.str, mode.name.GetSize(), "Win%dx%d %d", screenW, screenH, mode.bpp);
+
+        dd.numModes = 0;                 // no fullscreen modes to choose from
+        dd.curMode = VIDMODEWINDOW;
+        dd.fullMode = VIDMODEWINDOW;
+        dd.gameMode = VIDMODEWINDOW;
+        dd.shellMode = VIDMODEWINDOW;
+
+        // one synthetic D3D "driver" so CurD3D() has something to return
+        dd.numDrivers = 1;
+        dd.curDriver = 0;
+        dd.drivers[0].ClearData();
+        Utils::Strcpy(dd.drivers[0].name.str, "OpenGL");
+        dd.drivers[0].hard = TRUE;
+        dd.drivers[0].hardTL = TRUE;
+        dd.drivers[0].texMulti = TRUE;
+        dd.drivers[0].mipmap = TRUE;
+        dd.drivers[0].texNon2 = TRUE;
+
+        curMode = VIDMODEWINDOW;
+
+        isStatus.gotDD = TRUE;
+        isStatus.enumDD = TRUE;
+        isStatus.windowed = TRUE;
+        isStatus.fullScreen = FALSE;
+
+        LOG_DIAG(("[VID OGL DRIVER] desktop %dx%d", screenW, screenH));
+
+        return TRUE;
+    }
+
+    //----------------------------------------------------------------------------
+
+    // Stands in for InitD3D + InitSurfaces when running on the OpenGL backend.
+    //
+    // There is no DirectDraw device, no surface chain and no page flip: the GL
+    // context owns the window's back buffer and SwapBuffers presents it. What is
+    // still needed is everything the rest of the engine reads out of that setup -
+    // the caps flags, the back buffer's dimensions and pixel format, and the
+    // one-time render state.
+    //
+    Bool InitOGLDevice()
+    {
+        LOG_DIAG(("[VID INITOGLDEVICE: 0]"));
+
+        // Register the texture format. This has to happen here rather than
+        // earlier in Init: InitDD calls ReleaseDX, which calls ReleaseD3D,
+        // which disposes pixFormatList. InitD3D registers its formats at this
+        // same point for the same reason.
+        InitFormatsOGL();
+
+        // the GL context presents directly; there is no surface chain to flip
+        isStatus.pageFlip = FALSE;
+        isStatus.tripleBuf = FALSE;
+
+        // capabilities. GL 3.3 core guarantees all of this, so unlike the D3D
+        // path there is nothing to probe for.
+        caps.mipmap = TRUE;
+        caps.tex32 = TRUE;
+        caps.texMulti = TRUE;
+        caps.texStage = FALSE;      // stages are not fixed at creation time
+        caps.texNon2 = TRUE;        // non-power-of-2 textures are core in 3.3
+        caps.noAlphaMod = FALSE;
+        caps.texNoHalf = TRUE;      // sampling is exact; no half-texel shift
+        caps.hardTL = TRUE;
+        caps.maxLights = 8;
+
+        // backBmp is not a render target here - nothing draws into it - but its
+        // size and pixel format are read all over the engine as "the screen".
+        backBmp.Set
+        (
+            nullptr,
+            viewRect.Width(),
+            viewRect.Height(),
+            viewRect.Width() * 4,
+            32,
+            4,
+            &backFormat
+        );
+        backBmp.InitPrimitives();
+        backBmp.SetName("backbuffer");
+
+        // Everything below is the backend-neutral half of InitD3D. Skipping it
+        // is what left curCamera null - Vid::CurCamera() dereferences it, and
+        // every render path goes through there.
+        if (!curCamera)
+        {
+            // should only happen the first time
+            mainCamera = curCamera = new Camera("main");
+            curCamera->Setup(viewRect);
+        }
+
+        isStatus.initialized = TRUE;
+
+        SetCullState(FALSE);
+        SetWorldTransformI(Matrix::I);
+        SetViewTransformI(Matrix::I);
+
+        ReportMode(1);
+
+        // callbacks
+        //
+        Bitmap::Manager::OnModeChange();
+        Material::Manager::ResetData();
+        Light::ResetData();
+
+        curCamera->OnModeChange();
+        Command::OnModeChange();
+        Mesh::Manager::OnModeChange();
+        Options::OnModeChange();
+        Graphics::OnModeChange();
+
+        // setup
+        InitResources(TRUE);
+        SetRenderState(FALSE);
+        ValidateBlends();
+
+        if (modeChangeProc)
+        {
+            modeChangeProc();
+        }
+
+        SetGamma(*Var::varGamma);
+
+        totalTexMemory = FreeVidMem(FALSE);
+
+        LOG_DIAG(("[VID INITOGLDEVICE: 1]"));
+
+        return TRUE;
+    }
+
+    //----------------------------------------------------------------------------
+
     // create the front and back surfaces
     // double buffered for windowed mode
     // page flipping if fullscreen and doStatus.pageFlip == TRUE
@@ -1919,6 +2100,12 @@ namespace Vid
     Bool RenderFlush()
     {
         Heap::Check();
+
+        if (isStatus.ogl)
+        {
+            // the GL context presents the window's own back buffer
+            return OGL::Present();
+        }
 
         if (isStatus.pageFlip)
         {

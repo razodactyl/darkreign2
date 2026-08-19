@@ -54,6 +54,10 @@ namespace Vid
     // the D3D texture format enumeration, which has no GL equivalent
     void InitFormatsOGL();
 
+    // stand in for InitDD / InitD3D + InitSurfaces on the OpenGL backend
+    Bool InitOGLDrivers();
+    Bool InitOGLDevice();
+
     //-----------------------------------------------------------------------------
 
     namespace Settings

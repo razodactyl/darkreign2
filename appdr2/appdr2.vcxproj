@@ -147,6 +147,7 @@ rc version.rc</Command>
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <Link>
+      <GenerateMapFile>true</GenerateMapFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>

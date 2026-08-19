@@ -204,6 +204,20 @@ namespace Vid
 
     //-----------------------------------------------------------------------------
 
+    void ClearBack(Color color, Area<S32>* rect) // = 0, = NULL
+    {
+        if (isStatus.ogl)
+        {
+            // no back surface to blit into; the backend clears its own buffer
+            RenderClear(clearBACK, color, rect);
+            return;
+        }
+
+        backBmp.Clear(color, rect);
+    }
+
+    //-----------------------------------------------------------------------------
+
     void RenderClear(U32 clearFlags, Color color, Area<S32>* rect) // = NULL
     {
         Area<S32> temp;
