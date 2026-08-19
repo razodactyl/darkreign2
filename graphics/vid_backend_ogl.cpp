@@ -687,55 +687,47 @@ namespace Vid
 
         //---------------------------------------------------------------------
 
+        // Wrap and filter are per-texture-object in GL, but the engine sets
+        // them as though they were global device state, at times when a
+        // different texture - or none - is bound. Applying them immediately
+        // would scatter them across arbitrary textures. Remember the intent
+        // here and apply it in BeginDraw, to the texture actually being drawn.
+        static GLint wantWrap = GL_REPEAT;
+        static GLint wantMinFilter = GL_LINEAR;
+        static GLint wantMagFilter = GL_LINEAR;
+
         void SetTexWrap(U32 mode, U32 stage)
         {
-            if (stage >= MAX_TEXTURE_STAGES || !boundTexture[stage])
+            if (stage != 0)
             {
                 return;
             }
 
-            GLint wrap = GL_REPEAT;
             switch (mode + 1)    // stored as (mode - 1); see RS_ADD_MASK
             {
-                case TA_MIRROR: wrap = GL_MIRRORED_REPEAT; break;
-                case TA_CLAMP: wrap = GL_CLAMP_TO_EDGE; break;
-                default: wrap = GL_REPEAT; break;
+                case TA_MIRROR: wantWrap = GL_MIRRORED_REPEAT; break;
+                case TA_CLAMP: wantWrap = GL_CLAMP_TO_EDGE; break;
+                default: wantWrap = GL_REPEAT; break;
             }
-
-            glActiveTexture(GL_TEXTURE0 + stage);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
         }
 
         //---------------------------------------------------------------------
 
         void SetTexFilter(U32 filterFlags)
         {
-            GLint mag = (filterFlags & filterFILTER) ? GL_LINEAR : GL_NEAREST;
-            GLint min = mag;
+            wantMagFilter = (filterFlags & filterFILTER) ? GL_LINEAR : GL_NEAREST;
+            wantMinFilter = wantMagFilter;
 
             if (filterFlags & filterMIPMAP)
             {
                 if (filterFlags & filterMIPFILTER)
                 {
-                    min = (filterFlags & filterFILTER) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR;
+                    wantMinFilter = (filterFlags & filterFILTER) ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR;
                 }
                 else
                 {
-                    min = (filterFlags & filterFILTER) ? GL_LINEAR_MIPMAP_NEAREST : GL_NEAREST_MIPMAP_NEAREST;
+                    wantMinFilter = (filterFlags & filterFILTER) ? GL_LINEAR_MIPMAP_NEAREST : GL_NEAREST_MIPMAP_NEAREST;
                 }
-            }
-
-            // applies to whatever is bound on each stage, matching the D3D path
-            for (U32 stage = 0; stage < MAX_TEXTURE_STAGES; stage++)
-            {
-                if (!boundTexture[stage])
-                {
-                    continue;
-                }
-                glActiveTexture(GL_TEXTURE0 + stage);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag);
             }
         }
 
@@ -963,10 +955,34 @@ namespace Vid
             RECT client;
             GetClientRect(hWnd, &client);
             glUniform2f(uniScreenSize, F32(client.right), F32(client.bottom));
-            glUniform1i(uniDoTexture, boundTexture[0] ? GL_TRUE : GL_FALSE);
+
+            // Take the texture from the engine's own record rather than a shadow
+            // updated inside BindTexture. Vid::SetTexture only rebinds when it
+            // decides the texture changed, and other paths reset that record
+            // without going through the backend - so a shadow drifts, and a draw
+            // that should be untextured silently samples whatever was bound
+            // last, flattening vertex-colour gradients.
+            const Bitmap* tex0 = Bitmap::Manager::GetTexture(0);
+            U32 texName = (renderState.status.texture && tex0) ? tex0->BackendTexture() : 0;
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texName);
+            boundTexture[0] = texName;
+
+            if (texName)
+            {
+                // now that the right texture is bound, give it the wrap and
+                // filter the engine last asked for
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wantWrap);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wantWrap);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, wantMagFilter);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, wantMinFilter);
+            }
+
+            glUniform1i(uniDoTexture, texName ? GL_TRUE : GL_FALSE);
             glUniform1i(uniDoFog, fogOn ? GL_TRUE : GL_FALSE);
-            glUniform1i(uniTexOp, GLint(texOp));
             glUniform3f(uniFogColour, fogR, fogG, fogB);
+            glUniform1i(uniTexOp, GLint(texOp));
 
             glBindVertexArray(vao);
 
