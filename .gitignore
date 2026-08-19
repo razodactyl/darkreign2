@@ -201,3 +201,7 @@ ModelManifest.xml
 /Development/appdr2
 .vs
 *.res
+
+# MSBuild output for the OpenGL build configurations
+*/Debug - OpenGL/
+*/Release - OpenGL/
