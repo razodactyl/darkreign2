@@ -430,17 +430,56 @@ shader only needs the on/off flag and the colour.
    live in the surface so nothing is lost; here they are ours, and the old buffer
    leaked - two 256x256x4 textures, 512KB, visible in the shutdown leak report.
 
+### Texture state (done)
+
+The `RS_TEX_*` stage-0 combines are implemented, mirroring `blendToOp` in the
+DirectX backend. Two are easy to get backwards: `DECAL` takes colour from the
+texture but still modulates alpha, `DECALALPHA` is the other way round, and `ADD`
+is a plain modulate at stage 0 - the add only applies on the second stage.
+
+Two state bugs behind flat-looking buttons, both worth remembering because they
+are the kind of thing that only shows on *some* elements:
+
+1. **Texture parameters are per-texture in GL, not per-device.** `SetTexWrap` and
+   `SetTexFilter` called `glTexParameteri` immediately, so the settings landed on
+   whatever was bound at that moment - which is not the texture about to be
+   drawn. The engine sets these as though they were global device state. They are
+   now remembered as intent and applied in `BeginDraw` to the texture actually
+   being drawn. Symptom: buttons of the same kind in the same frame rendered
+   differently depending on binding order.
+
+2. **Do not shadow the engine's texture record.** `doTexture` came from a
+   `boundTexture[]` shadow updated in `BindTexture`, but `Vid::SetTexture` only
+   rebinds when it decides the texture changed, and other paths reset the record
+   without going through the backend. The shadow drifts, and a draw that should
+   be untextured silently samples whatever was bound last. `BeginDraw` now reads
+   `Bitmap::Manager::GetTexture(0)`.
+
+Diagnosed by instrumenting the draw path rather than reasoning about it: the
+vertex colours were varying correctly, the op was MODULATE, and the shader maths
+matched D3D - which ruled out the blend ops and pointed at binding.
+
+**Multitexturing is advertised as unavailable.** Only stage 0 is sampled, so
+`caps.texMulti` is FALSE and the engine draws the second texture as its own pass,
+which this backend renders correctly. Claiming a capability we do not implement
+is worse than not claiming it.
+
 ### Next
 
-Not bring-up any more - fidelity and performance:
+Not bring-up any more - fidelity and completeness:
 
-- **`SetTexBlend` is still a no-op**, so every texture stage combines as
-  MODULATE. The `RS_TEX_*` ops (decal, add, modulate2x/4x) and the second texture
-  stage are the main remaining visual gap.
-- **Per-draw `glBufferData` orphaning** on every one of ~95 draws a frame. A
-  persistent ring buffer is the obvious win.
-- **Uniforms are pushed per draw** rather than when they change.
-- `caps.texNoHalf` is set TRUE, so the half-texel shift is skipped. Worth a
-  careful look at 2D text and icon alignment.
-- Fullscreen and mode switching: `InitOGLDrivers` reports one mode, the desktop.
-- The options dialog and `vid_settings` still describe DirectDraw drivers.
+- **The second texture stage.** Currently correct but multi-pass. Implementing it
+  properly is the one item with both a visual and a performance payoff.
+- **Fullscreen and mode switching**: `InitOGLDrivers` reports one mode, the
+  desktop.
+- **The options dialog and `vid_settings`** still describe DirectDraw drivers.
+- `caps.texNoHalf` is TRUE, so the half-texel shift is skipped. This is what the
+  2020 branch handled by editing `font.cpp` per call site; doing it through the
+  cap covers every caller instead. Worth a careful look at text and icon
+  alignment all the same.
+
+**Performance is not on this list on purpose.** Measured at 60-100 fps in a Debug
+build inside a VM on a Metal-backed GL translation layer. The per-draw
+`glBufferData` orphaning and per-draw uniform pushes are the obvious targets if
+that ever changes, but optimising them now would be work against a problem that
+does not exist yet.
