@@ -494,6 +494,15 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
             invWidth = bmpWidth ? 1.0F / F32(bmpWidth) : 0.0F;
             invHeight = bmpHeight ? 1.0F / F32(bmpHeight) : 0.0F;
 
+            // Create can run more than once on the same bitmap; on the D3D path
+            // the pixels live in the surface so there is nothing to lose, but
+            // here they are ours and the old buffer would leak.
+            if (bmpData && status.ownsData)
+            {
+                delete[] static_cast<char*>(bmpData);
+                bmpData = nullptr;
+            }
+
             bmpData = static_cast<void*>(new char[bmpPitch * bmpHeight]);
             if (bmpData == nullptr)
             {

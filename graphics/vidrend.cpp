@@ -580,7 +580,11 @@ namespace Vid
         bucket.Flush(TRUE);
         tranbucket.Flush(TRUE);
 
-        if (showTexSwap && texMemPerFrame > totalTexMemory && turtleTex)
+        // Not on the OpenGL path: FreeVidMem has no DirectDraw to ask, so
+        // totalTexMemory is 0 and this would fire every frame. GL drivers
+        // manage texture residency themselves, so there is no swap to warn
+        // about.
+        if (!isStatus.ogl && showTexSwap && texMemPerFrame > totalTexMemory && turtleTex)
         {
             // texture swapping, render turtle
             //

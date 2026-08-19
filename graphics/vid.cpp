@@ -210,12 +210,9 @@ namespace Vid
         {
             if (OGL::CreateContext(hW))
             {
-                // The OpenGL backend has a context and owns the frame, but
-                // everything that draws is still a stub, and Init carries on
-                // into the DirectDraw/Direct3D setup below regardless. -ogl is
-                // not a playable mode yet; it is here so the context can be
-                // brought up and proven against the real window and input.
-                LOG_WARN(("Vid: -ogl does not draw geometry yet; expect an empty screen"));
+                // The DirectDraw/Direct3D path below is skipped entirely on
+                // this branch; see InitOGLDrivers and InitOGLDevice.
+                LOG_DIAG(("Vid: rendering through the OpenGL backend"));
             }
             else
             {

@@ -36,6 +36,8 @@ namespace Vid
 
         static int glVersion;    // as returned by gladLoadGL, 0 until loaded
 
+        static Bool InitShaders();    // defined below, called from CreateContext
+
         //---------------------------------------------------------------------
         //
         // context creation
@@ -230,6 +232,11 @@ namespace Vid
             LOG_DIAG(("OGL: %s", (const char*)glGetString(GL_RENDERER)));
             LOG_DIAG(("OGL: GLSL %s", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
+            if (!InitShaders())
+            {
+                return FALSE;
+            }
+
             // vsync off by default; renderState.status.waitRetrace drives it
             // once the options plumbing lands
             if (wglSwapIntervalEXT)
@@ -267,6 +274,7 @@ namespace Vid
             {
                 return FALSE;
             }
+
             return SwapBuffers(hDC) ? TRUE : FALSE;
         }
 
@@ -338,6 +346,208 @@ namespace Vid
 
             glViewport(desc.x, client.bottom - (desc.y + desc.height), desc.width, desc.height);
             glDepthRange(desc.minZ, desc.maxZ);
+
+            return TRUE;
+        }
+
+        //---------------------------------------------------------------------
+        //
+        // shaders
+        //
+        // One program for now, covering the pre-transformed (FVF_TLVERTEX)
+        // geometry the interface, fonts and cursor are built from. Vertices
+        // arrive already in screen pixels with the origin top-left, so the
+        // vertex shader only has to fold them into clip space.
+        //
+        // The full RS_TEX_* stage-combine matrix is phase 5; this modulates
+        // texture by vertex colour, which is what RS_TEX_MODULATE - the default
+        // blend, and what almost all interface drawing asks for - means.
+        //
+
+        static const char* vertexShaderSrc =
+            "#version 330 core\n"
+            "layout (location = 0) in vec4 inPos;      // x, y in pixels; z depth; w rhw\n"
+            "layout (location = 1) in vec4 inDiffuse;\n"
+            "layout (location = 2) in vec4 inSpecular;\n"
+            "layout (location = 3) in vec2 inUV;\n"
+            "\n"
+            "uniform vec2 screenSize;\n"
+            "\n"
+            "out vec4 vDiffuse;\n"
+            "out vec4 vSpecular;\n"
+            "out vec2 vUV;\n"
+            "\n"
+            "void main()\n"
+            "{\n"
+            "    // pixels -> clip space, flipping y because GL puts the origin\n"
+            "    // at the bottom left and these vertices assume the top left\n"
+            "    float x = (inPos.x / screenSize.x) * 2.0 - 1.0;\n"
+            "    float y = 1.0 - (inPos.y / screenSize.y) * 2.0;\n"
+            "    float z = inPos.z * 2.0 - 1.0;\n"
+            "\n"
+            "    // These vertices are already projected, and inPos.w is rhw (1/w).\n"
+            "    // Emitting them with w = 1 places them correctly but makes GL\n"
+            "    // interpolate every varying in screen space - affine mapping, which\n"
+            "    // is what makes textures zig-zag across a perspective surface.\n"
+            "    // Restoring w and pre-multiplying x/y/z by it gives the same screen\n"
+            "    // position after the perspective divide, while handing GL the w it\n"
+            "    // needs to interpolate correctly. 2D geometry sets rhw = 1, so it\n"
+            "    // comes through unchanged.\n"
+            "    float w = (inPos.w != 0.0) ? (1.0 / inPos.w) : 1.0;\n"
+            "    gl_Position = vec4(x * w, y * w, z * w, w);\n"
+            "\n"
+            "    vDiffuse = inDiffuse;\n"
+            "    vSpecular = inSpecular;\n"
+            "    vUV = inUV;\n"
+            "}\n";
+
+        static const char* fragmentShaderSrc =
+            "#version 330 core\n"
+            "in vec4 vDiffuse;\n"
+            "in vec4 vSpecular;\n"
+            "in vec2 vUV;\n"
+            "\n"
+            "uniform sampler2D texture0;\n"
+            "uniform bool doTexture;\n"
+            "uniform bool doFog;\n"
+            "uniform vec3 fogColour;\n"
+            "\n"
+            "out vec4 fragColour;\n"
+            "\n"
+            "void main()\n"
+            "{\n"
+            "    vec4 c = doTexture ? texture(texture0, vUV) * vDiffuse : vDiffuse;\n"
+            "\n"
+            "    // DR2 draws pre-transformed vertices, and for those D3D takes the\n"
+            "    // fog factor from the specular alpha channel rather than from\n"
+            "    // depth - 1 is unfogged, 0 is fully fogged.\n"
+            "    if (doFog)\n"
+            "    {\n"
+            "        c.rgb = mix(fogColour, c.rgb, vSpecular.a);\n"
+            "    }\n"
+            "\n"
+            "    fragColour = c;\n"
+            "}\n";
+
+        static GLuint program;
+        static GLint uniScreenSize = -1;
+        static GLint uniDoTexture = -1;
+        static GLint uniDoFog = -1;
+        static GLint uniFogColour = -1;
+
+        static GLuint vao;
+        static GLuint vbo;
+        static GLuint ibo;
+
+        //---------------------------------------------------------------------
+
+        static GLuint CompileShader(GLenum type, const char* src, const char* what)
+        {
+            GLuint shader = glCreateShader(type);
+            glShaderSource(shader, 1, &src, nullptr);
+            glCompileShader(shader);
+
+            GLint ok = GL_FALSE;
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &ok);
+            if (!ok)
+            {
+                char info[1024];
+                GLsizei len = 0;
+                glGetShaderInfoLog(shader, sizeof(info) - 1, &len, info);
+                info[len < GLsizei(sizeof(info)) ? len : sizeof(info) - 1] = '\0';
+                LOG_ERR(("OGL: %s shader failed to compile:", what));
+                LOG_ERR(("OGL: %s", info));
+
+                glDeleteShader(shader);
+                return 0;
+            }
+            return shader;
+        }
+
+        //---------------------------------------------------------------------
+
+        static Bool InitShaders()
+        {
+            GLuint vs = CompileShader(GL_VERTEX_SHADER, vertexShaderSrc, "vertex");
+            if (!vs)
+            {
+                return FALSE;
+            }
+
+            GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc, "fragment");
+            if (!fs)
+            {
+                glDeleteShader(vs);
+                return FALSE;
+            }
+
+            program = glCreateProgram();
+            glAttachShader(program, vs);
+            glAttachShader(program, fs);
+            glLinkProgram(program);
+
+            glDeleteShader(vs);
+            glDeleteShader(fs);
+
+            GLint ok = GL_FALSE;
+            glGetProgramiv(program, GL_LINK_STATUS, &ok);
+            if (!ok)
+            {
+                char info[1024];
+                GLsizei len = 0;
+                glGetProgramInfoLog(program, sizeof(info) - 1, &len, info);
+                info[len < GLsizei(sizeof(info)) ? len : sizeof(info) - 1] = '\0';
+                LOG_ERR(("OGL: shader program failed to link:"));
+                LOG_ERR(("OGL: %s", info));
+
+                glDeleteProgram(program);
+                program = 0;
+                return FALSE;
+            }
+
+            uniScreenSize = glGetUniformLocation(program, "screenSize");
+            uniDoTexture = glGetUniformLocation(program, "doTexture");
+            uniDoFog = glGetUniformLocation(program, "doFog");
+            uniFogColour = glGetUniformLocation(program, "fogColour");
+
+            glUseProgram(program);
+            glUniform1i(glGetUniformLocation(program, "texture0"), 0);
+
+            // VertexTL comes straight off the bucket memory, so the attribute
+            // layout has to match it exactly - these keep that honest.
+            static_assert(sizeof(VertexTL) == 32, "VertexTL layout changed; update the OGL vertex attributes");
+            static_assert(offsetof(VertexTL, vv) == 0, "VertexTL layout changed");
+            static_assert(offsetof(VertexTL, diffuse) == 16, "VertexTL layout changed");
+            static_assert(offsetof(VertexTL, specular) == 20, "VertexTL layout changed");
+            static_assert(offsetof(VertexTL, u) == 24, "VertexTL layout changed");
+
+            glGenVertexArrays(1, &vao);
+            glGenBuffers(1, &vbo);
+            glGenBuffers(1, &ibo);
+
+            glBindVertexArray(vao);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+            const GLsizei stride = sizeof(VertexTL);
+
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, stride, (const void*)0);
+
+            // Color is b,g,r,a in memory; GL_BGRA as the size reorders it to
+            // rgba for us rather than swizzling in the shader
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, GL_BGRA, GL_UNSIGNED_BYTE, GL_TRUE, stride, (const void*)16);
+
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, GL_BGRA, GL_UNSIGNED_BYTE, GL_TRUE, stride, (const void*)20);
+
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, stride, (const void*)24);
+
+            glBindVertexArray(0);
+
+            LOG_DIAG(("OGL: shaders ready"));
 
             return TRUE;
         }
@@ -499,18 +709,118 @@ namespace Vid
         // phase named against it in docs/research/graphics-backend-port.md.
         //
 
-        // phase 5: render state
-        void ResetState(Bool) {}
-        void SetZBuffer(Bool, Bool) {}
-        void SetZWrite(Bool) {}
-        Bool GetZWrite() { return TRUE; }
-        void SetAlphaBlend(Bool) {}
-        void SetCull(Bool) {}
-        void SetSrcBlend(U32) {}
-        void SetDstBlend(U32) {}
+        //---------------------------------------------------------------------
+        //
+        // render state
+        //
+
+        static Bool zWrite = TRUE;
+
+        static GLenum BlendFactor(U32 blend)
+        {
+            switch (blend)
+            {
+                case BLEND_ZERO: return GL_ZERO;
+                case BLEND_ONE: return GL_ONE;
+                case BLEND_SRCCOLOR: return GL_SRC_COLOR;
+                case BLEND_INVSRCCOLOR: return GL_ONE_MINUS_SRC_COLOR;
+                case BLEND_SRCALPHA: return GL_SRC_ALPHA;
+                case BLEND_INVSRCALPHA: return GL_ONE_MINUS_SRC_ALPHA;
+                case BLEND_DSTALPHA: return GL_DST_ALPHA;
+                case BLEND_INVDSTALPHA: return GL_ONE_MINUS_DST_ALPHA;
+                case BLEND_DSTCOLOR: return GL_DST_COLOR;
+                case BLEND_INVDSTCOLOR: return GL_ONE_MINUS_DST_COLOR;
+                case BLEND_SRCALPHASAT: return GL_SRC_ALPHA_SATURATE;
+                default: return GL_ONE;
+            }
+        }
+
+        static GLenum srcBlend = GL_SRC_ALPHA;
+        static GLenum dstBlend = GL_ONE_MINUS_SRC_ALPHA;
+
+        void ResetState(Bool)
+        {
+            glDisable(GL_SCISSOR_TEST);
+            glDepthFunc(GL_LEQUAL);
+            glDisable(GL_STENCIL_TEST);
+            glBlendFunc(srcBlend, dstBlend);
+        }
+
+        void SetZBuffer(Bool doZBuffer, Bool)
+        {
+            if (doZBuffer)
+            {
+                glEnable(GL_DEPTH_TEST);
+            }
+            else
+            {
+                glDisable(GL_DEPTH_TEST);
+            }
+            zWrite = doZBuffer;
+            glDepthMask(doZBuffer ? GL_TRUE : GL_FALSE);
+        }
+
+        void SetZWrite(Bool doZWrite)
+        {
+            zWrite = doZWrite;
+            glDepthMask(doZWrite ? GL_TRUE : GL_FALSE);
+        }
+
+        Bool GetZWrite()
+        {
+            return zWrite;
+        }
+
+        void SetAlphaBlend(Bool doAlpha)
+        {
+            if (doAlpha)
+            {
+                glEnable(GL_BLEND);
+            }
+            else
+            {
+                glDisable(GL_BLEND);
+            }
+        }
+
+        void SetCull(Bool doCull)
+        {
+            if (doCull)
+            {
+                glEnable(GL_CULL_FACE);
+                // D3D culls counter-clockwise here, and the y flip in the
+                // vertex shader reverses winding, so this lands on GL_BACK
+                glCullFace(GL_BACK);
+                glFrontFace(GL_CW);
+            }
+            else
+            {
+                glDisable(GL_CULL_FACE);
+            }
+        }
+
+        void SetSrcBlend(U32 blend)
+        {
+            srcBlend = BlendFactor(blend);
+            glBlendFunc(srcBlend, dstBlend);
+        }
+
+        void SetDstBlend(U32 blend)
+        {
+            dstBlend = BlendFactor(blend);
+            glBlendFunc(srcBlend, dstBlend);
+        }
+
+        // GL clips to the frustum unconditionally; there is no equivalent to
+        // toggle, and D3DDP_DONOTCLIP was only ever a hint that the caller had
+        // already done the work
         void SetClipping(Bool) {}
+
+        // phase 5: lighting and shading become shader work
         void SetLighting(Bool) {}
         void SetShade(U32) {}
+
+        // no equivalent in a core profile
         void SetDither(Bool) {}
         void SetSpecular(Bool) {}
         void SetAntiAlias(Bool) {}
@@ -527,10 +837,35 @@ namespace Vid
         void ValidateBlends() {}
         Bool ValidateBlend(U32, U32) { return TRUE; }
 
-        // phase 5: fog and ambient
-        void SetFog(Bool) {}
-        void SetFogColor(U32) {}
+        //---------------------------------------------------------------------
+        //
+        // fog
+        //
+        // The range is not needed here: the software transform has already
+        // baked the per-vertex fog factor into the specular alpha channel, so
+        // the shader only needs to know whether fog is on and what colour.
+        //
+
+        static Bool fogOn = FALSE;
+        static F32 fogR = 0.0f, fogG = 0.0f, fogB = 0.0f;
+
+        void SetFog(Bool on)
+        {
+            fogOn = on;
+        }
+
+        void SetFogColor(U32 color)
+        {
+            Color c;
+            c.color = color;
+            fogR = c.r / 255.0f;
+            fogG = c.g / 255.0f;
+            fogB = c.b / 255.0f;
+        }
+
         void SetFogRange(F32, F32) {}
+
+        // phase 5: ambient becomes a uniform once lighting moves to the shader
         void SetAmbientColor(U32) {}
 
         // phase 5: transforms become shader uniforms
@@ -543,14 +878,111 @@ namespace Vid
         void SetLight(U32, Light::Obj&) {}
         void EnableLight(U32, Bool) {}
 
-        // phase 4 (FVF_TLVERTEX) then phase 5 (the rest)
-        Bool DrawPrimitive(PRIMITIVE_TYPE, VERTEX_TYPE, void*, U32, U32)
+        //---------------------------------------------------------------------
+        //
+        // geometry
+        //
+        // Only the pre-transformed format is handled so far. The rest of the
+        // vertex types need the transform and lighting pipeline, which is
+        // phase 5; they return TRUE so the engine carries on as before.
+        //
+
+        static GLenum PrimitiveMode(PRIMITIVE_TYPE prim)
         {
+            switch (prim)
+            {
+                case PT_POINTLIST: return GL_POINTS;
+                case PT_LINELIST: return GL_LINES;
+                case PT_LINESTRIP: return GL_LINE_STRIP;
+                case PT_TRIANGLELIST: return GL_TRIANGLES;
+                case PT_TRIANGLESTRIP: return GL_TRIANGLE_STRIP;
+                case PT_TRIANGLEFAN: return GL_TRIANGLE_FAN;
+                default: return GL_TRIANGLES;
+            }
+        }
+
+        // shared setup for both draw entry points; returns FALSE if this vertex
+        // type is not handled yet
+        static Bool BeginDraw(VERTEX_TYPE vert_type, const void* verts, U32 vert_count)
+        {
+            if (vert_type != FVF_TLVERTEX || !program || !hGLRC)
+            {
+                return FALSE;
+            }
+
+            glUseProgram(program);
+
+            RECT client;
+            GetClientRect(hWnd, &client);
+            glUniform2f(uniScreenSize, F32(client.right), F32(client.bottom));
+            glUniform1i(uniDoTexture, boundTexture[0] ? GL_TRUE : GL_FALSE);
+            glUniform1i(uniDoFog, fogOn ? GL_TRUE : GL_FALSE);
+            glUniform3f(uniFogColour, fogR, fogG, fogB);
+
+            glBindVertexArray(vao);
+
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            // orphan and refill; a persistent ring buffer is a phase 6 concern
+            glBufferData(GL_ARRAY_BUFFER, vert_count * sizeof(VertexTL), verts, GL_STREAM_DRAW);
+
             return TRUE;
         }
 
-        Bool DrawIndexedPrimitive(PRIMITIVE_TYPE, VERTEX_TYPE, void*, U32, const U16*, U32, U32)
+        static void EndDraw()
         {
+            glBindVertexArray(0);
+        }
+
+        Bool DrawPrimitive
+        (
+            PRIMITIVE_TYPE prim_type,
+            VERTEX_TYPE vert_type,
+            void* verts,
+            U32 vert_count,
+            U32 flags
+        )
+        {
+            flags;
+
+            if (!BeginDraw(vert_type, verts, vert_count))
+            {
+                return TRUE;
+            }
+
+            glDrawArrays(PrimitiveMode(prim_type), 0, vert_count);
+
+            EndDraw();
+
+            return TRUE;
+        }
+
+        //---------------------------------------------------------------------
+
+        Bool DrawIndexedPrimitive
+        (
+            PRIMITIVE_TYPE prim_type,
+            VERTEX_TYPE vert_type,
+            void* verts,
+            U32 vert_count,
+            const U16* indices,
+            U32 index_count,
+            U32 flags
+        )
+        {
+            flags;
+
+            if (!BeginDraw(vert_type, verts, vert_count))
+            {
+                return TRUE;
+            }
+
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(U16), indices, GL_STREAM_DRAW);
+
+            glDrawElements(PrimitiveMode(prim_type), index_count, GL_UNSIGNED_SHORT, nullptr);
+
+            EndDraw();
+
             return TRUE;
         }
 
