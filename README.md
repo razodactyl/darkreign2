@@ -21,6 +21,11 @@
 Switches may be prefixed with `-` or `/`, and a value is given after `:` or `=`.
 So `-ogl`, `--borderless`, `/w` and `-vidmode:1024x768` are all valid.
 
+**A value must be attached to its switch.** `-borderless:1024x768` works;
+`-borderless 1024x768` does not - the parser skips to the next `-` or `/`, so the
+detached `1024x768` is ignored and the switch behaves as though no size was
+given. Nothing warns about this.
+
 ### Video
 
 | Switch | Effect |

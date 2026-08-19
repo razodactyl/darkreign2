@@ -23,6 +23,16 @@ namespace Vid
         U32 cMode, cDD;
 
         const char* SettingsFile = "settings.cfg";
+        const char* SettingsFileOGL = "settings-ogl.cfg";
+
+        // The two backends describe different drivers and mode lists, so a file
+        // written by one is always rejected by the other's validation. Sharing a
+        // single file therefore means every switch between them silently
+        // discards whatever the other had saved. Keep them apart.
+        static const char* CurrentSettingsFile()
+        {
+            return isStatus.ogl ? SettingsFileOGL : SettingsFile;
+        }
         const char* SettingsVersion = "Vid::Settings3";
         U32 version;
 
@@ -53,7 +63,7 @@ namespace Vid
             if (!fScope)
             {
                 // Load the configuration file
-                if (pTree.AddFile(SettingsFile))
+                if (pTree.AddFile(CurrentSettingsFile()))
                 {
                     // Get the global scope
                     fScope = pTree.GetGlobalScope();
@@ -208,9 +218,9 @@ namespace Vid
             sScope->AddArgInteger(S32(viewRect.p1.x));
             sScope->AddArgInteger(S32(viewRect.p1.y));
 
-            if (!pTree.WriteTreeText(SettingsFile))
+            if (!pTree.WriteTreeText(CurrentSettingsFile()))
             {
-                LOG_DIAG(("Unable to write video settings file '%s'", SettingsFile));
+                LOG_DIAG(("Unable to write video settings file '%s'", CurrentSettingsFile()));
             }
         }
 
