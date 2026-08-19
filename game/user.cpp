@@ -444,7 +444,17 @@ namespace User
 
                         Sound::Vorbis::SetEnabled(StdLoad::TypeU32(sScope, "Enabled", TRUE));
                         Sound::Vorbis::SyncEnabled();
-                        Sound::Vorbis::SetVolume(StdLoad::TypeF32(sScope, "Volume", 0.8));
+
+                        // Both music paths share the one saved volume, exactly as
+                        // the audio options page sets them together. Redbook was
+                        // missing here, so its volume stayed at the driver default
+                        // until the page was opened - which is why the music was
+                        // loud until then, and jumped as soon as you looked at it.
+                        {
+                            F32 musicVolume = StdLoad::TypeF32(sScope, "Volume", 0.8f);
+                            Sound::Vorbis::SetVolume(musicVolume);
+                            Sound::Redbook::SetVolume(musicVolume);
+                        }
                         break;
 
                     case 0xA8F8B58E: // "MissionProgress"
@@ -726,7 +736,8 @@ namespace User
                 // Save redbook sound settings
                 fScope = gScope->AddFunction("SoundRedbook");
                 StdSave::TypeU32(fScope, "Enabled", Sound::Redbook::GetEnabled());
-                // Sound::Redbook::SetVolume only works if `initialized` and `driver`.
+                // One volume covers both music paths; Vorbis is the one that is
+                // always available to ask.
                 StdSave::TypeF32(fScope, "Volume", Sound::Vorbis::Volume());
 
                 // Save campaign progress

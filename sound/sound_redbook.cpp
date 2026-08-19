@@ -50,6 +50,12 @@ namespace Sound
         // Volume label to look for first
         static char volumeLabel[64];
 
+        // The volume last asked for. SetVolume can be called before the driver
+        // is open - the user profile is loaded before Claim runs - and the
+        // request would otherwise be dropped, leaving the music at the driver's
+        // default until something set it again.
+        static F32 requestedVolume = 1.0F;
+
         // Maximum redbook volume
         enum { MIN_VOLUME = 0, MAX_VOLUME = 127 };
 
@@ -211,6 +217,10 @@ namespace Sound
                 {
                     // Stop the cd playing anything
                     Stop();
+
+                    // apply whatever volume was asked for before we had a driver
+                    SetVolume(requestedVolume);
+
                     return (TRUE);
                 }
 
@@ -426,6 +436,8 @@ namespace Sound
         //
         void SetVolume(F32 volume)
         {
+            requestedVolume = volume;
+
             if (initialized && driver)
             {
                 AIL_redbook_set_volume
@@ -452,7 +464,9 @@ namespace Sound
                 return (static_cast<F32>(AIL_redbook_volume(driver)) / static_cast<F32>(MAX_VOLUME));
             }
 
-            return (0.0F);
+            // no driver to ask; report what was last requested rather than 0,
+            // which would otherwise be saved back into the user profile
+            return (requestedVolume);
         }
     }
 }
