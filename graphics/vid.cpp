@@ -233,6 +233,22 @@ namespace Vid
         U32 ew = wr.Width() - cr.Width();
         U32 eh = wr.Height() - cr.Height();
         viewRect.Set(STARTWIDTH, STARTHEIGHT);
+
+        if (doStatus.borderless)
+        {
+            // Borderless covers the whole desktop unless a size was given on
+            // the command line. InitDD hasn't run yet, so the display size has
+            // to come from windows rather than from CurMode()
+            if (Main::vidModeSet)
+            {
+                viewRect.Set(S32(Main::vidModeX), S32(Main::vidModeY));
+            }
+            else
+            {
+                viewRect.Set(GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
+            }
+        }
+
         winRect.SetSize
         (
             (GetSystemMetrics(SM_CXSCREEN) - viewRect.Width()) >> 1,

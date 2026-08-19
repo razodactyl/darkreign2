@@ -182,6 +182,7 @@ public:
 
     F32 fps;                // current anim frame rate
     F32 texTimer, texTime;  // texture animation
+    F32 texPollTime;        // time since the last PollActivateTexAnim
 
     U32 faceCount;          // current mrm facecount
     U32 vertCount;          // current mrm vertcount

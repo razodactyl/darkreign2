@@ -407,6 +407,31 @@ namespace MultiPlayer
 
 
     //
+    // Process multiplayer while sitting in the lobby
+    //
+    // The shell has no game cycle, so nothing here consumes the sync data
+    // the server sends every update interval. Without this the queue (and
+    // the lag it represents) grows for as long as the players sit in the
+    // lobby, delaying every setup change by more and more, until the pre
+    // mission synchronisation has to burn off the entire backlog at once
+    //
+    void ProcessLobby()
+    {
+        // Nothing to do until we're in a session
+        if (!Data::Online())
+        {
+            return;
+        }
+
+        // Process as we would in the game
+        Process();
+
+        // Apply the sync data as it arrives rather than queueing it
+        Data::FlushSyncData();
+    }
+
+
+    //
     // Reset multiplayer
     //
     void Reset()

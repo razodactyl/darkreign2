@@ -61,7 +61,10 @@ namespace MultiPlayer
         // Process the next sync data
         Bool ProcessSyncData(U32& seq, U32& interval, U32& time);
 
-        // What size interval are we behind the most recent 
+        // Process all of the sync data which has arrived
+        void FlushSyncData();
+
+        // What size interval are we behind the most recent
         U32 GetLag();
 
 

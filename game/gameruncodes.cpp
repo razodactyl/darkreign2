@@ -387,6 +387,9 @@ namespace GameRunCodes
         //
         void Process()
         {
+            // Process the multiplayer lobby
+            MultiPlayer::ProcessLobby();
+
             // Process base systems
             Base::Process();
         }

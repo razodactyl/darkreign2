@@ -41,6 +41,9 @@ namespace MultiPlayer
     // Process multiplayer
     void Process();
 
+    // Process multiplayer while sitting in the lobby
+    void ProcessLobby();
+
     // Reset multiplayer
     void Reset();
 

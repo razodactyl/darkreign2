@@ -225,7 +225,27 @@ namespace MultiPlayer
 
 
         //
-        // What size interval are we behind the most recent 
+        // Process all of the sync data which has arrived
+        //
+        // Outside of the simulation there is no game cycle to consume the
+        // sync data stream, so it has to be applied as it arrives. Left
+        // alone it simply accumulates, and every update sent through it
+        // falls further and further behind
+        //
+        void FlushSyncData()
+        {
+            U32 seq;
+            U32 interval;
+            U32 time;
+
+            while (ProcessSyncData(seq, interval, time))
+            {
+            }
+        }
+
+
+        //
+        // What size interval are we behind the most recent
         //
         U32 GetLag()
         {

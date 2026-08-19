@@ -17,6 +17,12 @@
 
 const F32 TEXTURETIMER = .1f;
 
+// PollActivateTexAnim is called once per sim cycle (10Hz) but SimulateTex runs
+// once per rendered frame; keep a poll alive for two sim cycles so that a
+// display frame can't retire it before the next poll arrives
+//
+const F32 TEXPOLLTIMEOUT = .2f;
+
 // MeshObj
 
 void MeshObj::ClearData()
@@ -209,6 +215,7 @@ void MeshEnt::ClearData()
     fps = ANIMFPS;
     texTimer = TEXTURETIMER;
     texTime = 0;
+    texPollTime = 0;
     name.str[0] = '\0';
 
     animState0.ClearData();
@@ -231,6 +238,7 @@ void MeshEnt::ClearData()
     teamColor = 0xffffffff;
 
     texAnimPoll = FALSE;
+    lastTexPoll = FALSE;
 
     envMap = FALSE;
     hasTexAnim = FALSE;
@@ -1045,31 +1053,43 @@ void MeshEnt::PollActivateTexAnim()
 
 // animate textures
 //
-void MeshEnt::SimulateTex(F32 dt, Bool simFrame)
+void MeshEnt::SimulateTex(F32 dt, Bool)
 {
-    if (!textureAnim && !texAnimPoll)
+    // polls arrive once per sim cycle; retire them on a timeout rather than on
+    // the first frame that happens to tick the texture over, otherwise a
+    // display frame in between resets the sequence back to frame 0
+    //
+    if (texAnimPoll)
     {
-        if (lastTexPoll)
+        texPollTime = 0.0f;
+        lastTexPoll = TRUE;
+        texAnimPoll = texAnimAuto;
+    }
+    else if (lastTexPoll)
+    {
+        texPollTime += dt;
+
+        if (texPollTime > TEXPOLLTIMEOUT)
         {
             SetTexFrame(0);
             lastTexPoll = FALSE;
         }
+    }
+
+    if (!textureAnim && !lastTexPoll)
+    {
         return;
     }
 
     texTime += dt;
 
-    if (texTime >= texTimer)
+    // catch up whole intervals rather than discarding them
+    //
+    while (texTimer > 0.0f && texTime >= texTimer)
     {
-        texTime = fmodf(texTime, texTimer);
+        texTime -= texTimer;
 
         RootPriv().TexAnim(&buckys);
-
-        if (simFrame)
-        {
-            lastTexPoll = texAnimPoll;
-            texAnimPoll = texAnimAuto;
-        }
     }
 }
 

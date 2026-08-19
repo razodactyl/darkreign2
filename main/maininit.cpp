@@ -169,6 +169,69 @@ namespace Main
 
 
     //
+    // SetupDpiAwareness
+    //
+    // Opt the process into true pixel coordinates so that windowed, borderless
+    // and high resolution modes are not bitmap scaled by the desktop compositor.
+    // Without this the process is DPI unaware, and on a scaled display every
+    // screen metric we read back is virtualised. Entry points are resolved at
+    // runtime so that older systems simply fall through to the next best option.
+    //
+    static void SetupDpiAwareness()
+    {
+        typedef BOOL (WINAPI * SetContextProc)(HANDLE);
+        typedef HRESULT (WINAPI * SetAwarenessProc)(int);
+        typedef BOOL (WINAPI * SetDpiAwareProc)();
+
+        HMODULE user32 = GetModuleHandle("user32.dll");
+
+        // Windows 10 1703 and later; per monitor, with correct non-client scaling
+        if (user32)
+        {
+            SetContextProc setContext =
+                (SetContextProc)GetProcAddress(user32, "SetProcessDpiAwarenessContext");
+
+            // DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2
+            if (setContext && setContext((HANDLE)-4))
+            {
+                LOG_DIAG(("DPI awareness: per monitor v2"))
+                return;
+            }
+        }
+
+        // Windows 8.1 and later. The module is deliberately left loaded, this
+        // is one time process wide setup
+        if (HMODULE shcore = LoadLibrary("shcore.dll"))
+        {
+            SetAwarenessProc setAwareness =
+                (SetAwarenessProc)GetProcAddress(shcore, "SetProcessDpiAwareness");
+
+            // PROCESS_PER_MONITOR_DPI_AWARE
+            if (setAwareness && SUCCEEDED(setAwareness(2)))
+            {
+                LOG_DIAG(("DPI awareness: per monitor"))
+                return;
+            }
+        }
+
+        // Windows Vista and later
+        if (user32)
+        {
+            SetDpiAwareProc setDpiAware =
+                (SetDpiAwareProc)GetProcAddress(user32, "SetProcessDPIAware");
+
+            if (setDpiAware && setDpiAware())
+            {
+                LOG_DIAG(("DPI awareness: system"))
+                return;
+            }
+        }
+
+        LOG_DIAG(("DPI awareness: unavailable, display metrics may be virtualised"))
+    }
+
+
+    //
     // Init
     //
     // Initialise the Main class with application data
@@ -187,6 +250,10 @@ namespace Main
 
         // Bring up the important systems
         LowLevelSystemInit();
+
+        // Needs logging to be up, and must happen well before CoreSystemInit
+        // creates the main window or reads any screen metric
+        SetupDpiAwareness();
 
         // Register the "QUIT" run code
         runCodes.Register("QUIT", ProcessQuit, nullptr, nullptr);
@@ -622,6 +689,51 @@ namespace Main
 
 
     //
+    // ParseVidMode
+    //
+    // Parse a "<width>x<height>" or "max" mode string. Returns FALSE if the
+    // string is not a mode, in which case none of the outputs are meaningful
+    //
+    static Bool ParseVidMode(const char* str, U32& x, U32& y, Bool& max)
+    {
+        max = FALSE;
+        x = y = 0;
+
+        if (!str || !*str)
+        {
+            return (FALSE);
+        }
+
+        const char* s = strchr(str, 'x');
+
+        if (!s || s == str)
+        {
+            return (FALSE);
+        }
+
+        // "max" ends on the same 'x' we just found
+        if (s >= str + 2 && !Utils::Strnicmp(s - 2, "max", 3))
+        {
+            max = TRUE;
+            return (TRUE);
+        }
+
+        char buf[32];
+        Utils::Strmcpy(buf, str, Min<U32>(U32(s - str) + 1, sizeof(buf)));
+        x = atoi(buf);
+
+        // Nothing after the 'x'
+        if (s >= str + Utils::Strlen(str) - 1)
+        {
+            return (FALSE);
+        }
+        y = atoi(s + 1);
+
+        return (x > 0 && y > 0);
+    }
+
+
+    //
     // ProcessCmdLine
     //
     // Parse the command line
@@ -648,6 +760,33 @@ namespace Main
                         Vid::doStatus.fullScreen = FALSE;
                         Vid::doStatus.borderless = TRUE;
                         Vid::doStatus.modeOverRide = TRUE;
+
+                        // Optional size, e.g. -borderless:640x480. With no size
+                        // the borderless window covers the whole desktop
+                        if (*val.str)
+                        {
+                            U32 x, y;
+                            Bool max;
+
+                            if (ParseVidMode(val.str, x, y, max))
+                            {
+                                if (max)
+                                {
+                                    Vid::doStatus.modeMax = TRUE;
+                                }
+                                else
+                                {
+                                    vidModeX = x;
+                                    vidModeY = y;
+                                    vidModeSet = TRUE;
+                                    LOG_DIAG(("Setting borderless mode [%dx%d]", vidModeX, vidModeY))
+                                }
+                            }
+                            else
+                            {
+                                LOG_ERR(("-borderless: bad mode [%s]", val.str))
+                            }
+                        }
                         continue;
                     }
 
@@ -701,33 +840,25 @@ namespace Main
 
                         case 0x873A066D: // "vidmode"
                         {
-                            if (*val.str)
+                            U32 x, y;
+                            Bool max;
+
+                            if (ParseVidMode(val.str, x, y, max))
                             {
-                                char* s = strchr(val.str, 'x');
-                                char buf[32];
+                                Vid::doStatus.modeOverRide = TRUE;
 
-                                if (s && s != val.str)
+                                if (max)
                                 {
-                                    if (!Utils::Strnicmp(s - 2, "max", 3))
-                                    {
-                                        Vid::doStatus.modeMax = TRUE;
-                                        Vid::doStatus.modeOverRide = TRUE;
-                                    }
-                                    else
-                                    {
-                                        Utils::Strmcpy(buf, val.str, s - val.str + 1);
-                                        vidModeX = atoi(buf);
-
-                                        if (s < (static_cast<char*>(val.str) + Utils::Strlen(val.str) - 1))
-                                        {
-                                            vidModeY = atoi(s + 1);
-                                            vidModeSet = TRUE;
-                                            Vid::doStatus.modeOverRide = TRUE;
-                                            LOG_DIAG(("Setting mode [%dx%d]", vidModeX, vidModeY))
-                                            break;
-                                        }
-                                    }
+                                    Vid::doStatus.modeMax = TRUE;
                                 }
+                                else
+                                {
+                                    vidModeX = x;
+                                    vidModeY = y;
+                                    vidModeSet = TRUE;
+                                    LOG_DIAG(("Setting mode [%dx%d]", vidModeX, vidModeY))
+                                }
+                                break;
                             }
                             LOG_ERR(("-vidmode: bad mode [%s]", val.str))
                             break;
