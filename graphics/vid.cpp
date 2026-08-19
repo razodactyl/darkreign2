@@ -1439,7 +1439,7 @@ namespace Vid
 
         LOG_DIAG(("[VID OGL DRIVER] %d display modes", dd.numModes));
 
-        dd.curMode = VIDMODEWINDOW;
+        // dd.curMode is set below, once the saved settings have been read
         dd.gameMode = VIDMODEWINDOW;
         dd.shellMode = VIDMODEWINDOW;
 
@@ -1454,12 +1454,40 @@ namespace Vid
         dd.drivers[0].mipmap = TRUE;
         dd.drivers[0].texNon2 = TRUE;
 
-        curMode = VIDMODEWINDOW;
-
         isStatus.gotDD = TRUE;
-        isStatus.enumDD = TRUE;
         isStatus.windowed = TRUE;
         isStatus.fullScreen = FALSE;
+
+        // Pick up the saved configuration. On the DirectX path this happens
+        // inside InitDD, and the mode is restored by PickVidMode at the end of
+        // it - neither of which runs here, so without this nothing the player
+        // changes in the options dialog survives a restart.
+        //
+        // Settings::Load validates the file against the enumerated hardware, so
+        // a file written by the DirectX backend is rejected here and vice versa.
+        // That is the wanted behaviour: the two describe different drivers and
+        // mode lists.
+        Settings::Load();
+        Settings::SetupTex();
+
+        curMode = VIDMODEWINDOW;
+
+        if (!Settings::firstEver && !doStatus.modeOverRide)
+        {
+            if (Settings::cMode == VIDMODEWINDOW || Settings::cMode < dd.numModes)
+            {
+                curMode = Settings::cMode;
+                if (curMode != VIDMODEWINDOW)
+                {
+                    dd.fullMode = curMode;
+                }
+            }
+        }
+        dd.curMode = curMode;
+
+        // enumDD marks the driver list as built; Settings::Load is the only
+        // thing above that wants it clear, so it is set afterwards
+        isStatus.enumDD = TRUE;
 
         LOG_DIAG(("[VID OGL DRIVER] desktop %dx%d", screenW, screenH));
 
