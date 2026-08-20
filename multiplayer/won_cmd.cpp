@@ -448,7 +448,7 @@ namespace Won
                             // We're only interested in games with a matching version
                             if (session->version != U16(Version::GetBuildNumber()))
                             {
-                                break;
+                                continue;
                             }
 #endif
 
