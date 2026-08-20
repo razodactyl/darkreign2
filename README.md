@@ -16,6 +16,35 @@
   and what is still outstanding. This supersedes the older
   `upgrade-graphics-system` branch, which is kept only as a reference.
 
+## Releasing and the Update System
+
+Published releases are staged in **`resources/DR2 Online/`**, one directory per
+release — `DR2 Patch 145400` through `DR2 Patch 145900`, plus a full
+`DR2 Total Patch`. That location is not obvious, so: if you are looking for what
+was shipped, how, or why, it is in there.
+
+Each release directory holds the payload, the NSIS installer script, the
+compiled installer, and the update manifest that was uploaded to the server. The
+newer ones also carry a **`CHANGES.md`** recording what that release was and
+anything unusual about publishing it — read it before republishing or building
+on top of one.
+
+A release is identified by its version with the separators removed: 1.459.0.0 is
+**145900**. That number, not a build counter, is what the lobby, the StyxNet
+server and the update manifest all compare.
+
+- **`docs/update-system.md`** — how the whole thing works: version stamping, the
+  manifest format, the download transport, patch verification, the release
+  procedure, and the known issues. Start here before changing any of it.
+- **`make manifest`** — stamps a built installer's size and SHA-256 into the
+  manifest. Re-run it every time the installer is recompiled; a stale hash means
+  clients refuse the update.
+
+> **1.459 needs a server-side transition step.** Shipped 1.458 clients cannot
+> reach the update server at all, so a plain-HTTP window has to be opened for
+> them before 1.459 can propagate. See
+> `resources/DR2 Online/DR2 Patch 145900/CHANGES.md`.
+
 ## Command Line Switches
 
 Switches may be prefixed with `-` or `/`, and a value is given after `:` or `=`.

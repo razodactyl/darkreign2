@@ -1,0 +1,41 @@
+# Transition window for 1.458 clients - see docs/update-system.md section 9.
+#
+# The problem this solves: dr2.mintsoft.dev currently answers port 80 with a
+# 308 to HTTPS. Shipped 1.458 clients cannot follow it. They have no TLS, their
+# redirect following is compiled out, and their download code treats any status
+# other than 200 as a hard failure. So today every 1.458 update check ends in
+# Update::CheckFailed and no 458 player can update in game at all.
+#
+# This block serves the update files - and only the update files - as plain
+# HTTP 200 on port 80, so those clients can see the manifest and pull the 1.459
+# installer. Everything else on the host keeps redirecting to HTTPS.
+#
+# The 458 -> 459 hop is unauthenticated. It has to be: the 458 binary has no
+# way to verify what it downloads, and that cannot be changed retroactively.
+# 459 onwards is TLS with a SHA256 check on every patch, so this is a one time
+# exposure that closes as soon as the window does.
+#
+# Take this block out once uptake levels off. Check by watching how many 458
+# builds are still logging in - StyxNet has the build number on every
+# UserLogin. Nothing breaks for 459 clients when it goes: they were never using
+# port 80.
+
+http://dr2.mintsoft.dev {
+    # Only these three files. Not the whole downloads tree, and nothing that
+    # could be swapped for something else later.
+    @updates {
+        path /motd/darkreign2/downloads/updates.cfg
+        path /motd/darkreign2/downloads/motd.cfg
+        path /motd/darkreign2/downloads/dr2_145900.exe
+    }
+
+    handle @updates {
+        root * /srv/dr2
+        file_server
+    }
+
+    # Everything else keeps going to HTTPS as before
+    handle {
+        redir https://{host}{uri} permanent
+    }
+}
