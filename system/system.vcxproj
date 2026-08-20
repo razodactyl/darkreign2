@@ -191,6 +191,7 @@
     <ClInclude Include="dtrack.h" />
     <ClInclude Include="fixme.h" />
     <ClInclude Include="md5.h" />
+    <ClInclude Include="sha256.h" />
     <ClInclude Include="random.h" />
     <ClInclude Include="str.h" />
     <ClInclude Include="strbuf.h" />
@@ -236,6 +237,7 @@
     <ClCompile Include="dtrack.cpp" />
     <ClCompile Include="fixme.cpp" />
     <ClCompile Include="md5.cpp" />
+    <ClCompile Include="sha256.cpp" />
     <ClCompile Include="random.cpp" />
     <ClCompile Include="str.cpp" />
     <ClCompile Include="utils.cpp" />

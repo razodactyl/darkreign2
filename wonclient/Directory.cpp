@@ -10,66 +10,41 @@ namespace MINTCLIENT
 {
     Win32::Thread Directory::downloadThread;
 
+    //
+    // DownloadProcessor
+    //
+    // Runs one download to completion on its own thread. The transport itself
+    // lives behind HTTP::backend (see http_backend.h) so that swapping WinHTTP
+    // for something else does not reach into this file.
+    //
     U32 STDCALL Directory::DownloadProcessor(void* context)
     {
         auto* ctx = (DownloadContext<void*>*)context;
 
-        httplib::Client cli(ctx->hostname, ctx->port);
+        HTTP::Request request;
+        request.host = ctx->hostname;
+        request.port = ctx->port;
+        request.path = ctx->getPath;
+        request.proxy = ctx->proxy;
+        request.saveAsPath = ctx->saveAsPath;
+        request.OnProgress = ctx->progressCallback;
+        request.context = ctx->data;
 
-        auto p = MINTCLIENT::IPSocket::Address(ctx->proxy);
+        Error result = HTTP::backend->Get(request);
 
-        // cli.set_proxy(p.GetHost(), p.GetPortI());
+        // Exactly once, whatever happened. The completion callback disposes the
+        // caller's state, so calling it twice - as the previous httplib version
+        // could, from both the status check and the progress callback - is a
+        // double free rather than a duplicate notification.
+        ctx->getCallback(result, ctx->data);
 
-        // struct HTTPData
-        // {
-        //     U32 handle;
-        //     bool isNew;
-        //     time_t time;
-        //     Bool abort;
-        //     void* data;
-        // };
+        delete[] ctx->proxy;
+        delete[] ctx->hostname;
+        delete[] ctx->getPath;
+        delete[] ctx->saveAsPath;
+        delete ctx;
 
-        // cli.set_follow_location(true);
-
-        std::string body;
-
-        auto file = File();
-        file.Open(ctx->saveAsPath, File::CREATE | File::WRITE);
-
-        std::shared_ptr<httplib::Response> res = cli.Get
-        (
-            ctx->getPath, httplib::Headers(),
-            [&](const httplib::Response& response)
-            {
-                if (response.status != 200)
-                {
-                    file.Close();
-                    ctx->getCallback(MINTCLIENT::Errors::GeneralFailure, ctx->data);
-                    return false;
-                }
-                return true; // return 'false' if you want to cancel the request.
-            },
-            [&](const char* data, size_t data_length)
-            {
-                file.Write(data, data_length);
-                body.append(data, data_length);
-                return true; // return 'false' if you want to cancel the request.
-            },
-            [&](uint64_t len, uint64_t total)
-            {
-                bool result = ctx->progressCallback(len, total, ctx->data);
-
-                if (len >= total)
-                {
-                    file.Close();
-                    ctx->getCallback(MINTCLIENT::Errors::Success, ctx->data);
-                }
-
-                return result; // return 'false' if you want to cancel the request.
-            }
-        );
-
-        return 0;
+        return (0);
     }
 
     Win32::Thread directoryThread;

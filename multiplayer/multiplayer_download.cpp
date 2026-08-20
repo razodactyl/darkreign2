@@ -20,6 +20,7 @@
 #include "iface.h"
 #include "main.h"
 #include "version.h"
+#include "sha256.h"
 #include "win32_socket.h"
 #include "win32_dns.h"
 
@@ -64,6 +65,11 @@ namespace MultiPlayer
             // Name of the file
             FilePath file;
 
+            // SHA256 of the file as lowercase hex. Empty when the manifest did
+            // not carry one, which is treated as a refusal to run it - see
+            // VerifyPatch
+            StrBuf<SHA256::STRING_SIZE> hash;
+
             // List node
             NList<Patch>::Node node;
 
@@ -75,6 +81,10 @@ namespace MultiPlayer
                 language = StdLoad::TypeStringCrc(fScope, 0xE493D172); // "English"
                 size = StdLoad::TypeU32(fScope, "Size");
                 file = StdLoad::TypeString(fScope, "File");
+
+                // Optional in the grammar so that a manifest stays readable by
+                // older clients, mandatory in practice - see VerifyPatch
+                hash = StdLoad::TypeString(fScope, "Hash", "");
             }
         };
 
@@ -98,6 +108,18 @@ namespace MultiPlayer
         static HostName defaultHost;
         static U16 defaultPort;
         static FilePath defaultPath;
+
+        // Where to look if the default source has gone away for good. Optional
+        // in download.cfg; when present it is tried once, after the default
+        // fails, before the check is reported as failed
+        static Bool haveFallback;
+        static HostName fallbackHost;
+        static U16 fallbackPort;
+        static FilePath fallbackPath;
+
+        // Set while the current attempt is against the fallback, so that a
+        // second failure reports rather than looping between the two
+        static Bool usingFallback;
 
         // Name of the file for updates and motd
         static FileName fileUpdates;
@@ -131,6 +153,8 @@ namespace MultiPlayer
         void GetPatch(const Patch& patch);
         void Get(U32 type, const char* host, U16 port, const char* path, const char* file);
         void DNSCallback(const Win32::DNS::Host* host, void* context);
+        Bool VerifyPatch(const Patch& patch);
+        Bool RetryOnFallback();
 
 
         //
@@ -168,6 +192,25 @@ namespace MultiPlayer
                 defaultHost = StdLoad::TypeString(sScope);
                 defaultPort = U16(StdLoad::TypeU32(sScope, Range<U32>(0, U16_MAX)));
                 defaultPath = StdLoad::TypeString(sScope);
+
+                // A second home to fall back on, for the day the first one is
+                // switched off. Optional - a config without one simply fails
+                // the check as it always did
+                if (FScope* fbScope = fScope->GetFunction("Fallback", FALSE))
+                {
+                    fallbackHost = StdLoad::TypeString(fbScope);
+                    fallbackPort = U16(StdLoad::TypeU32(fbScope, Range<U32>(0, U16_MAX)));
+                    fallbackPath = StdLoad::TypeString(fbScope);
+                    haveFallback = TRUE;
+
+                    LOG_DIAG(("Update fallback source is '%s:%d%s'", fallbackHost.str, fallbackPort, fallbackPath.str));
+                }
+                else
+                {
+                    haveFallback = FALSE;
+                }
+
+                usingFallback = FALSE;
 
                 // Default the update source to the default source
                 updateHost = defaultHost.str;
@@ -217,6 +260,18 @@ namespace MultiPlayer
         //
         void GetUpdates()
         {
+            // Start from a clean slate. Without this a second check appends the
+            // whole manifest to the lists again, and keeps the patch chosen the
+            // first time round
+            patches.DisposeAll();
+            extras.DisposeAll();
+            patch = nullptr;
+
+            updateHost = defaultHost.str;
+            updatePort = defaultPort;
+            updatePath = defaultPath.str;
+            usingFallback = FALSE;
+
             Get
             (
                 0x325DC801, // "Updates"
@@ -435,6 +490,23 @@ namespace MultiPlayer
                                 // We downloaded a patch
                                 ASSERT(patch);
 
+                                // What we just downloaded is about to be run
+                                // elevated, so it does not become the next
+                                // process until it hashes to what the manifest
+                                // said it would
+                                if (!VerifyPatch(*patch))
+                                {
+                                    // Reported as an ordinary patch failure so
+                                    // that the existing interface reacts to it;
+                                    // the log says which it was
+                                    SendEvent
+                                    (
+                                        PrivData::downloadCtrl, nullptr, IFace::NOTIFY,
+                                        0xB2623264
+                                    ); // "Download::PatchFailed"
+                                    break;
+                                }
+
                                 // Set the game to run that the patch next
                                 Main::RegisterNextProcess(patch->file.str);
 
@@ -491,12 +563,21 @@ namespace MultiPlayer
 
                     if (failed->handle == downloadContext.handle)
                     {
+                        // Clear the handle so a retry is able to start
+                        downloadContext.handle = 0;
+
                         // Only send failure in the case of abort
                         if (!downloadContext.aborted)
                         {
                             switch (downloadContext.type)
                             {
                                 case 0x325DC801: // "Updates"
+                                    // Before giving up, try the other home
+                                    if (RetryOnFallback())
+                                    {
+                                        break;
+                                    }
+
                                     // Update failed
                                 LOG_DIAG(("Update failed"));
                                     SendEvent
@@ -605,25 +686,16 @@ namespace MultiPlayer
                 Utils::Strcpy(path.str, context.path.str);
                 Utils::Strcat(path.str, context.file.str);
 
-                if (*Settings::GetProxy())
-                {
-                    context.handle = WonIface::HTTPGet
-                    (
-                        Settings::GetProxy(), context.name.str, context.port, path.str,
-                        context.file.str, FALSE
-                    );
-                }
-                else
-                {
-                    HostName name;
-                    Utils::Sprintf(name.str, name.GetSize(), "%s:%d", context.host.str, context.port);
-
-                    context.handle = WonIface::HTTPGet
-                    (
-                        name.str, context.name.str, context.port, path.str,
-                        context.file.str, FALSE
-                    );
-                }
+                // The name, never the resolved address: it is what the server's
+                // certificate is checked against. The proxy is passed through
+                // as configured - it used to be handed the target's own address
+                // when no proxy was set, which the transport now reads as an
+                // instruction to proxy through the target
+                context.handle = WonIface::HTTPGet
+                (
+                    Settings::GetProxy(), context.name.str, context.port, path.str,
+                    context.file.str, FALSE
+                );
             }
             else
             {
@@ -631,6 +703,91 @@ namespace MultiPlayer
                 Win32::DNS::Host* host;
                 GetByName(context.host.str, host, DNSCallback, &context);
             }
+        }
+
+
+        //
+        // VerifyPatch
+        //
+        // Confirm a downloaded patch is the file the manifest described, before
+        // anything arranges to execute it.
+        //
+        // Fails closed. A manifest entry with no hash is refused rather than
+        // trusted, so that dropping the field - or an older manifest being
+        // served from somewhere - cannot quietly turn verification off. On any
+        // failure the file is deleted, so a later run cannot find it and assume
+        // it was checked.
+        //
+        Bool VerifyPatch(const Patch& patch)
+        {
+            if (!*patch.hash.str)
+            {
+                LOG_ERR(("Refusing '%s': the manifest gave no hash for it", patch.file.str));
+                File::Unlink(patch.file.str);
+                return (FALSE);
+            }
+
+            U8 digest[SHA256::DIGEST_SIZE];
+
+            if (!SHA256::FromFile(patch.file.str, digest))
+            {
+                LOG_ERR(("Refusing '%s': could not hash it", patch.file.str));
+                File::Unlink(patch.file.str);
+                return (FALSE);
+            }
+
+            if (!SHA256::Compare(digest, patch.hash.str))
+            {
+                char actual[SHA256::STRING_SIZE];
+                SHA256::ToString(digest, actual, SHA256::STRING_SIZE);
+
+                LOG_ERR(("Refusing '%s': expected %s, got %s", patch.file.str, patch.hash.str, actual));
+                File::Unlink(patch.file.str);
+                return (FALSE);
+            }
+
+            LOG_DIAG(("Verified '%s' against the manifest hash", patch.file.str));
+            return (TRUE);
+        }
+
+
+        //
+        // RetryOnFallback
+        //
+        // Repeat the manifest fetch against the fallback source. TRUE if a retry
+        // was started, in which case the caller must not report failure yet.
+        //
+        Bool RetryOnFallback()
+        {
+            if (!haveFallback || usingFallback)
+            {
+                return (FALSE);
+            }
+
+            usingFallback = TRUE;
+
+            LOG_DIAG(("Update check failed on '%s', trying '%s'", defaultHost.str, fallbackHost.str));
+
+            // Anything the failed attempt managed to parse is discarded - the
+            // fallback's manifest is the one we are going to act on
+            patches.DisposeAll();
+            extras.DisposeAll();
+            patch = nullptr;
+
+            updateHost = fallbackHost.str;
+            updatePort = fallbackPort;
+            updatePath = fallbackPath.str;
+
+            Get
+            (
+                0x325DC801, // "Updates"
+                fallbackHost.str,
+                fallbackPort,
+                fallbackPath.str,
+                fileUpdates.str
+            );
+
+            return (TRUE);
         }
 
 
@@ -693,6 +850,16 @@ namespace MultiPlayer
                 else
                 {
                     LOG_DIAG(("Unresolved host address '%s'", context->host.str));
+
+                    // A name that no longer resolves is the case the fallback
+                    // exists for, so try it before anyone is told this failed.
+                    // Checked outside the updateCtrl test below: whether a
+                    // control happens to be registered has no bearing on which
+                    // server we should be talking to
+                    if (context == &downloadContext && downloadContext.type == 0x325DC801 && RetryOnFallback())
+                    {
+                        return;
+                    }
 
                     // DNS failed
                     if (PrivData::updateCtrl.Alive())

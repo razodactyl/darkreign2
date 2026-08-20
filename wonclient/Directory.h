@@ -3,7 +3,7 @@
 #include "MINTCLIENT.h"
 #include "Errors.h"
 
-#include "httplib.h"
+#include "http_backend.h"
 #include "file.h"
 
 
@@ -62,7 +62,7 @@ namespace MINTCLIENT
         static U32 STDCALL DownloadProcessor(void* context);
 
         // HTTPGet: 45.76.120.39:8000 dr2.mintsoft.dev 8000 /motd/darkreign2/downloads/motd.cfg downloads/motd.cfg 0
-        // https://github.com/yhirose/cpp-httplib
+        // The transport lives behind HTTP::backend - see http_backend.h
 
         template <typename T>
         static int HTTPGet
