@@ -118,6 +118,9 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
     </Bscmake>
     <Link>
+      <!-- so a release crash log can be symbolised; tools\map2sym turns the
+           .map into the .sym the crash handler looks for next to the exe -->
+      <GenerateMapFile>true</GenerateMapFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>

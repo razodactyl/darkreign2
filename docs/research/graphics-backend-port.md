@@ -486,6 +486,63 @@ display-mode change. The context renders at whatever size the window is, so
 there is nothing to switch, and the user's desktop resolution cannot be left
 altered by a bad exit.
 
+### Full screen Bink movies (not supported)
+
+The intro movies crash the OpenGL backend, and did so from the day it was
+written without anyone noticing. `MoviePlayer` and the cineractive viewer create
+their movie bitmap as `bitmapSURFACE`, and the guard in `Bitmap::Create` that
+diverts the OpenGL path away from DirectDraw only covered `bitmapTEXTURE`:
+
+```cpp
+if (Vid::isStatus.ogl && (type & bitmapTYPEMASK) == bitmapTEXTURE)
+```
+
+Anything else fell through to `Vid::ddx->CreateSurface`, and on this path `ddx`
+is null - there is no DirectDraw object at all. Calling through it reads from
+address zero.
+
+It went unseen because the intro movies sit inside `#ifndef DEVELOPMENT` in
+`GameRunCodes::Intro::Process`. No development build plays them, so no
+development build has ever put a Bink movie through this backend. It only
+appears in a release build, which is where it was eventually found.
+
+The guard is now on the backend rather than the bitmap type - nothing may reach
+`ddx` when running on OpenGL - and a surface bitmap fails cleanly with a warning
+instead. `MoviePlayer::Start` then returns FALSE, the runcode moves on to the
+next movie file, and the intro ends up skipped rather than fatal.
+
+Movie *textures* are unaffected. Those are `bitmapTEXTURE`, they take the
+OpenGL branch, and they get a real texture object.
+
+Playing a full screen movie properly here would mean decoding the Bink frame
+into a system memory bitmap, uploading it as a texture and drawing it as a full
+screen quad, since there is no surface to blit from and no DirectDraw blit to do
+it with. That is worth doing, but it is a feature rather than a fix.
+
+### Symbolising a release crash
+
+Worth writing down, because working it out took longer than the fix.
+
+`Release|Win32` did not generate a map file, so a release crash log is a list of
+bare addresses - the in-game handler prints `dr2 unknown` for every frame.
+`GenerateMapFile` is now on for that configuration too.
+
+`tools/map2sym.exe` does not help. It is from 2000 and cannot parse a modern
+MSVC map; it runs, reports success, and writes a four byte `.sym`. The crash
+handler's own symbol lookup therefore stays empty.
+
+What does work:
+
+1. Build `Release`, which now leaves `dr2_Release.map` beside the executable.
+2. `editbin /dynamicbase:no dr2_Release.exe` so the image loads at its preferred
+   base and the addresses in the log line up with the map. Check the log line
+   `Preferred load address is 00400000` in the map to confirm the base.
+3. Reproduce, then match each address against the map's `Rva+Base` column,
+   taking the greatest symbol address not exceeding it.
+
+Step 2 matters. Without it ASLR moves the image every run and the addresses in
+the log mean nothing on their own.
+
 ### Next
 
 - `caps.texNoHalf` is TRUE, so the half-texel shift is skipped. This is what the

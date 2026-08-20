@@ -486,8 +486,32 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
         }
         //    LOG_DIAG( ("Bitmap::Create: %s: %dx%d %s", name, desc.dwWidth, desc.dwHeight, pixForm->name) );
 
-        if (Vid::isStatus.ogl && (type & bitmapTYPEMASK) == bitmapTEXTURE)
+        if (Vid::isStatus.ogl)
         {
+            // There is no DirectDraw on this path, so nothing below may be
+            // allowed to reach ddx - it is null, and calling through it reads
+            // from address zero.
+            //
+            // bitmapSURFACE is a DirectDraw concept: a system or video memory
+            // surface the engine blits from, with no equivalent here. Full
+            // screen Bink playback is the only thing that asks for one, so it
+            // is the only thing that loses out, and failing cleanly makes the
+            // caller skip the movie instead of crashing. Movie *textures* are
+            // unaffected - those are bitmapTEXTURE and take the branch below.
+            //
+            // Nothing caught this until now because the intro movies sit
+            // inside #ifndef DEVELOPMENT, so no development build has ever put
+            // a Bink movie through this backend.
+            if ((type & bitmapTYPEMASK) != bitmapTEXTURE)
+            {
+                LOG_WARN
+                ((
+                    "Bitmap::Create: [%s] wants a DirectDraw surface, which the "
+                    "OpenGL backend has none of", name.str
+                ));
+                return FALSE;
+            }
+
             // OpenGL samples from a texture object uploaded out of system
             // memory, not from a DirectDraw surface, so own the pixels here and
             // let the backend make the texture. Everything downstream - Lock,

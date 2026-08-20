@@ -238,6 +238,49 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **`-ogl` crashed on startup in a release build.** An access violation reading
+  from address zero, immediately on entering the Intro runcode. The stack was
+  `Bitmap::Create` ← `Bitmap::LoadBink` ← `MoviePlayer::Start` ←
+  `GameRunCodes::Intro::Process`: the intro Bink movie.
+
+  `MoviePlayer` creates its bitmap as `bitmapSURFACE`, and the guard in
+  `Bitmap::Create` that steers the OpenGL path away from DirectDraw only covered
+  `bitmapTEXTURE`:
+
+  ```cpp
+  if (Vid::isStatus.ogl && (type & bitmapTYPEMASK) == bitmapTEXTURE)
+  ```
+
+  Everything else fell through to `Vid::ddx->CreateSurface`, and on this path
+  `ddx` is null — there is no DirectDraw object at all — so the call read from
+  address zero.
+
+  It survived because the intro movies sit inside `#ifndef DEVELOPMENT`. No
+  development build plays them, so no development build had ever put a Bink
+  movie through the OpenGL backend; it could only appear in a release build.
+
+  The guard is now on the backend rather than the bitmap type — nothing may
+  reach `ddx` when running on OpenGL — and a surface bitmap fails cleanly with a
+  warning. `MoviePlayer::Start` returns FALSE, the runcode moves to the next
+  movie file, and the intro is skipped rather than fatal. Release with `-ogl`
+  now reaches the shell and plays. Movie *textures* are unaffected: those are
+  `bitmapTEXTURE` and take the OpenGL branch.
+
+  Full screen movie playback on this backend is a feature rather than a fix —
+  it needs the Bink frame decoded into a bitmap, uploaded as a texture and drawn
+  as a full screen quad, since there is no surface to blit from.
+
+  `graphics/bitmap.cpp`
+
+- **Release builds could not have their crash logs symbolised.** `Release|Win32`
+  did not generate a map file, so every frame printed as `dr2 unknown`.
+  `GenerateMapFile` is on for it now. Note `tools/map2sym.exe` does not help —
+  it cannot parse a modern MSVC map, and writes a four byte `.sym` while
+  reporting success. `docs/research/graphics-backend-port.md` records the
+  procedure that does work.
+
+  `appdr2/appdr2.vcxproj`, `docs/research/graphics-backend-port.md`
+
 - **Interface texture pre-scaling, disabled since it was written, works and is
   enabled.** It was compiled out behind `PIXELSCALE_SCALE2X_UI` with a note
   saying it "causes texture corruption when bitmaps are reloaded". Two separate
