@@ -48,7 +48,7 @@ several independent things happen to it, and each has its own switch.
 | --- | --- |
 | `-upscale:on\|off` | Master switch for everything below. `off` puts the UI back exactly where it was before any high-resolution work: design-space layout, native-size textures and fonts. Default `on`. |
 | `-ui4k:on\|off` | Layout scaling. Control geometry from the `.cfg` files is multiplied by `min(width/640, height/480)` so the UI keeps its proportions. Default `on`. |
-| `-texup:<method>` | UI texture pre-scaling method, or `off`. Default `nn`. |
+| `-texup:<method>` | UI texture pre-scaling method, or `off`. **Default `off`.** |
 | `-fontup:<method>` | Font atlas pre-scaling method, or `off`. Default `nn`. |
 
 `-texup` and `-fontup` both accept `off`, `nn` (or `nearest`), `scale2x`,
@@ -59,12 +59,18 @@ texels land on pixel boundaries and the GPU's bilinear filter has nothing left
 to blur. The integer factor comes from the resolution - 1x below 1280x960, 2x
 below 1920x1440, 3x above - capped at 3 for fonts.
 
-`nn` is the default for both, and on this game's art it is usually the right
-answer: the source is already anti-aliased continuous tone, whereas the
-pixel-art filters assume hard-edged indexed input and will soften what they
-misread as diagonals. The others are there to be tried. See
-`docs/research/pixel-scaling.md` for what each one actually does and how
-faithful it is.
+`nn` is the right answer on most of this game's art: the source is already
+anti-aliased continuous tone, whereas the pixel-art filters assume hard-edged
+indexed input and will soften what they misread as diagonals. The others are
+there to be tried. See `docs/research/pixel-scaling.md` for what each one
+actually does and how faithful it is.
+
+The two defaults differ deliberately. Fonts have been pre-scaled for a while
+and stay that way, at `nn`. UI textures are **off** by default: the machinery
+is there so the filters can be evaluated on real interface art, but until
+that evaluation is done the shipping game should look exactly as it did.
+`-texup:nn` switches it on at nearest; any other method switches it on with
+that filter.
 
 Fonts are held separately from textures rather than following `-texup`, because
 their content is unlike the rest: white glyphs carrying all their shape in an
@@ -75,10 +81,9 @@ Every switch here is independent of the others. `-ui4k:off -fontup:scale2x`
 scales the font atlas without touching layout; `-texup:off -fontup:scale3x`
 does fonts only. `-upscale:off` overrides all of them regardless of order.
 
-> Note that only the font path is live today. `-texup` reaches the UI texture
-> call site, but that site is compiled out behind `PIXELSCALE_SCALE2X_UI` -
-> the bitmap-recreation tracking behind it is broken. World and unit textures
-> are never pre-scaled.
+> Pre-scaling applies to interface art only - fonts and the textures named by
+> the interface `.cfg` files. World, terrain and unit textures are never
+> pre-scaled by any of these switches.
 
 ### General
 

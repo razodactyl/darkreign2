@@ -125,10 +125,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   their own — so every combination does what it says.
 
   Both method switches take `off`, `nn`, `scale2x`, `scale3x`, `eagle`, `hq2x`
-  or `hq3x`, and both default to `nn`. That stays the default: the game's art is
-  already anti-aliased continuous tone, and the pixel-art filters assume
-  hard-edged indexed input, so they smooth what they misread as diagonals. The
-  others are selectable for experimentation.
+  or `hq3x`. Their defaults differ deliberately: fonts have been pre-scaled for
+  a while and stay on at `nn`, while UI textures default to **off**. The
+  machinery is there so the filters can be evaluated on real interface art, and
+  until that is done the shipping game should look exactly as it did.
+
+  `nn` is the right answer on most of this art either way: it is already
+  anti-aliased continuous tone, and the pixel-art filters assume hard-edged
+  indexed input, so they smooth what they misread as diagonals.
 
   Fonts are held separately from textures rather than following `-texup` because
   their content is unlike the rest — white glyphs carrying all their shape in an
@@ -150,7 +154,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   where a real diagonal cuts them, alpha blending moving alpha rather than
   colour, nearest exact at factors 2 through 4, and the switches being
   independent in the right direction — including `-texup` not reaching the font
-  algorithm and vice versa. 56 checks.
+  algorithm and vice versa, the shipping defaults, and the bitmap-reload
+  regression that had texture pre-scaling disabled. 79 checks.
 
   Deliberately outside `dr2.sln` so it cannot break the game build. Run
   `tests\pixelscale\run.bat`.
@@ -192,6 +197,51 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `graphics/lightvertsmodel.cpp`, `graphics/vid_cmd_dialog.cpp`
 
 ### Fixed
+
+- **Interface texture pre-scaling, disabled since it was written, works and is
+  enabled.** It was compiled out behind `PIXELSCALE_SCALE2X_UI` with a note
+  saying it "causes texture corruption when bitmaps are reloaded". Two separate
+  faults sat behind that, and both are fixed.
+
+  `ScaleBitmapUI` remembered which bitmaps it had scaled in a file-static
+  `std::set<Bitmap*>`. Nothing cleared it — `ClearScaledBitmaps` existed and had
+  no callers — so it held raw pointers to bitmaps that could be freed and
+  reallocated at the same address. Worse, `IFace::OnModeChange` reloads every
+  unmanaged bitmap through `ReleaseDD` + `Read`, restoring the picture to native
+  size while leaving the set convinced it was still 2x. The next lookup reported
+  a factor the pixels no longer had, and the caller stepped its texture
+  coordinates off the end of the bitmap.
+
+  The factor now lives on the bitmap as `Bitmap::UIScale`. It describes those
+  pixels, so both `Create` overloads and `Read` reset it. No side table to go
+  stale, no pointer to dangle.
+
+  The second fault would have been visible immediately. `TextureInfo::pixels`
+  was multiplied by the scale factor at load — but `pixels` is not only a region
+  within the source texture. `TM_CENTRED` draws at `pixels.Width()`, and the HUD
+  sizes its reticle corners, damage corners and bars from
+  `pixels.p1 - pixels.p0`, so doubling it made those elements physically twice
+  as large rather than twice as sharp. `TM_TILED` had the same problem by
+  another route, deriving its repeat from `InvWidth` so a 2x texture tiled half
+  as often.
+
+  `pixels` now stays in the space the art was authored in and only the UV
+  computation steps up by the factor; `Bitmap` gained `UnscaledWidth`,
+  `UnscaledHeight`, `InvUnscaledWidth` and `InvUnscaledHeight` for the places
+  that want authored-space figures. Verified by screenshot: with `-texup:scale2x`
+  against the default, every HUD element sits at the same position and size.
+
+  Also fixed while in there — the recreate passed a hardcoded `translucent =
+  TRUE`, turning every opaque interface texture translucent; and it refused
+  outright rather than reducing the factor when the device's maximum texture
+  size would be exceeded. And `pixelscale.h` declared
+  `S32 ScaleBitmapUI(class Bitmap*)` inside `namespace PixelScale`, which
+  declares `PixelScale::Bitmap` in any translation unit that had not already
+  included `bitmap.h`; callers then failed to match with an unrelated-types
+  error. `Bitmap` is forward declared at global scope now.
+
+  `interface/pixelscale.{h,cpp}`, `interface/iface_util.cpp`,
+  `graphics/bitmap.{h,cpp}`
 
 - **Pixel scaling filters softening the edges they exist to preserve.** Auditing
   the filters before wiring them to switches turned up three defects. Scale2x,

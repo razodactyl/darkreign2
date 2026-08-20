@@ -1110,13 +1110,16 @@ namespace IFace
             ERR_FATAL(("Error loading texture [%s]", image))
         }
 
-#ifdef PIXELSCALE_SCALE2X_UI
-        // Apply Scale2x scaling to UI textures (preserves hard edges)
-        // Returns the scale factor applied (2 if scaled, 1 if not)
-        S32 texScale = PixelScale::ScaleBitmapUI(info.texture);
-#else
-        S32 texScale = 1;
-#endif
+        // Pre-scale the texture if -texup asked for it. Returns 1 - and does
+        // nothing - by default.
+        //
+        // Everything below stays in the space the art was authored in
+        // regardless of what this returns. info.pixels is not just a region
+        // within the source: TM_CENTRED draws at pixels.Width() and the HUD
+        // sizes its corners and bars from it, so scaling it up would make
+        // those elements physically larger on screen rather than sharper.
+        // Only the UV computation below accounts for the factor.
+        const S32 texScale = PixelScale::ScaleBitmapUI(info.texture);
 
         // Load optional uv coords
         if (sScope->GetArgCount() > 1)
@@ -1127,25 +1130,21 @@ namespace IFace
             info.pixels.p1.x = sScope->NextArgInteger() + info.pixels.p0.x;
             info.pixels.p1.y = sScope->NextArgInteger() + info.pixels.p0.y;
 
-            // Scale pixel coordinates to match scaled texture
-            if (texScale > 1)
-            {
-                info.pixels.p0.x *= texScale;
-                info.pixels.p0.y *= texScale;
-                info.pixels.p1.x *= texScale;
-                info.pixels.p1.y *= texScale;
-            }
-
-            // Generate texture coordinates
-            info.uv.p0.x = (F32(info.pixels.p0.x) + info.texture->UVShiftWidth()) * info.texture->InvWidth();
-            info.uv.p0.y = (F32(info.pixels.p0.y) + info.texture->UVShiftHeight()) * info.texture->InvHeight();
-            info.uv.p1.x = (F32(info.pixels.p1.x) + info.texture->UVShiftWidth()) * info.texture->InvWidth();
-            info.uv.p1.y = (F32(info.pixels.p1.y) + info.texture->UVShiftHeight()) * info.texture->InvHeight();
+            // Generate texture coordinates. The config names texels in the
+            // unscaled picture, so they are stepped up by the pre-scale
+            // factor here - and only here - to land on the same place in a
+            // larger bitmap. The resulting normalised coordinates come out
+            // identical either way, which is also why they survive a reload
+            // that drops the bitmap back to native size.
+            info.uv.p0.x = (F32(info.pixels.p0.x * texScale) + info.texture->UVShiftWidth()) * info.texture->InvWidth();
+            info.uv.p0.y = (F32(info.pixels.p0.y * texScale) + info.texture->UVShiftHeight()) * info.texture->InvHeight();
+            info.uv.p1.x = (F32(info.pixels.p1.x * texScale) + info.texture->UVShiftWidth()) * info.texture->InvWidth();
+            info.uv.p1.y = (F32(info.pixels.p1.y * texScale) + info.texture->UVShiftHeight()) * info.texture->InvHeight();
         }
         else
         {
-            // Use entire image (texture dimensions are already scaled if texScale > 1)
-            info.pixels.Set(0, 0, info.texture->Width(), info.texture->Height());
+            // Use the entire image, at its authored size
+            info.pixels.Set(0, 0, info.texture->UnscaledWidth(), info.texture->UnscaledHeight());
             info.uv.Set(0.0F, 0.0F, 1.0F, 1.0F);
         }
     }
@@ -1389,7 +1388,7 @@ namespace IFace
 
                 ti->texMode = TextureInfo::TM_STRETCHED;
                 ti->filter = FALSE;
-                ti->pixels.Set(0, 0, ti->texture->Width(), ti->texture->Height());
+                ti->pixels.Set(0, 0, ti->texture->UnscaledWidth(), ti->texture->UnscaledHeight());
                 images.Add(i, ti);
                 i++;
             }
@@ -1756,7 +1755,7 @@ TextureInfo::TextureInfo(Bitmap* texture, U32 texMode)
       texMode(texMode),
       filter(FALSE)
 {
-    pixels.Set(0, 0, texture->Width(), texture->Height());
+    pixels.Set(0, 0, texture->UnscaledWidth(), texture->UnscaledHeight());
     uv.Set(0.0F, 0.0F, 1.0F, 1.0F);
 }
 
@@ -1782,8 +1781,10 @@ void TextureInfo::UpdateUV(const ClipRect& rect)
                 // Adjust texture mode to keep texture at actual size
                 uv.p0.x = texture->UVShiftWidth();
                 uv.p0.y = texture->UVShiftHeight();
-                uv.p1.x = F32(rect.Width()) * texture->InvWidth() + texture->UVShiftWidth();
-                uv.p1.y = F32(rect.Height()) * texture->InvHeight() + texture->UVShiftHeight();
+                // Inv*Unscaled*, so a pre-scaled texture still tiles once per
+                // authored-size block rather than covering twice the area
+                uv.p1.x = F32(rect.Width()) * texture->InvUnscaledWidth() + texture->UVShiftWidth();
+                uv.p1.y = F32(rect.Height()) * texture->InvUnscaledHeight() + texture->UVShiftHeight();
 
                 texRect = rect;
                 break;

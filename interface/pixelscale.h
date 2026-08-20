@@ -13,21 +13,14 @@
 #ifndef __PIXELSCALE_H
 #define __PIXELSCALE_H
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// Experimental feature flags
-//
-// Define PIXELSCALE_SCALE2X_UI to enable Scale2x scaling for UI textures
-// Scale2x preserves hard edges (good for titlebars, borders, buttons)
-// Comment out to use standard GPU bilinear scaling
-//
-// NOTE: DISABLED - causes texture corruption when bitmaps are reloaded.
-//       The bitmap tracking doesn't handle bitmap recreation properly.
-//       Font pre-scaling is handled separately in font.cpp and works correctly.
-// #define PIXELSCALE_SCALE2X_UI
-//
-
 #include "utiltypes.h"
+
+// graphics/bitmap.h. Declared here at global scope on purpose: writing
+// `class Bitmap*` in the ScaleBitmapUI declaration below would introduce
+// PixelScale::Bitmap in any translation unit that had not already included
+// bitmap.h, and callers would then fail to match with an unrelated-types
+// error that points nowhere useful.
+class Bitmap;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -302,21 +295,17 @@ namespace PixelScale
     S32 GetScaledWidth(S32 srcWidth);
     S32 GetScaledHeight(S32 srcHeight);
 
-#ifdef PIXELSCALE_SCALE2X_UI
     //
-    // Scale a bitmap's pixel data using Scale2x
-    // Properly handles the bitmap's native pixel format
-    // Returns the scale factor applied (2 if scaled, 1 if not)
+    // Pre-scale an interface texture in place, using the current general
+    // algorithm and the factor from GetTextureScale. Returns the factor now
+    // applied, 1 when nothing was done.
     //
-    // Note: Tracks scaled bitmaps to avoid double-scaling cached textures
+    // Does nothing unless texture scaling is switched on (-texup). The
+    // factor is recorded on the bitmap - Bitmap::UIScale - so it is reset
+    // by whatever replaces the pixels and cannot be left stale; callers
+    // needing it later should ask the bitmap rather than remember it.
     //
-    S32 ScaleBitmapUI(class Bitmap* bmp);
-
-    //
-    // Clear the scaled bitmap tracking (call on resolution change)
-    //
-    void ClearScaledBitmaps();
-#endif
+    S32 ScaleBitmapUI(Bitmap* bmp);
 }
 
 #endif // __PIXELSCALE_H

@@ -45,18 +45,57 @@ switch folded in. Consumers should ask for their own.
 
 ## What is actually pre-scaled
 
-| | Scaled | Where |
-| --- | --- | --- |
-| Font glyphs | yes | `font.cpp`, atlas built at `128 * factor` |
-| UI textures | no | `iface_util.cpp`, behind `PIXELSCALE_SCALE2X_UI` |
-| World textures | no | nothing outside `interface/` calls PixelScale |
+| | Scaled | Default | Where |
+| --- | --- | --- | --- |
+| Font glyphs | yes | `nn`, on | `font.cpp`, atlas built at `128 * factor` |
+| UI textures | yes | **off** | `iface_util.cpp` via `ScaleBitmapUI` |
+| World textures | no | - | nothing outside `interface/` calls PixelScale |
 
-`PIXELSCALE_SCALE2X_UI` is compiled out. The note in `pixelscale.h` is honest
-about why: the bitmap tracking does not survive bitmap recreation, so a texture
-that gets reloaded is scaled twice, or the tracking set holds a dangling
-pointer. That is a real bug and it has not been fixed - the switch plumbing
-added alongside this document reaches the call site, but the call site is still
-`#ifdef`-ed out. Turning it back on means fixing the tracking first.
+UI textures default to off deliberately. The filters are selectable so they can
+be evaluated on real interface art; until that is done the shipping game should
+be untouched.
+
+## Why UI texture scaling was disabled, and what it took to enable it
+
+It used to be compiled out behind `PIXELSCALE_SCALE2X_UI`, with a note saying it
+"causes texture corruption when bitmaps are reloaded". Two separate faults sat
+behind that.
+
+**The tracking could not survive a reload.** `ScaleBitmapUI` remembered which
+bitmaps it had scaled in a file-static `std::set<Bitmap*>`. Nothing ever cleared
+it - `ClearScaledBitmaps` existed and had no callers - so it held raw pointers to
+bitmaps that could be freed and reallocated at the same address. Worse,
+`IFace::OnModeChange` reloads every unmanaged bitmap with `ReleaseDD` followed by
+`Read`, which restores the picture to native size while leaving the set convinced
+it was still 2x. The next lookup reported a factor the pixels no longer had, and
+the caller stepped its texture coordinates off the end of the bitmap.
+
+The factor now lives on the bitmap itself, as `Bitmap::UIScale`. It describes
+those pixels, so every path that replaces them - both `Create` overloads and
+`Read` - resets it. There is no side table to go stale and no pointer to dangle,
+and the question "has this been scaled?" is answered by the thing being asked
+about.
+
+**The caller conflated source region with screen size.** `TextureInfo::pixels`
+was multiplied by the scale factor at load. But `pixels` is not only a rectangle
+within the source texture: `TM_CENTRED` draws at `pixels.Width()`, and the HUD
+sizes its reticle corners, damage corners and bars from
+`pixels.p1 - pixels.p0`. Doubling it made those elements physically twice as
+large rather than twice as sharp. `TM_TILED` had the same problem by another
+route - it derives its repeat from `InvWidth`, so a 2x texture tiled half as
+often, at twice the size.
+
+`pixels` now stays in the space the art was authored in, and only the UV
+computation steps up by the factor. `Bitmap` gained `UnscaledWidth`,
+`UnscaledHeight`, `InvUnscaledWidth` and `InvUnscaledHeight` for the places that
+want authored-space figures. Normalised texture coordinates come out identical
+either way, which is also why they stay correct through a reload that drops the
+bitmap back to native size.
+
+Two smaller things fixed in passing: the old code recreated the bitmap with a
+hardcoded `translucent = TRUE`, turning every opaque interface texture
+translucent; and it refused outright rather than reducing the factor when the
+device's maximum texture size would be exceeded.
 
 ## Filter fidelity
 
@@ -170,15 +209,26 @@ checks the properties that matter:
   independent in the right direction
 - `-texup` not reaching the font algorithm, and `-fontup` not reaching the
   general one
+- the shipping defaults: texture scaling off, font scaling on at nearest
+- texture pre-scaling recording its factor on the bitmap, not re-scaling an
+  already-scaled one, and - the regression that disabled the feature -
+  dropping the factor when the bitmap is reloaded
+- translucency surviving the recreate, and the device texture-size limit
+  reducing the factor rather than refusing
 
 Run `tests\pixelscale\run.bat`. It is deliberately outside `dr2.sln` so it
 cannot break the game build.
 
 ## Not done
 
-- `PIXELSCALE_SCALE2X_UI` is still off. The bitmap-recreation tracking needs
-  fixing before it can be turned on, and the switch is wired to reach it when
-  it is.
+- UI texture scaling is off by default and wants evaluating on real art before
+  that changes. Worth looking at specifically: the flat, hard-edged panel
+  borders, which are the closest thing here to what the filters were designed
+  for.
+- Nothing re-scales textures when the resolution changes at runtime. A mode
+  change reloads unmanaged bitmaps at native size and they stay there until the
+  interface is reloaded. Layout still rescales, so the art is merely softer, not
+  wrong - but it is not what a fresh launch at that resolution would give.
 - A faithful hqx would need the upstream 256-case tables. Worth doing only if
   someone wants hqx specifically; on this art it is unlikely to beat nearest.
 - `GetScaledUV` and `GetPixelPerfectRect` are exported and unused. They date

@@ -71,6 +71,7 @@ void Bitmap::ClearData()
 
     stage = 0;
     reduction = 0;
+    uiScale = 1;
 
     Utils::Memset(&desc, 0, sizeof(desc));
     desc.dwSize = sizeof(desc);
@@ -291,6 +292,10 @@ void Bitmap::UploadBackendTexture()
 //
 Bool Bitmap::Create(S32 width, S32 height, S32 depth, S32 pitch, void* data)
 {
+    // these are new pixels; any interface pre-scale recorded for the old
+    // ones no longer describes them
+    uiScale = 1;
+
     // Initialise dimensions
     bmpWidth = width;
     bmpHeight = height;
@@ -329,6 +334,8 @@ Bool Bitmap::Create(S32 width, S32 height, S32 depth, S32 pitch, void* data)
 Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth) // = 0, = 0
 {
     ASSERT(translucent <= 2);
+
+    uiScale = 1;
 
     status.translucent = translucent ? 1 : 0;
     status.transparent = translucent > 1 ? 1 : 0;
@@ -1241,6 +1248,10 @@ void Bitmap::SetSurfaceColorKey()
 //
 Bool Bitmap::Read(const char* filename, Pix* pixelFormat)
 {
+    // reloading replaces the pixels, so whatever pre-scale was applied to
+    // the previous set is gone with them
+    uiScale = 1;
+
     char* dot = Utils::FindExt(filename);
 
     if (!dot)

@@ -237,6 +237,10 @@ protected:
     U32 mipMapCount;
     U32 stage;
 
+    // interface pre-scale factor applied to bmpData; 1 when native.
+    // See UIScale() below.
+    U32 uiScale;
+
     U32 frameNumber;  // reporting; current frame counter
 
 public:
@@ -373,6 +377,11 @@ public:
         return status.translucent;
     }
 
+    inline Bool IsTransparent()
+    {
+        return status.transparent;
+    }
+
     U32 BinkSetFlags();
     void BinkSetActive(Bool active);
     void BinkGotoFrame(U32 frame);
@@ -488,6 +497,28 @@ public:
     F32 UVShiftWidth() const { return uvShiftWidth; }
     F32 UVShiftHeight() const { return uvShiftHeight; }
     void* Data() const { return bmpData; }
+
+    // Interface pre-scaling.
+    //
+    // When the interface pre-scales a texture (see PixelScale::ScaleBitmapUI)
+    // the pixels are replaced by a larger set covering the same picture, and
+    // this records the factor. It lives on the bitmap rather than in a side
+    // table on purpose: the factor describes these pixels, so every path that
+    // replaces them - Create, Read - resets it, and it cannot go stale or
+    // outlive the object it describes.
+    //
+    // 1 means native, which is the case for everything except pre-scaled
+    // interface art.
+    U32 UIScale() const { return uiScale; }
+    void SetUIScale(U32 s) { uiScale = s ? s : 1; }
+
+    // Dimensions and UV steps in the space the art was authored in, which is
+    // what interface layout is expressed in. Identical to the plain versions
+    // for anything that has not been pre-scaled.
+    S32 UnscaledWidth() const { return bmpWidth / S32(uiScale); }
+    S32 UnscaledHeight() const { return bmpHeight / S32(uiScale); }
+    F32 InvUnscaledWidth() const { return invWidth * F32(uiScale); }
+    F32 InvUnscaledHeight() const { return invHeight * F32(uiScale); }
 
     inline void* Data(S32 x, S32 y) const;
 

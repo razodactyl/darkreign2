@@ -10,6 +10,7 @@
 #include <cmath>
 
 #include "utiltypes.h"
+#include "vid_public.h"
 
 static F32 g_rawScale;
 
@@ -19,6 +20,11 @@ namespace IFace
     {
         return g_rawScale;
     }
+}
+
+namespace Vid
+{
+    Caps caps = { 4096, 4096 };
 }
 
 // run.bat stages a copy of interface/pixelscale.cpp into build/ and puts
@@ -277,6 +283,21 @@ int main()
         SetFontAlgorithm(NEAREST);
     }
 
+    Section("defaults leave the shipping game alone");
+    {
+        // Texture pre-scaling must be off until asked for: the filters are
+        // selectable so they can be evaluated, not so they change the game.
+        // Fonts have been pre-scaled for a while and stay on.
+        g_rawScale = 2.0f;
+        Init();
+
+        Check("texture scaling defaults off", GetTextureScaling() == FALSE);
+        Check("texture scale therefore reports 1", GetTextureScale(4) == 1);
+        Check("font scaling defaults on", GetFontScaling() == TRUE);
+        Check("font algorithm defaults to nearest", GetFontAlgorithm() == NEAREST);
+        Check("layout scaling defaults on", GetUIScaling() == TRUE);
+    }
+
     Section("toggles are independent");
     {
         g_rawScale = 2.75f;
@@ -317,6 +338,85 @@ int main()
         Check("upscale:off overrides ui4k:on", GetUIScaling() == FALSE);
         Check("upscale:off overrides texup", GetTextureScaling() == FALSE);
         Check("upscale:off overrides fontup", GetFontScaling() == FALSE);
+    }
+
+    Section("texture pre-scaling records its factor on the bitmap");
+    {
+        g_rawScale = 2.0f;
+        SetEnabled(TRUE);
+        Init();
+
+        // helper: a 16x16 bitmap with a diagonal in it
+        struct Make
+        {
+            static void Fill(Bitmap& b)
+            {
+                b.SetNativeSize(16, 16);
+                b.Create(16, 16, 1);
+                for (S32 y = 0; y < 16; y++)
+                    for (S32 x = 0; x < 16; x++)
+                        b.PutPixel(x, y, (x > y) ? 0xFFFFFFFF : 0xFF000000, &b.GetClipRect());
+            }
+        };
+
+        // default: switched off, so nothing happens at all
+        SetTextureScaling(FALSE);
+        Bitmap off;
+        Make::Fill(off);
+        Check("does nothing when texture scaling is off", ScaleBitmapUI(&off) == 1);
+        Check("and leaves the bitmap at native size", off.Width() == 16);
+        Check("and records no factor", off.UIScale() == 1);
+
+        // switched on
+        SetTextureScaling(TRUE);
+        SetAlgorithm(SCALE2X);
+        Bitmap b;
+        Make::Fill(b);
+        Check("scales when switched on", ScaleBitmapUI(&b) == 2);
+        Check("bitmap is now 2x", b.Width() == 32 && b.Height() == 32);
+        Check("factor is recorded on the bitmap", b.UIScale() == 2);
+        Check("authored size still reported unscaled", b.UnscaledWidth() == 16);
+        Check("unscaled UV step matches the authored size",
+              fabsf(b.InvUnscaledWidth() - 1.0f / 16.0f) < 0.0001f);
+
+        // asking twice must not scale twice
+        Check("second call reports the existing factor", ScaleBitmapUI(&b) == 2);
+        Check("and does not scale again", b.Width() == 32);
+
+        // THE regression that disabled this feature. A reload replaces the
+        // pixels with native-size ones. The old code tracked scaled bitmaps in
+        // a side set that no reload could reach, so it went on reporting 2 for
+        // a bitmap that was 16 wide again - and the caller stepped its UVs off
+        // the end of the texture. The factor now lives with the pixels.
+        b.Read("whatever.pic");
+        Check("a reload drops the recorded factor", b.UIScale() == 1);
+        Check("and the bitmap really is native again", b.Width() == 16);
+        Check("so it can be scaled afresh", ScaleBitmapUI(&b) == 2);
+        Check("back to 2x", b.Width() == 32 && b.UIScale() == 2);
+
+        // translucency must survive; the old code passed a hardcoded TRUE
+        Bitmap opaque;
+        opaque.SetNativeSize(16, 16);
+        opaque.Create(16, 16, 0);
+        ScaleBitmapUI(&opaque);
+        Check("an opaque texture stays opaque", opaque.IsTranslucent() == FALSE);
+
+        // device limits reduce the factor rather than refusing outright
+        Vid::caps.maxTexWid = Vid::caps.maxTexHgt = 40;
+        Bitmap capped;
+        Make::Fill(capped);
+        S32 f = ScaleBitmapUI(&capped);
+        Check("factor is reduced to fit the device limit", f == 2 && capped.Width() == 32);
+
+        Vid::caps.maxTexWid = Vid::caps.maxTexHgt = 20;
+        Bitmap tooBig;
+        Make::Fill(tooBig);
+        Check("and refused when even 2x will not fit", ScaleBitmapUI(&tooBig) == 1);
+        Check("leaving it native", tooBig.Width() == 16 && tooBig.UIScale() == 1);
+
+        Vid::caps.maxTexWid = Vid::caps.maxTexHgt = 4096;
+        SetTextureScaling(FALSE);
+        SetAlgorithm(NEAREST);
     }
 
     printf("\n%s - %d failure%s\n\n",

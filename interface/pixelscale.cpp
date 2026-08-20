@@ -14,15 +14,9 @@
 
 #include "pixelscale.h"
 #include "iface.h"
-#include <cmath>
-
-#ifdef PIXELSCALE_SCALE2X_UI
 #include "bitmap.h"
-#include <set>
-
-// Track which bitmaps have already been scaled to avoid double-scaling
-static std::set<Bitmap*> scaledBitmaps;
-#endif
+#include "vid_public.h"
+#include <cmath>
 
 namespace PixelScale
 {
@@ -39,7 +33,10 @@ namespace PixelScale
     // Main::ProcessCommandLine
     static Bool enabled = TRUE;
     static Bool uiScaling = TRUE;
-    static Bool textureScaling = TRUE;
+    // Texture pre-scaling is off unless asked for. The filters are
+    // selectable so they can be evaluated on real interface art, but the
+    // default has to leave the shipping game exactly as it was.
+    static Bool textureScaling = FALSE;
     static Bool fontScaling = TRUE;
 
     // Fonts keep their own algorithm and default to NEAREST regardless of
@@ -999,7 +996,6 @@ namespace PixelScale
         return srcHeight * 2;
     }
 
-#ifdef PIXELSCALE_SCALE2X_UI
     //
     // Helper: Extract RGBA from a pixel using the bitmap's pixel format
     //
@@ -1009,29 +1005,21 @@ namespace PixelScale
             r = ((pixel & pf->rMask) >> pf->rShift) << pf->rScaleInv;
         else
             r = 255;
-            
+
         if (pf->gMask)
             g = ((pixel & pf->gMask) >> pf->gShift) << pf->gScaleInv;
         else
             g = 255;
-            
+
         if (pf->bMask)
             b = ((pixel & pf->bMask) >> pf->bShift) << pf->bScaleInv;
         else
             b = 255;
-            
+
         if (pf->aMask)
             a = ((pixel & pf->aMask) >> pf->aShift) << pf->aScaleInv;
         else
             a = 255;  // Fully opaque if no alpha channel
-    }
-
-    //
-    // Helper: Convert canonical ARGB to bitmap's native format
-    //
-    static inline U32 PackRGBA(S32 r, S32 g, S32 b, S32 a, const Pix* pf)
-    {
-        return pf->MakeRGBA(U32(r), U32(g), U32(b), U32(a));
     }
 
     //
@@ -1041,7 +1029,6 @@ namespace PixelScale
     {
         S32 r, g, b, a;
         ExtractRGBA(pixel, pf, r, g, b, a);
-        // Canonical format: ARGB8888 (alpha in high byte)
         return (U32(a) << 24) | (U32(r) << 16) | (U32(g) << 8) | U32(b);
     }
 
@@ -1050,109 +1037,138 @@ namespace PixelScale
     //
     static inline U32 FromCanonicalARGB(U32 argb, const Pix* pf)
     {
-        S32 a = (argb >> 24) & 0xFF;
-        S32 r = (argb >> 16) & 0xFF;
-        S32 g = (argb >> 8) & 0xFF;
-        S32 b = argb & 0xFF;
-        return PackRGBA(r, g, b, a, pf);
+        return pf->MakeRGBA((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF, (argb >> 24) & 0xFF);
     }
 
     //
-    // Scale a bitmap using Scale2x algorithm
-    // Properly handles the bitmap's native pixel format
-    // Returns the scale factor applied (2 for Scale2x, 1 if not scaled)
+    // Pre-scale an interface texture in place.
+    //
+    // Returns the factor now applied to the bitmap, which is 1 when nothing was
+    // done. The factor is also recorded on the bitmap itself; callers that need
+    // it later should read Bitmap::UIScale rather than remembering this.
+    //
+    // This used to be compiled out behind PIXELSCALE_SCALE2X_UI, because it
+    // tracked which bitmaps it had already scaled in a file-static
+    // std::set<Bitmap*>. That set was never cleared - ClearScaledBitmaps
+    // existed but nothing called it - so it kept raw pointers to bitmaps that
+    // could be freed and reallocated at the same address, and it could not see
+    // a reload. IFace::OnModeChange reloads every unmanaged bitmap through
+    // ReleaseDD + Read, which restores the picture to native size while leaving
+    // the set convinced it was still scaled. The next lookup then reported a
+    // factor the pixels no longer had.
+    //
+    // The factor now lives on the Bitmap, so it is reset by whatever replaced
+    // the pixels and the question cannot be answered wrongly.
     //
     S32 ScaleBitmapUI(Bitmap* bmp)
     {
-        if (!bmp)
+        if (!bmp || !GetTextureScaling())
+        {
             return 1;
+        }
 
-        // Check if this bitmap has already been scaled
-        if (scaledBitmaps.find(bmp) != scaledBitmaps.end())
-            return 2;  // Already scaled 2x
+        // already done - and this cannot be stale, see above
+        if (bmp->UIScale() > 1)
+        {
+            return S32(bmp->UIScale());
+        }
 
-        // Only scale if UI scale is 2x or higher
-        S32 uiScale = GetIntegerScale();
-        if (uiScale < 2)
+        S32 factor = GetTextureScale(3);
+
+        if (factor < 2)
+        {
             return 1;
+        }
 
         S32 srcWidth = bmp->Width();
         S32 srcHeight = bmp->Height();
-        
-        // Skip tiny or huge textures
+
+        // Skip tiny sources, where there is nothing for an edge filter to read,
+        // and ones already large enough that scaling them is mostly cost
         if (srcWidth < 4 || srcHeight < 4 || srcWidth > 512 || srcHeight > 512)
+        {
             return 1;
+        }
 
-        // Get the bitmap's pixel format
+        // Do not exceed what the device will accept. Reducing the factor is
+        // better than refusing outright, and 2x is still worth having.
+        while (factor > 1
+            && ((Vid::caps.maxTexWid && U32(srcWidth * factor) > Vid::caps.maxTexWid)
+             || (Vid::caps.maxTexHgt && U32(srcHeight * factor) > Vid::caps.maxTexHgt)))
+        {
+            factor--;
+        }
+
+        if (factor < 2)
+        {
+            return 1;
+        }
+
         const Pix* pixFormat = bmp->PixelFormat();
-        if (!pixFormat)
-            return 1;
 
-        // Allocate source buffer in canonical ARGB format
+        if (!pixFormat)
+        {
+            return 1;
+        }
+
+        // the filters work on canonical ARGB8888, the bitmap may be anything
         U32* srcPixels = new U32[srcWidth * srcHeight];
-        
-        // Copy and convert pixels from bitmap to canonical format
+
         bmp->Lock();
         for (S32 y = 0; y < srcHeight; y++)
         {
             for (S32 x = 0; x < srcWidth; x++)
             {
-                U32 nativePixel = bmp->GetPixel(x, y);
-                srcPixels[y * srcWidth + x] = ToCanonicalARGB(nativePixel, pixFormat);
+                srcPixels[y * srcWidth + x] = ToCanonicalARGB(bmp->GetPixel(x, y), pixFormat);
             }
         }
         bmp->UnLock();
 
-        // Allocate destination buffer (2x size for Scale2x)
-        S32 dstWidth = srcWidth * 2;
-        S32 dstHeight = srcHeight * 2;
+        S32 dstWidth = srcWidth * factor;
+        S32 dstHeight = srcHeight * factor;
         U32* dstPixels = new U32[dstWidth * dstHeight];
 
-        // Apply Scale2x scaling (preserves hard edges, no anti-aliasing)
-        Scale2x(srcPixels, srcWidth, srcHeight, dstPixels);
+        ScaleImageWith(currentAlgorithm, srcPixels, srcWidth, srcHeight, dstPixels, factor);
 
-        // Recreate bitmap at new size
+        // Recreate at the new size, preserving the transparency flags - the old
+        // code passed a hardcoded TRUE here, which turned every opaque
+        // interface texture translucent
+        S32 translucent = bmp->IsTranslucent() ? (bmp->IsTransparent() ? 2 : 1) : 0;
+
         bmp->Release();
-        bmp->Create(dstWidth, dstHeight, TRUE);
-        
-        // Get the new pixel format (may have changed after Create)
+        bmp->Create(dstWidth, dstHeight, translucent);
+
+        // Create may have chosen a different format
         const Pix* newPixFormat = bmp->PixelFormat();
+
         if (!newPixFormat)
         {
             delete[] srcPixels;
             delete[] dstPixels;
-            return FALSE;
+            return 1;
         }
 
-        // Copy scaled pixels back, converting from canonical to native format
         bmp->Lock();
         for (S32 y = 0; y < dstHeight; y++)
         {
             for (S32 x = 0; x < dstWidth; x++)
             {
-                U32 canonicalPixel = dstPixels[y * dstWidth + x];
-                U32 nativePixel = FromCanonicalARGB(canonicalPixel, newPixFormat);
-                bmp->PutPixel(x, y, nativePixel, &bmp->GetClipRect());
+                bmp->PutPixel
+                (
+                    x, y,
+                    FromCanonicalARGB(dstPixels[y * dstWidth + x], newPixFormat),
+                    &bmp->GetClipRect()
+                );
             }
         }
         bmp->UnLock();
 
-        // Clean up
         delete[] srcPixels;
         delete[] dstPixels;
 
-        // Track this bitmap as scaled
-        scaledBitmaps.insert(bmp);
+        // Create reset this to 1; record what the pixels now are
+        bmp->SetUIScale(U32(factor));
 
-        return 2;  // Scaled 2x
+        return factor;
     }
-
-    //
-    // Clear the scaled bitmap tracking (call on mode change)
-    //
-    void ClearScaledBitmaps()
-    {
-        scaledBitmaps.clear();
-    }
-#endif
 }
