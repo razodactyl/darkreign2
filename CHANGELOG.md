@@ -4,6 +4,161 @@ All notable changes to this project are recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+
+- **OpenGL 3.3 rendering backend, selected with `-ogl`.** The DirectX 7 renderer
+  is now one implementation behind an interface rather than the only thing there
+  is. DirectX remains the default and is unchanged in behaviour.
+
+  `graphics/vid_backend.h` declares a table of function pointers covering the
+  frame, render state, texture stages and storage, transforms, materials, lights
+  and geometry. The public `Vid::SetXState` functions keep their `renderState`
+  bookkeeping and return values; only the parts that talked to the device moved.
+  No caller outside `graphics/` changed.
+
+  On the OpenGL path there is no DirectDraw or Direct3D device at all. The
+  context is created on the game's existing Win32 window through WGL, so the
+  window, the message pump and DirectInput are untouched — the 2020 attempt at
+  this replaced them with GLFW and broke multiplayer and game processing in the
+  process. DirectDraw could not simply be left running alongside: with a GL
+  context on the same window, `DirectDrawEnumerateEx` takes around eleven seconds
+  and frequently never returns. `InitOGLDrivers` and `InitOGLDevice` stand in for
+  `InitDD` and `InitD3D` + `InitSurfaces`, taking 239ms.
+
+  Only one vertex format needed implementing. The game builds with
+  `DODXLEANANDGRUMPY` — "do only TLVERTS" — so everything, terrain and meshes
+  included, is software-transformed into pre-transformed `FVF_TLVERTEX` before it
+  reaches the device. Instrumenting the draw path confirmed it: around 95 draw
+  calls a frame, none of any other format.
+
+  Textures work because the engine already handles bitmaps with no DirectDraw
+  surface — that is what `bitmapNORMAL` is — so a texture here is a system-memory
+  bitmap plus a texture object, and the readers, `CopyBits`, font glyph
+  rendering, `pixelscale.cpp` and Bink are untouched.
+
+  `3rdparty/glad/`, `graphics/vid_backend*.{h,cpp}`, `graphics/vid_dx.h`,
+  `graphics/vid.cpp`, `graphics/bitmap.cpp`, `main/maininit.cpp`
+
+- **Command line switches documented.** Twenty-one switches across
+  `main/maininit.cpp` and `multiplayer/multiplayer.cpp` — the latter registered
+  through `RegisterCmdLineHandler`, so they do not appear in the main switch
+  statement and are easy to miss.
+
+  Two are worth knowing: `-s` selects a *software Direct3D driver* rather than
+  anything to do with sound or skipping, and `-safevid` is accepted but does
+  nothing at all. A value must also be attached to its switch —
+  `-borderless:1024x768` works, `-borderless 1024x768` does not, because the
+  parser skips to the next `-` or `/` and the detached value is silently ignored.
+
+  `README.md`
+
+### Changed
+
+- **DirectX is contained behind the backend interface.** `graphics/vertex.h`
+  holds the vocabulary the whole game speaks — `PT_*`, `FVF_*`, `DP_*`,
+  `RS_SRC_*`, `RS_DST_*` — and every one of those was literally defined as a
+  Direct3D constant, so the game-wide blend vocabulary *was* the D3D enum. They
+  are now self-contained. The numeric values are unchanged, so the DirectX
+  backend still passes them through untranslated, but that is now a checked
+  optimisation rather than a silent assumption: 35 `static_assert`s tie each
+  constant to the D3D one it was derived from.
+
+  `vid_public.h` no longer publishes `dxError`, `LOG_DXERR` or the device
+  handles; those moved to `vid_dx.h`, included only by the six files that
+  genuinely talk to DirectX. `ClearFlags` lost its `D3DCLEAR_*` values,
+  `ViewPortDescD3D` became `Vid::ViewPort`, and the misleading `*D3D` / `*DX`
+  suffixes were dropped from functions that no longer touch DirectX.
+
+  `graphics/vertex.h`, `graphics/vid_public.h`, `graphics/vid_dx.h`
+
+- **Specular lighting enabled.** `DOSPECULAR` had been commented out since the
+  DX6-to-DX7 era and the code behind it had rotted: both `lightverts` files
+  tested `light->d3d.dwFlags & D3DLIGHT_NO_SPECULAR`, but `dwFlags` was a
+  `D3DLIGHT2` member that `D3DLIGHT7` does not have, and `d3d` is private. D3D7
+  has no per-light specular disable, so the test is gone.
+
+  The device's specular render state is deliberately left permanently on. The
+  game draws pre-transformed vertices, and D3D takes the fog factor from the
+  specular alpha channel for those, so letting the now-live `vid.specular` toggle
+  drive `D3DRENDERSTATE_SPECULARENABLE` would have turned fog off along with
+  specular.
+
+  `graphics/bitmap.h`, `graphics/lightvertscamera.cpp`,
+  `graphics/lightvertsmodel.cpp`, `graphics/vid_cmd_dialog.cpp`
+
+### Fixed
+
+- **Sky geometry breaking up when the "Mirror" water reflection is enabled.**
+  Large dark polygons appeared across the sky, most visible on the main menu
+  backdrop.
+
+  After the reflection pass, `Vid::Mirror::Stop()` fills the screen with the fog
+  colour to cover anything the pass drew outside the water. That quad was built
+  with `rhw = 0`. These are pre-transformed vertices, where `rhw` is 1/w, so 0
+  means w = infinity — the perspective divide and everything derived from it
+  become meaningless, and the quad rasterises as arbitrary dark polygons. Every
+  other screen-space quad in the engine passes `rhw = 1`, which is also the
+  function's own default; the mirror was the only caller passing 0.
+
+  Found by bisection after two incorrect hypotheses: disabling the sky inside the
+  mirror pass did not help, nor did disabling everything drawn into it, which
+  narrowed it to the pass's own machinery.
+
+  The OpenGL backend never showed this, incidentally — its vertex shader already
+  guards the degenerate case and treats `rhw = 0` as w = 1, which is what the
+  DirectX path should have done.
+
+  `graphics/vidmirror.cpp`
+
+- **Video settings not persisting between runs.** `Settings::Save` runs from
+  `Vid::Done` and was writing correctly, but the load side never ran on the
+  OpenGL path: `Settings::Load` is called from inside `InitDD`, and the saved
+  mode is restored by `PickVidMode` at the end of it — both of which that path
+  bypasses.
+
+  Separately, the two backends shared one `settings.cfg`. `Settings::Load`
+  validates the file against the enumerated hardware, and the two necessarily
+  differ — DirectX reports two dgVoodoo drivers with 114 modes, OpenGL reports
+  one with 55 — so each run rejected whatever the other had written and overwrote
+  it on exit. OpenGL now uses `settings-ogl.cfg`.
+
+  Note this is separate from `DEVELOPMENT` builds forcing `VIDMODEWINDOW` in
+  `SetMode`, which is unchanged and means a saved fullscreen resolution is not
+  applied in a dev build on either backend.
+
+  `graphics/vid.cpp`, `graphics/vid_settings.cpp`
+
+- **Music playing at full volume until the audio options page was opened.** The
+  user profile applied `Sound::Vorbis::SetVolume` but never
+  `Sound::Redbook::SetVolume`, while the options page sets both together, so the
+  redbook path kept whatever the driver started with and jumped to the saved
+  level as soon as the page was shown.
+
+  Simply adding the call would not have worked: `Redbook::SetVolume` does nothing
+  unless the driver is already open, and the profile is loaded before
+  `Redbook::Claim` runs. Redbook now remembers the requested volume and applies
+  it in `Claim`. `Volume()` also reports the remembered value rather than 0 when
+  there is no driver, which stops a zero being written back into the profile.
+
+  `sound/sound_redbook.cpp`, `game/user.cpp`
+
+- **Post-build step failing the solution build.** `tools/postbuild.bat` ran
+  `rh.exe -script postbuild.txt` with both names unqualified. MSBuild runs
+  post-build steps from the project directory, so it failed with "rh.exe is not
+  recognized" and took the build down with error MSB3073 whenever appmesh
+  relinked.
+
+  Resolving the paths would not have helped. `tools/postbuild.txt` is not a build
+  script — it is Resource Hacker's own saved session state, committed by
+  accident, with no `[COMMANDS]` section and an `Open=` line pointing at one
+  developer's install path. The step is now dormant, matching what appdr2 already
+  did, and the batch file is a documented no-op so re-enabling the event cannot
+  break the build again.
+
+  `tools/postbuild.bat`, `tools/postdll.bat`, `appmesh/appmesh.vcxproj`
+
 ## [1.459]
 
 ### Added
