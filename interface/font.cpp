@@ -476,7 +476,7 @@ Bool Font::Read(const char* fileName)
                     {
                         for (S32 dx = 0; dx < scaledCharWidth; dx++)
                         {
-                            // ScaleImageTo works in ARGB; the atlas may not
+                            // ScaleImageWith works in ARGB; the atlas may not
                             U32 argb = dstBuf[dy * scaledCharWidth + dx];
 
                             S32 dstX = curX + dx;
