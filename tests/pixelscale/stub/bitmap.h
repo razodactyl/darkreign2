@@ -106,10 +106,33 @@ public:
         return TRUE;
     }
 
-    // matches graphics/bitmap.cpp: reloading replaces the pixels
+    // matches graphics/bitmap.cpp: a pre-scale has to take its buffer with it,
+    // because the readers below only allocate when there is nothing to reuse
+    void DropUIScale()
+    {
+        if (uiScale > 1)
+        {
+            delete[] data;
+            data = 0;
+            uiScale = 1;
+        }
+    }
+
+    // matches Bitmap::Read -> ReadPIC. The important detail is the reuse: when
+    // a buffer already exists the reader fills it and leaves the dimensions
+    // alone ("read into existing bitmap, truncate bitmap if it will not fit"),
+    // so without DropUIScale a pre-scaled bitmap would keep its oversized
+    // buffer and its stale factor.
     Bool Read(const char*)
     {
-        uiScale = 1;
+        DropUIScale();
+
+        if (data)
+        {
+            // reuse - dimensions unchanged
+            return TRUE;
+        }
+
         return Create(nativeW, nativeH, translucent ? (transparent ? 2 : 1) : 0);
     }
 

@@ -746,6 +746,10 @@ Bool Bitmap::ReLoad(const char* filename) // = NULL
     {
         //    LOG_DIAG(("reloading %s", name.str));
 
+        // this branch calls the readers directly rather than going through
+        // Read, so it has to drop a pre-scale itself
+        DropUIScale();
+
         if (status.pic)
         {
             retValue = ReadPIC(name.str);
@@ -1246,11 +1250,42 @@ void Bitmap::SetSurfaceColorKey()
 //
 //
 //
+//
+// Discard an interface pre-scale before the picture is re-read from file.
+//
+// The buffer has to go with it. ReadPIC, ReadBMP and ReadTGA all read into
+// an existing buffer when there is one and only call Create when there is
+// not - "read into existing bitmap, truncate bitmap if it will not fit".
+// That is fine when the buffer came from the same file, but a pre-scaled
+// bitmap has a buffer several times larger than its file. Reading into it
+// would leave the native-size picture in one corner, the rest of the buffer
+// stale, the dimensions still claiming the scaled size, and - because Create
+// never ran - the scale factor still claiming the picture was scaled. Every
+// texture coordinate would then address a fraction of the intended region.
+//
+// Dropping the buffer forces the allocate-to-fit path, so the bitmap comes
+// back native and self-consistent.
+//
+void Bitmap::DropUIScale()
+{
+    if (uiScale > 1)
+    {
+        if (bmpData && status.ownsData)
+        {
+            delete[] static_cast<char*>(bmpData);
+            bmpData = nullptr;
+        }
+        uiScale = 1;
+    }
+}
+
+//----------------------------------------------------------------------------
+
 Bool Bitmap::Read(const char* filename, Pix* pixelFormat)
 {
     // reloading replaces the pixels, so whatever pre-scale was applied to
     // the previous set is gone with them
-    uiScale = 1;
+    DropUIScale();
 
     char* dot = Utils::FindExt(filename);
 

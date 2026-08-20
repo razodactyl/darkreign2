@@ -512,6 +512,10 @@ public:
     U32 UIScale() const { return uiScale; }
     void SetUIScale(U32 s) { uiScale = s ? s : 1; }
 
+    // Discard a pre-scale before re-reading the picture from file. Must be
+    // called by every path that reloads, see the note on the definition.
+    void DropUIScale();
+
     // Dimensions and UV steps in the space the art was authored in, which is
     // what interface layout is expressed in. Identical to the plain versions
     // for anything that has not been pre-scaled.

@@ -76,6 +76,25 @@ those pixels, so every path that replaces them - both `Create` overloads and
 and the question "has this been scaled?" is answered by the thing being asked
 about.
 
+**The buffer has to go with the factor.** This is the part that is easy to miss,
+and it is what made the first attempt at enabling this corrupt the interface on
+a resolution change. `ReadPIC`, `ReadBMP` and `ReadTGA` all read into an
+existing buffer when there is one, and only call `Create` when there is not -
+"read into existing bitmap, truncate bitmap if it will not fit". That is fine
+when the buffer came from the same file. A pre-scaled bitmap has a buffer
+several times larger than its file, so the reload left the native-size picture
+in one corner, the rest of the buffer stale, the dimensions still reporting the
+scaled size, and - because `Create` never ran - the factor still claiming the
+picture was scaled. Every texture coordinate then addressed a fraction of the
+region it should have, which on screen looks like the art has reverted to raw
+1:1 texels.
+
+`Bitmap::DropUIScale` frees the buffer along with the factor, which forces the
+allocate-to-fit path. It is called from `Read` and, separately, from
+`ReLoad`'s no-filename branch - that branch calls the readers directly rather
+than going through `Read`, and `Bitmap::Manager::OnModeChange` is exactly the
+caller that takes it.
+
 **The caller conflated source region with screen size.** `TextureInfo::pixels`
 was multiplied by the scale factor at load. But `pixels` is not only a rectangle
 within the source texture: `TM_CENTRED` draws at `pixels.Width()`, and the HUD
@@ -211,8 +230,10 @@ checks the properties that matter:
   general one
 - the shipping defaults: texture scaling off, font scaling on at nearest
 - texture pre-scaling recording its factor on the bitmap, not re-scaling an
-  already-scaled one, and - the regression that disabled the feature -
-  dropping the factor when the bitmap is reloaded
+  already-scaled one, and - the regressions that disabled the feature -
+  dropping both the factor and the oversized buffer when the bitmap is
+  reloaded. The stub Bitmap models the readers' reuse-an-existing-buffer
+  behaviour, so removing the fix fails the tests rather than passing quietly.
 - translucency surviving the recreate, and the device texture-size limit
   reducing the factor rather than refusing
 

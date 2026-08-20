@@ -383,14 +383,22 @@ int main()
         Check("second call reports the existing factor", ScaleBitmapUI(&b) == 2);
         Check("and does not scale again", b.Width() == 32);
 
-        // THE regression that disabled this feature. A reload replaces the
-        // pixels with native-size ones. The old code tracked scaled bitmaps in
-        // a side set that no reload could reach, so it went on reporting 2 for
-        // a bitmap that was 16 wide again - and the caller stepped its UVs off
-        // the end of the texture. The factor now lives with the pixels.
+        // THE regression that disabled this feature, in both of its forms.
+        //
+        // The old code tracked scaled bitmaps in a side set that no reload
+        // could reach, so it went on reporting 2 for a bitmap that was 16
+        // wide again. The factor lives with the pixels now.
+        //
+        // And the readers only allocate when there is no buffer to reuse, so
+        // the oversized one has to be dropped with the factor - otherwise the
+        // native picture is read into the corner of the larger buffer while
+        // the dimensions still claim the scaled size.
         b.Read("whatever.pic");
         Check("a reload drops the recorded factor", b.UIScale() == 1);
         Check("and the bitmap really is native again", b.Width() == 16);
+        Check("authored size agrees after the reload", b.UnscaledWidth() == 16);
+        Check("and so does the UV step",
+              fabsf(b.InvUnscaledWidth() - 1.0f / 16.0f) < 0.0001f);
         Check("so it can be scaled afresh", ScaleBitmapUI(&b) == 2);
         Check("back to 2x", b.Width() == 32 && b.UIScale() == 2);
 

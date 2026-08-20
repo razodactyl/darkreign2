@@ -154,8 +154,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   where a real diagonal cuts them, alpha blending moving alpha rather than
   colour, nearest exact at factors 2 through 4, and the switches being
   independent in the right direction — including `-texup` not reaching the font
-  algorithm and vice versa, the shipping defaults, and the bitmap-reload
-  regression that had texture pre-scaling disabled. 79 checks.
+  algorithm and vice versa, the shipping defaults, and both bitmap-reload
+  regressions that had texture pre-scaling disabled. 81 checks.
 
   Deliberately outside `dr2.sln` so it cannot break the game build. Run
   `tests\pixelscale\run.bat`.
@@ -215,6 +215,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   The factor now lives on the bitmap as `Bitmap::UIScale`. It describes those
   pixels, so both `Create` overloads and `Read` reset it. No side table to go
   stale, no pointer to dangle.
+
+  The buffer has to go with the factor, which is the part that is easy to miss.
+  `ReadPIC`, `ReadBMP` and `ReadTGA` all read into an existing buffer when there
+  is one and only call `Create` when there is not — "read into existing bitmap,
+  truncate bitmap if it will not fit". A pre-scaled bitmap has a buffer several
+  times larger than its file, so a reload left the native-size picture in one
+  corner, the rest stale, the dimensions still reporting the scaled size and,
+  because `Create` never ran, the factor still claiming the picture was scaled.
+  Every texture coordinate then addressed a fraction of its intended region,
+  which on screen reads as the art reverting to raw 1:1 texels. `DropUIScale`
+  frees the buffer with the factor, forcing the allocate-to-fit path; it is
+  called from `Read` and separately from `ReLoad`'s no-filename branch, which
+  calls the readers directly and is the branch
+  `Bitmap::Manager::OnModeChange` takes.
 
   The second fault would have been visible immediately. `TextureInfo::pixels`
   was multiplied by the scale factor at load — but `pixels` is not only a region
