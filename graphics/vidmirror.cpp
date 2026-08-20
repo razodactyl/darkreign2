@@ -139,7 +139,17 @@ namespace Vid
             Vid::RenderClear(clearZBUFFER);
             Terrain::RenderMirrorMask(NULL);
 
-            Vid::RenderRectangle(Vid::viewRect, Vid::renderState.fogColor, NULL, RS_BLEND_DEF, Vid::sortNORMAL0, 1, 0, TRUE);
+            // Fill what is left of the screen with the fog colour, behind
+            // everything, so anything the mirror pass drew outside the water is
+            // covered.
+            //
+            // rhw used to be 0 here. These are pre-transformed vertices, where
+            // rhw is 1/w, so 0 means w = infinity - the perspective divide and
+            // everything derived from it becomes meaningless, and the quad
+            // rasterises as arbitrary dark polygons over the sky. rhw = 1 is
+            // what every other screen-space quad in the engine uses, and is
+            // also this function's own default.
+            Vid::RenderRectangle(Vid::viewRect, Vid::renderState.fogColor, NULL, RS_BLEND_DEF, Vid::sortNORMAL0, 1, 1, TRUE);
 
             lastWaterR = NULL;
             counter = 0;
