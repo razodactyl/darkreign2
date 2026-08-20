@@ -4,9 +4,61 @@ All notable changes to this project are recorded here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [1.459]
 
 ### Added
+
+- **Command line build and run workflow, independent of the Visual Studio IDE.**
+  The solution could only be built and launched from inside the IDE, which also
+  meant the run configuration — working directory and command line arguments —
+  lived in per-user `.vcxproj.user` files that are not shared.
+
+  `scripts/dr2.ps1` drives MSBuild directly. It locates the toolchain through
+  `vswhere -prerelease -latest`, requiring both MSBuild and the C++ tools, so it
+  resolves to a Visual Studio install that actually carries the `v145` platform
+  toolset every project here requests. That distinction matters: a machine with
+  both VS 18 (2026) Insiders and the 2022 Build Tools installed must use the
+  former, and the naive "latest MSBuild" lookup can pick the latter, which has no
+  v145 and fails at project load.
+
+  Builds are pinned to `Win32`. The solution declares `x64` configurations, but
+  no project defines one, so an x64 build silently does nothing.
+
+  For launching, the script reads `OutDir` and `TargetName` out of
+  `appdr2/appdr2.vcxproj` rather than hardcoding a path, resolving to
+  `C:\Games\Dark Reign 2\dr2_<Config>.exe`. It starts the game with that folder
+  as the working directory, which is required — the game resolves its data packs
+  relative to the working directory, not to the executable. The default argument
+  string `--borderless -s` matches the existing debug configuration.
+
+  Actions are `build`, `rebuild`, `clean`, `run` (build then launch) and `launch`
+  (launch only), with `-Config Debug|Release`, `-Target <project>` to build a
+  single project instead of the whole solution, `-GameArgs` and `-Quiet`.
+
+  `Makefile` is a thin front end over the script for the common cases:
+
+  | Goal | Effect |
+  | --- | --- |
+  | `make build` | build Release |
+  | `make build-debug` | build Debug |
+  | `make run` | build and launch Debug |
+  | `make debug` | build and launch Debug |
+  | `make release` | build and launch Release |
+  | `make rebuild` / `clean` / `launch` | as named, Debug |
+
+  `CONFIG=` and `TARGET=` override the per-goal defaults on any goal, since a
+  command line variable takes precedence over a target-specific one in GNU make.
+  PowerShell is invoked with `-NoProfile -ExecutionPolicy Bypass` so the goals
+  behave the same regardless of the user's profile or execution policy.
+
+  A full `Makefile` replacing MSBuild was considered and rejected. The twenty
+  `.vcxproj` files already encode include paths, the forced `std.h` precompiled
+  header, per-project link settings and resource compilation; restating all of
+  that in make would duplicate it and drift the moment anything changed in the
+  IDE. MSBuild remains the build system and these are front ends to it, so the
+  IDE and the command line cannot disagree about how the game is built.
+
+  `Makefile`, `scripts/dr2.ps1`
 
 - **OpenGL 3.3 rendering backend, selected with `-ogl`.** The DirectX 7 renderer
   is now one implementation behind an interface rather than the only thing there
@@ -87,133 +139,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
   `graphics/bitmap.h`, `graphics/lightvertscamera.cpp`,
   `graphics/lightvertsmodel.cpp`, `graphics/vid_cmd_dialog.cpp`
-
-### Fixed
-
-- **Sky geometry breaking up when the "Mirror" water reflection is enabled.**
-  Large dark polygons appeared across the sky, most visible on the main menu
-  backdrop.
-
-  After the reflection pass, `Vid::Mirror::Stop()` fills the screen with the fog
-  colour to cover anything the pass drew outside the water. That quad was built
-  with `rhw = 0`. These are pre-transformed vertices, where `rhw` is 1/w, so 0
-  means w = infinity — the perspective divide and everything derived from it
-  become meaningless, and the quad rasterises as arbitrary dark polygons. Every
-  other screen-space quad in the engine passes `rhw = 1`, which is also the
-  function's own default; the mirror was the only caller passing 0.
-
-  Found by bisection after two incorrect hypotheses: disabling the sky inside the
-  mirror pass did not help, nor did disabling everything drawn into it, which
-  narrowed it to the pass's own machinery.
-
-  The OpenGL backend never showed this, incidentally — its vertex shader already
-  guards the degenerate case and treats `rhw = 0` as w = 1, which is what the
-  DirectX path should have done.
-
-  `graphics/vidmirror.cpp`
-
-- **Video settings not persisting between runs.** `Settings::Save` runs from
-  `Vid::Done` and was writing correctly, but the load side never ran on the
-  OpenGL path: `Settings::Load` is called from inside `InitDD`, and the saved
-  mode is restored by `PickVidMode` at the end of it — both of which that path
-  bypasses.
-
-  Separately, the two backends shared one `settings.cfg`. `Settings::Load`
-  validates the file against the enumerated hardware, and the two necessarily
-  differ — DirectX reports two dgVoodoo drivers with 114 modes, OpenGL reports
-  one with 55 — so each run rejected whatever the other had written and overwrote
-  it on exit. OpenGL now uses `settings-ogl.cfg`.
-
-  Note this is separate from `DEVELOPMENT` builds forcing `VIDMODEWINDOW` in
-  `SetMode`, which is unchanged and means a saved fullscreen resolution is not
-  applied in a dev build on either backend.
-
-  `graphics/vid.cpp`, `graphics/vid_settings.cpp`
-
-- **Music playing at full volume until the audio options page was opened.** The
-  user profile applied `Sound::Vorbis::SetVolume` but never
-  `Sound::Redbook::SetVolume`, while the options page sets both together, so the
-  redbook path kept whatever the driver started with and jumped to the saved
-  level as soon as the page was shown.
-
-  Simply adding the call would not have worked: `Redbook::SetVolume` does nothing
-  unless the driver is already open, and the profile is loaded before
-  `Redbook::Claim` runs. Redbook now remembers the requested volume and applies
-  it in `Claim`. `Volume()` also reports the remembered value rather than 0 when
-  there is no driver, which stops a zero being written back into the profile.
-
-  `sound/sound_redbook.cpp`, `game/user.cpp`
-
-- **Post-build step failing the solution build.** `tools/postbuild.bat` ran
-  `rh.exe -script postbuild.txt` with both names unqualified. MSBuild runs
-  post-build steps from the project directory, so it failed with "rh.exe is not
-  recognized" and took the build down with error MSB3073 whenever appmesh
-  relinked.
-
-  Resolving the paths would not have helped. `tools/postbuild.txt` is not a build
-  script — it is Resource Hacker's own saved session state, committed by
-  accident, with no `[COMMANDS]` section and an `Open=` line pointing at one
-  developer's install path. The step is now dormant, matching what appdr2 already
-  did, and the batch file is a documented no-op so re-enabling the event cannot
-  break the build again.
-
-  `tools/postbuild.bat`, `tools/postdll.bat`, `appmesh/appmesh.vcxproj`
-
-## [1.459]
-
-### Added
-
-- **Command line build and run workflow, independent of the Visual Studio IDE.**
-  The solution could only be built and launched from inside the IDE, which also
-  meant the run configuration — working directory and command line arguments —
-  lived in per-user `.vcxproj.user` files that are not shared.
-
-  `scripts/dr2.ps1` drives MSBuild directly. It locates the toolchain through
-  `vswhere -prerelease -latest`, requiring both MSBuild and the C++ tools, so it
-  resolves to a Visual Studio install that actually carries the `v145` platform
-  toolset every project here requests. That distinction matters: a machine with
-  both VS 18 (2026) Insiders and the 2022 Build Tools installed must use the
-  former, and the naive "latest MSBuild" lookup can pick the latter, which has no
-  v145 and fails at project load.
-
-  Builds are pinned to `Win32`. The solution declares `x64` configurations, but
-  no project defines one, so an x64 build silently does nothing.
-
-  For launching, the script reads `OutDir` and `TargetName` out of
-  `appdr2/appdr2.vcxproj` rather than hardcoding a path, resolving to
-  `C:\Games\Dark Reign 2\dr2_<Config>.exe`. It starts the game with that folder
-  as the working directory, which is required — the game resolves its data packs
-  relative to the working directory, not to the executable. The default argument
-  string `--borderless -s` matches the existing debug configuration.
-
-  Actions are `build`, `rebuild`, `clean`, `run` (build then launch) and `launch`
-  (launch only), with `-Config Debug|Release`, `-Target <project>` to build a
-  single project instead of the whole solution, `-GameArgs` and `-Quiet`.
-
-  `Makefile` is a thin front end over the script for the common cases:
-
-  | Goal | Effect |
-  | --- | --- |
-  | `make build` | build Release |
-  | `make build-debug` | build Debug |
-  | `make run` | build and launch Debug |
-  | `make debug` | build and launch Debug |
-  | `make release` | build and launch Release |
-  | `make rebuild` / `clean` / `launch` | as named, Debug |
-
-  `CONFIG=` and `TARGET=` override the per-goal defaults on any goal, since a
-  command line variable takes precedence over a target-specific one in GNU make.
-  PowerShell is invoked with `-NoProfile -ExecutionPolicy Bypass` so the goals
-  behave the same regardless of the user's profile or execution policy.
-
-  A full `Makefile` replacing MSBuild was considered and rejected. The twenty
-  `.vcxproj` files already encode include paths, the forced `std.h` precompiled
-  header, per-project link settings and resource compilation; restating all of
-  that in make would duplicate it and drift the moment anything changed in the
-  IDE. MSBuild remains the build system and these are front ends to it, so the
-  IDE and the command line cannot disagree about how the game is built.
-
-  `Makefile`, `scripts/dr2.ps1`
 
 ### Fixed
 
@@ -353,3 +278,72 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   wrong in exactly the cases that were already wrong and correct everywhere else.
 
   `coregame_objects/unitobj.cpp`
+
+- **Sky geometry breaking up when the "Mirror" water reflection is enabled.**
+  Large dark polygons appeared across the sky, most visible on the main menu
+  backdrop.
+
+  After the reflection pass, `Vid::Mirror::Stop()` fills the screen with the fog
+  colour to cover anything the pass drew outside the water. That quad was built
+  with `rhw = 0`. These are pre-transformed vertices, where `rhw` is 1/w, so 0
+  means w = infinity — the perspective divide and everything derived from it
+  become meaningless, and the quad rasterises as arbitrary dark polygons. Every
+  other screen-space quad in the engine passes `rhw = 1`, which is also the
+  function's own default; the mirror was the only caller passing 0.
+
+  Found by bisection after two incorrect hypotheses: disabling the sky inside the
+  mirror pass did not help, nor did disabling everything drawn into it, which
+  narrowed it to the pass's own machinery.
+
+  The OpenGL backend never showed this, incidentally — its vertex shader already
+  guards the degenerate case and treats `rhw = 0` as w = 1, which is what the
+  DirectX path should have done.
+
+  `graphics/vidmirror.cpp`
+
+- **Video settings not persisting between runs.** `Settings::Save` runs from
+  `Vid::Done` and was writing correctly, but the load side never ran on the
+  OpenGL path: `Settings::Load` is called from inside `InitDD`, and the saved
+  mode is restored by `PickVidMode` at the end of it — both of which that path
+  bypasses.
+
+  Separately, the two backends shared one `settings.cfg`. `Settings::Load`
+  validates the file against the enumerated hardware, and the two necessarily
+  differ — DirectX reports two dgVoodoo drivers with 114 modes, OpenGL reports
+  one with 55 — so each run rejected whatever the other had written and overwrote
+  it on exit. OpenGL now uses `settings-ogl.cfg`.
+
+  Note this is separate from `DEVELOPMENT` builds forcing `VIDMODEWINDOW` in
+  `SetMode`, which is unchanged and means a saved fullscreen resolution is not
+  applied in a dev build on either backend.
+
+  `graphics/vid.cpp`, `graphics/vid_settings.cpp`
+
+- **Music playing at full volume until the audio options page was opened.** The
+  user profile applied `Sound::Vorbis::SetVolume` but never
+  `Sound::Redbook::SetVolume`, while the options page sets both together, so the
+  redbook path kept whatever the driver started with and jumped to the saved
+  level as soon as the page was shown.
+
+  Simply adding the call would not have worked: `Redbook::SetVolume` does nothing
+  unless the driver is already open, and the profile is loaded before
+  `Redbook::Claim` runs. Redbook now remembers the requested volume and applies
+  it in `Claim`. `Volume()` also reports the remembered value rather than 0 when
+  there is no driver, which stops a zero being written back into the profile.
+
+  `sound/sound_redbook.cpp`, `game/user.cpp`
+
+- **Post-build step failing the solution build.** `tools/postbuild.bat` ran
+  `rh.exe -script postbuild.txt` with both names unqualified. MSBuild runs
+  post-build steps from the project directory, so it failed with "rh.exe is not
+  recognized" and took the build down with error MSB3073 whenever appmesh
+  relinked.
+
+  Resolving the paths would not have helped. `tools/postbuild.txt` is not a build
+  script — it is Resource Hacker's own saved session state, committed by
+  accident, with no `[COMMANDS]` section and an `Open=` line pointing at one
+  developer's install path. The step is now dormant, matching what appdr2 already
+  did, and the batch file is a documented no-op so re-enabling the event cannot
+  break the build again.
+
+  `tools/postbuild.bat`, `tools/postdll.bat`, `appmesh/appmesh.vcxproj`
