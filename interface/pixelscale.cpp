@@ -40,6 +40,11 @@ namespace PixelScale
     static Bool enabled = TRUE;
     static Bool uiScaling = TRUE;
     static Bool textureScaling = TRUE;
+    static Bool fontScaling = TRUE;
+
+    // Fonts keep their own algorithm and default to NEAREST regardless of
+    // what --texup selects; see the note in pixelscale.h
+    static Algorithm fontAlgorithm = NEAREST;
 
     //
     // Algorithm names as they appear on the command line. Indexed by
@@ -205,14 +210,13 @@ namespace PixelScale
     void Init()
     {
         // Deliberately the *raw* scale, not IFace::GetScale(): that one is
-        // gated on the --ui4k toggle, and texture pre-scaling is meant to be
+        // gated on the --ui4k toggle, and pre-scaling is meant to be
         // independent of whether control geometry is being scaled.
-        F32 rawScale = IFace::GetRawScale();
-
-        if (!enabled || !textureScaling)
-        {
-            rawScale = 1.0f;
-        }
+        //
+        // Only the master switch is folded in here. The per-consumer switches
+        // are applied by GetTextureScale and GetFontScale, so that turning one
+        // off cannot affect the other.
+        F32 rawScale = enabled ? IFace::GetRawScale() : 1.0f;
 
         // Calculate integer scale (floor, clamped to [1, maxScale])
         cachedIntegerScale = S32(floorf(rawScale));
@@ -246,6 +250,19 @@ namespace PixelScale
         S32 scale = cachedIntegerScale;
         if (scale > maxScale) scale = maxScale;
         return scale;
+    }
+
+    //
+    // Per-consumer scale factors
+    //
+    S32 GetTextureScale(S32 maxScale)
+    {
+        return GetTextureScaling() ? GetIntegerScale(maxScale) : 1;
+    }
+
+    S32 GetFontScale(S32 maxScale)
+    {
+        return GetFontScaling() ? GetIntegerScale(maxScale) : 1;
     }
 
     //
@@ -387,15 +404,31 @@ namespace PixelScale
     void SetTextureScaling(Bool on)
     {
         textureScaling = on;
-        if (initialized)
-        {
-            Init();
-        }
     }
 
     Bool GetTextureScaling()
     {
         return enabled && textureScaling;
+    }
+
+    void SetFontScaling(Bool on)
+    {
+        fontScaling = on;
+    }
+
+    Bool GetFontScaling()
+    {
+        return enabled && fontScaling;
+    }
+
+    void SetFontAlgorithm(Algorithm algo)
+    {
+        fontAlgorithm = algo;
+    }
+
+    Algorithm GetFontAlgorithm()
+    {
+        return fontAlgorithm;
     }
 
     //
@@ -902,7 +935,8 @@ namespace PixelScale
     // for the requested factor falls back to nearest neighbour. That is the
     // honest answer: nearest never distorts, it just does not smooth.
     //
-    void ScaleImageTo(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst, S32 factor)
+    void ScaleImageWith(Algorithm algo, const U32* src, S32 srcWidth, S32 srcHeight,
+                        U32* dst, S32 factor)
     {
         ASSERT(factor >= 1)
 
@@ -912,7 +946,7 @@ namespace PixelScale
             return;
         }
 
-        switch (currentAlgorithm)
+        switch (algo)
         {
             case SCALE2X:
             case SCALE3X:
@@ -938,6 +972,14 @@ namespace PixelScale
         }
 
         Nearest(src, srcWidth, srcHeight, dst, factor);
+    }
+
+    //
+    // ScaleImageWith using the current general algorithm
+    //
+    void ScaleImageTo(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst, S32 factor)
+    {
+        ScaleImageWith(currentAlgorithm, src, srcWidth, srcHeight, dst, factor);
     }
 
     //

@@ -331,7 +331,7 @@ Bool Font::Read(const char* fileName)
 
         // Get font texture scale factor (1, 2, or 3 based on resolution)
         // This pre-scales font textures for crisp rendering at high resolutions
-        fontTextureScale = PixelScale::GetIntegerScale(3);
+        fontTextureScale = PixelScale::GetFontScale(3);
         if (fontTextureScale < 1) fontTextureScale = 1;
         
         LOG_FONT((" - Font texture scale: %d", fontTextureScale));
@@ -465,8 +465,9 @@ Bool Font::Read(const char* fileName)
                         srcBuf[p] = 0x00FFFFFF | (U32(*pixel++) << 24);
                     }
 
-                    PixelScale::ScaleImageTo
+                    PixelScale::ScaleImageWith
                     (
+                        PixelScale::GetFontAlgorithm(),
                         srcBuf, charImage->charWidth, charImage->charHeight,
                         dstBuf, fontTextureScale
                     );

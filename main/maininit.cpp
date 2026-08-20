@@ -889,6 +889,35 @@ namespace Main
                         continue;
                     }
 
+                    if (!Utils::Stricmp(arg.str, "fontup"))
+                    {
+                        // Fonts are held separately from textures: their
+                        // content is an alpha ramp rather than flat indexed
+                        // colour, so -texup deliberately does not reach them
+                        PixelScale::Algorithm algo;
+
+                        if (!Utils::Stricmp(val.str, "off"))
+                        {
+                            PixelScale::SetFontScaling(FALSE);
+                            LOG_DIAG(("Font pre-scaling disabled"))
+                        }
+                        else if (PixelScale::ParseAlgorithm(val.str, algo))
+                        {
+                            PixelScale::SetFontScaling(TRUE);
+                            PixelScale::SetFontAlgorithm(algo);
+                            LOG_DIAG(("Font pre-scaling using [%s]", PixelScale::AlgorithmName(algo)))
+                        }
+                        else
+                        {
+                            LOG_ERR
+                            ((
+                                "-fontup: unknown method [%s]; expected off, nn, "
+                                "scale2x, scale3x, eagle, hq2x or hq3x", val.str
+                            ))
+                        }
+                        continue;
+                    }
+
                     switch (arg.crc)
                     {
                         case 0xFE16C91E: // "cwd"

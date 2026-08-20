@@ -31,6 +31,18 @@ which is what makes magnified text look soft.
 The integer factor is `floor(rawScale)` clamped to `[1, maxScale]`; fonts ask
 for a cap of 3.
 
+Fonts and UI textures have separate switches (`-fontup`, `-texup`) and separate
+algorithm settings, and both default to nearest. They are split because their
+content is not alike: UI art is flat colour with hard edges, which is what the
+pixel-art filters were designed for, whereas a glyph is white everywhere and
+carries all of its shape in an 8-bit alpha ramp. Fed a ramp, the filters read it
+as a stack of diagonals and smooth it further. Tying both to one switch would
+mean any choice good for one was imposed on the other.
+
+`PixelScale::GetTextureScale` and `GetFontScale` apply the per-consumer switch;
+`GetIntegerScale` is the raw resolution-derived factor with only the master
+switch folded in. Consumers should ask for their own.
+
 ## What is actually pre-scaled
 
 | | Scaled | Where |
@@ -48,7 +60,8 @@ added alongside this document reaches the call site, but the call site is still
 
 ## Filter fidelity
 
-`--texup` selects one of six. They are not all equally faithful to their names.
+`-texup` and `-fontup` each select one of six. They are not all equally
+faithful to their names.
 
 ### Scale2x, Scale3x, Eagle - faithful
 
@@ -68,8 +81,8 @@ comparison and a 50/50 blend - closer to "Scale2x with anti-aliasing" than to
 hqx. It is a reasonable filter. It is not hqx, and it will round off shapes that
 real hqx preserves.
 
-The names are kept because they are what the switch takes, but nobody should
-read `--texup:hq2x` as "this is hq2x".
+The names are kept because they are what the switches take, but nobody should
+read `-texup:hq2x` as "this is hq2x".
 
 Two real defects were found and fixed in them:
 
@@ -151,9 +164,12 @@ checks the properties that matter:
   regression), and Hq2x agrees with Scale2x where it should
 - blending against a transparent texel moves alpha, not colour
 - nearest is exact at factors 2, 3 and 4
-- family fallback in `ScaleImageTo`
-- switch parsing, and that `-upscale`, `-ui4k` and `-texup` are independent in
-  the right direction
+- family fallback in `ScaleImageTo`, and `ScaleImageWith` honouring the
+  algorithm it is handed rather than the global one
+- switch parsing, and that `-upscale`, `-ui4k`, `-texup` and `-fontup` are
+  independent in the right direction
+- `-texup` not reaching the font algorithm, and `-fontup` not reaching the
+  general one
 
 Run `tests\pixelscale\run.bat`. It is deliberately outside `dr2.sln` so it
 cannot break the game build.

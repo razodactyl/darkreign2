@@ -115,12 +115,26 @@ namespace PixelScale
     Bool GetUIScaling();
 
     //
-    // Texture pre-scaling (--texup). Controls whether font atlases and UI
-    // textures are built at an integer multiple of their native size.
-    // Independent of layout scaling.
+    // Texture pre-scaling (--texup). Controls whether UI textures are built at
+    // an integer multiple of their native size. Independent of layout scaling.
     //
     void SetTextureScaling(Bool on);
     Bool GetTextureScaling();
+
+    //
+    // Font atlas pre-scaling (--fontup), and the algorithm it uses.
+    //
+    // Fonts are held separately from textures because they are the one thing
+    // being pre-scaled today, and because their content is unlike the rest:
+    // white glyphs carrying all their shape in an 8 bit alpha ramp. The
+    // pixel-art filters read that ramp as a stack of diagonals, so the font
+    // default stays NEAREST no matter what --texup is set to.
+    //
+    void SetFontScaling(Bool on);
+    Bool GetFontScaling();
+
+    void SetFontAlgorithm(Algorithm algo);
+    Algorithm GetFontAlgorithm();
 
     //
     // Algorithm names for the command line: "nn", "nearest", "scale2x",
@@ -137,9 +151,18 @@ namespace PixelScale
 
     //
     // Get the recommended integer scale factor for current resolution
-    // Returns floor(IFace::GetScale()) clamped to [1, maxScale]
+    // Returns floor(IFace::GetRawScale()) clamped to [1, maxScale], or 1 when
+    // scaling is switched off altogether
     //
     S32 GetIntegerScale(S32 maxScale = 4);
+
+    //
+    // The same figure for a particular consumer, reporting 1 when that
+    // consumer's own switch is off. Use these rather than GetIntegerScale
+    // when deciding how large to build something.
+    //
+    S32 GetTextureScale(S32 maxScale = 4);
+    S32 GetFontScale(S32 maxScale = 4);
 
     //
     // Get the fractional remainder after integer scaling
@@ -258,12 +281,18 @@ namespace PixelScale
     S32 ScaleImage(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst);
 
     //
-    // Scale by an exact factor using the current algorithm, falling back
-    // within the algorithm's family when it has no native variant for that
-    // factor (e.g. Scale2x at factor 3 uses Scale3x; anything with no
-    // equivalent uses nearest neighbour, which never distorts).
+    // Scale by an exact factor using a given algorithm, falling back within
+    // the algorithm's family when it has no native variant for that factor
+    // (e.g. Scale2x at factor 3 uses Scale3x; anything with no equivalent
+    // uses nearest neighbour, which never distorts).
     //
     // dst must hold srcWidth * factor by srcHeight * factor pixels.
+    //
+    void ScaleImageWith(Algorithm algo, const U32* src, S32 srcWidth, S32 srcHeight,
+                        U32* dst, S32 factor);
+
+    //
+    // ScaleImageWith using the current general algorithm
     //
     void ScaleImageTo(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst, S32 factor);
 

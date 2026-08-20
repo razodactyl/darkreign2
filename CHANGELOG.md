@@ -93,10 +93,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `3rdparty/glad/`, `graphics/vid_backend*.{h,cpp}`, `graphics/vid_dx.h`,
   `graphics/vid.cpp`, `graphics/bitmap.cpp`, `main/maininit.cpp`
 
-- **Command line switches documented.** Twenty-one switches across
-  `main/maininit.cpp` and `multiplayer/multiplayer.cpp` — the latter registered
-  through `RegisterCmdLineHandler`, so they do not appear in the main switch
-  statement and are easy to miss.
+- **Command line switches documented.** The twenty-one switches that already
+  existed, across `main/maininit.cpp` and `multiplayer/multiplayer.cpp` — the
+  latter registered through `RegisterCmdLineHandler`, so they do not appear in
+  the main switch statement and are easy to miss. The scaling switches below
+  bring the documented total to twenty-five.
 
   Two are worth knowing: `-s` selects a *software Direct3D driver* rather than
   anything to do with sound or skipping, and `-safevid` is accepted but does
@@ -106,30 +107,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
   `README.md`
 
-- **Interface scaling is switchable: `-upscale`, `-ui4k` and `-texup`.** What
-  gets called "4K support" is two separate mechanisms, and they now have
-  separate switches.
+- **Interface scaling is switchable: `-upscale`, `-ui4k`, `-texup` and
+  `-fontup`.** What gets called "4K support" is several separate mechanisms, and
+  they now have separate switches.
 
   `-ui4k:on|off` controls layout scaling — control geometry authored in 640x480
-  design space multiplied up by `min(width/640, height/480)`. `-texup:<method>`
-  controls texture pre-scaling — building the font atlas at an integer multiple
-  of its native size so texels land on pixel boundaries. `-upscale:off`
-  overrides both and puts the interface back exactly where it was before any of
-  this work.
+  design space multiplied up by `min(width/640, height/480)`.
+  `-texup:<method>` controls UI texture pre-scaling and `-fontup:<method>` the
+  font atlas — building a texture at an integer multiple of its native size so
+  texels land on pixel boundaries. `-upscale:off` overrides all of them and puts
+  the interface back exactly where it was before any of this work.
 
-  The two were previously entangled, because `PixelScale::Init` derived its
-  integer factor from `IFace::GetScale()`, which is the layout scaler.
-  `IFace::GetRawScale()` now reports the resolution ratio itself and `GetScale`
-  applies the toggle on top, so `-ui4k:off -texup:hq2x` and
-  `-ui4k:on -texup:off` both do what they say.
+  They were previously entangled, because `PixelScale::Init` derived its integer
+  factor from `IFace::GetScale()`, which is the layout scaler.
+  `IFace::GetRawScale()` now reports the resolution ratio itself, `GetScale`
+  applies the layout toggle on top, and `GetTextureScale`/`GetFontScale` apply
+  their own — so every combination does what it says.
 
-  `-texup` takes `off`, `nn`, `scale2x`, `scale3x`, `eagle`, `hq2x` or `hq3x`.
-  `nn` is the default and stays the default: the game's art is already
-  anti-aliased continuous tone, and the pixel-art filters assume hard-edged
-  indexed input, so they smooth what they misread as diagonals. The others are
-  selectable for experimentation. Font glyph scaling previously used its own
-  hardcoded nearest-neighbour block replication and ignored the algorithm
-  setting entirely; it goes through the selected filter now.
+  Both method switches take `off`, `nn`, `scale2x`, `scale3x`, `eagle`, `hq2x`
+  or `hq3x`, and both default to `nn`. That stays the default: the game's art is
+  already anti-aliased continuous tone, and the pixel-art filters assume
+  hard-edged indexed input, so they smooth what they misread as diagonals. The
+  others are selectable for experimentation.
+
+  Fonts are held separately from textures rather than following `-texup` because
+  their content is unlike the rest — white glyphs carrying all their shape in an
+  8-bit alpha ramp, which is exactly the input the filters handle worst. Tying
+  both to one switch would impose a choice good for one on the other.
+
+  Font glyph scaling previously used its own hardcoded nearest-neighbour block
+  replication and ignored the algorithm setting entirely; it goes through the
+  selected filter now.
 
   `main/maininit.cpp`, `interface/pixelscale.{h,cpp}`, `interface/font.cpp`,
   `interface/iface.{h,cpp}`, `README.md`,
@@ -141,7 +149,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   leaving a flat field flat and straight edges crisp, corners rewritten only
   where a real diagonal cuts them, alpha blending moving alpha rather than
   colour, nearest exact at factors 2 through 4, and the switches being
-  independent in the right direction. 40 checks.
+  independent in the right direction — including `-texup` not reaching the font
+  algorithm and vice versa. 56 checks.
 
   Deliberately outside `dr2.sln` so it cannot break the game build. Run
   `tests\pixelscale\run.bat`.

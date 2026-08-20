@@ -245,6 +245,38 @@ int main()
               (SetAlgorithm(DEFAULT), GetAlgorithm() == NEAREST));
     }
 
+    Section("fonts keep their own algorithm");
+    {
+        SetAlgorithm(NEAREST);
+        SetFontAlgorithm(NEAREST);
+
+        // -texup must not reach fonts
+        SetAlgorithm(HQ2X);
+        Check("texup does not change the font algorithm", GetFontAlgorithm() == NEAREST);
+
+        // and -fontup must not reach textures
+        SetFontAlgorithm(SCALE3X);
+        Check("fontup does not change the general algorithm", GetAlgorithm() == HQ2X);
+
+        // ScaleImageWith honours the algorithm it is handed, not the global
+        U32 src[9] = { K, K, W,
+                       K, W, W,
+                       W, W, W };
+        U32 dst[81], ref[81];
+
+        ScaleImageWith(SCALE3X, src, 3, 3, dst, 3);
+        Scale3x(src, 3, 3, ref);
+        Check("ScaleImageWith uses its argument", !memcmp(dst, ref, 81 * sizeof(U32)));
+
+        ScaleImageWith(NEAREST, src, 3, 3, dst, 3);
+        Nearest(src, 3, 3, ref, 3);
+        Check("ScaleImageWith(NEAREST) ignores the global algorithm",
+              !memcmp(dst, ref, 81 * sizeof(U32)));
+
+        SetAlgorithm(NEAREST);
+        SetFontAlgorithm(NEAREST);
+    }
+
     Section("toggles are independent");
     {
         g_rawScale = 2.75f;
@@ -252,26 +284,39 @@ int main()
         SetEnabled(TRUE);
         SetUIScaling(TRUE);
         SetTextureScaling(TRUE);
+        SetFontScaling(TRUE);
         Init();
 
         Check("integer scale at 2.75x is 2", GetIntegerScale(4) == 2);
         Check("remainder at 2.75x is 0.75", fabsf(GetScaleRemainder() - 0.75f) < 0.001f);
         Check("the cap argument is honoured", GetIntegerScale(1) == 1);
+        Check("texture scale follows", GetTextureScale(4) == 2);
+        Check("font scale follows, capped at 3", GetFontScale(3) == 2);
 
         SetTextureScaling(FALSE);
-        Check("texup:off forces texture scale to 1", GetIntegerScale(4) == 1);
+        Check("texup:off forces texture scale to 1", GetTextureScale(4) == 1);
+        Check("texup:off leaves font scale at 2", GetFontScale(3) == 2);
         Check("texup:off leaves layout scaling on", GetUIScaling() == TRUE);
 
         SetTextureScaling(TRUE);
+        SetFontScaling(FALSE);
+        Check("fontup:off forces font scale to 1", GetFontScale(3) == 1);
+        Check("fontup:off leaves texture scale at 2", GetTextureScale(4) == 2);
+        Check("fontup:off leaves layout scaling on", GetUIScaling() == TRUE);
+
+        SetFontScaling(TRUE);
         SetUIScaling(FALSE);
-        Check("ui4k:off leaves texture scale at 2", GetIntegerScale(4) == 2);
+        Check("ui4k:off leaves texture scale at 2", GetTextureScale(4) == 2);
+        Check("ui4k:off leaves font scale at 2", GetFontScale(3) == 2);
         Check("ui4k:off reports layout scaling off", GetUIScaling() == FALSE);
 
         SetUIScaling(TRUE);
         SetEnabled(FALSE);
-        Check("upscale:off forces texture scale to 1", GetIntegerScale(4) == 1);
+        Check("upscale:off forces texture scale to 1", GetTextureScale(4) == 1);
+        Check("upscale:off forces font scale to 1", GetFontScale(3) == 1);
         Check("upscale:off overrides ui4k:on", GetUIScaling() == FALSE);
         Check("upscale:off overrides texup", GetTextureScaling() == FALSE);
+        Check("upscale:off overrides fontup", GetFontScaling() == FALSE);
     }
 
     printf("\n%s - %d failure%s\n\n",
