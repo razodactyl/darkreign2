@@ -78,7 +78,7 @@ struct AnimState
     {
         active = blend = FALSE;
 
-        curFrame = 0.0f;
+        curFrame = lastFrame = 0.0f;
         dir = 1.0f;
         conFrame = targetFrame = 0.0f;
         conDir = 1.0f;

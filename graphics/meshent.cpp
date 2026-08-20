@@ -1724,7 +1724,7 @@ Bool MeshEnt::SetAnimCycle(AnimList& cycle)
         {
             if (cycle.type == anim1WAY)
             {
-                animState0.curFrame = 0.0f;
+                animState0.curFrame = animState0.lastFrame = 0.0f;
                 animState0.dir = 1.0f;
                 SetWorldAll();  // FIXME
             }
@@ -1751,7 +1751,7 @@ Bool MeshEnt::SetAnimCycle(AnimList& cycle)
       else
     */
     {
-        animState0.curFrame = 0.0f;
+        animState0.curFrame = animState0.lastFrame = 0.0f;
         animState0.targetFrame = cycle.endFrame;
     }
 
@@ -1817,7 +1817,7 @@ Bool MeshEnt::BlendAnimCycle(AnimList& cycle, F32 blendTime) // = DEFBLENDTIME
     }
     curCycle = &cycle;
     curCycleID = cycle.name.crc;
-    animState0.curFrame = -blendTime;
+    animState0.curFrame = animState0.lastFrame = -blendTime;
     animState0.dir = 1.0f;
     animState0.active = TRUE;
     animState0.blend = TRUE;
@@ -1897,7 +1897,7 @@ void MeshEnt::ActivateAnim(Bool activate) // = TRUE
 
         if (curCycle->type == anim1WAY)
         {
-            animState0.curFrame = 0.0f;
+            animState0.curFrame = animState0.lastFrame = 0.0f;
             animState0.dir = 1.0f;
         }
 
@@ -1962,6 +1962,37 @@ const MeshObj* MeshEnt::CollidePoly(const Vector& vStart, const Vector& vEnd, F3
 
 //----------------------------------------------------------------------------
 
+// a frame value fit to be written to a save game
+//
+// the comparison is deliberately the other way around to the obvious one so that
+// a NaN, which compares false against everything, is caught along with negatives
+//
+static F32 SaveFrame(F32 frame)
+{
+    return frame >= 0.0f ? frame : 0.0f;
+}
+
+//----------------------------------------------------------------------------
+
+// reads a frame value that an older save game may have written as a NaN
+//
+// StdLoad range checks every float it reads and a NaN fails that check, which is
+// fatal, so the value is pulled out of the scope directly and filtered here
+//
+static F32 LoadFrame(FScope* fScope, const char* name, F32 dVal)
+{
+    FScope* sScope = fScope->GetFunction(name, FALSE);
+
+    if (!sScope || !sScope->IsNextArgFPoint())
+    {
+        return dVal;
+    }
+
+    return SaveFrame(sScope->NextArgFPoint());
+}
+
+//----------------------------------------------------------------------------
+
 void MeshEnt::SaveState(FScope* fScope)
 {
     ASSERT(fScope);
@@ -1973,8 +2004,8 @@ void MeshEnt::SaveState(FScope* fScope)
 
         StdSave::TypeU32(sScope, "CycleId", curCycleID);
 
-        StdSave::TypeF32(sScope, "CurrFrame", animState0.curFrame < 0 ? 0 : animState0.curFrame);
-        StdSave::TypeF32(sScope, "LastFrame", animState0.lastFrame < 0 ? 0 : animState0.lastFrame);
+        StdSave::TypeF32(sScope, "CurrFrame", SaveFrame(animState0.curFrame));
+        StdSave::TypeF32(sScope, "LastFrame", SaveFrame(animState0.lastFrame));
         StdSave::TypeF32(sScope, "Direction", animState0.dir);
         StdSave::TypeU32(sScope, "Active", static_cast<U32>(animState0.active));
         StdSave::TypeF32(sScope, "FPS", fps);
@@ -2049,9 +2080,9 @@ void MeshEnt::LoadState(FScope* fScope)
                 ASSERT(hasAnim);
 
                 SetAnimCycle(StdLoad::TypeU32(sScope, "CycleId", curCycleID));
-                SetFrame(StdLoad::TypeF32(sScope, "CurrFrame", animState0.curFrame));
+                SetFrame(LoadFrame(sScope, "CurrFrame", animState0.curFrame));
 
-                animState0.lastFrame = StdLoad::TypeF32(sScope, "LastFrame", animState0.lastFrame);
+                animState0.lastFrame = LoadFrame(sScope, "LastFrame", animState0.lastFrame);
                 animState0.dir = StdLoad::TypeF32(sScope, "Direction", animState0.dir);
                 animState0.active = StdLoad::TypeU32(sScope, "Active", static_cast<U32>(animState0.active));
                 fps = StdLoad::TypeF32(sScope, "FPS", fps);
