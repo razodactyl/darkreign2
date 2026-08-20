@@ -186,14 +186,12 @@ namespace Clock
         //
         std::string GetVerbose()
         {
-            std::string str;
-            str.resize(26);
-
             time_t result = time(nullptr);
             char buf[26];
             ctime_s(buf, sizeof buf, &result);
 
-            return str.append(buf);
+            // ctime_s leaves a trailing newline on the 24 character date
+            return std::string(buf, strcspn(buf, "\n"));
         }
 
 

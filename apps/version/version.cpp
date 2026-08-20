@@ -27,6 +27,16 @@
 
 
 //
+// Default location of the build counter.
+//
+// Relative to the working directory, which for the build events that invoke
+// this tool is the project directory - so this resolves to the counter sitting
+// beside the solution. Override with -buildver= to point somewhere else.
+//
+#define DEFAULT_BUILD_VER "..\\build.ver"
+
+
+//
 // Usage
 //
 void Usage()
@@ -37,7 +47,8 @@ void Usage()
   printf(" -version=Version\n");
   printf(" -comments=Comments\n");
   printf(" -include=Include\n");
-  printf(" -roll=0 or 1");
+  printf(" -roll=0 or 1\n");
+  printf(" -buildver=Path to the build counter (default %s)", DEFAULT_BUILD_VER);
 }
 
 
@@ -83,6 +94,7 @@ int CDECL main(int argc, const char **argv)
   const char *include = data.Find(0x8CBCE90A);      // "include"
   const char *comments = data.Find(0x62E46F43);     // "comments"
   const char *roll = data.Find(0x39DF06B5);         // "roll"
+  const char *buildVer = data.Find(0x1EA6CC6B);     // "buildver"
   
   U32 build;
 
@@ -90,10 +102,11 @@ int CDECL main(int argc, const char **argv)
   description = description ? description : "Insert Description Name Here";
   version = version ? version : "0,0";
   roll = roll ? roll : "1";
+  buildVer = buildVer ? buildVer : DEFAULT_BUILD_VER;
 
   File file;
 
-  if (file.Open("c:\\build.ver", File::READ | File::WRITE))
+  if (file.Open(buildVer, File::READ | File::WRITE))
   {
     file.Read(&build, sizeof (U32));
 
@@ -149,7 +162,7 @@ int CDECL main(int argc, const char **argv)
   file.WriteString("    BEGIN\n");
   file.WriteString("      VALUE \"FileVersion\", \"%s\\0\"\n", version);
   file.WriteString("      VALUE \"FileDescription\", \"%s\\0\"\n", description);
-  file.WriteString("      VALUE \"LegalCopyright\", \"Copyright © 1997-2000\\0\"\n");
+  file.WriteString("      VALUE \"LegalCopyright\", \"Copyright \xA9 1997-2000\\0\"\n");
   file.WriteString("      VALUE \"CompanyName\", \"%s\\0\"\n", company);
 
   if (comments)
@@ -158,7 +171,7 @@ int CDECL main(int argc, const char **argv)
   }
 
   char strt[32];
-  strcpy(strt, Clock::Date::GetVerbose());
+  strcpy(strt, Clock::Date::GetVerbose().c_str());
   strt[24] = '\0';
 
   char str[256];
@@ -170,7 +183,30 @@ int CDECL main(int argc, const char **argv)
   Clock::Date::GetStr(str);
   file.WriteString("      VALUE \"Build Date\", \"%s\\0\"\n", str);
 
-  file.WriteString("      VALUE \"Build Number\", \"%d\\0\"\n", build);
+  // The number the game identifies itself by is the version with its
+  // separators removed, followed by the remaining two FILEVERSION fields:
+  // 1,459 + build 0 -> "145900". See docs/update-system.md.
+  //
+  // Emit it as text rather than leaving the client to rebuild it from the
+  // binary FILEVERSION, whose fields are each only 16 bits wide. For the
+  // values shipped so far the two agree exactly; the difference is that this
+  // one cannot be silently truncated.
+  char buildNumber[64];
+  {
+    char *w = buildNumber;
+
+    for (const char *p = version; *p; p++)
+    {
+      if (*p != ',' && *p != '.' && *p != ' ')
+      {
+        *w++ = *p;
+      }
+    }
+
+    sprintf(w, "%d0", build);
+  }
+
+  file.WriteString("      VALUE \"Build Number\", \"%s\\0\"\n", buildNumber);
 
   U32 size = 256;
   GetUserName(str, &size);

@@ -76,7 +76,7 @@
     <LinkIncremental>false</LinkIncremental>
     <TargetName>dr2_$(Configuration)</TargetName>
     <IntDir>$(Configuration)\</IntDir>
-    <PreLinkEventUseInBuild>true</PreLinkEventUseInBuild>
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,10 +97,9 @@
       <CallingConvention>FastCall</CallingConvention>
       <DisableSpecificWarnings>4996;</DisableSpecificWarnings>
     </ClCompile>
-    <PreLinkEvent>
-      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,458
-rc version.rc</Command>
-    </PreLinkEvent>
+    <PreBuildEvent>
+      <Command>..\tools\version version.rc -roll=0 -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="RELEASE" -version=1,459</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild ..\release\appdr2\dr2 Dark Reign II [Release]</Command>
     </PostBuildEvent>
@@ -146,10 +145,9 @@ rc version.rc</Command>
       <CallingConvention>FastCall</CallingConvention>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
-    <PreLinkEvent>
-      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,459
-rc version.rc</Command>
-    </PreLinkEvent>
+    <PreBuildEvent>
+      <Command>..\tools\version version.rc -roll=0 -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -buildver=..\build.dev.ver -comments="DEVELOPMENT" -version=1,460</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild ..\development\appdr2\dr2_Debug Dark Reign II [Development]</Command>
     </PostBuildEvent>
@@ -195,10 +193,9 @@ rc version.rc</Command>
       <CallingConvention>FastCall</CallingConvention>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
-    <PreLinkEvent>
-      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -comments="DEVELOPMENT" -version=1,459
-rc version.rc</Command>
-    </PreLinkEvent>
+    <PreBuildEvent>
+      <Command>..\tools\version version.rc -roll=0 -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -buildver=..\build.dev.ver -comments="DEVELOPMENT" -version=1,460</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild ..\development\appdr2\dr2_Debug Dark Reign II [Development]</Command>
     </PostBuildEvent>

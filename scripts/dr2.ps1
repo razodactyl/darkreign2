@@ -61,6 +61,12 @@ function Invoke-Build {
         "-p:Configuration=$Config"
         '-p:Platform=Win32'
         '-m'
+        # Do not leave worker nodes running after the build. They persist by
+        # default and keep handles on the per-project .pch and vc*.pdb files,
+        # which is one of the ways two overlapping builds of this solution end
+        # up wedged - C1041 on the PDB, or C1083 "Invalid argument" on a PCH
+        # still held by an orphaned cl.exe from the previous run.
+        '-nr:false'
         '-nologo'
         ('-v:' + $(if ($Quiet) { 'quiet' } else { 'minimal' }))
     )

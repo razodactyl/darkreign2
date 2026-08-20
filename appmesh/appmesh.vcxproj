@@ -96,10 +96,9 @@
       <CallingConvention>FastCall</CallingConvention>
       <DisableSpecificWarnings>4996;</DisableSpecificWarnings>
     </ClCompile>
-    <PreLinkEvent>
-      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -version=1,4 -comments="X"
-rc version.rc</Command>
-    </PreLinkEvent>
+    <PreBuildEvent>
+      <Command>..\tools\version version.rc -roll=0 -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -buildver=..\build.dev.ver -version=1,4 -comments="X"</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild release\mesh Pandemic Mesh Viewer [Release]</Command>
     </PostBuildEvent>
@@ -146,10 +145,9 @@ rc version.rc</Command>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
-    <PreLinkEvent>
-      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -version=1,4 -comments="X"
-rc version.rc</Command>
-    </PreLinkEvent>
+    <PreBuildEvent>
+      <Command>..\tools\version version.rc -roll=0 -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -buildver=..\build.dev.ver -version=1,4 -comments="X"</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild debug\mesh Pandemic Mesh Viewer [Debug]</Command>
     </PostBuildEvent>
@@ -199,10 +197,9 @@ rc version.rc</Command>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
-    <PreLinkEvent>
-      <Command>..\tools\version version.rc -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -version=1,4 -comments="X"
-rc version.rc</Command>
-    </PreLinkEvent>
+    <PreBuildEvent>
+      <Command>..\tools\version version.rc -roll=0 -include=dr2.rc -company="Pandemic Studios" -description="Dark Reign 2" -buildver=..\build.dev.ver -version=1,4 -comments="X"</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>..\tools\postbuild debug\mesh Pandemic Mesh Viewer [Debug]</Command>
     </PostBuildEvent>

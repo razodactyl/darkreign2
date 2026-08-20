@@ -205,3 +205,7 @@ ModelManifest.xml
 # MSBuild output for the OpenGL build configurations
 **/Debug - OpenGL/
 **/Release - OpenGL/
+
+# Per-machine build counter read by tools/version.exe (see docs/update-system.md)
+/build.ver
+/build.dev.ver

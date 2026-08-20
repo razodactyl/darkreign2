@@ -122,19 +122,29 @@ namespace Version
             HIWORD(vs->dwFileVersionLS), LOWORD(vs->dwFileVersionLS)
         );
 
-        // const char* buildNumberString;
-        // VerQueryValue(data, TEXT("\\StringFileInfo\\040904b0\\Build Number"), (void**)&buildNumberString, &size);
-        // buildNumber = Utils::AtoI(buildNumberString);
+        // The build number is read from the string rather than rebuilt from the
+        // four FILEVERSION fields, which are 16 bits each and truncate anything
+        // larger. The tool writes the same digits into both, so this reads the
+        // same value it always did - it just cannot be silently truncated now.
+        // See docs/update-system.md.
+        const char* buildNumberString;
 
-        char buildNumberString[20];
-        Utils::Sprintf
+        if (VerQueryValue
         (
-            buildNumberString, 80, "%d%d%d%d",
-            HIWORD(vs->dwFileVersionMS), LOWORD(vs->dwFileVersionMS),
-            HIWORD(vs->dwFileVersionLS), LOWORD(vs->dwFileVersionLS)
-        );
-
-        buildNumber = Utils::AtoI(buildNumberString);
+            data, TEXT("\\StringFileInfo\\040904b0\\Build Number"),
+            (void**)&buildNumberString, &size
+        ))
+        {
+            buildNumber = Utils::AtoI(buildNumberString);
+        }
+        else
+        {
+            // Nothing sane to fall back on: a build with no number cannot be
+            // matched against a server or a manifest, and guessing one would
+            // silently pair it with an unrelated build
+            LOG_ERR(("Could not get 'Build Number': %s", Debug::LastError()));
+            buildNumber = 0;
+        }
 
         initialized = TRUE;
     }
