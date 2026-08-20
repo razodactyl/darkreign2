@@ -751,7 +751,17 @@ namespace Vid
 
         void SetAntiAlias(Bool on)
         {
-            dxError = device->SetRenderState(D3DRENDERSTATE_ANTIALIAS, on);
+            // D3DRENDERSTATE_ANTIALIAS takes a D3DANTIALIASMODE, not a boolean.
+            // Passing TRUE asked for D3DANTIALIAS_SORTDEPENDENT (1), which needs
+            // the caller to sort its geometry back to front and is not what the
+            // capability probe checked for - vid_enumdx tests
+            // D3DPRASTERCAPS_ANTIALIASSORTINDEPENDENT. So the state being set
+            // was never the one the driver was asked about.
+            dxError = device->SetRenderState
+            (
+                D3DRENDERSTATE_ANTIALIAS,
+                on ? D3DANTIALIAS_SORTINDEPENDENT : D3DANTIALIAS_NONE
+            );
             LOG_DXERR(("device->SetRenderState"));
         }
 

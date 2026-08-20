@@ -381,6 +381,38 @@ namespace Vid
     extern Status doStatus;
     extern Status isStatus;
 
+    //
+    // Anti-aliasing.
+    //
+    // Chosen with -aa and settled before Vid::Init, because the multisample
+    // sample count is a property of the pixel format and a window only gets
+    // one of those for its whole life - it cannot be changed later.
+    //
+    enum AAMethod
+    {
+        aaOFF = 0,
+        aaEDGE,     // legacy edge antialiasing; DirectX only
+        aaMSAA2,
+        aaMSAA4,
+        aaMSAA8,
+        aaMSAA16,
+    };
+
+    // what was asked for, and what the device actually gave; the second is
+    // only meaningful once the device is up
+    extern AAMethod aaRequested;
+    extern AAMethod aaActual;
+
+    // sample count for the MSAA methods, 0 for the rest
+    U32 AASamples(AAMethod method);
+    AAMethod AAFromSamples(U32 samples);
+    const char* AAName(AAMethod method);
+    Bool ParseAAMethod(const char* name, AAMethod& method);
+
+    // push aaActual into the render state; called once the device is up and
+    // caps are known
+    void ApplyAA();
+
     struct Caps
     {
         // dd

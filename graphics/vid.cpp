@@ -44,6 +44,12 @@ namespace Vid
 
     // static Vid class variables
     Status doStatus;
+
+    // Anti-aliasing is on by default. 4x multisampling is the compatible
+    // choice: every GL 3.3 driver offers it, and unlike the higher counts it
+    // costs little enough on this engine to leave on without asking.
+    AAMethod aaRequested = aaMSAA4;
+    AAMethod aaActual = aaOFF;
     Status Vid::isStatus;
     Caps caps;
 
@@ -1290,6 +1296,12 @@ namespace Vid
             SetRenderState(FALSE);
             ValidateBlends();     // texture blend modes
 
+            // D3D7 has no multisampling to ask for; what it offers is the
+            // legacy full-scene and edge antialias render states, and only
+            // where the driver claims them
+            aaActual = caps.antiAlias ? aaRequested : aaOFF;
+            ApplyAA();
+
             // user callback 
             //
             if (modeChangeProc)
@@ -1321,6 +1333,123 @@ namespace Vid
     // discovered from DirectDraw, there is one synthetic driver describing what
     // OpenGL can do, and one mode: the desktop.
     //
+    //
+    // Anti-aliasing helpers
+    //
+    U32 AASamples(AAMethod method)
+    {
+        switch (method)
+        {
+            case aaMSAA2:  return 2;
+            case aaMSAA4:  return 4;
+            case aaMSAA8:  return 8;
+            case aaMSAA16: return 16;
+            default:       return 0;
+        }
+    }
+
+    AAMethod AAFromSamples(U32 samples)
+    {
+        if (samples >= 16) return aaMSAA16;
+        if (samples >= 8)  return aaMSAA8;
+        if (samples >= 4)  return aaMSAA4;
+        if (samples >= 2)  return aaMSAA2;
+        return aaOFF;
+    }
+
+    const char* AAName(AAMethod method)
+    {
+        switch (method)
+        {
+            case aaEDGE:   return "edge";
+            case aaMSAA2:  return "msaa2";
+            case aaMSAA4:  return "msaa4";
+            case aaMSAA8:  return "msaa8";
+            case aaMSAA16: return "msaa16";
+            default:       return "off";
+        }
+    }
+
+    Bool ParseAAMethod(const char* name, AAMethod& method)
+    {
+        if (!Utils::Stricmp(name, "off") || !Utils::Stricmp(name, "none")
+            || !Utils::Stricmp(name, "0") || !Utils::Stricmp(name, "no"))
+        {
+            method = aaOFF;
+            return TRUE;
+        }
+
+        // bare -aa, or -aa:on, means the default rather than some fixed method
+        if (!*name || !Utils::Stricmp(name, "on") || !Utils::Stricmp(name, "yes"))
+        {
+            method = aaMSAA4;
+            return TRUE;
+        }
+
+        if (!Utils::Stricmp(name, "edge"))
+        {
+            method = aaEDGE;
+            return TRUE;
+        }
+
+        // "msaa4" and a bare "4" both mean the same thing
+        const char* digits = name;
+
+        if (!Utils::Strnicmp(name, "msaa", 4))
+        {
+            digits = name + 4;
+        }
+
+        if (*digits >= '0' && *digits <= '9')
+        {
+            U32 samples = U32(atoi(digits));
+
+            // only exact powers of two are meaningful here
+            if (samples == 2 || samples == 4 || samples == 8 || samples == 16)
+            {
+                method = AAFromSamples(samples);
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    //
+    // Push the achieved method into the render state.
+    //
+    // Called once the device is up, because caps are not known before that and
+    // on the OpenGL path the sample count is not either - it depends on what
+    // the driver would give us.
+    //
+    void ApplyAA()
+    {
+        const Bool wantEdge = (aaActual == aaEDGE);
+        const Bool wantFull = (aaActual != aaOFF && !wantEdge);
+
+        // caps.antiAlias is the device's own answer; never force a state it
+        // says it cannot do
+        renderState.status.antiAlias = (wantFull && caps.antiAlias) ? TRUE : FALSE;
+        renderState.status.antiAliasEdge = (wantEdge && caps.antiAlias) ? TRUE : FALSE;
+
+        // straight to the backend rather than through SetAntiAliasStateI, which
+        // waits for isStatus.initialized - that is not set until the mode change
+        // completes, and this runs as part of bringing the device up
+        backend->SetAntiAlias(renderState.status.antiAlias);
+        backend->SetEdgeAntiAlias(renderState.status.antiAliasEdge);
+
+        // keep the console var and the options dialog showing the truth
+        Var::varAntiAlias = renderState.status.antiAlias ? 1 : 0;
+
+        LOG_DIAG
+        ((
+            "[VID AA] requested %s, using %s",
+            AAName(aaRequested), AAName(aaActual)
+        ));
+    }
+
+    //----------------------------------------------------------------------------
+
     Bool InitOGLDrivers()
     {
         numDDs = 1;
@@ -1584,6 +1713,12 @@ namespace Vid
         InitResources(TRUE);
         SetRenderState(FALSE);
         ValidateBlends();
+
+        // What we actually got is whatever the pixel format carried, which
+        // was decided when the context was created and cannot change now
+        caps.antiAlias = OGL::Samples() ? TRUE : FALSE;
+        aaActual = AAFromSamples(OGL::Samples());
+        ApplyAA();
 
         if (modeChangeProc)
         {

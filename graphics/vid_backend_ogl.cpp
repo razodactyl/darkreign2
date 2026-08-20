@@ -36,6 +36,10 @@ namespace Vid
 
         static int glVersion;    // as returned by gladLoadGL, 0 until loaded
 
+        // multisample samples the pixel format actually gave us; 0 when the
+        // driver had nothing to offer or -aa:off was asked for
+        static U32 msaaSamples;
+
         static Bool InitShaders();    // defined below, called from CreateContext
 
         //---------------------------------------------------------------------
@@ -153,6 +157,18 @@ namespace Vid
             hWnd = window;
             hDC = GetDC(hWnd);
 
+            // Multisampling has to be settled here: it is a property of the
+            // pixel format, and a window only ever gets one of those for its
+            // whole life. There is no second chance further down.
+            //
+            // wglChoosePixelFormatARB cannot be trusted to honour the request.
+            // It ranks every format by how well it matches and returns the best
+            // ones, so asking for WGL_SAMPLES_ARB 4 on a driver with no
+            // multisample formats at all still succeeds - it just hands back a
+            // format with none. Take a list of candidates and read the sample
+            // count back off each one instead.
+            const U32 wanted = Vid::AASamples(Vid::aaRequested);
+
             const int formatAttribs[] =
             {
                 WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -162,19 +178,72 @@ namespace Vid
                 WGL_COLOR_BITS_ARB, 32,
                 WGL_DEPTH_BITS_ARB, 24,
                 WGL_STENCIL_BITS_ARB, 8,
+                WGL_SAMPLE_BUFFERS_ARB, wanted ? GL_TRUE : GL_FALSE,
+                WGL_SAMPLES_ARB, int(wanted),
                 0
             };
 
-            int format = 0;
+            enum { MAXCANDIDATES = 32 };
+
+            int candidates[MAXCANDIDATES];
             UINT formatCount = 0;
 
-            if (!wglChoosePixelFormatARB(hDC, formatAttribs, nullptr, 1, &format, &formatCount)
+            if (!wglChoosePixelFormatARB(hDC, formatAttribs, nullptr, MAXCANDIDATES, candidates, &formatCount)
                 || formatCount == 0)
             {
                 LOG_ERR(("OGL: no suitable pixel format for the game window"));
                 ReleaseDC(hWnd, hDC);
                 hDC = nullptr;
                 return FALSE;
+            }
+
+            // The list is already ordered best first, so the first entry is the
+            // fallback if nothing carries the samples we want.
+            int format = candidates[0];
+            U32 best = 0;
+
+            if (wanted && !wglGetPixelFormatAttribivARB)
+            {
+                // without it the candidates cannot be told apart; the
+                // GL_SAMPLES query after the context is current still
+                // reports what we ended up with
+                LOG_DIAG(("OGL: no wglGetPixelFormatAttribivARB to check samples with"));
+            }
+
+            if (wanted && wglGetPixelFormatAttribivARB)
+            {
+                const int query = WGL_SAMPLES_ARB;
+
+                for (UINT i = 0; i < formatCount; i++)
+                {
+                    int got = 0;
+
+                    if (!wglGetPixelFormatAttribivARB(hDC, candidates[i], 0, 1, &query, &got))
+                    {
+                        continue;
+                    }
+
+                    // the most samples that does not exceed what was asked for
+                    if (got > int(best) && got <= int(wanted))
+                    {
+                        best = U32(got);
+                        format = candidates[i];
+
+                        if (best == wanted)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                if (best < wanted)
+                {
+                    LOG_DIAG
+                    ((
+                        "OGL: %dx multisampling not offered, best available is %dx",
+                        wanted, best
+                    ));
+                }
             }
 
             PIXELFORMATDESCRIPTOR pfd;
@@ -231,6 +300,22 @@ namespace Vid
             LOG_DIAG(("OGL: %s", (const char*)glGetString(GL_VERSION)));
             LOG_DIAG(("OGL: %s", (const char*)glGetString(GL_RENDERER)));
             LOG_DIAG(("OGL: GLSL %s", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION)));
+
+            // Ask the context what it actually has rather than trusting the
+            // request. WGL_SAMPLES_ARB is a minimum, so the driver is free to
+            // hand back a format with more samples than were asked for - or, if
+            // the multisample attributes were ignored, with none at all.
+            {
+                GLint got = 0;
+                glGetIntegerv(GL_SAMPLES, &got);
+                msaaSamples = (got > 1) ? U32(got) : 0;
+
+                LOG_DIAG
+                ((
+                    "OGL: multisampling - asked for %d, pixel format claimed %d, context has %d",
+                    wanted, best, msaaSamples
+                ));
+            }
 
             if (!InitShaders())
             {
@@ -958,7 +1043,26 @@ namespace Vid
         // no equivalent in a core profile
         void SetDither(Bool) {}
         void SetSpecular(Bool) {}
-        void SetAntiAlias(Bool) {}
+        void SetAntiAlias(Bool on)
+        {
+            // Nothing to toggle unless the pixel format carried a multisample
+            // buffer, and that was settled at context creation.
+            if (msaaSamples)
+            {
+                if (on)
+                {
+                    glEnable(GL_MULTISAMPLE);
+                }
+                else
+                {
+                    glDisable(GL_MULTISAMPLE);
+                }
+            }
+        }
+
+        // Edge antialiasing is a Direct3D 7 concept. Core profile GL has no
+        // equivalent - GL_POLYGON_SMOOTH is not in it, and where it survives it
+        // seams every shared triangle edge. Multisampling covers this properly.
         void SetEdgeAntiAlias(Bool) {}
         Bool SetPerspective(Bool) { return TRUE; }
         Bool SetColorKey(Bool) { return FALSE; }
@@ -1244,6 +1348,11 @@ namespace Vid
         Bool Present()
         {
             return BackendOGL::Present();
+        }
+
+        U32 Samples()
+        {
+            return BackendOGL::msaaSamples;
         }
 
         const char* RendererName()

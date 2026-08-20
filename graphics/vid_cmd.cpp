@@ -361,7 +361,10 @@ namespace Vid
             VarSys::CreateInteger("vid.specular", Vid::renderState.status.specular, VarSys::NOTIFY, &Vid::Var::varSpecular);
             VarSys::CreateInteger("vid.dither", Vid::renderState.status.dither, VarSys::NOTIFY, &Vid::Var::varDither);
             VarSys::CreateInteger("vid.filter", Vid::renderState.status.filter & filterFILTER ? 1 : 0, VarSys::NOTIFY, &Vid::Var::varFilter);
-            VarSys::CreateInteger("vid.antialias", Vid::renderState.status.filter & filterFILTER ? 1 : 0, VarSys::NOTIFY, &Vid::Var::varAntiAlias);
+            // was initialised from the texture filter flag rather than the
+            // antialias state, so the console var and the options checkbox
+            // started out reporting something unrelated
+            VarSys::CreateInteger("vid.antialias", Vid::renderState.status.antiAlias ? 1 : 0, VarSys::NOTIFY, &Vid::Var::varAntiAlias);
             VarSys::CreateInteger("vid.fog", Vid::renderState.status.fog, VarSys::NOTIFY, &Vid::Var::varFog);
             VarSys::CreateInteger("vid.waitretrace", Vid::renderState.status.waitRetrace, VarSys::NOTIFY, &Vid::Var::waitRetrace);
             VarSys::CreateInteger("vid.xmm", Vid::renderState.status.xmm, VarSys::NOTIFY, &Vid::Var::xmm);

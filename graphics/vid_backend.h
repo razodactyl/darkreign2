@@ -191,6 +191,10 @@ namespace Vid
         // vendor extension if the driver offers one (0 when it will not say)
         const char* RendererName();
         void VideoMemory(U32& total, U32& avail);
+
+        // multisample samples the pixel format actually carries; 0 for none.
+        // Fixed for the life of the context - see CreateContext.
+        U32 Samples();
     };
 
     //-----------------------------------------------------------------------------

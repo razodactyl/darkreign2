@@ -97,7 +97,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   existed, across `main/maininit.cpp` and `multiplayer/multiplayer.cpp` — the
   latter registered through `RegisterCmdLineHandler`, so they do not appear in
   the main switch statement and are easy to miss. The scaling switches below
-  bring the documented total to twenty-five.
+  bring the documented total to twenty-six.
 
   Two are worth knowing: `-s` selects a *software Direct3D driver* rather than
   anything to do with sound or skipping, and `-safevid` is accepted but does
@@ -106,6 +106,46 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   parser skips to the next `-` or `/` and the detached value is silently ignored.
 
   `README.md`
+
+- **Anti-aliasing, on by default, selected with `-aa`.** `-aa:<method>` takes
+  `off`, `msaa2`, `msaa4`, `msaa8`, `msaa16` (a bare sample count works too, so
+  `-aa:8` is `-aa:msaa8`) or `edge`. The default is `msaa4` — every OpenGL 3.3
+  driver is expected to offer it and it costs little on an engine this old.
+
+  It has to be settled before `Vid::Init`, because multisampling is a property
+  of the pixel format and a window only gets one of those for its whole life.
+
+  Requesting is not the same as receiving, and that is where the implementation
+  spends its care. `wglChoosePixelFormatARB` ranks formats by how well they
+  match and returns the best ones, so asking for 4 samples on a driver with no
+  multisample formats at all still *succeeds* — it just hands back a format
+  with none. The backend therefore takes a list of candidates, reads
+  `WGL_SAMPLES_ARB` back off each with `wglGetPixelFormatAttribivARB`, picks the
+  best that does not exceed the request, and then — because even that can be
+  wrong — asks the finished context for `GL_SAMPLES` and believes only that.
+
+  On the development machine this catches a real discrepancy: the WGL layer
+  advertises a 4x format, it is selected, and the resulting context reports 0
+  samples. The log says so plainly rather than claiming anti-aliasing that is
+  not there:
+
+  ```
+  OGL: multisampling - asked for 4, pixel format claimed 4, context has 0
+  [VID AA] requested msaa4, using off
+  ```
+
+  `Vid::aaActual` records what was achieved, `caps.antiAlias` is set from it,
+  and nothing is forced on a device that says it cannot do it. Turning the
+  default on therefore cannot disturb a machine with no anti-aliasing to give.
+
+  `msaa*` is OpenGL only. Direct3D 7 has no multisampling to ask for — it has
+  the legacy full-scene and edge antialias render states, and only where the
+  driver claims them, which dgVoodoo does not. `edge` is likewise DirectX only;
+  core profile GL has no equivalent and multisampling covers it properly.
+
+  `graphics/vid_decl.h`, `graphics/vid.cpp`, `graphics/vid_backend.h`,
+  `graphics/vid_backend_ogl.cpp`, `graphics/vid_backend_d3d.cpp`,
+  `main/maininit.cpp`, `README.md`
 
 - **Interface scaling is switchable: `-upscale`, `-ui4k`, `-texup` and
   `-fontup`.** What gets called "4K support" is several separate mechanisms, and
@@ -256,6 +296,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
   `interface/pixelscale.{h,cpp}`, `interface/iface_util.cpp`,
   `graphics/bitmap.{h,cpp}`
+
+- **The DirectX antialias render state asked for a mode nobody probed for.**
+  `SetAntiAlias` passed a `Bool` to `D3DRENDERSTATE_ANTIALIAS`, which takes a
+  `D3DANTIALIASMODE`. `TRUE` is `D3DANTIALIAS_SORTDEPENDENT`, which needs the
+  caller to sort its geometry back to front — while `vid_enumdx` probes for
+  `D3DPRASTERCAPS_ANTIALIASSORTINDEPENDENT`. The state being set was never the
+  one the driver had been asked about. It now passes
+  `D3DANTIALIAS_SORTINDEPENDENT`.
+
+  Separately, the `vid.antialias` console variable was created from
+  `renderState.status.filter & filterFILTER` — the *texture filter* flag — so it
+  and the options dialog checkbox started out reporting something unrelated to
+  anti-aliasing.
+
+  `graphics/vid_backend_d3d.cpp`, `graphics/vid_cmd.cpp`
 
 - **Pixel scaling filters softening the edges they exist to preserve.** Auditing
   the filters before wiring them to switches turned up three defects. Scale2x,

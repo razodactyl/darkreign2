@@ -827,6 +827,29 @@ namespace Main
                     // High resolution UI scaling. These have to be settled
                     // before Vid::Init and IFace::Init, which is why they live
                     // here rather than in a registered hook.
+                    if (!Utils::Stricmp(arg.str, "aa"))
+                    {
+                        // Has to be settled here: on the OpenGL path the sample
+                        // count is part of the pixel format, and the window only
+                        // gets one of those
+                        Vid::AAMethod method;
+
+                        if (Vid::ParseAAMethod(val.str, method))
+                        {
+                            Vid::aaRequested = method;
+                            LOG_DIAG(("Anti-aliasing set to [%s]", Vid::AAName(method)))
+                        }
+                        else
+                        {
+                            LOG_ERR
+                            ((
+                                "-aa: unknown method [%s]; expected off, edge, "
+                                "msaa2, msaa4, msaa8 or msaa16", val.str
+                            ))
+                        }
+                        continue;
+                    }
+
                     if (!Utils::Stricmp(arg.str, "upscale"))
                     {
                         Bool on;

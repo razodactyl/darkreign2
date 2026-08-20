@@ -37,7 +37,40 @@ given. Nothing warns about this.
 | `-h` | Prefer a 32-bit display mode. |
 | `-s` | Use a software Direct3D driver. No effect under `-ogl`. |
 | `-t` | Do not use a triple-buffered flip chain. |
+| `-aa:<method>` | Anti-aliasing method, or `off`. Default `msaa4`. |
 | `-safevid` | Accepted for compatibility; currently does nothing. |
+
+#### Anti-aliasing
+
+`-aa` accepts `off`, `msaa2`, `msaa4`, `msaa8`, `msaa16` (the sample count
+alone works too, so `-aa:8` is `-aa:msaa8`) and `edge`. Anti-aliasing is on
+by default at `msaa4`, which every OpenGL 3.3 driver is expected to offer and
+which costs little on an engine this old.
+
+The method is fixed at startup and cannot be changed later: multisampling is
+a property of the pixel format, and a window only gets one of those for its
+whole life.
+
+What you actually get is whatever the device will give. The startup log
+records both, for example
+
+```
+[VID AA] requested msaa4, using msaa4
+```
+
+and the OpenGL backend additionally logs what it asked the driver for, what
+the pixel format claimed, and what the context really came back with. It
+degrades on its own - fewer samples, or none - rather than failing.
+
+Two caveats worth knowing:
+
+- `msaa*` is only implemented on the OpenGL backend. Direct3D 7 has no
+  multisampling to ask for; what it offers is the legacy full-scene and edge
+  antialias render states, and only where the driver claims to support them.
+  Under dgVoodoo it does not, so `-aa` is a no-op on the DirectX path and
+  anti-aliasing there is dgVoodoo's own setting.
+- `edge` is the Direct3D edge antialias state and does nothing under OpenGL.
+  Core profile GL has no equivalent, and multisampling covers it properly.
 
 ### Interface Scaling
 
