@@ -427,34 +427,80 @@ Bool Font::Read(const char* fileName)
                 // Get character pixels
                 U8* pixel = charImage->charData;
 
-                // For each row of the character (at native resolution)...
-                for (S32 srcY = 0; srcY < charImage->charHeight; srcY++)
+                if (fontTextureScale == 1)
                 {
-                    // For each column of the row...
-                    for (S32 srcX = 0; srcX < charImage->charWidth; srcX++)
+                    // No scaling - write the glyph straight into the atlas
+                    for (S32 srcY = 0; srcY < charImage->charHeight; srcY++)
                     {
-                        // Get source pixel alpha
-                        U8 alpha = *pixel++;
-                        
-                        // Convert color to texture format
-                        U32 color = texture->MakeRGBA(0xFF, 0xFF, 0xFF, alpha);
-
-                        // Write scaled pixels (fontTextureScale x fontTextureScale block)
-                        for (S32 sy = 0; sy < fontTextureScale; sy++)
+                        for (S32 srcX = 0; srcX < charImage->charWidth; srcX++)
                         {
-                            for (S32 sx = 0; sx < fontTextureScale; sx++)
-                            {
-                                S32 dstX = curX + srcX * fontTextureScale + sx;
-                                S32 dstY = curY + srcY * fontTextureScale + sy;
-                                
-                                ASSERT(dstX < texture->Width());
-                                ASSERT(dstY < texture->Height());
+                            U8 alpha = *pixel++;
 
-                                // Write pixel into the texture
-                                texture->PutPixel(dstX, dstY, color, &texture->GetClipRect());
-                            }
+                            texture->PutPixel
+                            (
+                                curX + srcX, curY + srcY,
+                                texture->MakeRGBA(0xFF, 0xFF, 0xFF, alpha),
+                                &texture->GetClipRect()
+                            );
                         }
                     }
+                }
+                else
+                {
+                    // Scale the glyph through the selected algorithm.
+                    //
+                    // The filters work on 32 bit ARGB, so the glyph is
+                    // widened into a scratch buffer first. The source is
+                    // white with an 8 bit alpha ramp, which is why the colour
+                    // channels are constant here - all the shape lives in
+                    // alpha, and that is what the filters end up comparing.
+                    const S32 srcPixels = charImage->charWidth * charImage->charHeight;
+                    const S32 dstPixels = srcPixels * fontTextureScale * fontTextureScale;
+
+                    U32* srcBuf = new U32[srcPixels];
+                    U32* dstBuf = new U32[dstPixels];
+
+                    for (S32 p = 0; p < srcPixels; p++)
+                    {
+                        srcBuf[p] = 0x00FFFFFF | (U32(*pixel++) << 24);
+                    }
+
+                    PixelScale::ScaleImageTo
+                    (
+                        srcBuf, charImage->charWidth, charImage->charHeight,
+                        dstBuf, fontTextureScale
+                    );
+
+                    for (S32 dy = 0; dy < scaledCharHeight; dy++)
+                    {
+                        for (S32 dx = 0; dx < scaledCharWidth; dx++)
+                        {
+                            // ScaleImageTo works in ARGB; the atlas may not
+                            U32 argb = dstBuf[dy * scaledCharWidth + dx];
+
+                            S32 dstX = curX + dx;
+                            S32 dstY = curY + dy;
+
+                            ASSERT(dstX < texture->Width());
+                            ASSERT(dstY < texture->Height());
+
+                            texture->PutPixel
+                            (
+                                dstX, dstY,
+                                texture->MakeRGBA
+                                (
+                                    (argb >> 16) & 0xFF,
+                                    (argb >> 8) & 0xFF,
+                                    argb & 0xFF,
+                                    (argb >> 24) & 0xFF
+                                ),
+                                &texture->GetClipRect()
+                            );
+                        }
+                    }
+
+                    delete[] srcBuf;
+                    delete[] dstBuf;
                 }
 
                 // Store texture handle

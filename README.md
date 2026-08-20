@@ -39,6 +39,35 @@ given. Nothing warns about this.
 | `-t` | Do not use a triple-buffered flip chain. |
 | `-safevid` | Accepted for compatibility; currently does nothing. |
 
+### Interface Scaling
+
+The interface is authored in a 640x480 design space. At higher resolutions two
+independent things happen to it, and each has its own switch.
+
+| Switch | Effect |
+| --- | --- |
+| `-upscale:on\|off` | Master switch for both of the below. `off` puts the UI back exactly where it was before any high-resolution work: design-space layout, native-size textures. Default `on`. |
+| `-ui4k:on\|off` | Layout scaling. Control geometry from the `.cfg` files is multiplied by `min(width/640, height/480)` so the UI keeps its proportions. Default `on`. |
+| `-texup:<method>` | Texture pre-scaling method, or `off`. Default `nn`. |
+
+`-texup` accepts `off`, `nn` (or `nearest`), `scale2x`, `scale3x`, `eagle`,
+`hq2x` and `hq3x`.
+
+Pre-scaling builds the font atlas at an integer multiple of its native size so
+that texels land on pixel boundaries and the GPU's bilinear filter has nothing
+left to blur. The integer factor comes from the resolution (1x below 1280x960,
+2x below 1920x1440, 3x above), capped at 3 for fonts.
+
+`nn` is the default, and on this game's art it is usually the right answer: the
+source is already anti-aliased continuous tone, whereas the pixel-art filters
+assume hard-edged indexed input and will soften what they misread as diagonals.
+The others are there to be tried. See `docs/research/pixel-scaling.md` for what
+each one actually does and how faithful it is.
+
+The two switches are genuinely independent - `-ui4k:off -texup:hq2x` scales
+textures without touching layout, and `-ui4k:on -texup:off` does the reverse.
+`-upscale:off` overrides both regardless of order.
+
 ### General
 
 | Switch | Effect |

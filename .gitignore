@@ -203,5 +203,5 @@ ModelManifest.xml
 *.res
 
 # MSBuild output for the OpenGL build configurations
-*/Debug - OpenGL/
-*/Release - OpenGL/
+**/Debug - OpenGL/
+**/Release - OpenGL/

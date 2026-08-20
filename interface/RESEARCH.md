@@ -1,5 +1,16 @@
 # UI Scaling Research Notes
 
+> **These are working notes from the original implementation, kept for the
+> history.** Parts of them no longer describe the code: the filters have since
+> been audited and corrected, the algorithm is selectable at runtime, and the
+> defaults have changed. See `docs/research/pixel-scaling.md` for the current
+> state, including which filters are faithful to their names and which are not.
+>
+> Known-stale claims below: fonts do **not** use Scale2x by default (nearest is
+> the default, and the algorithm is chosen with `-texup`); the UI texture flag
+> is `PIXELSCALE_SCALE2X_UI`, not `PIXELSCALE_HQ_UI`; and `hq2x`/`hq3x` are
+> approximations rather than "high quality" implementations of hqx.
+
 ## Overview
 Dark Reign 2's UI system was designed for 640x480. We're implementing scaling support for higher resolutions (up to 4K) using `IFace::GetScale()` which returns `ScreenWidth / 640.0`.
 

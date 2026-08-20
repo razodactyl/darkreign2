@@ -2616,7 +2616,22 @@ namespace IFace
     {
 #ifndef HIRES_UI
 		return 1.0f;
+#else
+        // --ui4k:off (or --upscale:off) puts the UI back in design space, so
+        // AdjustGeometry lays controls out at the sizes their .cfg files
+        // actually name
+        return PixelScale::GetUIScaling() ? GetRawScale() : 1.0f;
 #endif
+    }
+
+
+    //
+    // The resolution scale itself, with no regard for whether layout scaling
+    // is switched on. Texture pre-scaling keys off this so that --ui4k and
+    // --texup stay independent of one another.
+    //
+    F32 GetRawScale()
+    {
         ASSERT(data.backBuf);
 
         S32 width = data.backBuf->Width();

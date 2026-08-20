@@ -32,6 +32,7 @@
 #include "perfstats.h"
 #include "statistics.h"
 #include "iface.h"
+#include "pixelscale.h"
 #include "sound.h"
 
 
@@ -592,6 +593,32 @@ namespace Main
     //
     // Grab next argument from command line
     //
+    //
+    // ParseOnOff
+    //
+    // Read a boolean switch value. An absent value means on, so that
+    // -ui4k reads the way it looks.
+    //
+    static Bool ParseOnOff(const char* str, Bool& on)
+    {
+        if (!*str || !Utils::Stricmp(str, "on") || !Utils::Stricmp(str, "1")
+            || !Utils::Stricmp(str, "yes") || !Utils::Stricmp(str, "true"))
+        {
+            on = TRUE;
+            return TRUE;
+        }
+
+        if (!Utils::Stricmp(str, "off") || !Utils::Stricmp(str, "0")
+            || !Utils::Stricmp(str, "no") || !Utils::Stricmp(str, "false"))
+        {
+            on = FALSE;
+            return TRUE;
+        }
+
+        return FALSE;
+    }
+
+
     static Bool NextArg(const char* cmdLine, U32& i, StrCrc<32>& arg, StrCrc<512>& val)
     {
         const char* ARG_INDICATORS = "/-";
@@ -793,6 +820,71 @@ namespace Main
                             {
                                 LOG_ERR(("-borderless: bad mode [%s]", val.str))
                             }
+                        }
+                        continue;
+                    }
+
+                    // High resolution UI scaling. These have to be settled
+                    // before Vid::Init and IFace::Init, which is why they live
+                    // here rather than in a registered hook.
+                    if (!Utils::Stricmp(arg.str, "upscale"))
+                    {
+                        Bool on;
+
+                        if (ParseOnOff(val.str, on))
+                        {
+                            // the master switch: layout scaling and texture
+                            // pre-scaling both key off it
+                            PixelScale::SetEnabled(on);
+                            LOG_DIAG(("UI upscaling %s", on ? "enabled" : "disabled"))
+                        }
+                        else
+                        {
+                            LOG_ERR(("-upscale: expected on or off, got [%s]", val.str))
+                        }
+                        continue;
+                    }
+
+                    if (!Utils::Stricmp(arg.str, "ui4k"))
+                    {
+                        Bool on;
+
+                        if (ParseOnOff(val.str, on))
+                        {
+                            // layout only - control geometry is authored in
+                            // 640x480 design space and scaled up from there
+                            PixelScale::SetUIScaling(on);
+                            LOG_DIAG(("UI layout scaling %s", on ? "enabled" : "disabled"))
+                        }
+                        else
+                        {
+                            LOG_ERR(("-ui4k: expected on or off, got [%s]", val.str))
+                        }
+                        continue;
+                    }
+
+                    if (!Utils::Stricmp(arg.str, "texup"))
+                    {
+                        PixelScale::Algorithm algo;
+
+                        if (!Utils::Stricmp(val.str, "off"))
+                        {
+                            PixelScale::SetTextureScaling(FALSE);
+                            LOG_DIAG(("Texture pre-scaling disabled"))
+                        }
+                        else if (PixelScale::ParseAlgorithm(val.str, algo))
+                        {
+                            PixelScale::SetTextureScaling(TRUE);
+                            PixelScale::SetAlgorithm(algo);
+                            LOG_DIAG(("Texture pre-scaling using [%s]", PixelScale::AlgorithmName(algo)))
+                        }
+                        else
+                        {
+                            LOG_ERR
+                            ((
+                                "-texup: unknown method [%s]; expected off, nn, "
+                                "scale2x, scale3x, eagle, hq2x or hq3x", val.str
+                            ))
                         }
                         continue;
                     }

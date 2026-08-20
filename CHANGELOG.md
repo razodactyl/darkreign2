@@ -106,6 +106,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
   `README.md`
 
+- **Interface scaling is switchable: `-upscale`, `-ui4k` and `-texup`.** What
+  gets called "4K support" is two separate mechanisms, and they now have
+  separate switches.
+
+  `-ui4k:on|off` controls layout scaling — control geometry authored in 640x480
+  design space multiplied up by `min(width/640, height/480)`. `-texup:<method>`
+  controls texture pre-scaling — building the font atlas at an integer multiple
+  of its native size so texels land on pixel boundaries. `-upscale:off`
+  overrides both and puts the interface back exactly where it was before any of
+  this work.
+
+  The two were previously entangled, because `PixelScale::Init` derived its
+  integer factor from `IFace::GetScale()`, which is the layout scaler.
+  `IFace::GetRawScale()` now reports the resolution ratio itself and `GetScale`
+  applies the toggle on top, so `-ui4k:off -texup:hq2x` and
+  `-ui4k:on -texup:off` both do what they say.
+
+  `-texup` takes `off`, `nn`, `scale2x`, `scale3x`, `eagle`, `hq2x` or `hq3x`.
+  `nn` is the default and stays the default: the game's art is already
+  anti-aliased continuous tone, and the pixel-art filters assume hard-edged
+  indexed input, so they smooth what they misread as diagonals. The others are
+  selectable for experimentation. Font glyph scaling previously used its own
+  hardcoded nearest-neighbour block replication and ignored the algorithm
+  setting entirely; it goes through the selected filter now.
+
+  `main/maininit.cpp`, `interface/pixelscale.{h,cpp}`, `interface/font.cpp`,
+  `interface/iface.{h,cpp}`, `README.md`,
+  `docs/research/pixel-scaling.md`
+
+- **Tests for the pixel scaling filters.** `tests/pixelscale/` compiles
+  `interface/pixelscale.cpp` on its own against a stubbed `IFace` and asserts
+  the properties that matter: Scale2x against its published rules, every filter
+  leaving a flat field flat and straight edges crisp, corners rewritten only
+  where a real diagonal cuts them, alpha blending moving alpha rather than
+  colour, nearest exact at factors 2 through 4, and the switches being
+  independent in the right direction. 40 checks.
+
+  Deliberately outside `dr2.sln` so it cannot break the game build. Run
+  `tests\pixelscale\run.bat`.
+
+  `tests/pixelscale/`
+
 ### Changed
 
 - **DirectX is contained behind the backend interface.** `graphics/vertex.h`
@@ -141,6 +183,58 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `graphics/lightvertsmodel.cpp`, `graphics/vid_cmd_dialog.cpp`
 
 ### Fixed
+
+- **Pixel scaling filters softening the edges they exist to preserve.** Auditing
+  the filters before wiring them to switches turned up three defects. Scale2x,
+  Scale3x and Eagle check out line by line against their published rules; the
+  hq-family did not.
+
+  Each corner in `Hq2x` and `Hq3x` carried an unguarded
+  `else if (!ColorsDifferent(D, B)) p1 = Interp3(E, D, B)`. That fires whenever
+  the two edge neighbours merely agree with each other, including when the
+  diagonal beyond the corner matches the centre — precisely the case where the
+  correct output is the centre pixel untouched. Every corner in the image was
+  being blended halfway towards its neighbours.
+
+  `Hq3x` had a worse one. Its edge pixels were guarded by
+  `if (!ColorsDifferent(B, B))` — `B` compared against itself, so always taken,
+  and the comment said as much. What it guarded was the damage: the top-middle
+  output pixel was blended halfway towards `B` whenever `B` agreed with either
+  horizontal neighbour, which is true along every straight horizontal run in the
+  image. Straight edges were being blurred into the row above them at 3x. The
+  four edge pixels now stay as the centre, matching Scale3x.
+
+  `Hq2x` also built the 8-bit neighbour mask that genuine hqx switches on over
+  256 cases, and then never read it — eight comparisons per pixel discarded, and
+  a misleading hint that the case machinery was in there somewhere. It is not:
+  these are approximations, not Maxim Stepin's hqx, and they are now documented
+  as such rather than only named after it.
+
+  `interface/pixelscale.cpp`, `docs/research/pixel-scaling.md`
+
+- **Dark fringing when scaling artwork with transparency.** `Interp2`, `Interp3`
+  and `Interp4` averaged the raw colour channels, including the colour stored
+  under transparent texels. Most of the UI art stores black there, so any blend
+  touching an edge pulled the result towards black. They now average in
+  premultiplied-alpha space and un-premultiply on the way out, so a transparent
+  contributor moves alpha without moving colour.
+
+  Font glyphs could never show this — they are white everywhere and carry all
+  their shape in alpha — and fonts are the only live consumer, which is
+  presumably how it survived.
+
+  `interface/pixelscale.cpp`
+
+- **Nearest-neighbour scaling only working at 2x.** `ScaleImage` hardcoded a 2x
+  duplication for `NEAREST` and returned 2 regardless, while the font path asks
+  for factors of 1, 2 and 3 depending on resolution. Nearest takes an arbitrary
+  factor now, and `ScaleImageTo` picks the variant of the selected algorithm
+  that natively produces the requested one — Scale2x and Scale3x being one
+  family, hq2x and hq3x another — falling back to nearest where there is no such
+  variant. It never composes two passes: running a 2x filter twice is not a 4x
+  filter, it just feeds the second pass anti-aliased input it cannot classify.
+
+  `interface/pixelscale.{h,cpp}`
 
 - **Building light-up texture animations skipping frames.** The light sequences on
   buildings under construction, upgrade, refining or restoration only played

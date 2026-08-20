@@ -71,20 +71,69 @@ namespace PixelScale
         // Sets corners to neighbor color if 3 neighbors match
         EAGLE,
 
-        // hq2x - high quality 2x magnification filter
-        // Uses YUV color comparison and lookup tables for smooth anti-aliased output
-        // Best quality but slower than Scale2x
+        // hq2x - 2x magnification with YUV edge detection and interpolation
+        //
+        // NOTE: this is an APPROXIMATION of Maxim Stepin's hq2x, not the real
+        // thing. Genuine hqx switches on a 256-entry table of neighbour
+        // patterns with hand-tuned rules per case; this applies four
+        // symmetric corner rules instead. It anti-aliases diagonals, but it
+        // will round off corners that real hq2x preserves. See
+        // docs/research/pixel-scaling.md.
         HQ2X,
 
-        // hq3x - high quality 3x magnification filter
+        // hq3x - 3x variant of the above, same caveat
         HQ3X,
 
-        // Default algorithm for general images (introduces anti-aliasing)
-        DEFAULT = HQ2X,
+        // Number of algorithms; must stay last
+        ALGORITHM_COUNT,
+
+        // Default for everything. Nearest neighbour is the only algorithm that
+        // is unconditionally safe on this content: the game's art is already
+        // anti-aliased continuous tone, and the pixel-art filters below assume
+        // hard-edged indexed source. NN also preserves the property the whole
+        // system exists for - texels landing exactly on pixel boundaries.
+        DEFAULT = NEAREST,
 
         // Recommended for fonts/text (preserves hard edges, no new colors)
-        DEFAULT_TEXT = SCALE2X
+        DEFAULT_TEXT = NEAREST
     };
+
+    //
+    // Master switch (--upscale). When off, GetIntegerScale() reports 1,
+    // IFace::GetScale() reports 1.0, and nothing is pre-scaled: the UI is laid
+    // out and drawn exactly as it was before the high-resolution work.
+    //
+    void SetEnabled(Bool on);
+    Bool GetEnabled();
+
+    //
+    // Layout scaling (--ui4k). Controls IFace::GetScale() only: whether
+    // control geometry loaded in 640x480 design space is scaled up to the
+    // current resolution. Independent of texture pre-scaling.
+    //
+    void SetUIScaling(Bool on);
+    Bool GetUIScaling();
+
+    //
+    // Texture pre-scaling (--texup). Controls whether font atlases and UI
+    // textures are built at an integer multiple of their native size.
+    // Independent of layout scaling.
+    //
+    void SetTextureScaling(Bool on);
+    Bool GetTextureScaling();
+
+    //
+    // Algorithm names for the command line: "nn", "nearest", "scale2x",
+    // "scale3x", "eagle", "hq2x", "hq3x". Returns FALSE if unrecognised.
+    //
+    Bool ParseAlgorithm(const char* name, Algorithm& algo);
+    const char* AlgorithmName(Algorithm algo);
+
+    //
+    // The scale factor an algorithm natively produces (2 or 3; 1 for NEAREST,
+    // which works at any factor)
+    //
+    S32 NativeFactor(Algorithm algo);
 
     //
     // Get the recommended integer scale factor for current resolution
@@ -197,11 +246,26 @@ namespace PixelScale
     void Hq3x(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst);
 
     //
+    // Nearest neighbour at an arbitrary integer factor
+    //
+    void Nearest(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst, S32 factor);
+
+    //
     // Generic scale function - uses current algorithm setting
     // Returns the scale factor used (2 or 3 depending on algorithm)
     // Caller must ensure dst buffer is large enough
     //
     S32 ScaleImage(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst);
+
+    //
+    // Scale by an exact factor using the current algorithm, falling back
+    // within the algorithm's family when it has no native variant for that
+    // factor (e.g. Scale2x at factor 3 uses Scale3x; anything with no
+    // equivalent uses nearest neighbour, which never distorts).
+    //
+    // dst must hold srcWidth * factor by srcHeight * factor pixels.
+    //
+    void ScaleImageTo(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst, S32 factor);
 
     //
     // Get required destination buffer size for scaling

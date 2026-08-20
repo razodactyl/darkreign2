@@ -35,6 +35,26 @@ namespace PixelScale
     static F32 cachedRemainder = 0.0f;
     static Bool initialized = FALSE;
 
+    // Set from the command line before anything renders; see
+    // Main::ProcessCommandLine
+    static Bool enabled = TRUE;
+    static Bool uiScaling = TRUE;
+    static Bool textureScaling = TRUE;
+
+    //
+    // Algorithm names as they appear on the command line. Indexed by
+    // Algorithm, so the order must track the enum.
+    //
+    static const char* algorithmNames[ALGORITHM_COUNT] =
+    {
+        "nn",
+        "scale2x",
+        "scale3x",
+        "eagle",
+        "hq2x",
+        "hq3x",
+    };
+
     //
     // Helper: Get pixel with bounds checking (clamp to edge)
     //
@@ -111,14 +131,52 @@ namespace PixelScale
     }
 
     //
+    // Helper: weighted blend of up to four colors.
+    //
+    // Colour is averaged in premultiplied-alpha space and un-premultiplied on
+    // the way out. Averaging the raw channels instead - which is what this
+    // used to do - drags the colour of transparent texels into their opaque
+    // neighbours. Most of the game's UI art stores black under its
+    // transparent pixels, so a straight average draws a dark fringe around
+    // every edge it touches. Font glyphs happen to be white everywhere and so
+    // could not show the problem, which is presumably why it survived.
+    //
+    static inline U32 Blend(const U32* c, const S32* w, S32 count)
+    {
+        S32 rSum = 0, gSum = 0, bSum = 0, aSum = 0, wSum = 0;
+
+        for (S32 i = 0; i < count; i++)
+        {
+            S32 r, g, b, a;
+            GetRGBA(c[i], r, g, b, a);
+
+            // premultiply, so a transparent texel contributes no colour
+            rSum += r * a * w[i];
+            gSum += g * a * w[i];
+            bSum += b * a * w[i];
+            aSum += a * w[i];
+            wSum += w[i];
+        }
+
+        if (aSum == 0)
+        {
+            // every contributor was fully transparent - there is no colour to
+            // recover, and the result is invisible either way
+            return 0;
+        }
+
+        // un-premultiply: the alpha weighting cancels out of the divisor
+        return MakeRGBA(rSum / aSum, gSum / aSum, bSum / aSum, aSum / wSum);
+    }
+
+    //
     // Helper: Interpolate two colors (50/50 blend)
     //
     static inline U32 Interp2(U32 c1, U32 c2)
     {
-        S32 r1, g1, b1, a1, r2, g2, b2, a2;
-        GetRGBA(c1, r1, g1, b1, a1);
-        GetRGBA(c2, r2, g2, b2, a2);
-        return MakeRGBA((r1 + r2) / 2, (g1 + g2) / 2, (b1 + b2) / 2, (a1 + a2) / 2);
+        const U32 c[2] = { c1, c2 };
+        const S32 w[2] = { 1, 1 };
+        return Blend(c, w, 2);
     }
 
     //
@@ -126,12 +184,9 @@ namespace PixelScale
     //
     static inline U32 Interp3(U32 c1, U32 c2, U32 c3)
     {
-        S32 r1, g1, b1, a1, r2, g2, b2, a2, r3, g3, b3, a3;
-        GetRGBA(c1, r1, g1, b1, a1);
-        GetRGBA(c2, r2, g2, b2, a2);
-        GetRGBA(c3, r3, g3, b3, a3);
-        return MakeRGBA((r1 * 2 + r2 + r3) / 4, (g1 * 2 + g2 + g3) / 4, 
-                        (b1 * 2 + b2 + b3) / 4, (a1 * 2 + a2 + a3) / 4);
+        const U32 c[3] = { c1, c2, c3 };
+        const S32 w[3] = { 2, 1, 1 };
+        return Blend(c, w, 3);
     }
 
     //
@@ -139,13 +194,9 @@ namespace PixelScale
     //
     static inline U32 Interp4(U32 c1, U32 c2, U32 c3, U32 c4)
     {
-        S32 r1, g1, b1, a1, r2, g2, b2, a2, r3, g3, b3, a3, r4, g4, b4, a4;
-        GetRGBA(c1, r1, g1, b1, a1);
-        GetRGBA(c2, r2, g2, b2, a2);
-        GetRGBA(c3, r3, g3, b3, a3);
-        GetRGBA(c4, r4, g4, b4, a4);
-        return MakeRGBA((r1 + r2 + r3 + r4) / 4, (g1 + g2 + g3 + g4) / 4, 
-                        (b1 + b2 + b3 + b4) / 4, (a1 + a2 + a3 + a4) / 4);
+        const U32 c[4] = { c1, c2, c3, c4 };
+        const S32 w[4] = { 1, 1, 1, 1 };
+        return Blend(c, w, 4);
     }
 
     //
@@ -153,8 +204,16 @@ namespace PixelScale
     //
     void Init()
     {
-        F32 rawScale = IFace::GetScale();
-        
+        // Deliberately the *raw* scale, not IFace::GetScale(): that one is
+        // gated on the --ui4k toggle, and texture pre-scaling is meant to be
+        // independent of whether control geometry is being scaled.
+        F32 rawScale = IFace::GetRawScale();
+
+        if (!enabled || !textureScaling)
+        {
+            rawScale = 1.0f;
+        }
+
         // Calculate integer scale (floor, clamped to [1, maxScale])
         cachedIntegerScale = S32(floorf(rawScale));
         if (cachedIntegerScale < 1) cachedIntegerScale = 1;
@@ -294,6 +353,105 @@ namespace PixelScale
         // Scale position by integer factor
         dstX = srcX * cachedIntegerScale;
         dstY = srcY * cachedIntegerScale;
+    }
+
+    //
+    // Feature toggles. These are set from the command line before IFace comes
+    // up, so they only need to re-run Init if it has already happened.
+    //
+    void SetEnabled(Bool on)
+    {
+        enabled = on;
+        if (initialized)
+        {
+            Init();
+        }
+    }
+
+    Bool GetEnabled()
+    {
+        return enabled;
+    }
+
+    void SetUIScaling(Bool on)
+    {
+        uiScaling = on;
+    }
+
+    Bool GetUIScaling()
+    {
+        // the master switch overrides the individual one
+        return enabled && uiScaling;
+    }
+
+    void SetTextureScaling(Bool on)
+    {
+        textureScaling = on;
+        if (initialized)
+        {
+            Init();
+        }
+    }
+
+    Bool GetTextureScaling()
+    {
+        return enabled && textureScaling;
+    }
+
+    //
+    // Algorithm names
+    //
+    Bool ParseAlgorithm(const char* name, Algorithm& algo)
+    {
+        // "nearest" is accepted as a synonym for the canonical "nn"
+        if (!Utils::Stricmp(name, "nearest"))
+        {
+            algo = NEAREST;
+            return TRUE;
+        }
+
+        for (S32 i = 0; i < ALGORITHM_COUNT; i++)
+        {
+            if (!Utils::Stricmp(name, algorithmNames[i]))
+            {
+                algo = Algorithm(i);
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
+    const char* AlgorithmName(Algorithm algo)
+    {
+        if (algo < 0 || algo >= ALGORITHM_COUNT)
+        {
+            return "?";
+        }
+        return algorithmNames[algo];
+    }
+
+    //
+    // Native output factor of an algorithm. NEAREST reports 1 because it is
+    // exact at every factor rather than tied to one.
+    //
+    S32 NativeFactor(Algorithm algo)
+    {
+        switch (algo)
+        {
+            case SCALE3X:
+            case HQ3X:
+                return 3;
+
+            case SCALE2X:
+            case EAGLE:
+            case HQ2X:
+                return 2;
+
+            case NEAREST:
+            default:
+                return 1;
+        }
     }
 
     //
@@ -538,60 +696,48 @@ namespace PixelScale
                 U32 H = GetPixel(src, srcWidth, srcHeight, x, y + 1);
                 U32 I = GetPixel(src, srcWidth, srcHeight, x + 1, y + 1);
 
-                // Build pattern based on color differences
-                // Each bit represents whether that neighbor differs from center
-                U32 pattern = 0;
-                if (ColorsDifferent(E, A)) pattern |= 0x01;
-                if (ColorsDifferent(E, B)) pattern |= 0x02;
-                if (ColorsDifferent(E, C)) pattern |= 0x04;
-                if (ColorsDifferent(E, D)) pattern |= 0x08;
-                if (ColorsDifferent(E, F)) pattern |= 0x10;
-                if (ColorsDifferent(E, G)) pattern |= 0x20;
-                if (ColorsDifferent(E, H)) pattern |= 0x40;
-                if (ColorsDifferent(E, I)) pattern |= 0x80;
-
                 // Default output is center pixel
                 U32 p1 = E, p2 = E, p3 = E, p4 = E;
 
-                // Apply hq2x-style interpolation rules
-                // Top-left pixel (p1)
-                if (!ColorsDifferent(D, B) && ColorsDifferent(E, A))
+                // A corner is only rewritten where the two edge neighbours
+                // that meet at it agree with each other, disagree with the
+                // centre, and the diagonal beyond the corner also disagrees -
+                // that is, where a real diagonal edge is cutting the corner
+                // off. This is Scale2x's test with a perceptual (YUV)
+                // comparison instead of an exact one, and a blend instead of a
+                // copy.
+                //
+                // There used to be an unguarded `else if (!ColorsDifferent(D,
+                // B)) p1 = Interp3(E, D, B)` on each corner. That fired
+                // whenever the two edge neighbours merely agreed, including
+                // when the diagonal matched the centre - i.e. on convex
+                // corners, where the correct output is the centre pixel
+                // untouched. It softened every corner in the image by 50%,
+                // which is the opposite of what a pixel-art filter is for.
+                //
+                // An `U32 pattern` bitmask of the eight neighbour comparisons
+                // was also being built here and then never read. Real hqx
+                // switches on that mask over 256 hand-tuned cases; this does
+                // not, so the mask was dead weight and a misleading hint that
+                // it did.
+                if (!ColorsDifferent(D, B) && ColorsDifferent(E, D) && ColorsDifferent(E, A))
                 {
                     p1 = Interp2(D, B);
                 }
-                else if (!ColorsDifferent(D, B))
-                {
-                    p1 = Interp3(E, D, B);
-                }
 
-                // Top-right pixel (p2)
-                if (!ColorsDifferent(B, F) && ColorsDifferent(E, C))
+                if (!ColorsDifferent(B, F) && ColorsDifferent(E, B) && ColorsDifferent(E, C))
                 {
                     p2 = Interp2(B, F);
                 }
-                else if (!ColorsDifferent(B, F))
-                {
-                    p2 = Interp3(E, B, F);
-                }
 
-                // Bottom-left pixel (p3)
-                if (!ColorsDifferent(D, H) && ColorsDifferent(E, G))
+                if (!ColorsDifferent(D, H) && ColorsDifferent(E, D) && ColorsDifferent(E, G))
                 {
                     p3 = Interp2(D, H);
                 }
-                else if (!ColorsDifferent(D, H))
-                {
-                    p3 = Interp3(E, D, H);
-                }
 
-                // Bottom-right pixel (p4)
-                if (!ColorsDifferent(H, F) && ColorsDifferent(E, I))
+                if (!ColorsDifferent(H, F) && ColorsDifferent(E, H) && ColorsDifferent(E, I))
                 {
                     p4 = Interp2(H, F);
-                }
-                else if (!ColorsDifferent(H, F))
-                {
-                    p4 = Interp3(E, H, F);
                 }
 
                 // Write 2x2 output block
@@ -634,46 +780,41 @@ namespace PixelScale
                 U32 p4 = E, p5 = E, p6 = E;
                 U32 p7 = E, p8 = E, p9 = E;
 
-                // Corner interpolation with hq-style blending
-                // Top-left corner
-                if (!ColorsDifferent(D, B) && ColorsDifferent(E, A))
-                    p1 = Interp2(D, B);
-                else if (!ColorsDifferent(D, B))
-                    p1 = Interp3(E, D, B);
+                // Same corner test as Hq2x above, and the same two corrections:
+                // the convex-corner softening `else if` branches are gone, and
+                // so is the edge blending that hung off them.
+                //
+                // The edge pixels used to be written like
+                //
+                //   if (!ColorsDifferent(B, B))          // <- B against itself
+                //     p2 = (...) ? Interp2(E, B) : E;
+                //
+                // which compares a pixel with itself and is therefore always
+                // taken; the comment even said so. Worse than the dead test is
+                // what it guarded: p2 was blended halfway towards B whenever B
+                // merely agreed with D or F, so every straight horizontal run
+                // in the image had its top third blended into the row above
+                // it. Straight edges must survive magnification untouched -
+                // only diagonals get rewritten - so the four edge pixels now
+                // stay as E, matching Scale3x.
 
-                // Top edge
-                if (!ColorsDifferent(B, B))  // Always true, blend with neighbors
-                    p2 = (!ColorsDifferent(D, B) || !ColorsDifferent(B, F)) ? Interp2(E, B) : E;
+                // Top-left corner
+                if (!ColorsDifferent(D, B) && ColorsDifferent(E, D) && ColorsDifferent(E, A))
+                    p1 = Interp2(D, B);
 
                 // Top-right corner
-                if (!ColorsDifferent(B, F) && ColorsDifferent(E, C))
+                if (!ColorsDifferent(B, F) && ColorsDifferent(E, B) && ColorsDifferent(E, C))
                     p3 = Interp2(B, F);
-                else if (!ColorsDifferent(B, F))
-                    p3 = Interp3(E, B, F);
-
-                // Left edge
-                p4 = (!ColorsDifferent(D, B) || !ColorsDifferent(D, H)) ? Interp2(E, D) : E;
-
-                // Center stays as E
-                p5 = E;
-
-                // Right edge
-                p6 = (!ColorsDifferent(B, F) || !ColorsDifferent(H, F)) ? Interp2(E, F) : E;
 
                 // Bottom-left corner
-                if (!ColorsDifferent(D, H) && ColorsDifferent(E, G))
+                if (!ColorsDifferent(D, H) && ColorsDifferent(E, D) && ColorsDifferent(E, G))
                     p7 = Interp2(D, H);
-                else if (!ColorsDifferent(D, H))
-                    p7 = Interp3(E, D, H);
-
-                // Bottom edge
-                p8 = (!ColorsDifferent(D, H) || !ColorsDifferent(H, F)) ? Interp2(E, H) : E;
 
                 // Bottom-right corner
-                if (!ColorsDifferent(H, F) && ColorsDifferent(E, I))
+                if (!ColorsDifferent(H, F) && ColorsDifferent(E, H) && ColorsDifferent(E, I))
                     p9 = Interp2(H, F);
-                else if (!ColorsDifferent(H, F))
-                    p9 = Interp3(E, H, F);
+
+                // p2, p4, p5, p6 and p8 stay as E
 
                 // Write 3x3 output block
                 S32 dstX = x * 3;
@@ -720,25 +861,83 @@ namespace PixelScale
 
             case NEAREST:
             default:
-                // For nearest neighbor, just duplicate pixels 2x
-                {
-                    S32 dstWidth = srcWidth * 2;
-                    for (S32 y = 0; y < srcHeight; y++)
-                    {
-                        for (S32 x = 0; x < srcWidth; x++)
-                        {
-                            U32 P = src[y * srcWidth + x];
-                            S32 dstX = x * 2;
-                            S32 dstY = y * 2;
-                            SetPixel(dst, dstWidth, dstX, dstY, P);
-                            SetPixel(dst, dstWidth, dstX + 1, dstY, P);
-                            SetPixel(dst, dstWidth, dstX, dstY + 1, P);
-                            SetPixel(dst, dstWidth, dstX + 1, dstY + 1, P);
-                        }
-                    }
-                }
+                Nearest(src, srcWidth, srcHeight, dst, 2);
                 return 2;
         }
+    }
+
+    //
+    // Nearest neighbour at an arbitrary integer factor
+    //
+    void Nearest(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst, S32 factor)
+    {
+        ASSERT(factor >= 1)
+
+        S32 dstWidth = srcWidth * factor;
+
+        for (S32 y = 0; y < srcHeight; y++)
+        {
+            for (S32 x = 0; x < srcWidth; x++)
+            {
+                U32 P = src[y * srcWidth + x];
+
+                for (S32 sy = 0; sy < factor; sy++)
+                {
+                    for (S32 sx = 0; sx < factor; sx++)
+                    {
+                        SetPixel(dst, dstWidth, x * factor + sx, y * factor + sy, P);
+                    }
+                }
+            }
+        }
+    }
+
+    //
+    // Scale by an exact factor, choosing the variant of the current algorithm
+    // that natively produces it.
+    //
+    // The algorithms are not composable in general - running a 2x filter twice
+    // is not the same as a 4x filter, and gives the second pass anti-aliased
+    // input it was never designed for - so anything without a native variant
+    // for the requested factor falls back to nearest neighbour. That is the
+    // honest answer: nearest never distorts, it just does not smooth.
+    //
+    void ScaleImageTo(const U32* src, S32 srcWidth, S32 srcHeight, U32* dst, S32 factor)
+    {
+        ASSERT(factor >= 1)
+
+        if (factor == 1)
+        {
+            Utils::Memcpy(dst, src, srcWidth * srcHeight * sizeof(U32));
+            return;
+        }
+
+        switch (currentAlgorithm)
+        {
+            case SCALE2X:
+            case SCALE3X:
+                // one family, two factors
+                if (factor == 2) { Scale2x(src, srcWidth, srcHeight, dst); return; }
+                if (factor == 3) { Scale3x(src, srcWidth, srcHeight, dst); return; }
+                break;
+
+            case HQ2X:
+            case HQ3X:
+                if (factor == 2) { Hq2x(src, srcWidth, srcHeight, dst); return; }
+                if (factor == 3) { Hq3x(src, srcWidth, srcHeight, dst); return; }
+                break;
+
+            case EAGLE:
+                // Eagle has no 3x formulation
+                if (factor == 2) { Eagle2x(src, srcWidth, srcHeight, dst); return; }
+                break;
+
+            case NEAREST:
+            default:
+                break;
+        }
+
+        Nearest(src, srcWidth, srcHeight, dst, factor);
     }
 
     //
