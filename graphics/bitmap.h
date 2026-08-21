@@ -652,6 +652,9 @@ public:
         static Bitmap* Load(U32 reduce, GodFile* god);
 
         static void MovieNextFrame();
+
+        // draw the current full screen movie frame; backends with no blit
+        static void RenderExclusive();
         static void MoviePause(Bool pause);
         static void MovieFirstStart();
         static void MovieReload();

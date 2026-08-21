@@ -2361,6 +2361,12 @@ namespace Vid
 
         if (isStatus.ogl)
         {
+            // A full screen movie is drawn here, as the last thing before
+            // the swap. On DirectX it is blitted into the back buffer from
+            // Main::BeginFrame instead; doing that here has nothing left in
+            // the frame that could clear over it.
+            Bitmap::Manager::RenderExclusive();
+
             // the GL context presents the window's own back buffer
             return OGL::Present();
         }

@@ -242,6 +242,14 @@ void Bitmap::Manager::MovieNextFrame()
         binkrect.right = tail->Width();
         binkrect.bottom = tail->Height();
 
+        if (Vid::isStatus.ogl)
+        {
+            // Nothing to blit from, and no DirectDraw to blit it with. Decode
+            // here and let RenderFlush draw the frame - see RenderExclusive.
+            tail->BinkNextFrame();
+            return;
+        }
+
         RECT backrect;
         if (tail->status.binkStretch)
         {
@@ -272,6 +280,72 @@ void Bitmap::Manager::MovieNextFrame()
     {
         bmp->BinkNextFrame();
     }
+}
+
+//----------------------------------------------------------------------------
+
+//
+// Draw the current full screen movie frame, for backends with no blit.
+//
+// Called from Vid::RenderFlush, immediately before the frame is presented, and
+// deliberately not from MovieNextFrame where the DirectX blit happens. That
+// runs in Main::BeginFrame, and whatever clears the back buffer later in the
+// frame wipes the movie straight back out again - which it did.
+//
+void Bitmap::Manager::RenderExclusive()
+{
+    Bitmap* tail = binkList.GetTail();
+
+    if (!tail || !tail->status.binkExclusive || !tail->bmpData)
+    {
+        return;
+    }
+
+    Area<S32> dst;
+
+    if (tail->status.binkStretch)
+    {
+        // centred at its own size, as the DirectX blit does
+        S32 x = (Vid::backBmp.Width() - tail->Width()) >> 1;
+        S32 y = (Vid::backBmp.Height() - tail->Height()) >> 1;
+
+        dst.Set(x, y, x + tail->Width(), y + tail->Height());
+    }
+    else
+    {
+        dst.Set(0, 0, Vid::backBmp.Width(), Vid::backBmp.Height());
+    }
+
+    // The runcode playing the movie never establishes a viewport - on DirectX
+    // the movie was a blit, and no viewport applies to one - so Vid::clipRect
+    // is empty here and RenderRectangle would clip the quad away before drawing
+    // a single pixel.
+    Vid::ClipScreen();
+
+    // Force the bind. The manager caches the current texture per stage, and the
+    // movie contents change every frame behind a handle that does not.
+    Vid::SetTexture(nullptr, 0);
+
+    Vid::RenderBegin();
+
+    // An opaque copy: source ONE, destination ZERO, texture taken as-is.
+    //
+    // The alpha channel has to be ignored rather than respected. Bink decodes
+    // through BINKSURFACE32, which is X8R8G8B8 - it writes colour and leaves
+    // the top byte alone, so every pixel arrives with an alpha of zero. The
+    // default blend is SRCALPHA/INVSRCALPHA, which would turn that into a
+    // completely transparent, and so invisible, frame. A DirectDraw blit never
+    // looked at alpha, and neither does this.
+    Vid::RenderRectangle
+    (
+        dst, Color(255L, 255L, 255L, 255L), tail,
+        RS_SRC_ONE | RS_DST_ZERO | RS_TEX_MODULATE,
+        Vid::sortNORMAL0, 0.0f, 1.0f, TRUE
+    );
+
+    Vid::RenderEnd();
+
+    Vid::ClipRestore();
 }
 
 //----------------------------------------------------------------------------

@@ -488,29 +488,14 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
 
         if (Vid::isStatus.ogl)
         {
-            // There is no DirectDraw on this path, so nothing below may be
-            // allowed to reach ddx - it is null, and calling through it reads
-            // from address zero.
+            // There is no DirectDraw on this path, so nothing here may reach
+            // ddx - it is null, and calling through it reads from address zero.
             //
-            // bitmapSURFACE is a DirectDraw concept: a system or video memory
-            // surface the engine blits from, with no equivalent here. Full
-            // screen Bink playback is the only thing that asks for one, so it
-            // is the only thing that loses out, and failing cleanly makes the
-            // caller skip the movie instead of crashing. Movie *textures* are
-            // unaffected - those are bitmapTEXTURE and take the branch below.
-            //
-            // Nothing caught this until now because the intro movies sit
-            // inside #ifndef DEVELOPMENT, so no development build has ever put
-            // a Bink movie through this backend.
-            if ((type & bitmapTYPEMASK) != bitmapTEXTURE)
-            {
-                LOG_WARN
-                ((
-                    "Bitmap::Create: [%s] wants a DirectDraw surface, which the "
-                    "OpenGL backend has none of", name.str
-                ));
-                return FALSE;
-            }
+            // Both bitmapTEXTURE and bitmapSURFACE end up the same way: our own
+            // pixels plus a backend texture object. On DirectX the difference
+            // was that a surface could be blitted; here a surface bitmap gets
+            // drawn as a textured quad instead, which is what
+            // Bitmap::Manager::MovieNextFrame does for full screen movies.
 
             // OpenGL samples from a texture object uploaded out of system
             // memory, not from a DirectDraw surface, so own the pixels here and
@@ -542,6 +527,20 @@ Bool Bitmap::Create(S32 width, S32 height, Bool translucent, S32 mips, U32 depth
             }
             Utils::Memset(bmpData, 0, bmpPitch * bmpHeight);
             status.ownsData = TRUE;
+
+            // Bink writes through the surface description rather than through
+            // bmpData - BinkDoFrame hands BinkCopyToBuffer desc.lpSurface and
+            // desc.lPitch - so point it at the pixels we just allocated.
+            //
+            // The dimensions are overwritten too. They were rounded up to a
+            // dword above for DirectDraw's benefit, and BinkDoFrame centres the
+            // frame inside them; left rounded, a movie of an odd width would be
+            // written at an offset its own buffer does not allow for.
+            desc.dwWidth = bmpWidth;
+            desc.dwHeight = bmpHeight;
+            desc.lPitch = bmpPitch;
+            desc.lpSurface = bmpData;
+            desc.dwFlags |= DDSD_PITCH | DDSD_LPSURFACE;
 
             backendTex = Vid::backend->TextureCreate();
             if (!backendTex)
@@ -3763,6 +3762,29 @@ void Bitmap::BinkDoFrame()
         bink, desc.lpSurface,
         desc.lPitch, desc.dwHeight, x, y, binkFlags
     );
+
+    if (Vid::isStatus.ogl && bmpDepth == 32 && bmpData)
+    {
+        // Bink decodes through BINKSURFACE32, which is X8R8G8B8: it writes
+        // colour and leaves the top byte alone, so every pixel arrives fully
+        // transparent. DirectDraw blitted the frame and never looked at alpha,
+        // but a texture is sampled, and a GL_RGBA8 texture uploaded with zero
+        // alpha comes back black on drivers that keep their textures
+        // premultiplied - which is how the movie ended up an empty rectangle.
+        //
+        // Opaque is what a video frame means, so say so.
+        U32* row = static_cast<U32*>(bmpData);
+
+        for (S32 yy = 0; yy < bmpHeight; yy++)
+        {
+            for (S32 xx = 0; xx < bmpWidth; xx++)
+            {
+                row[xx] |= 0xFF000000;
+            }
+
+            row += bmpPitch / 4;
+        }
+    }
 
     UnLock();
 

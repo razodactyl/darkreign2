@@ -486,38 +486,99 @@ display-mode change. The context renders at whatever size the window is, so
 there is nothing to switch, and the user's desktop resolution cannot be left
 altered by a bad exit.
 
-### Full screen Bink movies (not supported)
+### Full screen Bink movies (working)
 
-The intro movies crash the OpenGL backend, and did so from the day it was
-written without anyone noticing. `MoviePlayer` and the cineractive viewer create
-their movie bitmap as `bitmapSURFACE`, and the guard in `Bitmap::Create` that
-diverts the OpenGL path away from DirectDraw only covered `bitmapTEXTURE`:
+The intro movies crashed this backend, and did so from the day it was written
+without anyone noticing. Getting them playing took five distinct fixes, none of
+which was visible from the crash itself.
+
+**1. Surface bitmaps reached DirectDraw.** `MoviePlayer` and the cineractive
+viewer create their movie bitmap as `bitmapSURFACE`, and the guard in
+`Bitmap::Create` that diverts the OpenGL path away from DirectDraw only covered
+`bitmapTEXTURE`:
 
 ```cpp
 if (Vid::isStatus.ogl && (type & bitmapTYPEMASK) == bitmapTEXTURE)
 ```
 
-Anything else fell through to `Vid::ddx->CreateSurface`, and on this path `ddx`
-is null - there is no DirectDraw object at all. Calling through it reads from
-address zero.
+Anything else fell through to `Vid::ddx->CreateSurface`, and `ddx` is null here -
+there is no DirectDraw object at all - so the call read from address zero. The
+guard is on the backend now, not the bitmap type, and a surface bitmap gets the
+same treatment as a texture: our own pixels plus a backend texture object.
 
 It went unseen because the intro movies sit inside `#ifndef DEVELOPMENT` in
 `GameRunCodes::Intro::Process`. No development build plays them, so no
-development build has ever put a Bink movie through this backend. It only
-appears in a release build, which is where it was eventually found.
+development build had ever put a Bink movie through this backend. It could only
+appear in a release build, which is where it was eventually found.
 
-The guard is now on the backend rather than the bitmap type - nothing may reach
-`ddx` when running on OpenGL - and a surface bitmap fails cleanly with a warning
-instead. `MoviePlayer::Start` then returns FALSE, the runcode moves on to the
-next movie file, and the intro ends up skipped rather than fatal.
+**2. Bink writes through the surface description, not through `bmpData`.**
+`BinkDoFrame` hands `BinkCopyToBuffer` the address and pitch out of `desc`, which
+on the DirectX path is filled in by locking the DirectDraw surface. There is no
+surface to lock here, so `Create` points `desc.lpSurface` and `desc.lPitch` at
+the pixels it just allocated. The dimensions in `desc` are overwritten too:
+they were rounded up to a dword for DirectDraw's benefit, and `BinkDoFrame`
+centres the frame inside them, so a movie of an odd width would be written at an
+offset its own buffer does not allow for.
 
-Movie *textures* are unaffected. Those are `bitmapTEXTURE`, they take the
-OpenGL branch, and they get a real texture object.
+**3. There is no blit, so the frame has to be drawn.**
+`Bitmap::Manager::MovieNextFrame` blits the movie surface into the back buffer
+with `Vid::backBmp.GetSurface()->Blt`. `Bitmap::Manager::RenderExclusive` draws
+it as a full screen textured quad instead.
 
-Playing a full screen movie properly here would mean decoding the Bink frame
-into a system memory bitmap, uploading it as a texture and drawing it as a full
-screen quad, since there is no surface to blit from and no DirectDraw blit to do
-it with. That is worth doing, but it is a feature rather than a fix.
+**Where it is called from matters.** The first attempt drew it in
+`MovieNextFrame`, next to the blit it replaces. That runs from
+`Main::BeginFrame`, and something later in the frame clears the back buffer -
+which on DirectX does not matter, because the blit goes in after the interface
+has had its turn. The quad was being drawn and then wiped every frame. It is
+called from `Vid::RenderFlush` now, immediately before the swap, where nothing
+can clear over it.
+
+**4. The runcode playing the movie has no viewport.** `Vid::clipRect` is empty
+during Intro - the runcode only clears and flushes, because a blit needs no
+viewport - and `Vid::RenderRectangle` clips against it, so the quad was
+discarded before a single pixel was drawn. `Vid::ClipScreen` sets the viewport
+and clip rect to the whole view; `Vid::ClipRestore` puts back what was there.
+
+Two smaller things belong with this: `Vid::SetTexture(nullptr, 0)` before the
+draw, because the manager caches the current texture per stage and the movie's
+contents change every frame behind a handle that does not; and an opaque blend
+rather than the default, because Bink decodes through `BINKSURFACE32` -
+X8R8G8B8 - leaving every pixel with an alpha of zero, which `SRCALPHA` /
+`INVSRCALPHA` renders as nothing at all.
+
+**5. The minification filter cannot be taken on trust.** This is the one worth
+remembering, because it is not specific to movies.
+
+The engine sets filter state as though it were global device state. In GL it is
+per texture object, so `BeginDraw` applies whatever was last asked for to the
+texture actually being drawn. When mipmapping is on - it is, by default - that
+is `GL_LINEAR_MIPMAP_LINEAR`. The movie texture is built with no mip levels, and
+sampling a texture through a mipmap filter it has no levels for returns black on
+this driver. Every other texture the interface draws either has mip levels or is
+drawn while the engine happens to have mipmapping switched off, which is why
+nothing else showed it.
+
+`BeginDraw` now downgrades the filter to its mipmap-free equivalent for any
+texture with no mip levels, which is a general correctness fix rather than a
+movie one.
+
+#### On measuring this
+
+Most of the time spent here went on instrumentation that lied. The intro movie
+opens with about forty frames of black fade-in, and nearly every sample taken -
+a centre pixel at present time, the first N uploads, a capped frame counter -
+landed inside it. Several correct fixes looked like no change at all.
+
+What finally separated the cases:
+
+- counting *non-zero pixels across the whole buffer* rather than sampling one
+- doing that at each stage in turn: after `BinkCopyToBuffer`, at
+  `TextureUpload`, on the texture itself with `glGetTexImage`, and on the
+  framebuffer with `glReadPixels`
+- drawing the quad in solid red with no texture, which proved geometry, clip,
+  blend, scene and present were all fine and left only the texture
+
+If this ever needs revisiting: sample without a cap, and count, do not probe.
 
 ### Symbolising a release crash
 

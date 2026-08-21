@@ -886,6 +886,28 @@ namespace Vid
         static GLint wantMinFilter = GL_LINEAR;
         static GLint wantMagFilter = GL_LINEAR;
 
+        //
+        // The mipmap-free equivalent of a minification filter, for textures
+        // that have no levels beyond the base.
+        //
+        static GLint NoMipFilter(GLint filter)
+        {
+            switch (filter)
+            {
+                case GL_NEAREST_MIPMAP_NEAREST:
+                case GL_NEAREST_MIPMAP_LINEAR:
+                    return GL_NEAREST;
+
+                case GL_LINEAR_MIPMAP_NEAREST:
+                case GL_LINEAR_MIPMAP_LINEAR:
+                    return GL_LINEAR;
+
+                default:
+                    return filter;
+            }
+        }
+
+
         void SetTexWrap(U32 mode, U32 stage)
         {
             if (stage != 0)
@@ -1187,7 +1209,19 @@ namespace Vid
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wantWrap);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wantWrap);
                     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, wantMagFilter);
-                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, wantMinFilter);
+
+                    // ...except that the minification filter cannot be taken on
+                    // trust. The engine sets filter state globally, so a texture
+                    // built without mipmaps can easily be drawn while the last
+                    // thing asked for was GL_LINEAR_MIPMAP_LINEAR. Sampling a
+                    // texture through a mipmap filter it has no levels for
+                    // returns black on some drivers - the full screen movie was
+                    // rendering as an empty rectangle for exactly this reason.
+                    glTexParameteri
+                    (
+                        GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        tex->GetMipCount() ? wantMinFilter : NoMipFilter(wantMinFilter)
+                    );
                 }
             }
 

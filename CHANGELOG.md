@@ -238,6 +238,54 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- **Full screen Bink movies play on the OpenGL backend.** The intro movies, and
+  the cineractive viewer's movie path, crashed this backend from the day it was
+  written. Five separate things had to be fixed.
+
+  `MoviePlayer` creates its bitmap as `bitmapSURFACE`, and the guard steering the
+  OpenGL path away from DirectDraw only covered `bitmapTEXTURE` — everything else
+  reached `Vid::ddx->CreateSurface`, and `ddx` is null here. Surface bitmaps now
+  get the same treatment as textures: our own pixels plus a backend texture
+  object.
+
+  Bink writes through the surface description rather than through `bmpData`, so
+  `Create` points `desc.lpSurface` and `desc.lPitch` at the pixels it allocated,
+  and overwrites the dword-rounded dimensions that would otherwise make
+  `BinkDoFrame` centre the frame at an offset its own buffer has no room for.
+
+  With no blit available the frame is drawn as a full screen textured quad,
+  `Bitmap::Manager::RenderExclusive`. Where it is called from turned out to
+  matter: drawing it in `MovieNextFrame`, next to the blit it replaces, put it in
+  `Main::BeginFrame` — and something later in the frame clears the back buffer,
+  so the quad was drawn and wiped every frame. It runs from `Vid::RenderFlush`
+  now, immediately before the swap.
+
+  The runcode playing the movie never establishes a viewport, because a blit does
+  not need one, so `Vid::clipRect` was empty and `RenderRectangle` discarded the
+  quad before drawing anything. `Vid::ClipScreen` and `ClipRestore` bracket the
+  draw. It also needs `Vid::SetTexture(nullptr, 0)` to force a rebind — the
+  manager caches the current texture per stage, and a movie's contents change
+  behind a handle that does not — and an opaque blend, because Bink decodes
+  through `BINKSURFACE32` (X8R8G8B8) leaving every pixel with an alpha of zero,
+  which the default `SRCALPHA`/`INVSRCALPHA` renders as nothing at all.
+
+  The last one is worth knowing beyond movies. The engine sets filter state as
+  though it were global; in GL it is per texture object, so `BeginDraw` applies
+  the last requested filter to whatever is being drawn — `GL_LINEAR_MIPMAP_LINEAR`
+  with mipmapping on. The movie texture has no mip levels, and sampling a texture
+  through a mipmap filter it has no levels for returns black. `BeginDraw` now
+  downgrades to the mipmap-free equivalent for any texture without mip levels,
+  which is a general correctness fix.
+
+  Most of the effort went on instrumentation that lied: the intro opens with
+  roughly forty frames of black fade-in, and nearly every sample — a centre pixel,
+  the first N uploads, a capped frame counter — landed inside it, so several
+  correct fixes looked like no change. `docs/research/graphics-backend-port.md`
+  records what finally separated the cases.
+
+  `graphics/bitmap.{h,cpp}`, `graphics/bitmap_manager.cpp`, `graphics/vid.cpp`,
+  `graphics/vid_backend_ogl.cpp`
+
 - **`-ogl` crashed on startup in a release build.** An access violation reading
   from address zero, immediately on entering the Intro runcode. The stack was
   `Bitmap::Create` ← `Bitmap::LoadBink` ← `MoviePlayer::Start` ←
@@ -266,9 +314,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   now reaches the shell and plays. Movie *textures* are unaffected: those are
   `bitmapTEXTURE` and take the OpenGL branch.
 
-  Full screen movie playback on this backend is a feature rather than a fix —
-  it needs the Bink frame decoded into a bitmap, uploaded as a texture and drawn
-  as a full screen quad, since there is no surface to blit from.
+  That made the crash survivable by skipping the movie. Playing it properly came
+  next — see the entry above.
 
   `graphics/bitmap.cpp`
 
