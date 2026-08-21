@@ -198,6 +198,9 @@ namespace FileSys
     // Returns the path for sub 'key', which MUST exist (fatal error if not)
     char* GetSub(const char* key);
 
+    // Returns the path for sub 'key', or NULL if it hasn't been registered
+    char* FindSub(const char* key);
+
 
     // Add a directory source to an existing resource stream
     Bool AddSrcDir(const char* stream, const char* dir);

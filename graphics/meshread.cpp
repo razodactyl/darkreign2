@@ -3054,8 +3054,9 @@ MeshRoot* Mesh::Manager::FindRead(const char* meshName, const char* fileName) //
     if (!SetupRoot(*root, buff.str))
     {
         delete root;
-        root = nullptr;
+        return nullptr;
     }
+
     root->Check(MAXBUCKYS, *Vid::Var::checkMaxVerts, *Vid::Var::checkMaxTris * 3);
     root->shadowRadius = root->ObjectBounds().Radius();
 

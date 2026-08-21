@@ -821,6 +821,22 @@ namespace FileSys
 
 
     //
+    // FindSub
+    //
+    // Returns the path for sub 'key', or NULL if it hasn't been registered.
+    // For optional subs, where the caller has a sensible default
+    //
+    char* FindSub(const char* key)
+    {
+        ASSERT(key);
+
+        KeyDirPair* pair = GetDirSub(key);
+
+        return (pair ? pair->dirId.str : nullptr);
+    }
+
+
+    //
     // RegisterDirSub
     //
     // Register (or change) a key/directory substitution pair

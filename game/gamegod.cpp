@@ -524,12 +524,7 @@ namespace GameGod
         Mesh::Manager::InitIFace();
 
         // Register controls
-        IFace::RegisterControlClass("Game::Login", CreateHandler);
-        IFace::RegisterControlClass("Game::MissionSelection", CreateHandler);
-        IFace::RegisterControlClass("Game::CampaignSelection", CreateHandler);
-        IFace::RegisterControlClass("Game::SaveLoad", CreateHandler);
-        IFace::RegisterControlClass("Game::DifficultyList", CreateHandler);
-        IFace::RegisterControlClass("Game::AddonList", CreateHandler);
+        RegisterControlClasses();
 
         // Set the initial run code
         Main::runCodes.Set(0xA521E37B); // "Intro"
@@ -549,12 +544,7 @@ namespace GameGod
         Log::SetFlush(TRUE);
 
         // Un-register controls
-        IFace::UnregisterControlClass("Game::Login");
-        IFace::UnregisterControlClass("Game::MissionSelection");
-        IFace::UnregisterControlClass("Game::CampaignSelection");
-        IFace::UnregisterControlClass("Game::SaveLoad");
-        IFace::UnregisterControlClass("Game::DifficultyList");
-        IFace::UnregisterControlClass("Game::AddonList");
+        UnregisterControlClasses();
 
         Mesh::Manager::DoneIFace();
         Vid::DoneIFace();
@@ -671,6 +661,36 @@ namespace GameGod
         }
 
 #endif
+    }
+
+
+    //
+    // RegisterControlClasses
+    //
+    // Make the game's control classes known to the interface system
+    //
+    void RegisterControlClasses()
+    {
+        IFace::RegisterControlClass("Game::Login", CreateHandler);
+        IFace::RegisterControlClass("Game::MissionSelection", CreateHandler);
+        IFace::RegisterControlClass("Game::CampaignSelection", CreateHandler);
+        IFace::RegisterControlClass("Game::SaveLoad", CreateHandler);
+        IFace::RegisterControlClass("Game::DifficultyList", CreateHandler);
+        IFace::RegisterControlClass("Game::AddonList", CreateHandler);
+    }
+
+
+    //
+    // UnregisterControlClasses
+    //
+    void UnregisterControlClasses()
+    {
+        IFace::UnregisterControlClass("Game::Login");
+        IFace::UnregisterControlClass("Game::MissionSelection");
+        IFace::UnregisterControlClass("Game::CampaignSelection");
+        IFace::UnregisterControlClass("Game::SaveLoad");
+        IFace::UnregisterControlClass("Game::DifficultyList");
+        IFace::UnregisterControlClass("Game::AddonList");
     }
 
 

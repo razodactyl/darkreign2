@@ -50,8 +50,16 @@ const F32 FPSINC = 0.2f;
 
 const F32 RADMULT = 3.0f;
 
-const char* DEFBACKNAME = "engine_sky.bmp";
+// The shipped backdrop lives at art/interface/meshview/meshview_sky.bmp -
+// there is no engine_sky.bmp, only an engine_sky.god
+const char* DEFBACKNAME = "meshview_sky.bmp";
 const char* DEFGROUNDNAME = "ground";
+
+// The viewer's own heap budget. Deliberately far above the game's MAXVERTS,
+// since the viewer has to open whatever art it's pointed at. U16 indices cap
+// the vertex count at 65535
+const U32 VIEWERMAXVERTS = 65535;
+const U32 VIEWERMAXTRIS = 65535;
 
 const char* DEFMESHNAME = "engine_walker.xsi";
 
@@ -569,17 +577,25 @@ namespace MeshView
         lastHeapVerts = Vid::renderState.maxVerts;
         lastHeapIdx = Vid::renderState.maxIndices;
 
-        char* string = FileSys::GetSub("@vertmax");
-        U32 maxverts = atol(string);
-        string = FileSys::GetSub("@trimax");
-        U32 maxtris = atol(string);
+        // These four subs let the config override the viewer's heap and its
+        // limit checks. Retail startup.cfg doesn't set them, so they're
+        // optional - fall back to VIEWERMAXVERTS/VIEWERMAXTRIS. We can't fall
+        // back to the renderer's heap: that's sized for in-game units (1400
+        // verts), and the viewer is expected to open any art in the game,
+        // some of which is well over that
+        char* string = FileSys::FindSub("@vertmax");
+        U32 maxverts = string ? atol(string) : VIEWERMAXVERTS;
+        string = FileSys::FindSub("@trimax");
+        U32 maxtris = string ? atol(string) : VIEWERMAXTRIS;
 
         Vid::Heap::Init(maxverts, maxtris * 3);
 
-        string = FileSys::GetSub("@vertmaxcheck");
-        Vid::Var::checkMaxVerts = atol(string);
-        string = FileSys::GetSub("@trimaxcheck");
-        Vid::Var::checkMaxTris = atol(string);
+        // The check limits are what MeshRoot::Check tests a loaded mesh
+        // against, so they have to track the heap we just built
+        string = FileSys::FindSub("@vertmaxcheck");
+        Vid::Var::checkMaxVerts = string ? atol(string) : S32(maxverts);
+        string = FileSys::FindSub("@trimaxcheck");
+        Vid::Var::checkMaxTris = string ? atol(string) : S32(maxtris);
 
         Main::Exec("meshview.cfg");
 

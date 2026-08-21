@@ -30,6 +30,12 @@ namespace GameGod
     void Init();
     void Done();
 
+    // Register/unregister the game's interface control classes. The standard
+    // interface configs are shared with the tools, so anything that loads them
+    // needs these classes present even if it never creates one
+    void RegisterControlClasses();
+    void UnregisterControlClasses();
+
     // Main game loop
     void CDECL Start();
 

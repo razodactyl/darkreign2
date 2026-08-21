@@ -13,6 +13,8 @@
 #include "sound.h"
 #include "iface.h"
 #include "dxlib.h"
+#include "ptree.h"
+#include "gamegod.h"
 
 #pragma comment(lib, "wsock32.lib")
 #pragma comment(lib, "advapi32.lib")
@@ -41,11 +43,31 @@ namespace Main
     //
     void ExecInitialConfig()
     {
-        // Execute core configuration
-        if (!Exec(APPLICATION_CONFIGFILE, Main::ScopeHandler, FALSE))
+        PTree pTree;
+
+        // Attempt to open the file
+        if (!pTree.AddFile(APPLICATION_CONFIGFILE))
         {
             ERR_FATAL(("Unable to execute initial config file '%s'", APPLICATION_CONFIGFILE));
         }
+
+        // The config file groups its scopes under StartupConfig and GameConfig,
+        // so they can't be fed to the handler wholesale - the handler only knows
+        // the commands *inside* those groups. dr2 has GameGod to run GameConfig
+        // later on; we have no such thing, so both get run here. Without
+        // GameConfig there is no data stream and no language, which kills
+        // IFace::Init with "No language configured".
+        FScope* fScope = pTree.GetGlobalScope()->GetFunction("StartupConfig", FALSE);
+
+        // Startup config is not required
+        if (fScope)
+        {
+            ProcessCmdScope(fScope);
+        }
+
+        // Game config is - it sets up the data streams, the language, and the
+        // mesh viewer's own search path and default model
+        ProcessCmdScope(pTree.GetGlobalScope()->GetFunction("GameConfig"));
     }
 }
 
@@ -68,8 +90,16 @@ void CDECL Start()
     Vid::InitIFace();
     Mesh::Manager::InitIFace();
 
+    // The viewer's interface configs pull in interface_standard.cfg, which is
+    // shared with the game and derives control types from the Game:: classes.
+    // We never create one, but they have to be registered or DefineControlType
+    // dies on the missing base class
+    GameGod::RegisterControlClasses();
+
     // Start the message pump
     Main::MessagePump();
+
+    GameGod::UnregisterControlClasses();
 
     Mesh::Manager::DoneIFace();
     Vid::DoneIFace();
