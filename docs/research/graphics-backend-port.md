@@ -546,6 +546,10 @@ rather than the default, because Bink decodes through `BINKSURFACE32` -
 X8R8G8B8 - leaving every pixel with an alpha of zero, which `SRCALPHA` /
 `INVSRCALPHA` renders as nothing at all.
 
+The pixel format side of all this - what Bink writes, what it leaves out, and
+the two format traps that make a texture upload cleanly and then sample black -
+is written up separately in `bink-texture-format.md`.
+
 **5. The minification filter cannot be taken on trust.** This is the one worth
 remembering, because it is not specific to movies.
 

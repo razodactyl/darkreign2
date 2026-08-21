@@ -3769,8 +3769,10 @@ void Bitmap::BinkDoFrame()
         // colour and leaves the top byte alone, so every pixel arrives fully
         // transparent. DirectDraw blitted the frame and never looked at alpha,
         // but a texture is sampled, and a GL_RGBA8 texture uploaded with zero
-        // alpha comes back black on drivers that keep their textures
-        // premultiplied - which is how the movie ended up an empty rectangle.
+        // alpha comes back with its colour zeroed on this driver, which keeps
+        // texture storage premultiplied. Measured, not assumed: with this loop
+        // the intro plays, without it the screen is black and nothing else
+        // differs.
         //
         // Opaque is what a video frame means, so say so.
         U32* row = static_cast<U32*>(bmpData);
